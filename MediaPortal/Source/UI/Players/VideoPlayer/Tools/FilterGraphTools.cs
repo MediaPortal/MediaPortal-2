@@ -35,7 +35,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Permissions;
-using DirectShowLib;
+using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
@@ -91,7 +92,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         filter = (IBaseFilter) Activator.CreateInstance(type);
 
         int hr = graphBuilder.AddFilter(filter, name);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
       }
       catch
       {
@@ -109,7 +110,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// Add a filter to a DirectShow Graph using its name
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
-    /// <param name="deviceCategory">the filter category (see DirectShowLib.FilterCategory)</param>
+    /// <param name="deviceCategory">the filter category (see <see cref="FilterCategory"/>)</param>
     /// <param name="friendlyName">the filter name (case-sensitive)</param>
     /// <returns>an instance of the filter if the method successfully created it, null if not</returns>
     /// <example>This sample shows how to programmatically add a NVIDIA Video decoder filter to a graph
@@ -128,16 +129,16 @@ namespace MediaPortal.UI.Players.Video.Tools
         return null;// throw new ArgumentNullException("graphBuilder");
       }
 
-      foreach (DsDevice t in DsDevice.GetDevicesOfCat(deviceCategory))
+      foreach (DSDevice t in new DSCategory(deviceCategory))
       {
         if (String.Compare(t.Name, friendlyName, true) != 0)
         {
           continue;
         }
-
-        int hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(t.Mon, null, friendlyName, out filter);
+        
+        int hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(t.Value, null, friendlyName, out filter);
         if (hr != 0 || filter == null)
-          return null; //DsError.ThrowExceptionForHR(hr);
+          return null; //new HRESULT(hr).Throw();
 
         break;
       }
@@ -187,7 +188,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         Marshal.ThrowExceptionForHR(hr);
 
         hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(moniker, bindCtx, name, out filter);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
       }
       catch
       {
@@ -338,7 +339,8 @@ namespace MediaPortal.UI.Players.Video.Tools
             filter = filters[0];
             break;
           }
-          Marshal.ReleaseComObject(filters[0]);
+          if (Marshal.IsComObject(filters[0]))
+            Marshal.ReleaseComObject(filters[0]);
         }
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
@@ -370,9 +372,9 @@ namespace MediaPortal.UI.Players.Video.Tools
         while (enumFilters.Next(filters.Length, filters, fetched) == 0)
         {
           if (filters[0] is TE)
-            matchingFilters.Add((TE) filters[0]);
+            matchingFilters.Add((TE)filters[0]);
           else
-            Marshal.ReleaseComObject(filters[0]);
+            if (Marshal.IsComObject(filters[0])) Marshal.ReleaseComObject(filters[0]);
         }
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
@@ -390,7 +392,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <example>
     /// <code>
     /// hr = graphBuilder.AddSourceFilter(@"foo.avi", "Source Filter", out filter);
-    /// DsError.ThrowExceptionForHR(hr);
+    /// new HRESULT(hr).Throw();
     /// 
     /// if (!FilterGraphTools.RenderPin(graphBuilder, filter, "Output"))
     /// {
@@ -413,12 +415,12 @@ namespace MediaPortal.UI.Players.Video.Tools
         throw new ArgumentNullException("source");
       }
 
-      IPin pin = DsFindPin.ByName(source, pinName);
+      var pin = new DSFilter(source).GetPin(pinName);
 
       if (pin != null)
       {
-        int hr = graphBuilder.Render(pin);
-        Marshal.ReleaseComObject(pin);
+        int hr = graphBuilder.Render(pin.Value);
+        pin.Dispose();
 
         return (hr >= 0);
       }
@@ -483,7 +485,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       int hr = graphBuilder.EnumFilters(out enumFilters);
       try
       {
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
         IBaseFilter[] filters = new IBaseFilter[1];
         while (enumFilters.Next(filters.Length, filters, pFetched) == 0)
           filtersArray.Add(filters[0]);
@@ -518,7 +520,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       {
         IEnumPins pinEnum;
         int hr = baseFilter.EnumPins(out pinEnum);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
         if (hr == 0 && pinEnum != null)
         {
           pinEnum.Reset();
@@ -576,9 +578,9 @@ namespace MediaPortal.UI.Players.Video.Tools
             pins[0].QueryDirection(out pinDir);
             if (pinDir == direction)
             {
-              IPin pinConnect;
-              if (pins[0].ConnectedTo(out pinConnect) == 0 && pinConnect != null)
-                pinList.Add(pinConnect);
+              IntPtr pinConnect_ptr;
+              if (pins[0].ConnectedTo(out pinConnect_ptr) == 0 && pinConnect_ptr != IntPtr.Zero)
+                pinList.Add(Marshal.GetObjectForIUnknown(pinConnect_ptr) as IPin);
 
               Marshal.ReleaseComObject(pins[0]);
             }
@@ -648,7 +650,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       IntPtr fetched = Marshal.AllocCoTaskMem(4);
 
       int hr = filter.EnumPins(out enumPins);
-      DsError.ThrowExceptionForHR(hr);
+      new HRESULT(hr).Throw();
 
       try
       {
@@ -657,7 +659,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           try
           {
             hr = pins[0].Disconnect();
-            DsError.ThrowExceptionForHR(hr);
+            new HRESULT(hr).Throw();
           }
           finally
           {
@@ -690,7 +692,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       }
 
       int hr = graphBuilder.EnumFilters(out enumFilters);
-      DsError.ThrowExceptionForHR(hr);
+      new HRESULT(hr).Throw();
       IntPtr fetched = Marshal.AllocCoTaskMem(4);
 
       try
@@ -730,7 +732,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         throw new ArgumentNullException("graphBuilder");
 
       int hr = graphBuilder.EnumFilters(out enumFilters);
-      DsError.ThrowExceptionForHR(hr);
+      new HRESULT(hr).Throw();
 
       IntPtr fetched = Marshal.AllocCoTaskMem(4);
       try
@@ -772,7 +774,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       FilterInfo info;
       int hr = filter.QueryFilterInfo(out info);
-      DsError.ThrowExceptionForHR(hr);
+      new HRESULT(hr).Throw();
 
       if (info.pGraph != null)
         Marshal.ReleaseComObject(info.pGraph);
@@ -831,7 +833,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IPersistStream) graphBuilder).Save(stream, true);
+        hr = ((IPersistStream) graphBuilder).Save(Marshal.GetIUnknownForObject(stream), true);
         Marshal.ThrowExceptionForHR(hr);
 
         hr = storage.Commit(STGC.Default);
@@ -902,7 +904,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IPersistStream) graphBuilder).Load(stream);
+        hr = ((IPersistStream) graphBuilder).Load(Marshal.GetIUnknownForObject(stream));
         Marshal.ThrowExceptionForHR(hr);
       }
       finally
@@ -972,7 +974,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       if (HasPropertyPages(filter))
       {
         int hr = filter.QueryFilterInfo(out filterInfo);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
 
         if (filterInfo.pGraph != null)
         {
@@ -980,7 +982,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         }
 
         hr = ((ISpecifyPropertyPages) filter).GetPages(out caGuid);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
 
         try
         {
@@ -1067,13 +1069,13 @@ namespace MediaPortal.UI.Players.Video.Tools
         throw new ArgumentNullException("downFilter");
       }
 
-      IPin sourcePin = DsFindPin.ByName(upFilter, sourcePinName);
+      var sourcePin = new DSFilter(upFilter).GetPin(sourcePinName);
       if (sourcePin == null)
       {
         throw new ArgumentException(@"The source filter has no pin called : " + sourcePinName, sourcePinName);
       }
 
-      IPin destPin = DsFindPin.ByName(downFilter, destPinName);
+      var destPin = new DSFilter(downFilter).GetPin(destPinName);
       if (destPin == null)
       {
         throw new ArgumentException(@"The downstream filter has no pin called : " + destPinName, destPinName);
@@ -1081,12 +1083,12 @@ namespace MediaPortal.UI.Players.Video.Tools
 
       try
       {
-        ConnectFilters(graphBuilder, sourcePin, destPin, useIntelligentConnect);
+        ConnectFilters(graphBuilder, sourcePin.Value, destPin.Value, useIntelligentConnect);
       }
       finally
       {
-        Marshal.ReleaseComObject(sourcePin);
-        Marshal.ReleaseComObject(destPin);
+        sourcePin.Dispose();
+        destPin.Dispose();
       }
     }
 
@@ -1127,12 +1129,12 @@ namespace MediaPortal.UI.Players.Video.Tools
       if (useIntelligentConnect)
       {
         hr = graphBuilder.Connect(sourcePin, destPin);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
       }
       else
       {
         hr = graphBuilder.ConnectDirect(sourcePin, destPin, null);
-        DsError.ThrowExceptionForHR(hr);
+        new HRESULT(hr).Throw();
       }
     }
 
@@ -1152,7 +1154,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <param name="releaseAllReferences">true to loop until all references are removed</param>
     public static bool TryRelease<TE>(ref TE filterToRelease, bool releaseAllReferences) where TE : class
     {
-      if (filterToRelease != null)
+      if (filterToRelease != null && Marshal.IsComObject(filterToRelease))
       {
         int remainingReferences;
         do

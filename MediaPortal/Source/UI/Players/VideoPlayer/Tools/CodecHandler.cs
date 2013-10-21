@@ -25,7 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.ComTypes;
-using DirectShowLib;
+using DirectShow;
+using DirectShow.Helper;
 using Microsoft.Win32;
 
 namespace MediaPortal.UI.Players.Video.Tools
@@ -249,38 +250,23 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <summary>
     /// Enumerates available filters and returns a list of <see cref="CodecInfo"/>.
     /// </summary>
-    /// <param name="filterCategory">GUID of filter category (<see cref="DirectShowLib.FilterCategory"/> members)></param>
+    /// <param name="filterCategory">GUID of filter category (<see cref="FilterCategory"/> members)></param>
     /// <returns></returns>
     public static List<CodecInfo> GetFiltersForCategory(Guid filterCategory)
     {
       List<CodecInfo> codecInfos = new List<CodecInfo>();
-      ICreateDevEnum devEnum = null;
-      IEnumMoniker enumMoniker = null;
-      try
-      {
-        devEnum = (ICreateDevEnum) new CreateDevEnum();
-        int catResult = devEnum.CreateClassEnumerator(filterCategory, out enumMoniker, CDef.None);
-        if (catResult == 0)
-        {
-          IMoniker[] moniker = new IMoniker[1];
-          while (enumMoniker.Next(1, moniker, IntPtr.Zero) == 0)
-          {
-            string filterName = FilterGraphTools.GetFriendlyName(moniker[0]);
-            Guid filterClassId = FilterGraphTools.GetCLSID(moniker[0]);
-            CodecInfo codecInfo = new CodecInfo(filterName, filterClassId);
-            codecInfos.Add(codecInfo);
 
-            FilterGraphTools.TryRelease(ref moniker[0]);
-          }
-        }
-        codecInfos.Sort();
-        return codecInfos;
-      }
-      finally
+      using (var filtersInCategory = new DSCategory(filterCategory))
       {
-        FilterGraphTools.TryRelease(ref enumMoniker);
-        FilterGraphTools.TryRelease(ref devEnum);
+        foreach (var filter in filtersInCategory)
+        {
+          CodecInfo codecInfo = new CodecInfo(filter.Name, filter.ClassID);
+          codecInfos.Add(codecInfo);
+        }
       }
+
+      codecInfos.Sort();
+      return codecInfos;
     }
   }
 }

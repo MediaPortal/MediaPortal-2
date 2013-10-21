@@ -26,7 +26,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
-using DirectShowLib;
+using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Interfaces;
@@ -165,11 +166,13 @@ namespace MediaPortal.UI.Players.Video.Tools
           break;
         try
         {
-          IPin other;
-          if (pins[0].ConnectedTo(out other) == 0 && other != null)
+          IPin other = null;
+          IntPtr other_ptr;
+          if (pins[0].ConnectedTo(out other_ptr) == 0 && other_ptr != IntPtr.Zero)
           {
             try
             {
+              other = Marshal.GetObjectForIUnknown(other_ptr) as IPin;
               PinInfo pinInfo;
               pins[0].QueryPinInfo(out pinInfo);
               FilterInfo filterInfo = FilterGraphTools.QueryFilterInfoAndFree(pinInfo.filter);
@@ -188,7 +191,8 @@ namespace MediaPortal.UI.Players.Video.Tools
             }
             finally
             {
-              Marshal.ReleaseComObject(other);
+              if (other != null && Marshal.IsComObject(other))
+                Marshal.ReleaseComObject(other);
             }
           }
         }
@@ -211,46 +215,23 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>True if they accept connection</returns>
     static bool QueryConnect(IPin pin, IPin other)
     {
-      IEnumMediaTypes enumTypes;
-      int hr = pin.EnumMediaTypes(out enumTypes);
-      if (hr != 0 || enumTypes == null)
-        return false;
+      var pin1 = new DSPin(pin);
+      var pinOther = new DSPin(other);
 
-      int count = 0;
-      IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      try
+      foreach (var mediaType in pin1.MediaTypes)
       {
-        for (; ; )
-        {
-          AMMediaType[] types = new AMMediaType[1];
-          hr = enumTypes.Next(1, types, ptrFetched);
-          if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0)
-            break;
+        if (pinOther.IsAccepted(mediaType))
+          return true;
+      }
 
-          count++;
-          try
-          {
-            if (other.QueryAccept(types[0]) == 0)
-              return true;
-          }
-          finally
-          {
-            FilterGraphTools.FreeAMMediaType(types[0]);
-          }
-        }
-        PinInfo info;
-        PinInfo infoOther;
-        pin.QueryPinInfo(out info);
-        other.QueryPinInfo(out infoOther);
-        ServiceRegistration.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types", info.name, infoOther.name, count);
-        FilterGraphTools.FreePinInfo(info);
-        FilterGraphTools.FreePinInfo(infoOther);
-        return false;
-      }
-      finally
-      {
-        Marshal.FreeCoTaskMem(ptrFetched);
-      }
+      PinInfo info;
+      PinInfo infoOther;
+      pin.QueryPinInfo(out info);
+      other.QueryPinInfo(out infoOther);
+      ServiceRegistration.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types", info.name, infoOther.name, pin1.MediaTypes.Count);
+      FilterGraphTools.FreePinInfo(info);
+      FilterGraphTools.FreePinInfo(infoOther);
+      return false;
     }
 
     /// <summary>
@@ -298,15 +279,15 @@ namespace MediaPortal.UI.Players.Video.Tools
             pins[0].QueryDirection(out pinDir);
             if (pinDir == PinDirection.Output)
             {
-              IPin other;
-              hr = pins[0].ConnectedTo(out other);
-              if (hr == 0 && other != null)
+              IntPtr other_ptr;
+              hr = pins[0].ConnectedTo(out other_ptr);
+              if (hr == 0 && other_ptr != IntPtr.Zero)
               {
                 ServiceRegistration.Get<ILogger>().Info("Reconnecting {0}:{1}", info.achName, pinInfo.name);
                 hr = graphBuilder.Reconnect(pins[0]);
                 if (hr != 0)
                   ServiceRegistration.Get<ILogger>().Warn("Reconnect failed: {0}:{1}, code: 0x{2:x}", info.achName, pinInfo.name, hr);
-
+                IPin other = Marshal.GetObjectForIUnknown(other_ptr) as IPin;
                 PinInfo otherPinInfo;
                 other.QueryPinInfo(out otherPinInfo);
                 ReConnectAll(graphBuilder, otherPinInfo.filter);
@@ -371,11 +352,12 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>True if successful</returns>
     bool DisconnectPin(IGraphBuilder graphBuilder, IPin pin)
     {
-      IPin other;
-      int hr = pin.ConnectedTo(out other);
+      IntPtr other_ptr;
+      int hr = pin.ConnectedTo(out other_ptr);
       bool allDisconnected = true;
-      if (hr == 0 && other != null)
+      if (hr == 0 && other_ptr != IntPtr.Zero)
       {
+        IPin other = Marshal.GetObjectForIUnknown(other_ptr) as IPin;
         PinInfo info;
         pin.QueryPinInfo(out info);
         ServiceRegistration.Get<ILogger>().Info("Disconnecting pin {0}", info.name);

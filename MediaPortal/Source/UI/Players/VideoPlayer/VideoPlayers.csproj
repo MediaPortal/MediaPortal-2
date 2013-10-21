@@ -58,10 +58,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DirectShowLib-2005, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\DirectShowLib-2005.dll</HintPath>
-    </Reference>
     <Reference Include="SlimDX">
       <HintPath>..\..\..\..\Packages\SlimDX.4.0.13.43\lib\NET40\SlimDX.dll</HintPath>
     </Reference>
@@ -143,6 +139,14 @@
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectShowWrapper\DirectShowWrapper.csproj">
+      <Project>{C4A45FA7-BCD1-4B14-B6D5-051A780EB83B}</Project>
+      <Name>DirectShowWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DotNetStreamSource\DotNetStreamSource.csproj">
+      <Project>{E417CA72-065F-4151-90AA-A3BFC2A7DEF8}</Project>
+      <Name>DotNetStreamSource</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

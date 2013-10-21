@@ -24,14 +24,16 @@
 
 using System;
 using System.Runtime.InteropServices;
-using DirectShowLib;
+using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.Utilities.Exceptions;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
@@ -55,7 +57,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Variables
 
-    protected IBaseFilter _fileSource = null;
+    protected IBaseFilter _sourceFilter = null;
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected GraphRebuilder _graphRebuilder;
@@ -89,23 +91,24 @@ namespace MediaPortal.UI.Players.Video
       base.FreeCodecs();
 
       // Free file source
-      FilterGraphTools.TryRelease(ref _fileSource);
+      FilterGraphTools.TryRelease(ref _sourceFilter);
     }
 
     /// <summary>
-    /// Adds the file source filter to the graph.
+    /// Adds the TsReader filter to the graph.
     /// </summary>
-    protected override void AddFileSource()
+    protected override void AddSourceFilter()
     {
       // Render the file
-      _fileSource = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
 
-      ITsReader tsReader = (ITsReader) _fileSource;
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
+      ITsReader tsReader = (ITsReader) _sourceFilter;
       tsReader.SetRelaxedMode(1);
       tsReader.SetTsReaderCallback(this);
       tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_fileSource, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
@@ -115,16 +118,38 @@ namespace MediaPortal.UI.Players.Video
         _subtitleRenderer.SetPlayer(this);
       }
 
-      IFileSourceFilter f = (IFileSourceFilter) _fileSource;
-      f.Load(SourcePathOrUrl, null);
+      if (_resourceLocator.NativeResourcePath.IsNetworkResource)
+      {
+        //_resourceAccessor points to an rtsp:// stream
+        var networkResourceAccessor = _resourceAccessor as INetworkResourceAccessor;
+
+        if (networkResourceAccessor == null)
+          throw new IllegalCallException("The TsVideoPlayer can only play network resources of type INetworkResourceAccessor");
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, networkResourceAccessor.URL);
+
+        fileSourceFilter.Load(networkResourceAccessor.URL, null);
+      }
+      else
+      {
+        //_resourceAccessor points to a local .ts file
+        var localFileSystemResourceAccessor = _resourceAccessor as ILocalFsResourceAccessor;
+
+        if (localFileSystemResourceAccessor == null)
+          throw new IllegalCallException("The TsVideoPlayer can only play file resources of type ILocalFsResourceAccessor");
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
+
+        fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+      }
 
       // Init GraphRebuilder
-      _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+      _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
     }
 
     protected override void OnBeforeGraphRunning()
     {
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
     }
 
 
@@ -150,7 +175,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected void OnAfterGraphRebuild()
     {
-      ITsReader tsReader = (ITsReader) _fileSource;
+      ITsReader tsReader = (ITsReader) _sourceFilter;
       tsReader.OnGraphRebuild(_changedMediaType);
     }
 
@@ -208,7 +233,7 @@ namespace MediaPortal.UI.Players.Video
       if (refreshed)
       {
         // If base class has refreshed the stream infos, then update the subtitle streams.
-        ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+        ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
         int count = 0;
         if (subtitleStream != null)
         {
@@ -241,7 +266,7 @@ namespace MediaPortal.UI.Players.Video
     public override void SetSubtitle(string subtitle)
     {
       EnumerateStreams();
-      ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+      ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
       if (_streamInfoSubtitles == null || subtitleStream == null)
         return;
 
@@ -272,7 +297,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void SetPreferredSubtitle()
     {
       EnumerateStreams();
-      ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+      ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
       if (_streamInfoSubtitles == null || subtitleStream == null)
         return;
 

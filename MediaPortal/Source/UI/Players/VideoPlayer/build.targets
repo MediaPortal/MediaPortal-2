@@ -8,6 +8,8 @@
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    <PluginFiles Include="$(TargetDir)DirectShowWrapper.dll" />
+    <PluginFiles Include="$(TargetDir)DotNetStreamSource.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)References\DirectShowLib-2005.dll" />
     <References Include="$(ProjectDir)References\TsReader.ax" />
     <References Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\EVRPresenter.dll" />
   </ItemGroup>

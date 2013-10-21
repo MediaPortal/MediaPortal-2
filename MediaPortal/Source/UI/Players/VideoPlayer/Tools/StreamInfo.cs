@@ -22,7 +22,7 @@
 
 #endregion
 
-using DirectShowLib;
+using DirectShow;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {

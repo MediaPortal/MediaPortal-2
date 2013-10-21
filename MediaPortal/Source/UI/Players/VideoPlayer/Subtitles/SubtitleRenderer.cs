@@ -29,7 +29,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using DirectShowLib;
+using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Tools;

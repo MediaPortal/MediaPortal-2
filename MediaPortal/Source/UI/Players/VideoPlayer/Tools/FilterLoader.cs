@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using DirectShowLib;
+using DirectShow;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {

@@ -28,11 +28,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BDInfo;
-using DirectShowLib;
+using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
 using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -86,11 +89,15 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Adds the file source filter to the graph.
+    /// Adds a source filter to the graph and sets the input.
     /// </summary>
-    protected override void AddFileSource()
+    protected override void AddSourceFilter()
     {
-      string strFile = SourcePathOrUrl;
+      // get a local file system path - will mount via DOKAN when resource is not on the local system
+      ILocalFsResourceAccessor lfsr;
+      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
+        throw new IllegalCallException("The BDPlayer can only play file system resources");
+      string strFile = lfsr.LocalFileSystemPath;
 
       // Render the file
       strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
@@ -108,7 +115,7 @@ namespace MediaPortal.UI.Players.Video
           // load the file
           int hr = fileSourceFilter.Load(strFile, null);
           Marshal.ReleaseComObject(fileSourceFilter);
-          DsError.ThrowExceptionForHR(hr);
+          new HRESULT(hr).Throw();
         }
         else
         {

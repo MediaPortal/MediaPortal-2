@@ -26,7 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DirectShowLib;
+using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 

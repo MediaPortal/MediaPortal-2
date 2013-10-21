@@ -22,7 +22,7 @@
 
 #endregion
 
-using DirectShowLib;
+using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;

@@ -23,11 +23,15 @@
 #endregion
 
 using System.Runtime.InteropServices;
-using DirectShowLib;
+using DirectShow;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
@@ -47,7 +51,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
 
-    protected IBaseFilter _fileSource = null;
+    protected IBaseFilter _sourceFilter = null;
     protected bool _useTsReader;
 
     public LiveRadioPlayer(bool useTsReader)
@@ -62,28 +66,51 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     }
 
     /// <summary>
-    /// Adds the file source filter to the graph.
+    /// Adds a source filter to the graph and sets the input.
     /// </summary>
-    protected override void AddFileSource()
+    protected override void AddSourceFilter()
     {
       if (!_useTsReader)
       {
-        base.AddFileSource();
+        base.AddSourceFilter();
         return;
       }
 
       // Render the file
-      _fileSource = (IBaseFilter) new TsReader();
+      _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
 
-      ITsReader tsReader = (ITsReader) _fileSource;
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
+      ITsReader tsReader = (ITsReader) _sourceFilter;
       tsReader.SetRelaxedMode(1);
       tsReader.SetTsReaderCallback(this);
       tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_fileSource, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
 
-      IFileSourceFilter f = (IFileSourceFilter) _fileSource;
-      f.Load(SourcePathOrUrl, null);
+      if (_resourceLocator.NativeResourcePath.IsNetworkResource)
+      {
+        //_resourceAccessor points to an rtsp:// stream
+        var networkResourceAccessor = _resourceAccessor as INetworkResourceAccessor;
+
+        if (networkResourceAccessor == null)
+          throw new IllegalCallException("The LiveRadioPlayer can only play network resources of type INetworkResourceAccessor");
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, networkResourceAccessor.URL);
+
+        fileSourceFilter.Load(networkResourceAccessor.URL, null);
+      }
+      else
+      {
+        //_resourceAccessor points to a local .ts file
+        var localFileSystemResourceAccessor = _resourceAccessor as ILocalFsResourceAccessor;
+
+        if (localFileSystemResourceAccessor == null)
+          throw new IllegalCallException("The LiveRadioPlayer can only play file resources of type ILocalFsResourceAccessor");
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
+
+        fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+      }
     }
 
     protected override void OnBeforeGraphRunning()
@@ -94,7 +121,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return;
       }
       
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
     }
 
     protected override void FreeCodecs ()
@@ -107,7 +134,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       FilterGraphTools.TryRelease(ref _graphBuilder);
 
       // Free file source
-      FilterGraphTools.TryRelease(ref _fileSource); 
+      FilterGraphTools.TryRelease(ref _sourceFilter); 
     }
 
     public int OnMediaTypeChanged(ChangedMediaType mediaType)
@@ -122,7 +149,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     public int OnRequestAudioChange ()
     {
-      IAMStreamSelect streamSelect = _fileSource as IAMStreamSelect;
+      IAMStreamSelect streamSelect = _sourceFilter as IAMStreamSelect;
       if (streamSelect != null)
         streamSelect.Enable(0, 0);
       return 0;

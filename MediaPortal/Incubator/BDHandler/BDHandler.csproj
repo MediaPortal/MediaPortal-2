@@ -50,9 +50,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DirectShowLib-2005">
-      <HintPath>..\..\Source\UI\Players\VideoPlayer\References\DirectShowLib-2005.dll</HintPath>
-    </Reference>
     <Reference Include="SlimDX">
       <HintPath>..\..\Source\UI\SkinEngine\References\SlimDX.dll</HintPath>
     </Reference>
@@ -131,6 +128,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
+      <Project>{C4A45FA7-BCD1-4B14-B6D5-051A780EB83B}</Project>
+      <Name>DirectShowWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
       <Project>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</Project>

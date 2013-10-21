@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System;
-using DirectShowLib;
+using DirectShow;
 using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration

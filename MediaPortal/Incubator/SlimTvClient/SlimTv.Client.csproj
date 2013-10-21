@@ -53,10 +53,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DirectShowLib-2005, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Source\UI\Players\VideoPlayer\References\DirectShowLib-2005.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -86,6 +82,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
+      <Project>{C4A45FA7-BCD1-4B14-B6D5-051A780EB83B}</Project>
+      <Name>DirectShowWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
       <Project>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</Project>

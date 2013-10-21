@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using DirectShowLib;
+using DirectShow;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {

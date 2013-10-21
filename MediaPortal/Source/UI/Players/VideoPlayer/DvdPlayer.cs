@@ -30,12 +30,14 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using DirectShowLib;
-using DirectShowLib.Dvd;
+using DirectShow;
+using DirectShow.Dvd;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.General;
@@ -45,6 +47,7 @@ using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -117,16 +120,16 @@ namespace MediaPortal.UI.Players.Video
     protected override void CreateGraphBuilder()
     {
       _dvdGraph = (IDvdGraphBuilder) new DvdGraphBuilder();
-      DsError.ThrowExceptionForHR(_dvdGraph.GetFiltergraph(out _graphBuilder));
+      new HRESULT(_dvdGraph.GetFiltergraph(out _graphBuilder)).Throw();
       _streamCount = 3; // Allow Video, CC, and Subtitle
     }
 
     /// <summary>
-    /// Adds the file source filter to the graph.
+    /// Adds the DVDNavigator filter to the graph and sets the input path.
     /// </summary>
-    protected override void AddFileSource()
+    protected override void AddSourceFilter()
     {
-      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.AddFileSource");
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.AddSourceFilter");
       _pendingCmd = true;
 
       _dvdbasefilter = (IBaseFilter) new DVDNavigator();
@@ -141,7 +144,11 @@ namespace MediaPortal.UI.Players.Video
       if (_dvdCtrl == null)
         throw new Exception("Failed to access DVD Control!");
 
-      string path = SourcePathOrUrl;
+      // get a local file system path - will mount via DOKAN when resource is not on the local system
+      ILocalFsResourceAccessor lfsr;
+      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
+        throw new IllegalCallException("The DvDPlayer can only play file system resources");
+      string path = lfsr.LocalFileSystemPath;
 
       // check if path is a drive root (like D:), otherwise append VIDEO_TS 
       // MediaItem always contains the parent folder. Add the required VIDEO_TS subfolder.
@@ -489,7 +496,7 @@ namespace MediaPortal.UI.Players.Video
       if (_mediaEvt == null || _dvdCtrl == null)
         return;
 
-      IntPtr p1, p2;
+      int p1, p2;
       try
       {
         int hr;
@@ -504,19 +511,19 @@ namespace MediaPortal.UI.Players.Video
           switch (code)
           {
             case EventCode.DvdPlaybackStopped:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdPlaybackStopped event: {0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdPlaybackStopped event: {0:X} {1:X}", p1, p2);
               break;
             case EventCode.DvdError:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdError event: {0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdError event: {0:X} {1:X}", p1, p2);
               break;
             case EventCode.VMRReconnectionFailed:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer VMRReconnectionFailed event: {0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer VMRReconnectionFailed event: {0:X} {1:X}", p1, p2);
               break;
             case EventCode.DvdWarning:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DVD warning: {0} {1}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DVD warning: {0} {1}", p1, p2);
               break;
             case EventCode.DvdSubPicictureStreamChange:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdSubPicture Changed to: {0} Enabled: {1}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdSubPicture Changed to: {0} Enabled: {1}", p1, p2);
               break;
             case EventCode.DvdCurrentHmsfTime:
               SetCurrentTime(p1);
@@ -524,10 +531,10 @@ namespace MediaPortal.UI.Players.Video
 
             case EventCode.DvdChapterStart:
               {
-                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdChaptStart: {0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdChaptStart: {0}", p1);
                 lock (SyncObj)
                 {
-                  _currChapter = p1.ToInt32();
+                  _currChapter = p1;
                   CalculateDuration();
                 }
                 ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
@@ -536,7 +543,7 @@ namespace MediaPortal.UI.Players.Video
 
             case EventCode.DvdTitleChange:
               {
-                OnTitleSelect(p1.ToInt32());
+                OnTitleSelect(p1);
                 break;
               }
 
@@ -552,37 +559,37 @@ namespace MediaPortal.UI.Players.Video
 
             case EventCode.DvdStillOn:
               {
-                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOn: {0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOn: {0}", p1);
                 break;
               }
 
             case EventCode.DvdStillOff:
               {
-                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOff: {0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOff: {0}", p1);
                 break;
               }
 
             case EventCode.DvdButtonChange:
               {
-                _buttonCount = p1.ToInt32();
-                _focusedButton = p2.ToInt32();
+                _buttonCount = p1;
+                _focusedButton = p2;
                 ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdButtonChange: buttons: {0}, focused: {1}", _buttonCount, _focusedButton);
                 break;
               }
 
             case EventCode.DvdNoFpPgc:
               {
-                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdNoFpPgc: {0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdNoFpPgc: {0}", p1);
                 hr = _dvdCtrl.PlayTitle(1, DvdCmdFlags.None, out _cmdOption);
                 break;
               }
 
             case EventCode.DvdAudioStreamChange:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdAudioStreamChange: {0}", p1.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdAudioStreamChange: {0}", p1);
               break;
 
             case EventCode.DvdValidUopsChange:
-              _UOPs = (ValidUOPFlag) p1.ToInt32();
+              _UOPs = (ValidUOPFlag) p1;
               ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdValidUopsChange: {0}", _UOPs);
               break;
 
@@ -611,7 +618,7 @@ namespace MediaPortal.UI.Players.Video
                     _handlesInput = false;
                     break;
                   default:
-                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Unhandled event DvdDomainChange: {0}", p1.ToInt32());
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Unhandled event DvdDomainChange: {0}", p1);
                     break;
                 }
                 break;
@@ -645,7 +652,7 @@ namespace MediaPortal.UI.Players.Video
     /// Called when an asynchronous DVD command is completed.
     /// </summary>
     /// <param name="p1">The command event handle.</param>
-    private void OnCmdComplete(IntPtr p1)
+    private void OnCmdComplete(int p1)
     {
       try
       {
@@ -1069,9 +1076,9 @@ namespace MediaPortal.UI.Players.Video
     /// Convertes time and updates _currentTime.
     /// </summary>
     /// <param name="p1">Packed time code.</param>
-    private void SetCurrentTime(IntPtr p1)
+    private void SetCurrentTime(int p1)
     {
-      byte[] ati = BitConverter.GetBytes(p1.ToInt32());
+      byte[] ati = BitConverter.GetBytes(p1);
       lock (SyncObj)
       {
         _currTime.bHours = ati[0];

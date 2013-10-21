@@ -29,7 +29,8 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
-using DirectShowLib;
+using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -477,13 +478,20 @@ namespace MediaPortal.UI.Players.Video
 
           for (int i = 0; i < streamCount; ++i)
           {
-            AMMediaType mediaType;
-            AMStreamSelectInfoFlags selectInfoFlags;
-            int groupNumber, lcid;
-            string name;
-            object pppunk, ppobject;
+            IntPtr pp_punk = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            IntPtr pp_object = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            IntPtr pp_name = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            IntPtr pp_groupNumber = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            IntPtr pp_lcid = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            IntPtr pp_selectInfoFlags = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            IntPtr pp_mediaType = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+            int hr = streamSelector.Info(i, pp_mediaType, pp_selectInfoFlags, pp_lcid, pp_groupNumber, pp_name, pp_punk, pp_object);
+            new HRESULT(hr).Throw();
 
-            streamSelector.Info(i, out mediaType, out selectInfoFlags, out lcid, out groupNumber, out name, out pppunk, out ppobject);
+            AMMediaType mediaType = Marshal.PtrToStructure(pp_mediaType, typeof(AMMediaType)) as AMMediaType;
+            int groupNumber = Marshal.ReadInt32(pp_groupNumber);
+            int lcid = Marshal.ReadInt32(pp_lcid);
+            string name = Marshal.PtrToStringAuto(Marshal.ReadIntPtr(pp_name));
 
             // If stream does not contain a LCID, try a lookup from stream name.
             if (lcid == 0)
@@ -528,7 +536,13 @@ namespace MediaPortal.UI.Players.Video
                 break;
             }
             // Free MediaType and references
-            FilterGraphTools.FreeAMMediaType(mediaType);
+            Marshal.FreeHGlobal(pp_punk);
+            Marshal.FreeHGlobal(pp_object);
+            Marshal.FreeHGlobal(pp_name);
+            Marshal.FreeHGlobal(pp_groupNumber);
+            Marshal.FreeHGlobal(pp_lcid);
+            Marshal.FreeHGlobal(pp_selectInfoFlags);
+            Marshal.FreeHGlobal(pp_mediaType);
           }
         }
 
