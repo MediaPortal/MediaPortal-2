@@ -57,7 +57,7 @@ namespace MediaPortal.Database.SQLite
     // For details see http://www.sqlite.org/foreignkeys.html
     // Additionally we set the wal_autocheckpoint to 32768, i.e. every time a commit leads to
     // a .wal file which is bigger than 32768 pages, a checkpoint is performed.
-    private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA foreign_keys=ON;PRAGMA wal_autocheckpoint=32768;";
+    private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA foreign_keys=ON;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
 
     #endregion
 
