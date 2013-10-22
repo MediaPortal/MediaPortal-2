@@ -51,12 +51,13 @@ namespace MediaPortal.Database.SQLite
     private const string DEFAULT_DATABASE_FILE_NAME = "Datastore.s3db";
 
     // Default SQL commands to be executed on every connection to initialize it.
-    // There are currently two commands:
+    // There are currently three commands:
     // MP2's database backend uses foreign key constraints to ensure referential integrity.
     // SQLite supports this, but it has to be enabled for each database connection by a PRAGMA command
     // For details see http://www.sqlite.org/foreignkeys.html
     // Additionally we set the wal_autocheckpoint to 32768, i.e. every time a commit leads to
     // a .wal file which is bigger than 32768 pages, a checkpoint is performed.
+    // Finally, we tell SQLite to store all its temporary files in RAM instead of writing them to disk.
     private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA foreign_keys=ON;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
 
     #endregion
