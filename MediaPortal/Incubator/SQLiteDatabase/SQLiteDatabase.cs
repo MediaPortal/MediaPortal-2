@@ -86,13 +86,13 @@ namespace MediaPortal.Database.SQLite
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
 
-        // We would like to use an URI instead of a simple database path and filename. The reason is that
+        // We use an URI instead of a simple database path and filename. The reason is that
         // only this way we can switch on the shared cache mode of SQLite in System.Data.SQLite
-        // However, when using an URI, SQLite ignores the page size value specified. When we have found
-        // a solution, uncomment the following 3 lines and set FullUri instead of DataSource below.
-        //databaseFile = databaseFile.Replace('\\', '/');
-        //string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFile + "?cache=shared");
-        //ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: URI used in connection string: '{0}'", databaseUri);
+        // However, when using an URI, SQLite ignores the page size value specified in the connection string.
+        // Therefore we have to use a workaround below to create a database file with the specified page size.
+        string databaseFileForUri = databaseFile.Replace('\\', '/');
+        string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFileForUri + "?cache=shared");
+        ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: URI used in connection string: '{0}'", databaseUri);
 
         _connectionPool = new ConnectionPool<SQLiteConnection>(CreateOpenAndInitializeConnection);
 
@@ -101,9 +101,8 @@ namespace MediaPortal.Database.SQLite
         // More information on the parameters can be found here: http://www.sqlite.org/pragma.html
         var connBuilder = new SQLiteConnectionStringBuilder
         {
-          // Name of the database file including path  
-          //FullUri = databaseUri,
-          DataSource = databaseFile,
+          // Name of the database file including path as URI 
+          FullUri = databaseUri,
         
           // Use SQLite database version 3.x  
           Version = 3,
@@ -113,7 +112,6 @@ namespace MediaPortal.Database.SQLite
           BinaryGUID = true,
         
           DefaultTimeout = _settings.LockTimeout,
-          PageSize = _settings.PageSize,
           CacheSize = _settings.CacheSizeInPages,
         
           // Use the Write Ahead Log mode
@@ -139,13 +137,32 @@ namespace MediaPortal.Database.SQLite
         _connectionString = connBuilder.ToString();
         ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Connection String used: '{0}'", _connectionString);
 
-        if (!Directory.Exists(dataDirectory))
-          Directory.CreateDirectory(dataDirectory);
-
-        using (var conn = new SQLiteConnection(_connectionString))
+        if (!File.Exists(databaseFile))
         {
-          conn.Open();
-          conn.Close();
+          if (!Directory.Exists(dataDirectory))
+            Directory.CreateDirectory(dataDirectory);
+
+          // Since we use an URI in the standard connection string and system.data.sqlite therefore
+          // ignores the page size value in the connection string, this is a workaroung to make sure
+          // the page size value as specified in the settings is used. When the database file does
+          // not yet exists, we create a special connection string where we additionally set the
+          // datasource (which overrides the URI) and the page size. We then create a connection with
+          // that special connection string, open it and close it. That way the database file is created
+          // with the desired page size. The page size is permanently stored in the database file so that
+          // it is used when as of now we use connections with URI.
+          connBuilder.DataSource = databaseFile;
+          connBuilder.PageSize = _settings.PageSize;
+          string connectionStringForDatabaseCreation = connBuilder.ToString();
+          using (var connection = new SQLiteConnection(connectionStringForDatabaseCreation))
+          {
+            connection.Open();
+            connection.Close();
+          }  
+        }
+        else
+        {
+          using (var transaction = BeginTransaction())
+            transaction.Rollback();
         }
       }
       catch (Exception e)
@@ -315,14 +332,13 @@ namespace MediaPortal.Database.SQLite
 
     public bool TableExists(string tableName)
     {
-      using (var conn = new SQLiteConnection(_connectionString))
+      using (var transaction = BeginTransaction())
       {
-        conn.Open();
-        using (IDbCommand cmd = conn.CreateCommand())
+        using (var cmd = transaction.CreateCommand())
         {
           cmd.CommandText = @"SELECT count(*) FROM sqlite_master WHERE name='" + tableName + "' AND type='table'";
           var cnt = (long)cmd.ExecuteScalar();
-          return (cnt == 1);
+          return (cnt == 1);          
         }
       }
     }
