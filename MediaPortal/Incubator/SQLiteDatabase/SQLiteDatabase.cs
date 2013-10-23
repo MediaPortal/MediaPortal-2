@@ -139,6 +139,8 @@ namespace MediaPortal.Database.SQLite
 
         if (!File.Exists(databaseFile))
         {
+          ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database file does not exists. Creating database file");       
+          
           if (!Directory.Exists(dataDirectory))
             Directory.CreateDirectory(dataDirectory);
 
@@ -152,18 +154,40 @@ namespace MediaPortal.Database.SQLite
           // it is used when as of now we use connections with URI.
           connBuilder.DataSource = databaseFile;
           connBuilder.PageSize = _settings.PageSize;
-          string connectionStringForDatabaseCreation = connBuilder.ToString();
-          using (var connection = new SQLiteConnection(connectionStringForDatabaseCreation))
+          using (var connection = new SQLiteConnection(connBuilder.ToString()))
           {
             connection.Open();
             connection.Close();
           }  
         }
-        else
+
+        // The following is necessary to avoid the creation of of a shared memory index file
+        // ("-shm"-file) when using exclusive locking mode. When WAL-mode is used, it is possible
+        // to switch between normal and exclusive locking mode at any time. However, the creation
+        // of a "-shm"-file can only be avoided, when exclusive locking mode is set BEFORE entering
+        // WAL-mode. If this is the case, it is not possible to leave exclusive locking mode
+        // without leaving WAL-mode before, because the "-shm"-file was not created.
+        // The regular connections in our connection pool use WAL-mode. Therefore we have
+        // to open one connection without WAL-Mode (here with JournalMode=OFF) and set locking_mode=
+        // EXCLUSIVE before we create the first regular connection that goes into the pool.
+        // To use exclusive locking mode, it is additionally necessary to set locking_mode=EXCLUSIVE
+        // for every connection in the pool via the InitializationCommand. If "PRAGMA locking_mode=
+        // EXCLUSIVE" is not in the InitializationCommand, normal locking mode is used
+        // although we issue "PRAGMA locking_mode=EXCLUSIVE" at this point.
+        // For details see here: http://sqlite.org/wal.html#noshm
+        // Avoiding the creation of an "-shm"-file materially improves the database performance.
+        connBuilder.JournalMode = SQLiteJournalModeEnum.Off;
+        using (var connection = new SQLiteConnection(connBuilder.ToString()))
         {
-          using (var transaction = BeginTransaction())
-            transaction.Rollback();
+          connection.Open();
+          using (var command = new SQLiteCommand("PRAGMA locking_mode=EXCLUSIVE;", connection))
+            command.ExecuteNonQuery();
+          connection.Close();
         }
+          
+        // Just test one "regular" connection, which is the first connection in the pool
+        using (var transaction = BeginTransaction())
+          transaction.Rollback();
       }
       catch (Exception e)
       {
