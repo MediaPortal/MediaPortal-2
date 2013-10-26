@@ -128,7 +128,12 @@ namespace MediaPortal.Database.SQLite
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
           // corruption and is therefore a good compromise between "Off" (more performance) and "On"
           // More information can be found here: http://www.sqlite.org/pragma.html#pragma_synchronous
-          SyncMode = SynchronizationModes.Normal
+          SyncMode = SynchronizationModes.Normal,
+
+          // MP2's database backend uses foreign key constraints to ensure referential integrity.
+          // SQLite supports this, but it has to be enabled for each database connection by a PRAGMA command
+          // For details see http://www.sqlite.org/foreignkeys.html
+          ForeignKeys = true
         };
 
         if (_settings.EnableTraceLogging)

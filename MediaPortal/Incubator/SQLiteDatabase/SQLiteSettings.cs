@@ -51,7 +51,7 @@ namespace MediaPortal.Database.SQLite
     private const string DEFAULT_DATABASE_FILE_NAME = "Datastore.s3db";
 
     // Default SQL commands to be executed on every connection to initialize it.
-    // There are currently four commands:
+    // There are currently three commands:
     // We set locking_mode=EXCLUSIVE; This means that the database file can only be accessed by one
     // connection. To be able to access the database with multiple connections this setting MUST
     // NOT be used without shared cache mode. In shared cache mode, multiple connections within one
@@ -59,13 +59,10 @@ namespace MediaPortal.Database.SQLite
     // towards the operating system. That way, we can access the database with multiple connections
     // in multiple threads, but at the same time have an exclusive lock on the database file, which
     // improves the performance materially.
-    // MP2's database backend uses foreign key constraints to ensure referential integrity.
-    // SQLite supports this, but it has to be enabled for each database connection by a PRAGMA command
-    // For details see http://www.sqlite.org/foreignkeys.html
     // Additionally we set the wal_autocheckpoint to 32768, i.e. every time a commit leads to
     // a .wal file which is bigger than 32768 pages, a checkpoint is performed.
     // Finally, we tell SQLite to store all its temporary files in RAM instead of writing them to disk.
-    private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA locking_mode=EXCLUSIVE;PRAGMA foreign_keys=ON;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
+    private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA locking_mode=EXCLUSIVE;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
 
     #endregion
 
