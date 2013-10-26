@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -88,34 +88,17 @@
     <Content Include="Skin\ApolloOne\screens\master_bare.xaml" />
     <Content Include="Skin\ApolloOne\screens\master_menu.xaml" />
     <Content Include="Skin\ApolloOne\screens\home.xaml" />
+    <Content Include="Skin\ApolloOne\screens\master_homemenu.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\ColorsOverrides.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\ButtonsOverrides.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\BrushesOverrides.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\Consts.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\master_homemenu.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Skin\ApolloOne\themes\default\styles\OtherControlsOverrides.xaml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\ColorsOverrides.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\ButtonsOverrides.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\BrushesOverrides.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

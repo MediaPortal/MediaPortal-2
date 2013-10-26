@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- Master_Bare layout -->
+  <ResourceWrapper x:Key="HeaderPanelHeight" Resource="135" />
+  <ResourceWrapper x:Key="FooterPanelHeight" Resource="210" />
+
+</ResourceDictionary>

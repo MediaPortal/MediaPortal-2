@@ -47,6 +47,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </EventTrigger.Actions>
     </EventTrigger>
   </Screen.Triggers>
+
   <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" LastChildFill="True">
     <DockPanel.RenderTransform>
       <TransformGroup>
@@ -56,27 +57,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <TranslateTransform X="0" Y="0"/>
       </TransformGroup>
     </DockPanel.RenderTransform>
-    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}"
-        Height="{ThemeResource HeaderPanelHeight}">
+    <DockPanel.Background>
+      <ImageBrush ImageSource="shadow_complete.png" />
+    </DockPanel.Background>
+
+    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Height="{ThemeResource HeaderPanelHeight}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="130"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <DockPanel x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" LastChildFill="True" Margin="10"
+      <!-- WindowButtonsPanel -->
+      <DockPanel x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" LastChildFill="True" Margin="5"
           VerticalAlignment="Top" HorizontalAlignment="Left" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
-        <!-- Morpheus_xx, 2013-04-27: Power menu button should be available also when not using mouse (remote, keyboard) -->
-        <!--<DockPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-            <Binding Path="HasInputFocus"/>
-            <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-          </MultiBinding>
-        </DockPanel.IsVisible>-->
+
         <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
             OpacityMask="#A0000000" HorizontalAlignment="Left" 
             Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
@@ -88,18 +87,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Trigger>
           </Button.Triggers>
         </Button>
-      </DockPanel> <!-- WindowButtonsPanel -->
-      <StackPanel x:Name="PlayerControlsPanel" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"
-          HorizontalAlignment="Center" VerticalAlignment="Top">
-        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="400"
-            HorizontalAlignment="Left" VerticalAlignment="Top"
-            PlayerContext="PrimaryPlayer"/>
-        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="400"
-            HorizontalAlignment="Left" VerticalAlignment="Top"
-            PlayerContext="SecondaryPlayer"/>
-      </StackPanel> <!-- PlayerControlsPanel -->
+      </DockPanel>
+
+      <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Top" Grid.Column="1" />
+
       <Control x:Name="NotificationControl" Grid.Column="2" Grid.Row="0" Margin="10" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Top"/>
+
       <DockPanel LastChildFill="True" Grid.Column="3" Grid.Row="0" Margin="10" Width="64" Height="64"
           HorizontalAlignment="Right" VerticalAlignment="Top">
         <Image x:Name="HomeServerConnected" Stretch="Uniform"
@@ -109,24 +103,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
             IsVisible="{Binding Source={StaticResource HomeServerModel},Path=!IsHomeServerConnected}"
             Source="server-disconnected-icon.png"/>
       </DockPanel>
-    </Grid> <!-- HeaderPanel -->
-    <Line x:Name="UpperSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
-        HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
-    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False"
-        Background="{ThemeResource FooterPanelBackgroundBrush}">
-      <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Bottom"/>
-    </DockPanel> <!-- FooterPanel -->
-    <Line x:Name="LowerSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
-        HorizontalAlignment="Stretch" DockPanel.Dock="Bottom"/>
 
-<!-- Not sure if and how we should show shortcuts...
-    <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
-        Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
--->
-    <Image Source="shadow_complete.png" DockPanel.Dock="Center" />
+    </Grid>
+    <!-- HeaderPanel -->
+
+    <!-- PlayerControlsPanel -->
+    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,0"
+        Background="{ThemeResource FooterPanelBackgroundBrush}">
+
+      <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
+              HorizontalAlignment="Left" VerticalAlignment="Top"
+              PlayerContext="PrimaryPlayer"/>
+
+      <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Right"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              PlayerContext="SecondaryPlayer"/>
+
+    </DockPanel>
+    <!-- FooterPanel -->
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea" DockPanel.Dock="Center"
-        Template="{DynamicResource ResourceKey=Client_Template}"/>
+    <Control x:Name="ClientArea" DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,60,0,40"/>
   </DockPanel>
 </Screen>

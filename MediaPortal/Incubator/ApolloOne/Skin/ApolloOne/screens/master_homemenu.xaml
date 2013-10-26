@@ -10,7 +10,7 @@
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="115,80,0,0">
+      <DockPanel LastChildFill="True" Margin="115,0,0,-40">
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
         </DockPanel.Resources>
