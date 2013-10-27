@@ -772,12 +772,11 @@ namespace MediaPortal.Common.Services.PluginManager
         UnlockPluginState(plugin);
         LockPluginStateDependency(plugin, true, PluginState.Available, PluginState.Disabled);
         ILogger logger = ServiceRegistration.Get<ILogger>();
-        string pluginName = plugin.Metadata.Name;
-        Guid pluginId = plugin.Metadata.PluginId;
-        logger.Debug("PluginManager: Trying to enable plugin '{0}' (id '{1}')", pluginName, pluginId);
+        string pluginDisplayName = string.Format("'{0}' [Version: {1}; Authors: {2}; ID: '{3}']", plugin.Metadata.Name, plugin.Metadata.PluginVersion, plugin.Metadata.Author, plugin.Metadata.PluginId);
+        logger.Debug("PluginManager: Trying to enable plugin {0}", pluginDisplayName);
         if (FindConflicts(plugin.Metadata).Count > 0)
         {
-          logger.Info("PluginManager: Plugin '{0}' (id '{1}') cannot be enabled - there are plugin conflicts", pluginName, pluginId);
+          logger.Info("PluginManager: Plugin {0} cannot be enabled - there are plugin conflicts", pluginDisplayName);
           return false;
         }
 
@@ -789,12 +788,12 @@ namespace MediaPortal.Common.Services.PluginManager
           lock (_syncObj)
             if (!_availablePlugins.TryGetValue(parentId, out parentPlugin))
             {
-              logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' is not available", pluginName, pluginId, parentId);
+              logger.Warn("Plugin {0}: Dependency '{1}' is not available", pluginDisplayName, parentId);
               return false;
             }
           if (!TryEnable(parentPlugin, autoActivatePlugins))
           {
-            logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
+            logger.Warn("Plugin {0}: Dependency '{1}' cannot be enabled", pluginDisplayName, parentId);
             return false;
           }
           LockPluginStateDependency(parentPlugin, false, PluginState.Enabled, PluginState.Active);
@@ -816,8 +815,8 @@ namespace MediaPortal.Common.Services.PluginManager
             PluginBuilderRegistration builderRegistration;
             if (!_builders.TryGetValue(builderName, out builderRegistration))
             {
-              logger.Warn("Plugin '{0}' (id '{1}'): Builder '{2}' is not available - plugin won't be enabled",
-                pluginName, pluginId, builderName);
+              logger.Warn("Plugin {0}: Builder '{1}' is not available - plugin won't be enabled",
+                pluginDisplayName, builderName);
               return false;
             }
             if (builderRegistration.PluginRuntime == null)
@@ -826,8 +825,8 @@ namespace MediaPortal.Common.Services.PluginManager
             if (!plugin.Metadata.DependsOn.Contains(builderRegistration.PluginRuntime.Metadata.PluginId))
             {
               logger.Error(
-                  "Plugin '{0}' (id '{1}'): Builder '{2}' (implemented by plugin '{3}') is used, but this plugin dependency is not explicitly specified - plugin won't be enabled",
-                  pluginName, pluginId, builderName, builderRegistration.PluginRuntime.Metadata.Name);
+                  "Plugin {0}: Builder '{1}' (implemented by plugin '{2}') is used, but this plugin dependency is not explicitly specified - plugin won't be enabled",
+                  pluginDisplayName, builderName, builderRegistration.PluginRuntime.Metadata.Name);
               return false;
             }
           }
@@ -840,7 +839,7 @@ namespace MediaPortal.Common.Services.PluginManager
         }
         catch (Exception e)
         {
-          logger.Error("Error registering plugin items for plugin '{0}' (id '{1}')", e, pluginName, pluginId);
+          logger.Error("Error registering plugin items for plugin {0}", e, pluginDisplayName);
           plugin.UnregisterItems();
           return false;
         }
@@ -851,7 +850,7 @@ namespace MediaPortal.Common.Services.PluginManager
             parent.AddDependentPlugin(plugin);
           plugin.State = PluginState.Enabled;
         }
-        logger.Info("PluginManager: Plugin '{0}' (id '{1}') enabled.", pluginName, pluginId);
+        logger.Info("PluginManager: Plugin {0} enabled.", pluginDisplayName);
       }
       finally
       {
