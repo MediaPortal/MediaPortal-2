@@ -389,7 +389,10 @@ namespace MediaPortal.Database.SQLite
 
     public string CreateDateToYearProjectionExpression(string selectExpression)
     {
-        return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
+      // CAST is necessary because we treat the result as int, strftime returns
+      // a TEXT value and SQLite refuses to convert TEXT to INT without an
+      // explicit CAST.
+      return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
     }
 
     #endregion
