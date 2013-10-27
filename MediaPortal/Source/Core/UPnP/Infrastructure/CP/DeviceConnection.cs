@@ -249,7 +249,7 @@ namespace UPnP.Infrastructure.CP
               SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
               return;
             }
-            using (Stream s = response.GetResponseStream())
+            using (Stream s = CompressionHelper.Decompress(response))
             using (TextReader reader = new StreamReader(s, contentEncoding))
               SOAPHandler.HandleErrorResult(reader, state.Action, state.ClientState);
           }
