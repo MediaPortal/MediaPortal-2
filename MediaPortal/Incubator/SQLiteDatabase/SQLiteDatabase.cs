@@ -389,7 +389,7 @@ namespace MediaPortal.Database.SQLite
 
     public string CreateDateToYearProjectionExpression(string selectExpression)
     {
-        return "strftime('%Y', " + selectExpression + ")";
+        return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
     }
 
     #endregion
