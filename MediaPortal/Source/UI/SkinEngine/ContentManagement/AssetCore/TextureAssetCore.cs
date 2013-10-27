@@ -110,6 +110,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateFromBuffer_NoLock(byte[] data)
     {
+      if (data == null || data.Length == 0)
+        return;
+
       using (Stream dataStream = new MemoryStream(data))
         AllocateFromStream_NoLock(dataStream);
     }
@@ -128,8 +131,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           // Scale down larger images
           image = ResizeImage(image, MAX_TEXTURE_DIMENSION, MAX_TEXTURE_DIMENSION);
           FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
-          memoryStream.Position = 0;
-          texture = Texture.FromStream(GraphicsDevice.Device, memoryStream, (int)memoryStream.Length, _decodeWidth, _decodeHeight, 1,
+          Stream loadStream = memoryStream;
+          if (loadStream.Length == 0)
+          {
+            loadStream = dataStream;
+            ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: FreeImage was not able to save image as bitmap into MemoryStream. Using source stream as fallback.");
+          }
+          loadStream.Position = 0;
+          texture = Texture.FromStream(GraphicsDevice.Device, loadStream, (int)loadStream.Length, _decodeWidth, _decodeHeight, 1,
             Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
         }
       }
