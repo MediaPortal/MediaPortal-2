@@ -182,9 +182,11 @@ namespace UPnP.Infrastructure.Dv.SOAP
       }
       catch (Exception e)
       {
-        UPnPConfiguration.LOGGER.Warn("Error handling SOAP request: " + e.Message); // Don't log the whole exception; it's only a communication error with a client
-        result = null;
-        return HttpStatusCode.BadRequest;
+        string message = "Error handling SOAP request: " + e.Message;
+        UPnPConfiguration.LOGGER.Warn(message); // Don't log the whole exception; it's only a communication error with a client
+
+        result = CreateFaultDocument(500, message); // Also send message to client
+        return HttpStatusCode.InternalServerError;
       }
     }
 
