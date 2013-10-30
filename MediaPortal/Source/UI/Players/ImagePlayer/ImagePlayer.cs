@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using MediaPortal.Common;
@@ -33,12 +32,17 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Image.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities;
+using SharpDX;
 using SharpDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Image
 {
@@ -398,11 +402,11 @@ namespace MediaPortal.UI.Players.Image
       }
     }
 
-    public Size ImageSize
+    public System.Drawing.Size ImageSize
     {
       get
       {
-        return _texture != null ? new Size(_texture.Width, _texture.Height) : new Size();
+        return _texture != null ? new System.Drawing.Size(_texture.Width, _texture.Height) : new System.Drawing.Size();
       }
     }
 
@@ -457,8 +461,8 @@ namespace MediaPortal.UI.Players.Image
       lock (_syncObj)
       {
         DateTime displayTime = _pauseTime.HasValue ? _pauseTime.Value : DateTime.Now;
-        RectangleF textureClip = _animator.GetZoomRect(ImageSize, outputSize, displayTime);
-        return SharpDXExtensions.CreateRectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
+        RectangleF textureClip = _animator.GetZoomRect(ImageSize.ToSize2(), outputSize, displayTime);
+        return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
     }
 
