@@ -23,13 +23,16 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {

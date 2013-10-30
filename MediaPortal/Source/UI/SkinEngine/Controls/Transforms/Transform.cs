@@ -25,7 +25,7 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {

@@ -34,7 +34,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -67,8 +67,8 @@ namespace MediaPortal.UI.Players.Video
     #region Variables
 
     private readonly object _lock = new object();
-    private Size _originalVideoSize = Size.Empty;
-    private SizeF _aspectRatio = SizeF.Empty;
+    private Size _originalVideoSize = new Size();
+    private SizeF _aspectRatio = new SizeF();
     private Surface _surface = null;
 
     private readonly DeviceEx _device;

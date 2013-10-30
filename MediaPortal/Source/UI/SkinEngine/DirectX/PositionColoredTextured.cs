@@ -53,8 +53,8 @@ applications, and to alter it and redistribute it freely, subject to the followi
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using System.Runtime.InteropServices;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {

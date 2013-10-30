@@ -23,7 +23,9 @@
 #endregion
 
 using System;
-using System.Drawing;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {

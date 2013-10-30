@@ -35,7 +35,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.Utilities;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     protected DisplayMode _desktopDisplayMode;
     protected D3DConfiguration _currentGraphicsConfiguration = null;
-    private PresentParameters _presentParams = null;
+    private PresentParameters _presentParams;
 
     public Form RenderTarget
     {
@@ -115,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public bool IsMultiSample
     {
-      get { return _presentParams.Multisample != MultisampleType.None; }
+      get { return _presentParams.MultiSampleType != MultisampleType.None; }
     }
 
     public Present Present
@@ -486,8 +486,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       DeviceCombo dc = configuration.DeviceCombo;
       MultisampleType mst = settings.MultisampleType;
       mst = dc.MultisampleTypes.ContainsKey(mst) ? mst : MultisampleType.None;
-      result.Multisample = mst;
-      result.MultisampleQuality = 0;
+      result.MultiSampleType = mst;
+      result.MultiSampleQuality = 0;
       result.EnableAutoDepthStencil = false;
       result.AutoDepthStencilFormat = dc.DepthStencilFormats.FirstOrDefault(dsf =>
           !dc.DepthStencilMultiSampleConflicts.Contains(new DepthStencilMultiSampleConflict {DepthStencilFormat = dsf, MultisampleType = mst}));
@@ -506,7 +506,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       result.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
       result.PresentationInterval = PresentInterval.One;
 #endif
-      result.FullScreenRefreshRateInHertz = result.Windowed ? 0 : configuration.DisplayMode.RefreshRate;
+      result.FullScreenRefreshRateInHz = result.Windowed ? 0 : configuration.DisplayMode.RefreshRate;
       
       // From http://msdn.microsoft.com/en-us/library/windows/desktop/bb173422%28v=vs.85%29.aspx :
       // To use multisampling, the SwapEffect member of D3DPRESENT_PARAMETER must be set to D3DSWAPEFFECT_DISCARD.

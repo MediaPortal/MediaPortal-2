@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using MediaPortal.Common;
@@ -32,7 +31,11 @@ using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {

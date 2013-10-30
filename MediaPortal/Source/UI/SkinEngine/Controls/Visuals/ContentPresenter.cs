@@ -24,13 +24,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -248,7 +251,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       FrameworkElement templateControl = _templateControl;
       if (templateControl == null)
-        return SizeF.Empty;
+        return new SizeF();
       // Measure the child
       templateControl.Measure(ref totalSize);
       return totalSize;
@@ -269,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
       ArrangeChild(templateControl, HorizontalContentAlignment, VerticalContentAlignment,
           ref position, ref availableSize);
-      RectangleF childRect = new RectangleF(position, availableSize);
+      RectangleF childRect = SharpDXExtensions.CreateRectangleF(position, availableSize);
       templateControl.Arrange(childRect);
     }
 

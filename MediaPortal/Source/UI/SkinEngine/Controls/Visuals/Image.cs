@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -34,6 +33,9 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -98,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected readonly ImageSourceState _fallbackSourceState = new ImageSourceState();
     protected bool _loadImageSource = false;
     protected bool _fallbackSourceInUse = false;
-    protected SizeF _lastImageSourceSize = SizeF.Empty;
+    protected SizeF _lastImageSourceSize = new SizeF();
     protected string _formerWarnURI = null;
     protected bool _invalidateImageSourceOnResize = false;
 
@@ -441,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ImageSourceState allocatedSource = GetLoadedSource(false);
       if (allocatedSource == null)
       {
-        _lastImageSourceSize = SizeF.Empty;
+        _lastImageSourceSize = new SizeF();
         return new SizeF(10, 10);
       }
 

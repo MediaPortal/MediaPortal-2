@@ -22,10 +22,10 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {

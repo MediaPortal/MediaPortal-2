@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -36,6 +35,10 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -797,7 +800,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF keyboardRect;
       if (elementArrangeBounds.HasValue)
         // Arrange above or below elementArrangeBounds, horizontally centered in elementArrangeBounds
-        keyboardRect = new RectangleF(new PointF(
+        keyboardRect = SharpDXExtensions.CreateRectangleF(new PointF(
             elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width / 2 - keyboardSize.Width / 2,
             elementArrangeBounds.Value.Bottom + keyboardSize.Height > actualBounds.Bottom ?
             elementArrangeBounds.Value.Top - keyboardSize.Height : elementArrangeBounds.Value.Bottom),

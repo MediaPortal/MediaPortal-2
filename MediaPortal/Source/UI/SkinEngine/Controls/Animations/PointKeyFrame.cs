@@ -22,7 +22,7 @@
 
 #endregion
 
-using SlimDX;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {

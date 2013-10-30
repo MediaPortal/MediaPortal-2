@@ -23,13 +23,16 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -302,7 +305,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           _totalHeight = actualExtendsInNonOrientationDirection;
         foreach (FrameworkElement child in visibleChildren)
         {
-          SizeF childSize = new SizeF(child.DesiredSize);
+          SizeF childSize = child.DesiredSize;
           // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
           float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
           if (Orientation == Orientation.Vertical)
@@ -312,7 +315,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             childSize.Width = actualExtendsInNonOrientationDirection;
 
             ArrangeChildHorizontal(child, child.HorizontalAlignment, ref position, ref childSize);
-            child.Arrange(new RectangleF(position, childSize));
+            child.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
             _totalHeight += desiredExtendsInOrientationDirection;
 
             startPosition += desiredExtendsInOrientationDirection;
@@ -324,7 +327,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             childSize.Height = actualExtendsInNonOrientationDirection;
 
             ArrangeChildVertical(child, child.VerticalAlignment, ref position, ref childSize);
-            child.Arrange(new RectangleF(position, childSize));
+            child.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
             _totalWidth += desiredExtendsInOrientationDirection;
 
             startPosition += desiredExtendsInOrientationDirection;

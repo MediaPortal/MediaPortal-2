@@ -22,7 +22,10 @@
 
 #endregion
 
-using System.Drawing;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -58,14 +61,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 
     public override RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize)
     {
-      bool isLandscape = IsLandscape(imageSize, outputSize);
+      bool isLandscape = IsLandscape(imageSize.ToSize2F(), outputSize.ToSize2F());
       Point startEndPanPoints = isLandscape ? KenBurnsEffects.LANDSCAPE_PAN_SPOTS[_panPointsIndex] : KenBurnsEffects.PORTRAIT_PAN_SPOTS[_panPointsIndex];
       PointF panStartPoint = KenBurnsEffects.SPOT_POINTS[startEndPanPoints.X];
       PointF panEndPoint = KenBurnsEffects.SPOT_POINTS[startEndPanPoints.Y];
 
       return KenBurnsEffects.GetKenBurnsPanRectangle(_zoomFactor,
           panStartPoint.X + (panEndPoint.X - panStartPoint.X) * animationProgress,
-          panStartPoint.Y + (panEndPoint.Y - panStartPoint.Y) * animationProgress, imageSize, outputSize);
+          panStartPoint.Y + (panEndPoint.Y - panStartPoint.Y) * animationProgress, imageSize.ToSize2F(), outputSize.ToSize2F());
     }
   }
 }

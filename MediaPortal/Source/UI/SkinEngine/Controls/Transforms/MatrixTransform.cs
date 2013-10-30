@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     public override void UpdateTransform()
     {
       base.UpdateTransform();
-      _matrix = SlimDX.Matrix.Identity;
+      _matrix = SharpDX.Matrix.Identity;
       string matrix = Matrix;
       if (string.IsNullOrEmpty(matrix))
         return;

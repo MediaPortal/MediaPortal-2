@@ -22,9 +22,8 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using SlimDX;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {

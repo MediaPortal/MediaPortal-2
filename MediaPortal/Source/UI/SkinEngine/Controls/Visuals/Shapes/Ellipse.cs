@@ -27,8 +27,7 @@ using System.Drawing.Drawing2D;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX.Direct3D9;
-using RectangleF = System.Drawing.RectangleF;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -41,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = GetEllipse(_innerRect))
+        using (GraphicsPath path = GetEllipse(_innerRect.ToDrawingRectF()))
         {
           PositionColoredTextured[] verts;
           float centerX;

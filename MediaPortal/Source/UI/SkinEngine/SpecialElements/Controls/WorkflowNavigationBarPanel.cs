@@ -23,13 +23,17 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
+
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
@@ -166,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         float availableSize = Orientation == Orientation.Vertical ? actualHeight : actualWidth;
         FrameworkElement firstChild = visibleChildren[0];
         SizeF firstChildDesiredSize = firstChild.DesiredSize;
-        SizeF desiredEllipsisSize = _ellipsisControl == null ? SizeF.Empty : _ellipsisControl.DesiredSize;
+        SizeF desiredEllipsisSize = _ellipsisControl == null ? new SizeF() : _ellipsisControl.DesiredSize;
         // The first element is always shown
         availableSize -= Orientation == Orientation.Vertical ? firstChildDesiredSize.Height : firstChildDesiredSize.Width;
         List<FrameworkElement> reversedChildren = new List<FrameworkElement>(visibleChildren);
@@ -193,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (numShownChildrenAfterEllipsis < visibleChildren.Count - 1)
         { // Ellipsis necessary
           // Lay out first (home) element
-          SizeF childSize = new SizeF(firstChild.DesiredSize);
+          SizeF childSize = firstChild.DesiredSize;
           PointF position = new PointF(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
 
           if (Orientation == Orientation.Vertical)
@@ -209,12 +213,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             startPositionX += childSize.Width;
           }
 
-          firstChild.Arrange(new RectangleF(position, childSize));
+          firstChild.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
 
           // Lay out ellipsis
           if (_ellipsisControl != null)
           {
-            childSize = new SizeF(desiredEllipsisSize);
+            childSize = desiredEllipsisSize;
             position = new PointF(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
 
             if (Orientation == Orientation.Vertical)
@@ -230,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
               startPositionX += childSize.Width;
             }
 
-            _ellipsisControl.Arrange(new RectangleF(position, childSize));
+            _ellipsisControl.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
           }
 
           int numBeforeEllipsis = childrenAfterEllipsis.Count - numShownChildrenAfterEllipsis;
@@ -245,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         // Lay out all other elements after ellipsis
         foreach (FrameworkElement child in childrenAfterEllipsis)
         {
-          SizeF childSize = new SizeF(child.DesiredSize);
+          SizeF childSize = child.DesiredSize;
           PointF position = new PointF(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
 
           if (Orientation == Orientation.Vertical)
@@ -261,7 +265,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             startPositionX += childSize.Width;
           }
 
-          child.Arrange(new RectangleF(position, childSize));
+          child.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
         }
       }
     }

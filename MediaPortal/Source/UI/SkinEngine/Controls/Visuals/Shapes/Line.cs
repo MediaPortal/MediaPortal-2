@@ -23,16 +23,17 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX.Direct3D9;
-using RectangleF = System.Drawing.RectangleF;
-using PointF = System.Drawing.PointF;
-using SizeF = System.Drawing.SizeF;
+using SharpDX;
+using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -143,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        using (GraphicsPath path = GetLine(_innerRect))
+        using (GraphicsPath path = GetLine(_innerRect.ToDrawingRectF()))
         {
           float centerX;
           float centerY;
@@ -160,13 +161,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      using (GraphicsPath p = GetLine(new RectangleF(new PointF(0, 0), totalSize)))
+      using (GraphicsPath p = GetLine(new RectangleF(0, 0, totalSize.Width, totalSize.Height)))
       {
         RectangleF bounds = p.GetBounds();
 
-        return new SizeF(bounds.Width, bounds.Height);
+        return new Size2F(bounds.Width, bounds.Height);
       }
     }
 

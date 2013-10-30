@@ -22,13 +22,12 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
@@ -102,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
           unchecked
           {
             Color4 color = ColorConverter.FromColor(Color.White);
-            vert.Color = color.ToArgb();
+            vert.Color = color.ToBgra();
           }
           vert.Tu1 = u;
           vert.Tv1 = v;

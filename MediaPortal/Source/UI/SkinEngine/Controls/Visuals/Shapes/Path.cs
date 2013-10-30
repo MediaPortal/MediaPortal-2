@@ -34,8 +34,11 @@ using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using FillMode=System.Drawing.Drawing2D.FillMode;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -149,12 +152,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      using (GraphicsPath p = CalculateTransformedPath(new RectangleF(0, 0, 0, 0)))
+      using (GraphicsPath p = CalculateTransformedPath(new SharpDX.RectangleF(0, 0, 0, 0)))
       {
         RectangleF bounds = p.GetBounds();
-        return new SizeF(bounds.Width, bounds.Height);
+        return new Size2F(bounds.Width, bounds.Height);
       }
     }
 
@@ -309,7 +312,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       return result;
     }
 
-    protected GraphicsPath CalculateTransformedPath(RectangleF baseRect)
+    protected GraphicsPath CalculateTransformedPath(SharpDX.RectangleF baseRect)
     {
       GraphicsPath result = ParsePath();
       using (Matrix m = new Matrix())

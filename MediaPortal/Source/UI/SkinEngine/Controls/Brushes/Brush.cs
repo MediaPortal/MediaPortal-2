@@ -22,15 +22,14 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
@@ -249,7 +248,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           {
             Color4 color = ColorConverter.FromColor(Color.White);
             color.Alpha *= (float) Opacity;
-            vert.Color = color.ToArgb();
+            vert.Color = color.ToBgra();
           }
           vert.Tu1 = u;
           vert.Tv1 = v;

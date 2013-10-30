@@ -22,9 +22,9 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.SkinEngine.DirectX;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
+using Size = SharpDX.Size2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     #region Protected fields
 
     protected Surface _surface = null;
-    protected Size _size = Size.Empty;
+    protected Size _size = new Size();
     protected Format _format = Format.A8B8G8R8;
 
     #endregion
@@ -107,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       AllocationChanged(-AllocationSize);
       _surface.Dispose();
       _surface = null;
-      _size = Size.Empty;
+      _size = new Size();
     }
 
     #endregion

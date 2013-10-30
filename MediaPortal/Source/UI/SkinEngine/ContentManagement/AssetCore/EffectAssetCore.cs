@@ -29,8 +29,8 @@ using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         try
         {
           const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
-          _effect = Effect.FromString(GraphicsDevice.Device, effectShader.ToString(), null, null, null, shaderFlags, null, out errors);
+          _effect = Effect.FromString(GraphicsDevice.Device, effectShader.ToString(), null, null, null, shaderFlags, null); //, out errors
           _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
           _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
           _handleTechnique = _effect.GetTechnique(0);

@@ -24,7 +24,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
@@ -37,6 +36,10 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
+
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {

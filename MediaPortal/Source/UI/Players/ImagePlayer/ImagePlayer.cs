@@ -37,7 +37,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
 
 namespace MediaPortal.UI.Players.Image
@@ -458,7 +458,7 @@ namespace MediaPortal.UI.Players.Image
       {
         DateTime displayTime = _pauseTime.HasValue ? _pauseTime.Value : DateTime.Now;
         RectangleF textureClip = _animator.GetZoomRect(ImageSize, outputSize, displayTime);
-        return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
+        return SharpDXExtensions.CreateRectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
     }
 

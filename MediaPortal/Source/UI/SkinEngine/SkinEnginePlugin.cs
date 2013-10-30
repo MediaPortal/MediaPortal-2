@@ -113,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("SkinEnginePlugin: Startup");
-      SlimDX.Configuration.EnableObjectTracking = true;
+      SharpDX.Configuration.EnableObjectTracking = true;
 
       logger.Debug("SkinEnginePlugin: Create DirectX main window");
       _mainForm = new MainForm(_screenManager);

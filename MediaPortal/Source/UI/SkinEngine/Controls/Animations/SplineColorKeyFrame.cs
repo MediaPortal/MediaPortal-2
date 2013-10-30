@@ -22,9 +22,8 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Common.General;
-using SlimDX;
+using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
@@ -111,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       double r = start.R + ((Value.R - start.R) * v);
       double g = start.G + ((Value.G - start.G) * v);
       double b = start.B + ((Value.B - start.B) * v);
-      return Color.FromArgb((int) a, (int) r, (int) g, (int) b);
+      return SharpDXExtensions.FromArgb((int) a, (int) r, (int) g, (int) b);
     }
   }
 }

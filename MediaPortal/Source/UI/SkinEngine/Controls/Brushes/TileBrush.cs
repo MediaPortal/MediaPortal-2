@@ -23,16 +23,16 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using Stretch = MediaPortal.UI.SkinEngine.Controls.Visuals.Stretch;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {

@@ -34,8 +34,8 @@ using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using System.Drawing;
 using Font = SlimDX.Direct3D9.Font;
 

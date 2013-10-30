@@ -27,7 +27,7 @@ using System.Linq;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.SkinEngine.DirectX;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {

@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -32,8 +31,11 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -46,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected RenderTextureAsset _visualTexture = null;
     protected RenderTargetAsset _visualSurface = null;
     protected Screen _screen = null;
-    protected SizeF _visualSize = Size.Empty;
+    protected SizeF _visualSize = new SizeF();
     protected FrameworkElement _preparedVisual = null;
     protected String _renderTextureKey;
     protected String _renderSurfaceKey;
@@ -108,13 +110,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
-      RectangleF bounds = new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size);
+      RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
       fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Opacity, bounds, 1.0f));
 
       // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
       GraphicsDevice.Device.StretchRectangle(
-          _visualSurface.Surface, new Rectangle(Point.Empty, _visualSurface.Size),
-          _visualTexture.Surface0, new Rectangle(Point.Empty, _visualTexture.Size),
+          _visualSurface.Surface, new Rectangle(0, 0, _visualSurface.Size.Width, _visualSurface.Size.Height),
+          _visualTexture.Surface0, new Rectangle(0, 0, _visualTexture.Size.Width, _visualTexture.Size.Height),
           TextureFilter.None);
     }
 
@@ -141,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         visual.Allocate();
         SizeF size = _vertsBounds.Size;
         visual.Measure(ref size);
-        visual.Arrange(new RectangleF(new PointF(0, 0), _vertsBounds.Size));
+        visual.Arrange(new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height));
       }
       _preparedVisual = visual;
     }

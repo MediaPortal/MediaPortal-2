@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -34,10 +33,12 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using SlimDX.Direct3D9;
-using SlimDX;
+using SharpDX.Direct3D9;
+using SharpDX;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -174,8 +175,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       ISlimDXVideoPlayer sdvPlayer = player as ISlimDXVideoPlayer;
       if (sdvPlayer == null)
         return false;
-      SizeF aspectRatio = sdvPlayer.VideoAspectRatio;
-      Size playerSize = sdvPlayer.VideoSize;
+      SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
+      Size playerSize = sdvPlayer.VideoSize.ToSize2();
       Rectangle cropVideoRect = sdvPlayer.CropVideoRect;
       IGeometry geometry = ChooseVideoGeometry(player);
       string effectName = player.EffectOverride;
@@ -206,13 +207,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           return false;
         }
         SurfaceDescription desc = surface.Description;
-        _videoTextureClip = new Rectangle(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
+        _videoTextureClip = new RectangleF(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
             cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
       }
-      _scaledVideoSize = cropVideoRect.Size;
+      _scaledVideoSize = cropVideoRect.Size.ToSize2F();
 
       // Correct aspect ratio for anamorphic video
-      if (!aspectRatio.IsEmpty && geometry.RequiresCorrectAspectRatio)
+      if (!aspectRatio.IsEmpty() && geometry.RequiresCorrectAspectRatio)
       {
         float pixelRatio = aspectRatio.Width / aspectRatio.Height;
         _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio;
@@ -221,7 +222,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       targetSize = ImageContext.AdjustForSkinAR(targetSize);
 
       // Adjust video size to fit desired geometry
-      _scaledVideoSize = geometry.Transform(_scaledVideoSize, targetSize);
+      _scaledVideoSize = geometry.Transform(_scaledVideoSize.ToDrawingSizeF(), targetSize.ToDrawingSizeF()).ToSize2F();
 
       // Cache inverse RelativeTransform
       Transform relativeTransform = RelativeTransform;
@@ -339,7 +340,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
       RectangleF tranformedRect;
       GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor.ToArgb(), _lastFrameData);
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor.ToBgra(), _lastFrameData);
     }
 
     protected virtual bool GetPlayer(out ISlimDXVideoPlayer player)

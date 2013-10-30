@@ -22,9 +22,9 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Players
 {

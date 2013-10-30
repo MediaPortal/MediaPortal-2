@@ -23,12 +23,14 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX;
+using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -262,7 +264,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Width))
         totalWidth = (float) Width;
 
-      SizeF size = SizeF.Empty;
+      SizeF size = new SizeF();
       string[] lines = _asset.GetLines(totalWidth, Wrap);
       size.Width = 0;
       foreach (string line in lines)

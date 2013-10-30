@@ -23,10 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -122,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         PointF position = new PointF(_innerRect.X, _innerRect.Y);
         SizeF availableSize = CalculateInnerDesiredSize(_innerRect.Size);
         ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref position, ref availableSize);
-        RectangleF childRect = new RectangleF(position, availableSize);
+        RectangleF childRect = SharpDXExtensions.CreateRectangleF(position, availableSize);
         content.Arrange(childRect);
       }
     }

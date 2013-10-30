@@ -23,13 +23,16 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -262,7 +265,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           offset += desiredChildSize.Height;
         }
 
-        layoutChild.Arrange(new RectangleF(location, size));
+        layoutChild.Arrange(SharpDXExtensions.CreateRectangleF(location, size));
       }
     }
 
@@ -271,7 +274,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int numVisibleChildren = visibleChildren.Count;
       if (numVisibleChildren == 0)
-        return SizeF.Empty;
+        return new SizeF();
       float totalDesiredWidth = 0;
       float totalDesiredHeight = 0;
       int index = 0;

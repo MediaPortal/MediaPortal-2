@@ -21,7 +21,8 @@
   <ItemGroup>
     <References Include="$(ProjectDir)References\freetype6.dll" />
     <References Include="$(ProjectDir)References\zlib1.dll" />
-    <References Include="$(TargetDir)SlimDX.dll" />
+    <References Include="$(TargetDir)SharpDX.dll" />
+    <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Common.General;
-using SlimDX;
+using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Transforms

@@ -24,20 +24,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.DirectX;
-using RectangleF = System.Drawing.RectangleF;
-using PointF = System.Drawing.PointF;
-using SizeF = System.Drawing.SizeF;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
+using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
+using RectangleF = SharpDX.RectangleF;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -272,7 +274,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (content != null && content.IsVisible)
         content.Measure(ref totalSize);
       else
-        totalSize = SizeF.Empty;
+        totalSize = new SizeF();
 
       AddMargin(ref totalSize, enclosingMargin);
 
@@ -289,10 +291,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
       RemoveMargin(ref layoutRect, GetTotalEnclosingMargin());
-      PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
-      SizeF size = new SizeF(layoutRect.Size);
+      Vector2 location = new Vector2(layoutRect.Location.X, layoutRect.Location.Y);
+      SizeF size = layoutRect.Size;
       ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref location, ref size);
-      content.Arrange(new RectangleF(location, size));
+      content.Arrange(new RectangleF(location.X, location.Y, size.Width, size.Height));
     }
 
     /// <summary>
@@ -313,7 +315,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void ArrangeBorder(RectangleF finalRect)
     {
-      _outerBorderRect = new RectangleF(finalRect.Location, finalRect.Size);
+      _outerBorderRect = new RectangleF(finalRect.Location.X, finalRect.Location.Y, finalRect.Width, finalRect.Height);
     }
 
     protected float GetBorderCornerInsetX()
@@ -405,7 +407,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual GraphicsPath CreateBorderRectPath(RectangleF innerBorderRect)
     {
-      return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float) CornerRadius, (float) CornerRadius);
+      return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float)CornerRadius, (float)CornerRadius);
     }
 
     #endregion

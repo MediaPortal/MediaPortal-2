@@ -23,14 +23,16 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
@@ -165,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       SetFont(font, size);
       _kerning = true;
       _lastTimeUsed = DateTime.MinValue;
-      _lastTextSize = SizeF.Empty;
+      _lastTextSize = new SizeF();
       ResetScrollPosition();
     }
 
@@ -179,7 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       SetFont(fontName, size);
       _kerning = true;
       _lastTimeUsed = DateTime.MinValue;
-      _lastTextSize = SizeF.Empty;
+      _lastTextSize = new SizeF();
       ResetScrollPosition();
     }
 

@@ -22,10 +22,10 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.DirectX;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
+using Size = SharpDX.Size2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -70,8 +70,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </summary>
     public void AllocateRenderTarget(int width, int height)
     {
-      AllocateCustom(width, height, Format.A8R8G8B8, GraphicsDevice.Setup.PresentParameters.Multisample,
-          GraphicsDevice.Setup.PresentParameters.MultisampleQuality, false);
+      AllocateCustom(width, height, Format.A8R8G8B8, GraphicsDevice.Setup.PresentParameters.MultiSampleType,
+          GraphicsDevice.Setup.PresentParameters.MultiSampleQuality, false);
     }
 
     /// <summary>

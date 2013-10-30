@@ -197,7 +197,7 @@ namespace MediaPortal.Utilities.Screens
 
     public void PositionStatusLabel(Point location, int width, int height)
     {
-      if (location != Point.Empty)
+      if (location != new Point())
         _statusLabel.Location = location;
       if (width == 0 && height == 0)
         _statusLabel.AutoSize = true;
@@ -212,7 +212,7 @@ namespace MediaPortal.Utilities.Screens
 
     public void PositionInfoLabel(Point location, int width, int height)
     {
-      if (location != Point.Empty)
+      if (location != new Point())
         _programInfoLabel.Location = location;
       if (width == 0 && height == 0)
         _programInfoLabel.AutoSize = true;

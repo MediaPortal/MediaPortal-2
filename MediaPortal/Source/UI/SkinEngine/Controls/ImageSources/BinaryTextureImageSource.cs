@@ -23,11 +23,14 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Security.Cryptography;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -88,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected override SizeF RawSourceSize
     {
-      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : SizeF.Empty; }
+      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
     }
 
     protected override RectangleF TextureClip

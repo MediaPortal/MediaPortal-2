@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Settings
 {

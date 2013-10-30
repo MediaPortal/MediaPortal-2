@@ -28,6 +28,10 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
+
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -249,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
-    protected override System.Drawing.SizeF CalculateInnerDesiredSize(System.Drawing.SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       ConfigureContentScrollFacility();
       return base.CalculateInnerDesiredSize(totalSize);

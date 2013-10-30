@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Drawing;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {

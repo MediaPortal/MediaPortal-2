@@ -24,15 +24,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.SkinEngine.DirectX;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using Tao.FreeType;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -353,8 +355,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         // Lock the the area we intend to update
         Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
-        DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
-        using (rect.Data)
+        DataStream dataStream;
+        _texture.LockRectangle(0, charArea, LockFlags.None, out dataStream);
+        using(dataStream)
         {
           // Copy FreeType glyph bitmap into our font texture.
           Byte[] fontPixels = new Byte[pwidth];
@@ -363,19 +366,19 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           int pitch = Math.Abs(glyph.bitmap.pitch);
 
           // Write the first padding row
-          rect.Data.Write(padPixels, 0, pwidth);
-          rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+          dataStream.Write(padPixels, 0, pwidth);
+          dataStream.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
           // Write the glyph
           for (int y = 0; y < glyph.bitmap.rows; y++)
           {
             for (int x = 0; x < glyph.bitmap.width; x++)
               fontPixels[x + PAD] = bitmapBuffer[y * pitch + x];
-            rect.Data.Write(fontPixels, 0, pwidth);
-            rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+            dataStream.Write(fontPixels, 0, pwidth);
+            dataStream.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
           }
           // Write the last padding row
-          rect.Data.Write(padPixels, 0, pwidth);
-          rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+          dataStream.Write(padPixels, 0, pwidth);
+          dataStream.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
           _texture.UnlockRectangle(0);
         }
       }

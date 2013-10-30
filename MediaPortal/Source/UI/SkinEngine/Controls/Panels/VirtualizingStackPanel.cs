@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -32,6 +31,10 @@ using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -159,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     // It's actually "GetVisibleChildren", but that member already exists in Panel
     protected IList<FrameworkElement> GetMeasuredViewableChildren(SizeF totalSize, out SizeF resultSize)
     {
-      resultSize = SizeF.Empty;
+      resultSize = new SizeF();
       IList<FrameworkElement> result = new List<FrameworkElement>(20);
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider == null)
@@ -249,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return base.CalculateInnerDesiredSize(totalSize);
         int numItems = itemProvider.NumItems;
         if (numItems == 0)
-          return SizeF.Empty;
+          return new SizeF();
 
         SizeF resultSize;
         // Get all viewable children (= visible children inside our range)
@@ -265,7 +268,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
         }
         if (exemplaryChildren.Count == 0)
-          return SizeF.Empty;
+          return new SizeF();
         _averageItemSize = GetExtendsInOrientationDirection(Orientation, resultSize) / exemplaryChildren.Count;
         return Orientation == Orientation.Vertical ? new SizeF(resultSize.Width, resultSize.Height * numItems / exemplaryChildren.Count) :
             new SizeF(resultSize.Width * numItems / exemplaryChildren.Count, resultSize.Height);
@@ -441,7 +444,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             FrameworkElement item = GetItem(i, itemProvider, true);
             if (item == null || !item.IsVisible)
               continue;
-            SizeF childSize = new SizeF(item.DesiredSize);
+            SizeF childSize = item.DesiredSize;
             // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
             float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
             startOffset -= desiredExtendsInOrientationDirection;
@@ -452,7 +455,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               childSize.Width = actualExtendsInNonOrientationDirection;
 
               ArrangeChildHorizontal(item, item.HorizontalAlignment, ref position, ref childSize);
-              item.Arrange(new RectangleF(position, childSize));
+              item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
               _totalHeight += desiredExtendsInOrientationDirection;
             }
             else
@@ -462,7 +465,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               childSize.Height = actualExtendsInNonOrientationDirection;
 
               ArrangeChildVertical(item, item.VerticalAlignment, ref position, ref childSize);
-              item.Arrange(new RectangleF(position, childSize));
+              item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
               _totalWidth += desiredExtendsInOrientationDirection;
             }
             _arrangedItems.Insert(0, item);
@@ -476,7 +479,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             FrameworkElement item = GetItem(i, itemProvider, true);
             if (item == null || !item.IsVisible)
               continue;
-            SizeF childSize = new SizeF(item.DesiredSize);
+            SizeF childSize = item.DesiredSize;
             // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
             float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
             if (Orientation == Orientation.Vertical)
@@ -486,7 +489,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               childSize.Width = actualExtendsInNonOrientationDirection;
 
               ArrangeChildHorizontal(item, item.HorizontalAlignment, ref position, ref childSize);
-              item.Arrange(new RectangleF(position, childSize));
+              item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
               _totalHeight += desiredExtendsInOrientationDirection;
 
               startOffset += desiredExtendsInOrientationDirection;
@@ -498,7 +501,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               childSize.Height = actualExtendsInNonOrientationDirection;
 
               ArrangeChildVertical(item, item.VerticalAlignment, ref position, ref childSize);
-              item.Arrange(new RectangleF(position, childSize));
+              item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
               _totalWidth += desiredExtendsInOrientationDirection;
 
               startOffset += desiredExtendsInOrientationDirection;

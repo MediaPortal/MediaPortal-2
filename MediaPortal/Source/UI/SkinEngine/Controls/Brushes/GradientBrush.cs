@@ -27,6 +27,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -171,19 +172,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    protected SlimDX.Direct3D9.TextureAddress SpreadAddressMode
+    protected TextureAddress SpreadAddressMode
     {
       get
       {
         switch (SpreadMethod)
         {
           case GradientSpreadMethod.Repeat:
-            return SlimDX.Direct3D9.TextureAddress.Wrap;
+            return TextureAddress.Wrap;
           case GradientSpreadMethod.Reflect:
-            return SlimDX.Direct3D9.TextureAddress.Mirror;
+            return TextureAddress.Mirror;
           //case GradientSpreadMethod.Pad:
           default:
-            return SlimDX.Direct3D9.TextureAddress.Clamp;
+            return TextureAddress.Clamp;
         }
       }
     }

@@ -24,11 +24,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -243,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
             ref position, ref availableSize);
-        RectangleF childRect = new RectangleF(position, availableSize);
+        RectangleF childRect = SharpDXExtensions.CreateRectangleF(position, availableSize);
         _templateControl.Arrange(childRect);
       }
       _actualScrollOffsetX = _scrollOffsetX;

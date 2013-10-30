@@ -22,11 +22,14 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -158,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             (float) RowDefinitions.GetLength(row, GetRowSpan(child)));
 
         ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref position, ref childSize);
-        child.Arrange(new RectangleF(position, childSize));
+        child.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
       }
     }
 

@@ -23,8 +23,7 @@
 #endregion
 
 using System;
-using System.Drawing;
-using SlimDX;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine
 {
@@ -69,18 +68,18 @@ namespace MediaPortal.UI.SkinEngine
         };
     }
 
-    /// <summary>
-    /// Transforms the given point <paramref name="p"/> by this matrix.
-    /// </summary>
-    /// <param name="matrix">Transformation matrix.</param>
-    /// <param name="p">Point to transform.</param>
-    public static void Transform(this Matrix matrix, ref PointF p)
-    {
-      Vector2 v = new Vector2(p.X, p.Y);
-      matrix.Transform(ref v);
-      p.X = v.X;
-      p.Y = v.Y;
-    }
+    ///// <summary>
+    ///// Transforms the given point <paramref name="p"/> by this matrix.
+    ///// </summary>
+    ///// <param name="matrix">Transformation matrix.</param>
+    ///// <param name="p">Point to transform.</param>
+    //public static void Transform(this Matrix matrix, ref PointF p)
+    //{
+    //  Vector2 v = new Vector2(p.X, p.Y);
+    //  matrix.Transform(ref v);
+    //  p.X = v.X;
+    //  p.Y = v.Y;
+    //}
 
     /// <summary>
     /// Transforms the given point <paramref name="p"/> by this matrix.
@@ -141,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine
     /// <param name="matrix">Transformation matrix.</param>
     /// <param name="size">Size of the rectangle to transform. Will contain the size of the transformed rectangle after
     /// this method returns.</param>
-    public static void TransformIncludingRectangleSize(this Matrix matrix, ref SizeF size)
+    public static void TransformIncludingRectangleSize(this Matrix matrix, ref Size2F size)
     {
       Vector2 p0 = new Vector2(0, 0);
       Vector2 p1 = new Vector2(size.Width, 0);
@@ -173,16 +172,16 @@ namespace MediaPortal.UI.SkinEngine
       return result;
     }
 
-    /// <summary>
-    /// Transforms the given point <paramref name="p"/> by the inverse of this matrix.
-    /// </summary>
-    /// <param name="matrix">Transformation matrix.</param>
-    /// <param name="p">Point to transform. Will contain the transformed point after this method returns.</param>
-    public static void Invert(this Matrix matrix, ref PointF p)
-    {
-      Matrix inverse = Matrix.Invert(matrix);
-      inverse.Transform(ref p);
-    }
+    ///// <summary>
+    ///// Transforms the given point <paramref name="p"/> by the inverse of this matrix.
+    ///// </summary>
+    ///// <param name="matrix">Transformation matrix.</param>
+    ///// <param name="p">Point to transform. Will contain the transformed point after this method returns.</param>
+    //public static void Invert(this Matrix matrix, ref PointF  p)
+    //{
+    //  Matrix inverse = Matrix.Invert(matrix);
+    //  inverse.Transform(ref p);
+    //}
 
     /// <summary>
     /// Transforms the given point <paramref name="p"/> by the inverse of this matrix.

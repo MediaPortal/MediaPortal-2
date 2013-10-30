@@ -23,15 +23,16 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -136,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       {
         SizeF currentRotatedSourceSize = _imageContext.GetRotatedSize(CurrentRawSourceSize);
         SizeF lastRotatedSourceSize = _lastImageContext.GetRotatedSize(LastRawSourceSize);
-        return (_transitionActive && !lastRotatedSourceSize.IsEmpty) ?
+        return (_transitionActive && !lastRotatedSourceSize.IsEmpty()) ?
             MaxSizeF(lastRotatedSourceSize, currentRotatedSourceSize) : currentRotatedSourceSize;
       }
     }
@@ -181,7 +182,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             _lastImageContext.Update(startSize, start, lastTextureClip);
 
             if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext,
-                endSize, end, currentTextureClip, BorderColor.ToArgb(), lastFrameData, frameData))
+                endSize, end, currentTextureClip, BorderColor.ToBgra(), lastFrameData, frameData))
             {
               _primitiveBuffer.Render(0);
               _imageContext.EndRenderTransition();
@@ -194,7 +195,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
-        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor.ToArgb(), frameData))
+        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor.ToBgra(), frameData))
         {
           _primitiveBuffer.Render(0);
           _imageContext.EndRender();
@@ -260,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected override SizeF RawSourceSize
     {
-      get { return SizeF.Empty; }
+      get { return new SizeF(); }
     }
 
     protected override RectangleF  TextureClip

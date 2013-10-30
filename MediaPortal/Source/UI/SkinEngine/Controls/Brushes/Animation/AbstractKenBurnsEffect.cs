@@ -23,7 +23,10 @@
 #endregion
 
 using System;
-using System.Drawing;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {

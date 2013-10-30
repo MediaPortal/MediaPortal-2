@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -33,9 +32,12 @@ using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Network;
-using SlimDX;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using MediaPortal.Common.Services.ThumbnailGenerator;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 // TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 
@@ -862,9 +864,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _texture = new Texture(GraphicsDevice.Device, TEXTURE_SIZE, TEXTURE_SIZE, 1, Usage.Dynamic, Format.A8R8G8B8,
                 Pool.Default);
 
-          DataRectangle rect = _texture.LockRectangle(0, LockFlags.Discard);
-          rect.Data.Write(buffer, 0, buffer.Length);
-          _texture.UnlockRectangle(0);
+          DataStream dataStream;
+          _texture.LockRectangle(0, LockFlags.None, out dataStream);
+          using (dataStream)
+          {
+            dataStream.Write(buffer, 0, buffer.Length);
+            _texture.UnlockRectangle(0);
+          }
 
           _width = TEXTURE_SIZE;
           _height = TEXTURE_SIZE;

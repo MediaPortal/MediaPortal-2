@@ -23,10 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -116,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         float left = GetLeft(child, true);
         float top = GetTop(child, true);
 
-        rect = RectangleF.Union(rect, new RectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
+        rect = RectangleF.Union(rect, SharpDXExtensions.CreateRectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
       }
 
       return new SizeF(rect.Right, rect.Bottom);
@@ -137,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         SizeF childSize = child.DesiredSize;
 
         // Arrange the child
-        child.Arrange(new RectangleF(location, childSize));
+        child.Arrange(SharpDXExtensions.CreateRectangleF(location, childSize));
       }
     }
 

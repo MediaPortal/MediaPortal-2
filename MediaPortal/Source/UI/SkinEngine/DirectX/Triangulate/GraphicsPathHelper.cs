@@ -23,9 +23,11 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using SharpDX;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
@@ -102,7 +104,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           result.AddLine(baseRect.Left, baseRect.Top, baseRect.Left + titleInset, baseRect.Top);
         }
         else
-          result.AddRectangle(baseRect);
+          result.AddRectangle(baseRect.ToDrawingRectF());
       }
       else
       {
@@ -112,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           radiusY = baseRect.Height/2f;
         // create the arc for the rectangle sides and declare a graphics path object for the drawing 
         SizeF sizeF = new SizeF(radiusX * 2f, radiusY * 2f);
-        RectangleF arc = new RectangleF(baseRect.Location, sizeF);
+        RectangleF arc = SharpDXExtensions.CreateRectangleF(baseRect.Location, sizeF);
 
         if (withTitleRegion)
         {
@@ -124,19 +126,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
         // Top right arc 
         arc.X = baseRect.Right - radiusX * 2f;
-        result.AddArc(arc, 270, 90);
+        result.AddArc(arc.ToDrawingRectF(), 270, 90);
 
         // Bottom right arc 
         arc.Y = baseRect.Bottom - radiusY * 2f;
-        result.AddArc(arc, 0, 90);
+        result.AddArc(arc.ToDrawingRectF(), 0, 90);
 
         // Bottom left arc
         arc.X = baseRect.Left;
-        result.AddArc(arc, 90, 90);
+        result.AddArc(arc.ToDrawingRectF(), 90, 90);
 
         // Top left arc 
         arc.Y = baseRect.Top;
-        result.AddArc(arc, 180, 90);
+        result.AddArc(arc.ToDrawingRectF(), 180, 90);
 
         if (withTitleRegion)
           // Upper left edge to the left side of the title

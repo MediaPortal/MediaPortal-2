@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -36,10 +35,13 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.Exceptions;
-using SlimDX;
+using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX.Direct3D9;
+using SharpDX.Direct3D9;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -452,7 +454,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       DeallocateCursor();
       Color4 col = ColorConverter.FromColor(Color);
-      int color = col.ToArgb();
+      int color = col.ToBgra();
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
           cursorBounds.Left - 0.5f, cursorBounds.Top - 0.5f, cursorBounds.Right - 0.5f, cursorBounds.Bottom - 0.5f,
@@ -495,7 +497,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.CalculateInnerDesiredSize(totalSize); // Needs to be called in each sub class of Control, see comment in Control.CalculateInnerDesiredSize()
       AllocFont();
 
-      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(VisibleText ?? string.Empty), _asset.TextHeight(1));
+      SizeF childSize = _asset == null ? new SizeF() : new SizeF(_asset.TextWidth(VisibleText ?? string.Empty), _asset.TextHeight(1));
 
       if (PreferredTextLength.HasValue && _asset != null)
         // We use the "W" character as the character which needs the most space in X-direction

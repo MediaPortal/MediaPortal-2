@@ -26,9 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
-using SlimDX;
-using SlimDX.Direct3D9;
-using Matrix = SlimDX.Matrix;
+using SharpDX;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {

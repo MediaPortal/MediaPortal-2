@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Players;
@@ -30,8 +29,12 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX.Direct3D9;
+using SharpDX;
+using SharpDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.SkinEngine.Rendering.RightAngledRotation;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -225,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       if (sourceTexture == null)
       {
-        textureSize = Size.Empty;
+        textureSize = new SizeF();
         return null;
       }
       SurfaceDescription desc = sourceTexture.GetLevelDescription(0);
