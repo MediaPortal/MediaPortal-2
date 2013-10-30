@@ -41,6 +41,10 @@ namespace MediaPortal.UI.SkinEngine
     {
       return sizeF.Width == 0.0 && sizeF.Height == 0.0;
     }
+    public static Rectangle CreateRectangle(Vector2 location, Size2 size)
+    {
+      return new Rectangle((int)location.X, (int)location.Y, size.Width, size.Height);
+    }
     public static RectangleF CreateRectangleF(Vector2 location, Size2F size)
     {
       return new RectangleF(location.X, location.Y, size.Width, size.Height);

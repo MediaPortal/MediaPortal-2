@@ -10,7 +10,7 @@
 
   <Runtime>
     <Assembly FileName="StatisticsRenderer.dll"/>
-    <Assembly FileName="..\SkinEngine\SlimDX.dll"/> <!-- Placed in SkinEngine plugin -->
+    <Assembly FileName="..\SkinEngine\SharpDX.dll"/> <!-- Placed in SkinEngine plugin -->
     <PluginStateTracker ClassName="MediaPortal.Plugins.StatisticsRenderer.StatisticsRenderer"/>
   </Runtime>
 
