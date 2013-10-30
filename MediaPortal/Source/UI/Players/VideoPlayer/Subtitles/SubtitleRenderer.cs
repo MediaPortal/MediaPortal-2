@@ -38,6 +38,8 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct3D9;
+using Color = System.Drawing.Color;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -609,7 +611,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         if (currentSubtitle == null || !currentSubtitle.ShouldDraw)
           return;
 
-        if (targetSurface == null || targetSurface.Disposed || subTexture == null)
+        if (targetSurface == null || targetSurface.IsDisposed || subTexture == null)
         {
           if (_drawCount > 0)
             ServiceRegistration.Get<ILogger>().Debug("Draw count for last sub: {0}", _drawCount);
@@ -621,7 +623,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
       try
       {
-        if (!subTexture.Disposed)
+        if (!subTexture.IsDisposed)
         {
           // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
           using (new TemporaryRenderTarget(targetSurface))
@@ -648,7 +650,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
               transform *= Matrix.Scaling((float) desc.Width / currentSubtitle.ScreenWidth, 1, 1);
 
             sprite.Transform = transform;
-            sprite.Draw(subTexture, Color.White);
+            sprite.Draw(subTexture, SharpDX.Color.White);
             sprite.End();
           }
         }

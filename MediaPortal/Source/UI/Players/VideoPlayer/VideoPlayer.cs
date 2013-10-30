@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -40,10 +39,15 @@ using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
+using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
+using SharpDX;
 using SharpDX.Direct3D9;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -182,7 +186,7 @@ namespace MediaPortal.UI.Players.Video
 
       _evr = (IBaseFilter) new EnhancedVideoRenderer();
 
-      IntPtr upDevice = SkinContext.Device.ComPointer;
+      IntPtr upDevice = SkinContext.Device.NativePointer;
       int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
       if (hr != 0)
       {
@@ -243,14 +247,14 @@ namespace MediaPortal.UI.Players.Video
       get { return "Video"; }
     }
 
-    public Size VideoSize
+    public System.Drawing.Size VideoSize
     {
-      get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.OriginalVideoSize; }
+      get { return (_evrCallback == null || !_initialized) ? new System.Drawing.Size(0, 0) : _evrCallback.OriginalVideoSize.ToDrawingSize(); }
     }
 
-    public SizeF VideoAspectRatio
+    public System.Drawing.SizeF VideoAspectRatio
     {
-      get { return (_evrCallback == null) ? new Size(1, 1) : _evrCallback.AspectRatio; }
+      get { return (_evrCallback == null) ? new System.Drawing.SizeF(1, 1) : _evrCallback.AspectRatio.ToDrawingSizeF(); }
     }
 
     protected Surface RawVideoSurface
@@ -277,7 +281,7 @@ namespace MediaPortal.UI.Players.Video
           if (!_textureInvalid)
             return videoSurface;
 
-          if (videoSurface == null || videoSurface.Disposed)
+          if (videoSurface == null || videoSurface.IsDisposed)
             return null;
 
           PostProcessTexture(videoSurface);
@@ -667,8 +671,8 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        Size videoSize = VideoSize;
-        return _cropSettings == null ? new Rectangle(new Point(), videoSize) : _cropSettings.CropRect(videoSize);
+        Size videoSize = VideoSize.ToSize2();
+        return _cropSettings == null ? new Rectangle(0, 0, videoSize.Width, videoSize.Height) : _cropSettings.CropRect(videoSize.ToDrawingSize()).ToRect();
       }
     }
 

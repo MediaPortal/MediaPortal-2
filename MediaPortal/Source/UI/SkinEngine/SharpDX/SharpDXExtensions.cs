@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿using System.Diagnostics;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine
 {
@@ -11,6 +12,14 @@ namespace MediaPortal.UI.SkinEngine
     public static System.Drawing.SizeF ToDrawingSizeF(this Size2F size2F)
     {
       return new System.Drawing.SizeF(size2F.Width, size2F.Height);
+    }
+    public static System.Drawing.Size ToDrawingSize(this Size2 sizeF)
+    {
+      return new System.Drawing.Size(sizeF.Width, sizeF.Height);
+    }
+    public static Rectangle ToRect(this System.Drawing.Rectangle rectangleF)
+    {
+      return new Rectangle(rectangleF.X, rectangleF.Y, rectangleF.Width, rectangleF.Height);
     }
     public static Size2F ToSize2F(this System.Drawing.SizeF sizeF)
     {
