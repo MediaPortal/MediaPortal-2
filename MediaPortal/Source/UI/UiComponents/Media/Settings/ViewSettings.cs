@@ -49,6 +49,15 @@ namespace MediaPortal.UiComponents.Media.Settings
     public LayoutSize LayoutSize { get; set; }
   }
 
+  /// <summary>
+  /// <see cref="MediaDictionary{TKey,TValue}"/> implements a local type that is valid for XML serialization. It is used only for providing
+  /// a type that is defined inside the same assembly as the <see cref="ViewSettings"/> class.
+  /// It is a workaround for serialization issues, if the serializing type (MediaPortal.Utilities dictionary) has no reference to the used type
+  /// (Media library settings).
+  /// </summary>
+  public class MediaDictionary<TKey, TValue> : SerializableDictionary<TKey, TValue>
+  { }
+
   public class ViewSettings
   {
     public const LayoutType DEFAULT_LAYOUT_TYPE = LayoutType.ListLayout;
@@ -56,14 +65,14 @@ namespace MediaPortal.UiComponents.Media.Settings
 
     public ViewSettings()
     {
-      ScreenConfigs = new SerializableDictionary<string, ScreenConfig>();
-      ScreenHierarchy = new SerializableDictionary<string, string>();
+      ScreenConfigs = new MediaDictionary<string, ScreenConfig>();
+      ScreenHierarchy = new MediaDictionary<string, string>();
     }
 
     [Setting(SettingScope.User)]
-    public SerializableDictionary<string, ScreenConfig> ScreenConfigs { get; set; }
+    public MediaDictionary<string, ScreenConfig> ScreenConfigs { get; set; }
 
     [Setting(SettingScope.User)]
-    public SerializableDictionary<string, string> ScreenHierarchy { get; set; }
+    public MediaDictionary<string, string> ScreenHierarchy { get; set; }
   }
 }
