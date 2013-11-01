@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Action to switch the filter -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <WorkflowContributorAction Id="B15EA757-905E-46FA-A71D-C132885C221E"
+        Name="Media navigation->Switch filter"
+        DisplayCategory="a5-ViewSortFilter"
+        SortOrder="a1"
+        SourceStates="*"
+        ContributorModelId="C1FCD6E1-41E8-45F9-BFCB-D59F2FFB0F15"/> <!-- Filter action -->
+  </MenuActions>
+</Workflow>

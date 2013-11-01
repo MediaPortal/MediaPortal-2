@@ -388,10 +388,25 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected void BuildWorkflowActions()
     {
-      _dynamicWorkflowActions = new List<WorkflowAction>(_availableScreens.Count);
+      _dynamicWorkflowActions = GetWorkflowActions(true);
+    }
+
+    /// <summary>
+    /// Gets a list of available screens ("filters") of the current <see cref="NavigationData"/>. This method can return either filtering screens that are showing
+    /// results of predefined query (<paramref name="onlySearchScreens"/>=<c>false</c>), or custom search screens that allow user input for searching (<paramref name="onlySearchScreens"/>=<c>true</c>).
+    /// </summary>
+    /// <param name="onlySearchScreens"><c>true</c> to return only search screens.</param>
+    /// <returns>List of workflow actions</returns>
+    public IList<WorkflowAction> GetWorkflowActions(bool onlySearchScreens = false)
+    {
+      IList<WorkflowAction> actions = new List<WorkflowAction>(_availableScreens.Count);
       int ct = 0;
       foreach (AbstractScreenData screen in _availableScreens)
       {
+        if (onlySearchScreens && !(screen is AbstractSearchScreenData))
+          continue;
+        if (!onlySearchScreens && (screen is AbstractSearchScreenData))
+          continue;
         AbstractScreenData newScreen = screen; // Necessary to be used in closure
         WorkflowAction action = new MethodDelegateAction(Guid.NewGuid(),
             _navigationContextName + "->" + newScreen.MenuItemLabel, new Guid[] { _currentWorkflowStateId },
@@ -401,7 +416,9 @@ namespace MediaPortal.UiComponents.Media.Models
                 _currentScreenData = newScreen;
 
                 string parent = Parent == null ? _navigationContextName : Parent.CurrentScreenData.GetType().ToString();
-                SaveScreenHierarchy(parent, newScreen.GetType().ToString());
+                // Do not save search screens as selection, they are only a "transient" state.
+                if (!(newScreen is AbstractSearchScreenData))
+                  SaveScreenHierarchy(parent, newScreen.GetType().ToString());
 
                 IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                 // The last screen could have stepped into a deeper media navigation context when it had produced
@@ -419,8 +436,9 @@ namespace MediaPortal.UiComponents.Media.Models
             DisplayCategory = Consts.FILTERS_WORKFLOW_CATEGORY,
             SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
           };
-        _dynamicWorkflowActions.Add(action);
+        actions.Add(action);
       }
+      return actions;
     }
 
     protected void SwitchToCurrentScreen()

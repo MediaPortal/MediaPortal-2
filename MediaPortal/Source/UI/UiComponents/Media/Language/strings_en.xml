@@ -44,7 +44,7 @@
   <string name="Media.SwitchToBrowseMLView">To server view</string>
   <string name="Media.SwitchToLocalMediaView">To local view</string>
 
-  <string name="Media.SwitchToBrowseShareView">To share view</string>
+  <string name="Media.SwitchToBrowseShareView">To folder view</string>
   <string name="Media.SwitchToMediaLibraryView">To library view</string>
 
   <!-- Navbar display labels for sub view navigation -->
@@ -345,6 +345,9 @@
   <string name="Media.SortByDate">Sort by recording date</string>
   <string name="Media.SortByEpisode">Sort by episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
+
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
+  <string name="Media.SwitchFilterDialogTitle">Filter</string>
 
   <string name="Settings.Players">Players</string>
 

@@ -4,8 +4,8 @@
   <MenuActions>
     <WorkflowContributorAction Id="D205E9BC-A970-429D-88F8-BBB92CF3F19A"
         Name="Media navigation->Switch sorting"
-        DisplayCategory="b-Sorting"
-        SortOrder="a"
+        DisplayCategory="a5-ViewSortFilter"
+        SortOrder="a2"
         SourceStates="*"
         ContributorModelId="D447F742-5592-48FF-B189-C1868FB6740F"/> <!-- Sorting action -->
   </MenuActions>

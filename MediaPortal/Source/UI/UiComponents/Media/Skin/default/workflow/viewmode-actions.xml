@@ -4,8 +4,8 @@
   <MenuActions>
     <WorkflowContributorAction Id="F400FBEA-6E32-4735-BE52-15DFDBB64FCC"
         Name="Media navigation->Switch view mode"
-        DisplayCategory="a-ViewMode"
-        SortOrder="a"
+        DisplayCategory="a5-ViewSortFilter"
+        SortOrder="a3"
         SourceStates="*"
         ContributorModelId="4BDAE589-15AF-4B84-B930-9F24E66841BB"/> <!-- ViewMode action -->
   </MenuActions>
