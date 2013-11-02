@@ -170,7 +170,7 @@ namespace MediaPortal.UiComponents.Media.Views
         new SystemSharesViewSpecification(serverConnectionManager.HomeServerSystemId, null, _necessaryMIATypeIds, _optionalMIATypeIds, _restrictedMediaCategories).ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
       else
         // This code branch represents all other scenarios than the single-seat scenario.
-        new AllSystemsViewSpecification(null, _necessaryMIATypeIds, _optionalMIATypeIds).ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
+        new AllSystemsViewSpecification(null, _necessaryMIATypeIds, _optionalMIATypeIds, _restrictedMediaCategories).ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
     }
 
     #endregion

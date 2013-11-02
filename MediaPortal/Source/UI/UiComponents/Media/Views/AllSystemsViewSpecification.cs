@@ -38,11 +38,19 @@ namespace MediaPortal.UiComponents.Media.Views
   /// </summary>
   public class AllSystemsViewSpecification : ViewSpecification
   {
+    #region Protected fields
+
+    protected readonly IEnumerable<string> _restrictedMediaCategories;
+
+    #endregion
+    
     #region Ctor
 
-    public AllSystemsViewSpecification(string viewDisplayName,
-        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
+    public AllSystemsViewSpecification(string viewDisplayName, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IEnumerable<string> restrictedMediaCategories = null) :
+      base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+    {
+      _restrictedMediaCategories = restrictedMediaCategories;
+    }
 
     #endregion
 
@@ -122,7 +130,16 @@ namespace MediaPortal.UiComponents.Media.Views
             new KeyValuePair<string, string>(scm.HomeServerSystemId, scm.LastHomeServerName) // Add the server too
         };
       foreach (KeyValuePair<string, string> kvp in BuildSystemsDictNames2Ids(systems))
-        subViewSpecifications.Add(new SystemSharesViewSpecification(kvp.Value, kvp.Key, _necessaryMIATypeIds, _optionalMIATypeIds));
+      {
+        var clientShares = cd.GetShares(kvp.Value, SharesFilter.All);
+        if (clientShares.Count == 0)
+          continue;
+      
+        // Check if we want to filter only for given MediaCategories
+        if (_restrictedMediaCategories != null && !clientShares.Any(share => share.MediaCategories.Intersect(_restrictedMediaCategories).Any()))
+          continue;
+        subViewSpecifications.Add(new SystemSharesViewSpecification(kvp.Value, kvp.Key, _necessaryMIATypeIds, _optionalMIATypeIds, _restrictedMediaCategories));
+      }
     }
 
     #endregion
