@@ -1817,7 +1817,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       using (new TemporaryRenderTarget(renderSurface))
       {
         // Fill the background of the texture with an alpha value of 0
-        GraphicsDevice.Device.Clear(ClearFlags.Target, SharpDXExtensions.FromArgb(0, Color.Black), 1.0f, 0);
+        GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
 
         // Render the control into the given texture
         RenderOverride(renderContext);

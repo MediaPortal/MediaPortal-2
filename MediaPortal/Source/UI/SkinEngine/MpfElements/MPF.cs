@@ -339,18 +339,29 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         result = t;
         return true;
       }
+      else if (targetType == typeof(Color))
+      {
+        Color color;
+        if (ColorConverter.ConvertColor(value, out color))
+        {
+          result = color;
+          return true;
+        }
+      }
       else if (targetType == typeof(Brush) && value is string || value is Color)
       {
         try
         {
-          Color color = value is Color ? (Color) value : (Color)
-              TypeDescriptor.GetConverter(typeof(Color)).ConvertFromString(value.ToString());
-          SolidColorBrush b = new SolidColorBrush
+          Color color;
+          if (ColorConverter.ConvertColor(value, out color))
+          {
+            SolidColorBrush b = new SolidColorBrush
             {
-                Color = color
+              Color = color
             };
-          result = b;
-          return true;
+            result = b;
+            return true;
+          }
         }
         catch (Exception)
         {

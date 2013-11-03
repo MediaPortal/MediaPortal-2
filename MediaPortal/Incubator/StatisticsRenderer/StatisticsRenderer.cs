@@ -276,14 +276,14 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
         Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
 
-        _device.ColorFill(surface, rcTearing, SharpDXExtensions.FromArgb(255, 255, 255, 255));
+        _device.ColorFill(surface, rcTearing, ColorConverter.FromArgb(255, 255, 255, 255));
 
         topLeft = new Point((rcTearing.Right + 15) % width, 0);
         if (topLeft.X + size.Width >= width)
           topLeft.X = 0;
 
         rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
-        _device.ColorFill(surface, rcTearing, SharpDXExtensions.FromArgb(255, 100, 100, 100));
+        _device.ColorFill(surface, rcTearing, ColorConverter.FromArgb(255, 100, 100, 100));
 
         _tearingPos = (_tearingPos + 7) % width;
       }

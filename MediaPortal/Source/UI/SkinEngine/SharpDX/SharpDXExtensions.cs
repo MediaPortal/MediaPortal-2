@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using SharpDX;
+﻿using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine
 {
@@ -48,16 +47,6 @@ namespace MediaPortal.UI.SkinEngine
     public static RectangleF CreateRectangleF(Vector2 location, Size2F size)
     {
       return new RectangleF(location.X, location.Y, size.Width, size.Height);
-    }
-    public static Color FromArgb(int alpha, Color color)
-    {
-      // Attention: the documentation of this constructor is not correct!
-      return new Color(color.G, color.B, alpha, color.R);
-    }
-    public static Color FromArgb(int alpha, int r, int g, int b)
-    {
-      // Attention: the documentation of this constructor is not correct!
-      return new Color(g, b, alpha, r);
     }
   }
 }

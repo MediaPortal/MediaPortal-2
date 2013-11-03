@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     void Init()
     {
-      _borderColorProperty = new SProperty(typeof(Color), SharpDXExtensions.FromArgb(0, Color.Black));
+      _borderColorProperty = new SProperty(typeof(Color), ColorConverter.FromArgb(0, Color.Black));
       _effectProperty = new SProperty(typeof(string), null);
       _effectTimerProperty = new SProperty(typeof(double), 0.0);
     }

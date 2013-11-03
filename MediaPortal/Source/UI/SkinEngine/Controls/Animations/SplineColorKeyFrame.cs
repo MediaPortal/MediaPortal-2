@@ -105,12 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (keyframe >= 1.0) return Value;
       if (double.IsNaN(keyframe)) return start;
       double v = _spline.GetSplineProgress(keyframe);
-
-      double a = start.A + ((Value.A - start.A) * v);
-      double r = start.R + ((Value.R - start.R) * v);
-      double g = start.G + ((Value.G - start.G) * v);
-      double b = start.B + ((Value.B - start.B) * v);
-      return SharpDXExtensions.FromArgb((int) a, (int) r, (int) g, (int) b);
+      return Color.SmoothStep(start, Value, (float)v);
     }
   }
 }

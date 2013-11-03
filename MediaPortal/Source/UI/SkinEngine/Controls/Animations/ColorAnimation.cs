@@ -124,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (patc.DataDescriptor == null) return;
 
       Color from = From ?? ConvertToColor(patc.StartValue);
-      Color to = To ?? (By.HasValue ? SharpDXExtensions.FromArgb(
+      Color to = To ?? (By.HasValue ? ColorConverter.FromArgb(
           from.A + By.Value.A,
           from.R + By.Value.R,
           from.G + By.Value.G,
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       distB *= timepassed;
       distB += from.B;
 
-      object value = SharpDXExtensions.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);
+      object value = ColorConverter.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);
       if (TypeConverter.Convert(value, patc.DataDescriptor.DataType, out value))
         patc.DataDescriptor.Value = value;
       else
