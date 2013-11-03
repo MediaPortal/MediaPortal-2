@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -47,8 +48,8 @@ namespace UPnP.Infrastructure.Dv.GENA
     protected uint _eventKey = 0;
     protected IDictionary<DvStateVariable, ModerationData> _moderationData =
         new Dictionary<DvStateVariable, ModerationData>();
-    protected SortedList<DateTime, IEnumerable<DvStateVariable>> _scheduledEventNotifications =
-        new SortedList<DateTime, IEnumerable<DvStateVariable>>();
+    protected SortedList<DateTime, List<DvStateVariable>> _scheduledEventNotifications =
+        new SortedList<DateTime, List<DvStateVariable>>();
 
     /// <summary>
     /// Returns the current event sequence number. The sequence number is <code>0</code> for the initial
@@ -111,7 +112,12 @@ namespace UPnP.Infrastructure.Dv.GENA
       }
       else
         scheduleTime = now;
-      _scheduledEventNotifications.Add(scheduleTime, new DvStateVariable[] {variable});
+
+      List<DvStateVariable> scheduledVariables;
+      if (_scheduledEventNotifications.TryGetValue(scheduleTime, out scheduledVariables) && scheduledVariables != null)
+        scheduledVariables.Add(variable);
+      else
+        _scheduledEventNotifications[scheduleTime] = new List<DvStateVariable> {variable};
     }
 
     /// <summary>
@@ -121,21 +127,25 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <param name="scheduleTime">Time when the event will be scheduled.</param>
     public void ScheduleEventNotification(IEnumerable<DvStateVariable> variables, DateTime scheduleTime)
     {
-      _scheduledEventNotifications.Add(scheduleTime, variables);
+      List<DvStateVariable> scheduledVariables;
+      if (_scheduledEventNotifications.TryGetValue(scheduleTime, out scheduledVariables) && scheduledVariables != null)
+        scheduledVariables.AddRange(variables);
+      else
+        _scheduledEventNotifications[scheduleTime] = new List<DvStateVariable>(variables);
     }
 
     public TimeSpan? GetNextScheduleTimeSpan()
     {
-      KeyValuePair<DateTime, IEnumerable<DvStateVariable>>? kvp = GetFirstScheduledEventNotification();
+      KeyValuePair<DateTime, List<DvStateVariable>>? kvp = GetFirstScheduledEventNotification();
       if (kvp == null)
         return null;
       TimeSpan result = kvp.Value.Key - DateTime.Now;
       return result < TimeSpan.Zero ? TimeSpan.Zero : result;
     }
 
-    protected KeyValuePair<DateTime, IEnumerable<DvStateVariable>>? GetFirstScheduledEventNotification()
+    protected KeyValuePair<DateTime, List<DvStateVariable>>? GetFirstScheduledEventNotification()
     {
-      IEnumerator<KeyValuePair<DateTime, IEnumerable<DvStateVariable>>> enumer = _scheduledEventNotifications.GetEnumerator();
+      IEnumerator<KeyValuePair<DateTime, List<DvStateVariable>>> enumer = _scheduledEventNotifications.GetEnumerator();
       if (enumer.MoveNext())
         return enumer.Current;
       return null;
@@ -147,7 +157,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       ICollection<DvStateVariable> result = null;
       // Continue stepping through the (sorted) list of pending event notifications and collect all
       // variables to event until we find an entry which is scheduled in the future
-      KeyValuePair<DateTime, IEnumerable<DvStateVariable>>? kvp;
+      KeyValuePair<DateTime, List<DvStateVariable>>? kvp;
       while ((kvp = GetFirstScheduledEventNotification()).HasValue)
       {
         if (kvp.Value.Key <= now)
