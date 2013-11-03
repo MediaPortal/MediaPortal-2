@@ -137,23 +137,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
         return;
       }
 
-      double distA = (to.A - from.A) / duration;
-      distA *= timepassed;
-      distA += from.A;
-
-      double distR = (to.R - from.R) / duration;
-      distR *= timepassed;
-      distR += from.R;
-
-      double distG = (to.G - from.G) / duration;
-      distG *= timepassed;
-      distG += from.G;
-
-      double distB = (to.B - from.B) / duration;
-      distB *= timepassed;
-      distB += from.B;
-
-      object value = ColorConverter.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);
+      float progress = timepassed / (float)duration;
+      object value = Color.SmoothStep(from, to, progress);
       if (TypeConverter.Convert(value, patc.DataDescriptor.DataType, out value))
         patc.DataDescriptor.Value = value;
       else
