@@ -64,6 +64,7 @@ namespace MediaPortal.UI.Players.Video
     protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
+    protected LocalFsResourceAccessorHelper _localFsRaHelper;
 
     #endregion
 
@@ -86,7 +87,10 @@ namespace MediaPortal.UI.Players.Video
       // Free subtitle filter
       FilterGraphTools.TryDispose(ref _subtitleRenderer);
       FilterGraphTools.TryRelease(ref _subtitleFilter);
-      
+
+      // Free locally mounted remote resources
+      FilterGraphTools.TryDispose(ref _localFsRaHelper);
+
       // Free base class
       base.FreeCodecs();
 
@@ -132,8 +136,9 @@ namespace MediaPortal.UI.Players.Video
       }
       else
       {
-        //_resourceAccessor points to a local .ts file
-        var localFileSystemResourceAccessor = _resourceAccessor as ILocalFsResourceAccessor;
+        // _resourceAccessor points to a local or remote mapped .ts file
+        _localFsRaHelper = new LocalFsResourceAccessorHelper(_resourceAccessor);
+        var localFileSystemResourceAccessor = _localFsRaHelper.LocalFsResourceAccessor;
 
         if (localFileSystemResourceAccessor == null)
           throw new IllegalCallException("The TsVideoPlayer can only play file resources of type ILocalFsResourceAccessor");
@@ -142,7 +147,6 @@ namespace MediaPortal.UI.Players.Video
 
         fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
       }
-
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
     }
