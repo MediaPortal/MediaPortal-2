@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       _imageContext.ShaderEffect = SkinResources.EFFECTS_SUB_DIRECTORY + '\\' + _partialShaderEffect;
 
       Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
-      _imageContext.StartRender(renderContext, frameSize, texture, CROP_FULLSIZE, 0, lastFrameData);
+      _imageContext.StartRender(renderContext, frameSize, texture, CROP_FULLSIZE, Color.Transparent, lastFrameData);
       return true;
     }
 

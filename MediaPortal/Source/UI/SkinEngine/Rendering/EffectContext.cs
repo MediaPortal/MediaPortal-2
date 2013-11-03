@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Texture texture, RectangleF textureClip,
-        int borderColor, Vector4 frameData)
+        Color borderColor, Vector4 frameData)
     {
       RefreshParameters(targetImageSize, texture, textureClip);
       return StartRender(renderContext, borderColor, frameData);
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected methods
 
-    protected virtual bool StartRender(RenderContext renderContext, int borderColor, Vector4 frameData)
+    protected virtual bool StartRender(RenderContext renderContext, Color borderColor, Vector4 frameData)
     {
       if (_effect == null || _lastTexture == null)
         return false;
@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           _effect.Parameters[pair.Key] = pair.Value;
 
       // Set border colour for area outside of texture boundaries
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor);
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
       // Render
       _effect.StartRender(_lastTexture, renderContext.Transform);
       return true;

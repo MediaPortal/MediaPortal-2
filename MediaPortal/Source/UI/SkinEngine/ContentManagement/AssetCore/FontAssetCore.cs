@@ -477,7 +477,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           1.0f,
           (c.X + 0.5f) / _charSet.Width,
           c.Y / (float) _charSet.Height,
-          0
+          Color.Transparent
           );
       PositionColoredTextured br = new PositionColoredTextured(
           (x + c.Width) * sizeScale,
@@ -485,10 +485,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           1.0f,
           (c.X + c.Width) / (float) _charSet.Width,
           (c.Y + c.Height - 0.5f) / _charSet.Height,
-          0
+          Color.Transparent
           );
-      PositionColoredTextured bl = new PositionColoredTextured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
-      PositionColoredTextured tr = new PositionColoredTextured(br.X, tl.Y, 1.0f, br.Tu1, tl.Tv1, 0);
+      PositionColoredTextured bl = new PositionColoredTextured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, Color.Transparent);
+      PositionColoredTextured tr = new PositionColoredTextured(br.X, tl.Y, 1.0f, br.Tu1, tl.Tv1, Color.Transparent);
 
       verts.Add(tl);
       verts.Add(bl);

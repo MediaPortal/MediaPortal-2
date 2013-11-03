@@ -205,7 +205,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-        SizeF targetEndImageSize, Texture endTexture, RectangleF endTextureClip, int borderColor, Vector4 startFrameData, Vector4 endFrameData)
+        SizeF targetEndImageSize, Texture endTexture, RectangleF endTextureClip, Color borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
       RefreshParameters(targetEndImageSize, endTexture, endTextureClip);
       if (_effectTransition == null)
@@ -226,8 +226,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
 
       // Set border colour for area outside of texture boundaries
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor);
-      GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor);
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
+      GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor.ToBgra());
           
       // Render
       _effectTransition.StartRender(_lastTexture, renderContext.Transform);
@@ -272,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected methods
 
-    protected override bool StartRender(RenderContext renderContext, int borderColor, Vector4 frameData)
+    protected override bool StartRender(RenderContext renderContext, Color borderColor, Vector4 frameData)
     {
       if (_effect == null || _lastTexture == null)
         return false;
@@ -291,7 +291,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
 
       // Set border colour for area outside of texture boundaries
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor);
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
       
       // Render
       _effect.StartRender(_lastTexture, renderContext.Transform);

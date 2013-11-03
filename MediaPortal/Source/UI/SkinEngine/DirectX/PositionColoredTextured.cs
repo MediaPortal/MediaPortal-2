@@ -81,24 +81,24 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static readonly int StrideSize = 24;
 
-    public PositionColoredTextured(float x, float y, float z, float u1, float v1, int color)
+    public PositionColoredTextured(float x, float y, float z, float u1, float v1, Color4 color)
     {
       X = x;
       Y = y;
       Z = z;
       Tu1 = u1;
       Tv1 = v1;
-      Color = color;
+      Color = color.ToBgra();
     }
 
-    public PositionColoredTextured(Vector3 position, float u1, float v1, int color)
+    public PositionColoredTextured(Vector3 position, float u1, float v1, Color4 color)
     {
       X = position.X;
       Y = position.Y;
       Z = position.Z;
       Tu1 = u1;
       Tv1 = v1;
-      Color = color;
+      Color = color.ToBgra();
     }
 
     /// <summary>Gets and sets the position</summary>
@@ -115,14 +115,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static PositionColoredTextured[] CreateQuad_Fan(float left, float top, float right, float bottom,
       float uLeft, float vTop, float uRight, float vBottom,
-      float zPos, int color)
+      float zPos, Color4 color)
     {
       PositionColoredTextured[] verts = new PositionColoredTextured[4];
 
       // Upper left
       verts[0].X = left;
       verts[0].Y = top;
-      verts[0].Color = color;
+      verts[0].Color = color.ToBgra();
       verts[0].Tu1 = uLeft;
       verts[0].Tv1 = vTop;
       verts[0].Z = zPos;
@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // Bottom left
       verts[1].X = left;
       verts[1].Y = bottom;
-      verts[1].Color = color;
+      verts[1].Color = color.ToBgra();
       verts[1].Tu1 = uLeft;
       verts[1].Tv1 = vBottom;
       verts[1].Z = zPos;
@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // Bottom right
       verts[2].X = right;
       verts[2].Y = bottom;
-      verts[2].Color = color;
+      verts[2].Color = color.ToBgra();
       verts[2].Tu1 = uRight;
       verts[2].Tv1 = vBottom;
       verts[2].Z = zPos;
@@ -146,15 +146,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // Upper right
       verts[3].X = right;
       verts[3].Y = top;
-      verts[3].Color = color;
+      verts[3].Color = color.ToBgra();
       verts[3].Tu1 = uRight;
       verts[3].Tv1 = vTop;
       verts[3].Z = zPos;
 
       return verts;
     }
-    
-    public static PositionColoredTextured[] CreateQuad_Fan(float left, float top, float right, float bottom, float zPos, int color)
+
+    public static PositionColoredTextured[] CreateQuad_Fan(float left, float top, float right, float bottom, float zPos, Color4 color)
     {
       return CreateQuad_Fan(left, top, right, bottom, 0.0f, 0.0f, 1.0f, 1.0f, zPos, color);
     }

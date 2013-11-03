@@ -861,8 +861,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             buffer[offset++] = _color.A;
           }
 
-          _texture = new Texture(GraphicsDevice.Device, TEXTURE_SIZE, TEXTURE_SIZE, 1, Usage.Dynamic, Format.A8R8G8B8,
-                Pool.Default);
+          _texture = new Texture(GraphicsDevice.Device, TEXTURE_SIZE, TEXTURE_SIZE, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
 
           DataStream dataStream;
           _texture.LockRectangle(0, LockFlags.None, out dataStream);

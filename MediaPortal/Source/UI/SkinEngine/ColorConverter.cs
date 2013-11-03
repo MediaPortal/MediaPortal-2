@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine
     /// <returns>Color4.</returns>
     public static Color4 FromColor(Color color)
     {
-      Color4 v = new Color4(color.A, color.R, color.G, color.B);
+      Color4 v = new Color4(color.R, color.G, color.B, color.A);
       v.Alpha /= 255.0f;
       v.Red /= 255.0f;
       v.Green /= 255.0f;

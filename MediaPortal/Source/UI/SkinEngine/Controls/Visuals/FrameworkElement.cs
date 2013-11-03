@@ -2001,12 +2001,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
-      int color = col.ToBgra();
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
           bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
           bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height,
-          zPos, color);
+          zPos, col);
 
       effect.SetupEffect(this, ref verts, zPos, false);
       PrimitiveBuffer.SetPrimitiveBuffer(ref _effectContext, ref verts, PrimitiveType.TriangleFan);
@@ -2053,12 +2052,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
-      int color = col.ToBgra();
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
           bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
           0.0f, 0.0f, 1.0f, 1.0f,
-          zPos, color);
+          zPos, col);
 
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
       PrimitiveBuffer.SetPrimitiveBuffer(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);

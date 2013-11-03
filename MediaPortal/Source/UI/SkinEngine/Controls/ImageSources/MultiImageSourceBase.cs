@@ -182,7 +182,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             _lastImageContext.Update(startSize, start, lastTextureClip);
 
             if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext,
-                endSize, end, currentTextureClip, BorderColor.ToBgra(), lastFrameData, frameData))
+                endSize, end, currentTextureClip, BorderColor, lastFrameData, frameData))
             {
               _primitiveBuffer.Render(0);
               _imageContext.EndRenderTransition();
@@ -195,7 +195,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
-        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor.ToBgra(), frameData))
+        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor, frameData))
         {
           _primitiveBuffer.Render(0);
           _imageContext.EndRender();

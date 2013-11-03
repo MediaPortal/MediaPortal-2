@@ -211,7 +211,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float) EffectTimer, 0);
-      if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor.ToBgra(), frameData))
+      if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData))
       {
         _primitiveBuffer.Render(0);
         _imageContext.EndRender();

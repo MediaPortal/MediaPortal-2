@@ -246,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           if (v > 1) v = 1;
           unchecked
           {
-            Color4 color = ColorConverter.FromColor(Color.White);
+            Color4 color = Color.White;
             color.Alpha *= (float) Opacity;
             vert.Color = color.ToBgra();
           }

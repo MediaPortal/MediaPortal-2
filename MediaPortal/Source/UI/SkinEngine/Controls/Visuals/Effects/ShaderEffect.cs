@@ -58,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       _effectContext.ShaderEffect = _shaderEffectName;
 
       Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
-      _effectContext.StartRender(renderContext, frameSize, texture, CROP_FULLSIZE, 0, lastFrameData);
+      _effectContext.StartRender(renderContext, frameSize, texture, CROP_FULLSIZE, Color.Transparent, lastFrameData);
       return true;
     }
 
