@@ -143,6 +143,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       TryDispose(ref _line);
       TryDispose(ref _font);
       TryDispose(ref _fontSprite);
+      TryDispose(ref _swapChainEx);
       TryDispose(ref _swapChain);
     }
 
@@ -212,20 +213,20 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
         _fpsCounter++;
         TimeSpan ts = DateTime.Now - _fpsTimer;
-        float secs = (float) ts.TotalSeconds;
+        float secs = (float)ts.TotalSeconds;
         _fps = _fpsCounter / secs;
 
         Stats currentFrameStats = new Stats
           {
             Fps = _fps,
-            MsFrameRenderTime = (float) guiDur.TotalMilliseconds,
+            MsFrameRenderTime = (float)guiDur.TotalMilliseconds,
             MsToNextVBlank = ScanlineToVblankOffset(scanLine)
           };
 
         if (ts.TotalSeconds >= 1.0f)
         {
-          float totalAvgGuiTime = (float) _totalGuiRenderDuration.TotalMilliseconds / _totalFrameCount;
-          float avgGuiTime = (float) _guiRenderDuration.TotalMilliseconds / _frameCount;
+          float totalAvgGuiTime = (float)_totalGuiRenderDuration.TotalMilliseconds / _totalFrameCount;
+          float avgGuiTime = (float)_guiRenderDuration.TotalMilliseconds / _frameCount;
           float avgMsToVBlank = _sumMsToVBlank / _frameCount;
 
           int glitches;
@@ -273,16 +274,16 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         if (topLeft.X + size.Width >= width)
           topLeft.X = 0;
 
-      Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+        Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
 
-      _device.ColorFill(surface, rcTearing, new ColorBGRA(255, 255, 255, 255));
+        _device.ColorFill(surface, rcTearing, SharpDXExtensions.FromArgb(255, 255, 255, 255));
 
         topLeft = new Point((rcTearing.Right + 15) % width, 0);
         if (topLeft.X + size.Width >= width)
           topLeft.X = 0;
 
-      rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
-      _device.ColorFill(surface, rcTearing, new ColorBGRA(255, 100, 100, 100));
+        rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+        _device.ColorFill(surface, rcTearing, SharpDXExtensions.FromArgb(255, 100, 100, 100));
 
         _tearingPos = (_tearingPos + 7) % width;
       }
@@ -470,10 +471,10 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     {
       if (message.ChannelName == SystemMessaging.CHANNEL)
       {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
         if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
-          SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+          SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
           if (newState == SystemState.Running)
           {
             RegisterKeyBindings();
