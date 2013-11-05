@@ -1078,7 +1078,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <WrapPanel x:Name="GridItemsHost" IsItemsHost="True"/>
+                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True"/>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>

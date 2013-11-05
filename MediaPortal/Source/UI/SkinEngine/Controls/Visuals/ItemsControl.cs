@@ -577,7 +577,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         presenter.SetDataStrings(BuildDataStrings(l));
 
-        VirtualizingStackPanel vsp = _itemsHostPanel as VirtualizingStackPanel;
+        var vsp = _itemsHostPanel as IVirtualizingPanel;
         if (vsp != null)
         {
           // In this case, the VSP will generate its items by itself
@@ -690,7 +690,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           preparedItems.Dispose();
         }
       }
-      VirtualizingStackPanel vsp = itemsHostPanel as VirtualizingStackPanel;
+      var vsp = itemsHostPanel as IVirtualizingPanel;
       if (vsp == null)
         IsEmpty = itemsHostPanel.Children.Count == 0;
       // else IsEmpty has been updated by PrepareItemsOverride

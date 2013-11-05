@@ -35,7 +35,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
-  public class VirtualizingStackPanel : StackPanel
+  public class VirtualizingStackPanel : StackPanel, IVirtualizingPanel
   {
     #region Consts
 
