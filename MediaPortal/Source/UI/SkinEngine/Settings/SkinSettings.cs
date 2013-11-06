@@ -31,7 +31,8 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected string _skin;
     protected string _theme;
 
-    [Setting(SettingScope.User, "default")]
+    // Morpheus_xx 2013-11-06: Set default value to "Titanium", only used for Alpha 4 Release 12/2013.
+    [Setting(SettingScope.User, "Titanium")]
     public string Skin
     {
       get { return _skin; }
