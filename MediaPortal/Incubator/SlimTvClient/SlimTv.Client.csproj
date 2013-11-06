@@ -124,6 +124,7 @@
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
+    <Compile Include="Models\Navigation\RecordingItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />

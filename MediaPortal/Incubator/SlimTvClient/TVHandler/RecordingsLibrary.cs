@@ -27,9 +27,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -53,7 +53,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
 
-      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new VideoItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
       _defaultScreen = new RecordingFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>

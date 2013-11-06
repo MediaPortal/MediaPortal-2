@@ -682,5 +682,75 @@
         </MultiBinding>
       </Control.Template>
     </Control>
-  </DataTemplate>  
+  </DataTemplate>
+
+  <!-- RecordingItem -->
+  <ControlTemplate x:Key="ListViewRecordingItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+        <Image x:Name="ItemTypeSmall" Stretch="Uniform"
+            Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+          <Image.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+          </Image.IsVisible>
+          <Image.FallbackSource>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          </Image.FallbackSource>
+        </Image>
+        <Image x:Name="ItemTypeMedium" Stretch="Uniform"
+            Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+          <Image.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+          </Image.IsVisible>
+          <Image.FallbackSource>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          </Image.FallbackSource>
+        </Image>
+        <Image x:Name="ItemTypeLarge" Stretch="Uniform"
+            Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+          <Image.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+          </Image.IsVisible>
+          <Image.FallbackSource>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          </Image.FallbackSource>
+        </Image>
+      </DockPanel>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
+      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+        <Grid.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutSize}.{Small}"/>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="VideoEncoding" Grid.Column="0" Content="{Binding VideoEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+        <Label x:Name="StartTime" Grid.Column="1" Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:RecordingItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewRecordingItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewVideoItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
 </ResourceDictionary>

@@ -40,6 +40,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           new Guid("C389F655-ED60-4271-91EA-EC589BD815C6") /* RecordingAspect.ASPECT_ID*/
       };
 
+    public const string KEY_CHANNEL = "Channel";
+    public const string KEY_STARTTIME = "StartTime";
+    public const string KEY_ENDTIME = "EndTime";
+
     public const string SCREEN_RECORDINGS_FILTER_BY_CHANNEL = "RecordingsByChannel";
     public const string SCREEN_RECORDINGS_FILTER_BY_NAME = "RecordingsByName";
 
