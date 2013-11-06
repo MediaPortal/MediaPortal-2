@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Utilities.FileSystem;
 
@@ -49,9 +51,12 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     {
       result = null;
       string baseFolder = GetBaseFolder(mediaType, name);
-      // No known series
       if (baseFolder == null || !Directory.Exists(baseFolder))
+      {
+        if (baseFolder != null)
+          ServiceRegistration.Get<ILogger>().Error("SlimTvFanartProvider: Directory '{0}' not found", baseFolder);
         return false;
+      }
 
       string pattern = GetPattern(mediaType, fanArtType, name);
       if (string.IsNullOrEmpty(pattern))
@@ -63,7 +68,10 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         if (directoryInfo.Exists)
         {
           result = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
-          return result.Count > 0;
+          int count = result.Count;
+          if (count == 0)
+            ServiceRegistration.Get<ILogger>().Info("SlimTvFanartProvider: No result for '{0}'", pattern);
+          return count > 0;
         }
       }
       catch (Exception) { }
@@ -83,7 +91,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       switch (mediaType)
       {
         case FanArtConstants.FanArtMediaType.Channel:
-          return @"Plugins\SlimTv.Resources\Resources\ChannelLogos";
+          return FileUtils.BuildAssemblyRelativePath(@"Resources\ChannelLogos");
         default:
           return null;
       }
