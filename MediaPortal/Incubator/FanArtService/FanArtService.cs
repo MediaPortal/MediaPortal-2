@@ -64,6 +64,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
               if (provider == null)
                 throw new PluginInvalidStateException("Could not create IFanArtProvider instance of class {0}", fanartProviderRegistration.ProviderClass);
               _providerList.Add(provider);
+              ServiceRegistration.Get<ILogger>().Info("Successfully activated Fanart provider '{0}' (Id '{1}')", itemMetadata.Attributes["ClassName"], itemMetadata.Id);
             }
           }
           catch (PluginInvalidStateException e)
