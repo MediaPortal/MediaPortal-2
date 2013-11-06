@@ -129,7 +129,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         using (var memoryStream = new MemoryStream())
         {
           // Scale down larger images
-          image = ResizeImage(image, MAX_TEXTURE_DIMENSION, MAX_TEXTURE_DIMENSION);
+          int resizeWidth = MAX_TEXTURE_DIMENSION;
+          int resizeHeight = MAX_TEXTURE_DIMENSION;
+
+          if (_decodeWidth > 0)
+            resizeWidth = Math.Min(_decodeWidth, MAX_TEXTURE_DIMENSION);
+
+          if (_decodeHeight > 0)
+            resizeHeight = Math.Min(_decodeHeight, MAX_TEXTURE_DIMENSION);
+
+          image = ResizeImage(image, resizeWidth, resizeHeight);
           FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
           Stream loadStream = memoryStream;
           if (loadStream.Length == 0)
@@ -200,8 +209,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           SurfaceDescription desc = _texture.GetLevelDescription(0);
           _width = fileWidth;
           _height = fileHeight;
-          _maxU = fileWidth / ((float) desc.Width);
-          _maxV = fileHeight / ((float) desc.Height);
+          _maxU = fileWidth / ((float)desc.Width);
+          _maxV = fileHeight / ((float)desc.Height);
           _allocationSize = desc.Width * desc.Height * 4;
           AllocationChanged(_allocationSize);
         }
@@ -655,11 +664,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         _state = State.LoadingSync;
 
       Texture texture;
-      ImageInformation info;
+      ImageInformation info = new ImageInformation();
       try
       {
-        texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
-            Pool.Default, Filter.None, Filter.None, 0, out info);
+        using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 2048, true))
+          texture = AllocateFromImageStream(stream, ref info);
       }
       catch (Exception e)
       {
