@@ -92,7 +92,6 @@ namespace MediaPortal.Database.SQLite
         // Therefore we have to use a workaround below to create a database file with the specified page size.
         string databaseFileForUri = databaseFile.Replace('\\', '/');
         string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFileForUri + "?cache=shared");
-        ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: URI used in connection string: '{0}'", databaseUri);
 
         _connectionPool = new ConnectionPool<SQLiteConnection>(CreateOpenAndInitializeConnection);
 
