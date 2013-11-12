@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private const string SCREEN_SAVER_SCREEN = "ScreenSaver";
 
     private bool _renderThreadStopped;
-    private ISlimDXVideoPlayer _synchronizedVideoPlayer = null;
+    private ISharpDXVideoPlayer _synchronizedVideoPlayer = null;
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
     private readonly AutoResetEvent _renderFinishedEvent = new AutoResetEvent(false);
     private bool _videoPlayerSuspended = false;
@@ -333,20 +333,20 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         if (videoPlayer == _synchronizedVideoPlayer)
           return;
-        ISlimDXVideoPlayer oldPlayer = _synchronizedVideoPlayer;
+        ISharpDXVideoPlayer oldPlayer = _synchronizedVideoPlayer;
         _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
-        ISlimDXVideoPlayer slimDxVideoPlayer = videoPlayer as ISlimDXVideoPlayer;
-        if (slimDxVideoPlayer != null)
-          if (slimDxVideoPlayer.SetRenderDelegate(VideoPlayerRender))
+        ISharpDXVideoPlayer SharpDXVideoPlayer = videoPlayer as ISharpDXVideoPlayer;
+        if (SharpDXVideoPlayer != null)
+          if (SharpDXVideoPlayer.SetRenderDelegate(VideoPlayerRender))
           {
-            _synchronizedVideoPlayer = slimDxVideoPlayer;
-            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", slimDxVideoPlayer);
+            _synchronizedVideoPlayer = SharpDXVideoPlayer;
+            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", SharpDXVideoPlayer);
           }
           else
             ServiceRegistration.Get<ILogger>().Info(
-                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", slimDxVideoPlayer);
+                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", SharpDXVideoPlayer);
       }
     }
 

@@ -387,7 +387,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       int index = 0;
       pm.ForEach(psc =>
         {
-          ISlimDXVideoPlayer player = psc.CurrentPlayer as ISlimDXVideoPlayer;
+          ISharpDXVideoPlayer player = psc.CurrentPlayer as ISharpDXVideoPlayer;
           if (player == null || player.Surface == null)
             return;
           SurfaceDescription desc = player.Surface.Description;

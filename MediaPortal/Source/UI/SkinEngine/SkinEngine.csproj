@@ -279,8 +279,8 @@
     <Compile Include="MpfElements\IBindingContainer.cs" />
     <Compile Include="MpfElements\ISkinEngineManagedObject.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
-    <Compile Include="Players\ISlimDXImagePlayer.cs" />
-    <Compile Include="Players\ISlimDXVideoPlayer.cs" />
+    <Compile Include="Players\ISharpDXImagePlayer.cs" />
+    <Compile Include="Players\ISharpDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Players\PlayerRotationTranslator.cs" />
     <Compile Include="Rendering\EffectContext.cs" />

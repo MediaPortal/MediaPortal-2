@@ -1087,7 +1087,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Shutting down");
       UnsubscribeFromMessages();
-      // Close all screens to make sure all SlimDX objects are correctly cleaned up
+      // Close all screens to make sure all SharpDX objects are correctly cleaned up
       DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
       FinishGarbageCollection();
 

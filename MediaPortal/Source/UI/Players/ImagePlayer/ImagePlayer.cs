@@ -46,7 +46,7 @@ using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Image
 {
-  public class ImagePlayer : IDisposable, ISlimDXImagePlayer, IPlayerEvents, IReusablePlayer, IMediaPlaybackControl
+  public class ImagePlayer : IDisposable, ISharpDXImagePlayer, IPlayerEvents, IReusablePlayer, IMediaPlaybackControl
   {
     #region Consts
 
@@ -439,7 +439,7 @@ namespace MediaPortal.UI.Players.Image
 
     #endregion
 
-    #region ISlimDXImagePlayer implementation
+    #region ISharpDXImagePlayer implementation
 
     public object ImagesLock
     {

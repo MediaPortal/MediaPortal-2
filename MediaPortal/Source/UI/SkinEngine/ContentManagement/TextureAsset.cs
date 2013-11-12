@@ -136,7 +136,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Gets the actual SlimDX texture resource.
+    /// Gets the actual SharpDX texture resource.
     /// </summary>
     public Texture Texture
     {

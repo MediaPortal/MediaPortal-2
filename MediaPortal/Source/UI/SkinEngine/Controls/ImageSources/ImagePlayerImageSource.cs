@@ -119,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         return;
       }
 
-      ISlimDXImagePlayer player = playerContextManager[Stream] as ISlimDXImagePlayer;
+      ISharpDXImagePlayer player = playerContextManager[Stream] as ISharpDXImagePlayer;
       if (player == null) 
       {
         FreeData();
@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           if (texture != _lastCopiedTexture)
           {
             _lastCopiedTexture = texture;
-            // The SlimDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
+            // The SharpDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
             // in horizontal or vertical direction after the rotation. Very few images have those flags; we don't implement them here.
             CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
           }

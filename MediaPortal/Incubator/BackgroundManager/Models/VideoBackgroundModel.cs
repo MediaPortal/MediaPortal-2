@@ -76,9 +76,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       get { return _videoPlayerProperty; }
     }
 
-    public ISlimDXVideoPlayer VideoPlayer
+    public ISharpDXVideoPlayer VideoPlayer
     {
-      get { return (ISlimDXVideoPlayer) _videoPlayerProperty.GetValue(); }
+      get { return (ISharpDXVideoPlayer) _videoPlayerProperty.GetValue(); }
       set { _videoPlayerProperty.SetValue(value); }
     }
 
@@ -100,7 +100,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public VideoBackgroundModel()
     {
-      _videoPlayerProperty = new WProperty(typeof(ISlimDXVideoPlayer), null);
+      _videoPlayerProperty = new WProperty(typeof(ISharpDXVideoPlayer), null);
       _isEnabledProperty = new WProperty(typeof(bool), false);
       _settings.SettingsChanged += RefreshSettings;
       RefreshSettings();
@@ -177,7 +177,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
         if (player != null)
           player.AutoRepeat = true;
 
-        VideoPlayer = player as ISlimDXVideoPlayer;
+        VideoPlayer = player as ISharpDXVideoPlayer;
       }
       catch (Exception ex)
       {

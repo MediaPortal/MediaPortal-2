@@ -239,7 +239,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     /// <summary>
     /// DirectX9 does not define what happens when a NULL texture is accessed in a shader. Because of this the action
-    /// of assigning a NULL texture is blocked by SlimDX. This property provides a transparent texture to use instead.
+    /// of assigning a NULL texture is blocked by SharpDX. This property provides a transparent texture to use instead.
     /// </summary>
     protected TextureAsset NullTexture
     {

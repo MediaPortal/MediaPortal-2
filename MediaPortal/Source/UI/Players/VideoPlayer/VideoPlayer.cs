@@ -51,7 +51,7 @@ using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : BaseDXPlayer, ISlimDXVideoPlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
+  public class VideoPlayer : BaseDXPlayer, ISharpDXVideoPlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
   {
     #region Classes & interfaces
 
@@ -240,7 +240,7 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region ISlimDXVideoPlayer implementation
+    #region ISharpDXVideoPlayer implementation
 
     public override string Name
     {

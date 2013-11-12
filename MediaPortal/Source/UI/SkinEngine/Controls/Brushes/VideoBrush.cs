@@ -43,7 +43,7 @@ using SizeF = SharpDX.Size2F;
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   /// <summary>
-  /// Brush which paints the video image of a player of type <see cref="ISlimDXVideoPlayer"/> provided by the <see cref="IPlayerManager"/>.
+  /// Brush which paints the video image of a player of type <see cref="ISharpDXVideoPlayer"/> provided by the <see cref="IPlayerManager"/>.
   /// </summary>
   public class VideoBrush : Brush
   {
@@ -172,7 +172,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected bool RefreshEffectParameters(IVideoPlayer player)
     {
-      ISlimDXVideoPlayer sdvPlayer = player as ISlimDXVideoPlayer;
+      ISharpDXVideoPlayer sdvPlayer = player as ISharpDXVideoPlayer;
       if (sdvPlayer == null)
         return false;
       SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
@@ -313,7 +313,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      ISlimDXVideoPlayer player;
+      ISharpDXVideoPlayer player;
       if (!GetPlayer(out player))
         return false;
 
@@ -343,14 +343,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor, _lastFrameData);
     }
 
-    protected virtual bool GetPlayer(out ISlimDXVideoPlayer player)
+    protected virtual bool GetPlayer(out ISharpDXVideoPlayer player)
     {
       player = null;
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>(false);
       if (playerContextManager == null)
         return false;
 
-      player = playerContextManager[Stream] as ISlimDXVideoPlayer;
+      player = playerContextManager[Stream] as ISharpDXVideoPlayer;
       return player != null;
     }
 
