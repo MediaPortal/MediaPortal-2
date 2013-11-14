@@ -74,6 +74,11 @@ namespace MediaPortal.UI.SkinEngine
         color = (Color)value;
         return true;
       }
+      if (value is System.Drawing.Color)
+      {
+        color = ((System.Drawing.Color)value).FromDrawingColor();
+        return true;
+      }
       var convertFrom = new System.Drawing.ColorConverter().ConvertFrom(value);
       if (convertFrom == null)
       {
