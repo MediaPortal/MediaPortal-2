@@ -49,10 +49,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider
     /// <returns>True if thumbnail could be extracted.</returns>
     public bool GetThumbnail(string fileName, int width, int height, bool cachedOnly, out byte[] thumbnailBinary, out ImageType imageType)
     {
-      // TODO: use PNG for images with Alpha channel
-      imageType = ImageType.Jpeg;
-      var imageFormat = ImageFormat.Jpeg;
-
       try
       {
         using (MemoryStream memoryStream = new MemoryStream())
@@ -72,6 +68,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider
           if (bestMatchingBmp != null)
             using (bestMatchingBmp)
             {
+              ImageFormat imageFormat;
+              // If the image has an Alpha channel, prefer .png as type to keep transparency.
+              if (Image.IsAlphaPixelFormat(bestMatchingBmp.PixelFormat))
+              {
+                imageType = ImageType.Png;
+                imageFormat = ImageFormat.Png;
+              }
+              else
+              {
+                imageType = ImageType.Jpeg;
+                imageFormat = ImageFormat.Jpeg;
+              }
+
               bestMatchingBmp.Save(memoryStream, imageFormat);
               thumbnailBinary = memoryStream.ToArray();
               return true;
@@ -80,6 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider
       }
       catch { } // Ignore all internal exception that can occure inside shell library.
       thumbnailBinary = null;
+      imageType = ImageType.Unknown;
       return false;
     }
     
