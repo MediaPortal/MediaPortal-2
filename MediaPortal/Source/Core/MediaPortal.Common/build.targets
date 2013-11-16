@@ -7,8 +7,6 @@
 
   <ItemGroup>
     <References Include="$(TargetDir)log4net.dll"/>
-    <References Include="$(TargetDir)Microsoft.WindowsAPICodePack.dll"/>
-    <References Include="$(TargetDir)Microsoft.WindowsAPICodePack.Shell.dll"/>
   </ItemGroup>
 
   <Target Name="AfterBuild">

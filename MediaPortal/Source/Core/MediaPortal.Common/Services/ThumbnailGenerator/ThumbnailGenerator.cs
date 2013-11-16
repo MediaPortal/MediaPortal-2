@@ -86,7 +86,8 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
             ServiceRegistration.Get<ILogger>().Warn("Cannot add IThumbnailProvider with id '{0}'", e, itemMetadata.Id);
           }
         }
-        providerList.Sort((p1, p2) => p1.Priority.CompareTo(p2.Priority));
+        // TODO: implement sorting based on ThumbnailProviderRegistration
+        //providerList.Sort((p1, p2) => p1.Priority.CompareTo(p2.Priority));
         _providerList = providerList;
       }
     }
@@ -157,7 +158,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Error("Error creating thumbnail for '{0}' using provider '{1}", ex, fileOrFolderPath, thumbnailProvider.ProviderName);
+          ServiceRegistration.Get<ILogger>().Error("Error creating thumbnail for '{0}' using provider '{1}", ex, fileOrFolderPath, thumbnailProvider.GetType().Name);
         }
       }
       imageData = null;

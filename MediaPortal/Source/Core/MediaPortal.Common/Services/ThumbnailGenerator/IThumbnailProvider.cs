@@ -32,16 +32,6 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
   public interface IThumbnailProvider
   {
     /// <summary>
-    /// Gets the priority of the provider. Lower numbers are preferred in execution order.
-    /// </summary>
-    int Priority { get; }
-
-    /// <summary>
-    /// Gets the provider's display name.
-    /// </summary>
-    string ProviderName { get; }
-
-    /// <summary>
     /// Creates a thumbnail for the specified <paramref name="fileOrFolderPath"/> with the given paramters.
     /// </summary>
     /// <param name="fileOrFolderPath">The file or folder path to create a thumbnail image for.</param>

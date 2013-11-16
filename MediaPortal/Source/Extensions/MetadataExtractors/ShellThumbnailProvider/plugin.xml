@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ShellThumbnailProvider"
+    PluginId="{A2CF09C5-D4D0-43AC-89A8-3ECF5ED2510B}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Thumbnail creator based on Windows Explorer shell methods."
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="ShellThumbnailProvider.dll"/>
+    <Assembly FileName="..\..\MediaPortal.Common.dll"/>
+  </Runtime>
+
+  <Builder Name="ThumbnailProviderBuilder" ClassName="MediaPortal.Common.Services.ThumbnailGenerator.ThumbnailProviderBuilder"/>
+  <Register Location="/Thumbnails/Providers">
+    <ThumbnailProviderBuilder
+      Id="{B4A81FF4-CA2B-4F03-B26A-4F44023CF73B}"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider.ShellThumbnailProvider"
+      ProviderName="ShellThumbnailProvider"
+      Priority="100"/>
+  </Register>
+</Plugin>
