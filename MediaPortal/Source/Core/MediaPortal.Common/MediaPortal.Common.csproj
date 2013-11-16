@@ -315,7 +315,6 @@
     <Compile Include="Services\SystemResolver\SystemResolverBase.cs" />
     <Compile Include="Services\ThumbnailGenerator\IThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\ShellThumbnailBuilder.cs" />
-    <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
