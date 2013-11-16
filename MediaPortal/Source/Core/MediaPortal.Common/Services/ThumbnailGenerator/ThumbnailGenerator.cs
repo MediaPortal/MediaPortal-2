@@ -48,6 +48,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
     protected readonly Queue<WorkItem> _workToDo = new Queue<WorkItem>();
     protected Thread _workerThread = null;
     protected WorkItem _currentWorkItem = null;
+    protected readonly object _syncObj = new object();
 
     public void Dispose()
     {
@@ -55,7 +56,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
 
     protected bool IsInQueue(string fileOrFolderPath)
     {
-      lock (this)
+      lock (_syncObj)
         return _workToDo.Any(item => FileUtils.PathEquals(item.SourcePath, fileOrFolderPath));
     }
 
@@ -64,7 +65,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
       while (true)
       {
         WorkItem item;
-        lock (this)
+        lock (_syncObj)
         {
           int count = _workToDo.Count;
           if (count == 0)
@@ -109,7 +110,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
 
     public bool IsCreating(string fileOrFolderPath)
     {
-      lock (this)
+      lock (_syncObj)
       {
         if (IsInQueue(fileOrFolderPath))
           return true;
