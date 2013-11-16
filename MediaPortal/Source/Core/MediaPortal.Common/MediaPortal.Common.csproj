@@ -92,6 +92,8 @@
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
     <Compile Include="Services\TaskScheduler\TaskWaitableTimer.cs" />
+    <Compile Include="Services\ThumbnailGenerator\IThumbnailProvider.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ThumbnailProviderBuilder.cs" />
     <Compile Include="SystemCommunication\MPClientMetadata.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />

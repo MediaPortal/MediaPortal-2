@@ -29,6 +29,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Common.Services.ThumbnailGenerator
@@ -45,13 +47,54 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
     public const int DEFAULT_THUMB_HEIGHT = 192;
     public const ImageType DEFAULT_THUMB_IMAGE_TYPE = ImageType.Jpeg;
 
+    protected IList<IThumbnailProvider> _providerList = null;
+    protected IPluginItemStateTracker _thumbnailProviderPluginItemStateTracker;
     protected readonly Queue<WorkItem> _workToDo = new Queue<WorkItem>();
     protected Thread _workerThread = null;
     protected WorkItem _currentWorkItem = null;
     protected readonly object _syncObj = new object();
 
+    public void InitProviders()
+    {
+      lock (_syncObj)
+      {
+        if (_providerList != null)
+          return;
+
+        var providerList = new List<IThumbnailProvider>();
+
+        _thumbnailProviderPluginItemStateTracker = new FixedItemStateTracker("ThumbnailGenerator Service - Provider registration");
+
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(ThumbnailProviderBuilder.THUMBNAIL_PROVIDER_PATH))
+        {
+          try
+          {
+            ThumbnailProviderRegistration thumbnailProviderRegistration = pluginManager.RequestPluginItem<ThumbnailProviderRegistration>(ThumbnailProviderBuilder.THUMBNAIL_PROVIDER_PATH, itemMetadata.Id, _thumbnailProviderPluginItemStateTracker);
+            if (thumbnailProviderRegistration == null)
+              ServiceRegistration.Get<ILogger>().Warn("Could not instantiate IThumbnailProvider with id '{0}'", itemMetadata.Id);
+            else
+            {
+              IThumbnailProvider provider = Activator.CreateInstance(thumbnailProviderRegistration.ProviderClass) as IThumbnailProvider;
+              if (provider == null)
+                throw new PluginInvalidStateException("Could not create IThumbnailProvider instance of class {0}", thumbnailProviderRegistration.ProviderClass);
+              providerList.Add(provider);
+            }
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add IThumbnailProvider with id '{0}'", e, itemMetadata.Id);
+          }
+        }
+        providerList.Sort((p1, p2) => p1.Priority.CompareTo(p2.Priority));
+        _providerList = providerList;
+      }
+    }
+
     public void Dispose()
     {
+      foreach (IDisposable result in _providerList.OfType<IDisposable>())
+        result.Dispose();
     }
 
     protected bool IsInQueue(string fileOrFolderPath)
@@ -82,7 +125,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
       }
     }
 
-    protected static bool CreateThumbCallback(string sourcePath, int width, int height, CreatedDelegate createdDelegate)
+    protected bool CreateThumbCallback(string sourcePath, int width, int height, CreatedDelegate createdDelegate)
     {
       bool success = false;
       byte[] imageData = null;
@@ -101,11 +144,24 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
       return success;
     }
 
-    protected static bool GetThumbnailInternal(string fileOrFolderPath, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType)
+    protected bool GetThumbnailInternal(string fileOrFolderPath, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType)
     {
+      InitProviders();
       imageType = ImageType.Jpeg;
-      ShellThumbnailBuilder shellThumbnailBuilder = new ShellThumbnailBuilder();
-      return shellThumbnailBuilder.GetThumbnail(fileOrFolderPath, width, height, cachedOnly, ImageFormat.Jpeg, out imageData);
+      foreach (IThumbnailProvider thumbnailProvider in _providerList)
+      {
+        try
+        {
+          if (thumbnailProvider.GetThumbnail(fileOrFolderPath, width, height, cachedOnly, out imageData, out imageType))
+            return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error creating thumbnail for '{0}' using provider '{1}", ex, fileOrFolderPath, thumbnailProvider.ProviderName);
+        }
+      }
+      imageData = null;
+      return false;
     }
 
     public bool IsCreating(string fileOrFolderPath)
@@ -139,6 +195,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
 
     public void GetThumbnail_Async(string fileOrFolderPath, int width, int height, CreatedDelegate createdDelegate)
     {
+      InitProviders();
       if (IsCreating(fileOrFolderPath))
         return;
       if (width == 0)
