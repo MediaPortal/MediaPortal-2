@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -34,10 +32,10 @@ namespace MediaPortal.Database.SQLite
 {
   class SQLiteSettings
   {
-
     #region Constants
 
     // The following Constants are the default values for the respective settings
+    public const bool USE_EXCLUSIVE_MODE = false;
 
     // Default page size used in the database file
     // Set page size to NTFS cluster size = 4096 bytes; supposed to give better performance
@@ -63,7 +61,9 @@ namespace MediaPortal.Database.SQLite
     // Additionally we set the wal_autocheckpoint to 32768, i.e. every time a commit leads to
     // a .wal file which is bigger than 32768 pages, a checkpoint is performed.
     // Finally, we tell SQLite to store all its temporary files in RAM instead of writing them to disk.
-    private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA locking_mode=EXCLUSIVE;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
+    private const string DEFAULT_INITIALIZATION_COMMAND = USE_EXCLUSIVE_MODE ?
+        "PRAGMA locking_mode=EXCLUSIVE;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;" :
+        "PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
 
     #endregion
 
@@ -168,7 +168,7 @@ namespace MediaPortal.Database.SQLite
       var mem = new MemoryStatusEx();
       try
       {
-        if(GlobalMemoryStatusEx(mem))
+        if (GlobalMemoryStatusEx(mem))
           result = Convert.ToInt32(mem.ullTotalPhys / 1048576);
         else
           ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Error when trying to detect the total available RAM. Using minimum cache size for SQLiteDatabase.");
@@ -189,14 +189,13 @@ namespace MediaPortal.Database.SQLite
     /// </summary>
     public void LogSettings()
     {
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database Filename: '{0}' (Default Database Filename: '{1}')", DatabaseFileName, DEFAULT_DATABASE_FILE_NAME);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: PageSize: {0} Bytes (Default PageSize: {1} Bytes)", PageSize, DEFAULT_PAGE_SIZE);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database Filename: '{0}' (Default Database Filename: '{1}')", DatabaseFileName, DatabaseFileName);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: PageSize: {0} Bytes (Default PageSize: {1} Bytes)", PageSize, PageSize);
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: CacheSize: {0} pages = {1}KB (RAM: {2}MB, Default CacheSize: {3}KB)", CacheSizeInPages, CacheSizeInKiloBytes, GetRamInMegaBytes(), GetOptimalCacheSizeInKiloBytes(GetRamInMegaBytes()));
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: LockTimeout: {0}ms (Default LockTimeout: {1}ms)", LockTimeout, DEFAULT_LOCK_TIMEOUT);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Initialization Command: '{0}' (Default Initialization Command: '{1}')", InitializationCommand, DEFAULT_INITIALIZATION_COMMAND);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: LockTimeout: {0}ms (Default LockTimeout: {1}ms)", LockTimeout, LockTimeout);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Initialization Command: '{0}' (Default Initialization Command: '{1}')", InitializationCommand, InitializationCommand);
     }
 
     #endregion
-
   }
 }

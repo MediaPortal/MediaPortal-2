@@ -31,7 +31,6 @@ namespace MediaPortal.Database.SQLite
 {
     public class SQLiteTransaction : ITransaction
     {
-
       #region Variables
 
       private System.Data.SQLite.SQLiteTransaction _transaction;
@@ -111,6 +110,5 @@ namespace MediaPortal.Database.SQLite
       }
 
       #endregion
-
     }
 }

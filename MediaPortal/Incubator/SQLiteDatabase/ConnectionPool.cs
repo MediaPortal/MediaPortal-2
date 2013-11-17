@@ -51,11 +51,10 @@ namespace MediaPortal.Database.SQLite
   /// </remarks>
   public class ConnectionPool<T> : IDisposable where T:IDisposable
   {
-
     #region Constants
 
-    private const int DefaultMaxConnections = 10;
-    private const int DefaultConnectionTimeout = 30000;
+    private const int DEFAULT_MAX_CONNECTIONS = 10;
+    private const int DEFAULT_CONNECTION_TIMEOUT = 30000;
 
     #endregion
 
@@ -70,11 +69,11 @@ namespace MediaPortal.Database.SQLite
     private readonly BlockingCollection<T> _pool;
 
     // Maximum number of connections in the pool (standard: 10)
-    private readonly int _maxConnections = DefaultMaxConnections;
+    private readonly int _maxConnections = DEFAULT_MAX_CONNECTIONS;
 
     // Time in ms the pool will wait for a connection to be returned
     // when _maxConnections is reached (standard: 30.000)
-    private readonly int _connectionTimeout = DefaultConnectionTimeout;
+    private readonly int _connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
     
     // Current number of connections
     private int _numberOfConnections;
@@ -194,6 +193,5 @@ namespace MediaPortal.Database.SQLite
     }
 
     #endregion
-
   }
 }

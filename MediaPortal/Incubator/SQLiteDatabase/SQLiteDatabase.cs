@@ -47,11 +47,10 @@ namespace MediaPortal.Database.SQLite
   /// </remarks>
   public class SQLiteDatabase : ISQLDatabase, IDisposable
   {
-
     #region Constants
 
-    private const string DatabaseTypeString = "SQLite"; // Name of this Database
-    private const string DatabaseVersionString = "1.0.88.0"; // Version of the sytem.data.sqlite wrapper
+    private const string DATABASE_TYPE_STRING = "SQLite"; // Name of this Database
+    private const string DATABASE_VERSION_STRING = "1.0.89.0"; // Version of the sytem.data.sqlite wrapper
 
     #endregion
 
@@ -102,28 +101,28 @@ namespace MediaPortal.Database.SQLite
         {
           // Name of the database file including path as URI 
           FullUri = databaseUri,
-        
+
           // Use SQLite database version 3.x  
           Version = 3,
 
           // Store GUIDs as binaries, not as string
           // Saves some space in the database and is said to make search queries on GUIDs faster  
           BinaryGUID = true,
-        
+
           DefaultTimeout = _settings.LockTimeout,
           CacheSize = _settings.CacheSizeInPages,
-        
+
           // Use the Write Ahead Log mode
           // In this journal mode write locks do not block reads
           // Needed to prevent sluggish behaviour of MP2 client when trying to read from the database (through MP2 server)
           // while MP2 server writes to the database (such as when importing shares)
           // More information can be found here: http://www.sqlite.org/wal.html
           JournalMode = SQLiteJournalModeEnum.Wal,
-        
+
           // Do not use the inbuilt connection pooling of System.Data.SQLite
           // We use our own connection pool which is faster.
           Pooling = false,
-        
+
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
           // corruption and is therefore a good compromise between "Off" (more performance) and "On"
           // More information can be found here: http://www.sqlite.org/pragma.html#pragma_synchronous
@@ -137,14 +136,14 @@ namespace MediaPortal.Database.SQLite
 
         if (_settings.EnableTraceLogging)
           connBuilder.Flags = SQLiteConnectionFlags.LogAll;
-        
+
         _connectionString = connBuilder.ToString();
         ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Connection String used: '{0}'", _connectionString);
 
         if (!File.Exists(databaseFile))
         {
-          ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database file does not exists. Creating database file");       
-          
+          ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database file does not exists. Creating database file");
+
           if (!Directory.Exists(dataDirectory))
             Directory.CreateDirectory(dataDirectory);
 
@@ -162,7 +161,7 @@ namespace MediaPortal.Database.SQLite
           {
             connection.Open();
             connection.Close();
-          }  
+          }
         }
 
         // The following is necessary to avoid the creation of of a shared memory index file
@@ -180,15 +179,18 @@ namespace MediaPortal.Database.SQLite
         // although we issue "PRAGMA locking_mode=EXCLUSIVE" at this point.
         // For details see here: http://sqlite.org/wal.html#noshm
         // Avoiding the creation of an "-shm"-file materially improves the database performance.
-        connBuilder.JournalMode = SQLiteJournalModeEnum.Off;
-        using (var connection = new SQLiteConnection(connBuilder.ToString()))
+        if (SQLiteSettings.USE_EXCLUSIVE_MODE)
         {
-          connection.Open();
-          using (var command = new SQLiteCommand("PRAGMA locking_mode=EXCLUSIVE;", connection))
-            command.ExecuteNonQuery();
-          connection.Close();
+          connBuilder.JournalMode = SQLiteJournalModeEnum.Off;
+          using (var connection = new SQLiteConnection(connBuilder.ToString()))
+          {
+            connection.Open();
+            using (var command = new SQLiteCommand("PRAGMA locking_mode=EXCLUSIVE;", connection))
+              command.ExecuteNonQuery();
+            connection.Close();
+          }
         }
-          
+
         // Just test one "regular" connection, which is the first connection in the pool
         using (var transaction = BeginTransaction())
           transaction.Rollback();
@@ -254,12 +256,12 @@ namespace MediaPortal.Database.SQLite
 
     public string DatabaseType
     {
-      get { return DatabaseTypeString; }
+      get { return DATABASE_TYPE_STRING; }
     }
 
     public string DatabaseVersion
     {
-      get { return DatabaseVersionString; }
+      get { return DATABASE_VERSION_STRING; }
     }
 
     public uint MaxObjectNameLength
@@ -268,7 +270,7 @@ namespace MediaPortal.Database.SQLite
     }
 
     public string GetSQLType(Type dotNetType)
-    {     
+    {
       // SQLite only knows five storage classes:
       // TEXT, INTEGER, REAL, BLOB and NULL
       // More information can be found here: http://www.sqlite.org/datatype3.html
@@ -315,10 +317,9 @@ namespace MediaPortal.Database.SQLite
 
     public IDbDataParameter AddParameter(IDbCommand command, string name, object value, Type type)
     {
-      
       if (type == typeof(byte[]))
       {
-        var result = (SQLiteParameter) command.CreateParameter();
+        var result = (SQLiteParameter)command.CreateParameter();
         result.ParameterName = name;
         result.Value = value ?? DBNull.Value;
         result.DbType = DbType.Binary;
@@ -333,10 +334,10 @@ namespace MediaPortal.Database.SQLite
     {
       if (reader.IsDBNull(colIndex))
         return null;
-      
+
       if (type == typeof(byte[]))
       {
-        var result = (byte[])((SQLiteDataReader) reader).GetValue(colIndex);
+        var result = (byte[])((SQLiteDataReader)reader).GetValue(colIndex);
         return result;
       }
 
@@ -366,7 +367,7 @@ namespace MediaPortal.Database.SQLite
         {
           cmd.CommandText = @"SELECT count(*) FROM sqlite_master WHERE name='" + tableName + "' AND type='table'";
           var cnt = (long)cmd.ExecuteScalar();
-          return (cnt == 1);          
+          return (cnt == 1);
         }
       }
     }
@@ -408,6 +409,5 @@ namespace MediaPortal.Database.SQLite
     }
 
     #endregion
-
   }
 }
