@@ -81,6 +81,10 @@ namespace MediaPortal.Database.SQLite
           SQLiteLog.Log += MPSQLiteLogEventHandler;
         }
 
+        // We use our own collation sequence which is registered here to be able
+        // to sort items taking into account culture specifics
+        SQLiteFunction.RegisterFunction(typeof(SQLiteCultureSensitiveCollation));
+        
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
@@ -278,7 +282,7 @@ namespace MediaPortal.Database.SQLite
       if (dotNetType == typeof(DateTime))
         return "TEXT";
       if (dotNetType == typeof(Char))
-        return "TEXT";
+        return "TEXT COLLATE NOCASE";
       if (dotNetType == typeof(Boolean))
         return "INTEGER";
       if (dotNetType == typeof(Single))
@@ -302,12 +306,12 @@ namespace MediaPortal.Database.SQLite
 
     public string GetSQLVarLengthStringType(uint maxNumChars)
     {
-      return "TEXT";
+      return "TEXT COLLATE NOCASE";
     }
 
     public string GetSQLFixedLengthStringType(uint maxNumChars)
     {
-      return "TEXT";
+      return "TEXT COLLATE NOCASE";
     }
 
     public bool IsCLOB(uint maxNumChars)
