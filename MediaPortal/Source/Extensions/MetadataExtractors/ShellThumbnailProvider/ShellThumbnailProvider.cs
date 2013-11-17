@@ -22,10 +22,12 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using MediaPortal.Common.Services.ThumbnailGenerator;
+using MediaPortal.Utilities.Graphics;
 using Microsoft.WindowsAPICodePack.Shell;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider
@@ -34,7 +36,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider
   /// ShellThumbnailProvider extracts thumbnails for image and video files using the Windows provided thumbnail creation and
   /// caching feature.
   /// </summary>
-  public class ShellThumbnailProvider: IThumbnailProvider
+  public class ShellThumbnailProvider : IThumbnailProvider
   {
     /// <summary>
     /// Extracts a thumbnail for a given <paramref name="fileName"/> and returns the best matching resolution from the windows thumbs cache.
@@ -92,12 +94,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider
       imageType = ImageType.Unknown;
       return false;
     }
-    
+
     public bool GetThumbnail(Stream stream, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType)
     {
-      imageData = null;
-      imageType = ImageType.Unknown;
-      return false;
+      try
+      {
+        using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, width, height))
+        {
+          imageData = resized.ToArray();
+          imageType = ImageType.Jpeg;
+          return true;
+        }
+      }
+      catch (Exception)
+      {
+        imageData = null;
+        imageType = ImageType.Unknown;
+        return false;
+      }
     }
   }
 }
