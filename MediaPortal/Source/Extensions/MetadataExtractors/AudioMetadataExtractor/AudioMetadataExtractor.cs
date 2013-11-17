@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -35,6 +36,7 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Graphics;
 using TagLib;
 using File = TagLib.File;
 using MediaPortal.Common.Logging;
@@ -57,6 +59,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// Audio metadata extractor GUID.
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
+
+    /// <summary>
+    /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
+    /// </summary>
+    public const int MAX_COVER_WIDTH = 512;
+
+    /// <summary>
+    /// Maximum cover image height. Larger images will be scaled down to fit this dimension.
+    /// </summary>
+    public const int MAX_COVER_HEIGHT = 512;
 
     #endregion
 
@@ -198,7 +210,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       { // (Track) - TitleArtist
         GroupCollection groups = match.Groups;
         uint trackNoInt;
-        trackNo = uint.TryParse(groups[1].Value.Trim(), out trackNoInt) ? (uint?) trackNoInt : null;
+        trackNo = uint.TryParse(groups[1].Value.Trim(), out trackNoInt) ? (uint?)trackNoInt : null;
         titleArtist = groups[2].Value.Trim();
       }
       else
@@ -384,7 +396,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           composers = PatchID3v23Enumeration(composers);
         audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, ApplyAdditionalSeparator(composers));
 
-        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
+        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long)tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
         {
           IEnumerable<string> genres = tag.Tag.Genres;
@@ -393,10 +405,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, ApplyAdditionalSeparator(genres));
         }
         if (trackNo.HasValue)
-          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) trackNo.Value);
+          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int)trackNo.Value);
         if (tag.Tag.TrackCount != 0)
-          audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
-        int year = (int) tag.Tag.Year;
+          audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int)tag.Tag.TrackCount);
+        int year = (int)tag.Tag.Year;
         if (year >= 30 && year <= 99)
           year += 1900;
         if (year >= 1930 && year <= 2030)
@@ -407,7 +419,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         IPicture[] pics = tag.Tag.Pictures;
         if (pics.Length > 0)
         {
-          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, pics[0].Data.Data);
+          using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
+          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+          }
         }
         else
         {

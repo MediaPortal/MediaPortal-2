@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -31,6 +32,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video;
+using MediaPortal.Utilities.Graphics;
 
 namespace MediaPortal.Media.MetadataExtractors
 {
@@ -52,6 +54,16 @@ namespace MediaPortal.Media.MetadataExtractors
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+
+    /// <summary>
+    /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
+    /// </summary>
+    public const int MAX_COVER_WIDTH = 512;
+
+    /// <summary>
+    /// Maximum cover image height. Larger images will be scaled down to fit this dimension.
+    /// </summary>
+    public const int MAX_COVER_HEIGHT = 512;
 
     #endregion
 
@@ -125,12 +137,11 @@ namespace MediaPortal.Media.MetadataExtractors
               FileInfo thumbnail = bdinfo.GetBiggestThumb();
               if (thumbnail != null)
               {
-                byte[] binary = new byte[thumbnail.Length];
                 using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
-                using (BinaryReader binaryReader = new BinaryReader(fileStream))
-                  binaryReader.Read(binary, 0, binary.Length);
-
-                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
+                using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(fileStream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+                {
+                  MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+                }
               }
               return true;
             }
