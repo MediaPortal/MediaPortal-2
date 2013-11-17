@@ -94,8 +94,9 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
 
     public void Dispose()
     {
-      foreach (IDisposable result in _providerList.OfType<IDisposable>())
-        result.Dispose();
+      if (_providerList != null)
+        foreach (IDisposable result in _providerList.OfType<IDisposable>())
+          result.Dispose();
     }
 
     protected bool IsInQueue(string fileOrFolderPath)
