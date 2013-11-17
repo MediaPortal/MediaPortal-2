@@ -66,8 +66,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
       if (baseFolder == null || !Directory.Exists(baseFolder))
         return false;
 
-      string pattern = GetPattern(mediaType, fanArtType, name, tvDbId, seasonNum);
-      if (string.IsNullOrEmpty(pattern))
+      string[] patterns = GetPatterns(mediaType, fanArtType, name, tvDbId, seasonNum);
+      if (patterns == null)
         return false;
 
       try
@@ -75,29 +75,37 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
         DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
         if (directoryInfo.Exists)
         {
-          result = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
+          // Try each name pattern first.
+          foreach (string pattern in patterns)
+          {
+            result = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
+            if (result.Count > 0)
+              return true;
+          }
+
           // If we tried to load season banners and did not find any, fallback to series banners
-          if (mediaType == FanArtConstants.FanArtMediaType.SeriesSeason && result.Count == 0)
+          if (mediaType == FanArtConstants.FanArtMediaType.SeriesSeason)
             return TryGetFanArt(FanArtConstants.FanArtMediaType.Series, fanArtType, name, maxWidth, maxHeight, singleRandom, out result);
-          return result.Count > 0;
+
+          return false;
         }
       }
       catch (Exception) { }
       return false;
     }
 
-    protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int tvdbId, int seasonNum)
+    protected string[] GetPatterns(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int tvdbId, int seasonNum)
     {
       if (mediaType == FanArtConstants.FanArtMediaType.Series)
       {
         switch (fanArtType)
         {
           case FanArtConstants.FanArtType.Banner:
-            return "img_graphical_*.jpg";
+            return new[] { "img_graphical_*.jpg", "img_text_*.jpg" };
           case FanArtConstants.FanArtType.Poster:
-            return "img_posters_*.jpg";
+            return new[] { "img_posters_*.jpg" };
           case FanArtConstants.FanArtType.FanArt:
-            return "img_fan-*.jpg";
+            return new[] { "img_fan-*.jpg" };
           default:
             return null;
         }
@@ -107,9 +115,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
         switch (fanArtType)
         {
           case FanArtConstants.FanArtType.Banner:
-            return string.Format("img_seasonswide_{0}-{1}*.jpg", tvdbId, seasonNum);
+            return new[] { string.Format("img_seasonswide_{0}-{1}*.jpg", tvdbId, seasonNum) };
           case FanArtConstants.FanArtType.Poster:
-            return string.Format("img_posters_{0}-{1}*.jpg", tvdbId, seasonNum);
+            return new[] { string.Format("img_posters_{0}-{1}*.jpg", tvdbId, seasonNum) };
           default:
             return null;
         }
