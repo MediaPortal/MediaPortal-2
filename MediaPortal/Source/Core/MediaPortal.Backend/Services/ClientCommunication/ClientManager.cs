@@ -247,17 +247,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       {
         using (IDbCommand command = ClientManager_SubSchema.DeleteAttachedClientCommand(transaction, clientSystemId))
           command.ExecuteNonQuery();
+        // this commit was placed here to avoid nested write transactions.
+        // ToDo: Ideally this transaction together with the two calls to mediaLibrary below should be in one transaction.
+        transaction.Commit();
+        transaction = null;
 
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
         mediaLibrary.DeleteMediaItemOrPath(clientSystemId, null, true);
         mediaLibrary.RemoveSharesOfSystem(clientSystemId);
-
-        transaction.Commit();
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("ClientManager: Error detaching client '{0}'", e, clientSystemId);
-        transaction.Rollback();
+        if(transaction != null)
+          transaction.Rollback();
         throw;
       }
       ServiceRegistration.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' detached", clientSystemId);
