@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -48,25 +50,23 @@ namespace MediaPortal.Common
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
 
-    private static readonly object _syncObj = new object();
-
     /// <summary>
     /// Singleton instance of the <see cref="ServiceRegistration"/>.
     /// </summary>
-    private static ServiceRegistration _instance;
+    private static ServiceRegistration _instance = new ServiceRegistration();
 
     private static bool _isShuttingDown = false;
 
     /// <summary>
     /// Holds the dictionary of services.
     /// </summary>
-    private readonly IDictionary<Type, object> _services = new Dictionary<Type, object>();
+    private readonly IDictionary<Type, object> _services = new ConcurrentDictionary<Type, object>();
     private static IItemRegistrationChangeListener _servicesRegistrationChangeListener;
 
     /// <summary>
     /// Holds the collection of services which were loaded from the plugin tree.
     /// </summary>
-    private readonly ICollection<Type> _pluginServices = new List<Type>();
+    private readonly ConcurrentBag<Type> _pluginServices = new ConcurrentBag<Type>();
 
     private ServiceRegistration()
     {
@@ -89,9 +89,6 @@ namespace MediaPortal.Common
     {
       get
       {
-        lock (_syncObj)
-          if (_instance == null)
-            _instance = new ServiceRegistration();
         return _instance;
       }
     }
@@ -179,7 +176,7 @@ namespace MediaPortal.Common
     {
       if (service == null)
         throw new ArgumentException("Service argument must not be null", "service");
-      if (!type.IsAssignableFrom(service.GetType()))
+      if (!type.IsInstanceOfType(service))
         throw new ArgumentException("Given service registration type must be assignable from the type of the given service");
       _services[type] = service;
     }
@@ -264,8 +261,9 @@ namespace MediaPortal.Common
 
     private object GetService(Type type, bool throwIfNotFound)
     {
-      if (_services.ContainsKey(type))
-        return _services[type];
+      object service;
+      if (_services.TryGetValue(type, out service))
+        return service;
       if (throwIfNotFound)
         throw new ServiceNotFoundException(type);
       return null;
