@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -110,6 +111,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _webChannelGroupIndex = newIndex;
       FillChannelGroupList();
       UpdateChannels();
+      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
 
     /// <summary>

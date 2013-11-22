@@ -5,6 +5,7 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     xmlns:navitems="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.Navigation;assembly=SlimTv.Client"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
@@ -752,5 +753,74 @@
       </Control.Template>
     </Control>
   </DataTemplate>
+
+  <!-- Style definition for EpgGrid defining header and program item styles -->
+  <Style x:Key="EpgGridStyle" TargetType="{x:Type tv:EpgGrid}">
+    <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
+    <Setter Property="HeaderTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Style="{ThemeResource ProgramGuideButtonStyle}">
+            <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+              <Grid.ColumnDefinitions>
+                <!-- Channel Logo -->
+                <ColumnDefinition Width="30"/>
+                <!-- Channel Name -->
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </TransformGroup>
+              </Grid.RenderTransform>
+
+              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
+                <Image.Source>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                </Image.Source>
+              </Image>
+
+              <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+            </Grid>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ProgramTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button
+              Style="{ThemeResource ProgramGuideButtonStyle}"
+              IsEnabled="{Binding Enabled}"
+              SetFocus="{Binding Path=Selected,Mode=OneTime}"
+              Command="{Binding Command}"
+              >
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Trigger.EnterActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                 Source="{StaticResource SlimTvMultiChannelGuide}"
+                                 Path="UpdateProgram"
+                                 Parameters="{LateBoundValue BindingValue={Binding}}" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.EnterActions>
+              </Trigger>
+            </Button.Triggers>
+            <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
+              <Label x:Name="ItemLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+            </StackPanel>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
 </ResourceDictionary>
