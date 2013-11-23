@@ -120,10 +120,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         using (GraphicsPath path = CreateRectanglePath(_innerRect))
         {
+          if (path.PointCount == 0)
+            return;
+
           PointF[] pathPoints = path.PathPoints;
           PositionColoredTextured[] verts;
-          if (pathPoints.Length == 0)
-            return;
+
           float centerX = _innerRect.Width / 2 + _innerRect.Left;
           float centerY = _innerRect.Height / 2 + _innerRect.Top;
           if (Fill != null)
