@@ -1,5 +1,8 @@
-﻿Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{5446F13F-0BFB-4EC7-8B71-E769B71A2868}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.ServiceMonitor", "Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj", "{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}"
