@@ -38,9 +38,18 @@ namespace MediaPortal.Database.SQLite
   [SQLiteFunction(FuncType = FunctionType.Collation, Name = "NOCASE")]
   public class SQLiteCultureSensitiveCollation : SQLiteFunction
   {
+
+    protected static readonly LexicographicComparer COMPARER = new LexicographicComparer
+    (
+      CultureInfo.InvariantCulture,
+      LexicographicComparer.CmpFlags.LinguisticIgnorecase |
+      LexicographicComparer.CmpFlags.NormLinguisticCasing |
+      LexicographicComparer.CmpFlags.SortDigitsasnumbers
+    );
+    
     public override int Compare(string x, string y)
     {
-      return string.Compare(x, y, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase);
+      return COMPARER.Compare(x, y);
     }
   }
 }

@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionPool.cs" />
+    <Compile Include="LexicographicComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLiteCultureSensitiveCollation.cs" />
     <Compile Include="SQLiteDatabase.cs" />
