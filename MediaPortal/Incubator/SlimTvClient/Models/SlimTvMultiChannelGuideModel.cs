@@ -231,7 +231,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private PlaceholderListItem NoProgramPlaceholder(IChannel channel, DateTime? startTime, DateTime? endTime)
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
-      DateTime today = FormatHelper.GetDay(DateTime.Now);
+      DateTime today = FormatHelper.GetDay(GuideStartTime);
       ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
       Program placeholderProgram = new Program
                               {
