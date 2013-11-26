@@ -24,7 +24,6 @@
 
 using System;
 using MediaPortal.Common.General;
-using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -35,11 +34,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   /// </summary>
   public class ProgramProperties
   {
-    private static readonly double PROGRAM_WIDTH_FACTOR = 6.5;
-
-    private DateTime _viewPortMinTime;
-    private DateTime _viewPortMaxTime;
-    private bool _settingProgram = false;
+    private bool _settingProgram;
 
     public AbstractProperty ProgramIdProperty { get; set; }
     public AbstractProperty IsScheduledProperty { get; set; }
@@ -48,9 +43,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty StartTimeProperty { get; set; }
     public AbstractProperty EndTimeProperty { get; set; }
     public AbstractProperty RemainingDurationProperty { get; set; }
-    public AbstractProperty ProgramWidthProperty { get; set; }
     public AbstractProperty GenreProperty { get; set; }
-    
+
     /// <summary>
     /// Gets or Sets the Title.
     /// </summary>
@@ -77,7 +71,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       get { return (String)GenreProperty.GetValue(); }
       set { GenreProperty.SetValue(value); }
     }
-    
+
     /// <summary>
     /// Gets or Sets the Start time.
     /// </summary>
@@ -111,7 +105,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     public bool IsScheduled
     {
-      get { return (bool) IsScheduledProperty.GetValue(); }
+      get { return (bool)IsScheduledProperty.GetValue(); }
       set { IsScheduledProperty.SetValue(value); }
     }
 
@@ -120,29 +114,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     public int ProgramId
     {
-      get { return (int) ProgramIdProperty.GetValue(); }
+      get { return (int)ProgramIdProperty.GetValue(); }
       set { ProgramIdProperty.SetValue(value); }
     }
 
-    public double ProgramWidth
+    public ProgramProperties()
     {
-      get { return (double) ProgramWidthProperty.GetValue(); }
-      set { ProgramWidthProperty.SetValue(value); }
-    }
-
-    static ProgramProperties()
-    {
-      ResourceHelper.ReadResourceDouble("MultiGuideProgramTimeFactor", ref PROGRAM_WIDTH_FACTOR);
-    }
-
-    public ProgramProperties() : this(DateTime.Now, DateTime.Now.AddHours(SlimTvMultiChannelGuideModel.VisibleHours))
-    {
-    }
-
-    public ProgramProperties(DateTime viewPortMinTime, DateTime viewPortMaxTime)
-    {
-      _viewPortMinTime = viewPortMinTime;
-      _viewPortMaxTime = viewPortMaxTime;
       ProgramIdProperty = new WProperty(typeof(int), 0);
       IsScheduledProperty = new WProperty(typeof(bool), false);
       TitleProperty = new WProperty(typeof(String), String.Empty);
@@ -151,11 +128,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       StartTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       EndTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       RemainingDurationProperty = new WProperty(typeof(int), 0);
-      ProgramWidthProperty = new WProperty(typeof(double), 0d);
       Attach();
     }
 
-    private void Attach ()
+    private void Attach()
     {
       StartTimeProperty.Attach(TimeChanged);
       EndTimeProperty.Attach(TimeChanged);
@@ -201,25 +177,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
     }
 
-    public void UpdateDuration(DateTime viewPortMinTime, DateTime viewPortMaxTime)
-    {
-      _viewPortMinTime = viewPortMinTime;
-      _viewPortMaxTime = viewPortMaxTime;
-      UpdateDuration();
-    }
-
     private void UpdateDuration()
     {
       DateTime programStart = StartTime;
-      if (programStart < _viewPortMinTime)
-        programStart = _viewPortMinTime;
-
       DateTime programEnd = EndTime;
-      if (programEnd > _viewPortMaxTime)
-        programEnd = _viewPortMaxTime;
-
       RemainingDuration = Math.Max((int)(programEnd - programStart).TotalMinutes, 0);
-      ProgramWidth = PROGRAM_WIDTH_FACTOR * RemainingDuration;
     }
   }
 }

@@ -29,9 +29,10 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
@@ -46,34 +47,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   {
     public const string MODEL_ID_STR = "5054408D-C2A9-451f-A702-E84AFCD29C10";
 
-    protected static double _visibleHours = 2.5;
-    protected static double _bufferHours = 1.5;
-    protected static double _programWidthFactor = 6;
-    protected static double _programsStartOffset = 370;
-
-    public static Double VisibleHours
-    {
-      get { return _visibleHours; }
-    }
-
-    public static Double ProgramWidthFactor
-    {
-      get { return _programWidthFactor; }
-    }
+    protected double _visibleHours;
+    protected double _bufferHours = 1.5;
+    protected double _programWidthFactor = 6;
+    protected double _programsStartOffset = 370;
 
     #region Constructor
-
-
-    static SlimTvMultiChannelGuideModel()
-    {
-      ResourceHelper.ReadResourceDouble("MultiGuideVisibleHours", ref _visibleHours);
-      ResourceHelper.ReadResourceDouble("MultiGuideProgramLeftOffset", ref _programsStartOffset);
-      ResourceHelper.ReadResourceDouble("MultiGuideProgramTimeFactor", ref _programWidthFactor);
-    }
 
     public SlimTvMultiChannelGuideModel()
     {
       _programActionsDialogName = "DialogProgramActionsFull"; // for MultiChannelGuide we need another dialog
+
+      // User defined layout settings.
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      _visibleHours = settings.EpgVisibleHours;
     }
 
     #endregion
@@ -91,7 +78,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public DateTime GuideEndTime
     {
-      get { return GuideStartTime.AddHours(VisibleHours); }
+      get { return GuideStartTime.AddHours(_visibleHours); }
     }
 
     #endregion
@@ -195,12 +182,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void UpdateChannels()
     {
       SetGroupName();
-
-      //ThreadPool.QueueUserWorkItem(BackgroundUpdateChannels);
-      BackgroundUpdateChannels(null);
+      BackgroundUpdateChannels();
     }
 
-    private void BackgroundUpdateChannels(object threadArgument)
+    private void BackgroundUpdateChannels()
     {
       base.UpdateChannels();
       _channelList.Clear();
@@ -216,7 +201,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private ProgramListItem BuildProgramListItem(IProgram program)
     {
-      ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
+      ProgramProperties programProperties = new ProgramProperties();
       IProgram currentProgram = program;
       programProperties.SetProgram(currentProgram);
 
@@ -232,7 +217,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime today = FormatHelper.GetDay(GuideStartTime);
-      ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
+      ProgramProperties programProperties = new ProgramProperties();
       Program placeholderProgram = new Program
                               {
                                 ChannelId = channel.ChannelId,
@@ -259,11 +244,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void UpdateCurrentTimeIndicator()
     {
-      DateTime now = DateTime.Now;
-      int currentOffsetInViewport = (int)(now - GuideStartTime).TotalMinutes;
-      CurrentTimeViewOffset = currentOffsetInViewport;
-      CurrentTimeLeftOffset = (int)(_programsStartOffset + ProgramWidthFactor * currentOffsetInViewport);
-      CurrentTimeVisible = now >= GuideStartTime && now <= GuideEndTime;
+      // TODO: move to EpgGrid
+      //DateTime now = DateTime.Now;
+      //int currentOffsetInViewport = (int)(now - GuideStartTime).TotalMinutes;
+      //CurrentTimeViewOffset = currentOffsetInViewport;
+      //CurrentTimeLeftOffset = (int)(_programsStartOffset + ProgramWidthFactor * currentOffsetInViewport);
+      //CurrentTimeVisible = now >= GuideStartTime && now <= GuideEndTime;
     }
 
     protected override void UpdateCurrentChannel()

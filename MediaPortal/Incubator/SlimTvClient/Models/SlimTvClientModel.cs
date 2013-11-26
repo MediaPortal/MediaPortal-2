@@ -760,7 +760,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private static ProgramListItem GetNoProgramPlaceholder(IProgram previousProgram = null)
     {
       IProgram placeHolder = GetNoProgram(previousProgram);
-      ProgramProperties programProperties = new ProgramProperties(placeHolder.StartTime, placeHolder.EndTime)
+      ProgramProperties programProperties = new ProgramProperties()
       {
         Title = placeHolder.Title,
         StartTime = placeHolder.StartTime,
