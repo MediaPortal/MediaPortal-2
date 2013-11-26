@@ -139,6 +139,9 @@
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="Settings\Configuration\EpgNumberOfHoursSetting.cs" />
+    <Compile Include="Settings\Configuration\EpgNumberOfRowsSetting.cs" />
+    <Compile Include="Settings\SlimTvClientSettings.cs" />
     <Compile Include="SlimTvClientPlugin.cs" />
     <Compile Include="TvHandler\RecordingsLibrary.cs" />
     <Compile Include="TvHandler\SlimTvConsts.cs" />

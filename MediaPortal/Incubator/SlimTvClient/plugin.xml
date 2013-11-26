@@ -17,6 +17,8 @@
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/>    <!-- SkinBase -->
     <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"/>    <!-- Media -->
     <PluginReference PluginId="{89F8DD04-1CD5-4F78-8105-6979157E8936}"/>    <!-- Tve3RecordingMetadataExtractor -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/>    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/>    <!-- Configuration plugin -->
   </DependsOn>
 
   <Register Location="/Players/Builders">
@@ -76,5 +78,33 @@
 
   <Register Location="/Resources/Skin">
     <Resource Id="SlimTvClientSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="TV"
+        Redundant="true"
+        Text="[Settings.Plugins.TV]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins/TV">
+    <ConfigSetting
+        Id="EpgNumberOfRows"
+        Text="[SlimTvClient.EpgNumberOfRows]"
+        HelpText="[SlimTvClient.EpgNumberOfRows.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfRowsSetting"/>
+    <ConfigSetting
+        Id="EpgNumberOfHoursSetting"
+        Text="[SlimTvClient.EpgNumberOfHours]"
+        HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
   </Register>
 </Plugin>

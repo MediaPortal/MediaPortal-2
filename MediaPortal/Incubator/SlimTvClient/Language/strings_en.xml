@@ -25,6 +25,12 @@
 
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
 
+  <!-- Settings -->
+  <string name="SlimTvClient.EpgNumberOfRows">Number of rows in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Defines the number of rows (channels) shown in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Number of hours in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Defines the number of hours (programs) shown in EPG</string>
+
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter by channel</string>

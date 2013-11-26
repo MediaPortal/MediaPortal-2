@@ -32,9 +32,11 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 #endif
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Client.Models;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -52,10 +54,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
   {
     #region Fields
 
-    protected static double _visibleHours = SlimTvMultiChannelGuideModel.VisibleHours;
-    protected static int _numberOfColumns = 75; // Used to align programs in Grid. For example: 2.5h == 150 min. 150 min / 75 = 2 min per column.
-    protected int _numberOfRows = 6; // TODO: property
-    protected double _perCellTime = _visibleHours * 60 / _numberOfColumns; // Time in minutes per grid cell.
+    protected readonly double _visibleHours;
+    protected readonly int _numberOfRows;
+    protected int _numberOfColumns = 75; // Used to align programs in Grid. For example: 2.5h == 150 min. 150 min / 75 = 2 min per column.
+    protected double _perCellTime; // Time in minutes per grid cell.
 
     protected AsynchronousMessageQueue _messageQueue = null;
     protected AbstractProperty _headerWidthProperty;
@@ -74,6 +76,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     public EpgGrid()
     {
+      // User defined layout settings.
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      _visibleHours = settings.EpgVisibleHours;
+      _numberOfRows = settings.EpgNumberOfRows;
+
+      _perCellTime = _visibleHours * 60 / _numberOfColumns; // Time in minutes per grid cell.
+
       _headerWidthProperty = new SProperty(typeof(Double), 200d);
       _programTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _headerTemplateProperty = new SProperty(typeof(ControlTemplate), null);
