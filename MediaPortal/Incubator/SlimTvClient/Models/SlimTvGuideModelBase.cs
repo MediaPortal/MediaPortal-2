@@ -32,6 +32,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -77,7 +78,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public string GroupName
     {
-      get { return (string) _groupNameProperty.GetValue(); }
+      get { return (string)_groupNameProperty.GetValue(); }
       set { _groupNameProperty.SetValue(value); }
     }
 
@@ -102,7 +103,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public ProgramProperties CurrentProgram
     {
-      get { return (ProgramProperties) _currentProgramProperty.GetValue(); }
+      get { return (ProgramProperties)_currentProgramProperty.GetValue(); }
       set { _currentProgramProperty.SetValue(value); }
     }
 
@@ -118,7 +119,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (selectedItem != null)
       {
-        IProgram program = (IProgram) selectedItem.AdditionalProperties["PROGRAM"];
+        IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
         UpdateSingleProgramInfo(program);
       }
     }
@@ -218,8 +219,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IProgramRecordingStatus status = program as IProgramRecordingStatus;
       if (status == null)
         return false;
-      
+
       status.RecordingStatus = newStatus;
+      SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
       return true;
     }
     #endregion

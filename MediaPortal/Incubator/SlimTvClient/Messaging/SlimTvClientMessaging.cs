@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Messaging
 {
@@ -31,13 +32,35 @@ namespace MediaPortal.Plugins.SlimTv.Client.Messaging
   {
     // Message channel name
     public const string CHANNEL = "SlimTvClient";
-    
+    public const string KEY_PROGRAM = "PROGRAM";
+
     // Message type
     public enum MessageType
     {
+      /// <summary>
+      /// Indicates that the active channel group was changed.
+      /// </summary>
       GroupChanged,
-      ChannelChanged,
-      ProgramsChanged
+      /// <summary>
+      /// Indicates that the programs were changed. This usually happens when scrolling through the EPG.
+      /// </summary>
+      ProgramsChanged,
+      /// <summary>
+      /// Indicates that a program's information was changed. This usually happens after changing its recording status.
+      /// The message data contains the affected <see cref="IProgram"/> under key <see cref="SlimTvClientMessaging.KEY_PROGRAM"/>.
+      /// </summary>
+      ProgramStatusChanged,
+    }
+
+    /// <summary>
+    /// Sends a message which announces changes on the given <paramref name="program"/>.
+    /// </summary>
+    /// <param name="program">Program</param>
+    public static void SendSlimTvProgramChangedMessage(IProgram program)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.ProgramStatusChanged);
+      msg.MessageData[KEY_PROGRAM] = program;
+      SendMessage(msg);
     }
 
     /// <summary>
@@ -46,7 +69,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Messaging
     /// <param name="type">Type of the message.</param>
     public static void SendSlimTvClientMessage(MessageType type)
     {
-      SystemMessage msg = new SystemMessage(type);
+      SendMessage(new SystemMessage(type));
+    }
+
+    private static void SendMessage(SystemMessage msg)
+    {
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

@@ -37,6 +37,7 @@ using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -145,6 +146,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
             break;
           case SlimTvClientMessaging.MessageType.ProgramsChanged:
             OnProgramsChanged();
+            break;
+          case SlimTvClientMessaging.MessageType.ProgramStatusChanged:
+            IProgram program = (IProgram)message.MessageData[SlimTvClientMessaging.KEY_PROGRAM];
+            UpdateProgramStatus(program);
             break;
         }
       }
@@ -448,6 +453,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       control.Template = MpfCopyManager.DeepCopyCutLVPs(ProgramTemplate);
       Children.Add(control);
       return control;
+    }
+
+    /// <summary>
+    /// Tries to update a program item, i.e. if recording status was changed.
+    /// </summary>
+    /// <param name="program">Program</param>
+    private void UpdateProgramStatus(IProgram program)
+    {
+      FrameworkElement control = Children.FirstOrDefault(el => ((ProgramListItem)el.Context).Program.ProgramId == program.ProgramId);
+      if (control == null)
+        return;
+
+      // Update properties
+      IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      if (recordingStatus != null)
+        ((ProgramListItem)control.Context).Program.IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
     }
 
     /// <summary>
