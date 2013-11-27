@@ -376,7 +376,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (program == null || program.Program.StartTime > viewportEnd)
           break;
 
-        if (program.Program.EndTime < viewportStart)
+        if (program.Program.EndTime <= viewportStart)
         {
           programIndex++;
           continue;
