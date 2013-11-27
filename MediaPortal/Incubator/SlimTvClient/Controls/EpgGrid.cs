@@ -63,12 +63,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected AbstractProperty _headerWidthProperty;
     protected AbstractProperty _programTemplateProperty;
     protected AbstractProperty _headerTemplateProperty;
+    protected AbstractProperty _timeIndicatorTemplateProperty;
     protected bool _childrenCreated = false;
     protected int _channelViewOffset;
     protected double _actualWidth = 0.0d;
     protected double _actualHeight = 0.0d;
     protected int _groupIndex = -1;
     protected readonly object _syncObj = new object();
+    protected Control _timeIndicatorControl;
 
     #endregion
 
@@ -86,6 +88,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       _headerWidthProperty = new SProperty(typeof(Double), 200d);
       _programTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _headerTemplateProperty = new SProperty(typeof(ControlTemplate), null);
+      _timeIndicatorTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       Attach();
       SubscribeToMessages();
     }
@@ -156,6 +159,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       EpgGrid c = (EpgGrid)source;
       HeaderTemplate = copyManager.GetCopy(c.HeaderTemplate);
       ProgramTemplate = copyManager.GetCopy(c.ProgramTemplate);
+      TimeIndicatorTemplate = copyManager.GetCopy(c.TimeIndicatorTemplate);
 
       Attach();
     }
@@ -214,6 +218,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get { return (ControlTemplate)_headerTemplateProperty.GetValue(); }
       set { _headerTemplateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TimeIndicatorTemplateProperty
+    {
+      get { return _timeIndicatorTemplateProperty; }
+    }
+
+    public ControlTemplate TimeIndicatorTemplate
+    {
+      get { return (ControlTemplate)_timeIndicatorTemplateProperty.GetValue(); }
+      set { _timeIndicatorTemplateProperty.SetValue(value); }
     }
 
     public AbstractProperty HeaderWidthProperty
@@ -286,7 +301,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         _childrenCreated = true;
 
         if (!updateOnly)
+        {
+          _timeIndicatorControl = null;
           Children.Clear();
+        }
+
+        SetTimeIndicator();
 
         if (ChannelsPrograms == null)
           return;
@@ -443,6 +463,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         Context = context,
       };
       return btnEpg;
+    }
+
+    private void SetTimeIndicator()
+    {
+      if (_timeIndicatorControl == null)
+      {
+        _timeIndicatorControl = new Control { LogicalParent = this };
+        // Deep copy the styles to each program button.
+        _timeIndicatorControl.Template = MpfCopyManager.DeepCopyCutLVPs(TimeIndicatorTemplate);
+        SetRow(_timeIndicatorControl, 0);
+        SetRowSpan(_timeIndicatorControl, _numberOfRows);
+        Children.Add(_timeIndicatorControl);
+      }
+      DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
+      int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + 1; // Header offset
+      if (currentTimeColumn <= 1 || currentTimeColumn > _numberOfColumns + 1) // Outside viewport
+      {
+        _timeIndicatorControl.IsVisible = false;
+      }
+      else
+      {
+        _timeIndicatorControl.IsVisible = true;
+        SetZIndex(_timeIndicatorControl, 100);
+        SetColumn(_timeIndicatorControl, currentTimeColumn);
+      }
     }
 
     /// <summary>
@@ -605,6 +650,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         List<FrameworkElement> removeList = new List<FrameworkElement>();
         foreach (FrameworkElement element in Children)
         {
+          // Indicator must not be removed, its position is fixed
+          if (element == _timeIndicatorControl)
+            continue;
           int row = GetRow(element);
           int targetRow = row + moveOffset;
           if (targetRow >= 0 && targetRow < _numberOfRows)
