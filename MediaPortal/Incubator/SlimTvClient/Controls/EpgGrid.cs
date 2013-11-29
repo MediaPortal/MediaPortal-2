@@ -558,14 +558,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         key = Key.None;
       else if (key == Key.Right && OnRight())
         key = Key.None;
-      //else if (key == Key.Home && OnHome())
-      //  key = Key.None;
-      //else if (key == Key.End && OnEnd())
-      //  key = Key.None;
-      //else if (key == Key.PageDown && OnPageDown())
-      //  key = Key.None;
-      //else if (key == Key.PageUp && OnPageUp())
-      //  key = Key.None;
+      else if (key == Key.Home && OnHome())
+        key = Key.None;
+      else if (key == Key.End && OnEnd())
+        key = Key.None;
+      else if (key == Key.PageDown && OnPageDown())
+        key = Key.None;
+      else if (key == Key.PageUp && OnPageUp())
+        key = Key.None;
     }
 
     private bool IsViewPortAtTop
@@ -636,6 +636,51 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         return MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
       }
       return true;
+    }
+
+    private bool OnHome()
+    {
+      if (IsViewPortAtTop)
+        return false;
+
+      _channelViewOffset = 0;
+      RecreateAndArrangeChildren();
+      FocusFirstProgramInRow(_channelViewOffset);
+      return true;
+    }
+
+    private bool OnEnd()
+    {
+      if (IsViewPortAtBottom)
+        return false;
+
+      _channelViewOffset = ChannelsPrograms.Count - _numberOfRows;
+      RecreateAndArrangeChildren(true);
+      FocusFirstProgramInRow(Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1);
+      return true;
+    }
+
+    private bool OnPageDown()
+    {
+      for (int i = 0; i < _numberOfRows - 1; i++)
+        if (!OnDown())
+          return false;
+      return true;
+    }
+
+    private bool OnPageUp()
+    {
+      for (int i = 0; i < _numberOfRows - 1; i++)
+        if (!OnUp())
+          return false;
+      return true;
+    }
+
+    private void FocusFirstProgramInRow(int rowIndex)
+    {
+      var firstItem = GetRowItems(rowIndex).FirstOrDefault();
+      if (firstItem != null)
+        firstItem.SetFocus = true;
     }
 
     private bool OnRight()
