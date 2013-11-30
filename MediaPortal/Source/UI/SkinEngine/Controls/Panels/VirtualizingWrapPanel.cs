@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -32,12 +31,16 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
+using Size = SharpDX.Size2;
+using SizeF = SharpDX.Size2F;
+using PointF = SharpDX.Vector2;
+using RectangleF = SharpDX.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   /// <summary>
   /// This version of the <see cref="WrapPanel"/> enables faster and memory conserving display 
-  /// by creating the <see cref="FrameworkElement"/> for items on demand.</br>
+  /// by creating the <see cref="FrameworkElement"/> for items on demand.<br/>
   /// Virtualization is enabled by setting an <see cref="IItemProvider"/> via <see cref="SetItemProvider"/>
   /// and works under the assumption that all items use the same template - therefore are equally sized.
   /// </summary>
@@ -50,8 +53,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     // Assigned in ArrangeChildren
     protected FrameworkElement[] _arrangedItems = null;
-    protected int firstArrangedLineIndex = -1;
-    protected int lastArrangedLineIndex = -1;
+    protected int _firstArrangedLineIndex = -1;
+    protected int _lastArrangedLineIndex = -1;
 
     // Assigned in ArrangeChildren and CalculateInnerDesiredSize
     protected float _assumedLineExtendsInNonOrientationDirection = 0;
@@ -67,8 +70,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _itemProvider = copyManager.GetCopy(p._itemProvider);
       _assumedLineExtendsInNonOrientationDirection = 0;
       _arrangedItems = null;
-      firstArrangedLineIndex = -1;
-      lastArrangedLineIndex = -1;
+      _firstArrangedLineIndex = -1;
+      _lastArrangedLineIndex = -1;
     }
 
     public override void Dispose()
@@ -226,7 +229,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           offset += desiredChildSize.Height;
         }
 
-        layoutChild.Arrange(new RectangleF(location, size));
+        layoutChild.Arrange(new RectangleF(location.X, location.Y, size.Width, size.Height));
 
         _arrangedItems[i] = layoutChild;
       }
@@ -253,12 +256,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return base.CalculateInnerDesiredSize(totalSize);
         int numItems = itemProvider.NumItems;
         if (numItems == 0)
-          return SizeF.Empty;
+          return new SizeF();
 
         // CalculateInnerDesiredSize is called before ArrangeChildren!
         // under the precondition that all items use the same template and are equally sized 
         // calulate just one line to find number of items and required size of a line
-        LineMeasurement exemplaryLine = firstArrangedLineIndex < 0 ? CalculateLine(0, totalSize, false) : _arrangedLines[firstArrangedLineIndex];
+        LineMeasurement exemplaryLine = _firstArrangedLineIndex < 0 ? CalculateLine(0, totalSize, false) : _arrangedLines[_firstArrangedLineIndex];
         _assumedLineExtendsInNonOrientationDirection = exemplaryLine.TotalExtendsInNonOrientationDirection;
         var itemsPerLine = exemplaryLine.EndIndex - exemplaryLine.StartIndex + 1;
         var estimatedExtendsInNonOrientationDirection = (float)Math.Ceiling((float)numItems / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
@@ -339,11 +342,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           int itemsPerLine = 0;
           // if we haven't arranged any lines previously - items per line can't be calculated yet, but is not needed
-          if (firstArrangedLineIndex >= 0)
+          if (_firstArrangedLineIndex >= 0)
           {
             // to calculate the starting index of elements for a line we assume that every line (until the last) has the same number of items
-            itemsPerLine = _arrangedLines[firstArrangedLineIndex].EndIndex - _arrangedLines[firstArrangedLineIndex].StartIndex + 1;
-            _assumedLineExtendsInNonOrientationDirection = _arrangedLines[firstArrangedLineIndex].TotalExtendsInNonOrientationDirection;
+            itemsPerLine = _arrangedLines[_firstArrangedLineIndex].EndIndex - _arrangedLines[_firstArrangedLineIndex].StartIndex + 1;
+            _assumedLineExtendsInNonOrientationDirection = _arrangedLines[_firstArrangedLineIndex].TotalExtendsInNonOrientationDirection;
           }
 
           // scrolling may have set an invalid index for the first visible line
@@ -361,8 +364,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // clear values from previous arrange
           _arrangedItems = new FrameworkElement[numItems];
           _arrangedLines.Clear();
-          firstArrangedLineIndex = 0;
-          lastArrangedLineIndex = 0;
+          _firstArrangedLineIndex = 0;
+          _lastArrangedLineIndex = 0;
 
           // 1) Calculate scroll indices
           if (_doScroll)
@@ -374,7 +377,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 _actualLastVisibleLineIndex = (int)Math.Ceiling((float)numItems / itemsPerLine) - 1;
               _actualFirstVisibleLineIndex = _actualLastVisibleLineIndex + 1;
               int currentLineIndex = _actualLastVisibleLineIndex;
-              lastArrangedLineIndex = currentLineIndex;
+              _lastArrangedLineIndex = currentLineIndex;
               while (_arrangedLines.Count <= currentLineIndex) _arrangedLines.Add(new LineMeasurement()); // add "unarranged lines" up to the last visible
               int itemIndex = currentLineIndex * itemsPerLine;
               int additionalLinesBefore = 0;
@@ -383,7 +386,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
                 _arrangedLines[currentLineIndex] = line;
 
-                firstArrangedLineIndex = currentLineIndex;
+                _firstArrangedLineIndex = currentLineIndex;
 
                 currentLineIndex--;
                 itemIndex = line.StartIndex - itemsPerLine;
@@ -395,13 +398,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   _actualFirstVisibleLineIndex--;
               }
               // now add NUM_ADD_MORE_FOCUS_LINES after last visible
-              itemIndex = _arrangedLines[lastArrangedLineIndex].EndIndex + 1;
+              itemIndex = _arrangedLines[_lastArrangedLineIndex].EndIndex + 1;
               int additionalLinesAfterwards = 0;
               while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES)
               {
                 LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
                 _arrangedLines.Add(line);
-                lastArrangedLineIndex = _arrangedLines.Count - 1;
+                _lastArrangedLineIndex = _arrangedLines.Count - 1;
                 itemIndex = line.EndIndex + 1;
                 additionalLinesAfterwards++;
               }
@@ -409,8 +412,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             else
             {
               _actualLastVisibleLineIndex = _actualFirstVisibleLineIndex - 1;
-              firstArrangedLineIndex = Math.Max(_actualFirstVisibleLineIndex - NUM_ADD_MORE_FOCUS_LINES, 0);
-              int currentLineIndex = firstArrangedLineIndex;
+              _firstArrangedLineIndex = Math.Max(_actualFirstVisibleLineIndex - NUM_ADD_MORE_FOCUS_LINES, 0);
+              int currentLineIndex = _firstArrangedLineIndex;
               // add "unarranges lines" up until where we start
               while (_arrangedLines.Count < currentLineIndex) _arrangedLines.Add(new LineMeasurement()); 
               int itemIndex = currentLineIndex * itemsPerLine;
@@ -420,7 +423,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);                
                 _arrangedLines.Add(line);
                 
-                lastArrangedLineIndex = currentLineIndex;
+                _lastArrangedLineIndex = currentLineIndex;
 
                 currentLineIndex++;
                 itemIndex = line.EndIndex + 1;
@@ -443,11 +446,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
 
           // now we know items per line for sure so just calculate it
-          itemsPerLine = _arrangedLines[firstArrangedLineIndex].EndIndex - _arrangedLines[firstArrangedLineIndex].StartIndex + 1;
-          _assumedLineExtendsInNonOrientationDirection = _arrangedLines[firstArrangedLineIndex].TotalExtendsInNonOrientationDirection;
+          itemsPerLine = _arrangedLines[_firstArrangedLineIndex].EndIndex - _arrangedLines[_firstArrangedLineIndex].StartIndex + 1;
+          _assumedLineExtendsInNonOrientationDirection = _arrangedLines[_firstArrangedLineIndex].TotalExtendsInNonOrientationDirection;
           
           // 2) Calculate start position (so the first visible line starts at 0)
-          startPosition -= (_actualFirstVisibleLineIndex - firstArrangedLineIndex) * _assumedLineExtendsInNonOrientationDirection;
+          startPosition -= (_actualFirstVisibleLineIndex - _firstArrangedLineIndex) * _assumedLineExtendsInNonOrientationDirection;
 
           // 3) Arrange children
           if (Orientation == Orientation.Vertical)
@@ -457,7 +460,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           PointF position = Orientation == Orientation.Vertical ?
               new PointF(actualPosition.X + startPosition, actualPosition.Y) :
               new PointF(actualPosition.X, actualPosition.Y + startPosition);
-          foreach (LineMeasurement line in _arrangedLines.Skip(firstArrangedLineIndex).Take(lastArrangedLineIndex - firstArrangedLineIndex + 1))
+          foreach (LineMeasurement line in _arrangedLines.Skip(_firstArrangedLineIndex).Take(_lastArrangedLineIndex - _firstArrangedLineIndex + 1))
           {
             LayoutLine(position, line);
 
@@ -477,7 +480,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           // keep one more item, because we did use it in CalcLine (and need always one more to find the last item not fitting on the line)
           // -> if we dont, it will always be newlyCreated and we keep calling Arrange since the new item recursively sets the parent invalid
-          _itemProvider.Keep(_arrangedLines[firstArrangedLineIndex].StartIndex, _arrangedLines[lastArrangedLineIndex].EndIndex + 1);
+          _itemProvider.Keep(_arrangedLines[_firstArrangedLineIndex].StartIndex, _arrangedLines[_lastArrangedLineIndex].EndIndex + 1);
         }
         else
         {
@@ -499,7 +502,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       if (_doScroll)
       {
-        int itemsPerLine = _arrangedLines[firstArrangedLineIndex].EndIndex - _arrangedLines[firstArrangedLineIndex].StartIndex + 1;
+        int itemsPerLine = _arrangedLines[_firstArrangedLineIndex].EndIndex - _arrangedLines[_firstArrangedLineIndex].StartIndex + 1;
         int line = index / itemsPerLine;
 
         if (index < _arrangedLines[_actualFirstVisibleLineIndex].StartIndex)
