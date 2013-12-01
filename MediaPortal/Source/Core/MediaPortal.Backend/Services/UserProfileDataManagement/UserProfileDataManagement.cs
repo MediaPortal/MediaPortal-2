@@ -37,15 +37,25 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
   public class UserProfileDataManagement : IUserProfileDataManagement
   {
-    #region Protected fields
+    #region Public methods
 
-
-    #endregion
-
-    #region Ctor & dtor
-
-    public void Dispose()
+    public void Startup()
     {
+      DatabaseSubSchemaManager updater = new DatabaseSubSchemaManager(UserProfileDataManagement_SubSchema.SUBSCHEMA_NAME);
+      updater.AddDirectory(UserProfileDataManagement_SubSchema.SubSchemaScriptDirectory);
+      int curVersionMajor;
+      int curVersionMinor;
+      if (!updater.UpdateSubSchema(out curVersionMajor, out curVersionMinor) ||
+          curVersionMajor != UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR ||
+          curVersionMinor != UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR)
+        throw new IllegalCallException(string.Format(
+            "Unable to update the UserProfileDataManagement's subschema version to expected version {0}.{1}",
+            UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
+    }
+
+    public void Shutdown()
+    {
+      // Nothing to do, yet
     }
 
     #endregion
@@ -85,29 +95,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     #endregion
 
     #region IUserProfileDataManagement implementation
-
-    #region Startup and shutdown
-
-    public void Startup()
-    {
-      DatabaseSubSchemaManager updater = new DatabaseSubSchemaManager(UserProfileDataManagement_SubSchema.SUBSCHEMA_NAME);
-      updater.AddDirectory(UserProfileDataManagement_SubSchema.SubSchemaScriptDirectory);
-      int curVersionMajor;
-      int curVersionMinor;
-      if (!updater.UpdateSubSchema(out curVersionMajor, out curVersionMinor) ||
-          curVersionMajor != UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR ||
-          curVersionMinor != UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR)
-        throw new IllegalCallException(string.Format(
-            "Unable to update the UserProfileDataManagement's subschema version to expected version {0}.{1}",
-            UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
-    }
-    
-    public void Shutdown()
-    {
-      // Nothing to do
-    }
-
-    #endregion
 
     #region User profiles management
 
