@@ -64,7 +64,6 @@ namespace MediaPortal.Backend
 
       logger.Debug("BackendExtension: Registering IUserProfileDataManagement service");
       ServiceRegistration.Set<IUserProfileDataManagement>(new UserProfileDataManagement());
-      ServiceRegistration.Set<UserProfileDataManagement>(new UserProfileDataManagement());
     }
 
     /// <summary>
@@ -76,7 +75,7 @@ namespace MediaPortal.Backend
       ServiceRegistration.Get<IMediaLibrary>().Startup();
       ServiceRegistration.Get<IClientManager>().Startup();
       ServiceRegistration.Get<IBackendServer>().Startup();
-      ServiceRegistration.Get<UserProfileDataManagement>().Startup();
+      ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Startup();
     }
 
     /// <summary>
@@ -89,7 +88,7 @@ namespace MediaPortal.Backend
 
     public static void ShutdownBackendServices()
     {
-      ServiceRegistration.Get<UserProfileDataManagement>().Shutdown();
+      ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Shutdown();
       ServiceRegistration.Get<IClientManager>().Shutdown();
       ServiceRegistration.Get<IMediaLibrary>().Shutdown();
       ServiceRegistration.Get<IBackendServer>().Shutdown();
