@@ -57,7 +57,7 @@
 
         </StackPanel>
 
-        <ListView Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"
+        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
             ItemsSource="{Binding Path=CurrentGroupChannels}"
@@ -112,7 +112,7 @@
             <Label x:Name="CurrentProgramEndTimeLabel" Margin="5"
                 Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
                 Color="{ThemeResource TextColor}"/>
-            
+
           </StackPanel>
           <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="0" Grid.Row="4" Margin="5"
                     Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
@@ -136,6 +136,8 @@
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
+        <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>
