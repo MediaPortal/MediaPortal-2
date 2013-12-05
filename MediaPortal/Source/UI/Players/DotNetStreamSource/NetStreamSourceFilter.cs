@@ -23,36 +23,31 @@ namespace MediaPortal.UI.Players
   [ClassInterface(ClassInterfaceType.None)]
   public class DotNetStreamSourceFilter : BaseFilter, IDotNetStreamSourceFilter, IFileSourceFilter
   {
-    protected Stream sourceStream = null;
-    protected DotNetStreamOutputPin outputPin = null;
-    protected string fileName = null;
+    protected Stream _sourceStream = null;
+    protected DotNetStreamOutputPin _outputPin = null;
+    protected string _fileName = null;
+    protected bool _streamCreated = false;
 
     public DotNetStreamSourceFilter()
       : base(".Net Stream Source Filter")
     {
     }
 
-    public override int Stop()
-    {
-      var result = base.Stop();
-      if (sourceStream != null)
-      {
-        sourceStream.Close();
-        sourceStream.Dispose();
-        sourceStream = null;
-      }
-      return result;
-    }
-
     ~DotNetStreamSourceFilter()
     {
-      sourceStream = null;
+      // Only dispose the underlying stream if we created it.
+      if (_streamCreated && _sourceStream != null)
+      {
+        _sourceStream.Close();
+        _sourceStream.Dispose();
+        _sourceStream = null;
+      }
     }
 
     protected override int OnInitializePins()
     {
-      outputPin = new DotNetStreamOutputPin("Output", this, sourceStream);
-      AddPin(outputPin);
+      _outputPin = new DotNetStreamOutputPin("Output", this, _sourceStream);
+      AddPin(_outputPin);
       return NOERROR;
     }
 
@@ -60,14 +55,12 @@ namespace MediaPortal.UI.Players
 
     public int SetSourceStream(Stream sourceStream, string fileName)
     {
-      if (this.sourceStream != null)
+      if (_sourceStream != null)
         return E_UNEXPECTED;
-      else
-      {
-        this.sourceStream = sourceStream;
-        this.fileName = fileName;
-        return NOERROR;
-      }
+      _sourceStream = sourceStream;
+      _fileName = fileName;
+      _streamCreated = false;
+      return NOERROR;
     }
 
     #endregion
@@ -76,21 +69,18 @@ namespace MediaPortal.UI.Players
 
     public int Load(string pszFileName, AMMediaType pmt)
     {
-      if (this.sourceStream != null)
+      if (_sourceStream != null)
         return E_UNEXPECTED;
-      else
-      {
-        this.fileName = pszFileName;
-        this.sourceStream = new System.IO.FileStream(pszFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return NOERROR;
-      }
+      _fileName = pszFileName;
+      _sourceStream = new FileStream(pszFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+      _streamCreated = true;
+      return NOERROR;
     }
 
     public int GetCurFile(out string pszFileName, AMMediaType pmt)
     {
-      pszFileName = this.fileName;
-      if (string.IsNullOrEmpty(pszFileName)) return VFW_E_NOT_CONNECTED;
-      else return NOERROR;
+      pszFileName = _fileName;
+      return string.IsNullOrEmpty(pszFileName) ? VFW_E_NOT_CONNECTED : NOERROR;
     }
 
     #endregion
@@ -104,24 +94,20 @@ namespace MediaPortal.UI.Players
   [Guid("8CF6F982-E2A4-4DC4-A437-8E9F8533EA1D")]
   public class DotNetStreamOutputPin : BasePin, IAsyncReader
   {
-    protected Stream sourceStream = null;
+    protected Stream _sourceStream = null;
 
-    public DotNetStreamOutputPin(string _name, BaseFilter _filter, Stream sourceStream)
-      : base(_name, _filter, _filter.FilterLock, PinDirection.Output)
+    public DotNetStreamOutputPin(string name, BaseFilter filter, Stream sourceStream)
+      : base(name, filter, filter.FilterLock, PinDirection.Output)
     {
       if (sourceStream == null)
-      {
         throw new ArgumentException("Parameter cannot be null!", "sourceStream");
-      }
-      else
-      {
-        this.sourceStream = sourceStream;
-      }
+
+      _sourceStream = sourceStream;
     }
 
     ~DotNetStreamOutputPin()
     {
-      sourceStream = null;
+      _sourceStream = null;
     }
 
     #region Overridden Methods of BasePin
@@ -140,11 +126,11 @@ namespace MediaPortal.UI.Players
     {
       lock (m_Lock)
       {
-        // the given mediatype as acceptable when the major type is Stream, no subtype and no specific format
+        // The given mediatype as acceptable when the major type is Stream, no subtype and no specific format
         if (pmt.majorType == MediaType.Stream && pmt.subType == MediaSubType.Null && pmt.formatType == FormatType.None)
           return NOERROR;
-        else
-          return E_FAIL;
+
+        return E_FAIL;
       }
     }
 
@@ -160,11 +146,11 @@ namespace MediaPortal.UI.Players
         {
           return VFW_S_NO_MORE_ITEMS;
         }
-        if (sourceStream == null)
+        if (_sourceStream == null)
         {
           return E_UNEXPECTED;
         }
-        // set our MediaType requirements
+        // Set our MediaType requirements
         pMediaType.majorType = MediaType.Stream;
         pMediaType.subType = MediaSubType.Null;
         pMediaType.formatType = FormatType.None;
@@ -191,7 +177,7 @@ namespace MediaPortal.UI.Players
     {
       lock (m_Lock)
       {
-        // we are not working with Allocators, set the outgoing pointer to 0
+        // We are not working with Allocators, set the outgoing pointer to 0
         ppActual = IntPtr.Zero;
         return S_OK;
       }
@@ -205,7 +191,7 @@ namespace MediaPortal.UI.Players
     /// <returns></returns>
     public int Request(IntPtr pSample, IntPtr dwUser)
     {
-      // we are not working in async mode
+      // We are not working in async mode
       throw new NotImplementedException();
     }
 
@@ -218,7 +204,7 @@ namespace MediaPortal.UI.Players
     /// <returns></returns>
     public int WaitForNext(int dwTimeout, out IntPtr ppSample, out IntPtr pdwUser)
     {
-      // we are not working in async mode
+      // We are not working in async mode
       throw new NotImplementedException();
     }
 
@@ -231,7 +217,7 @@ namespace MediaPortal.UI.Players
     /// <returns></returns>
     public int SyncReadAligned(IntPtr pSample)
     {
-      // we are not working with Allocators
+      // We are not working with Allocators
       throw new NotImplementedException();
     }
 
@@ -247,30 +233,30 @@ namespace MediaPortal.UI.Players
     {
       lock (m_Lock)
       {
-        // seek to the requested position if neccessary
-        if (sourceStream.Position != llPosition)
+        // Seek to the requested position if neccessary
+        if (_sourceStream.Position != llPosition)
         {
-          if (sourceStream.Seek(llPosition, SeekOrigin.Begin) != llPosition)
+          if (_sourceStream.Seek(llPosition, SeekOrigin.Begin) != llPosition)
             return S_FALSE;
         }
-        // try to read the requested amount
+        // Try to read the requested amount
         byte[] array = new byte[lLength];
         int totalRead = 0;
         int stalls = 0;
-        // keep reading until we either have all data or are at the end of the stream or got 0 bytes after 100 tries
-        while (totalRead < lLength && sourceStream.Position < sourceStream.Length && stalls < 100)
+        // Keep reading until we either have all data or are at the end of the stream or got 0 bytes after 100 tries
+        while (totalRead < lLength && _sourceStream.Position < _sourceStream.Length && stalls < 100)
         {
-          int read = sourceStream.Read(array, totalRead, lLength - totalRead);
+          int read = _sourceStream.Read(array, totalRead, lLength - totalRead);
           totalRead += read;
           if (read == 0)
             stalls++;
           else
             stalls = 0;
         }
-        // copy everything we read into the target buffer
+        // Copy everything we read into the target buffer
         if (totalRead > 0)
           Marshal.Copy(array, 0, pBuffer, totalRead);
-        // only return with success if the requested amount of data was read
+        // Only return with success if the requested amount of data was read
         return totalRead == lLength ? S_OK : S_FALSE;
       }
     }
@@ -285,7 +271,7 @@ namespace MediaPortal.UI.Players
     {
       lock (m_Lock)
       {
-        pTotal = pAvailable = sourceStream.Length;
+        pTotal = pAvailable = _sourceStream.Length;
         return NOERROR;
       }
     }
