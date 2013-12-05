@@ -46,7 +46,7 @@ namespace MediaPortal.Common
   /// All public methods of this class are multithreading-safe. It is safe to call methods of this class while holding arbitrary locks.
   /// </para>
   /// </remarks>
-  public sealed class ServiceRegistration : IDisposable, IStatus
+  public sealed class ServiceRegistration : IStatus
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
 
@@ -98,20 +98,6 @@ namespace MediaPortal.Common
       get { return _isShuttingDown; }
       set { _isShuttingDown = value; }
     }
-
-    ~ServiceRegistration()
-    {
-      Dispose();
-    }
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      _instance = null;
-    }
-
-    #endregion
 
     /// <summary>
     /// Adds a new Service to the <see cref="ServiceRegistration"/>
