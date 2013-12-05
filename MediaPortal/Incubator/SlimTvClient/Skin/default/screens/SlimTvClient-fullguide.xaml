@@ -57,6 +57,8 @@
             </Control.TemplateControl>
           </Control>
         </GroupBox>
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>

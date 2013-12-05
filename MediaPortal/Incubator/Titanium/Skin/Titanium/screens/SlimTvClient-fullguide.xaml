@@ -58,6 +58,8 @@
             <Include Source="screens\ProgramInfoSlim.inc"/>
           </Control.TemplateControl>
         </Control>
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>
