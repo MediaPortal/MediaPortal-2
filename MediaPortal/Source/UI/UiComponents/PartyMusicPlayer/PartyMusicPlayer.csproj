@@ -115,6 +115,15 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\images\eject-icon.png" />
+    <Content Include="Skin\default\images\fast-forward-icon.png" />
+    <Content Include="Skin\default\images\pause-icon.png" />
+    <Content Include="Skin\default\images\play-icon.png" />
+    <Content Include="Skin\default\images\repeat-icon.png" />
+    <Content Include="Skin\default\images\rewind-icon.png" />
+    <Content Include="Skin\default\images\skip-backward-icon.png" />
+    <Content Include="Skin\default\images\skip-forward-icon.png" />
+    <Content Include="Skin\default\images\stop-icon.png" />
     <Content Include="Skin\default\screens\PartyMusicConfig.xaml" />
     <Content Include="Skin\default\screens\PartyMusicPlayer.xaml" />
     <Content Include="Skin\default\screens\DialogQueryEscapePassword.xaml" />
