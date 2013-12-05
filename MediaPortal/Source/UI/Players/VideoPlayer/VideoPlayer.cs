@@ -492,7 +492,8 @@ namespace MediaPortal.UI.Players.Video
             int hr = streamSelector.Info(i, pp_mediaType, pp_selectInfoFlags, pp_lcid, pp_groupNumber, pp_name, pp_punk, pp_object);
             new HRESULT(hr).Throw();
 
-            AMMediaType mediaType = Marshal.PtrToStructure(pp_mediaType, typeof(AMMediaType)) as AMMediaType;
+            // We get a pointer to pointer for a structure.
+            AMMediaType mediaType = (AMMediaType)Marshal.PtrToStructure(Marshal.ReadIntPtr(pp_mediaType), typeof(AMMediaType));
             int groupNumber = Marshal.ReadInt32(pp_groupNumber);
             int lcid = Marshal.ReadInt32(pp_lcid);
             string name = Marshal.PtrToStringAuto(Marshal.ReadIntPtr(pp_name));
@@ -540,6 +541,7 @@ namespace MediaPortal.UI.Players.Video
                 break;
             }
             // Free MediaType and references
+            DsUtils.FreeAMMediaType(mediaType);
             Marshal.FreeHGlobal(pp_punk);
             Marshal.FreeHGlobal(pp_object);
             Marshal.FreeHGlobal(pp_name);
