@@ -7,7 +7,7 @@
     <Property Id="PropertiesFile">1</Property>
 
     <!-- .NET Framework -->
-    <PropertyRef Id="NETFRAMEWORK40FULL"/>
+    <PropertyRef Id="NETFRAMEWORK45"/>
 
   </Fragment>
 </Wix>
