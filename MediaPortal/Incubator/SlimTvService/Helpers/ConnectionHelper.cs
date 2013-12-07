@@ -25,7 +25,6 @@
 using System.Data;
 using System.Data.Common;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace MediaPortal.Plugins.SlimTv.Service.Helpers
@@ -94,25 +93,14 @@ namespace MediaPortal.Plugins.SlimTv.Service.Helpers
 
     /// <summary>
     /// Extension method to retrieve the <see cref="DbProviderFactory"/> from an existing <see cref="DbConnection"/>.
-    /// Note: in .NET 4.5 there is a <see cref="DbProviderFactories.GetFactory"/> overload that works with <see cref="DbConnection"/>.
     /// </summary>
     /// <param name="existingConnection">The DbConnection to get the DBProviderFactory from.</param>
     /// <returns>DbProviderFactory Property.</returns>
     /// <remarks></remarks>
     public static DbProviderFactory GetDbFactory(this IDbConnection existingConnection)
     {
-      if (existingConnection == null)
-        return null;
-      PropertyInfo pinfo = typeof(DbConnection).GetProperty("DbProviderFactory", BindingFlags.Instance | BindingFlags.NonPublic);
-      if (pinfo != null)
-      {
-        try
-        {
-          return (DbProviderFactory) pinfo.GetValue(existingConnection, null);
-        }
-        catch { }
-      }
-      return null;
+      DbConnection dbConnection = existingConnection as DbConnection;
+      return dbConnection == null ? null : DbProviderFactories.GetFactory(dbConnection);
     }
   }
 }
