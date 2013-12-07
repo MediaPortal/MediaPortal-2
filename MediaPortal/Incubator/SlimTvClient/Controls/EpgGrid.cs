@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -257,6 +258,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       base.ArrangeOverride();
     }
 
+    public override void RenderOverride(RenderContext localRenderContext)
+    {
+      // Lock access to Children during render pass to avoid controls to be disposed during rendering.
+      lock(Children.SyncRoot)
+        base.RenderOverride(localRenderContext);
+    }
+
+    protected override void RenderChildren(RenderContext localRenderContext)
+    {
+      // Lock access to Children during render pass to avoid controls to be disposed during rendering.
+      lock (Children.SyncRoot)
+        base.RenderChildren(localRenderContext);
+    }
+
     private void PrepareColumnAndRowLayout()
     {
       // Recreate columns and rows only after dimensions changed.
@@ -328,6 +343,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool CreateOrUpdateRow(bool updateOnly, ref int channelIndex, int rowIndex)
     {
+      if (channelIndex >= ChannelsPrograms.Count)
+        return false;
       ChannelProgramListItem channel = ChannelsPrograms[channelIndex] as ChannelProgramListItem;
       if (channel == null)
         return false;
