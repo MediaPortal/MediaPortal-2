@@ -26,11 +26,14 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Plugins.SlimTv.Service.Helpers
 {
   static class ConnectionExtentson
   {
+    static readonly Regex REGEX_SQLITE_REPLACE = new Regex(@"(\/)([^\/]*)(.s3db)");
+
     public static DbConnection GetClone(this IDbConnection connection, string replaceDatabase = null)
     {
       DbConnection connClone = null;
@@ -75,6 +78,13 @@ namespace MediaPortal.Plugins.SlimTv.Service.Helpers
           if (csb.ContainsKey("database"))
           {
             csb["database"] = replaceDatabase;
+          }
+          // SQLite
+          if (csb.ContainsKey("fulluri"))
+          {
+            // Typical SQLite connection string using URI format:
+            // fulluri="file:///C:/ProgramData/Team%20MediaPortal/MP2-Server/Database/Datastore.s3db?cache=shared";version=3;binaryguid=True;default timeout=30000;cache size=65536;journal mode=Wal;pooling=False;synchronous=Normal;foreign keys=True
+            csb["fulluri"] = REGEX_SQLITE_REPLACE.Replace(csb["fulluri"].ToString(), "$1" + replaceDatabase + "$3");
           }
           cloneConnectString = csb.ConnectionString;
         }
