@@ -5,6 +5,10 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DatabaseDestination>$(PluginDestination)\Database\</DatabaseDestination>
+  </PropertyGroup>
+
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
@@ -16,17 +20,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <DatabaseFiles Include="$(TargetDir)Database\*.*" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <References Include="$(ProjectDir)References\**\*.*" />
     <ReferencesPlugins Include="$(ProjectDir)References\Plugins\**\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(DatabaseFiles)" DestinationFolder="$(DatabaseDestination)" />
     <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(References)"
-          DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(ReferencesPlugins)"
-          DestinationFiles="@(ReferencesPlugins->'$(PluginDestination)SetupTv\Plugins\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(ReferencesPlugins)" DestinationFiles="@(ReferencesPlugins->'$(PluginDestination)SetupTv\Plugins\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

@@ -95,12 +95,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
 
       using (var transaction = database.BeginTransaction())
+      {
+        // Prepare TV database if required.
+        PrepareTvDatabase(transaction);
+
         if (transaction.Connection.GetCloneFactory(TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
         {
           EntityFrameworkHelper.AssureKnownFactory(_dbProviderFactory);
           // Register our factory to create new cloned connections
           ObjectContextManager.SetDbConnectionCreator(ClonedConnectionFactory);
         }
+      }
 
       IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service", @"Plugins\SlimTv.Service\castle.config");
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
@@ -113,7 +118,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     /// <summary>
     /// Prepares the required data folders for first run. The required tuningdetails and other files are extracted to [TVCORE] path.
     /// </summary>
-    private void PrepareProgramData ()
+    private void PrepareProgramData()
     {
       string dataPath = ServiceRegistration.Get<IPathManager>().GetPath("<TVCORE>");
       string tuningDetails = Path.Combine(dataPath, "TuningParameters");
@@ -126,9 +131,42 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ZipFile dataArchive = new ZipFile(Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\ProgramData.zip"));
         dataArchive.ExtractAll(dataPath);
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to extract Tuningdetails!", ex);
+      }
+    }
+
+    /// <summary>
+    /// Prepares the database for SlimTV if required. This is only the case for SQLite mode, where we supply an empty template DB.
+    /// </summary>
+    /// <param name="transaction"></param>
+    private void PrepareTvDatabase(ITransaction transaction)
+    {
+      // We only need custom logic for SQLite here.
+      if (!transaction.Connection.GetType().ToString().Contains("SQLite"))
+        return;
+      string targetPath = ServiceRegistration.Get<IPathManager>().GetPath("<DATABASE>");
+      string databaseTemplate = Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("Database");
+      if (!Directory.Exists(databaseTemplate))
+        return;
+
+      ServiceRegistration.Get<ILogger>().Info("SlimTvService: Checking database template files.");
+      try
+      {
+        foreach (var file in Directory.GetFiles(databaseTemplate))
+        {
+          string targetFile = Path.Combine(targetPath, Path.GetFileName(file));
+          if (!File.Exists(targetFile))
+          {
+            File.Copy(file, targetFile);
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Sucessfully copied database template file {0}", file);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to copy database template!", ex);
       }
     }
 
@@ -136,7 +174,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     /// Creates a new <see cref="DbConnection"/> on each request. This is used by the Tve35 EF model handling.
     /// </summary>
     /// <returns>Connection, still closed</returns>
-    private DbConnection ClonedConnectionFactory ()
+    private DbConnection ClonedConnectionFactory()
     {
       DbConnection connection = _dbProviderFactory.CreateConnection();
       if (connection == null)
@@ -319,7 +357,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         switch (schedule.ScheduleType)
         {
-          case (int) ScheduleRecordingType.Once:
+          case (int)ScheduleRecordingType.Once:
             scheduleService.DeleteSchedule(schedule.IdSchedule);
             break;
           default:
@@ -334,7 +372,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
-      IProgramRecordingStatus recProgram = (IProgramRecordingStatus) programService.GetProgram(program.ProgramId).ToProgram(true);
+      IProgramRecordingStatus recProgram = (IProgramRecordingStatus)programService.GetProgram(program.ProgramId).ToProgram(true);
       recordingStatus = recProgram.RecordingStatus;
       return true;
     }

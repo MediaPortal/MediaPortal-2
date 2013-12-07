@@ -212,6 +212,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Database\MP2TVE.s3db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="References\castle.config" />
     <None Include="References\Mediaportal.TV.Server.TVLibrary.Services.dll.config" />
     <None Include="References\ProgramData\ProgramData.zip" />
