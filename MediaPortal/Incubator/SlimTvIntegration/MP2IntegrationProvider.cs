@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.Logging;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using ILogger = Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.ILogger;
 
@@ -59,9 +57,6 @@ namespace MediaPortal.Plugins.SlimTv.Integration
         pathManager.InitializeDefaults();
 
         ServiceRegistration.Set<Common.PathManager.IPathManager>(pathManager);
-
-        Common.Logging.ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
-        logger.Info("MP2IntegrationProvider: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
       }
 
       _pathManagerWrapper = new PathManagerWrapper();
