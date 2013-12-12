@@ -50,7 +50,7 @@ namespace MediaPortal.Common.UPnP
 
     public override bool IsNullable
     {
-      get { return false; }
+      get { return true; }
     }
 
     public override bool IsAssignableFrom(Type type)
