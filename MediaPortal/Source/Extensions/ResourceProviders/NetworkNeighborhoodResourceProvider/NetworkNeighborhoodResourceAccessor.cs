@@ -170,7 +170,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       get
       {
         using (ImpersonateUser(_impersonationContext))
-          return GetServerName(_path) ?? (_underlayingResource == null ? null : _underlayingResource.ResourceName);
+          return GetServerName(_path) ?? (_underlayingResource == null ? string.Empty : _underlayingResource.ResourceName);
       }
     }
 
@@ -271,7 +271,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
                 try { return new NetworkNeighborhoodResourceAccessor(_parent, share.UNCPath.Replace('\\', '/')); }
                 catch (IllegalCallException) { return null; }
               }
-            ).Where(share => share != null).Cast<IFileSystemResourceAccessor>().ToList();
+            ).Where(share => share != null && share.Exists).Cast<IFileSystemResourceAccessor>().ToList(); // "share.Exists" considers the user's access rights.
         return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetChildDirectories());
       }
     }
