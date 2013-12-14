@@ -19,6 +19,7 @@
   <string name="SlimTvClient.DeleteSchedule">Vymazať tento plán</string>
   <string name="SlimTvClient.CreateSchedule">Naplánovať záznam</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Žiadny TV poskytovateľ nie je zatiaľ dostupný</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Nahrávky</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV nahrávky</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrovať podľa kanála</string>

@@ -18,6 +18,7 @@
   <string name="SlimTvClient.DeleteSchedule">Slet planlagt optagelse</string>
   <string name="SlimTvClient.CreateSchedule">Planlæg optagelse</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV udbyder tilgængelig (p.t.)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Optagelser</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV optagelser</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer pr. kanal</string>

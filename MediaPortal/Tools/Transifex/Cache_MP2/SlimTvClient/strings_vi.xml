@@ -18,6 +18,7 @@
   <string name="SlimTvClient.DeleteSchedule">Xóa lịch</string>
   <string name="SlimTvClient.CreateSchedule">Ghi hình lịch xem</string>
   <string name="SlimTvClient.ErrorNoTvProvider">HIện không có nhà cung cấp TV (vẫn chưa)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Ghi hình</string>
   <string name="SlimTvClient.RecordingsRootViewName">Ghi hình TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Lọc theo kênh</string>

@@ -17,5 +17,6 @@
   <string name="SlimTvClient.RecordNow">Registra ora</string>
   <string name="SlimTvClient.DeleteSchedule">Cancella schedulazione</string>
   <string name="SlimTvClient.CreateSchedule">Registra Schedulazione</string>
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

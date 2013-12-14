@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Players.Image">Prehrávač fotiek</string>
   <string name="Settings.Players.Image.SlideShowImageDuration">Čas zobrazenia pri Slideshow</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Nastavenie času zobrazenie každej fotografie</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Ken Burns efekt</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Nastavenie času zobrazenia každej fotografie</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Ken Burnsov efekt</string>
   <string name="Settings.Players.Image.KenBurnsEffect.Help">Fotka je zobrazená mierne zväčšená a v pohybe</string>
 </resources>

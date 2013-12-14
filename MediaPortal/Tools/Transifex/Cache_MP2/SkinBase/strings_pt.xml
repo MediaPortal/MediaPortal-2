@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Copiar</string>
+  <string name="Keys.Paste">Colar</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>
   <string name="Dialogs.InfoHeaderText">Informações</string>
@@ -38,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectar do servidor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor Local</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente MediaPortal 2 está conectado ao servidor local</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Este cliente MediaPortal 2 não está conectado ao servidor local.</string>
   <string name="ServerConnection.HomeServerIsConnected">O servidor local está conectado.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">O servidor local está desconectado.</string>
@@ -69,6 +70,8 @@
   <string name="LocalFsResourceProvider.Description">Acessar o sistema de arquivos local</string>
   <string name="RemoteResourceProvider.Name">Provedor de recursos remotos</string>
   <string name="RemoteResourceProvider.Description">Acessar recursos localizados em outro sistema MediaPortal 2</string>
+  <string name="RawUrlResourceProvider.Name">URL bruto do fornecedor de recursos</string>
+  <string name="RawUrlResourceProvider.Description">Aceder às fontes dos URI brutos</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Sem reprodutor</string>
@@ -89,6 +92,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Alternar reprodutores PiP</string>
   <string name="Players.ChooseAudioStream">Escolher fluxo de áudio</string>
+  <string name="Players.PlayerSlotAudioMenu">Menu de áudio para {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Mudo</string>
   <string name="Players.MuteOff">Mudo desligado</string>
@@ -106,6 +110,8 @@
   <string name="Settings.General.System">Systema</string>
   <string name="Settings.General.System.Autostart">Autoiniciar</string>
   <string name="Settings.General.System.Autostart.Help">Iniciar MediaPortal automaticamente ao iniciar o Windows</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Letra da unidade para montar o recurso</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Configura a letra da unidade para montar recursos remotos neste cliente.</string>
   <string name="Settings.General.Connectivity">Conectividade</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor local</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informações do servidor local, conectar e desconectar do servidor local</string>

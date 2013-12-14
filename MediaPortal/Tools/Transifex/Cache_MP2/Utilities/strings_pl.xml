@@ -14,6 +14,7 @@
   <string name="Utilities.StartPlaylistImport">Uruchom import listy odtwarzania</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Postęp</string>
   <string name="Utilities.ImportPlaylistProgressHeaderText">Importowanie listy odtwarzania</string>
+  <string name="Utilities.StopImportPlaylistButton">Zatrzymaj</string>
   <string name="Utilities.PlaylistNameExists">List odtwarzania o tej nazwie już istnieje</string>
   <string name="Utilities.ImportFileInvalid">Nieprawidłowy plik importu</string>
   <string name="Utilities.PlaylistNameIsEmpty">Nazwa listy odtwarzania jest pusta</string>

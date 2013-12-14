@@ -281,6 +281,8 @@
   <string name="Media.SortByDate">Seleziona per data registrazione</string>
   <string name="Media.SortByEpisode">Seleziona per episodio</string>
   <string name="Media.SortingBrowseDefault">Selezione per default</string>
+  <string name="Media.SwitchFilterMenuItem">Filtro</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtro</string>
   <string name="Settings.Players">Players</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Chiudi i player quando finito</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Abilita questo settaggio per far chiudere automaticamente i player da Mediaportal</string>

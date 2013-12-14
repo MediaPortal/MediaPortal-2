@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">گەڕان بۆ تۆڕی بێتەل</string>
+  <string name="Network.NoWirelessNetworksFound">هیچ تۆڕێکی بێتەل نەدۆزرایەوە</string>
+  <string name="Network.Connect">پەیوەستکردن</string>
+  <string name="Network.Disconnect">پچڕاندن</string>
+  <string name="Network.EnterWifiPassword">تێپەڕە ووشەی بێتەل بنوسە</string>
+  <string name="Network.DeleteProfile">سڕینەوەی پرۆفایلی بێتەل</string>
+  <string name="Settings.General.Connectivity.WifiConnection">پەیوەندی بێتەل WiFi</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">پەیوەندیکردن بە تۆڕی بێتەلەوە</string>
+</resources>

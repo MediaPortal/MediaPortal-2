@@ -3,5 +3,13 @@
   <string name="News.Title">Notícias</string>
   <string name="News.FeedsStateDisplayLabel">Notícias</string>
   <string name="News.Published">Publicado</string>
+  <string name="News.ConfiguredFeeds">Feeds configuradas</string>
+  <string name="News.AddFeed">Adicionar feed de notícias</string>
+  <string name="News.EnterFeedName">Insira o nome para a feed</string>
+  <string name="News.EnterFeedUrl">Insira o URL da feed</string>
   <string name="Settings.Plugins.News">Notícias</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Gerir feeds</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Configurar feeds que são usadas para reunir dados para notícias</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Atualizar intervalo</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Baixar dados da feed periodicamente depois ... minutos</string>
 </resources>

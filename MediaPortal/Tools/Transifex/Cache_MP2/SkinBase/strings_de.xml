@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Heimserver</string>
   <string name="ServerConnection.AttachedText.Before">Dieser MediaPortal-2-Client ist einem Heimserver zugewiesen.</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser MediaPortal-2-Client ist momentan keinem Heimserver zugewiesen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Mit dem Heimserver verbunden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Vom Heimserver getrennt.</string>
@@ -69,7 +68,7 @@
   <string name="ImporterMessages.ImportCompletedText">Der Import \'{0}\' wurde abgeschlossen.</string>
   <string name="LocalFsResourceProvider.Name">Ressourcen-Provider für das lokale Dateisystem</string>
   <string name="LocalFsResourceProvider.Description">Zugriff auf das lokale Dateisystem</string>
-  <string name="RemoteResourceProvider.Name">Remote-Resourcen-Provider</string>
+  <string name="RemoteResourceProvider.Name">Remote-Ressourcen-Provider</string>
   <string name="RemoteResourceProvider.Description">Zugriff auf Ressourcen, die auf anderen MediaPortal-2-Systemen gespeichert sind</string>
   <string name="RawUrlResourceProvider.Name">Url Ressourcen-Provider</string>
   <string name="RawUrlResourceProvider.Description">Zugriff auf Url-Quellen</string>
@@ -154,7 +153,7 @@
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Freigaben entfernen</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Freigabeinformationen</string>
   <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">System auswählen</string>
-  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Resourcen-Provider auswählen</string>
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Ressourcen-Provider auswählen</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Pfad ändern</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Pfad auswählen</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Name eingeben</string>
@@ -165,7 +164,7 @@
   <string name="SharesConfig.NoSharesAvailable">Es sind keine Freigaben verfügbar</string>
   <string name="SharesConfig.ShareInformationHeader">Freigabeinformationen</string>
   <string name="SharesConfig.ShareNameInfo">Name:</string>
-  <string name="SharesConfig.ShareResourceProviderInfo">Basis-Resourcen-Provider:</string>
+  <string name="SharesConfig.ShareResourceProviderInfo">Basis-Ressourcen-Provider:</string>
   <string name="SharesConfig.ShareSystem">System:</string>
   <string name="SharesConfig.SharePathInfo">Pfad:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technischer Pfad:</string>
@@ -183,7 +182,7 @@
   <string name="SharesConfig.GlobalShares">Globale Freigaben</string>
   <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Der Heimserver ist aktuell nicht verbunden, deshalb können derzeit keine globalen Freigaben verwaltet werden.</string>
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Der Heimserver befindet sich auf dem selben Computer, deshalb können nur globale Freigaben verwaltet werden.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Wähle einen Resourcen-Provider für die Freigabe</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Wähle einen Ressourcen-Provider für die Freigabe</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Setze den Pfad zur Freigabe</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Gib einen Pfad ein, der für den gewählten Ressourcen-Provider gültig ist. Dies kann ein einfacher Pfad sein, der vom Provider verstanden wird. Es können auch komplexe Pfade in folgendem Format angegeben werden: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Wähle den Pfad für die Freigabe</string>
@@ -204,7 +203,7 @@
   <string name="SharesConfig.AddLocalShare">Lokale Freigabe hinzufügen</string>
   <string name="SharesConfig.EditLocalShare">Lokale Freigabe bearbeiten</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Freigabe aktualisieren</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Der Resourcen-Provider und/oder der Pfad haben sich geändert.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Der Ressourcen-Provider und/oder der Pfad haben sich geändert.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Die Informationen in der Medienbibliothek über die Medienelemente in dieser Freigabe können entweder aktualisiert (verschoben) oder gelöscht und neu importiert werden.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Möchtest du verschieben oder löschen und importieren?</string>
   <string name="SharesConfig.Relocate">Verschieben</string>

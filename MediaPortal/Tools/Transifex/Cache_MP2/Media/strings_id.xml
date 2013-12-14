@@ -301,6 +301,8 @@
   <string name="Media.SortByDate">Urutkan berdasarkan tangal rekam</string>
   <string name="Media.SortByEpisode">Urutkan berdasarkan episode</string>
   <string name="Media.SortingBrowseDefault">Pengurutan baku</string>
+  <string name="Media.SwitchFilterMenuItem">Saring</string>
+  <string name="Media.SwitchFilterDialogTitle">Saring</string>
   <string name="Settings.Players">Pemutar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tutup pemutar bila selesai</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktifkan setelan ini untuk membuat MediaPortal secara otomatis menutup pemutar yang telah selesai</string>

@@ -309,6 +309,8 @@
   <string name="Media.SortByDate">Ordenar por fecha de grabado</string>
   <string name="Media.SortByEpisode">Ordenar por episodio</string>
   <string name="Media.SortingBrowseDefault">Orden por defecto</string>
+  <string name="Media.SwitchFilterMenuItem">Filtrar</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtrar</string>
   <string name="Settings.Players">Reproducciones</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Cerrar reproducciones cuando terminen</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activar esta opción para que MediaPortal cierre automáticamente las reproducciones finalizadas</string>

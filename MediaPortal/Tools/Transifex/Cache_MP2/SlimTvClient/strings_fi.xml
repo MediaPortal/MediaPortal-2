@@ -19,6 +19,7 @@
   <string name="SlimTvClient.DeleteSchedule">Poista ajastus</string>
   <string name="SlimTvClient.CreateSchedule">Ajasta tallennus</string>
   <string name="SlimTvClient.ErrorNoTvProvider">TV:n palveluntarjoajaa ei saatavilla (vielä)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Tallennukset</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV tallennukset</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Suodata kanavan mukaan</string>

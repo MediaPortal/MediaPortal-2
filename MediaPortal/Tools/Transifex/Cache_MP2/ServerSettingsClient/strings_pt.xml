@@ -1,2 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.ServerSettings">Definições do servidor</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Letra da unidade para montar o recurso</string>
+  <string name="Settings.ServerSettings.NetworkCredentials">Credenciais da rede</string>
+  <string name="Settings.ServerSettings.UsernamePasswordGroup">Utilizador e palavra-passe</string>
+  <string name="Settings.ServerSettings.Username">Utilizador:</string>
+  <string name="Settings.ServerSettings.Password">Palavra-passe:</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Ativar actualização automática</string>
+</resources>

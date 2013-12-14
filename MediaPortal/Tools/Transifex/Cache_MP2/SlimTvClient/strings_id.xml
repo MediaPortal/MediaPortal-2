@@ -18,6 +18,7 @@
   <string name="SlimTvClient.DeleteSchedule">Hapus jadwal</string>
   <string name="SlimTvClient.CreateSchedule">Jadwal perekaman</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Tidak ada penyedia TV tersedia (belum)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Rekaman</string>
   <string name="SlimTvClient.RecordingsRootViewName">Rekaman TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Saring berdasarkan saluran</string>

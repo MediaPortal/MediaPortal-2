@@ -17,6 +17,7 @@
   <string name="SlimTvClient.RecordNow">Şimdi kaydet</string>
   <string name="SlimTvClient.DeleteSchedule">Kayıt zamanlamasını sil</string>
   <string name="SlimTvClient.CreateSchedule">Zamanı gelince kaydet</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Kayıtlar</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Kayıtları</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Kanala göre filtrele</string>

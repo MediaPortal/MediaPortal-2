@@ -12,12 +12,14 @@
   <string name="SlimTvClient.Guide">TV Vodič</string>
   <string name="SlimTvClient.NoProgram">Ni podatkov o oddaji</string>
   <string name="SlimTvClient.ChooseProgramAction">Izberi akcijo za oddajo.</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Izberi skupino kanalov</string>
   <string name="SlimTvClient.ProgramOver">Oddaja je že končana</string>
   <string name="SlimTvClient.WatchNow">Glej oddajo</string>
   <string name="SlimTvClient.RecordNow">Posnemi</string>
   <string name="SlimTvClient.DeleteSchedule">Prekliči snemanje</string>
   <string name="SlimTvClient.CreateSchedule">Razporedi snemanje</string>
   <string name="SlimTvClient.ErrorNoTvProvider">(Trenutno) ni ponudnika TV</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>

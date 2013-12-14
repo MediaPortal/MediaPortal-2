@@ -19,6 +19,11 @@
   <string name="SlimTvClient.DeleteSchedule">Trinti tvarkaraštį</string>
   <string name="SlimTvClient.CreateSchedule">Nustatyti įrašymo tvarkaraštį</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Nėra pasiekiamo TV tiekėjo</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">EPG eilučių skaičius</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Numato kiek EPG eilučių (kanalų) bus rodoma</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Valandų kiekis EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Numato kiek valandų (programų) bus rodoma EPG</string>
   <string name="SlimTvClient.RecordingsMenuItem">Įrašai</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV įrašai</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtruoti pagal kanalą</string>

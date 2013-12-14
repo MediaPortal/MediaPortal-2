@@ -8,4 +8,5 @@
   <string name="SlimTvClient.ProgramStartLabel">Час початку</string>
   <string name="SlimTvClient.ProgramEndLabel">Час кінця</string>
   <string name="SlimTvClient.EpisodeLabel">Епізод</string>
+  <!--Settings-->
 </resources>

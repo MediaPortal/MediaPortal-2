@@ -5,7 +5,7 @@
   <string name="SystemState.Configuration.Dialog.Title">Configureer items van het afsluitmenu</string>
   <string name="SystemState.Title">Afsluitmenu</string>
   <string name="SystemState.Hibernate">Hibernate</string>
-  <string name="SystemState.Shutdown">Aflsuiten</string>
+  <string name="SystemState.Shutdown">Afsluiten</string>
   <string name="SystemState.Suspend">Suspend</string>
   <string name="SystemState.Restart">Herstarten</string>
   <string name="SystemState.Logoff">Uitloggen</string>

@@ -1,4 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.Playlist">Lista de Reprodução</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Escolha a lista de reprodução</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Desativar protetor de ecrã</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Escolha a lista de reprodução</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Servidor não conectado</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Artista</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Título</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Exibir lista de reprodução</string>
 </resources>

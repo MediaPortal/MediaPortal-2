@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Menu de encerramento</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Configurar visibilidade e posição dos itens do menu de encerramento</string>
+  <string name="SystemState.Configuration.Dialog.Title">Configurar itens de encerramento</string>
+  <string name="SystemState.Title">Menu de encerramento</string>
+  <string name="SystemState.Hibernate">Hibernar</string>
+  <string name="SystemState.Shutdown">Encerrar</string>
+  <string name="SystemState.Suspend">Suspender</string>
+  <string name="SystemState.Restart">Reiniciar</string>
+  <string name="SystemState.Logoff">terminar sessão</string>
+  <string name="SystemState.MinimizeMP">Minimizar o MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Fechar o MediaPortal</string>
+</resources>

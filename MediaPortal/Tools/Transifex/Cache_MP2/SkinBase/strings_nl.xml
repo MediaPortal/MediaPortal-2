@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Verbreek verbinding met server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ThuisServer</string>
   <string name="ServerConnection.AttachedText.Before">Deze MediaPortal 2 client is momenteel verbonden met de thuisserver</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Deze MediaPortal 2 client is momenteel niet verbonden met de thuisserver</string>
   <string name="ServerConnection.HomeServerIsConnected">De thuisserver is momenteel verbonden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">De thuisserver is momenteel niet verbonden</string>
@@ -71,6 +70,8 @@
   <string name="LocalFsResourceProvider.Description">Toegang tot het lokale bestandssysteem</string>
   <string name="RemoteResourceProvider.Name">Bron op afstand</string>
   <string name="RemoteResourceProvider.Description">Toegang tot bronnen op een ander MediaPortal 2-systeem</string>
+  <string name="RawUrlResourceProvider.Name">Onbewerkte Url bronprovider</string>
+  <string name="RawUrlResourceProvider.Description">Toegang onbewerkte Uri bronnen</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Geen speler</string>

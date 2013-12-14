@@ -17,5 +17,6 @@
   <string name="SlimTvClient.RecordNow">Salvesta kohe</string>
   <string name="SlimTvClient.DeleteSchedule">Kustuta salvestuste plaan</string>
   <string name="SlimTvClient.CreateSchedule">Planeeri salvestus</string>
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

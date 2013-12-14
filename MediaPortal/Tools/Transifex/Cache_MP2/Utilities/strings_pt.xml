@@ -4,7 +4,20 @@
   <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Utilidades</string>
   <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Importar playlists</string>
   <string name="Utilities.MainScreenTitle">Utilidades</string>
+  <string name="Utilities.PlaylistImport">Importar lista de reprodução</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Importar lista de reprodução</string>
+  <string name="Utilities.ImportPlaylistFile">Importar ficheiro de lista de reprodução</string>
+  <string name="Utilities.ChoosePlaylistFile">Escolha o ficheiro</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Escolha o ficheiro de importação</string>
+  <string name="Utilities.EditPlaylistName">Editar o nome da nova lista de reprodução</string>
   <string name="Utilities.LocalShareLocation">Compartilhamento local</string>
+  <string name="Utilities.ServerShareLocation">Compartilhamento do servidor</string>
+  <string name="Utilities.StartPlaylistImport">Iniciar importação da lista de reprodução</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Sucesso</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Progresso</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">A importar lista de reprodução</string>
   <string name="Utilities.StopImportPlaylistButton">Parar</string>
+  <string name="Utilities.ImportFileInvalid">ficheiro de importação inválido</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Nome da lista de reprodução vazio</string>
+  <string name="Utilities.ServerNotConnected">O servidor não está conectado</string>
 </resources>

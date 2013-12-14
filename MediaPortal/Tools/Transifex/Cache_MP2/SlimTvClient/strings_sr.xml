@@ -18,6 +18,7 @@
   <string name="SlimTvClient.DeleteSchedule">Обриши распоред</string>
   <string name="SlimTvClient.CreateSchedule">Направи распоред за снимање</string>
   <string name="SlimTvClient.ErrorNoTvProvider">ТВ сигнал није доступан</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Снимљено</string>
   <string name="SlimTvClient.RecordingsRootViewName">ТВ снимци</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Филтрирај по каналима</string>

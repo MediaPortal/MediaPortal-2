@@ -17,4 +17,5 @@
   <string name="SlimTvClient.RecordNow">अब रिकॉर्ड करें </string>
   <string name="SlimTvClient.DeleteSchedule">अनुसूची हटाएँ</string>
   <string name="SlimTvClient.CreateSchedule">अनुसूची रिकॉर्ड हो रहा है</string>
+  <!--Settings-->
 </resources>

@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Déconnexion du serveur</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Serveur local</string>
   <string name="ServerConnection.AttachedText.Before">Ce client MediaPortal 2 est connecté au serveur local</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ce client MediaPortal 2 est déconnecté du serveur local</string>
   <string name="ServerConnection.HomeServerIsConnected">Le serveur local est ouvert</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est fermé</string>
@@ -71,6 +70,8 @@
   <string name="LocalFsResourceProvider.Description">Accéder aux fichiers locaux</string>
   <string name="RemoteResourceProvider.Name">Fournisseur de contenus à distance</string>
   <string name="RemoteResourceProvider.Description">Accéder aux contenus situés sur un autre système MediaPortal 2</string>
+  <string name="RawUrlResourceProvider.Name">Fournisseur d\'accés en Url brute(Raw)</string>
+  <string name="RawUrlResourceProvider.Description">Accéder à des sources d\'URL brute5raw)</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Aucun lecteur</string>

@@ -19,6 +19,11 @@
   <string name="SlimTvClient.DeleteSchedule">Ta bort planerad inspelning</string>
   <string name="SlimTvClient.CreateSchedule">Planera inspelning</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV-försörjare är (ännu) tillgänglig</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Antal rader i TV-tablån</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Bestämmer hur många rader (kanaler) som visas i TV-tablån</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Antal timmar i TV-tablån</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Bestämmer hur många timmar (program) som visas i TV-tablån</string>
   <string name="SlimTvClient.RecordingsMenuItem">Inspelningar</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV-inspelningar</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrera på kanal</string>

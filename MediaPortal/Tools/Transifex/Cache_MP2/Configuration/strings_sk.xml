@@ -2,11 +2,11 @@
 <resources>
   <string name="Configuration.Name">Nastavenie</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Nastavenie</string>
-  <string name="Configuration.MainSettings">Hlavné nastavenia</string>
+  <string name="Configuration.MainSettings">Hlavné nastavenie</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">V tejto sekcii nie sú žiadne nastavenia</string>
-  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' nie je vhodné ako desatinné číslo</string>
-  <string name="Configuration.ErrorIntegerValue">\'{0}\' nie je vhodné ako celé číslo</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' nie je vhodné desatinné číslo</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' nie je vhodné celé číslo</string>
   <string name="Configuration.ErrorNumericLowerLimit">Použite hodnotu medzi \'{1}\' a \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <string name="Configuration.ErrorNumericUpperLimit">Použite hodnotu medzi \'{1}\' a \'{2}\'</string>

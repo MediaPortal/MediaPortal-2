@@ -12,12 +12,14 @@
   <string name="SlimTvClient.Guide">TV-gids</string>
   <string name="SlimTvClient.NoProgram">Geen programma-informatie</string>
   <string name="SlimTvClient.ChooseProgramAction">Kies programma actie...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Kies zendergroep...</string>
   <string name="SlimTvClient.ProgramOver">Programma is reeds afgelopen</string>
   <string name="SlimTvClient.WatchNow">Programma nu bekijken</string>
   <string name="SlimTvClient.RecordNow">Nu opnemen</string>
   <string name="SlimTvClient.DeleteSchedule">Verwijder geplande opname</string>
   <string name="SlimTvClient.CreateSchedule">Plan een opname</string>
   <string name="SlimTvClient.ErrorNoTvProvider">TV aanbieder (nog) niet beschikbaar</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Opnames</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opnames</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filteren op kanaal</string>

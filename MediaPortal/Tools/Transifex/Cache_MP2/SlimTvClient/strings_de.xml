@@ -19,6 +19,11 @@
   <string name="SlimTvClient.DeleteSchedule">Aufnahmeplan löschen</string>
   <string name="SlimTvClient.CreateSchedule">Aufnahme planen</string>
   <string name="SlimTvClient.ErrorNoTvProvider">(Noch) kein TV-Anbieter verfügbar</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Anzahl von Zeilen im EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Legt die Anzahl der angezeigten Zeilen (Sender) im EPG fest</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Anzahl der Stunden im EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Legt die Anzahl der angezeigten Stunden (Programme) im EPG fest</string>
   <string name="SlimTvClient.RecordingsMenuItem">Aufnahmen</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Aufnahmen</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter nach Kanal</string>

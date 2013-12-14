@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Sistema</string>
   <string name="Settings.Appearance.System.Fullscreen">Ecrã Inteiro</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Mostrar o MediaPortal em modo de ecrã inteiro</string>
+  <string name="Settings.Appearance.System.StartupScreen">Ecrã de início</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Selecionar ecrã de inicio</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Não usar seleção de ecrã</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Escrita estilo telemóvel</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Utilizar estilo de escrita de telemóvel/SMS</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Ligar proteção de ecrã</string>

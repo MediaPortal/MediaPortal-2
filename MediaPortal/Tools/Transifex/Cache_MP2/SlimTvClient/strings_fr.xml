@@ -12,12 +12,14 @@
   <string name="SlimTvClient.Guide">Guide Télé</string>
   <string name="SlimTvClient.NoProgram">Programme indisponible</string>
   <string name="SlimTvClient.ChooseProgramAction">Choisissez une action pour le programme...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Choisissez un groupe de chaine</string>
   <string name="SlimTvClient.ProgramOver">Programme déjà terminé</string>
   <string name="SlimTvClient.WatchNow">Regarder le programme en cours</string>
   <string name="SlimTvClient.RecordNow">Enregister</string>
   <string name="SlimTvClient.DeleteSchedule">Effacer l\'enregistrement programmé</string>
   <string name="SlimTvClient.CreateSchedule">Programmer un enregistrement</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Aucun fournisseur TV disponible (pour l`instant)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Trier par chaîne</string>

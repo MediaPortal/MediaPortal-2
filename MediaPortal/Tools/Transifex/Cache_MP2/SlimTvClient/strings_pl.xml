@@ -14,6 +14,7 @@
   <string name="SlimTvClient.WatchNow">Oglądaj program teraz</string>
   <string name="SlimTvClient.RecordNow">Rozpocznij nagrywanie</string>
   <string name="SlimTvClient.CreateSchedule">Zaplanuj nagrywanie</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Nagrania</string>
   <string name="SlimTvClient.RecordingsRootViewName">Nagrania TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtruj wg kanału</string>

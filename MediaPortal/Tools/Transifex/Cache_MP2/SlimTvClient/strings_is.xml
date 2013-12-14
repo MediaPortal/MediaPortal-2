@@ -17,5 +17,6 @@
   <string name="SlimTvClient.RecordNow">Taka upp núna</string>
   <string name="SlimTvClient.DeleteSchedule">Eyða áætlun</string>
   <string name="SlimTvClient.CreateSchedule">Upptökuáætlun</string>
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

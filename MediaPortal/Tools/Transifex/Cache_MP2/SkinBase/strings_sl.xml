@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odjavi se s strežnika</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domači strežnik</string>
   <string name="ServerConnection.AttachedText.Before">Ta MediaPortal odjemalec je trenutno prijavljen na strežnik</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ta MediaPortal odjemalec trenutno ni prijavljen na strežnik</string>
   <string name="ServerConnection.HomeServerIsConnected">Domači strežnik je trenutno povezan</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domači strežnik je trenutno nepovezan</string>
@@ -71,6 +70,8 @@
   <string name="LocalFsResourceProvider.Description">Dostopaj do lokalnih datotek</string>
   <string name="RemoteResourceProvider.Name">Ponudnik oddaljenih virov</string>
   <string name="RemoteResourceProvider.Description">Dostopaj do virov na drugem MediaPortal računalniku</string>
+  <string name="RawUrlResourceProvider.Name">Ponudnik surovih URL sredstev</string>
+  <string name="RawUrlResourceProvider.Description">Uporabi surove URI vire</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ni predvajalnika</string>

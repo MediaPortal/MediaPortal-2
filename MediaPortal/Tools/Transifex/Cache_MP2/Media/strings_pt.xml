@@ -14,12 +14,18 @@
   <string name="Media.FilterByAudioGenreMenuItem">Filtrar por género</string>
   <string name="Media.FilterByDecadeMenuItem">Filtrar por década</string>
   <string name="Media.FilterByActorMenuItem">Filtrar por ator</string>
+  <string name="Media.FilterByDirectorMenuItem">Filtrar por realizador</string>
+  <string name="Media.FilterByWriterMenuItem">Filtrar por argumentista</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtrar por género</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtrar por ano</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrar por idioma</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrar por tamanho</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrar por ano</string>
+  <string name="Media.FilterByImageCountryMenuItem">Filtrar por país</string>
+  <string name="Media.FilterByImageStateMenuItem">Filtrar por estado</string>
+  <string name="Media.FilterByImageCityMenuItem">Filtrar por cidade</string>
   <string name="Media.FilterBySystemMenuItem">Filtrar por sistema</string>
+  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrar por coleção</string>
   <string name="Media.FilterBySeriesNameMenuItem">Filtrar por série</string>
   <string name="Media.FilterBySeriesSeasonMenuItem">Filtrar por temporada</string>
   <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrar por episódio</string>
@@ -45,11 +51,16 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Género: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Década: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Ator: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Realizador: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Argumentista: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Género: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Ano: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Idioma: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Tamanho: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Ano: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">País: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Estado: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Cidade: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nome: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nome: {0}</string>
   <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
@@ -92,7 +103,10 @@
   <string name="Media.MoviesItemsHeader">Filmes</string>
   <string name="Media.ImageItemsHeader">Imagens</string>
   <string name="Media.SimpleSearchHeader">Busca simples</string>
+  <string name="Media.ChooseCollectionHeader">Escolher uma coleção</string>
   <string name="Media.ChooseActorHeader">Escolha um ator</string>
+  <string name="Media.ChooseDirectorHeader">Escolha um Realizador</string>
+  <string name="Media.ChooseWriterHeader">Escolha um argumentista</string>
   <string name="Media.ChooseVideoGenreHeader">Escolha um gênero</string>
   <string name="Media.ChooseVideoYearHeader">Escolha um ano</string>
   <string name="Media.ChooseSeriesHeader">Escolha uma série</string>
@@ -103,6 +117,9 @@
   <string name="Media.ChooseAudioGenreHeader">Escolha um gênero</string>
   <string name="Media.ChooseImageYearHeader">Escolha um ano</string>
   <string name="Media.ChooseImageSizeHeader">Escolha um tamanho</string>
+  <string name="Media.ChooseImageCountryHeader">Escolha um país</string>
+  <string name="Media.ChooseImageStateHeader">Escolha um estado</string>
+  <string name="Media.ChooseImageCityHeader">Escolha uma cidade</string>
   <string name="Media.ChooseSystemHeader">Escolha um sistema</string>
   <string name="Media.ChooseVideoLanguageHeader">Escolher o idioma</string>
   <string name="Media.PlaylistsOverviewHeader">Listas de Reprodução</string>
@@ -185,6 +202,8 @@
   <string name="Media.EnqueueVideoImageItem">Enfileirar item de vídeo/imagem</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Reproduzir vídeo/imagem no fundo &amp; continar reprodução simultânea de àudio</string>
   <string name="Media.PlayVideoImageItemPiP">Reproduzir vídeo/imagem no modo PiP</string>
+  <string name="Media.PlaybackResume">Retomar a reprodução</string>
+  <string name="Media.PlaybackFromStart">Reproduzir do início</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Vídeo/Imagem</string>
   <string name="Media.AudioContextName">Áudio</string>
@@ -192,11 +211,16 @@
   <string name="Media.VideoCurrentlyPlayingHeader">Informaçoes do vídeo atual</string>
   <string name="Media.VideoTitleLabel">Título: </string>
   <string name="Media.VideoGenreLabel">Gênero: </string>
+  <string name="Media.VideoCollectionLabel">Coleção:</string>
   <string name="Media.VideoYearLabel">Ano: </string>
   <string name="Media.VideoDurationLabel">Duração: </string>
   <string name="Media.VideoActorsLabel">Ator(es): </string>
   <string name="Media.VideoStoryPlotLabel">Sinopse: </string>
   <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Série:</string>
+  <string name="Media.SeriesSeasonLabel">Temporada:</string>
+  <string name="Media.SeriesEpisodeLabel">Episódio(s):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Título do episódio:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Informação da imagem atual</string>
   <string name="Media.ImageTitleLabel">Nome: </string>
@@ -208,14 +232,19 @@
   <string name="Media.ImageShutterSpeedLabel">Velocidade do obturador: </string>
   <string name="Media.ImageMeteringModeLabel">Modo de medida: </string>
   <string name="Media.ImageExposureTimeLabel">Tempo de exposição: </string>
+  <string name="Media.ImageCountryLabel">País:</string>
+  <string name="Media.ImageStateLabel">Estado:</string>
+  <string name="Media.ImageCityLabel">Cidade:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Informações do DVD atual</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Informações do áudio atual</string>
+  <string name="Media.AudioAlbumLabel">Álbum:</string>
   <string name="Media.AudioArtistsLabel">Artista: </string>
   <string name="Media.AudioTitleLabel">Título: </string>
   <string name="Media.AudioYearLabel">Ano: </string>
   <string name="Media.AudioDurationLabel">Duração: </string>
+  <string name="Media.AudioGenresLabel">Género(s):</string>
   <string name="Media.AudioPlaylistHeader">Lista de reprodução de áudio</string>
   <string name="Media.VideoImagePlaylistHeader">Lista de reprodução de vídeo/imagem</string>
   <string name="Media.PiPPlaylistHeader">Lista de reprodução PiP</string>
@@ -261,6 +290,7 @@
   <string name="Media.MediumList">Lista média</string>
   <string name="Media.LargeList">Lista grande</string>
   <string name="Media.LargeGrid">Grade</string>
+  <string name="Media.CoverLayout">Capas</string>
   <string name="Media.SwitchSortingMenuItem">Ordenando</string>
   <string name="Media.SwitchSortingDialogTitle">Ordenando</string>
   <string name="Media.SortByTitle">Ordenar por título</string>
@@ -274,11 +304,15 @@
   <string name="Media.SortBySystem">Ordenar por sistema</string>
   <string name="Media.SortByActor">Ordenar por ator</string>
   <string name="Media.SortByDirector">Ordenar por diretor</string>
+  <string name="Media.SortByWriter">Ordenar por argumentista</string>
   <string name="Media.SortByDuration">Ordenar por duração</string>
   <string name="Media.SortByAspectRatio">Ordenar por aspecto de proporção</string>
+  <string name="Media.SortByFirstAiredDate">Ordenar por data de emissão</string>
   <string name="Media.SortByDate">Ordenar por data de gravação</string>
   <string name="Media.SortByEpisode">Ordenar por episódio</string>
   <string name="Media.SortingBrowseDefault">Ordenação padrão</string>
+  <string name="Media.SwitchFilterMenuItem">Filtrar</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtrar</string>
   <string name="Settings.Players">Reprodutores</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fechar reprodutores quando terminados</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Habilite esta configuração para fazer o MediaPortal fechar os reprodutores terminados automaticamente</string>
@@ -289,4 +323,5 @@
   <string name="Settings.Players.SkipStepList">Pulos do reprodutor</string>
   <string name="Settings.Players.SkipStepList.Help">Entre os pulos em segundos separados por ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Abrir estratégia de reprodutor</string>
+  <string name="Settings.Players.OpenPlayerStrategy.Help">Estratégia, como novos leitores serão posicionados entre leitores já abertos</string>
 </resources>

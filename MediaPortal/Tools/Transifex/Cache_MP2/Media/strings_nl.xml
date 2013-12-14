@@ -202,6 +202,8 @@
   <string name="Media.EnqueueVideoImageItem">Video/afbeelding item in wachtrij</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Video/afbeelding items in achtergrond afspelen &amp; gelijktijdig doorgaan met audio item</string>
   <string name="Media.PlayVideoImageItemPiP">Video/afbeelding items in PiP mode afspelen</string>
+  <string name="Media.PlaybackResume">Afspelen hervatten</string>
+  <string name="Media.PlaybackFromStart">Afspelen vanaf begin</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/afbeelding</string>
   <string name="Media.AudioContextName">Audio</string>
@@ -309,6 +311,8 @@
   <string name="Media.SortByDate">Sorteer op opnamedatum</string>
   <string name="Media.SortByEpisode">Sorteer op aflevering</string>
   <string name="Media.SortingBrowseDefault">Standaard sortering</string>
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
+  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Spelers</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sluit spelers wanneer gereed</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Schakel deze instelling in om MediaPortal automatisch gereed zijnde spelers af te sluiten</string>

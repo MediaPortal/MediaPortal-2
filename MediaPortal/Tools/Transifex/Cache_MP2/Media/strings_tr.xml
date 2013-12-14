@@ -297,6 +297,8 @@
   <string name="Media.SortByDate">Kayıt tarihine göre sırala</string>
   <string name="Media.SortByEpisode">Bölüme göre sırala</string>
   <string name="Media.SortingBrowseDefault">Varsayılan sıralama</string>
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
+  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Oynatıcılar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Bitince oynatıcıyı kapat</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">MediaPortal\'ın işi biten oynatıcıyı otomatik kapatması için bu seçeneği seçin</string>

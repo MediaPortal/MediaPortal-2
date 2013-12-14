@@ -311,6 +311,8 @@
   <string name="Media.SortByDate">Lajittele tallennuspäivän mukaan</string>
   <string name="Media.SortByEpisode">Lajittele jakson mukaan</string>
   <string name="Media.SortingBrowseDefault">Oletus lajittelu</string>
+  <string name="Media.SwitchFilterMenuItem">Suodata</string>
+  <string name="Media.SwitchFilterDialogTitle">Suodata</string>
   <string name="Settings.Players">Soittimet</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sammuta soittimet lopuksi</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aseta tämä asetus päälle jotta MediaPortal sammuttaa soittimet automaattisesti</string>

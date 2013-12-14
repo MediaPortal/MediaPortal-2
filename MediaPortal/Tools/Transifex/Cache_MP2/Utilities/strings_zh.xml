@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem">工具</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">工具</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">导入播放列表</string>
+  <string name="Utilities.MainScreenTitle">工具</string>
+  <string name="Utilities.PlaylistImport">导入播放列表</string>
+  <string name="Utilities.PlaylistImportScreenTitle">导入播放列表</string>
+  <string name="Utilities.ImportPlaylistFile">导入播放列表文件</string>
+  <string name="Utilities.ChoosePlaylistFile">选择文件</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">选择要导入的文件</string>
+  <string name="Utilities.EditPlaylistName">编辑新播放列表的名称</string>
+  <string name="Utilities.LocationOfShareContainingItems">包含媒体条目的共享位置</string>
+  <string name="Utilities.LocalShareLocation">本地共享</string>
+  <string name="Utilities.ServerShareLocation">服务器共享</string>
+  <string name="Utilities.StartPlaylistImport">开始播放列表导入</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">成功</string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">没有条目被导入。跳过保存动作</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">成功保存播放列表 \'{0}\'。</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">保存播放列表失败</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">进度</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">正在导入播放列表</string>
+  <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} 跳过</string>
+  <string name="Utilities.StopImportPlaylistButton">停止</string>
+  <string name="Utilities.PlaylistNameExists">播放列表名已存在</string>
+  <string name="Utilities.ImportFileInvalid">导入文件不存在</string>
+  <string name="Utilities.PlaylistNameIsEmpty">播放列表名称为空</string>
+  <string name="Utilities.ServerNotConnected">服务器未连接</string>
+</resources>

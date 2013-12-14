@@ -1,21 +1,165 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="System.Yes">确认</string>
+  <string name="System.No">否定</string>
+  <string name="System.Done">完成</string>
+  <string name="System.Finish">结束</string>
+  <string name="System.Ok">OK</string>
+  <string name="System.Cancel">取消</string>
+  <string name="System.Discard">丢弃</string>
+  <string name="System.Back">后退</string>
+  <string name="System.Continue">继续</string>
+  <string name="System.Add">增加</string>
+  <string name="System.Remove">移除</string>
+  <string name="System.Hint">提示</string>
+  <string name="System.Information">信息</string>
+  <string name="System.Warning">警告</string>
+  <string name="System.Error">错误</string>
+  <string name="Keys.Shift">转移</string>
+  <string name="Keys.CapsLock">大写锁定</string>
+  <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Home.Title">MediaPortal 2</string>
+  <string name="Home.HomeStateDisplayLabel">主界面</string>
+  <string name="Dialogs.InfoHeaderText">信息</string>
+  <string name="Dialogs.WarningHeaderText">警告</string>
+  <string name="Dialogs.ErrorHeaderText">错误</string>
+  <string name="Media.MyMusic">音乐</string>
+  <string name="Media.MyVideos">视频</string>
+  <string name="Media.MyPictures">图片</string>
+  <string name="Media.InvalidShareName">共享不存在</string>
+  <string name="ServerConnection.NotificationServerAvailableTitle">MP2服务器可用</string>
+  <string name="ServerConnection.NotificationServerAvailableText">至少有一个MediaPortal 2服务器在网络上。连接它来得到所有MediaPortal 2功能。</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.UnknownServerName">&lt;未知&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;未知&gt;</string>
+  <string name="ServerConnection.HomeServer">家庭服务器</string>
+  <string name="ServerConnection.AttachToServerWorkflowStateLabel">连接到服务器</string>
+  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">脱离服务器</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">家庭服务器</string>
+  <string name="ServerConnection.AttachedText.Before">此MediaPortal 2客户端当前已连接到家庭服务器</string>
+  <string name="ServerConnection.NoHomeServerAttached">此MediaPortal 2客户端当前未连接到家庭服务器</string>
+  <string name="ServerConnection.HomeServerIsConnected">家庭服务器已连接</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">家庭服务器已断开</string>
+  <string name="ServerConnection.DetachMenu">脱离</string>
+  <string name="ServerConnection.DetachConfirmDialogHeader">脱离家庭服务器</string>
+  <string name="ServerConnection.DetachConfirmDialogText">如果脱离家庭服务器，所有关于本地共享的数据和媒体将被从家庭服务器的媒体库中删除。您可以稍后再试。难道你真的想脱离家庭服务器“{0}\'主机\'{1}\'？</string>
+  <string name="ServerConnection.SearchForServers">搜索服务器</string>
+  <string name="ServerConnection.DetachFromServer">脱离家庭服务器</string>
+  <string name="ServerConnection.AttachToServerHeader">连接到MediaPortal 2 服务器</string>
+  <string name="ServerConnection.AttachToMultipleText">在网络中有多个MP2服务器可用，你想在他们中选择一个作为家庭服务器么？</string>
+  <string name="ServerConnection.AttachToSingleText.Before">MP2服务器</string>
+  <string name="ServerConnection.AttachToSingleText.After">在网络中可用，想要连接它么？</string>
+  <string name="ServerConnection.AttachToServerNoServerText">当前网络中没有可用的MediaPortal 2服务器。</string>
+  <string name="ServerConnection.AttachButton">连接</string>
+  <string name="ServerConnection.AttachInfoDialogHeader">服务器已连接</string>
+  <string name="ServerConnection.AttachInfoDialogText">此MediaPortal 2客户端已经连接到他的新家庭服务器 \'{0}\' 在主机 \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="Notifications.Title">提示信息</string>
+  <string name="Notifications.OneMoreNotification">(1 more)</string>
+  <string name="Notifications.NMoreNotifications">({0} more)</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">提示信息</string>
+  <string name="Notifications.Handle">处理</string>
+  <string name="ImporterMessages.ImportStartedTitle">导入已开始</string>
+  <string name="ImporterMessages.ImportStartedText">\'{0}\'的导入已经开始</string>
+  <string name="ImporterMessages.ImportCompletedTitle">导入完成</string>
+  <string name="ImporterMessages.ImportCompletedText">\'{0}\'的导入完成</string>
+  <string name="LocalFsResourceProvider.Name">本地文件系统资源提供商</string>
+  <string name="LocalFsResourceProvider.Description">访问本地文件系统</string>
+  <string name="RemoteResourceProvider.Name">远程资源提供商</string>
+  <string name="RemoteResourceProvider.Description">访问在另外一台MediaPortal 2系统的资源</string>
+  <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.NoPlayerAvailableNotificationTitle">没有播放器</string>
+  <string name="Players.NoPlayerAvailableNotificationText">没有播放器注册为可播放 \'{0}\'</string>
+  <string name="Players.ErrorPlayingMediaItemTitle">播放媒体条目错误</string>
+  <string name="Players.UnableToPlayMediaItemText">不能播放媒体 \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">资源 \'{0}\'未找到</string>
+  <string name="Players.PlayerConfiguration">播放器配置</string>
+  <string name="Players.CurrentMediaInfo">当前媒体信息</string>
+  <string name="Players.FullscreenVideo">全屏 {0}</string>
   <!--for example "Fullscreen TV"-->
+  <string name="Players.FullscreenImage">全屏图片</string>
+  <string name="Players.AudioVisualization">音频可视化效果</string>
+  <string name="Players.PlayerOfType"> {0}播放器</string>
   <!--for example "Video player"-->
+  <string name="Players.SlotNo">插槽 #{0}</string>
+  <string name="Players.FocusPlayer">关注{0}</string>
   <!--for example "Focus video player"-->
+  <string name="Players.SwitchPipPlayers">切换画中画播放器</string>
+  <string name="Players.ChooseAudioStream">选择音频流</string>
   <!--for example "Audio menu for Lammbock"-->
+  <string name="Players.Mute">静音</string>
+  <string name="Players.MuteOff">静音关闭</string>
+  <string name="Players.ClosePlayerContext">关闭{0}</string>
   <!--for example "Close video player"-->
+  <string name="Players.ChoosePlayerGeometry">缩放模式</string>
+  <string name="Players.ChoosePlayerEffect">效果</string>
+  <string name="Settings.Appearance">外观</string>
+  <string name="Settings.Appearance.Skin">皮肤</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">数据格式</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">皮肤用到的数据格式，使用 .net DateTime class的格式规格</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">时间格式</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">皮肤用的时间格式，使用 .net DateTime class的格式规格</string>
+  <string name="Settings.General">常规</string>
+  <string name="Settings.General.System">系统</string>
+  <string name="Settings.General.System.Autostart">自动启动</string>
+  <string name="Settings.General.System.Autostart.Help">Windows开机时自动启动MediaPortal </string>
+  <string name="Settings.General.System.ClientDOKANDrive">资源安装的盘符</string>
+  <string name="Settings.General.Connectivity">连接</string>
+  <string name="Settings.General.Connectivity.HomeServer">家庭服务器</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">家庭服务器信息，连接和脱离家庭服务器</string>
+  <string name="Settings.General.Connectivity.ServerListener">服务器监听器</string>
+  <string name="Settings.General.Connectivity.ServerListener.Help">当一个MediaPortal 2服务器在网络中可用时，启用脱离状态提醒。</string>
+  <string name="Settings.General.Connectivity.ClientName">客户端名称</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">设置此MediaPortal 2客户端的名字</string>
+  <string name="Settings.Regional">区域</string>
+  <string name="Settings.Regional.Language">语言</string>
+  <string name="Settings.Regional.Language.Main">语言</string>
+  <string name="Settings.Regional.Language.Main.Help">设置程序使用的主要语言</string>
+  <string name="Settings.Shares">共享</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">配置共享</string>
+  <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">共享配置</string>
+  <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">配置所有本地共享</string>
   <!--Group name-->
   <!--Setting-->
-  <!--Group name-->
-  <!--Setting-->
+  <string name="Settings.Plugins">插件</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">共享配置</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">移除共享</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">共享信息</string>
+  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">选择系统</string>
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">选择资源提供者</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">编辑路径</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">选择路径</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">编辑名称</string>
+  <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">选择类别</string>
+  <string name="SharesConfig.CannotAddSharesTitle">不能添加共享</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">家庭服务器在同一个电脑，因此所有的共享必须在服务器上注册。但是服务器当前没有连接，请启动家庭服务器并且重新试一下。</string>
+  <string name="SharesConfig.SharesConfiguration.Title">共享配置</string>
+  <string name="SharesConfig.NoSharesAvailable">没有可用共享</string>
+  <string name="SharesConfig.ShareInformationHeader">共享信息</string>
+  <string name="SharesConfig.ShareNameInfo">名称：</string>
+  <string name="SharesConfig.ShareResourceProviderInfo">基础资源提供者：</string>
+  <string name="SharesConfig.ShareSystem">系统：</string>
+  <string name="SharesConfig.SharePathInfo">路径：</string>
+  <string name="SharesConfig.ShareResourcePathInfo">技术路径：</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">媒体类别：</string>
+  <string name="SharesConfig.ReImportShare">重新导入共享</string>
+  <string name="SharesConfig.SetupDefaultShares">设置默认共享</string>
+  <string name="SharesConfig.RemoveShares">移除共享</string>
+  <string name="SharesConfig.EditShare">编辑共享</string>
+  <string name="SharesConfig.ChooseSystem">选择系统</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">请选择要移除的共享</string>
+  <string name="SharesConfig.ChooseSystemForShare">选择新共享的系统</string>
+  <string name="SharesConfig.LocalShare">本地共享</string>
+  <string name="SharesConfig.LocalShares">本地共享</string>
+  <string name="SharesConfig.GlobalShare">全局共享</string>
+  <string name="SharesConfig.GlobalShares">全局共享</string>
+  <string name="SharesConfig.MenuRemoveShares">移除共享</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

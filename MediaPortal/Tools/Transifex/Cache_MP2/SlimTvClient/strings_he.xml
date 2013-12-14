@@ -18,6 +18,7 @@
   <string name="SlimTvClient.DeleteSchedule">מחק תזמונים</string>
   <string name="SlimTvClient.CreateSchedule">תזמן הקלטה</string>
   <string name="SlimTvClient.ErrorNoTvProvider">אין ספק טלויזיה פנוי (בינתיים)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">הקלטות</string>
   <string name="SlimTvClient.RecordingsRootViewName">הקלטות מטלויזיה</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">סנן לפי ערוץ</string>
