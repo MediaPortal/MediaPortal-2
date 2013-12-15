@@ -261,7 +261,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     public override void RenderOverride(RenderContext localRenderContext)
     {
       // Lock access to Children during render pass to avoid controls to be disposed during rendering.
-      lock(Children.SyncRoot)
+      lock (Children.SyncRoot)
         base.RenderOverride(localRenderContext);
     }
 
@@ -365,6 +365,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
 
       int colSpan = 0;
+      DateTime? lastStartTime = null;
       DateTime? lastEndTime = viewportStart;
 
 #if DEBUG_LAYOUT
@@ -393,11 +394,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (program == null || program.Program.StartTime > viewportEnd)
           break;
 
-        if (program.Program.EndTime <= viewportStart)
+        // Ignore programs outside viewport and programs that start at same time (duplicates)
+        if (program.Program.EndTime <= viewportStart || (lastStartTime.HasValue && lastStartTime.Value == program.Program.StartTime))
         {
           programIndex++;
           continue;
         }
+
+        lastStartTime = program.Program.StartTime;
 
         CalculateProgamPosition(program, viewportStart, viewportEnd, ref colIndex, ref colSpan, ref lastEndTime);
 
@@ -478,7 +482,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// <param name="program">Program</param>
     private void UpdateProgramStatus(IProgram program)
     {
-      FrameworkElement control = Children.FirstOrDefault(el => ((ProgramListItem)el.Context).Program.ProgramId == program.ProgramId);
+      if (program == null)
+        return;
+      FrameworkElement control = Children.FirstOrDefault(el =>
+      {
+        ProgramProperties programProperties = ((ProgramListItem)el.Context).Program;
+        return programProperties != null && programProperties.ProgramId == program.ProgramId;
+      });
       if (control == null)
         return;
 
