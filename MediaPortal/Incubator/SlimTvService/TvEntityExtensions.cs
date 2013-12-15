@@ -22,10 +22,13 @@
 
 #endregion
 
+using System;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
+using KeepMethodType = MediaPortal.Plugins.SlimTv.Interfaces.Items.KeepMethodType;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -43,29 +46,45 @@ namespace MediaPortal.Plugins.SlimTv.Service
           Description = tvProgram.Description,
           StartTime = tvProgram.StartTime,
           EndTime = tvProgram.EndTime,
-          // TODO: Genre!
         };
 
-      if (includeRecordingStatus)
-      {
-        ProgramBLL programLogic = new ProgramBLL(tvProgram);
-        program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
-        if (programLogic.IsRecordingOncePending)
-          program.RecordingStatus |= RecordingStatus.Scheduled;
-        if (programLogic.IsRecordingSeriesPending)
-          program.RecordingStatus |= RecordingStatus.SeriesScheduled;
-      }
+      ProgramBLL programLogic = new ProgramBLL(tvProgram);
+      program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
+      if (programLogic.IsRecordingOncePending)
+        program.RecordingStatus |= RecordingStatus.Scheduled;
+      if (programLogic.IsRecordingSeriesPending)
+        program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+
       return program;
     }
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = (MediaType)tvChannel.MediaType};
+      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = (MediaType)tvChannel.MediaType };
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)
     {
       return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
+    }
+
+    public static ISchedule ToSchedule(this Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule)
+    {
+      return new Schedule
+      {
+        ChannelId = schedule.IdChannel,
+        Name = schedule.ProgramName,
+        KeepDate = schedule.KeepDate,
+        KeepMethod = (KeepMethodType)schedule.KeepMethod,
+        PreRecordInterval = TimeSpan.FromMinutes(schedule.PreRecordInterval),
+        PostRecordInterval = TimeSpan.FromMinutes(schedule.PostRecordInterval),
+        Priority = (PriorityType)schedule.Priority,
+        StartTime = schedule.StartTime,
+        EndTime = schedule.EndTime,
+        ScheduleId = schedule.IdSchedule,
+        ParentScheduleId = schedule.IdParentSchedule,
+        IsSeries = schedule.Series,
+      };
     }
   }
 }

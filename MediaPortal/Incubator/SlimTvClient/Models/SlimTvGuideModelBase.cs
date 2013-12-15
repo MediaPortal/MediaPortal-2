@@ -186,7 +186,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                 {
                   Command = new MethodDelegateCommand(() =>
                                                         {
-                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program))
+                                                          ISchedule schedule;
+                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program, out schedule))
                                                             UpdateRecordingStatus(program, RecordingStatus.Scheduled);
                                                         }
                     )

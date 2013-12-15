@@ -618,9 +618,10 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #region IScheduleControl Member
 
-    public bool CreateSchedule(IProgram program)
+    public bool CreateSchedule(IProgram program, out ISchedule schedule)
     {
       Program indexProgram = program as Program;
+      schedule = null;
       if (indexProgram == null)
         return false;
 
@@ -629,8 +630,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime,
-                                                       program.EndTime, WebScheduleType.Once);
+        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, WebScheduleType.Once);
       }
       catch
       {

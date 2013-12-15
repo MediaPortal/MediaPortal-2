@@ -26,22 +26,58 @@ using System;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
+  /// <summary>
+  /// ISchedule represents a schedule to record either single programs or series.
+  /// </summary>
   public interface ISchedule
   {
+    /// <summary>
+    /// Gets the Schedule's ID.
+    /// </summary>
     int ScheduleId { get; }
+    /// <summary>
+    /// Gets the optional ID of parent schedule.
+    /// </summary>
+    int? ParentScheduleId { get; }
+    /// <summary>
+    /// Gets or sets the Channel ID where this program should be recorded.
+    /// </summary>
     int ChannelId { get; set; }
+    /// <summary>
+    /// Gets or sets the scheduled program name.
+    /// </summary>
     string Name { get; set; }
-    DateTime StartDate { get; }
-    DateTime StopDate { get; }
-    
+    /// <summary>
+    /// Gets or sets the scheduled start time.
+    /// </summary>
+    DateTime StartTime { get; }
+    /// <summary>
+    /// Gets or sets the scheduled end time.
+    /// </summary>
+    DateTime EndTime { get; }
+    /// <summary>
+    /// Gets or sets an indicator if the schedule is a series.
+    /// </summary>
+    bool IsSeries { get; set; }
+    /// <summary>
+    /// Gets or sets the schedule's priority.
+    /// </summary>
     PriorityType Priority { get; set; }
-
+    /// <summary>
+    /// Gets or sets the pre-record interval.
+    /// </summary>
     TimeSpan PreRecordInterval { get; set; }
+    /// <summary>
+    /// Gets or sets the post-record interval.
+    /// </summary>
     TimeSpan PostRecordInterval { get; set; }
-
+    /// <summary>
+    /// Gets or sets the keep method.
+    /// </summary>
     KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-    //TODO
+    /// <summary>
+    /// Gets or sets the "keep until" date.
+    /// </summary>
+    DateTime? KeepDate { get; set; }
   }
-
 }

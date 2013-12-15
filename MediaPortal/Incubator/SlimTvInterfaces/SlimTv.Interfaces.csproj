@@ -80,11 +80,13 @@
     <Compile Include="UPnP\DataTypes\UPnPDtChannelGroupList.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtChannelList.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtLiveTvMediaItem.cs" />
+    <Compile Include="UPnP\DataTypes\UPnPDtSchedule.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtProgram.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtProgramList.cs" />
     <Compile Include="UPnP\Items\Channel.cs" />
     <Compile Include="UPnP\Items\ChannelGroup.cs" />
     <Compile Include="UPnP\Items\Dictionary.cs" />
+    <Compile Include="UPnP\Items\Schedule.cs" />
     <Compile Include="UPnP\Items\Program.cs" />
   </ItemGroup>
   <ItemGroup>

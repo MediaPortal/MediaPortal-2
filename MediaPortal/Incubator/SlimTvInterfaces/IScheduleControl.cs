@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
@@ -39,9 +40,17 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
 
   public interface IScheduleControl
   {
-    bool CreateSchedule(IProgram program); // , out ISchedule schedule ?
+    bool CreateSchedule(IProgram program, out ISchedule schedule);
     bool RemoveSchedule(IProgram program); // ISchedule schedule ?
     bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus);
+
+    /// <summary>
+    /// Tries to get a list of programs for the given <paramref name="schedule"/>.
+    /// </summary>
+    /// <param name="schedule">Schedule</param>
+    /// <param name="programs">Returns programs</param>
+    /// <returns><c>true</c> if at least one program could be found</returns>
+    bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs);
 
     //bool GetSchedules(IChannel channel, out IList<ISchedule> schedules);
     //bool GetSchedules(out IList<ISchedule> schedules);

@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
@@ -62,14 +61,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="programs">Returns programs</param>
     /// <returns><c>true</c> if at least one program could be found</returns>
     bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs);
-
-    /// <summary>
-    /// Tries to get a list of programs for the given <paramref name="schedule"/>.
-    /// </summary>
-    /// <param name="schedule">Schedule</param>
-    /// <param name="programs">Returns programs</param>
-    /// <returns><c>true</c> if at least one program could be found</returns>
-    bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs);
 
     /// <summary>
     /// Tries to get a list of programs for the given <paramref name="channel"/>.

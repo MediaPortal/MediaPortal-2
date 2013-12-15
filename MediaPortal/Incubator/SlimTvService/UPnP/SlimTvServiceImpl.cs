@@ -77,6 +77,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DvStateVariable A_ARG_TYPE_Programs = new DvStateVariable("A_ARG_TYPE_Programs", new DvExtendedDataType(UPnPDtProgramList.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Programs);
 
+      DvStateVariable A_ARG_TYPE_Schedule = new DvStateVariable("A_ARG_TYPE_Schedule", new DvExtendedDataType(UPnPDtSchedule.Instance)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Schedule);
+
       DvStateVariable A_ARG_TYPE_RecordingStatus = new DvStateVariable("A_ARG_TYPE_RecordingStatus", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_RecordingStatus);
 
@@ -199,7 +202,8 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      },
                             new[]
                                      {
-                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, true)
                                      });
       AddAction(createSchedule);
 
@@ -212,7 +216,8 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      },
                             new[]
                                      {
-                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, true)
                                      });
       AddAction(createScheduleByTime);
 
@@ -380,9 +385,10 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
 
       int programId = (int) inParams[0];
       IProgram program;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.CreateSchedule(program);
+      ISchedule schedule = null;
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.CreateSchedule(program, out schedule);
 
-      outParams = new List<object> { result };
+      outParams = new List<object> { result, schedule };
       return null;
     }
 
@@ -397,9 +403,10 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime startTime = (DateTime) inParams[1];
       DateTime endTime = (DateTime) inParams[2];
       IProgram program = new Program { ChannelId = channelId, StartTime = startTime, EndTime = endTime, Title = "Manual" }; // TODO: localize
-      bool result = scheduleControl.CreateSchedule(program);
+      ISchedule schedule = null;
+      bool result = scheduleControl.CreateSchedule(program, out schedule);
 
-      outParams = new List<object> { result };
+      outParams = new List<object> { result, schedule };
       return null;
     }
 

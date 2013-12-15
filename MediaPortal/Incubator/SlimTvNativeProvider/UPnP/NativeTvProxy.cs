@@ -364,18 +364,21 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool CreateSchedule(IProgram program)
+    public bool CreateSchedule(IProgram program, out ISchedule schedule)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE);
         IList<object> inParameters = new List<object> { program.ProgramId };
         IList<object> outParameters = action.InvokeAction(inParameters);
-        return (bool) outParameters[0];
+        bool result = (bool)outParameters[0];
+        schedule = result ? (ISchedule)outParameters[1] : null;
+        return result;
       }
       catch (Exception ex)
       {
         NotifyException(ex);
+        schedule = null;
         return false;
       }
     }

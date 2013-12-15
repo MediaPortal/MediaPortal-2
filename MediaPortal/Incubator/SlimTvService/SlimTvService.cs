@@ -334,13 +334,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
     // This property applies only to client side management and is not used in server!
     public int SelectedChannelGroupId { get; set; }
 
-    public bool CreateSchedule(IProgram program)
+    public bool CreateSchedule(IProgram program, out ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
-      Schedule schedule = ScheduleFactory.CreateSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime);
-      schedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
-      schedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
-      scheduleService.SaveSchedule(schedule);
+      Schedule tvschedule = ScheduleFactory.CreateSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime);
+      tvschedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
+      tvschedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
+      scheduleService.SaveSchedule(tvschedule);
+      schedule = tvschedule.ToSchedule();
       return true;
     }
 
