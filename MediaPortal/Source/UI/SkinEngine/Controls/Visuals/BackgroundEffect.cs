@@ -76,6 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _effectContext.Render(0);
         effect.EndRender();
       }
+      backBuffer.Dispose();
     }
 
     public override void Dispose()

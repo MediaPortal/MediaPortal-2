@@ -92,7 +92,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       // Get information of new Texture target
       _targetSurface = targetSurface;
-     
 
       // Set new target
       _device.SetRenderTarget(_renderTargetIndex, _targetSurface);
@@ -101,7 +100,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Dispose()
     {
       // Restore all previous rembered values
-      _device.SetRenderTarget(_renderTargetIndex, _backBuffer);
+      using(_backBuffer)
+        _device.SetRenderTarget(_renderTargetIndex, _backBuffer);
+
       if (_disposeSurface && _targetSurface != null)
         _targetSurface.Dispose();
     }
