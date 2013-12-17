@@ -57,7 +57,7 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="dwSurface">Address of the DirectX surface.</param>
     /// <returns><c>0</c>, if the method succeeded, <c>!= 0</c> else.</returns>
     [PreserveSig]
-    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, IntPtr dwSurface);
+    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, ref IntPtr dwSurface);
   }
 
   public delegate void RenderDlgt();
@@ -136,7 +136,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region IEVRPresentCallback implementation
 
-    public int PresentSurface(short cx, short cy, short arx, short ary, IntPtr dwSurface)
+    public int PresentSurface(short cx, short cy, short arx, short ary, ref IntPtr dwSurface)
     {
       lock (_lock)
         if (dwSurface != IntPtr.Zero && cx != 0 && cy != 0)
@@ -147,17 +147,22 @@ namespace MediaPortal.UI.Players.Video
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          Surface surf = new Surface(dwSurface); // No using / Dispose here as we did not create this surface (done by EVR!)
-          SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
-          SurfaceDescription surfDesc = surf.Description;
-          if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
+          // We need to Dispose the created instance because SharpDX tracks all created objects. When the surface is disposed, it will get released
+          // on unmanaged side as well, that's why we set the dwSurface to IntPtr.Zero to avoid duplicated release (which leads to hard crashes).
+          using (Surface surf = new Surface(dwSurface))
           {
-            if (_surface != null)
-              _surface.Dispose();
-            _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
+            SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
+            SurfaceDescription surfDesc = surf.Description;
+            if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
+            {
+              if (_surface != null)
+                _surface.Dispose();
+              _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
+            }
+            _device.StretchRectangle(surf, _surface, TextureFilter.None);
           }
-
-          _device.StretchRectangle(surf, _surface, TextureFilter.None);
+          // Clear pointer, surface was already released.
+          dwSurface = IntPtr.Zero;
         }
 
       VideoSizePresentDlgt vsp = VideoSizePresent;
