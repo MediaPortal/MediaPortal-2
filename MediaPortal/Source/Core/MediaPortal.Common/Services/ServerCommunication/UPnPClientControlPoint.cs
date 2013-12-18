@@ -251,7 +251,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         _contentDirectoryService = null;
         _resourceInformationService = null;
         _serverControllerService = null;
-        servicesToDispose = _additionalServices;
+        servicesToDispose = new List<UPnPServiceProxyBase>(_additionalServices);
         _additionalServices.Clear();
       }
       // Dispose all additional services if possible, to allow proper shutdown and cleanup
