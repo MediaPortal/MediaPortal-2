@@ -81,9 +81,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       try
       {
         CpAction action = GetAction(Consts.ACTION_DEINIT);
-        IList<object> inParameters = new List<object>();
-        IList<object> outParameters = action.InvokeAction(inParameters);
-        return (bool) outParameters[0];
+        // DeInit will also be called if the service is disposed after server disconnection. In this case we cannot call another action.
+        if (action.IsConnected && action.ParentService != null && action.ParentService.IsConnected)
+        {
+          IList<object> inParameters = new List<object>();
+          IList<object> outParameters = action.InvokeAction(inParameters);
+          return (bool)outParameters[0];
+        }
+        return false;
       }
       catch (Exception ex)
       {
