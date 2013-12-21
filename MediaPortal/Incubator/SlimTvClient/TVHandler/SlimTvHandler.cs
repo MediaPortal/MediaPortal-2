@@ -184,7 +184,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return PlayerContextConcurrencyMode.ConcurrentVideo;
     }
 
-    // Albert, 2012-12-28: TODO: Use a parameter of type PlayerChoice instead of directly referring to the slot index
+    // Note: the slotIndex represents the server side stream, which is not related to the PlayerSlot.
     public IChannel GetChannel(int slotIndex)
     {
       if (TimeshiftControl == null)
@@ -268,8 +268,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         {
           // Switch MediaItem in current slot
           playerContext.DoPlay(newLiveTvMediaItem);
-          // Clear former timeshift contexes (card change cause loss of buffer in rtsp mode).
-          liveTvMediaItem.TimeshiftContexes.Clear();
+          // Use new MediaItem, so new context will be added to new instance.
+          liveTvMediaItem = newLiveTvMediaItem;
         }
         // Add new timeshift context
         AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
