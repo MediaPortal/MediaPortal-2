@@ -96,12 +96,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       TimeSpan totalTime = new TimeSpan();
       foreach (ITimeshiftContext timeshiftContext in timeshiftContexes)
       {
-        if (timeSpan >= totalTime && 
+        if (timeSpan >= totalTime &&
           (
             (timeSpan <= totalTime + timeshiftContext.TimeshiftDuration) || timeshiftContext.TimeshiftDuration.TotalSeconds == 0 /* currently playing */
           ))
           return timeshiftContext;
-        
+
         totalTime += timeshiftContext.TimeshiftDuration;
       }
       return null;
@@ -135,7 +135,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         totalTime += timeshiftContext.TimeshiftDuration;
       }
 
-      if (!found) 
+      if (!found)
         return;
 
       if (next && index < timeshiftContexes.Count - 1)
@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       if (!next && index > 0)
         CurrentTime = GetStartDuration(index - 1);
     }
-    
+
     protected override void EnumerateChapters(bool forceRefresh)
     {
       StreamInfoHandler chapterInfo;
@@ -180,7 +180,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       if (timeshiftContext == null)
         return string.Empty;
 
-      string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title : 
+      string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title :
         ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
       return string.Format("{0}: {1}", timeshiftContext.Channel.Name, program);
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     /// Checks the current stream position and seeks to end, if it is less than <see cref="TIMESPAN_LIVE"/> behind the live point.
     /// </summary>
     /// <returns><c>true</c> if seeked to end.</returns>
-    protected bool SeekToEnd ()
+    protected bool SeekToEnd()
     {
       // Call a seek only if the stream is not "live"
       if (Duration - CurrentTime > TIMESPAN_LIVE)

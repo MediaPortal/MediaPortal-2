@@ -88,7 +88,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected const double ZAP_TIMEOUT_SECONDS = 2.0d;
     protected Timer _zapTimer;
     protected int _zapChannelIndex;
-    
+
     // Contains the channel that was tuned the last time. Used for selecting channels in group list.
     protected IChannel _lastTunedChannel;
 
@@ -114,7 +114,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public string CurrentGroupName
     {
-      get { return (string) _currentGroupNameProperty.GetValue(); }
+      get { return (string)_currentGroupNameProperty.GetValue(); }
       set { _currentGroupNameProperty.SetValue(value); }
     }
 
@@ -131,7 +131,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public string ChannelName
     {
-      get { return (string) _currentChannelNameProperty.GetValue(); }
+      get { return (string)_currentChannelNameProperty.GetValue(); }
       set { _currentChannelNameProperty.SetValue(value); }
     }
 
@@ -148,7 +148,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public string SelectedChannelName
     {
-      get { return (string) _selectedChannelNameProperty.GetValue(); }
+      get { return (string)_selectedChannelNameProperty.GetValue(); }
       set { _selectedChannelNameProperty.SetValue(value); }
     }
 
@@ -173,7 +173,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public ProgramProperties SelectedCurrentProgram
     {
-      get { return (ProgramProperties) _selectedCurrentProgramProperty.GetValue(); }
+      get { return (ProgramProperties)_selectedCurrentProgramProperty.GetValue(); }
       set { _selectedCurrentProgramProperty.SetValue(value); }
     }
 
@@ -185,13 +185,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _selectedCurrentProgramProperty; }
     }
 
-
     /// <summary>
     /// Exposes the next program to the skin.
     /// </summary>
     public ProgramProperties SelectedNextProgram
     {
-      get { return (ProgramProperties) _selectedNextProgramProperty.GetValue(); }
+      get { return (ProgramProperties)_selectedNextProgramProperty.GetValue(); }
       set { _selectedNextProgramProperty.SetValue(value); }
     }
 
@@ -203,13 +202,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _selectedNextProgramProperty; }
     }
 
-
     /// <summary>
     /// Exposes the current program of tuned channel to the skin.
     /// </summary>
     public ProgramProperties CurrentProgram
     {
-      get { return (ProgramProperties) _currentProgramProperty.GetValue(); }
+      get { return (ProgramProperties)_currentProgramProperty.GetValue(); }
       set { _currentProgramProperty.SetValue(value); }
     }
 
@@ -226,7 +224,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public double ProgramProgress
     {
-      get { return (double) _programProgressProperty.GetValue(); }
+      get { return (double)_programProgressProperty.GetValue(); }
       internal set { _programProgressProperty.SetValue(value); }
     }
 
@@ -243,7 +241,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public double SelectedProgramProgress
     {
-      get { return (double) _selectedProgramProgressProperty.GetValue(); }
+      get { return (double)_selectedProgramProgressProperty.GetValue(); }
       internal set { _selectedProgramProgressProperty.SetValue(value); }
     }
 
@@ -260,7 +258,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public double TimeshiftProgress
     {
-      get { return (double) _timeshiftProgressProperty.GetValue(); }
+      get { return (double)_timeshiftProgressProperty.GetValue(); }
       internal set { _timeshiftProgressProperty.SetValue(value); }
     }
 
@@ -277,7 +275,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public ProgramProperties NextProgram
     {
-      get { return (ProgramProperties) _nextProgramProperty.GetValue(); }
+      get { return (ProgramProperties)_nextProgramProperty.GetValue(); }
       set { _nextProgramProperty.SetValue(value); }
     }
 
@@ -291,7 +289,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public bool PiPAvailable
     {
-      get { return (bool) _piPAvailableProperty.GetValue(); }
+      get { return (bool)_piPAvailableProperty.GetValue(); }
       set { _piPAvailableProperty.SetValue(value); }
     }
 
@@ -302,7 +300,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public bool PiPEnabled
     {
-      get { return (bool) _piPEnabledProperty.GetValue(); }
+      get { return (bool)_piPEnabledProperty.GetValue(); }
       set { _piPEnabledProperty.SetValue(value); }
     }
 
@@ -313,7 +311,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public bool IsOSDVisible
     {
-      get { return (bool) _isOSDVisibleProperty.GetValue(); }
+      get { return (bool)_isOSDVisibleProperty.GetValue(); }
       set { _isOSDVisibleProperty.SetValue(value); }
     }
 
@@ -324,7 +322,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public bool IsOSDLevel0
     {
-      get { return (bool) _isOSDLevel0Property.GetValue(); }
+      get { return (bool)_isOSDLevel0Property.GetValue(); }
       set { _isOSDLevel0Property.SetValue(value); }
     }
 
@@ -335,7 +333,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public bool IsOSDLevel1
     {
-      get { return (bool) _isOSDLevel1Property.GetValue(); }
+      get { return (bool)_isOSDLevel1Property.GetValue(); }
       set { _isOSDLevel1Property.SetValue(value); }
     }
 
@@ -346,7 +344,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public bool IsOSDLevel2
     {
-      get { return (bool) _isOSDLevel2Property.GetValue(); }
+      get { return (bool)_isOSDLevel2Property.GetValue(); }
       set { _isOSDLevel2Property.SetValue(value); }
     }
 
@@ -359,7 +357,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (selectedItem != null)
       {
-        IChannel channel = (IChannel) selectedItem.AdditionalProperties["CHANNEL"];
+        IChannel channel = (IChannel)selectedItem.AdditionalProperties["CHANNEL"];
         UpdateSelectedChannelPrograms(channel);
       }
     }
@@ -832,6 +830,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       GetCurrentChannelGroup();
       UpdateChannels();
     }
+
     #endregion
   }
 }

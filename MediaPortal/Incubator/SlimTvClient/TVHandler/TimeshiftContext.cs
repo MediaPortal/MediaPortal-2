@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using DirectShow;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
