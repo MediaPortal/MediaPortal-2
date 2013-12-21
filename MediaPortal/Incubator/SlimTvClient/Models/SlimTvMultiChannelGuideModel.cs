@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
@@ -37,6 +38,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -68,9 +70,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
-    protected AbstractProperty _currentTimeViewOffsetProperty = null;
-    protected AbstractProperty _currentTimeLeftOffsetProperty = null;
-    protected AbstractProperty _currentTimeVisibleProperty = null;
 
     protected DateTime _bufferStartTime;
     protected DateTime _bufferEndTime;
@@ -111,39 +110,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _guideStartTimeProperty; }
     }
 
-    public int CurrentTimeViewOffset
-    {
-      get { return (int)_currentTimeViewOffsetProperty.GetValue(); }
-      set { _currentTimeViewOffsetProperty.SetValue(value); }
-    }
-
-    public AbstractProperty CurrentTimeViewOffsetProperty
-    {
-      get { return _currentTimeViewOffsetProperty; }
-    }
-
-    public double CurrentTimeLeftOffset
-    {
-      get { return (double)_currentTimeLeftOffsetProperty.GetValue(); }
-      set { _currentTimeLeftOffsetProperty.SetValue(value); }
-    }
-
-    public AbstractProperty CurrentTimeLeftOffsetProperty
-    {
-      get { return _currentTimeLeftOffsetProperty; }
-    }
-
-    public bool CurrentTimeVisible
-    {
-      get { return (bool)_currentTimeVisibleProperty.GetValue(); }
-      set { _currentTimeVisibleProperty.SetValue(value); }
-    }
-
-    public AbstractProperty CurrentTimeVisibleProperty
-    {
-      get { return _currentTimeVisibleProperty; }
-    }
-
     public void ScrollForward()
     {
       GuideStartTime = GuideStartTime.AddMinutes(30);
@@ -168,9 +134,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         DateTime startDate = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
         _guideStartTimeProperty = new WProperty(typeof(DateTime), startDate);
-        _currentTimeViewOffsetProperty = new WProperty(typeof(int), 0);
-        _currentTimeLeftOffsetProperty = new WProperty(typeof(double), 0d);
-        _currentTimeVisibleProperty = new WProperty(typeof(bool), true);
       }
       base.InitModel();
     }
@@ -239,17 +202,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
         return;
       UpdateProgramsState();
-      UpdateCurrentTimeIndicator();
-    }
-
-    private void UpdateCurrentTimeIndicator()
-    {
-      // TODO: move to EpgGrid
-      //DateTime now = DateTime.Now;
-      //int currentOffsetInViewport = (int)(now - GuideStartTime).TotalMinutes;
-      //CurrentTimeViewOffset = currentOffsetInViewport;
-      //CurrentTimeLeftOffset = (int)(_programsStartOffset + ProgramWidthFactor * currentOffsetInViewport);
-      //CurrentTimeVisible = now >= GuideStartTime && now <= GuideEndTime;
     }
 
     protected override void UpdateCurrentChannel()
@@ -257,8 +209,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected override void UpdatePrograms()
     {
-      UpdateCurrentTimeIndicator();
-
       UpdateProgramsForGroup();
       foreach (ChannelProgramListItem channel in _channelList)
         UpdateChannelPrograms(channel);
@@ -363,6 +313,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override Guid ModelId
     {
       get { return new Guid(MODEL_ID_STR); }
+    }
+
+    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      base.EnterModelContext(oldContext, newContext);
+      // Init viewport to start with current time.
+      GuideStartTime = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
+      _bufferStartTime = _bufferEndTime = DateTime.MinValue;
+      UpdatePrograms();
     }
 
     #endregion
