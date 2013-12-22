@@ -30,8 +30,12 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
+using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX;
+using SharpDX.Direct3D9;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
@@ -41,7 +45,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     protected IList<ITimeshiftContext> _timeshiftContexes;
     protected StreamInfoHandler _chapterInfo = null;
-    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromSeconds(0.7);
+    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromMilliseconds(50);
+    protected bool _zapping; // Indicates that we are currently changing a channel.
 
     #endregion
 
@@ -185,7 +190,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       return string.Format("{0}: {1}", timeshiftContext.Channel.Name, program);
     }
 
-    public void ChannelZap()
+    public void BeginZap()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Begin zapping", PlayerTitle);
+      // Set indicator for zapping to blank the video surface with black.
+      _zapping = true;
+      // Tell the TsReader that we are zapping, before we actually tune the new channel.
+      ((ITsReader)_sourceFilter).OnZapping(0x80);
+    }
+
+    public void EndZap()
     {
       SeekToEnd();
       Resume();
@@ -195,6 +209,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       EnumerateStreams(true);
       EnumerateChapters(true);
       SetPreferredSubtitle();
+
+      // First reset zapping indicator
+      _zapping = false;
+      // Then invalidate the "black" surface to use new frame.
+      OnTextureInvalidated();
+      ServiceRegistration.Get<ILogger>().Debug("{0}: End zapping", PlayerTitle);
+    }
+
+    protected override void PostProcessTexture(Surface targetSurface)
+    {
+      if (_zapping)
+      {
+        // While zapping fill the current video frame with black. This avoids a frozen last frame from previous channel.
+        SkinContext.Device.ColorFill(targetSurface, Color.Black);
+      }
+      else
+        base.PostProcessTexture(targetSurface);
     }
 
     /// <summary>

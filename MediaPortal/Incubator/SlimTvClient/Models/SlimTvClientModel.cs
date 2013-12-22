@@ -454,20 +454,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         else
           break;
 
+      BeginZap();
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
         _lastTunedChannel = channel;
-        SeekToEndAndPlay();
+        EndZap();
         Update();
         UpdateChannelGroupSelection(channel);
       }
     }
 
-    private void SeekToEndAndPlay()
+    private void BeginZap()
     {
       if (SlotPlayer != null)
       {
-        SlotPlayer.ChannelZap();
+        SlotPlayer.BeginZap();
+      }
+    }
+
+    private void EndZap()
+    {
+      if (SlotPlayer != null)
+      {
+        SlotPlayer.EndZap();
       }
     }
 

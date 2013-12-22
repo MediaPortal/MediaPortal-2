@@ -79,6 +79,7 @@ namespace MediaPortal.UI.Players.Video
     #endregion
 
     #region Graph building
+
     /// <summary>
     /// Frees the audio/video codecs.
     /// </summary>
@@ -107,7 +108,7 @@ namespace MediaPortal.UI.Players.Video
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader) _sourceFilter;
+      ITsReader tsReader = (ITsReader)_sourceFilter;
       tsReader.SetRelaxedMode(1);
       tsReader.SetTsReaderCallback(this);
       tsReader.SetRequestAudioChangeCallback(this);
@@ -156,11 +157,10 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
     }
 
-
     #endregion
 
     #region ITSReaderCallback members
-    
+
     /// <summary>
     /// Callback when MediaType has changed.
     /// </summary>
@@ -179,7 +179,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected void OnAfterGraphRebuild()
     {
-      ITsReader tsReader = (ITsReader) _sourceFilter;
+      ITsReader tsReader = (ITsReader)_sourceFilter;
       tsReader.OnGraphRebuild(_changedMediaType);
     }
 
@@ -220,7 +220,7 @@ namespace MediaPortal.UI.Players.Video
     public int OnRequestAudioChange()
     {
       // This is a special workaround for enumerating streams the first time: the callback happens before _initialized is set usually set to true (in AddFileSource).
-       _initialized = true;
+      _initialized = true;
 
       SetPreferredAudio(true);
       return 0;
