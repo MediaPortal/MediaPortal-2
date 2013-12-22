@@ -155,11 +155,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_channels != null)
         foreach (IChannel channel in _channels)
         {
-          var channelProgramsItem = new ChannelProgramListItem(channel, new ItemsList());
+          IChannel localChannel = channel;
+          var channelProgramsItem = new ChannelProgramListItem(channel, new ItemsList())
+            {
+              Command = new MethodDelegateCommand(() => ShowSingleChannelGuide(localChannel))
+            };
           UpdateChannelPrograms(channelProgramsItem);
           _channelList.Add(channelProgramsItem);
         }
       _channelList.FireChange();
+    }
+
+    private void ShowSingleChannelGuide(IChannel channel)
+    {
+      if (channel == null)
+        return;
+
+      int channelId = channel.ChannelId;
+      int groupId = _channelGroups[_webChannelGroupIndex].ChannelGroupId;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
+      navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_CHANNEL_ID] = channelId;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_GROUP_ID] = groupId;
+      workflowManager.NavigatePush(new Guid("A40F05BB-022E-4247-8BEE-16EB3E0B39C5"), navigationContextConfig);
     }
 
     private ProgramListItem BuildProgramListItem(IProgram program)

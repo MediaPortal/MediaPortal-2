@@ -131,11 +131,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       _webChannelIndex++;
-      if (_webChannelIndex >= _channels.Count)
-        _webChannelIndex = 0;
-
-      UpdateCurrentChannel();
-      UpdatePrograms();
+      SetChannel(_webChannelIndex);
     }
 
     /// <summary>
@@ -147,12 +143,25 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       _webChannelIndex--;
+      SetChannel(_webChannelIndex);
+    }
+
+    /// <summary>
+    /// Sets the current channel based on the given <paramref name="webChannelIndex"/>.
+    /// </summary>
+    /// <param name="webChannelIndex">New channel index.</param>
+    protected void SetChannel(int webChannelIndex)
+    {
       if (_webChannelIndex < 0)
         _webChannelIndex = _channels.Count - 1;
+
+      if (_webChannelIndex >= _channels.Count)
+        _webChannelIndex = 0;
 
       UpdateCurrentChannel();
       UpdatePrograms();
     }
+
 
     public void ExecProgramAction(ListItem item)
     {

@@ -51,6 +51,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   {
     public const string MODEL_ID_STR = "8BEC1372-1C76-484c-8A69-C7F3103708EC";
 
+    public const string KEY_CHANNEL_ID = "ChannelId";
+    public const string KEY_GROUP_ID = "GroupId";
+
     #region Constants
 
     protected const int PROGRAM_UPDATE_SEC = 30; // Update frequency for current running programs

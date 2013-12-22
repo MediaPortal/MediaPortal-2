@@ -23,16 +23,18 @@
 #endregion
 
 using System;
+using System.Linq;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
   /// <summary>
-  /// Model which holds the GUI state for the GUI test state.
+  /// Model which holds the GUI state for single channel program guide.
   /// </summary>
   public class SlimTvSingleChannelGuideModel : SlimTvGuideModelBase
   {
@@ -58,7 +60,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public string ChannelName
     {
-      get { return (string) _channelNameProperty.GetValue(); }
+      get { return (string)_channelNameProperty.GetValue(); }
       set { _channelNameProperty.SetValue(value); }
     }
 
@@ -155,6 +157,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override Guid ModelId
     {
       get { return new Guid(MODEL_ID_STR); }
+    }
+
+    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      base.EnterModelContext(oldContext, newContext);
+      object groupIdObject;
+      object channelIdObject;
+      if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_GROUP_ID, out groupIdObject) &&
+          newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_CHANNEL_ID, out channelIdObject))
+      {
+        int groupIdx = _channelGroups.TakeWhile(channelGroup => channelGroup.ChannelGroupId != (int)groupIdObject).Count();
+        if (groupIdx != _webChannelGroupIndex && groupIdx != -1)
+          SetGroup(groupIdx);
+
+        int channelIdx = _channels.TakeWhile(channel => channel.ChannelId != (int)channelIdObject).Count();
+        if (channelIdx != _webChannelIndex && channelIdx != -1)
+          SetChannel(_webChannelIndex);
+
+        UpdateCurrentChannel();
+        UpdatePrograms();
+      }
     }
 
     #endregion
