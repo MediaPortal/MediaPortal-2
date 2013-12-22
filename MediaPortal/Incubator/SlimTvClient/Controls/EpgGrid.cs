@@ -486,7 +486,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         return;
       FrameworkElement control = Children.FirstOrDefault(el =>
       {
-        ProgramProperties programProperties = ((ProgramListItem)el.Context).Program;
+        ProgramListItem programListItem = (ProgramListItem)el.Context;
+        if (programListItem == null)
+          return false;
+        ProgramProperties programProperties = programListItem.Program;
         return programProperties != null && programProperties.ProgramId == program.ProgramId;
       });
       if (control == null)
