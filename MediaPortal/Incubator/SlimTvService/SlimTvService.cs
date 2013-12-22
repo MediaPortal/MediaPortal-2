@@ -38,6 +38,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.Plugins.SlimTv.Service.Helpers;
 using Mediaportal.TV.Server.TVControl;
 using Mediaportal.TV.Server.TVControl.Interfaces.Services;
@@ -54,6 +55,7 @@ using Mediaportal.TV.Server.TVService.Interfaces.Services;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
+using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -254,12 +256,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
       programNow = null;
       programNext = null;
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
-      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId);
+      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
       var count = programs.Count;
       if (count >= 1)
-        programNow = programs[0].ToProgram();
+        programNow = programs[0];
       if (count >= 2)
-        programNext = programs[1].ToProgram();
+        programNext = programs[1];
 
       return programNow != null || programNext != null;
     }
@@ -269,6 +271,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
       programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
         .Select(tvProgram => tvProgram.ToProgram(true))
+        .Distinct(ProgramComparer.Instance)
         .ToList();
       return programs.Count > 0;
     }
@@ -281,7 +284,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
       IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
 
-      programs = programEntities.Values.SelectMany(x => x).Select(p => p.ToProgram()).ToList();
+      programs = programEntities.Values.SelectMany(x => x).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
       return programs.Count > 0;
     }
 

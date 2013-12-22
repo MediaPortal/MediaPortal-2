@@ -229,7 +229,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           IList<Program> programList = (IList<Program>) outParameters[1];
-          programs = programList.Cast<IProgram>().ToList();
+          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
           return true;
         }
       }
@@ -268,7 +268,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           IList<Program> programList = (IList<Program>) outParameters[1];
-          programs = programList.Cast<IProgram>().ToList();
+          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
           if (from == to)
           {
             _programCache.TryAdd(channel, programs[0], null);

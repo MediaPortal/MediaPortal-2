@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -85,5 +86,38 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     {
       return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Program)));
     }
+  }
+
+  // Custom comparer for programs
+  public class ProgramComparer : IEqualityComparer<IProgram>
+  {
+    public static readonly ProgramComparer Instance =  new ProgramComparer();
+
+    // Products are equal if their names and program numbers are equal. 
+    public bool Equals(IProgram x, IProgram y)
+    {
+      // Check whether the compared objects reference the same data. 
+      if (ReferenceEquals(x, y)) return true;
+
+      // Check whether any of the compared objects is null. 
+      if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+        return false;
+
+      // By checking only channel and start time, we avoid duplicate program IDs.
+      return x.ChannelId == y.ChannelId && x.StartTime == y.StartTime;
+    }
+
+    // If Equals() returns true for a pair of objects
+    // then GetHashCode() must return the same value for these objects.
+
+    public int GetHashCode(IProgram program)
+    {
+      //Check whether the object is null 
+      if (ReferenceEquals(program, null)) return 0;
+
+      // Calculate the hash code for the program. 
+      return program.ChannelId.GetHashCode() ^ program.StartTime.GetHashCode();
+    }
+
   }
 }
