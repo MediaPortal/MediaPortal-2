@@ -32,6 +32,7 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Permissions;
@@ -125,23 +126,18 @@ namespace MediaPortal.UI.Players.Video.Tools
       IBaseFilter filter = null;
 
       if (graphBuilder == null)
-      {
-        return null;// throw new ArgumentNullException("graphBuilder");
-      }
+        return null; // throw new ArgumentNullException("graphBuilder");
 
-      foreach (DSDevice t in new DSCategory(deviceCategory))
-      {
-        if (String.Compare(t.Name, friendlyName, true) != 0)
-        {
-          continue;
-        }
-        
-        int hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(t.Value, null, friendlyName, out filter);
-        if (hr != 0 || filter == null)
-          return null; //new HRESULT(hr).Throw();
+      DSDevice dsDevice;
+      using (DSCategory dsCategory = new DSCategory(deviceCategory))
+        dsDevice = dsCategory.FirstOrDefault(d => String.Compare(d.Name, friendlyName, StringComparison.OrdinalIgnoreCase) == 0);
 
-        break;
-      }
+      if (dsDevice == null)
+        return null;
+
+      int hr = ((IFilterGraph2)graphBuilder).AddSourceFilterForMoniker(dsDevice.Value, null, friendlyName, out filter);
+      if (hr != 0 || filter == null)
+        return null; //new HRESULT(hr).Throw();
 
       return filter;
     }

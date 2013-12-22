@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using DirectShow;
 using DirectShow.Helper;
@@ -257,13 +258,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       List<CodecInfo> codecInfos = new List<CodecInfo>();
 
       using (var filtersInCategory = new DSCategory(filterCategory))
-      {
-        foreach (var filter in filtersInCategory)
-        {
-          CodecInfo codecInfo = new CodecInfo(filter.Name, filter.ClassID);
-          codecInfos.Add(codecInfo);
-        }
-      }
+        codecInfos.AddRange(filtersInCategory.Select(filter => new CodecInfo(filter.Name, filter.ClassID)));
 
       codecInfos.Sort();
       return codecInfos;
