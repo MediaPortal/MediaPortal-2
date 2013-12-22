@@ -32,6 +32,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Player;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
@@ -650,7 +651,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
               IList<IProgram> nextPrograms;
               DateTime nextTime = currentProgram.EndTime.Add(TimeSpan.FromSeconds(10));
-              if (_tvHandler.ProgramInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms))
+              IProgramInfo programInfo = _tvHandler.ProgramInfo;
+              if (programInfo != null && programInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms))
                 nextProgram = nextPrograms[0];
             }
           }
@@ -761,7 +763,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private static ProgramListItem GetNoProgramPlaceholder(IProgram previousProgram = null)
     {
       IProgram placeHolder = GetNoProgram(previousProgram);
-      ProgramProperties programProperties = new ProgramProperties()
+      ProgramProperties programProperties = new ProgramProperties
       {
         Title = placeHolder.Title,
         StartTime = placeHolder.StartTime,
@@ -792,17 +794,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         StartTime = from,
         EndTime = to
       };
-    }
-
-    private static string FormatProgram(IProgram program)
-    {
-      if (program == null)
-        return ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
-
-      return String.Format("{0} - {1} : {2}",
-                           program.StartTime.ToString("t"),
-                           program.EndTime.ToString("t"),
-                           program.Title);
     }
 
     #endregion
