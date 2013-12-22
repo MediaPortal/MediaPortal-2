@@ -443,8 +443,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void Tune(IChannel channel)
     {
-      //if (SlotPlayer != null)
-      //  SlotPlayer.Pause();
+      if (SlotPlayer != null)
+        SlotPlayer.Pause();
 
       // Set the current index of the tuned channel
       _webChannelIndex = 0;

@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     protected IList<ITimeshiftContext> _timeshiftContexes;
     protected StreamInfoHandler _chapterInfo = null;
-    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromSeconds(1.0);
+    protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromSeconds(0.7);
 
     #endregion
 
@@ -188,6 +188,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     public void ChannelZap()
     {
       SeekToEnd();
+      Resume();
 
       // Clear any subtitle that might be currently displayed
       _subtitleRenderer.Reset();
