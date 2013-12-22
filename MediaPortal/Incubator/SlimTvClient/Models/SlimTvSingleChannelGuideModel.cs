@@ -27,6 +27,7 @@ using System.Linq;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
@@ -146,6 +147,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
       else
         _programs = null;
+    }
+
+    protected override bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)
+    {
+      bool changed = base.UpdateRecordingStatus(program, newStatus);
+      if (changed)
+      {
+        ProgramListItem listProgram;
+        lock (_programsList.SyncRoot)
+        {
+          listProgram = _programsList.OfType<ProgramListItem>().FirstOrDefault(p => p.Program.ProgramId == program.ProgramId);
+          if (listProgram == null)
+            return false;
+        }
+        listProgram.Program.IsScheduled = newStatus != RecordingStatus.None;
+      }
+      return changed;
     }
 
     #endregion
