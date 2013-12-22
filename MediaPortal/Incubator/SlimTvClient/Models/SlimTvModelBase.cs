@@ -152,11 +152,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <param name="webChannelIndex">New channel index.</param>
     protected void SetChannel(int webChannelIndex)
     {
-      if (_webChannelIndex < 0)
-        _webChannelIndex = _channels.Count - 1;
+      if (webChannelIndex < 0)
+        webChannelIndex = _channels.Count - 1;
 
-      if (_webChannelIndex >= _channels.Count)
-        _webChannelIndex = 0;
+      if (webChannelIndex >= _channels.Count)
+        webChannelIndex = 0;
+
+      _webChannelIndex = webChannelIndex;
 
       UpdateCurrentChannel();
       UpdatePrograms();

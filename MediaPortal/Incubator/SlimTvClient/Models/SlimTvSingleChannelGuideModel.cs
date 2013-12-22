@@ -173,7 +173,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         int channelIdx = _channels.TakeWhile(channel => channel.ChannelId != (int)channelIdObject).Count();
         if (channelIdx != _webChannelIndex && channelIdx != -1)
-          SetChannel(_webChannelIndex);
+          SetChannel(channelIdx);
 
         UpdateCurrentChannel();
         UpdatePrograms();
