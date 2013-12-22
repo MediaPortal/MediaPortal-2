@@ -305,12 +305,6 @@
     </Setter>
   </Style>
 
-  <!-- SingleProgramGuideListViewStyle is used for Single Channel Guide-->
-  <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelProgramGuideDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
-  </Style>
-
   <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -409,6 +403,12 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <!-- SingleProgramGuideListViewStyle is used for Single Channel Guide-->
+  <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelProgramGuideDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
   </Style>
 
   <!-- SlimTvClient model -->
