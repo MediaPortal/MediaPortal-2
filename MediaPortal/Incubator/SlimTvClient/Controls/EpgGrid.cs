@@ -484,7 +484,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       if (program == null)
         return;
-      FrameworkElement control = Children.FirstOrDefault(el =>
+      FrameworkElement control = GetProgramItems().FirstOrDefault(el =>
       {
         ProgramListItem programListItem = (ProgramListItem)el.Context;
         if (programListItem == null)
@@ -562,7 +562,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// <returns>Controls.</returns>
     private IEnumerable<Control> GetRowItems(int rowIndex)
     {
-      return Children.OfType<Control>().Where(el => el.Context is ProgramListItem && GetRow(el) == rowIndex);
+      return GetProgramItems().Where(el => GetRow(el) == rowIndex);
+    }
+
+    /// <summary>
+    /// Returns all programs from Grid.
+    /// </summary>
+    /// <returns>Controls.</returns>
+    private IEnumerable<Control> GetProgramItems()
+    {
+      return Children.OfType<Control>().Where(el => el.Context is ProgramListItem);
     }
 
     #endregion
