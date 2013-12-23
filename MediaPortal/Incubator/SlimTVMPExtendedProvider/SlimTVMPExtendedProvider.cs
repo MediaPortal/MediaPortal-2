@@ -56,6 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       public string Password;
       public ITVAccessService TvServer;
       public bool ConnectionOk;
+      public bool IsLocalConnection;
       public ChannelFactory<ITVAccessService> Factory;
 
       public static bool IsLocal(string host)
@@ -72,7 +73,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         Binding binding;
         EndpointAddress endpointAddress;
         bool useAuth = !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
-        if (IsLocal(ServerName))
+        IsLocalConnection = IsLocal(ServerName);
+        if (IsLocalConnection)
         {
           endpointAddress = new EndpointAddress("net.pipe://localhost/MPExtended/TVAccessService");
           binding = new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 };
@@ -86,7 +88,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
             basicBinding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
             basicBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
           }
-          basicBinding.ReaderQuotas.MaxStringContentLength = 5*1024*1024; // 5 MB
+          basicBinding.ReaderQuotas.MaxStringContentLength = 5 * 1024 * 1024; // 5 MB
           binding = basicBinding;
         }
         binding.OpenTimeout = TimeSpan.FromSeconds(5);
@@ -179,7 +181,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
       try
       {
-        String streamUrl = TvServer(indexChannel.ServerIndex).SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex), channel.ChannelId);
+        ITVAccessService tvServer = TvServer(indexChannel.ServerIndex);
+        String streamUrl = _tvServers[indexChannel.ServerIndex].IsLocalConnection ?
+          // Prefer local timeshift file over RTSP streaming
+          tvServer.SwitchTVServerToChannelAndGetTimeshiftFilename(GetTimeshiftUserName(slotIndex), channel.ChannelId) :
+          tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex), channel.ChannelId);
+
         if (String.IsNullOrEmpty(streamUrl))
           return false;
 
@@ -225,12 +232,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     private bool CheckConnection(int serverIndex)
     {
-      bool reconnect;
+      bool reconnect = false;
       ServerContext tvServer = _tvServers[serverIndex];
       try
       {
         tvServer.ConnectionOk = tvServer.Factory.State == CommunicationState.Opened;
         reconnect = !tvServer.ConnectionOk;
+
         if (!reconnect)
           _reconnectCounter = 0;
       }
@@ -272,9 +280,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
                               : ServiceRegistration.Get<ILocalization>().ToString(localizationMessage, serverName);
       notification += " " + ex.Message;
 
-      ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, RES_TV_CONNECTION_ERROR_TITLE,
-          notification, true);
-      ServiceRegistration.Get<ILogger>().Error(notification);
+      ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, RES_TV_CONNECTION_ERROR_TITLE, notification, true);
+      ServiceRegistration.Get<ILogger>().Error(notification, ex);
     }
 
     private void CreateAllTvServerConnections()
@@ -424,7 +431,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     /// <param name="programId">Program ID.</param>
     /// <param name="program">Program.</param>
     /// <returns>True if succeeded.</returns>
-    public bool GetProgram (int programId, out IProgram program)
+    public bool GetProgram(int programId, out IProgram program)
     {
       throw new NotImplementedException();
     }
@@ -519,7 +526,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     /// <param name="programNow">Returns current program</param>
     /// <param name="programNext">Returns next program</param>
     /// <returns><c>true</c> if a program could be found</returns>
-    public bool GetNowNextProgram (IChannel channel, out IProgram programNow, out IProgram programNext)
+    public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
     {
       // TODO: caching from NativeProvider?
       programNow = null;
@@ -580,7 +587,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     /// <param name="to">Time to</param>
     /// <param name="programs">Returns programs</param>
     /// <returns><c>true</c> if at least one program could be found</returns>
-    public bool GetProgramsGroup (IChannelGroup channelGroup, DateTime @from, DateTime to, out IList<IProgram> programs)
+    public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime @from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;
       ChannelGroup indexGroup = channelGroup as ChannelGroup;
@@ -657,11 +664,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
       }
     }
-    
+
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       recordingStatus = RecordingStatus.None;
-      
+
       Program indexProgram = program as Program;
       if (indexProgram == null)
         return false;
