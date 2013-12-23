@@ -56,6 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       public string Password;
       public ITVAccessService TvServer;
       public bool ConnectionOk;
+      public ChannelFactory<ITVAccessService> Factory;
 
       public static bool IsLocal(string host)
       {
@@ -89,13 +90,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           binding = basicBinding;
         }
         binding.OpenTimeout = TimeSpan.FromSeconds(5);
-        ChannelFactory<ITVAccessService> factory = new ChannelFactory<ITVAccessService>(binding);
-        if (factory.Credentials != null && useAuth)
+        Factory = new ChannelFactory<ITVAccessService>(binding);
+        if (Factory.Credentials != null && useAuth)
         {
-          factory.Credentials.UserName.UserName = Username;
-          factory.Credentials.UserName.Password = Password;
+          Factory.Credentials.UserName.UserName = Username;
+          Factory.Credentials.UserName.Password = Password;
         }
-        TvServer = factory.CreateChannel(endpointAddress);
+        TvServer = Factory.CreateChannel(endpointAddress);
       }
     }
 
@@ -224,14 +225,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     private bool CheckConnection(int serverIndex)
     {
-      bool reconnect = false;
+      bool reconnect;
       ServerContext tvServer = _tvServers[serverIndex];
       try
       {
-        if (tvServer.TvServer != null)
-          tvServer.ConnectionOk = tvServer.TvServer.TestConnectionToTVService();
-
-        _reconnectCounter = 0;
+        tvServer.ConnectionOk = tvServer.Factory.State == CommunicationState.Opened;
+        reconnect = !tvServer.ConnectionOk;
+        if (!reconnect)
+          _reconnectCounter = 0;
       }
       catch (CommunicationObjectFaultedException)
       {
