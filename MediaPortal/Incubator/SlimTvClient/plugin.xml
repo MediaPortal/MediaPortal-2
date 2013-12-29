@@ -44,6 +44,12 @@
       DisplayLabel="TV Guide"
       WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>   <!-- Workflow model = SlimTvMultiChannelGuide Model -->
 
+    <WorkflowState Id="3C6081CB-88DC-44A7-9E17-8D7BFE006EE5"
+      Name="SlimTvClientExtSchedule"
+      MainScreen="SlimTvClient-extschedule"
+      DisplayLabel="Extended Schedule"
+      WorkflowModel="EB9CB370-9CD6-4D72-8354-73E446104438"/>   <!-- Workflow model = SlimTvExtSchedule Model -->
+
     <WorkflowState Id="9D5B01A7-035F-46CF-8246-3C158C6CA960"
       Name="RecordingsNavigation-Root"
       DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
@@ -57,22 +63,24 @@
   </Register>
 
   <!-- Registration of the SlimTv extension builder for SlimTvProgramExtension items -->
-  <!--
+  <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.Extensions.SlimTvExtensionBuilder"/>
+  <Register Location="/SlimTv/Extensions">
+    <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="[SlimTvClient.ExtSchedule]" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ExtendedSchedule"/>
+    <!--
     Morpheus_xx:
     This is an example for adding more actions for programs in TV Guide. Uncomment this item to see the "Example" action added.
     This can  be done from any plugin!
   -->
-  <!--
-  <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.Extensions.SlimTvExtensionBuilder"/>
-  <Register Location="/SlimTv/Extensions">
+    <!--
     <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="Example" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ProgramExample"/>
-  </Register>
   -->
+  </Register>
 
   <Register Location="/Models">
     <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvClientModel"/>
     <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSingleChannelGuideModel"/>
     <Model Id="5054408D-C2A9-451f-A702-E84AFCD29C10" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvMultiChannelGuideModel"/>
+    <Model Id="EB9CB370-9CD6-4D72-8354-73E446104438" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvExtScheduleModel"/>
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
   </Register>
 

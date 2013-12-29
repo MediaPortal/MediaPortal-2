@@ -627,7 +627,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get
       {
-        SlimTvMultiChannelGuideModel model = (SlimTvMultiChannelGuideModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(new Guid(SlimTvMultiChannelGuideModel.MODEL_ID_STR));
+        SlimTvMultiChannelGuideModel model = (SlimTvMultiChannelGuideModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvMultiChannelGuideModel.MODEL_ID);
         return model;
       }
     }

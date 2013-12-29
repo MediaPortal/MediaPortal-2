@@ -106,6 +106,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Controls\EpgGrid.cs" />
+    <Compile Include="Extensions\ExtendedSchedule.cs" />
     <Compile Include="Extensions\ProgramExample.cs" />
     <Compile Include="Helpers\FormatHelper.cs" />
     <Compile Include="Helpers\ChannelProgramListItem.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Models\RecordingsAction.cs" />
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
+    <Compile Include="Models\SlimTvGuideExtScheduleModel.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
     <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvGuideModelBase.cs" />
@@ -170,6 +172,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogChooseGroup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-extschedule.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

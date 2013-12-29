@@ -51,7 +51,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   public class SlimTvClientModel : SlimTvModelBase
   {
     public const string MODEL_ID_STR = "8BEC1372-1C76-484c-8A69-C7F3103708EC";
+    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
+    public const string KEY_PROGRAM = "Program";
+    public const string KEY_PROGRAM_ID = "ProgramId";
     public const string KEY_CHANNEL_ID = "ChannelId";
     public const string KEY_GROUP_ID = "GroupId";
 
@@ -813,7 +816,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public override Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return MODEL_ID; }
     }
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

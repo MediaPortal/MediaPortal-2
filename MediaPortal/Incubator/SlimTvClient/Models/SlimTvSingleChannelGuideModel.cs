@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   public class SlimTvSingleChannelGuideModel : SlimTvGuideModelBase
   {
     public const string MODEL_ID_STR = "74F50A53-BEF7-415c-A240-2EC718DA8C0F";
+    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
     #region Protected fields
 
@@ -174,7 +175,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public override Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return MODEL_ID; }
     }
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

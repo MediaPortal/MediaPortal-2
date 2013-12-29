@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
@@ -48,6 +47,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   public class SlimTvMultiChannelGuideModel : SlimTvGuideModelBase
   {
     public const string MODEL_ID_STR = "5054408D-C2A9-451f-A702-E84AFCD29C10";
+    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
     protected double _visibleHours;
     protected double _bufferHours = 1.5;
@@ -331,7 +331,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public override Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return MODEL_ID; }
     }
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
