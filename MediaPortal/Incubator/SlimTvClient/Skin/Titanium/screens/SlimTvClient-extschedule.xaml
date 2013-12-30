@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_bare.xaml"
+    Source="screens\master_menu.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
@@ -14,7 +14,8 @@
     <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
 
     <!-- Contents -->
-    <ControlTemplate x:Key="Client_Template">
+    <!--<ControlTemplate x:Key="Client_Template">-->
+    <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
 
