@@ -23,10 +23,11 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
@@ -100,11 +101,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
-    protected override void UpdateSingleProgramInfo(IProgram program)
+    protected override void UpdateProgramStatus(IProgram program)
     {
-      base.UpdateSingleProgramInfo(program);
+      base.UpdateProgramStatus(program);
+      
       IChannel channel;
       ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
+    }
+
+    protected override bool UpdateRecordingStatus(IProgram program)
+    {
+      IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      if (recordingStatus == null)
+        return false;
+
+      foreach (var programItem in _programsList.OfType<ProgramListItem>().Where(programItem => programItem.Program.ProgramId == program.ProgramId))
+        programItem.Program.IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
+      return true;
     }
 
     /// <summary>
@@ -133,13 +146,33 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         ProgramListItem item = new ProgramListItem(programProperties)
         {
-          //          Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
+          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
 
         _programsList.Add(item);
       }
       _programsList.FireChange();
+    }
+
+    private void CreateOrDeleteSchedule(IProgram program)
+    {
+      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      if (scheduleControl != null)
+      {
+        RecordingStatus recordingStatus;
+        if (scheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus != RecordingStatus.None)
+        {
+          if (scheduleControl.RemoveSchedule(program))
+            UpdateRecordingStatus(program, RecordingStatus.None);
+        }
+        else
+        {
+          ISchedule schedule;
+          if (scheduleControl.CreateSchedule(program, out schedule))
+            UpdateRecordingStatus(program, RecordingStatus.Scheduled);
+        }
+      }
     }
 
     #endregion

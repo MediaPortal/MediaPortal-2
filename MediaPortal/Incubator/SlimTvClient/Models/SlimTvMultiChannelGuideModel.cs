@@ -257,22 +257,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)
     {
       bool changed = base.UpdateRecordingStatus(program, newStatus);
-      if (changed)
-      {
-        ChannelProgramListItem programChannel = _channelList.OfType<ChannelProgramListItem>().FirstOrDefault(c => c.Channel.ChannelId == program.ChannelId);
-        if (programChannel == null)
-          return false;
+      return changed && UpdateRecordingStatus(program);
+    }
 
-        ProgramListItem listProgram;
-        lock (programChannel.Programs.SyncRoot)
-        {
-          listProgram = programChannel.Programs.OfType<ProgramListItem>().FirstOrDefault(p => p.Program.ProgramId == program.ProgramId);
-          if (listProgram == null)
-            return false;
-        }
-        listProgram.Program.IsScheduled = newStatus != RecordingStatus.None;
+    protected override bool UpdateRecordingStatus(IProgram program)
+    {
+      IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      if (recordingStatus == null)
+        return false;
+
+      ChannelProgramListItem programChannel = _channelList.OfType<ChannelProgramListItem>().FirstOrDefault(c => c.Channel.ChannelId == program.ChannelId);
+      if (programChannel == null)
+        return false;
+
+      ProgramListItem listProgram;
+      lock (programChannel.Programs.SyncRoot)
+      {
+        listProgram = programChannel.Programs.OfType<ProgramListItem>().FirstOrDefault(p => p.Program.ProgramId == program.ProgramId);
+        if (listProgram == null)
+          return false;
       }
-      return changed;
+      listProgram.Program.IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
+      return true;
     }
 
     private void UpdateProgramsState()

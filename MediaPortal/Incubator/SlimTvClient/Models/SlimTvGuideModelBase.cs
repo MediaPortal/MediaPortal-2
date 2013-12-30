@@ -29,6 +29,7 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
@@ -120,7 +121,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (selectedItem != null)
       {
         IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
-        UpdateSingleProgramInfo(program);
+        UpdateProgramStatus(program);
       }
     }
 
@@ -215,6 +216,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog(_programActionsDialogName);
     }
 
+    protected virtual bool UpdateRecordingStatus(IProgram program)
+    {
+      return true;
+    }
+
     protected virtual bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)
     {
       IProgramRecordingStatus status = program as IProgramRecordingStatus;
@@ -242,6 +248,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         _isInitialized = true;
       }
+      SubscribeToMessages();
       base.InitModel();
     }
 
@@ -276,11 +283,32 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(SlimTvClientMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SlimTvClientMessaging.CHANNEL)
+      {
+        SlimTvClientMessaging.MessageType messageType = (SlimTvClientMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SlimTvClientMessaging.MessageType.ProgramStatusChanged:
+            IProgram program = (IProgram)message.MessageData[SlimTvClientMessaging.KEY_PROGRAM];
+            UpdateRecordingStatus(program);
+            break;
+        }
+      }
+    }
+
     #endregion
 
     #region Channel, groups and programs
 
-    protected virtual void UpdateSingleProgramInfo(IProgram program)
+    protected virtual void UpdateProgramStatus(IProgram program)
     {
       CurrentProgram.SetProgram(program);
     }
