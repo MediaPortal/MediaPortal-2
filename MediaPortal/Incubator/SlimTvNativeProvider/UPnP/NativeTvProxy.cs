@@ -326,15 +326,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetChannel(IProgram program, out IChannel channel)
     {
-      if (_channelCache.TryGetValue(program.ChannelId, out channel))
-        return true;
-
-      if (GetChannel(program.ChannelId, out channel))
-      {
-        _channelCache[program.ChannelId] = channel;
-        return true;
-      }
-      return false;
+      return GetChannel(program.ChannelId, out channel);
     }
 
     public bool GetProgram(int programId, out IProgram program)
@@ -368,7 +360,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetChannel(int channelId, out IChannel channel)
     {
-      channel = null;
+      if (_channelCache.TryGetValue(channelId, out channel))
+        return true;
+
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNEL);
@@ -379,6 +373,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           channel = channelList.Cast<IChannel>().First();
+          _channelCache[channelId] = channel;
           return true;
         }
         return false;
