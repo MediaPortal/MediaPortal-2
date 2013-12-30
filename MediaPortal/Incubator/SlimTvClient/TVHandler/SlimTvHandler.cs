@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UiComponents.Media.Models;
@@ -175,7 +176,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return 0;
     }
 
-    private PlayerContextConcurrencyMode GetMatchingPlayMode()
+    public PlayerContextConcurrencyMode GetMatchingPlayMode()
     {
       // no tv slots active? then stop all and play.
       if (NumberOfActiveSlots == 0)
@@ -329,6 +330,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       if (_slotContexes[slotIndex].CardChanging)
         return true;
       return StopTimeshift(slotIndex);
+    }
+
+    public bool WatchRecordingFromBeginning(IProgram program)
+    {
+      string fileOrStream;
+      if (ScheduleControl.GetRecordingFileOrStream(program, out fileOrStream))
+      {
+        IChannel channel;
+        if (ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+        {
+          MediaItem recordig = SlimTvMediaItemBuilder.CreateRecordingMediaItem(0, fileOrStream, program, channel);
+          PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
+          PlayItemsModel.PlayOrEnqueueItem(recordig, true, playMode);
+          return true;
+        }
+      }
+      return false;
     }
 
     #region IDisposable Member

@@ -29,18 +29,22 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -169,6 +173,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           RecordingStatus recordingStatus;
           if (_tvHandler.ScheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus != RecordingStatus.None)
           {
+            if (isRunning)
+              _programActions.Add(
+                new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
+                  {
+                    Command = new MethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginning(program))
+                  });
+
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.DeleteSchedule]"))
                 {
@@ -231,6 +242,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
       return true;
     }
+
     #endregion
 
     #region Members

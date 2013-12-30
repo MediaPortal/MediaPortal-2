@@ -63,42 +63,62 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     {
       if (!String.IsNullOrEmpty(path))
       {
-        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-        IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
-        MediaItemAspect providerResourceAspect;
-        MediaItemAspect mediaAspect;
-
-        SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
-        aspects[ProviderResourceAspect.ASPECT_ID] = providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
-        aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
-
-        String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
-
-        string title;
-        string mimeType;
-        if (isTv)
-        {
-          // VideoAspect needs to be included to associate VideoPlayer later!
-          aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
-          title = "Live TV";
-          mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
-        }
-        else
-        {
-          // AudioAspect needs to be included to associate an AudioPlayer later!
-          aspects[AudioAspect.ASPECT_ID] = new MediaItemAspect(AudioAspect.Metadata);
-          title = "Live Radio";
-          mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
-        }
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
-        mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
-        LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
-
+        var tvStream = CreateCommonMediaItem(slotIndex, path, isTv);
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.SLOT_INDEX] = slotIndex;
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CHANNEL] = channel;
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
+        return tvStream;
+      }
+      return null;
+    }
+
+    private static LiveTvMediaItem.LiveTvMediaItem CreateCommonMediaItem(int slotIndex, string path, bool isTv)
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
+      MediaItemAspect providerResourceAspect;
+      MediaItemAspect mediaAspect;
+
+      SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
+      aspects[ProviderResourceAspect.ASPECT_ID] = providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
+      aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+
+      String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
+
+      string title;
+      string mimeType;
+      if (isTv)
+      {
+        // VideoAspect needs to be included to associate VideoPlayer later!
+        aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
+        title = "Live TV";
+        mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
+      }
+      else
+      {
+        // AudioAspect needs to be included to associate an AudioPlayer later!
+        aspects[AudioAspect.ASPECT_ID] = new MediaItemAspect(AudioAspect.Metadata);
+        title = "Live Radio";
+        mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
+      }
+      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
+      mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
+      LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
+      return tvStream;
+    }
+
+    public static LiveTvMediaItem.LiveTvMediaItem CreateRecordingMediaItem(int slotIndex, string path, IProgram program, IChannel channel)
+    {
+      if (!String.IsNullOrEmpty(path))
+      {
+        var tvStream = CreateCommonMediaItem(slotIndex, path, true);
+
+        MediaItemAspect.SetAttribute(tvStream.Aspects, MediaAspect.ATTR_TITLE, program.Title); // Override with real program name
+        tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.SLOT_INDEX] = slotIndex;
+        tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CHANNEL] = channel;
+        tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CURRENT_PROGRAM] = program;
         return tvStream;
       }
       return null;

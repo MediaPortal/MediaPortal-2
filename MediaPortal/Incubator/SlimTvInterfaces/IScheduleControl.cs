@@ -43,6 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     bool CreateSchedule(IProgram program, out ISchedule schedule);
     bool RemoveSchedule(IProgram program); // ISchedule schedule ?
     bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus);
+    bool GetRecordingFileOrStream(IProgram program, out string fileOrStream);
 
     /// <summary>
     /// Tries to get a list of programs for the given <paramref name="schedule"/>.

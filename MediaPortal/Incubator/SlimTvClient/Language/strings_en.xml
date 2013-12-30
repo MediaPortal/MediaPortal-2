@@ -19,6 +19,7 @@
 
   <string name="SlimTvClient.ProgramOver">Program already over</string>
   <string name="SlimTvClient.WatchNow">Watch program now</string>
+  <string name="SlimTvClient.WatchFromBeginning">Watch recording from beginning</string>
   <string name="SlimTvClient.RecordNow">Record now</string>
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>

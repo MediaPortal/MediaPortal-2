@@ -92,5 +92,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="slotIndex">Slot Index (0=Primary, 1=PiP).</param>
     /// <returns>Channel</returns>
     IChannel GetChannel(int slotIndex);
+
+    /// <summary>
+    /// Gets the current recording for the given <paramref name="program"/> and starts playback if possible.
+    /// </summary>
+    /// <param name="program">Program that is currently recording.</param>
+    /// <returns>True if succeeded.</returns>
+    bool WatchRecordingFromBeginning(IProgram program);
   }
 }

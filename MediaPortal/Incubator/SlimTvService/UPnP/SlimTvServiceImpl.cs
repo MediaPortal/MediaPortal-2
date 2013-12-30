@@ -273,6 +273,18 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(getRecordingStatus);
 
+      DvAction getRecordingFileOrStream = new DvAction(Consts.ACTION_GET_REC_FILE_OR_STREAM, OnGetRecordingFileOrStream,
+                            new[]
+                                     {
+                                       new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("FileOrStream", A_ARG_TYPE_String, ArgumentDirection.Out, true)
+                                     });
+      AddAction(getRecordingFileOrStream);
+
       #endregion
     }
 
@@ -310,7 +322,12 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
 
     private string BuildUserName(CallContext context)
     {
-      return context.RemoteAddress == context.Endpoint.EndPointIPAddress.ToString() ? SlimTvService.LOCAL_USERNAME : context.RemoteAddress;
+      return IsLocalClient(context) ? SlimTvService.LOCAL_USERNAME : context.RemoteAddress;
+    }
+
+    private static bool IsLocalClient(CallContext context)
+    {
+      return context.RemoteAddress == context.Endpoint.EndPointIPAddress.ToString();
     }
 
     private UPnPError OnDeInit(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
@@ -501,6 +518,23 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingStatus(program, out recordingStatus);
 
       outParams = new List<object> { result, recordingStatus.ToString() };
+      return null;
+    }
+
+    private UPnPError OnGetRecordingFileOrStream(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (programInfo == null || scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      int programId = (int) inParams[0];
+      IProgram program;
+      string fileOrStream = null;
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingFileOrStream(program, out fileOrStream);
+
+      outParams = new List<object> { result, fileOrStream };
       return null;
     }
   }

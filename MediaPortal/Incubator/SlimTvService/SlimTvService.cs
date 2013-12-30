@@ -398,6 +398,24 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public bool GetRecordingFileOrStream(IProgram program, out string fileOrStream)
+    {
+      fileOrStream = null;
+      Recording recording;
+      if (!GetRecording(program, out recording))
+        return false;
+
+      fileOrStream = recording.FileName; // FileName represents a local filesystem path on the server. It cannot be used directly in multiseat (RTSP required).
+      return true;
+    }
+
+    private static bool GetRecording(IProgram program, out Recording recording)
+    {
+      IRecordingService recordingService = GlobalServiceProvider.Get<IRecordingService>();
+      recording = recordingService.GetActiveRecordingByTitleAndChannel(program.Title, program.ChannelId);
+      return recording != null;
+    }
+
     private string SwitchTVServerToChannel(string userName, int channelId)
     {
       if (String.IsNullOrEmpty(userName))

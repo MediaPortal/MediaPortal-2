@@ -44,5 +44,6 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_CREATE_SCHEDULE_BY_TIME = "CreateScheduleByTime";
     public const string ACTION_REMOVE_SCHEDULE = "RemoveSchedule";
     public const string ACTION_GET_REC_STATUS = "GetRecordingStatus";
+    public const string ACTION_GET_REC_FILE_OR_STREAM = "GetRecordingFileOrStream";
   }
 }
