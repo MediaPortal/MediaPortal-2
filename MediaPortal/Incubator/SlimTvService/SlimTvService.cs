@@ -276,6 +276,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return programs.Count > 0;
     }
 
+    public bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs)
+    {
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      programs = programService.GetProgramsByTitleAndStartEndTimes(title, from, to)
+        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Distinct(ProgramComparer.Instance)
+        .ToList();
+      return programs.Count > 0;
+    }
+
     public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();

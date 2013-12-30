@@ -241,6 +241,35 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return false;
     }
 
+    public bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs)
+    {
+      programs = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_BY_TITLE);
+        IList<object> inParameters = new List<object>
+            {
+              title,
+              from,
+              to
+            };
+
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          IList<Program> programList = (IList<Program>)outParameters[1];
+          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return false;
+    }
+
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;

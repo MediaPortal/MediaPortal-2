@@ -116,8 +116,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       _programsList.Clear();
-      _programs = new List<IProgram> { _selectedProgram };
-      // TODO: Extend interfaces, add logic to server implementation
+
+      if (_tvHandler.ProgramInfo == null)
+        return;
+
+      DateTime dtDay = DateTime.Now;
+      if (!_tvHandler.ProgramInfo.GetPrograms(_selectedProgram.Title, dtDay, dtDay.AddDays(28), out _programs))
+        return;
 
       foreach (IProgram program in _programs)
       {
