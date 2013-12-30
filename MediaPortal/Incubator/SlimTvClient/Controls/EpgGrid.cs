@@ -726,7 +726,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       if (!MoveFocus1(MoveFocusDirection.Right))
       {
-        SlimTvMultiChannelGuideModel.ScrollForward();
+        SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(30));
         UpdateViewportHorizontal();
       }
       return true;
@@ -736,7 +736,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       if (!MoveFocus1(MoveFocusDirection.Left))
       {
-        SlimTvMultiChannelGuideModel.ScrollBackward();
+        SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(-30));
         UpdateViewportHorizontal();
       }
       return true;

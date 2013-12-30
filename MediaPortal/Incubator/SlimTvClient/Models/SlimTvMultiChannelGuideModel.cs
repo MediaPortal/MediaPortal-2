@@ -112,13 +112,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void ScrollForward()
     {
-      GuideStartTime = GuideStartTime.AddMinutes(30);
-      UpdatePrograms();
+      Scroll(TimeSpan.FromDays(1));
     }
 
     public void ScrollBackward()
     {
-      GuideStartTime = GuideStartTime.AddMinutes(-30);
+      Scroll(TimeSpan.FromDays(-1));
+    }
+
+    public void Scroll(TimeSpan difference)
+    {
+      GuideStartTime = GuideStartTime + difference;
       UpdatePrograms();
     }
 
