@@ -91,7 +91,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
-    /// Exposes the list of channels in current group.
+    /// Exposes the list of actions for a program, i.e. watch now, schedule.
     /// </summary>
     public ItemsList ProgramActions
     {
@@ -280,7 +280,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
-    private void UpdateSingleProgramInfo(IProgram program)
+    protected virtual void UpdateSingleProgramInfo(IProgram program)
     {
       CurrentProgram.SetProgram(program);
     }

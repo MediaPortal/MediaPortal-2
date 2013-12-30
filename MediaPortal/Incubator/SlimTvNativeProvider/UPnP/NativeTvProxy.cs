@@ -52,6 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     protected readonly IChannel[] _channels = new IChannel[2];
     protected readonly object _syncObj = new object();
     protected readonly ProgramCache _programCache = new ProgramCache();
+    protected Dictionary<int, IChannel> _channelCache = new Dictionary<int, IChannel>();
 
     #endregion
 
@@ -239,6 +240,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
       return false;
     }
+
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;
@@ -295,8 +297,15 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetChannel(IProgram program, out IChannel channel)
     {
-      channel = new Channel { ChannelId = program.ChannelId };
-      return true;
+      if (_channelCache.TryGetValue(program.ChannelId, out channel))
+        return true;
+
+      if (GetChannel(program.ChannelId, out channel))
+      {
+        _channelCache[program.ChannelId] = channel;
+        return true;
+      }
+      return false;
     }
 
     public bool GetProgram(int programId, out IProgram program)
@@ -317,6 +326,30 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           groups = channelGroups.Cast<IChannelGroup>().ToList();
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
+    public bool GetChannel(int channelId, out IChannel channel)
+    {
+      channel = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CHANNEL);
+        IList<object> inParameters = new List<object> { channelId };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool)outParameters[0];
+        IList<Channel> channelList = (IList<Channel>)outParameters[1];
+        if (success)
+        {
+          channel = channelList.Cast<IChannel>().First();
           return true;
         }
         return false;

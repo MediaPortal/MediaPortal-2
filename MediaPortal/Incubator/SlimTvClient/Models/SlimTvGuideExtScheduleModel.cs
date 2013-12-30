@@ -100,6 +100,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
+    protected override void UpdateSingleProgramInfo(IProgram program)
+    {
+      base.UpdateSingleProgramInfo(program);
+      IChannel channel;
+      ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
+    }
+
     /// <summary>
     /// For extended scheduling we will load all programs with same title independent from channel.
     /// </summary>

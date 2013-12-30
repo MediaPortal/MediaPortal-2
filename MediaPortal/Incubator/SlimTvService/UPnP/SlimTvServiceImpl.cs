@@ -134,6 +134,18 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(getChannelGroups);
 
+      DvAction getChannel = new DvAction(Consts.ACTION_GET_CHANNEL, OnGetChannel,
+                                   new[]
+                                     {
+                                       new DvArgument("ChannelId", A_ARG_TYPE_ChannelId, ArgumentDirection.In)
+                                     },
+                                   new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Channels", A_ARG_TYPE_Channels, ArgumentDirection.Out, false)
+                                     });
+      AddAction(getChannel);
+
       DvAction getChannels = new DvAction(Consts.ACTION_GET_CHANNELS, OnGetChannels,
                                    new[]
                                      {
@@ -308,6 +320,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       IList<IChannelGroup> groups;
       bool result = channelAndGroupInfo.GetChannelGroups(out groups);
       outParams = new List<object> { result, groups };
+      return null;
+    }
+
+    private UPnPError OnGetChannel(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      if (channelAndGroupInfo == null)
+        return new UPnPError(500, "IChannelAndGroupInfo service not available");
+
+      int channelId = (int) inParams[0];
+
+      IChannel channel;
+      bool result = channelAndGroupInfo.GetChannel(channelId, out channel);
+      outParams = new List<object> { result, new List<IChannel> { channel } };
       return null;
     }
 

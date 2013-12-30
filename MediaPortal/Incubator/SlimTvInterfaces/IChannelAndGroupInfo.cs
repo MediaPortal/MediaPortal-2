@@ -48,6 +48,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     bool GetChannels(IChannelGroup group, out IList<IChannel> channels);
 
     /// <summary>
+    /// Gets the channel by given <paramref name="channelId"/>.
+    /// </summary>
+    /// <param name="channelId">ID of channel</param>
+    /// <param name="channel">Channels.</param>
+    /// <returns>True if succeeded.</returns>
+    bool GetChannel(int channelId, out IChannel channel);
+
+    /// <summary>
     /// Gets or Sets the ID of the current selected channel.
     /// </summary>
     int SelectedChannelId { get; set; }

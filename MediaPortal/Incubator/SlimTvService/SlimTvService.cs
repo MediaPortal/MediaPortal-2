@@ -321,6 +321,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public bool GetChannel(int channelId, out IChannel channel)
+    {
+      IChannelService channelGroupService = GlobalServiceProvider.Get<IChannelService>();
+      channel = channelGroupService.GetChannel(channelId).ToChannel();
+      return true;
+    }
+    
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
       IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
