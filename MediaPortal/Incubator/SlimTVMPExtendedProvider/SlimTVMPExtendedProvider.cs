@@ -118,6 +118,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     private readonly IChannel[] _channels = new IChannel[2];
     private ServerContext[] _tvServers;
     private int _reconnectCounter = 0;
+    protected Dictionary<int, IChannel> _channelCache = new Dictionary<int, IChannel>();
 
     #endregion
 
@@ -375,6 +376,29 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
+    public bool GetChannel(int channelId, out IChannel channel)
+    {
+      if (_channelCache.TryGetValue(channelId, out channel))
+        return true;
+
+      // TODO: lookup by ID cannot guess which server might be adressed, so we force the first one.
+      int serverIndex = 0;
+      if (!CheckConnection(serverIndex))
+        return false;
+      try
+      {
+        WebChannelBasic webChannel = TvServer(serverIndex).GetChannelBasicById(channelId);
+        channel = new Channel { ChannelId = webChannel.Id, Name = webChannel.Title, ServerIndex = serverIndex };
+        _channelCache[channelId] = channel;
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
+    }
+
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
       channels = new List<IChannel>();
@@ -570,6 +594,30 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         IList<WebProgramDetailed> tvPrograms = TvServer(indexChannel.ServerIndex).GetProgramsDetailedForChannel(channel.ChannelId, from, to);
         foreach (WebProgramDetailed webProgram in tvPrograms)
           programs.Add(new Program(webProgram, indexChannel.ServerIndex));
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
+      return programs.Count > 0;
+    }
+
+    public bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs)
+    {
+      programs = null;
+      // TODO: lookup by ID cannot guess which server might be adressed, so we force the first one.
+      int serverIndex = 0;
+      if (!CheckConnection(serverIndex))
+        return false;
+
+      programs = new List<IProgram>();
+      try
+      {
+        IList<WebProgramDetailed> tvPrograms = TvServer(serverIndex).SearchProgramsDetailed(title).
+          Where(p => p.StartTime >= from && p.StartTime <= to || p.EndTime >= from && p.EndTime <= to).ToList();
+        foreach (WebProgramDetailed webProgram in tvPrograms)
+          programs.Add(new Program(webProgram, serverIndex));
       }
       catch (Exception ex)
       {
