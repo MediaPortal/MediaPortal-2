@@ -165,7 +165,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           ProgramId = 0;
           Title = string.Empty;
           Description = string.Empty;
-          StartTime = FormatHelper.GetDay(DateTime.Now);
+          StartTime = DateTime.Now.GetDay();
           EndTime = StartTime.AddDays(1);
           Genre = string.Empty;
         }

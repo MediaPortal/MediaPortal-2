@@ -80,13 +80,13 @@
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="Genre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"
@@ -119,13 +119,13 @@
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="NextGenre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0" 
@@ -163,7 +163,7 @@
                         IsVisible="{Binding ShowMouseControls}"/>
 
                     <Label x:Name="CurrentProgramStartLabel" Grid.Column="1" Grid.Row="1" 
-                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                       HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0"
                       Color="{ThemeResource TextColor}"/>
 
@@ -181,7 +181,7 @@
                     </Border>
 
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="3" Grid.Row="1" 
-                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                       HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0"
                       Color="{ThemeResource TextColor}"/>
 

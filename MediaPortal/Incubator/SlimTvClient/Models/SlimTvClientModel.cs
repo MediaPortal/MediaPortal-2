@@ -792,11 +792,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (previousProgram != null)
       {
         from = previousProgram.EndTime;
-        to = FormatHelper.GetDay(DateTime.Now).AddDays(1);
+        to = DateTime.Now.GetDay().AddDays(1);
       }
       else
       {
-        from = FormatHelper.GetDay(DateTime.Now);
+        from = DateTime.Now.GetDay();
         to = from.AddDays(1);
       }
 

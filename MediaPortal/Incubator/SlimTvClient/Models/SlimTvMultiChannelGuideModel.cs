@@ -132,7 +132,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (!_isInitialized)
       {
-        DateTime startDate = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
+        DateTime startDate = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
         _guideStartTimeProperty = new WProperty(typeof(DateTime), startDate);
       }
       base.InitModel();
@@ -198,7 +198,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private PlaceholderListItem NoProgramPlaceholder(IChannel channel, DateTime? startTime, DateTime? endTime)
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
-      DateTime today = FormatHelper.GetDay(GuideStartTime);
+      DateTime today = GuideStartTime.GetDay();
       ProgramProperties programProperties = new ProgramProperties();
       Program placeholderProgram = new Program
                               {
@@ -338,7 +338,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.EnterModelContext(oldContext, newContext);
       // Init viewport to start with current time.
-      GuideStartTime = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
+      GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
       UpdatePrograms();
     }

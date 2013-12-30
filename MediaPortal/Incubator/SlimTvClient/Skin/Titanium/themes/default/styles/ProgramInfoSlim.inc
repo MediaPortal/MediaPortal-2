@@ -18,11 +18,11 @@
         Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
     
     <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
-        Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+        Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
         Color="{ThemeResource TextColor}"/>
 
     <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="2" Scroll="Auto" Margin="5,0,0,0"
-        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
         Color="{ThemeResource TextColor}"/>
 
     <Label x:Name="Program" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" 

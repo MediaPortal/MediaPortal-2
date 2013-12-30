@@ -11,6 +11,7 @@
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+  <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
 
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
@@ -102,13 +103,13 @@
                           Color="{ThemeResource TextColor}"/>
 
                     <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                     <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="-" Color="{ThemeResource TextColor}"/>
 
                     <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                     <Label x:Name="Genre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"  FontSize="{ThemeResource SmallFontSize}"
@@ -141,13 +142,13 @@
                           Color="{ThemeResource TextColor}"/>
 
                     <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                     <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="-" Color="{ThemeResource TextColor}"/>
 
                     <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                     <Label x:Name="NextGenre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"  FontSize="{ThemeResource SmallFontSize}"
@@ -178,11 +179,11 @@
                   </Border>
 
                   <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="3" 
-                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                       HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
                   <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="3" 
-                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                       HorizontalAlignment="Right" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
                 </Grid>
@@ -471,10 +472,10 @@
       <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
 
       <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5"
-              Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource DateFormatConverter}}"
+              Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource TextColor}"/>
       <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5"
-              Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource DateFormatConverter}}"
+              Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource NextProgramLabelColor}"/>
       <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
               Content="{Binding Programs[0].Program.Title}"
@@ -650,7 +651,7 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="VideoEncoding" Grid.Column="0" Content="{Binding VideoEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-        <Label x:Name="StartTime" Grid.Column="1" Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+        <Label x:Name="StartTime" Grid.Column="1" Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}, ConverterParameter=g}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
       </Grid>
     </Grid>
   </ControlTemplate>

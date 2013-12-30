@@ -104,13 +104,13 @@
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3">
             <Label x:Name="CurrentProgramStartTimeLabel" Margin="5"
-                Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                 Color="{ThemeResource TextColor}"/>
 
             <Label Content="-" Color="{ThemeResource TextColor}" Margin="5"/>
 
             <Label x:Name="CurrentProgramEndTimeLabel" Margin="5"
-                Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                 Color="{ThemeResource TextColor}"/>
 
           </StackPanel>

@@ -80,13 +80,13 @@
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="-" Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="Genre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"  FontSize="{ThemeResource SmallFontSize}"
@@ -119,13 +119,13 @@
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="-" Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
                       <Label x:Name="NextGenre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"  FontSize="{ThemeResource SmallFontSize}"
@@ -179,7 +179,7 @@
                     </Grid.RowDefinitions>
 
                     <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="0" 
-                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}"
+                      Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
                       FontSize="{ThemeResource SmallFontSize}"
                       Color="{ThemeResource TextColor}"/>
@@ -198,7 +198,7 @@
                     </Border>
 
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="0" 
-                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}"
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                       HorizontalAlignment="Right" VerticalAlignment="Center"
                       FontSize="{ThemeResource SmallFontSize}"
                       Color="{ThemeResource TextColor}"/>
