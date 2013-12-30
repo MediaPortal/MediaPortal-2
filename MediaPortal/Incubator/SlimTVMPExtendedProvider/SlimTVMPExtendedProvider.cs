@@ -40,6 +40,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Providers.Items;
 using MediaPortal.Plugins.SlimTv.Providers.Settings;
 using MediaPortal.UI.Presentation.UiNotifications;
+using MPExtended.Services.Common.Interfaces;
 using MPExtended.Services.TVAccessService.Interfaces;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 
@@ -736,6 +737,30 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return true;
     }
 
+    public bool GetRecordingFileOrStream(IProgram program, out string fileOrStream)
+    {
+      fileOrStream = null;
+      Program indexProgram = program as Program;
+      if (indexProgram == null)
+        return false;
+
+      if (!CheckConnection(indexProgram.ServerIndex))
+        return false;
+
+      try
+      {
+        // TODO: GetRecordings will return all recordings from server and we filter the list on client side. This could be optimized with MPExtended 0.6, where a server filter argument was added.
+        var recording = TvServer(indexProgram.ServerIndex).GetRecordings(WebSortField.StartTime, WebSortOrder.Desc).
+          FirstOrDefault(r => r.IsRecording && r.ChannelId == program.ChannelId && r.Title == program.Title);
+        if (recording != null)
+          fileOrStream = recording.FileName;
+      }
+      catch
+      {
+        return false;
+      }
+      return !string.IsNullOrEmpty(fileOrStream);
+    }
     #endregion
   }
 }
