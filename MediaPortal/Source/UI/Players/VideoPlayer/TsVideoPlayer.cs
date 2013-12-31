@@ -25,6 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -133,7 +134,8 @@ namespace MediaPortal.UI.Players.Video
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, networkResourceAccessor.URL);
 
-        fileSourceFilter.Load(networkResourceAccessor.URL, null);
+        int hr = fileSourceFilter.Load(networkResourceAccessor.URL, null);
+        new HRESULT(hr).Throw();
       }
       else
       {
@@ -146,7 +148,8 @@ namespace MediaPortal.UI.Players.Video
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
 
-        fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+        int hr = fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+        new HRESULT(hr).Throw();
       }
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
