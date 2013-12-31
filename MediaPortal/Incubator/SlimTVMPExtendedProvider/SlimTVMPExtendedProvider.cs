@@ -32,6 +32,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -121,6 +122,10 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     private int _reconnectCounter = 0;
     protected Dictionary<int, IChannel> _channelCache = new Dictionary<int, IChannel>();
 
+    // Handling of changed connection details.
+    private readonly SettingsChangeWatcher<MPExtendedProviderSettings> _settings = new SettingsChangeWatcher<MPExtendedProviderSettings>();
+    private string _serverNames = null;
+
     #endregion
 
     #region ITvProvider Member
@@ -141,12 +146,25 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool Init()
     {
+      _settings.SettingsChanged += ReCreateConnections;
       CreateAllTvServerConnections();
       return true;
     }
 
+    private void ReCreateConnections(object sender, EventArgs e)
+    {
+      // Settings will be changed for various reasons, we only need to handle changed server name(s).
+      if (_serverNames != _settings.Settings.TvServerHost)
+      {
+        DeInit();
+        Init();
+      }
+    }
+
     public bool DeInit()
     {
+      _settings.SettingsChanged -= ReCreateConnections;
+
       if (_tvServers == null)
         return false;
 
@@ -288,9 +306,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     private void CreateAllTvServerConnections()
     {
-      MPExtendedProviderSettings setting = ServiceRegistration.Get<ISettingsManager>().Load<MPExtendedProviderSettings>();
-      if (setting.TvServerHost == null)
+      MPExtendedProviderSettings setting = _settings.Settings;
+      if (string.IsNullOrWhiteSpace(setting.TvServerHost))
         return;
+
+      // Needed for checking setting changes
+      _serverNames = setting.TvServerHost;
 
       string[] serverNames = setting.TvServerHost.Split(';');
       _tvServers = new ServerContext[serverNames.Length];
@@ -299,7 +320,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         try
         {
-          string serverName = serverNames[serverIndex];
+          string serverName = serverNames[serverIndex].Trim();
           ServerContext tvServer = new ServerContext
                                      {
                                        ServerName = serverName,
