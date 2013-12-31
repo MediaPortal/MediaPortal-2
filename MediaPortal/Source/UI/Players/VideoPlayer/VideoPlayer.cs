@@ -215,6 +215,10 @@ namespace MediaPortal.UI.Players.Video
       if (_streamSelectors != null)
         foreach (IAMStreamSelect streamSelector in _streamSelectors)
           Marshal.ReleaseComObject(streamSelector);
+      _streamSelectors = null;
+      _streamInfoAudio = null;
+      _streamInfoSubtitles = null;
+      _streamInfoTitles = null;
     }
 
     /// <summary>

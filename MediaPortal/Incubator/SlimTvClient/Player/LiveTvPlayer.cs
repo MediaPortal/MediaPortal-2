@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
@@ -39,7 +41,7 @@ using SharpDX.Direct3D9;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer
+  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IReusablePlayer
   {
     #region Variables
 
@@ -288,6 +290,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       {
         return GetContextTitle(GetContext(CurrentTime));
       }
+    }
+
+    #endregion
+
+    #region IReusablePlayer members
+
+    public event RequestNextItemDlgt NextItemRequest;
+
+    public bool NextItem(MediaItem mediaItem, StartTime startTime)
+    {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title) || mimeType != LiveTvMediaItem.MIME_TYPE_TV)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SlimTvHandler: Cannot reuse current player for new mimetype {0}", mimeType);
+        return false;
+      }
+      Stop();
+      // Set new resource locator for existing player, this avoids interim close of player slot
+      IResourceLocator resourceLocator = mediaItem.GetResourceLocator();
+      ServiceRegistration.Get<ILogger>().Debug("SlimTvHandler: Changing file/stream for player to {0}", resourceLocator.NativeResourcePath);
+      SetMediaItem(resourceLocator, mimeType);
+      return true;
     }
 
     #endregion

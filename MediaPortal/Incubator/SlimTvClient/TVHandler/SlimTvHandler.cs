@@ -28,6 +28,8 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.SlimTv.Client.Player;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
@@ -199,6 +201,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       if (TimeshiftControl == null || channel == null)
         return false;
 
+      ServiceRegistration.Get<ILogger>().Debug("SlimTvHandler: StartTimeshift slot {0} for channel '{1}'", slotIndex, channel.Name);
+
       int newSlotIndex = GetMatchingSlotIndex(slotIndex);
       MediaItem timeshiftMediaItem;
       bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
@@ -267,7 +271,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
         if (!IsSameLiveTvItem(liveTvMediaItem, newLiveTvMediaItem))
         {
-          // Switch MediaItem in current slot
+          // Switch MediaItem in current slot, the LiveTvPlayer implements IReusablePlayer and will change its source without need to change full player.
           playerContext.DoPlay(newLiveTvMediaItem);
           // Use new MediaItem, so new context will be added to new instance.
           liveTvMediaItem = newLiveTvMediaItem;
@@ -297,8 +301,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     /// <returns></returns>
     protected bool IsSameLiveTvItem(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
     {
-      if (oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
-               newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
+      string oldPath = oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
+      string newPath = newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
+      if (oldPath != newPath)
         return false;
 
       IChannel oldChannel = oldItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel;

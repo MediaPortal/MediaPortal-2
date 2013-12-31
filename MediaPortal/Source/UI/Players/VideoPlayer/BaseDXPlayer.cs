@@ -390,7 +390,7 @@ namespace MediaPortal.UI.Players.Video
     /// Try to add filter by name to graph.
     /// </summary>
     /// <param name="codecInfo">Filter name to add</param>
-    /// <param name="filterCategory">GUID of filter category (<see cref="DirectShowLib.FilterCategory"/> members)></param>
+    /// <param name="filterCategory">GUID of filter category (<see cref="FilterCategory"/> members)></param>
     /// <returns>true if successful</returns>
     protected bool TryAdd(CodecInfo codecInfo, Guid filterCategory)
     {
