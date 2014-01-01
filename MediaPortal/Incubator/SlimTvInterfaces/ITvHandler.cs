@@ -99,5 +99,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="program">Program that is currently recording.</param>
     /// <returns>True if succeeded.</returns>
     bool WatchRecordingFromBeginning(IProgram program);
+
+    /// <summary>
+    /// Executes on regualar base to update internal structures (like running programs etc.)
+    /// </summary>
+    /// <returns>True if succeeded.</returns>
+    bool Update();
   }
 }

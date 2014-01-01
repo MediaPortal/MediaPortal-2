@@ -213,7 +213,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         // if slot was empty, start a new player
         if (_slotContexes[newSlotIndex].AccessorPath == null)
         {
-          AddTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
+          AddOrUpdateTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
           PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
           PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
         }
@@ -236,7 +236,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return result;
     }
 
-    private void AddTimeshiftContext(LiveTvMediaItem timeshiftMediaItem, IChannel channel)
+    /// <summary>
+    /// Creates a new <see cref="TimeshiftContext"/> and fills the <see cref="LiveTvMediaItem.TimeshiftContexes"/> with it.
+    /// A new context is created for each channel change or for changed programs on same channel.
+    /// </summary>
+    /// <param name="timeshiftMediaItem">MediaItem</param>
+    /// <param name="channel">Current channel.</param>
+    private bool AddOrUpdateTimeshiftContext(LiveTvMediaItem timeshiftMediaItem, IChannel channel)
     {
       IProgram program = GetCurrentProgram(channel);
       TimeshiftContext tsContext = new TimeshiftContext
@@ -250,9 +256,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       if (tc > 0)
       {
         ITimeshiftContext lastContext = timeshiftMediaItem.TimeshiftContexes[tc - 1];
+        // If we are not changing the channel but trying to update current program only, we need to exit here if programs is still the same
+        if (lastContext.Channel.ChannelId == channel.ChannelId && lastContext.Program.StartTime == program.StartTime)
+          return false; // Nothing changed
         lastContext.TimeshiftDuration = DateTime.Now - lastContext.TuneInTime;
       }
       timeshiftMediaItem.TimeshiftContexes.Add(tsContext);
+      return true;
     }
 
     private void UpdateExistingMediaItem(MediaItem timeshiftMediaItem)
@@ -277,8 +287,37 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           liveTvMediaItem = newLiveTvMediaItem;
         }
         // Add new timeshift context
-        AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
+        AddOrUpdateTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
       }
+    }
+
+    /// <summary>
+    /// Updates all active timeshift contexes to match current running program.
+    /// </summary>
+    public bool Update()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      bool changed = false;
+      for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
+      {
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
+        if (playerContext == null)
+          continue;
+        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+        if (liveTvMediaItem == null)
+          continue;
+
+        // Update timeshift context
+        if (AddOrUpdateTimeshiftContext(liveTvMediaItem, liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel))
+        {
+          LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+          if (player != null)
+            player.OnProgramChange();
+
+          changed = true;
+        }
+      }
+      return changed;
     }
 
     /// <summary>

@@ -219,6 +219,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       ServiceRegistration.Get<ILogger>().Debug("{0}: End zapping", PlayerTitle);
     }
 
+    public void OnProgramChange()
+    {
+      EnumerateChapters(true);
+    }
+
     protected override void PostProcessTexture(Surface targetSurface)
     {
       if (_zapping)
@@ -260,6 +265,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return chapters == null || chapters.Count == 0 ? EMPTY_STRING_ARRAY : chapters.GetStreamNames();
       }
     }
+
     public override void SetChapter(string chapter)
     {
       StreamInfoHandler chapters;

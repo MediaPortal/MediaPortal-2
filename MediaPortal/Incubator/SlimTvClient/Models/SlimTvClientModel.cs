@@ -99,6 +99,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     // Contains the channel that was tuned the last time. Used for selecting channels in group list.
     protected IChannel _lastTunedChannel;
 
+    // Counter for updates
+    protected int _updateCounter = 0;
+
     #endregion
 
     #region Variables
@@ -634,6 +637,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       PiPAvailable = true;
+
+      // Update timeshift contexes for program changes. Only every 10 * 500 msec.
+      _updateCounter = ++_updateCounter % 10;
+      if (_updateCounter == 0)
+        _tvHandler.Update();
 
       // Update current programs for all channels of current group (visible inside MiniGuide).
       UpdateAllCurrentPrograms();
