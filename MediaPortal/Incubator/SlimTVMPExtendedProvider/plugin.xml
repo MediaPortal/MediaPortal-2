@@ -13,6 +13,10 @@
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/>    <!-- Configuration plugin -->
   </DependsOn>
 
+  <ConflictsWith>
+    <PluginReference PluginId="{2ED35264-D9EB-4C6A-A035-2BEA4C0A5024}"/>    <!-- SlimTvNativeProvider -->
+  </ConflictsWith>
+
   <Runtime>
     <Assembly FileName="SlimTv.Interfaces.dll"/>
     <Assembly FileName="SlimTV.MPExtendedProvider.dll"/>
