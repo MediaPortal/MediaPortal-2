@@ -30,7 +30,7 @@
       Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
       Color="{ThemeResource TextColor}"/>
 
-  <Label x:Name="ProgramEndLabel" Grid.Row="2" Grid.Column="2" Content="[SlimTvClient.ProgramEndLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+  <Label x:Name="ProgramEndLabel" Grid.Row="2" Grid.Column="2" Content="[SlimTvClient.ProgramEndLabel]" Color="{ThemeResource EmphasisTextColor}" Margin="10,0,0,0"/>
   <Label x:Name="ProgramEnd" Grid.Row="2" Grid.Column="3" Scroll="Auto"
       Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
       Color="{ThemeResource TextColor}"/>
@@ -42,7 +42,7 @@
   <Label x:Name="EpisodeLabel" Grid.Row="4" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
   <Label x:Name="Episode" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Content="{Binding Path=CurrentProgram.EpisodeName}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-  <Label x:Name="DescriptionLabel" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-  <Label x:Name="Description" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+  <Label x:Name="DescriptionLabel" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+  <Label x:Name="Description" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
       Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
 </Grid>

@@ -24,13 +24,17 @@
 
 using System;
 using System.Linq;
+using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -46,7 +50,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected IProgram _selectedProgram;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _isSingleRecordingScheduledProperty = null;
+    protected AbstractProperty _isSeriesRecordingScheduledProperty = null;
     protected readonly ItemsList _programsList = new ItemsList();
+    protected readonly ItemsList _seriesTypesList = new ItemsList();
 
     #endregion
 
@@ -70,11 +77,68 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Indicates if the current program is scheduled as single recording.
+    /// </summary>
+    public bool IsSingleRecordingScheduled
+    {
+      get { return (bool)_isSingleRecordingScheduledProperty.GetValue(); }
+      set { _isSingleRecordingScheduledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsSingleRecordingScheduledProperty
+    {
+      get { return _isSingleRecordingScheduledProperty; }
+    }
+
+    /// <summary>
+    /// Indicates if the current program is scheduled as series recording.
+    /// </summary>
+    public bool IsSeriesRecordingScheduled
+    {
+      get { return (bool)_isSeriesRecordingScheduledProperty.GetValue(); }
+      set { _isSeriesRecordingScheduledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsSeriesRecordingScheduledProperty
+    {
+      get { return _isSeriesRecordingScheduledProperty; }
+    }
+
+    /// <summary>
     /// Exposes the list of channels in current group.
     /// </summary>
     public ItemsList ProgramsList
     {
       get { return _programsList; }
+    }
+
+    /// <summary>
+    /// Exposes the list of available series recording types.
+    /// </summary>
+    public ItemsList SeriesTypesList
+    {
+      get { return _seriesTypesList; }
+    }
+
+    public void RecordSingleProgram()
+    {
+      CreateOrDeleteSingleSchedule(_selectedProgram);
+    }
+
+    public void RecordSeries()
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog("DialogChooseScheduleType");
+    }
+
+    public void RecordSeries(ScheduleRecordingType scheduleRecordingType)
+    {
+    }
+
+    public void CancelSchedule()
+    {
+      // TODO: Ask for cancel single or full schedule
+      CreateOrDeleteSingleSchedule(_selectedProgram);
     }
 
     #endregion
@@ -84,9 +148,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void InitModel()
     {
       if (!_isInitialized)
+      {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
-
+        _isSingleRecordingScheduledProperty = new WProperty(typeof(bool), false);
+        _isSeriesRecordingScheduledProperty = new WProperty(typeof(bool), false);
+        InitSeriesTypeList();
+      }
       base.InitModel();
+    }
+
+    private void InitSeriesTypeList()
+    {
+      foreach (string name in Enum.GetNames(typeof(ScheduleRecordingType)))
+      {
+        // Single recordings are handled separately
+        if (name == ScheduleRecordingType.Once.ToString())
+          continue;
+
+        string currentName = name;
+        ListItem recTypeItem = new ListItem(Consts.KEY_NAME, string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", name))
+        {
+          Command = new MethodDelegateCommand(() => RecordSeries((ScheduleRecordingType)Enum.Parse(typeof(ScheduleRecordingType), currentName)))
+        };
+        _seriesTypesList.Add(recTypeItem);
+      }
     }
 
     #endregion
@@ -104,7 +189,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void UpdateProgramStatus(IProgram program)
     {
       base.UpdateProgramStatus(program);
-      
+
       IChannel channel;
       ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
     }
@@ -146,7 +231,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         ProgramListItem item = new ProgramListItem(programProperties)
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
+          Command = new MethodDelegateCommand(() => CreateOrDeleteSingleSchedule(currentProgram))
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
 
@@ -155,24 +240,41 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _programsList.FireChange();
     }
 
-    private void CreateOrDeleteSchedule(IProgram program)
+    private RecordingStatus CreateOrDeleteSingleSchedule(IProgram program)
     {
       IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      RecordingStatus? newStatus = null;
       if (scheduleControl != null)
       {
         RecordingStatus recordingStatus;
-        if (scheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus != RecordingStatus.None)
+        if (scheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus.HasFlag(RecordingStatus.Scheduled))
         {
           if (scheduleControl.RemoveSchedule(program))
-            UpdateRecordingStatus(program, RecordingStatus.None);
+            newStatus = RecordingStatus.None;
         }
         else
         {
           ISchedule schedule;
           if (scheduleControl.CreateSchedule(program, out schedule))
-            UpdateRecordingStatus(program, RecordingStatus.Scheduled);
+            newStatus = RecordingStatus.Scheduled;
         }
       }
+
+      if (!newStatus.HasValue)
+        return RecordingStatus.None;
+
+      UpdateRecordingStatus(program, newStatus.Value);
+      return newStatus.Value;
+    }
+
+    protected override bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)
+    {
+      if (ProgramComparer.Instance.Equals(_selectedProgram, program))
+      {
+        IsSingleRecordingScheduled = newStatus.HasFlag(RecordingStatus.Scheduled);
+        IsSeriesRecordingScheduled = newStatus.HasFlag(RecordingStatus.SeriesScheduled);
+      }
+      return base.UpdateRecordingStatus(program, newStatus);
     }
 
     #endregion

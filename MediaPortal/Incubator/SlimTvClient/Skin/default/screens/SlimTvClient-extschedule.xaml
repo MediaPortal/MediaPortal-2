@@ -26,10 +26,14 @@
 
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+        <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Content="[SlimTvClient.RecordProgram]"/>
+        <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Content="[SlimTvClient.RecordSeries]"/>
+        
+        <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"

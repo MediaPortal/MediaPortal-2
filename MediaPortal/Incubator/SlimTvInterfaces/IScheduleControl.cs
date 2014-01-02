@@ -38,6 +38,18 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     Recording
   }
 
+  public enum ScheduleRecordingType
+  {
+    Once,
+    Daily,
+    Weekly,
+    EveryTimeOnThisChannel,
+    EveryTimeOnEveryChannel,
+    Weekends,
+    WorkingDays,
+    WeeklyEveryTimeOnThisChannel
+  }
+
   public interface IScheduleControl
   {
     bool CreateSchedule(IProgram program, out ISchedule schedule);

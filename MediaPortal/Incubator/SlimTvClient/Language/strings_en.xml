@@ -25,6 +25,20 @@
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
   <string name="SlimTvClient.ExtSchedule">Extended scheduling</string>
 
+  <!-- Extended recording features -->
+  <string name="SlimTvClient.RecordProgram">Record program</string>
+  <string name="SlimTvClient.DontRecordProgram">Don't record</string>
+  <string name="SlimTvClient.RecordSeries">Record series</string>
+  <string name="SlimTvClient.ChooseScheduleType">Choose recording schedule type</string>
+  
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Daily</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Weekly</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Every time on this channel</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Every time on every channel</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekends</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Weekly every time on this channel</string>
+
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
 
   <!-- Settings -->

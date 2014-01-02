@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SlimTvClient.ChooseScheduleType]"/>
+
+    <!-- SlimTvExtScheduleGuide model -->
+    <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource SlimTvExtScheduleGuide},Path=SeriesTypesList,Mode=OneTime}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil" Source="{StaticResource SlimTvExtScheduleGuide}" Path="ExecProgramAction"/>
+  </Include.Resources>
+</Include>
