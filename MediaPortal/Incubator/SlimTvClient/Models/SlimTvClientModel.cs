@@ -460,6 +460,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         else
           break;
 
+      _zapChannelIndex = _webChannelIndex; // Needs to be the same to start zapping from current offset
+
       BeginZap();
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
@@ -468,6 +470,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         Update();
         UpdateChannelGroupSelection(channel);
       }
+    }
+
+    protected override void SetChannel(int webChannelIndex)
+    {
+      base.SetChannel(webChannelIndex);
+      _zapChannelIndex = _webChannelIndex; // Use field, as parameter might be changed by base method
     }
 
     private void BeginZap()
