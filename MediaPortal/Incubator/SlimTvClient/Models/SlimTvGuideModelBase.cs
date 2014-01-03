@@ -29,22 +29,18 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
-using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -185,7 +181,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                 {
                   Command = new MethodDelegateCommand(() =>
                                                         {
-                                                          if (_tvHandler.ScheduleControl.RemoveSchedule(program))
+                                                          if (_tvHandler.ScheduleControl.RemoveSchedule(program, ScheduleRecordingType.Once))
                                                             UpdateRecordingStatus(program, RecordingStatus.None);
                                                         }
                     )
@@ -199,7 +195,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                   Command = new MethodDelegateCommand(() =>
                                                         {
                                                           ISchedule schedule;
-                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program, out schedule))
+                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule))
                                                             UpdateRecordingStatus(program, RecordingStatus.Scheduled);
                                                         }
                     )

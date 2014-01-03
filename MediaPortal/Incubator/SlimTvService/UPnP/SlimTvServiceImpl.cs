@@ -83,6 +83,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DvStateVariable A_ARG_TYPE_Schedule = new DvStateVariable("A_ARG_TYPE_Schedule", new DvExtendedDataType(UPnPDtSchedule.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Schedule);
 
+      DvStateVariable A_ARG_TYPE_ScheduleRecordingType = new DvStateVariable("A_ARG_TYPE_ScheduleRecordingType", new DvStandardDataType(UPnPStandardDataType.Int)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_ScheduleRecordingType);
+
       DvStateVariable A_ARG_TYPE_RecordingStatus = new DvStateVariable("A_ARG_TYPE_RecordingStatus", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_RecordingStatus);
 
@@ -228,6 +231,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
+                                       new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In)
                                      },
                             new[]
                                      {
@@ -254,6 +258,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
+                                       new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In)
                                      },
                             new[]
                                      {
@@ -462,9 +467,10 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       int programId = (int) inParams[0];
+      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
       ISchedule schedule = null;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.CreateSchedule(program, out schedule);
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.CreateSchedule(program, recordingType, out schedule);
 
       outParams = new List<object> { result, schedule };
       return null;
@@ -482,7 +488,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime endTime = (DateTime) inParams[2];
       IProgram program = new Program { ChannelId = channelId, StartTime = startTime, EndTime = endTime, Title = "Manual" }; // TODO: localize
       ISchedule schedule = null;
-      bool result = scheduleControl.CreateSchedule(program, out schedule);
+      bool result = scheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
 
       outParams = new List<object> { result, schedule };
       return null;
@@ -497,8 +503,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       int programId = (int) inParams[0];
+      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveSchedule(program);
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveSchedule(program, recordingType);
 
       outParams = new List<object> { result };
       return null;

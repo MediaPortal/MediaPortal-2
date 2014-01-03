@@ -31,6 +31,10 @@
   <string name="SlimTvClient.RecordSeries">Record series</string>
   <string name="SlimTvClient.ChooseScheduleType">Choose recording schedule type</string>
   
+  <string name="SlimTvClient.DeleteScheduleType">How to delete schedule?</string>
+  <string name="SlimTvClient.DeleteSingle">Delete single program</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Delete full series schedule</string>
+  
   <string name="SlimTvClient.ScheduleRecordingType_Daily">Daily</string>
   <string name="SlimTvClient.ScheduleRecordingType_Weekly">Weekly</string>
   <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Every time on this channel</string>

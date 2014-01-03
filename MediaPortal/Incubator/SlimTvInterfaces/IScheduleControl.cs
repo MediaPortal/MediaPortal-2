@@ -52,9 +52,38 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
 
   public interface IScheduleControl
   {
-    bool CreateSchedule(IProgram program, out ISchedule schedule);
-    bool RemoveSchedule(IProgram program); // ISchedule schedule ?
+    /// <summary>
+    /// Creates a single or extended series schedule.
+    /// </summary>
+    /// <param name="program">Program to record.</param>
+    /// <param name="recordingType">Schedule recording type.</param>
+    /// <param name="schedule">Returns the schedule instance.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule);
+
+    /// <summary>
+    /// Deletes a schedule for the given <paramref name="program"/>. If the <paramref name="recordingType"/> is set to <see cref="ScheduleRecordingType.Once"/>,
+    /// only the actual program schedule will be removed. If any other series type is used, the full schedule will be removed (including all single schedules).
+    /// </summary>
+    /// <param name="program">Program to cancel.</param>
+    /// <param name="recordingType">Schedule recording type.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType); // ISchedule schedule ?
+
+    /// <summary>
+    /// Gets the <paramref name="recordingStatus"/> for the given <paramref name="program"/>.
+    /// </summary>
+    /// <param name="program">Program.</param>
+    /// <param name="recordingStatus">Recording/Scheduling status.</param>
+    /// <returns><c>true</c> if successful.</returns>
     bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus);
+
+    /// <summary>
+    /// Gets the file or stream name of currently running recording of the given <paramref name="program"/>.
+    /// </summary>
+    /// <param name="program">Program.</param>
+    /// <param name="fileOrStream">Returns the filename or stream url.</param>
+    /// <returns><c>true</c> if successful.</returns>
     bool GetRecordingFileOrStream(IProgram program, out string fileOrStream);
 
     /// <summary>

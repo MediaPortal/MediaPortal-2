@@ -23,10 +23,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
+using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using KeepMethodType = MediaPortal.Plugins.SlimTv.Interfaces.Items.KeepMethodType;
 
@@ -86,5 +90,32 @@ namespace MediaPortal.Plugins.SlimTv.Service
         IsSeries = schedule.Series,
       };
     }
+
+    // Morpheus_xx, 2014-01-03: this helper method could be used to filter programs that are CanceledSchedules, because the actual Program.State does not reflect this situation
+    // Using this extension works, but causes quite a big overhead. TVE35 should handle this situation internally.
+    //public static IEnumerable<Mediaportal.TV.Server.TVDatabase.Entities.Program> ProcessCanceledSchedules(this IEnumerable<Mediaportal.TV.Server.TVDatabase.Entities.Program> programs)
+    //{
+    //  IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+    //  if (scheduleService == null)
+    //    yield break;
+
+    //  var allSchedules = ScheduleManagement.ListAllSchedules(ScheduleIncludeRelationEnum.CanceledSchedule);
+
+    //  foreach (Mediaportal.TV.Server.TVDatabase.Entities.Program program in programs)
+    //  {
+    //    ProgramState state = (ProgramState)program.State;
+    //    if (state.HasFlag(ProgramState.RecordSeriesPending))
+    //    {
+    //      foreach (Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule in allSchedules)
+    //      {
+    //        ScheduleBLL scheduleBll = new ScheduleBLL(schedule);
+    //        if (scheduleBll.IsSerieIsCanceled(program.StartTime, program.IdChannel))
+    //          program.State = 0;
+    //      }
+    //    }
+    //    yield return program;
+    //  }
+    //}
+
   }
 }

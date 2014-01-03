@@ -192,7 +192,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\DialogChooseScheduleType.xaml">
+    <Content Include="Skin\default\screens\DialogExtSchedule.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

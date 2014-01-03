@@ -696,7 +696,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #region IScheduleControl Member
 
-    public bool CreateSchedule(IProgram program, out ISchedule schedule)
+    public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       Program indexProgram = program as Program;
       schedule = null;
@@ -708,7 +708,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, WebScheduleType.Once);
+        // Note: the enums WebScheduleType and ScheduleRecordingType are defined equally. If one of them gets extended, the other must be changed the same way.
+        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (WebScheduleType) recordingType);
       }
       catch
       {
@@ -716,7 +717,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public bool RemoveSchedule(IProgram program)
+    public bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType)
     {
       Program indexProgram = program as Program;
       if (indexProgram == null)
@@ -727,7 +728,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        return TvServer(indexProgram.ServerIndex).CancelSchedule(program.ProgramId);
+        ITVAccessService tvAccessService = TvServer(indexProgram.ServerIndex);
+        if (recordingType == ScheduleRecordingType.Once)
+        {
+          return tvAccessService.CancelSchedule(program.ProgramId);
+        }
+
+        // TODO: find matching schedule? return tvAccessService.DeleteSchedule(indexProgram);
+        return false;
       }
       catch
       {

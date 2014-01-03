@@ -44,9 +44,9 @@ using Mediaportal.TV.Server.TVControl;
 using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVControl.ServiceAgents;
 using Mediaportal.TV.Server.TVDatabase.Entities;
-using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
 using Mediaportal.TV.Server.TVDatabase.EntityModel.ObjContext;
+using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
 using Mediaportal.TV.Server.TVService.Interfaces;
@@ -56,6 +56,7 @@ using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
+using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -337,7 +338,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       channel = channelGroupService.GetChannel(channelId).ToChannel();
       return true;
     }
-    
+
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
       IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
@@ -354,27 +355,27 @@ namespace MediaPortal.Plugins.SlimTv.Service
     // This property applies only to client side management and is not used in server!
     public int SelectedChannelGroupId { get; set; }
 
-    public bool CreateSchedule(IProgram program, out ISchedule schedule)
+    public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvschedule = ScheduleFactory.CreateSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime);
       tvschedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
       tvschedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
+      tvschedule.ScheduleType = (int)recordingType;
       scheduleService.SaveSchedule(tvschedule);
       schedule = tvschedule.ToSchedule();
       return true;
     }
 
-    public bool RemoveSchedule(IProgram program)
+    public bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
-      ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Get<ICanceledScheduleService>();
-      var allSchedules = scheduleService.ListAllSchedules()
-        .Where(schedule =>
-          schedule.IdChannel == program.ChannelId &&
-          schedule.StartTime == program.StartTime &&
-          schedule.EndTime == program.EndTime);
-      foreach (Schedule schedule in allSchedules)
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      var canceledProgram = programService.GetProgram(program.ProgramId);
+      if (canceledProgram == null)
+        return false;
+
+      foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => new ScheduleBLL(schedule).IsRecordingProgram(canceledProgram, true)))
       {
         switch (schedule.ScheduleType)
         {
@@ -382,11 +383,94 @@ namespace MediaPortal.Plugins.SlimTv.Service
             scheduleService.DeleteSchedule(schedule.IdSchedule);
             break;
           default:
-            CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, schedule.IdChannel, schedule.StartTime);
-            canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
+            // If only single program should be canceled
+            if (recordingType == ScheduleRecordingType.Once)
+            {
+              CancelSingleSchedule(schedule, canceledProgram);
+            }
+            // Full schedule is canceled, including all programs
+            else
+            {
+              CancelFullSchedule(schedule);
+            }
             break;
         }
       }
+      return true;
+    }
+
+    private static void CancelSingleSchedule(Schedule schedule, Program canceledProgram)
+    {
+      ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Get<ICanceledScheduleService>();
+
+      CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, canceledProgram.IdChannel, canceledProgram.StartTime);
+      canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
+      // If this program was cancelled, also reset the Program's state, as it is no longer scheduled
+      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+      canceledProgram.State = 0;
+      programService.SaveProgram(canceledProgram);
+    }
+
+    private void CancelFullSchedule(Schedule schedule)
+    {
+      Schedule currentSchedule = schedule;
+      Schedule parentSchedule = null;
+      GetParentAndSpawnSchedule(ref currentSchedule, out parentSchedule);
+      StopRecording(currentSchedule);
+      DeleteEntireOrOnceSchedule(currentSchedule, parentSchedule);
+    }
+
+    private static void GetParentAndSpawnSchedule(ref Schedule schedule, out Schedule parentSchedule)
+    {
+      parentSchedule = schedule.ParentSchedule;
+      if (parentSchedule != null)
+        return;
+
+      parentSchedule = schedule;
+      Schedule spawn = ServiceAgents.Instance.ScheduleServiceAgent.RetrieveSpawnedSchedule(parentSchedule.IdSchedule, parentSchedule.StartTime);
+      if (spawn != null)
+        schedule = spawn;
+    }
+
+    private bool StopRecording(Schedule schedule)
+    {
+      bool stoppedRec = false;
+      bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.IdSchedule);
+      if (isRec)
+      {
+        ServiceAgents.Instance.ControllerServiceAgent.StopRecordingSchedule(schedule.IdSchedule);
+        stoppedRec = true;
+      }
+      return stoppedRec;
+    }
+
+    private bool DeleteEntireOrOnceSchedule(Schedule schedule, Schedule parentSchedule)
+    {
+      //is the schedule recording, then stop it now.
+      bool wasDeleted = false;
+      foreach (var currentSchedule in new List<Schedule> { schedule, parentSchedule })
+      {
+        try
+        {
+          if (currentSchedule != null)
+            wasDeleted |= DeleteSchedule(currentSchedule.IdSchedule);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error deleting schedule with ID '{0}'", ex,
+            currentSchedule != null ? currentSchedule.IdSchedule.ToString() : "<null>");
+        }
+      }
+      return wasDeleted;
+    }
+
+    private bool DeleteSchedule(int idSchedule)
+    {
+      Schedule schedule = ServiceAgents.Instance.ScheduleServiceAgent.GetSchedule(idSchedule);
+      if (schedule == null)
+        return false;
+
+      ServiceAgents.Instance.ScheduleServiceAgent.DeleteSchedule(schedule.IdSchedule);
       return true;
     }
 
