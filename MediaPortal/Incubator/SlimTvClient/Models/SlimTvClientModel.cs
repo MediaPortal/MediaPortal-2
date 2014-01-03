@@ -108,7 +108,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private readonly ItemsList _channelList = new ItemsList();
     private DateTime _lastChannelListUpdate = DateTime.MinValue;
-    private bool _active;
 
     #endregion
 
@@ -447,8 +446,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    private void Tune(IChannel channel)
+    internal void Tune(IChannel channel)
     {
+      // Specical case of this model, which is also used as normal backing model for OSD, where no WorkflowManager action was performed.
+      if (!_isInitialized) InitModel();
+
       if (SlotPlayer != null)
         SlotPlayer.Pause();
 
@@ -634,7 +636,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void Update()
     {
       // Don't update the current channel and program information if we are in zap osd.
-      if (_tvHandler == null || !_active || _zapTimer != null)
+      if (_tvHandler == null || _zapTimer != null)
         return;
 
       if (_tvHandler.NumberOfActiveSlots < 1)
@@ -692,6 +694,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void UpdateChannelGroupSelection(IChannel channel)
     {
+      if (channel == null)
+        return;
+
       foreach (ChannelProgramListItem currentGroupChannel in CurrentGroupChannels)
         currentGroupChannel.Selected = IsSameChannel(currentGroupChannel.Channel, channel);
 
@@ -833,18 +838,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override Guid ModelId
     {
       get { return MODEL_ID; }
-    }
-
-    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      base.EnterModelContext(oldContext, newContext);
-      _active = true;
-    }
-
-    public override void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      base.ExitModelContext(oldContext, newContext);
-      _active = false;
     }
 
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)

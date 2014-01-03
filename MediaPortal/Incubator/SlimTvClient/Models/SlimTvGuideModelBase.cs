@@ -40,6 +40,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.Workflow;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
@@ -127,7 +129,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void SetGroupName()
     {
-      if (_webChannelGroupIndex < _channelGroups.Count)
+      if (_channelGroups != null && _webChannelGroupIndex < _channelGroups.Count)
       {
         IChannelGroup group = _channelGroups[_webChannelGroupIndex];
         GroupName = group.Name;
@@ -159,7 +161,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                     {
                       IChannel channel;
                       if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
-                        _tvHandler.StartTimeshift(PlayerContextIndex.PRIMARY, channel);
+                      {
+                        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+                        SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
+                        if (model != null)
+                          model.Tune(channel);
+                      }
                     })
               });
         }

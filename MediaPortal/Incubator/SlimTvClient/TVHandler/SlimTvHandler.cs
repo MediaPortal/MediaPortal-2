@@ -28,12 +28,12 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Client.Player;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UiComponents.Media.Models;
@@ -257,11 +257,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       {
         ITimeshiftContext lastContext = timeshiftMediaItem.TimeshiftContexes[tc - 1];
         // If we are not changing the channel but trying to update current program only, we need to exit here if programs is still the same
-        if (lastContext.Channel.ChannelId == channel.ChannelId && lastContext.Program.StartTime == program.StartTime)
+        if (ProgramComparer.Instance.Equals(lastContext.Program, program))
           return false; // Nothing changed
         lastContext.TimeshiftDuration = DateTime.Now - lastContext.TuneInTime;
       }
       timeshiftMediaItem.TimeshiftContexes.Add(tsContext);
+      timeshiftMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
       return true;
     }
 
