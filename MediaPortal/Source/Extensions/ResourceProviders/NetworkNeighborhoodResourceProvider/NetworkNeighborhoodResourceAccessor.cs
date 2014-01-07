@@ -264,7 +264,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
             .Cast<IFileSystemResourceAccessor>().ToList();
         if (IsServerPath(_path))
           return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//"))
-            .Where(share => share.ShareType == ShareType.Disk)
+            // Allow all filesystems, but exclude "Special" shares (IPC, Admin$)
+            .Where(share => share.IsFileSystem && !share.ShareType.HasFlag(ShareType.Special))
             .Select(
               share =>
               {
