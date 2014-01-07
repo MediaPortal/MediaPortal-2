@@ -117,8 +117,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     private bool ExtractThumbnail(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // We can only work on files and make sure this file was detected by a lower MDE before (title is set then).
-      string title;
-      if (!lfsra.IsFile || !MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
+      // VideoAspect must be present to be sure it is actually a video resource.
+      if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
       byte[] thumb;

@@ -92,9 +92,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected bool ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      // If resource is not a video file, the MediaAspect's title is not available
-      string title;
-      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
+      // VideoAspect must be present to be sure it is actually a video resource.
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
       SeriesInfo seriesInfo;
