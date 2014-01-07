@@ -337,9 +337,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!HasAudioExtension(fileName))
         return false;
 
-      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
-      MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, AudioAspect.Metadata);
-
       try
       {
         File tag;
@@ -379,40 +376,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           artists = artist == null ? null : new string[] { artist };
         if (tag.Tag.Track != 0)
           trackNo = tag.Tag.Track;
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         //mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
-        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, ApplyAdditionalSeparator(artists));
-        audioAspect.SetAttribute(AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_ARTISTS, ApplyAdditionalSeparator(artists));
+        MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
         IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
         if ((tag.TagTypes & TagTypes.Id3v2) != 0)
           albumArtists = PatchID3v23Enumeration(albumArtists);
-        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, ApplyAdditionalSeparator(albumArtists));
-        audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
-        mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_ALBUMARTISTS, ApplyAdditionalSeparator(albumArtists));
+        MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
         IEnumerable<string> composers = tag.Tag.Composers;
         if ((tag.TagTypes & TagTypes.Id3v2) != 0)
           composers = PatchID3v23Enumeration(composers);
-        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, ApplyAdditionalSeparator(composers));
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_COMPOSERS, ApplyAdditionalSeparator(composers));
 
-        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long)tag.Properties.Duration.TotalSeconds);
+        MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_DURATION, (long)tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
         {
           IEnumerable<string> genres = tag.Tag.Genres;
           if ((tag.TagTypes & TagTypes.Id3v2) != 0)
             genres = PatchID3v23Enumeration(genres);
-          audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, ApplyAdditionalSeparator(genres));
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_GENRES, ApplyAdditionalSeparator(genres));
         }
         if (trackNo.HasValue)
-          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int)trackNo.Value);
+          MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_TRACK, (int)trackNo.Value);
         if (tag.Tag.TrackCount != 0)
-          audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int)tag.Tag.TrackCount);
+          MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_NUMTRACKS, (int)tag.Tag.TrackCount);
         int year = (int)tag.Tag.Year;
         if (year >= 30 && year <= 99)
           year += 1900;
         if (year >= 1930 && year <= 2030)
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
 
         // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
