@@ -77,20 +77,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         }
 
       // Now check siblings of movie for any IMDB id containing filename.
-      IFileSystemResourceAccessor directoryFsra = null;
-      if (!fsra.IsFile)
-        directoryFsra = fsra.Clone() as IFileSystemResourceAccessor;
-      if (fsra.IsFile)
-        directoryFsra = GetContainingDirectory(fsra);
+      // Morpheus_xx, 2014-01-04: disabled code because it leads to false detections if there are multiple video files in same folder. In this case the first
+      // video with TT-number is wrongly used.
+      // TODO: this part could be reworked based on different ideas:
+      // - Exclude known video extensions from file name matching (this would require a reference to VideoMDE's settings for extension list)
+      // - Only use folder lookup for chained resources, i.e. for a DVD-ISO, where any "TT000000.bla" is located next to it
 
-      if (directoryFsra == null)
-        return false;
+      //IFileSystemResourceAccessor directoryFsra = null;
+      //if (!fsra.IsFile)
+      //  directoryFsra = fsra.Clone() as IFileSystemResourceAccessor;
+      //if (fsra.IsFile)
+      //  directoryFsra = GetContainingDirectory(fsra);
 
-      using (directoryFsra)
-        foreach (IFileSystemResourceAccessor file in directoryFsra.GetFiles())
-          using (file)
-            if (ImdbIdMatcher.TryMatchImdbId(file.ResourceName, out imdbId))
-              return true;
+      //if (directoryFsra == null)
+      //  return false;
+
+      //using (directoryFsra)
+      //  foreach (IFileSystemResourceAccessor file in directoryFsra.GetFiles())
+      //    using (file)
+      //      if (ImdbIdMatcher.TryMatchImdbId(file.ResourceName, out imdbId))
+      //        return true;
 
       return false;
     }
