@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DatabaseDestination>$(PluginDestination)\Database\</DatabaseDestination>
+    <DatabaseDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Database\</DatabaseDestination>
   </PropertyGroup>
 
   <ItemGroup>
