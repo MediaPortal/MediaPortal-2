@@ -80,6 +80,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DvStateVariable A_ARG_TYPE_Programs = new DvStateVariable("A_ARG_TYPE_Programs", new DvExtendedDataType(UPnPDtProgramList.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Programs);
 
+      DvStateVariable A_ARG_TYPE_Schedules = new DvStateVariable("A_ARG_TYPE_Schedules", new DvExtendedDataType(UPnPDtScheduleList.Instance)) { SendEvents = false };
+      AddStateVariable(A_ARG_TYPE_Schedules);
+
       DvStateVariable A_ARG_TYPE_Schedule = new DvStateVariable("A_ARG_TYPE_Schedule", new DvExtendedDataType(UPnPDtSchedule.Instance)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_Schedule);
 
@@ -226,6 +229,15 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       #endregion
 
       #region IScheduleControl members
+
+      DvAction getSchedules = new DvAction(Consts.ACTION_GET_SCHEDULES, OnGetSchedules,
+                            new DvArgument[0],
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Schedules", A_ARG_TYPE_Schedules, ArgumentDirection.Out, true)
+                                     });
+      AddAction(getSchedules);
 
       DvAction createSchedule = new DvAction(Consts.ACTION_CREATE_SCHEDULE, OnCreateSchedule,
                             new[]
@@ -455,6 +467,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       IProgram programNext;
       bool result = programInfo.GetNowNextProgram(new Channel { ChannelId = channelId }, out programNow, out programNext);
       outParams = new List<object> { result, programNow, programNext };
+      return null;
+    }
+
+    private UPnPError OnGetSchedules(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (programInfo == null || scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      IList<ISchedule> schedules;
+      bool result = scheduleControl.GetSchedules(out schedules);
+
+      outParams = new List<object> { result, schedules };
       return null;
     }
 

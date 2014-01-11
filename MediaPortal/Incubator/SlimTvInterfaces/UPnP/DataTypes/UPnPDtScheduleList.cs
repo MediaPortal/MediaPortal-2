@@ -33,13 +33,13 @@ using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
-  public class UPnPDtProgramList : UPnPExtendedDataType
+  public class UPnPDtScheduleList : UPnPExtendedDataType
   {
-    public static UPnPDtProgramList Instance = new UPnPDtProgramList();
+    public static UPnPDtScheduleList Instance = new UPnPDtScheduleList();
 
-    public const string DATATYPE_NAME = "UPnPDtProgramList";
+    public const string DATATYPE_NAME = "UPnPDtScheduleList";
 
-    public UPnPDtProgramList()
+    public UPnPDtScheduleList()
       : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
@@ -61,18 +61,18 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable programs = (IEnumerable)value;
-      foreach (Program program in programs)
+      IEnumerable schedules = (IEnumerable)value;
+      foreach (Schedule program in schedules)
         program.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<Program> result = new List<Program>();
+      ICollection<Schedule> result = new List<Schedule>();
       if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(Program.Deserialize(reader));
+        result.Add(Schedule.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

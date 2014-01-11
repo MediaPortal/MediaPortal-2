@@ -355,6 +355,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
     // This property applies only to client side management and is not used in server!
     public int SelectedChannelGroupId { get; set; }
 
+    public bool GetSchedules(out IList<ISchedule> schedules)
+    {
+      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+      schedules = scheduleService.ListAllSchedules().Select(s => s.ToSchedule()).ToList();
+      return schedules.Count > 0;
+    }
+
     public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();

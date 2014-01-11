@@ -48,6 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       UPnPExtendedDataTypes.AddDataType(UPnPDtProgram.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtProgramList.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtSchedule.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtScheduleList.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtLiveTvMediaItem.Instance);
     }
 

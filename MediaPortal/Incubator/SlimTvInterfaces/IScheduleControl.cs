@@ -95,7 +95,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs);
 
     //bool GetSchedules(IChannel channel, out IList<ISchedule> schedules);
-    //bool GetSchedules(out IList<ISchedule> schedules);
+    /// <summary>
+    /// Gets the list of all available schedules.
+    /// </summary>
+    /// <param name="schedules">Returns schedules</param>
+    /// <returns><c>true</c> if at least one schedule could be found</returns>
+    bool GetSchedules(out IList<ISchedule> schedules);
 
     //bool AddRule(IScheduleRule rule);
     //bool RemoveRule(IScheduleRule rule);

@@ -499,6 +499,30 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
+    public bool GetSchedules(out IList<ISchedule> schedules)
+    {
+      schedules = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_SCHEDULES);
+        IList<object> inParameters = new List<object>();
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool)outParameters[0];
+        IList<Schedule> scheduleList = (List<Schedule>)outParameters[1];
+        if (success)
+        {
+          schedules = scheduleList.Cast<ISchedule>().ToList();
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
     #region Exeption handling
 
     private void NotifyException(Exception ex, string localizationMessage = null)

@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_PROGRAMS_BY_TITLE = "GetProgramsByTitle";
     public const string ACTION_GET_PROGRAMS_GROUP = "GetProgramsGroup";
     public const string ACTION_GET_NOW_NEXT_PROGRAM = "GetNowNextProgram";
+    public const string ACTION_GET_SCHEDULES = "GetSchedules";
     public const string ACTION_CREATE_SCHEDULE = "CreateSchedule";
     public const string ACTION_CREATE_SCHEDULE_BY_TIME = "CreateScheduleByTime";
     public const string ACTION_REMOVE_SCHEDULE = "RemoveSchedule";
