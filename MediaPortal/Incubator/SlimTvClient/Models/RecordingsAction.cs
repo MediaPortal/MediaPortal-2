@@ -36,11 +36,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public static readonly Guid RECORDINGS_CONTRIBUTOR_MODEL_ID = new Guid(RECORDINGS_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string RES_MOVIES_MENU_ITEM = "[SlimTvClient.RecordingsMenuItem]";
+    public const string RES_RECORDINGS_MENU_ITEM = "[SlimTvClient.RecordingsMenuItem]";
 
     #endregion
 
     public RecordingsAction() :
-      base(true, SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE, RES_MOVIES_MENU_ITEM) { }
+      base(true, SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE, RES_RECORDINGS_MENU_ITEM) { }
   }
 }
