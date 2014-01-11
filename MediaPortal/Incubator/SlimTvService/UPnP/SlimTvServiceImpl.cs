@@ -266,11 +266,22 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(createScheduleByTime);
 
-      DvAction removeSchedule = new DvAction(Consts.ACTION_REMOVE_SCHEDULE, OnRemoveSchedule,
+      DvAction removeScheduleForProgram = new DvAction(Consts.ACTION_REMOVE_SCHEDULE_FOR_PROGRAM, OnRemoveScheduleForProgram,
                             new[]
                                      {
                                        new DvArgument("ProgramId", A_ARG_TYPE_ProgramId, ArgumentDirection.In),
                                        new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In)
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+                                     });
+      AddAction(removeScheduleForProgram);
+
+      DvAction removeSchedule = new DvAction(Consts.ACTION_REMOVE_SCHEDULE, OnRemoveSchedule,
+                            new[]
+                                     {
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.In),
                                      },
                             new[]
                                      {
@@ -521,7 +532,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       return null;
     }
 
-    private UPnPError OnRemoveSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    private UPnPError OnRemoveScheduleForProgram(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
       IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
@@ -532,7 +543,22 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       int programId = (int) inParams[0];
       ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveSchedule(program, recordingType);
+      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveScheduleForProgram(program, recordingType);
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    private UPnPError OnRemoveSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (programInfo == null || scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      ISchedule schedule = (ISchedule)inParams[0];
+      bool result = scheduleControl.RemoveSchedule(schedule);
 
       outParams = new List<object> { result };
       return null;

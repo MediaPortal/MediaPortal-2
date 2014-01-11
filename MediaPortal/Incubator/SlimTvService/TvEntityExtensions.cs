@@ -23,16 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Mediaportal.TV.Server.TVControl.Interfaces.Services;
-using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
-using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using KeepMethodType = MediaPortal.Plugins.SlimTv.Interfaces.Items.KeepMethodType;
+using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -87,7 +83,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EndTime = schedule.EndTime,
         ScheduleId = schedule.IdSchedule,
         ParentScheduleId = schedule.IdParentSchedule,
-        IsSeries = schedule.Series,
+        RecordingType = (ScheduleRecordingType)schedule.ScheduleType
       };
     }
 

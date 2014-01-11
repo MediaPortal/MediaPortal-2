@@ -19,8 +19,8 @@
               DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
 
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
-          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 

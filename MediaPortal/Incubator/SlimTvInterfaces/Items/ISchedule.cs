@@ -56,9 +56,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// </summary>
     DateTime EndTime { get; }
     /// <summary>
-    /// Gets or sets an indicator if the schedule is a series.
+    /// Gets an indicator if the schedule is a series.
     /// </summary>
-    bool IsSeries { get; set; }
+    bool IsSeries { get; }
+    /// <summary>
+    /// Gets or sets the type of recording.
+    /// </summary>
+    ScheduleRecordingType RecordingType { get; set; }
     /// <summary>
     /// Gets or sets the schedule's priority.
     /// </summary>

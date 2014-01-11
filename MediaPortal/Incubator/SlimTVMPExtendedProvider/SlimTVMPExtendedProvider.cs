@@ -717,7 +717,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType)
+    public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
     {
       Program indexProgram = program as Program;
       if (indexProgram == null)
@@ -741,6 +741,48 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         return false;
       }
+    }
+
+    public bool RemoveSchedule(ISchedule schedule)
+    {
+      Schedule indexSchedule = schedule as Schedule;
+      if (indexSchedule == null)
+        return false;
+
+      if (!CheckConnection(indexSchedule.ServerIndex))
+        return false;
+
+      try
+      {
+        ITVAccessService tvAccessService = TvServer(indexSchedule.ServerIndex);
+        return tvAccessService.DeleteSchedule(indexSchedule.ScheduleId);
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    public bool GetSchedules(out IList<ISchedule> schedules)
+    {
+      schedules = new List<ISchedule>();
+
+      // TODO: lookup by ID cannot guess which server might be adressed, so we force the first one.
+      int serverIndex = 0;
+      if (!CheckConnection(serverIndex))
+        return false;
+
+      try
+      {
+        ITVAccessService tvAccessService = TvServer(serverIndex);
+        var webSchedules = tvAccessService.GetSchedules();
+        schedules = webSchedules.Select(s => new Schedule(s, serverIndex)).Cast<ISchedule>().ToList();
+      }
+      catch
+      {
+        return false;
+      }
+      return true;
     }
 
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)

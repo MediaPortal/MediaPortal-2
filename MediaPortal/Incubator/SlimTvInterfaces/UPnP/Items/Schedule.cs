@@ -42,12 +42,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public string Name { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+    public ScheduleRecordingType RecordingType { get; set; }
     public PriorityType Priority { get; set; }
     public TimeSpan PreRecordInterval { get; set; }
     public TimeSpan PostRecordInterval { get; set; }
     public KeepMethodType KeepMethod { get; set; }
     public DateTime? KeepDate { get; set; }
-    public bool IsSeries { get; set; }
+    public bool IsSeries { get { return RecordingType != ScheduleRecordingType.Once; } }
 
     #endregion
 

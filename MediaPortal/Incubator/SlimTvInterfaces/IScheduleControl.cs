@@ -68,7 +68,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="program">Program to cancel.</param>
     /// <param name="recordingType">Schedule recording type.</param>
     /// <returns><c>true</c> if successful.</returns>
-    bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType); // ISchedule schedule ?
+    bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType); // ISchedule schedule ?
+    
+    /// <summary>
+    /// Deletes a given <paramref name="schedule"/>.
+    /// </summary>
+    /// <param name="schedule">Schedule to delete.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    bool RemoveSchedule(ISchedule schedule);
 
     /// <summary>
     /// Gets the <paramref name="recordingStatus"/> for the given <paramref name="program"/>.

@@ -122,7 +122,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _dialogActionsList; }
     }
 
-
     /// <summary>
     /// Exposes the user dialog header.
     /// </summary>
@@ -297,7 +296,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         RecordingStatus recordingStatus;
         if (scheduleControl.GetRecordingStatus(program, out recordingStatus) && (recordingStatus.HasFlag(RecordingStatus.Scheduled) || recordingStatus.HasFlag(RecordingStatus.SeriesScheduled)))
         {
-          if (scheduleControl.RemoveSchedule(program, recordingType))
+          if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
             newStatus = RecordingStatus.None;
         }
         else

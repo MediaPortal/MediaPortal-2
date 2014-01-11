@@ -359,7 +359,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       schedules = scheduleService.ListAllSchedules().Select(s => s.ToSchedule()).ToList();
-      return schedules.Count > 0;
+      return true;
     }
 
     public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
@@ -374,7 +374,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    public bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType)
+    public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
@@ -403,6 +403,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
             break;
         }
       }
+      return true;
+    }
+
+    public bool RemoveSchedule(ISchedule schedule)
+    {
+      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+      if (scheduleService == null)
+        return false;
+
+      scheduleService.DeleteSchedule(schedule.ScheduleId);
       return true;
     }
 

@@ -445,12 +445,28 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool RemoveSchedule(IProgram program, ScheduleRecordingType recordingType)
+    public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE_FOR_PROGRAM);
+        IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        return (bool)outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
+    public bool RemoveSchedule(ISchedule schedule)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE);
-        IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
+        IList<object> inParameters = new List<object> { schedule };
         IList<object> outParameters = action.InvokeAction(inParameters);
         return (bool)outParameters[0];
       }

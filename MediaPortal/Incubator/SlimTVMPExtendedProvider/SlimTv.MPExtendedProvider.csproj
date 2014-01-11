@@ -66,6 +66,7 @@
     <Compile Include="Items\ChannelGroup.cs" />
     <Compile Include="Items\Channel.cs" />
     <Compile Include="Items\Program.cs" />
+    <Compile Include="Items\Schedule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\MPExtendedPassword.cs" />
     <Compile Include="Settings\Configuration\MPExtendedUsername.cs" />
