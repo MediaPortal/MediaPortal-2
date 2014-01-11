@@ -564,7 +564,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       // Update properties
       IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
       if (recordingStatus != null)
-        ((ProgramListItem)control.Context).Program.IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
+        ((ProgramListItem)control.Context).Program.UpdateState(recordingStatus.RecordingStatus);
     }
 
     /// <summary>

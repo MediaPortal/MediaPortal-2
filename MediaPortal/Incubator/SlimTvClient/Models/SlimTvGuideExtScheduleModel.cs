@@ -242,7 +242,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return false;
 
       foreach (var programItem in _programsList.OfType<ProgramListItem>().Where(programItem => programItem.Program.ProgramId == program.ProgramId))
-        programItem.Program.IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None;
+        programItem.Program.UpdateState(recordingStatus.RecordingStatus);
       return true;
     }
 

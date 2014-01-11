@@ -154,13 +154,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         UpdateDuration();
     }
 
+    public void UpdateState(RecordingStatus recordingStatus)
+    {
+      IsScheduled = recordingStatus != RecordingStatus.None; // Can be single or series
+      IsSeriesScheduled = recordingStatus == RecordingStatus.SeriesScheduled;
+    }
+
     public void SetProgram(IProgram program)
     {
       IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
       if (recordingStatus != null)
       {
-        IsScheduled = recordingStatus.RecordingStatus != RecordingStatus.None; // Can be single or series
-        IsSeriesScheduled = recordingStatus.RecordingStatus == RecordingStatus.SeriesScheduled;
+        UpdateState(recordingStatus.RecordingStatus);
       }
       try
       {

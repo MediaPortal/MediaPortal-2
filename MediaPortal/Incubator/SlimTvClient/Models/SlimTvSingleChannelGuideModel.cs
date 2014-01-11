@@ -162,7 +162,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           if (listProgram == null)
             return false;
         }
-        listProgram.Program.IsScheduled = newStatus != RecordingStatus.None;
+        listProgram.Program.UpdateState(newStatus);
       }
       return changed;
     }
