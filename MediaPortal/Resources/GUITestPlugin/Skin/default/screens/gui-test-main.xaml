@@ -49,6 +49,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="Focus movement test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-focus-movement}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Focus movement test (2)"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-focus-movement-2}"/>
             <Button Style="{StaticResource ButtonWideStyle}" Content="Text wrapping test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-textwrapping}"/>

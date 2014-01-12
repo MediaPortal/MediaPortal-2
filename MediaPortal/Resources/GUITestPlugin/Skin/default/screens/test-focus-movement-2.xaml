@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Focus movement test (2)"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows various buttons that are aligned in a Grid. Moving the focus to right should always keep the focused element of the same row."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+
+    <StackPanel x:Name="ContentPanel" DockPanel.Dock="Center" SetFocusPrio="DefaultHigh">
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="P1" Content="P1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" />
+        <Button x:Name="P2" Content="P2" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" />
+        <Button x:Name="P3" Content="P3" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="3"/>
+        <Button x:Name="P4" Content="P4" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2"/>
+        <Button x:Name="P5" Content="P5" Grid.Column="4" Grid.Row="1" Grid.ColumnSpan="1"/>
+
+      </Grid>
+
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="200"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="X1" Content="X1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="1" />
+        <Button x:Name="X2" Content="X2" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="1" />
+        
+        <Button x:Name="X3" Content="X3" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2"/>
+        <Button x:Name="X4" Content="X4" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="4"/>
+        
+        <Button x:Name="X5" Content="X5" Grid.Column="3" Grid.Row="0" Grid.ColumnSpan="3"/>
+        <Button x:Name="X6" Content="X6" Grid.Column="6" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+      </Grid>
+
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="200"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="50"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="Y1" Content="Y1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="1" />
+        <Button x:Name="Y2" Content="Y2" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2"/>
+
+        <Button x:Name="Y3" Content="Y3" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="1" />
+        <Button x:Name="Y4" Content="Y4" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="10"/>
+
+        <Button x:Name="Y5" Content="Y5" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="1"/>
+        <Button x:Name="Y6" Content="Y6" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="10"/>
+
+        <Button x:Name="Y7" Content="Y7" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="1"/>
+        <Button x:Name="Y8" Content="Y8" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="6"/>
+
+      </Grid>
+    </StackPanel>
+  </DockPanel>
+
+</Screen>
