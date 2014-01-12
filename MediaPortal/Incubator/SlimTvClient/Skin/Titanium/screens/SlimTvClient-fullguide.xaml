@@ -47,7 +47,7 @@
               Command="{Command ScrollBackward}"/>
           <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
               Command="{Command ScrollForward}"/>
-          <Label x:Name="GuideStartTimeLabel" Content="{Binding GuideStartTime}"
+          <Label x:Name="GuideStartTimeLabel" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
 

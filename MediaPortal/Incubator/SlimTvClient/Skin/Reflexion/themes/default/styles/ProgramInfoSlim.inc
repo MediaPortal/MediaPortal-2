@@ -10,8 +10,8 @@
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="100"/>
-      <ColumnDefinition Width="100"/>
-      <ColumnDefinition Width="100"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Label x:Name="Channel" Grid.Row="0" Grid.Column="0" Scroll="Auto"

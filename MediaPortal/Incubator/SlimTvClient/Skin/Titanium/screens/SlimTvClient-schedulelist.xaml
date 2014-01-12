@@ -8,6 +8,9 @@
     >
   <Include.Resources>
 
+    <!-- Custom margin that will be applied to the content area -->
+    <ResourceWrapper x:Key="CustomContentMargin" Resource="0,110,-4,-35" />
+
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules]"/>
 

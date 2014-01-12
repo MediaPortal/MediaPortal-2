@@ -70,6 +70,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
+    protected AbstractProperty _channelNameProperty = null;
 
     protected DateTime _bufferStartTime;
     protected DateTime _bufferEndTime;
@@ -90,6 +91,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #endregion
 
     #region GUI properties and methods
+
+    /// <summary>
+    /// Exposes the current channel name to the skin.
+    /// </summary>
+    public string ChannelName
+    {
+      get { return (string)_channelNameProperty.GetValue(); }
+      set { _channelNameProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel name to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNameProperty
+    {
+      get { return _channelNameProperty; }
+    }
 
     /// <summary>
     /// Exposes the list of channels in current group.
@@ -138,6 +156,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         DateTime startDate = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
         _guideStartTimeProperty = new WProperty(typeof(DateTime), startDate);
+        _channelNameProperty = new WProperty(typeof(string), string.Empty);
       }
       base.InitModel();
     }
@@ -182,7 +201,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
       navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_CHANNEL_ID] = channelId;
       navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_GROUP_ID] = groupId;
-      workflowManager.NavigatePush(new Guid("A40F05BB-022E-4247-8BEE-16EB3E0B39C5"), navigationContextConfig);
+      Guid stateId = new Guid("A40F05BB-022E-4247-8BEE-16EB3E0B39C5");
+      if (workflowManager.IsAnyStateContainedInNavigationStack(new Guid[] { stateId }))
+        workflowManager.NavigatePopToState(stateId, false);
+      else
+        workflowManager.NavigatePush(stateId, navigationContextConfig);
     }
 
     private ProgramListItem BuildProgramListItem(IProgram program)
@@ -219,12 +242,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return item;
     }
 
-
     protected override void Update()
     {
       if (!_isInitialized)
         return;
       UpdateProgramsState();
+    }
+
+    protected override void UpdateProgramStatus(IProgram program)
+    {
+      base.UpdateProgramStatus(program);
+      if (program == null || _tvHandler == null || _tvHandler.ChannelAndGroupInfo == null)
+        return;
+      IChannel currentChannel;
+      if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out currentChannel))
+        ChannelName = currentChannel.Name;
     }
 
     protected override void UpdateCurrentChannel()
