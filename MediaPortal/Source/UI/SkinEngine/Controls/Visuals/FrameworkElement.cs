@@ -999,14 +999,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
+      float bestTopOrLeftDifference = float.MaxValue;
       if (!currentFocusRect.HasValue)
         return null;
       foreach (FrameworkElement child in potentialNextFocusElements)
       {
-        if ((dir == MoveFocusDirection.Up && child.LocatedAbove(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Down && child.LocatedBelow(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Left && child.LocatedLeftOf(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Right && child.LocatedRightOf(currentFocusRect.Value)))
+        float topOrLeftDifference;
+        if ((dir == MoveFocusDirection.Up && child.LocatedAbove(currentFocusRect.Value, out topOrLeftDifference)) ||
+            (dir == MoveFocusDirection.Down && child.LocatedBelow(currentFocusRect.Value, out topOrLeftDifference)) ||
+            (dir == MoveFocusDirection.Left && child.LocatedLeftOf(currentFocusRect.Value, out topOrLeftDifference)) ||
+            (dir == MoveFocusDirection.Right && child.LocatedRightOf(currentFocusRect.Value, out topOrLeftDifference)))
         { // Calculate and compare distances of all matches
           float centerDistance = CenterDistance(child.ActualBounds, currentFocusRect.Value);
           if (centerDistance == 0)
@@ -1015,11 +1017,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             continue;
           float distance = BorderDistance(child.ActualBounds, currentFocusRect.Value);
           if (bestMatch == null || distance < bestDistance ||
-              distance == bestDistance && centerDistance < bestCenterDistance)
+            distance == bestDistance && topOrLeftDifference < bestTopOrLeftDifference
+            /* || topOrLeftDifference == bestTopOrLeftDifference && centerDistance < bestCenterDistance*/)
           {
             bestMatch = child;
             bestDistance = distance;
             bestCenterDistance = centerDistance;
+            bestTopOrLeftDifference = topOrLeftDifference;
           }
         }
       }
@@ -1087,48 +1091,48 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return AInsideB(otherRect, ActualBounds);
     }
 
-    protected bool LocatedBelow(RectangleF otherRect)
+    protected bool LocatedBelow(RectangleF otherRect, out float topOrLeftDifference)
     {
       RectangleF actualBounds = ActualBounds;
-      if (IsNear(actualBounds.Top, otherRect.Bottom))
-        return true;
+      bool isNear = IsNear(actualBounds.Top, otherRect.Bottom);
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
       PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Bottom);
       float alpha = CalcDirection(start, end);
-      return alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
+      topOrLeftDifference = Math.Abs(actualBounds.Left - otherRect.Left);
+      return isNear || alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
     }
 
-    protected bool LocatedAbove(RectangleF otherRect)
+    protected bool LocatedAbove(RectangleF otherRect, out float topOrLeftDifference)
     {
       RectangleF actualBounds = ActualBounds;
-      if (IsNear(actualBounds.Bottom, otherRect.Top))
-        return true;
+      bool isNear = IsNear(actualBounds.Bottom, otherRect.Top);
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
       PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
       float alpha = CalcDirection(start, end);
-      return alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
+      topOrLeftDifference = Math.Abs(actualBounds.Left - otherRect.Left);
+      return isNear|| alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
     }
 
-    protected bool LocatedLeftOf(RectangleF otherRect)
+    protected bool LocatedLeftOf(RectangleF otherRect, out float topOrLeftDifference)
     {
       RectangleF actualBounds = ActualBounds;
-      if (IsNear(actualBounds.Right, otherRect.Left))
-        return true;
+      bool isNear = IsNear(actualBounds.Right, otherRect.Left);
       PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
       PointF end = new PointF(otherRect.Left, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
-      return alpha < Math.PI / 2 - DELTA_DOUBLE || alpha > 3 * Math.PI / 2 + DELTA_DOUBLE;
+      topOrLeftDifference = Math.Abs(actualBounds.Top - otherRect.Top);
+      return isNear || alpha < Math.PI / 2 - DELTA_DOUBLE || alpha > 3 * Math.PI / 2 + DELTA_DOUBLE;
     }
 
-    protected bool LocatedRightOf(RectangleF otherRect)
+    protected bool LocatedRightOf(RectangleF otherRect, out float topOrLeftDifference)
     {
       RectangleF actualBounds = ActualBounds;
-      if (IsNear(actualBounds.Left, otherRect.Right))
-        return true;
+      bool isNear = IsNear(actualBounds.Left, otherRect.Right);
       PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
       PointF end = new PointF(otherRect.Right, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
-      return alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
+      topOrLeftDifference = Math.Abs(actualBounds.Top - otherRect.Top);
+      return isNear || alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
     }
 
     /// <summary>
@@ -1147,13 +1151,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!IsVisible || !IsEnabled)
         return;
-      if (Focusable)
+      if (Focusable && !HasFocus) // If we already have the focus, we cannot be a candidate for next focused element.
         elements.Add(this);
       // General implementation: Return all visible children
       ICollection<FrameworkElement> children = GetFEChildren();
       foreach (FrameworkElement child in children)
       {
-        if (!child.IsVisible || !child.IsEnabled)
+        if (!child.IsVisible || !child.IsEnabled || child.HasFocus)
           continue;
         child.AddPotentialFocusableElements(startingRect, elements);
       }
