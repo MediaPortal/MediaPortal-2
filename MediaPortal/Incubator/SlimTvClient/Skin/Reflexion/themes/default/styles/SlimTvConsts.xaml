@@ -28,5 +28,7 @@
   <ResourceWrapper x:Key="ChannelWithLogoAndProgramMargin" Resource="0,3,0,3"/>
 
   <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="200"/>
-  
+
+  <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="57"/>
+
 </ResourceDictionary>
