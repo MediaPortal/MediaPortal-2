@@ -46,6 +46,7 @@ using Mediaportal.TV.Server.TVControl.ServiceAgents;
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
 using Mediaportal.TV.Server.TVDatabase.EntityModel.ObjContext;
+using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
@@ -301,7 +302,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
-      throw new NotImplementedException();
+      programs = null;
+      Schedule scheduleEntity = ScheduleManagement.GetSchedule(schedule.ScheduleId);
+      if (scheduleEntity == null)
+        return false;
+      IList<Program> programEntities = ProgramManagement.GetProgramsForSchedule(scheduleEntity);
+      programs = programEntities.Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      return true;
     }
 
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)

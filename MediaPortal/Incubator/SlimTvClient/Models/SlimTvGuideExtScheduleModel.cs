@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
@@ -50,6 +51,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Fields
 
     protected IProgram _selectedProgram;
+    protected ISchedule _selectedSchedule;
+    protected bool _isScheduleMode = false;
+    protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _isSingleRecordingScheduledProperty = null;
     protected AbstractProperty _isSeriesRecordingScheduledProperty = null;
@@ -154,6 +158,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void RecordOrCancelSeries(ScheduleRecordingType scheduleRecordingType)
     {
       CreateOrDeleteSchedule(_selectedProgram, scheduleRecordingType);
+      _selectedSchedule = null;
+      UpdateButtonStateForSchedule();
     }
 
     public void CancelSchedule()
@@ -161,6 +167,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       InitDeleteChoicesList();
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog("DialogExtSchedule");
+    }
+
+    public static void Show(ISchedule schedule)
+    {
+      NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
+      navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_SCHEDULE] = schedule;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_MODE] = true;
+      Show(navigationContextConfig);
+    }
+
+    public static void Show(IProgram program)
+    {
+      NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
+      navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_PROGRAM] = program;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_MODE] = false;
+      Show(navigationContextConfig);
+    }
+
+    private static void Show(NavigationContextConfig context)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      Guid stateId = new Guid("3C6081CB-88DC-44A7-9E17-8D7BFE006EE5");
+      if (workflowManager.IsAnyStateContainedInNavigationStack(new Guid[] { stateId }))
+        workflowManager.NavigatePopToState(stateId, false);
+      else
+        workflowManager.NavigatePush(stateId, context);
     }
 
     #endregion
@@ -253,8 +287,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_selectedProgram == null)
         return;
 
-      _programsList.Clear();
-
       if (_tvHandler.ProgramInfo == null)
         return;
 
@@ -262,6 +294,42 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_tvHandler.ProgramInfo.GetPrograms(_selectedProgram.Title, dtDay, dtDay.AddDays(28), out _programs))
         return;
 
+      FillProgramsList();
+    }
+
+    /// <summary>
+    /// Loads all programs that are affected by the given series schedule.
+    /// </summary>
+    protected void UpdateProgramsForSchedule()
+    {
+      if (_selectedSchedule == null)
+        return;
+
+      if (_tvHandler.ScheduleControl == null)
+        return;
+
+      if (!_tvHandler.ScheduleControl.GetProgramsForSchedule(_selectedSchedule, out _programs))
+        return;
+
+      FillProgramsList();
+      _selectedProgram = _programs.FirstOrDefault();
+      UpdateButtonStateForSchedule();
+    }
+
+    protected void UpdateButtonStateForSchedule()
+    {
+      if (!_isScheduleMode)
+        return;
+
+      IsSeriesRecordingScheduled = IsSingleRecordingScheduled = _selectedSchedule != null;
+    }
+
+    private void FillProgramsList()
+    {
+      _programsList.Clear();
+
+      bool isSingle = false;
+      bool isSeries = false;
       foreach (IProgram program in _programs)
       {
         // Use local variable, otherwise delegate argument is not fixed
@@ -271,8 +339,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         if (ProgramComparer.Instance.Equals(_selectedProgram, program))
         {
-          IsSingleRecordingScheduled = programProperties.IsScheduled;
-          IsSeriesRecordingScheduled = programProperties.IsSeriesScheduled;
+          isSingle = programProperties.IsScheduled;
+          isSeries = programProperties.IsSeriesScheduled;
         }
 
         ProgramListItem item = new ProgramListItem(programProperties)
@@ -280,15 +348,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
+        item.Selected = _lastProgramId == program.ProgramId; // Restore focus
 
         _programsList.Add(item);
       }
+
+      // "Record" buttons are related to properties, for schedules we need to keep them to "Cancel record" state.
+      if (_isScheduleMode)
+        isSingle = isSeries = _selectedSchedule != null;
+
+      IsSingleRecordingScheduled = isSingle;
+      IsSeriesRecordingScheduled = isSeries;
 
       _programsList.FireChange();
     }
 
     private RecordingStatus CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
+      _lastProgramId = program.ProgramId;
       IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
       RecordingStatus? newStatus = null;
       if (scheduleControl != null)
@@ -306,6 +383,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
         }
       }
+
+      UpdateButtonStateForSchedule();
 
       if (!newStatus.HasValue)
         return RecordingStatus.None;
@@ -343,12 +422,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _selectedProgram = null;
+      _selectedSchedule = null;
+      _programsList.Clear();
       base.EnterModelContext(oldContext, newContext);
-      object programObject;
-      if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_PROGRAM, out programObject))
+      object mode;
+      if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_MODE, out mode))
       {
-        _selectedProgram = (IProgram)programObject;
-        UpdatePrograms();
+        _isScheduleMode = (bool)mode;
+
+        object programObject;
+        if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_PROGRAM, out programObject))
+        {
+          _selectedProgram = (IProgram)programObject;
+          UpdatePrograms();
+        }
+
+        object scheduleObject;
+        if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_SCHEDULE, out scheduleObject))
+        {
+          _selectedSchedule = (ISchedule)scheduleObject;
+          UpdateProgramsForSchedule();
+        }
       }
     }
 

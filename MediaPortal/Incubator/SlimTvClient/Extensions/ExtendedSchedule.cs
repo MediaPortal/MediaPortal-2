@@ -22,13 +22,9 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Common;
 using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Extensions
 {
@@ -39,11 +35,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
   {
     public bool ShowExtendedRecordingcScreen(IProgram program)
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
-      navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
-      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_PROGRAM] = program;
-      workflowManager.NavigatePush(new Guid("3C6081CB-88DC-44A7-9E17-8D7BFE006EE5"), navigationContextConfig);
+      SlimTvExtScheduleModel.Show(program);
       return true;
     }
 

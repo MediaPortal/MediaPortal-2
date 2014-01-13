@@ -246,7 +246,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ShowAndEditPrograms(ISchedule schedule)
     {
-
+      SlimTvExtScheduleModel.Show(schedule);
     }
 
     private void DeleteSchedule(ISchedule schedule)

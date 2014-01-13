@@ -316,7 +316,25 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_FOR_SCHEDULE);
+        IList<object> inParameters = new List<object> { schedule };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          IList<Program> programList = (IList<Program>)outParameters[1];
+          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      programs = null;
+      return false;
     }
 
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)

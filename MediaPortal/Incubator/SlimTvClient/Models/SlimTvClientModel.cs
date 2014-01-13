@@ -57,6 +57,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public const string KEY_PROGRAM_ID = "ProgramId";
     public const string KEY_CHANNEL_ID = "ChannelId";
     public const string KEY_GROUP_ID = "GroupId";
+    public const string KEY_SCHEDULE = "Schedule";
+    public const string KEY_MODE = "Mode";
 
     #region Constants
 

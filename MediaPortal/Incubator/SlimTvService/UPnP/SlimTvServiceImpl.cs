@@ -289,6 +289,18 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(removeSchedule);
 
+      DvAction getProgramsForSchedule = new DvAction(Consts.ACTION_GET_PROGRAMS_FOR_SCHEDULE, OnGetProgramsForSchedule,
+                       new[]
+                                     {
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.In),
+                                     },
+                       new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Programs", A_ARG_TYPE_Programs, ArgumentDirection.Out, false)
+                                     });
+      AddAction(getProgramsForSchedule);
+
       DvAction getRecordingStatus = new DvAction(Consts.ACTION_GET_REC_STATUS, OnGetRecordingStatus,
                             new[]
                                      {
@@ -561,6 +573,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       bool result = scheduleControl.RemoveSchedule(schedule);
 
       outParams = new List<object> { result };
+      return null;
+    }
+
+    private UPnPError OnGetProgramsForSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      ISchedule schedule = (ISchedule)inParams[0];
+      IList<IProgram> programs;
+      bool result = scheduleControl.GetProgramsForSchedule(schedule, out programs);
+
+      outParams = new List<object> { result, programs };
       return null;
     }
 
