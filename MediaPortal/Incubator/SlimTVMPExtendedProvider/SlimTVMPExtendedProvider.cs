@@ -59,6 +59,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       public ITVAccessService TvServer;
       public bool ConnectionOk;
       public bool IsLocalConnection;
+      public DateTime LastCheckTime = DateTime.MinValue;
       public ChannelFactory<ITVAccessService> Factory;
 
       public static bool IsLocal(string host)
@@ -67,7 +68,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           return true;
 
         string lowerHost = host.ToLowerInvariant();
-        return lowerHost == "localhost" || lowerHost == LocalSystem.ToLowerInvariant() || host == "127.0.0.1" || host == "::1";
+        return lowerHost == "localhost" || lowerHost == LOCAL_SYSTEM.ToLowerInvariant() || host == "127.0.0.1" || host == "::1";
       }
 
       public void CreateChannel()
@@ -111,20 +112,22 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     private const string RES_TV_CONNECTION_ERROR_TITLE = "[Settings.Plugins.TV.ConnectionErrorTitle]";
     private const string RES_TV_CONNECTION_ERROR_TEXT = "[Settings.Plugins.TV.ConnectionErrorText]";
     private const int MAX_RECONNECT_ATTEMPTS = 2;
+    private const int CONNECTION_CHECK_INTERVAL_SEC = 5;
+    private static readonly string LOCAL_SYSTEM = SystemName.LocalHostName;
 
     #endregion
 
     #region Fields
 
-    private static readonly string LocalSystem = SystemName.LocalHostName;
     private readonly IChannel[] _channels = new IChannel[2];
     private ServerContext[] _tvServers;
     private int _reconnectCounter = 0;
-    protected Dictionary<int, IChannel> _channelCache = new Dictionary<int, IChannel>();
+    private readonly Dictionary<int, IChannel> _channelCache = new Dictionary<int, IChannel>();
 
     // Handling of changed connection details.
     private readonly SettingsChangeWatcher<MPExtendedProviderSettings> _settings = new SettingsChangeWatcher<MPExtendedProviderSettings>();
     private string _serverNames = null;
+    private readonly TimeSpan _checkDuration = TimeSpan.FromSeconds(CONNECTION_CHECK_INTERVAL_SEC);
 
     #endregion
 
@@ -187,7 +190,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public String GetTimeshiftUserName(int slotIndex)
     {
-      return String.Format("STC_{0}_{1}", LocalSystem, slotIndex);
+      return String.Format("STC_{0}_{1}", LOCAL_SYSTEM, slotIndex);
     }
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
@@ -256,11 +259,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       ServerContext tvServer = _tvServers[serverIndex];
       try
       {
-        tvServer.ConnectionOk = tvServer.Factory.State == CommunicationState.Opened;
-        reconnect = !tvServer.ConnectionOk;
+        DateTime now = DateTime.Now;
+        if (now - tvServer.LastCheckTime > _checkDuration && tvServer.TvServer != null)
+        {
+          tvServer.ConnectionOk = tvServer.TvServer.TestConnectionToTVService();
+          tvServer.LastCheckTime = now;
+        }
 
-        if (!reconnect)
-          _reconnectCounter = 0;
+        _reconnectCounter = 0;
       }
       catch (CommunicationObjectFaultedException)
       {
@@ -684,7 +690,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
-      throw new NotImplementedException();
+      //Schedule indexSchedule = (Schedule)schedule;
+      //programs = null;
+      //if (!CheckConnection(indexSchedule.ServerIndex))
+      //  return false;
+
+      programs = new List<IProgram>();
+      ServiceRegistration.Get<ILogger>().Error("SlimTV MPExtendedProvider: GetProgramsForSchedule is not implemented!");
+      return false;
     }
 
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
@@ -709,7 +722,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       try
       {
         // Note: the enums WebScheduleType and ScheduleRecordingType are defined equally. If one of them gets extended, the other must be changed the same way.
-        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (WebScheduleType) recordingType);
+        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (WebScheduleType)recordingType);
       }
       catch
       {
