@@ -4,8 +4,16 @@
     PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}"
     Author="Morpheus_xx"
     Copyright="GPL"
-    Description="Library plugin providing the Matroska metadata extractor functionality needed for some default metadata extractors"
-    PluginVersion="5.9.0">
+    Description="Library plugin providing the Matroska metadata extractor functionality needed for some default metadata extractors">
+
+  <Version
+    PluginVersion="5.9.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="MatroskaLib.dll"/>

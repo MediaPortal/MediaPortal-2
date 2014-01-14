@@ -5,8 +5,17 @@
     Author="Morpheus_xx"
     Copyright="GPL"
     AutoActivate="true"
-    Description="Provides database access to a MySQL database"
-    PluginVersion="1.0">
+    Description="Provides database access to a MySQL database">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="MySQLDatabase.dll"/>

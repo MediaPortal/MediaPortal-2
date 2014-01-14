@@ -4,8 +4,16 @@
     PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"
     Author="Team MediaPortal, Third party: Jerome Martinez"
     Copyright="GPL"
-    Description="Library plugin providing the MediaInfo functionality needed for some default metadata extractors"
-    PluginVersion="1.0">
+    Description="Library plugin providing the MediaInfo functionality needed for some default metadata extractors">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="MediaInfoLib.dll"/>

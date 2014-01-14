@@ -18,4 +18,7 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("aea0002c-6ece-49ef-96c1-e10948ffd89a")]
 
+// Identify this assembly as a core component of MediaPortal2 and give info about the API level
+[assembly: MediaPortal.Attributes.CoreAPI(1, MinCompatibleAPI = 1)]
+
 // Other attributes are included from VersionInfo.cs!

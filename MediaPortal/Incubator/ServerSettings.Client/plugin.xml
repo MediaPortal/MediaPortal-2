@@ -4,13 +4,21 @@
     PluginId="{952BF8BC-04A3-4B6D-A25E-1ED6080278F6}"
     Author="Morpheus_xx"
     Copyright="GPL"
-    Description="Provides services for remote configuration of server settings"
-    PluginVersion="1.0">
+    Description="Provides services for remote configuration of server settings">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/>    <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/>    <!-- Configuration plugin -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+    <PluginReference PluginId="{B1F33F5C-3E2C-4151-9DCE-9F965CA5CDFC}" CompatibleAPI="1"/>    <!-- NetworkNeighborhoodResourceProvider -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>    <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>    <!-- Configuration plugin -->
   </DependsOn>
 
   <Runtime>

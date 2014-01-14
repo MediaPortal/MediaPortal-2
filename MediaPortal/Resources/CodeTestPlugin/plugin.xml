@@ -4,8 +4,18 @@
     PluginId="{96CDD6D8-BC76-421F-AE22-956DE6857FA0}"
     Author="Albert"
     Copyright="GPL"
-    Description="Test Plugin for executing test code fragments"
-    PluginVersion="1.0">
+    Description="Test Plugin for executing test code fragments">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="CodeTestPlugin.dll"/>

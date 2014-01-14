@@ -56,8 +56,11 @@ namespace MediaPortal.Common.Services.PluginManager
     protected string _author = null;
     protected string _description = null;
     protected string _version = null;
+    protected DateTime _releaseDate = DateTime.MinValue;
+    protected int _currentAPI = -1;
+    protected int _minCompatibleAPI = -1;
     protected bool _autoActivate = false;
-    protected ICollection<Guid> _dependsOn = new List<Guid>();
+    protected IList<PluginDependencyInfo> _dependsOn = new List<PluginDependencyInfo>();
     protected ICollection<Guid> _conflictsWith = new List<Guid>();
     protected string _stateTrackerClassName = null;
     protected ICollection<string> _assemblyFilePaths = new List<string>();
@@ -128,9 +131,6 @@ namespace MediaPortal.Common.Services.PluginManager
                 case "Description":
                   _description = attrNav.Value;
                   break;
-                case "PluginVersion":
-                  _version = attrNav.Value;
-                  break;
                 case "AutoActivate":
                   _autoActivate = Boolean.Parse(attrNav.Value);
                   break;
@@ -150,6 +150,9 @@ namespace MediaPortal.Common.Services.PluginManager
             {
               switch (childNav.LocalName)
               {
+                case "Version":
+                  ParseVersionElement(childNav.Clone());
+                  break;
                 case "Runtime":
                   ParseRuntimeElement(childNav.Clone(), pluginDirectoryPath);
                   break;
@@ -162,7 +165,7 @@ namespace MediaPortal.Common.Services.PluginManager
                   CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childNav.Clone()));
                   break;
                 case "DependsOn":
-                  CollectionUtils.AddAll(_dependsOn, ParsePluginIdEnumeration(childNav.Clone()));
+                  CollectionUtils.AddAll(_dependsOn, ParsePluginDependencies(childNav.Clone()));
                   break;
                 case "ConflictsWith":
                   CollectionUtils.AddAll(_conflictsWith, ParsePluginIdEnumeration(childNav.Clone()));
@@ -348,6 +351,115 @@ namespace MediaPortal.Common.Services.PluginManager
         } while (childNav.MoveToNext(XPathNodeType.Element));
     }
 
+    /// <summary>
+    /// Processes an element containing a collection of <i>&lt;PluginReference PluginId="..."/&gt;</i> sub elements and
+    /// returns an enumeration of the referenced ids.
+    /// </summary>
+    /// <param name="enumNavigator">XPath navigator pointing to an element containing the &lt;PluginReference PluginId="..."/&gt;
+    /// sub elements.</param>
+    /// <returns>Enumeration of parsed plugin ids.</returns>
+    protected static IEnumerable<PluginDependencyInfo> ParsePluginDependencies(XPathNavigator enumNavigator)
+    {
+      if (enumNavigator.HasAttributes)
+        throw new ArgumentException(string.Format("'{0}' element mustn't contain any attributes", enumNavigator.Name));
+      XPathNavigator childNav = enumNavigator.Clone();
+      if (childNav.MoveToChild(XPathNodeType.Element))
+        do
+        {
+          switch (childNav.LocalName)
+          {
+            case "PluginReference":
+              Guid? id = null;
+              int compatibleAPI = -1;
+              XPathNavigator attrNav = childNav.Clone();
+              if (attrNav.MoveToFirstAttribute())
+                do
+                {
+                  switch (attrNav.Name)
+                  {
+                    case "PluginId":
+                      id = Guid.Parse(attrNav.Value);
+                      break;
+                    case "CompatibleAPI":
+                      compatibleAPI = int.Parse(attrNav.Value);
+                      break;
+                    default:
+                      throw new ArgumentException("'PluginReference' sub element doesn't support an attribute '" + attrNav.Name + "'");
+                  }
+                } while (attrNav.MoveToNextAttribute());
+              if (id == null)
+                throw new ArgumentException("'PluginReference' sub element needs an attribute 'PluginId'");
+              if (compatibleAPI <= 0)
+                throw new ArgumentException("'PluginReference' sub element needs an attribute 'CompatibleAPI'");
+              yield return new PluginDependencyInfo(id.Value, compatibleAPI);
+              break;
+            case "CoreDependency":
+              string name = null;
+              int compatibleCoreAPI = -1;
+              XPathNavigator attrNavCoreDep = childNav.Clone();
+              if (attrNavCoreDep.MoveToFirstAttribute())
+                do
+                {
+                  switch (attrNavCoreDep.Name)
+                  {
+                    case "Name":
+                      name = attrNavCoreDep.Value;
+                      break;
+                    case "CompatibleAPI":
+                      compatibleCoreAPI = int.Parse(attrNavCoreDep.Value);
+                      break;
+                    default:
+                      throw new ArgumentException("'CoreDependency' sub element doesn't support an attribute '" + attrNavCoreDep.Name + "'");
+                  }
+                } while (attrNavCoreDep.MoveToNextAttribute());
+              if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("'CoreDependency' sub element needs an attribute 'Name'");
+              if (compatibleCoreAPI <= 0)
+                throw new ArgumentException("'CoreDependency' sub element needs an attribute 'CompatibleAPI'");
+              yield return new PluginDependencyInfo(name, compatibleCoreAPI);
+              break;
+            default:
+              throw new ArgumentException("'" + enumNavigator.Name + "' element doesn't support a child element '" + childNav.Name + "'");
+          }
+        } while (childNav.MoveToNext(XPathNodeType.Element));
+    }
+
+    protected void ParseVersionElement(XPathNavigator versionNavigator)
+    {
+      XPathNavigator attrNav = versionNavigator.Clone();
+      if (attrNav.MoveToFirstAttribute())
+        do
+        {
+          switch (attrNav.Name)
+          {
+            case "PluginVersion":
+              _version = attrNav.Value;
+              break;
+            case "ReleaseDate":
+              _releaseDate = DateTime.ParseExact(attrNav.Value, "yyyy-MM-dd HH:mm:ss \"GMT\"zzz", System.Globalization.CultureInfo.InvariantCulture);
+              break;
+            case "CurrentAPI":
+              _currentAPI = int.Parse(attrNav.Value);
+              break;
+            case "MinCompatibleAPI":
+              _minCompatibleAPI = int.Parse(attrNav.Value);
+              break;
+            default:
+              throw new ArgumentException("'Version' element doesn't support an attribute '" + attrNav.Name + "'");
+          }
+        } while (attrNav.MoveToNextAttribute());
+      if (string.IsNullOrWhiteSpace(_version))
+        throw new ArgumentException("'Version' sub element needs an attribute 'PluginVersion'");
+      if (_releaseDate == DateTime.MinValue)
+        throw new ArgumentException("'Version' sub element needs an attribute 'ReleaseDate'");
+      if (_currentAPI <= 0)
+        throw new ArgumentException("'Version' sub element needs an attribute 'CurrentAPI'");
+      if (_minCompatibleAPI > _currentAPI)
+        throw new ArgumentException("'Version' sub element's attribute 'MinCompatibleAPI' can't have a higher value than 'CurrentAPI'");
+      if (_minCompatibleAPI <= 0)
+        _minCompatibleAPI = _currentAPI;
+    }
+
     #endregion
 
     #region IPluginMetadata implementation
@@ -382,12 +494,27 @@ namespace MediaPortal.Common.Services.PluginManager
       get { return _version; }
     }
 
+    public DateTime ReleaseDate
+    {
+      get { return _releaseDate; }
+    }
+
+    public int CurrentAPI
+    {
+      get { return _currentAPI; }
+    }
+
+    public int MinCompatibleAPI
+    {
+      get { return _minCompatibleAPI; }
+    }
+
     public bool AutoActivate
     {
       get { return _autoActivate; }
     }
 
-    public ICollection<Guid> DependsOn
+    public IList<PluginDependencyInfo> DependsOn
     {
       get { return _dependsOn; }
     }

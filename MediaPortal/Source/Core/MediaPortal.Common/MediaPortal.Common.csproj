@@ -58,6 +58,7 @@
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="Network\UriExtension.cs" />
+    <Compile Include="PluginManager\PluginDependencyInfo.cs" />
     <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
