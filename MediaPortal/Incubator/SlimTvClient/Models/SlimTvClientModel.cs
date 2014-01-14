@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
@@ -38,7 +39,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using Timer = System.Timers.Timer;
 
@@ -526,6 +529,68 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _zapChannelIndex = _channels.Count - 1;
 
       ReSetSkipTimer();
+    }
+
+    /// <summary>
+    /// Presents a dialog with recording options.
+    /// </summary>
+    public void RecordDialog()
+    {
+      if (InitActionsList())
+      {
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+        screenManager.ShowDialog("DialogClientModel");
+      }
+    }
+
+    private bool InitActionsList()
+    {
+      _dialogActionsList.Clear();
+      DialogHeader = "[SlimTvClient.RecordActions]";
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
+      if (playerContext == null)
+        return false;
+      LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+      LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+      if (liveTvMediaItem == null || player == null)
+        return false;
+
+      ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+      if (context == null || context.Channel == null)
+        return false;
+
+      IProgram programNow;
+      IProgram programNext;
+      ListItem item;
+      ILocalization localization = ServiceRegistration.Get<ILocalization>();
+      bool isRecording = false;
+      if (_tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out programNow, out programNext))
+      {
+        var recStatus = GetRecordingStatus(programNow);
+        isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Recording);
+        item = new ListItem(Consts.KEY_NAME, localization.ToString(isRecording ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.RecordCurrentProgram]", programNow.Title))
+        {
+          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
+        };
+        _dialogActionsList.Add(item);
+      }
+      if (!isRecording)
+      {
+        item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
+        {
+          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(new Program
+          {
+            Title = localization.ToString("[SlimTvClient.ManualRecordingTitle]"),
+            ChannelId = context.Channel.ChannelId,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now.AddDays(1)
+          }))
+        };
+        _dialogActionsList.Add(item);
+      }
+      _dialogActionsList.FireChange();
+      return true;
     }
 
     /// <summary>

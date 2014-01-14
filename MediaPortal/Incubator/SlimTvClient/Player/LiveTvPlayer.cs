@@ -73,6 +73,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
 
+    public IList<ITimeshiftContext> TimeshiftContexes
+    {
+      get { return new List<ITimeshiftContext>(_timeshiftContexes).AsReadOnly(); }
+    }
+
     public ITimeshiftContext CurrentTimeshiftContext
     {
       get

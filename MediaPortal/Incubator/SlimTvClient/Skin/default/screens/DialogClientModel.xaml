@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
+
+    <!-- SlimTvClientModel model -->
+    <Model x:Key="SlimTvClientModel" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource SlimTvClientModel},Path=DialogHeader}"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource SlimTvClientModel},Path=DialogActionsList,Mode=OneTime}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil" Source="{StaticResource SlimTvClientModel}" Path="ExecProgramAction"/>
+  </Include.Resources>
+</Include>

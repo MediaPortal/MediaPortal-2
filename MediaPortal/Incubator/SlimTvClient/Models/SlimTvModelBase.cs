@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -52,6 +53,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected IList<IProgram> _programs;
     protected bool _isInitialized;
+
+    protected AbstractProperty _dialogHeaderProperty = null;
+    protected readonly ItemsList _dialogActionsList = new ItemsList();
 
     #endregion
 
@@ -164,6 +168,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdatePrograms();
     }
 
+    /// <summary>
+    /// Exposes the list of available series recording types or other user choices.
+    /// </summary>
+    public ItemsList DialogActionsList
+    {
+      get { return _dialogActionsList; }
+    }
+
+    /// <summary>
+    /// Exposes the user dialog header.
+    /// </summary>
+    public string DialogHeader
+    {
+      get { return (string)_dialogHeaderProperty.GetValue(); }
+      set { _dialogHeaderProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the user dialog header.
+    /// </summary>
+    public AbstractProperty DialogHeaderProperty
+    {
+      get { return _dialogHeaderProperty; }
+    }
 
     public void ExecProgramAction(ListItem item)
     {
@@ -190,6 +218,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _tvHandler = tvHandler;
       }
       _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
+
+      _dialogHeaderProperty = new WProperty(typeof(string), string.Empty);
 
       GetCurrentChannelGroup();
       FillChannelGroupList();
@@ -252,6 +282,46 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (_tvHandler.ChannelAndGroupInfo != null)
         _tvHandler.ChannelAndGroupInfo.SelectedChannelId = _channels[_webChannelIndex].ChannelId;
+    }
+
+    #endregion
+
+    #region Recording related
+
+    protected virtual RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    {
+      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      RecordingStatus? newStatus = null;
+      if (scheduleControl != null)
+      {
+        RecordingStatus? recordingStatus = GetRecordingStatus(program);
+        if (!recordingStatus.HasValue)
+          return null;
+        if (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled))
+        {
+          if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
+            newStatus = RecordingStatus.None;
+        }
+        else
+        {
+          ISchedule schedule;
+          if (scheduleControl.CreateSchedule(program, recordingType, out schedule))
+            newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
+        }
+      }
+      return newStatus;
+    }
+
+    protected virtual RecordingStatus? GetRecordingStatus(IProgram program)
+    {
+      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      if (scheduleControl == null)
+        return null;
+
+      RecordingStatus recordingStatus;
+      if (scheduleControl.GetRecordingStatus(program, out recordingStatus))
+        return recordingStatus;
+      return null;
     }
 
     #endregion

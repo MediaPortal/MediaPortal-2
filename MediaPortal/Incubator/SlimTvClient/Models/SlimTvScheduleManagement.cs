@@ -48,9 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _scheduleTypeProperty = null;
     protected AbstractProperty _startTimeProperty = null;
     protected AbstractProperty _endTimeProperty = null;
-    protected AbstractProperty _dialogHeaderProperty = null;
     protected readonly ItemsList _schedulesList = new ItemsList();
-    protected readonly ItemsList _dialogActionsList = new ItemsList();
 
     #endregion
 
@@ -113,31 +111,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public ItemsList SchedulesList
     {
       get { return _schedulesList; }
-    }
-
-    /// <summary>
-    /// Exposes the list of available series recording types or other user choices.
-    /// </summary>
-    public ItemsList DialogActionsList
-    {
-      get { return _dialogActionsList; }
-    }
-
-    /// <summary>
-    /// Exposes the user dialog header.
-    /// </summary>
-    public string DialogHeader
-    {
-      get { return (string)_dialogHeaderProperty.GetValue(); }
-      set { _dialogHeaderProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes the user dialog header.
-    /// </summary>
-    public AbstractProperty DialogHeaderProperty
-    {
-      get { return _dialogHeaderProperty; }
     }
 
     /// <summary>
@@ -261,7 +234,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (!_isInitialized)
       {
-        _dialogHeaderProperty = new WProperty(typeof(string), string.Empty);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleTypeProperty = new WProperty(typeof(string), string.Empty);

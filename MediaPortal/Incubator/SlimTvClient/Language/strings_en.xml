@@ -28,6 +28,12 @@
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
 
   <!-- Extended recording features -->
+  <string name="SlimTvClient.RecordActions">Recording actions</string>
+  <string name="SlimTvClient.StopCurrentRecording">Stop current recording '{0}'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Record program '{0}'</string>
+  <string name="SlimTvClient.RecordManual">Record until stopped manually</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Manual Recording</string>
+  
   <string name="SlimTvClient.RecordProgram">Record program</string>
   <string name="SlimTvClient.DontRecordProgram">Don't record</string>
   <string name="SlimTvClient.RecordSeries">Record series</string>

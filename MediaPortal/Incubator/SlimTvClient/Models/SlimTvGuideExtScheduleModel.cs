@@ -57,9 +57,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _isSingleRecordingScheduledProperty = null;
     protected AbstractProperty _isSeriesRecordingScheduledProperty = null;
-    protected AbstractProperty _dialogHeaderProperty = null;
     protected readonly ItemsList _programsList = new ItemsList();
-    protected readonly ItemsList _dialogActionsList = new ItemsList();
 
     #endregion
 
@@ -116,31 +114,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public ItemsList ProgramsList
     {
       get { return _programsList; }
-    }
-
-    /// <summary>
-    /// Exposes the list of available series recording types or other user choices.
-    /// </summary>
-    public ItemsList DialogActionsList
-    {
-      get { return _dialogActionsList; }
-    }
-
-    /// <summary>
-    /// Exposes the user dialog header.
-    /// </summary>
-    public string DialogHeader
-    {
-      get { return (string)_dialogHeaderProperty.GetValue(); }
-      set { _dialogHeaderProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes the user dialog header.
-    /// </summary>
-    public AbstractProperty DialogHeaderProperty
-    {
-      get { return _dialogHeaderProperty; }
     }
 
     public void RecordSingleProgram()
@@ -206,7 +179,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
-        _dialogHeaderProperty = new WProperty(typeof(string), string.Empty);
         _isSingleRecordingScheduledProperty = new WProperty(typeof(bool), false);
         _isSeriesRecordingScheduledProperty = new WProperty(typeof(bool), false);
       }
@@ -363,26 +335,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _programsList.FireChange();
     }
 
-    private RecordingStatus CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    protected override RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
       _lastProgramId = program.ProgramId;
-      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
-      RecordingStatus? newStatus = null;
-      if (scheduleControl != null)
-      {
-        RecordingStatus recordingStatus;
-        if (scheduleControl.GetRecordingStatus(program, out recordingStatus) && (recordingStatus.HasFlag(RecordingStatus.Scheduled) || recordingStatus.HasFlag(RecordingStatus.SeriesScheduled)))
-        {
-          if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
-            newStatus = RecordingStatus.None;
-        }
-        else
-        {
-          ISchedule schedule;
-          if (scheduleControl.CreateSchedule(program, recordingType, out schedule))
-            newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
-        }
-      }
+      var newStatus = base.CreateOrDeleteSchedule(program, recordingType);
 
       UpdateButtonStateForSchedule();
 
