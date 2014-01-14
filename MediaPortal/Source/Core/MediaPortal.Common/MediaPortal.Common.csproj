@@ -71,6 +71,7 @@
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
     <Compile Include="Network\UriExtension.cs" />
+    <Compile Include="PluginManager\PluginDependencyInfo.cs" />
     <Compile Include="ResourceAccess\IResourceDeletor.cs" />
     <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />

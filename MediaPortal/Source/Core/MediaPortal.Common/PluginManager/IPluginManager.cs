@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager.Exceptions;
 
 namespace MediaPortal.Common.PluginManager
@@ -62,7 +63,13 @@ namespace MediaPortal.Common.PluginManager
     PluginManagerState State { get; }
 
     /// <summary>
-    /// Returns a dictionary containing the names of all plugins known by the plugin manager,
+    /// Returns a dictionary containing the names of all core components known by the plugin manager,
+    /// mapped to their API information.
+    /// </summary>
+    IDictionary<string, CoreAPIAttribute> CoreComponents { get; }
+
+    /// <summary>
+    /// Returns a dictionary containing the guids of all plugins known by the plugin manager,
     /// mapped to their plugin runtime descriptors.
     /// </summary>
     IDictionary<Guid, PluginRuntime> AvailablePlugins { get; }

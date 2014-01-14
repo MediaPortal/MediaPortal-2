@@ -12,6 +12,11 @@
     <Assembly FileName="SQLiteDatabase.dll"/>
   </Runtime>
 
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+  </DependsOn>
+
   <Register Location="/Services">
     <Service Id="SQLiteDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
         RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.SQLite.SQLiteDatabase"/>

@@ -53,6 +53,7 @@
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Attributes\CoreAPIAttribute.cs" />
     <Compile Include="Cache\ILRUCache.cs" />
     <Compile Include="Cache\SmallLRUCache.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />

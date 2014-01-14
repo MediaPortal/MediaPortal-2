@@ -4,15 +4,22 @@
     PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"
     Author="Albert"
     Copyright="GPL"
-    Description="Shows settings to be edited in the MediaPortal 2 GUI"
-    PluginVersion="1.0">
+    Description="Shows settings to be edited in the MediaPortal 2 GUI">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <Runtime>
     <Assembly FileName="Configuration.dll"/>
   </Runtime>
 
   <DependsOn>
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
   </DependsOn>
 
   <Register Location="/Models">

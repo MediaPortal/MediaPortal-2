@@ -64,6 +64,21 @@ namespace MediaPortal.Common.PluginManager
     string PluginVersion { get; }
 
     /// <summary>
+    /// Returns the release date of this version of the plugin.
+    /// </summary>
+    DateTime ReleaseDate { get; }
+		
+    /// <summary>
+    /// Returns the current API level of this version of the plugin.
+    /// </summary>
+    int CurrentAPI { get; }
+		
+    /// <summary>
+    /// Returns the minimum API level of this plugin that is compatible with the current API level of this plugin's version.
+    /// </summary>
+    int MinCompatibleAPI { get; }
+
+    /// <summary>
     /// Gets the information if this plugin should be automatically activated when enabled.
     /// </summary>
     bool AutoActivate { get; }
@@ -71,7 +86,7 @@ namespace MediaPortal.Common.PluginManager
     /// <summary>
     /// Returns a collection of names of plugins, this plugin depends on.
     /// </summary>
-    ICollection<Guid> DependsOn { get; }
+    IList<PluginDependencyInfo> DependsOn { get; }
 
     /// <summary>
     /// Returns a collection of names of plugins, this plugin stands in conflict with.
