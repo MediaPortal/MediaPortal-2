@@ -429,10 +429,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, canceledProgram.IdChannel, canceledProgram.StartTime);
       canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
-      // If this program was cancelled, also reset the Program's state, as it is no longer scheduled
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
-      canceledProgram.State = 0;
-      programService.SaveProgram(canceledProgram);
+      StopRecording(schedule);
     }
 
     private void CancelFullSchedule(Schedule schedule)
@@ -456,7 +453,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         schedule = spawn;
     }
 
-    private bool StopRecording(Schedule schedule)
+    private static bool StopRecording(Schedule schedule)
     {
       bool stoppedRec = false;
       bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.IdSchedule);

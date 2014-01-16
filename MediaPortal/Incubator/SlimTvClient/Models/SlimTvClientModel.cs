@@ -568,7 +568,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out programNow, out programNext))
       {
         var recStatus = GetRecordingStatus(programNow);
-        isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Recording);
+        isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Scheduled | RecordingStatus.Recording);
         item = new ListItem(Consts.KEY_NAME, localization.ToString(isRecording ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.RecordCurrentProgram]", programNow.Title))
         {
           Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
