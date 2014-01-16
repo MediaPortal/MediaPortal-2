@@ -451,7 +451,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    internal void Tune(IChannel channel)
+    public void Tune(IChannel channel)
     {
       // Specical case of this model, which is also used as normal backing model for OSD, where no WorkflowManager action was performed.
       if (!_isInitialized) InitModel();
@@ -715,11 +715,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       PiPAvailable = true;
 
-      // Update timeshift contexes for program changes. Only every 10 * 500 msec.
-      _updateCounter = ++_updateCounter % 10;
-      if (_updateCounter == 0)
-        _tvHandler.Update();
-
       // Update current programs for all channels of current group (visible inside MiniGuide).
       UpdateAllCurrentPrograms();
 
@@ -728,29 +723,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext != null)
       {
-        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
         LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
-        if (liveTvMediaItem != null && player != null)
+        if (player != null)
         {
-          ITimeshiftContext context = player.CurrentTimeshiftContext;
+          ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
           IProgram currentProgram = null;
           IProgram nextProgram = null;
           if (context != null)
           {
             ChannelName = context.Channel.Name;
-            currentProgram = context.Program;
-            if (currentProgram != null)
+            if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out currentProgram, out nextProgram))
             {
-              currentProgram = context.Program;
               double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
                                 (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
               _programProgressProperty.SetValue(progress);
-
-              IList<IProgram> nextPrograms;
-              DateTime nextTime = currentProgram.EndTime.Add(TimeSpan.FromSeconds(10));
-              IProgramInfo programInfo = _tvHandler.ProgramInfo;
-              if (programInfo != null && programInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms))
-                nextProgram = nextPrograms[0];
             }
           }
           CurrentProgram.SetProgram(currentProgram);

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -244,23 +245,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     /// <param name="channel">Current channel.</param>
     private bool AddOrUpdateTimeshiftContext(LiveTvMediaItem timeshiftMediaItem, IChannel channel)
     {
-      IProgram program = GetCurrentProgram(channel);
-      TimeshiftContext tsContext = new TimeshiftContext
-                                     {
-                                       Channel = channel,
-                                       Program = program,
-                                       TuneInTime = DateTime.Now
-                                     };
-
-      int tc = timeshiftMediaItem.TimeshiftContexes.Count;
-      if (tc > 0)
-      {
-        ITimeshiftContext lastContext = timeshiftMediaItem.TimeshiftContexes[tc - 1];
-        // If we are not changing the channel but trying to update current program only, we need to exit here if programs is still the same
-        if (ProgramComparer.Instance.Equals(lastContext.Program, program))
-          return false; // Nothing changed
-        lastContext.TimeshiftDuration = DateTime.Now - lastContext.TuneInTime;
-      }
+      TimeshiftContext tsContext = new TimeshiftContext { Channel = channel };
+      // Remove the newly tuned channel from history if present
+      timeshiftMediaItem.TimeshiftContexes.Where(tc=>tc.Channel.ChannelId == channel.ChannelId).ToList().
+        ForEach(context => timeshiftMediaItem.TimeshiftContexes.Remove(context));
+      // Then add the new context to the end
       timeshiftMediaItem.TimeshiftContexes.Add(tsContext);
       timeshiftMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
       return true;
@@ -284,41 +273,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         {
           // Switch MediaItem in current slot, the LiveTvPlayer implements IReusablePlayer and will change its source without need to change full player.
           playerContext.DoPlay(newLiveTvMediaItem);
+          // Copy old channel history into new item
+          liveTvMediaItem.TimeshiftContexes.ToList().ForEach(tc => newLiveTvMediaItem.TimeshiftContexes.Add(tc));
           // Use new MediaItem, so new context will be added to new instance.
           liveTvMediaItem = newLiveTvMediaItem;
         }
         // Add new timeshift context
         AddOrUpdateTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
       }
-    }
-
-    /// <summary>
-    /// Updates all active timeshift contexes to match current running program.
-    /// </summary>
-    public bool Update()
-    {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      bool changed = false;
-      for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
-      {
-        IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
-        if (playerContext == null)
-          continue;
-        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-        if (liveTvMediaItem == null)
-          continue;
-
-        // Update timeshift context
-        if (AddOrUpdateTimeshiftContext(liveTvMediaItem, liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel))
-        {
-          LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
-          if (player != null)
-            player.OnProgramChange();
-
-          changed = true;
-        }
-      }
-      return changed;
     }
 
     /// <summary>
