@@ -28,6 +28,7 @@ using System.Net;
 using System.Net.Cache;
 using FreeImageAPI;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -350,6 +351,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public class AsyncWebLoadOperation : AsyncLoadOperation
     {
+      protected static SystemName _localSystem = SystemName.GetLocalSystemName();
       protected WebClient _webClient;
       protected Uri _uri;
 
@@ -363,7 +365,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
           };
         _webClient.DownloadDataCompleted += DownloadComplete;
-        if (NetworkConnectionTracker.IsNetworkConnected || uri.IsLoopback)
+        if (NetworkConnectionTracker.IsNetworkConnected || _localSystem.IsAddressOrAlias(uri.Host))
           _webClient.DownloadDataAsync(uri, null);
         else
         {

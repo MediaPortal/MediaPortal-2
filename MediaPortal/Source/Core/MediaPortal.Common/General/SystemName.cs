@@ -138,6 +138,12 @@ namespace MediaPortal.Common.General
       get { return _hostName; }
     }
 
+    public bool IsAddressOrAlias(string address)
+    {
+      var cnAddr = GetCanonicalForm(address);
+      return _aliases.Any(a => string.Equals(a, cnAddr, StringComparison.InvariantCultureIgnoreCase));
+    }
+
     public bool IsLocalSystem()
     {
       // localhost, 127.0.0.1, [::1]
@@ -209,7 +215,7 @@ namespace MediaPortal.Common.General
         return false;
       if (IsLocalSystem() && obj.IsLocalSystem())
         return true;
-      return _aliases.Any(alias => alias == obj._address);
+      return IsAddressOrAlias(obj._address);
     }
 
     public override bool Equals(object obj)
