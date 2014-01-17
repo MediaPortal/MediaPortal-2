@@ -191,15 +191,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
         return true;
 
       // We need to know the base url of the server's remote access service, so we can use the IP and port number.
-      IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      string resourceUrl;
-      IPAddress localIpAddress;
-      if (!rris.GetFileHttpUrl(scm.HomeServerSystemId, ResourcePath.BuildBaseProviderPath(Guid.Empty, string.Empty), out resourceUrl, out localIpAddress))
-        return false;
+      try
+      {
+        IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+        string resourceUrl;
+        IPAddress localIpAddress;
+        if (!rris.GetFileHttpUrl(scm.HomeServerSystemId, ResourcePath.BuildBaseProviderPath(Guid.Empty, string.Empty), out resourceUrl, out localIpAddress))
+          return false;
 
-      Uri uri = new Uri(resourceUrl);
-      _baseUrl = uri.Authority;
-      return true;
+        Uri uri = new Uri(resourceUrl);
+        _baseUrl = uri.Authority;
+        return true;
+      }
+      catch
+      {
+        return false;
+      }
     }
 
     protected void UpdateSource(AbstractProperty property, object oldvalue)
