@@ -293,7 +293,11 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="cityToRefresh">City which should be refreshed.</param>
     private void StartBackgroundRefresh(City cityToRefresh)
     {
-      ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
+      // Avoid additional refreshs while one is active
+      if (!IsUpdating)
+        ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
+      else
+        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Skipping refresh, it's already running in background.");
     }
 
     /// <summary>
