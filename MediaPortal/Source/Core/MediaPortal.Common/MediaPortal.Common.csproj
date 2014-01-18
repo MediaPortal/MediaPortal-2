@@ -42,7 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\..\..\Packages\log4net.oldkey.1.2.11\lib\net40\log4net.dll</HintPath>
+      <HintPath>..\..\..\Packages\log4net.oldkey.1.2.13\lib\net40\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
