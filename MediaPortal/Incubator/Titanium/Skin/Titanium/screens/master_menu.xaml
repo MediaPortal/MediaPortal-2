@@ -109,11 +109,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
               </DataTrigger.ExitActions>
 
-              <!-- Test: Set focus to opened menu (not working!) -->
               <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />
               <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
-              <!-- Enable ListView to allow focusing buttons-->
-              <Setter TargetName="MainMenu" Property="IsEnabled" Value="True" />
             </DataTrigger>
           </Grid.Triggers>
 
@@ -131,7 +128,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ListView x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}" Margin="20,10,70,10"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
-              IsEnabled="False">
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
