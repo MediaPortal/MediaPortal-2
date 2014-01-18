@@ -784,7 +784,7 @@ namespace MediaPortal.Common.Services.PluginManager
     public bool TryEnable(PluginRuntime plugin, bool doAutoActivate)
     {
       ICollection<PluginRuntime> autoActivatePlugins = new List<PluginRuntime>();
-      bool result = TryEnable(plugin, autoActivatePlugins);
+      bool result = TryEnable(plugin, autoActivatePlugins, new HashSet<Guid>());
       if (doAutoActivate)
         foreach (PluginRuntime autoActivatePlugin in autoActivatePlugins)
           TryActivate(autoActivatePlugin);
@@ -799,8 +799,11 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <param name="autoActivatePlugins">This collection will be filled with plugins which have their auto-activate flag set.</param>
     /// <returns><c>true</c>, if the specified <paramref name="plugin"/> and all its dependencies could
     /// be enabled, else <c>false</c>.</returns>
-    protected bool TryEnable(PluginRuntime plugin, ICollection<PluginRuntime> autoActivatePlugins)
+    protected bool TryEnable(PluginRuntime plugin, ICollection<PluginRuntime> autoActivatePlugins, HashSet<Guid> pluginsPendingActivation)
     {
+      if (pluginsPendingActivation.Contains(plugin.Metadata.PluginId))
+        return true;
+
       LockPluginStateDependency(plugin, false); // First lock for read
       ICollection<PluginRuntime> lockedPluginStates = new List<PluginRuntime> {plugin};
       try
@@ -822,6 +825,8 @@ namespace MediaPortal.Common.Services.PluginManager
           return false;
         }
 
+        pluginsPendingActivation.Add(plugin.Metadata.PluginId);
+
         // Handle dependencies
         ICollection<PluginRuntime> pendingChildRegistrations = new List<PluginRuntime>();
         foreach (PluginDependencyInfo parentDependency in plugin.Metadata.DependsOn)
@@ -835,16 +840,21 @@ namespace MediaPortal.Common.Services.PluginManager
                 logger.Warn("Plugin {0}: Dependency '{1}' is not available", pluginDisplayName, parentDependency.PluginId);
                 return false;
               }
-            if (!TryEnable(parentPlugin, autoActivatePlugins))
+            if (!pluginsPendingActivation.Contains(parentPlugin.Metadata.PluginId))
             {
-              logger.Warn("Plugin {0}: Dependency '{1}' cannot be enabled", pluginDisplayName, parentDependency.PluginId);
-              return false;
+              if (!TryEnable(parentPlugin, autoActivatePlugins, pluginsPendingActivation))
+              {
+                logger.Warn("Plugin {0}: Dependency '{1}' cannot be enabled", pluginDisplayName, parentDependency.PluginId);
+                return false;
+              }
+              LockPluginStateDependency(parentPlugin, false, PluginState.Enabled, PluginState.Active);
+              lockedPluginStates.Add(parentPlugin);
+              pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
             }
-            LockPluginStateDependency(parentPlugin, false, PluginState.Enabled, PluginState.Active);
-            lockedPluginStates.Add(parentPlugin);
-            pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
           }
         }
+
+        pluginsPendingActivation.Remove(plugin.Metadata.PluginId);
 
         // Check if builder dependencies are explicitly named (has to be done after dependencies are loaded - builders could be added by dependent plugins)
         lock (_syncObj)
@@ -914,6 +924,14 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <returns><c>true</c>, if the plugin could be activated or was already active, else <c>false</c>.</returns>
     public bool TryActivate(PluginRuntime plugin)
     {
+      return TryActivate(plugin, new HashSet<Guid>());
+    }
+
+    public bool TryActivate(PluginRuntime plugin, HashSet<Guid> pluginsPendingActivation)
+    {
+      if (pluginsPendingActivation.Contains(plugin.Metadata.PluginId))
+        return true;
+
       if (!TryEnable(plugin, false))
         return false;
       if (IsInStoppingProcess(plugin))
@@ -932,6 +950,9 @@ namespace MediaPortal.Common.Services.PluginManager
         Guid pluginId = plugin.Metadata.PluginId;
         ILogger logger = ServiceRegistration.Get<ILogger>();
         logger.Debug("PluginManager: Trying to activate plugin '{0}' (id '{1}')", pluginName, pluginId);
+
+        pluginsPendingActivation.Add(plugin.Metadata.PluginId);
+        
         // Activate parent plugins - Load their assemblies etc.
         IDictionary<Guid, PluginRuntime> availablePlugins;
         lock (_syncObj)
@@ -943,16 +964,22 @@ namespace MediaPortal.Common.Services.PluginManager
             PluginRuntime parentPlugin = availablePlugins[parentDependency.PluginId];
             logger.Debug("PluginManager: Checking activation of plugin dependency '{0}' for plugin '{1}'",
                 parentDependency.PluginId, pluginName);
-            if (!TryActivate(parentPlugin))
+            if (!pluginsPendingActivation.Contains(parentPlugin.Metadata.PluginId))
             {
-              logger.Debug("PluginManager: Dependent plugin '{0}' could not be activated. Activation of plugin '{1}' was not successful.",
-                  parentDependency.PluginId, pluginName);
-              return false;
+              if (!TryActivate(parentPlugin, pluginsPendingActivation))
+              {
+                logger.Debug("PluginManager: Dependent plugin '{0}' could not be activated. Activation of plugin '{1}' was not successful.",
+                    parentDependency.PluginId, pluginName);
+                return false;
+              }
+              LockPluginStateDependency(parentPlugin, false, PluginState.Active);
+              lockedPluginStates.Add(parentPlugin);
             }
-            LockPluginStateDependency(parentPlugin, false, PluginState.Active);
-            lockedPluginStates.Add(parentPlugin);
           }
         }
+
+        pluginsPendingActivation.Remove(plugin.Metadata.PluginId);
+
         // All checks passed and preconditions met, activate plugin
         UpgradeReadLockToWriteLock(plugin);
         lock (_syncObj)
