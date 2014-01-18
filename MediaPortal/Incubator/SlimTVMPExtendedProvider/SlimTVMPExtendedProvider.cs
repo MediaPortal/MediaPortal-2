@@ -606,6 +606,45 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return programNow != null;
     }
 
+    public bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> programs)
+    {
+      programs = null;
+      ChannelGroup indexGroup = channelGroup as ChannelGroup;
+      if (indexGroup == null)
+        return false;
+
+      if (!CheckConnection(indexGroup.ServerIndex))
+        return false;
+
+      programs = new Dictionary<int, IProgram[]>();
+      try
+      {
+        IList<IChannel> channels;
+        if (!GetChannels(indexGroup, out channels))
+          return false;
+
+        foreach (IChannel channel in channels)
+        {
+          IProgram[] nowNext = new IProgram[2];
+          IList<WebProgramDetailed> tvPrograms = TvServer(indexGroup.ServerIndex).GetNowNextWebProgramDetailedForChannel(channel.ChannelId);
+          if (tvPrograms.Count == 0)
+            continue;
+
+          if (tvPrograms.Count > 0 && tvPrograms[0] != null)
+            nowNext[0]= new Program(tvPrograms[0], indexGroup.ServerIndex);
+          if (tvPrograms.Count > 1 && tvPrograms[1] != null)
+            nowNext[1]= new Program(tvPrograms[1], indexGroup.ServerIndex);
+          programs[channel.ChannelId] = nowNext;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
+      return true;
+    }
+
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;

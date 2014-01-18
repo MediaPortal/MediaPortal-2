@@ -212,6 +212,48 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return false;
     }
 
+    public bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM_FOR_GROUP);
+        IList<object> inParameters = new List<object>
+            {
+              channelGroup.ChannelGroupId
+            };
+
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          DateTime now = DateTime.Now;
+          nowNextPrograms = new Dictionary<int, IProgram[]>();
+          var programs = (IList<Program>)outParameters[1];
+          foreach (Program program in programs)
+          {
+            IProgram[] nowNext;
+            int channelId = program.ChannelId;
+            if (!nowNextPrograms.TryGetValue(channelId, out nowNext))
+              nowNext = new IProgram[2];
+
+            if (program.StartTime > now)
+              nowNext[1] = program;
+            else
+              nowNext[0] = program;
+
+            nowNextPrograms[channelId] = nowNext;
+          }
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      nowNextPrograms = null;
+      return false;
+    }
+
     public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;

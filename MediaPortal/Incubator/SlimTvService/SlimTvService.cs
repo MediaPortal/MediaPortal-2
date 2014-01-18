@@ -54,6 +54,7 @@ using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using Mediaportal.TV.Server.TVService.Interfaces.Services;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
+using ChannelGroup = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.ChannelGroup;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
@@ -266,6 +267,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
         programNext = programs[1];
 
       return programNow != null || programNext != null;
+    }
+
+    public bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms)
+    {
+      nowNextPrograms = new Dictionary<int, IProgram[]>();
+      IList<IChannel> channels;
+      if (!GetChannels(channelGroup, out channels))
+        return false;
+
+      foreach (IChannel channel in channels)
+      {
+        IProgram programNow;
+        IProgram programNext;
+        if (GetNowNextProgram(channel, out programNow, out programNext))
+          nowNextPrograms[channel.ChannelId] = new[] { programNow, programNext };
+      }
+      return true;
     }
 
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)

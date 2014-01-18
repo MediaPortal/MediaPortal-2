@@ -25,9 +25,13 @@
 using System;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
+using Channel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
+using ChannelGroup = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.ChannelGroup;
 using KeepMethodType = MediaPortal.Plugins.SlimTv.Interfaces.Items.KeepMethodType;
+using Program = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
+using Schedule = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Schedule;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 
 namespace MediaPortal.Plugins.SlimTv.Service
@@ -85,6 +89,33 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ParentScheduleId = schedule.IdParentSchedule,
         RecordingType = (ScheduleRecordingType)schedule.ScheduleType
       };
+    }
+
+    public static IProgram[] ToPrograms(this NowAndNext nowAndNext)
+    {
+      if (nowAndNext == null)
+        return null;
+      
+      IProgram[] programs = new IProgram[2]; // 0: now; 1: next
+      programs[0] = new Program
+      {
+        ChannelId = nowAndNext.IdChannel,
+        ProgramId = nowAndNext.IdProgramNow,
+        Title = nowAndNext.TitleNow,
+        Description = nowAndNext.DescriptionNow,
+        StartTime = nowAndNext.StartTimeNow,
+        EndTime = nowAndNext.EndTimeNow
+      };
+      programs[1] = new Program
+      {
+        ChannelId = nowAndNext.IdChannel,
+        ProgramId = nowAndNext.IdProgramNext,
+        Title = nowAndNext.TitleNext,
+        Description = nowAndNext.DescriptionNext,
+        StartTime = nowAndNext.StartTimeNow,
+        EndTime = nowAndNext.StartTimeNext
+      };
+      return programs;
     }
 
     // Morpheus_xx, 2014-01-03: this helper method could be used to filter programs that are CanceledSchedules, because the actual Program.State does not reflect this situation

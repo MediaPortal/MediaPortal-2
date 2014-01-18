@@ -59,7 +59,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      Program program = (Program) value;
+      Program program = (Program)value;
       program.Serialize(writer);
     }
 
@@ -73,6 +73,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
         result = Program.Deserialize(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
-    }    
+    }
   }
 }

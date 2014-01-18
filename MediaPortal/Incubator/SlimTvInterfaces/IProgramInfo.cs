@@ -43,6 +43,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext);
 
     /// <summary>
+    /// Tries to get the current and next program for all channels of the the given <paramref name="channelGroup"/>.
+    /// </summary>
+    /// <param name="channelGroup">Channel group</param>
+    /// <param name="nowNextPrograms">Returns programs</param>
+    /// <returns><c>true</c> if successful</returns>
+    bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms);
+
+    /// <summary>
     /// Tries to get a list of programs for the given <paramref name="channel"/> and time range.
     /// </summary>
     /// <param name="channel">Channel</param>

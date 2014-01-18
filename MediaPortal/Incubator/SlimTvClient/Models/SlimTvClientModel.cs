@@ -790,10 +790,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           Selected = IsSameChannel(currentChannel, _lastTunedChannel)
         };
         item.AdditionalProperties["CHANNEL"] = channel;
-        // Load programs asynchronously, this increases performance of list building
-        GetNowAndNextProgramsList(item, currentChannel);
         _channelList.Add(item);
       }
+      // Load programs asynchronously, this increases performance of list building
+      GetNowAndNextProgramsList_Async();
       CurrentGroupChannels.FireChange();
     }
 
@@ -813,27 +813,38 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if ((now - _lastChannelListUpdate).TotalSeconds > PROGRAM_UPDATE_SEC)
       {
         _lastChannelListUpdate = now;
-        foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
-          GetNowAndNextProgramsList(channelItem, channelItem.AdditionalProperties["CHANNEL"] as IChannel);
+        GetNowAndNextProgramsList_Async();
       }
     }
 
-    protected void GetNowAndNextProgramsList(ChannelProgramListItem channelItem, IChannel channel)
+    protected void GetNowAndNextProgramsList_Async()
     {
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(() =>
-                       {
-                         IProgram currentProgram;
-                         IProgram nextProgram;
-                         // We do not check return code here. Results for currentProgram or nextProgram can be null, this is ok here, as Program will be filled with placeholder.
-                         if (_tvHandler.ProgramInfo == null)
-                           return;
-                         _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram);
-                         CreateProgramListItem(currentProgram, channelItem.Programs[0]);
-                         CreateProgramListItem(nextProgram, channelItem.Programs[1], currentProgram);
-                       },
-                       QueuePriority.Low
-                     );
+      threadPool.Add(GetNowAndNextProgramsList);
+    }
+
+    protected void GetNowAndNextProgramsList()
+    {
+      if (_tvHandler.ProgramInfo == null)
+        return;
+      IDictionary<int, IProgram[]> programs;
+      IChannelGroup currentGroup = _channelGroups[_webChannelGroupIndex];
+
+      _tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(currentGroup, out programs);
+      foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
+      {
+        IProgram[] nowNext;
+        IProgram currentProgram = null;
+        IProgram nextProgram = null;
+        if (programs != null && programs.TryGetValue(channelItem.Channel.ChannelId, out nowNext))
+        {
+          currentProgram = nowNext[0];
+          nextProgram = nowNext[1];
+        }
+
+        CreateProgramListItem(currentProgram, channelItem.Programs[0]);
+        CreateProgramListItem(nextProgram, channelItem.Programs[1], currentProgram);
+      }
     }
 
     private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, IProgram previousProgram = null)

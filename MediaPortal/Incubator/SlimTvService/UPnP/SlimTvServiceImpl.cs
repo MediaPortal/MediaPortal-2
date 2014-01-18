@@ -226,6 +226,18 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(getNowNextProgram);
 
+      DvAction getNowNextProgramForGroup = new DvAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM_FOR_GROUP, OnGetNowNextProgramForGroup,
+                             new[]
+                                     {
+                                       new DvArgument("ChannelGroupId", A_ARG_TYPE_ChannelGroupId, ArgumentDirection.In)
+                                     },
+                             new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Programs", A_ARG_TYPE_Programs, ArgumentDirection.Out, false),
+                                     });
+      AddAction(getNowNextProgramForGroup);
+
       #endregion
 
       #region IScheduleControl members
@@ -335,8 +347,8 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (timeshiftControl == null)
         return new UPnPError(500, "ITimeshiftControl service not available");
 
-      int slotIndex = (int) inParams[0];
-      int channelId = (int) inParams[1];
+      int slotIndex = (int)inParams[0];
+      int channelId = (int)inParams[1];
 
       MediaItem timeshiftMediaItem;
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
@@ -352,7 +364,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (timeshiftControl == null)
         return new UPnPError(500, "ITimeshiftControl service not available");
 
-      int slotIndex = (int) inParams[0];
+      int slotIndex = (int)inParams[0];
 
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
       bool result = timeshiftControl.StopTimeshift(BuildUserName(context), slotIndex);
@@ -404,7 +416,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo service not available");
 
-      int channelId = (int) inParams[0];
+      int channelId = (int)inParams[0];
 
       IChannel channel;
       bool result = channelAndGroupInfo.GetChannel(channelId, out channel);
@@ -419,7 +431,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo service not available");
 
-      int channelGroupId = (int) inParams[0];
+      int channelGroupId = (int)inParams[0];
 
       IList<IChannel> channels;
       bool result = channelAndGroupInfo.GetChannels(new ChannelGroup { ChannelGroupId = channelGroupId }, out channels);
@@ -434,9 +446,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
-      int channelId = (int) inParams[0];
-      DateTime timeFrom = (DateTime) inParams[1];
-      DateTime timeTo = (DateTime) inParams[2];
+      int channelId = (int)inParams[0];
+      DateTime timeFrom = (DateTime)inParams[1];
+      DateTime timeTo = (DateTime)inParams[2];
 
       IList<IProgram> programs;
       bool result = programInfo.GetPrograms(new Channel { ChannelId = channelId }, timeFrom, timeTo, out programs);
@@ -451,9 +463,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
-      string title = (string) inParams[0];
-      DateTime timeFrom = (DateTime) inParams[1];
-      DateTime timeTo = (DateTime) inParams[2];
+      string title = (string)inParams[0];
+      DateTime timeFrom = (DateTime)inParams[1];
+      DateTime timeTo = (DateTime)inParams[2];
 
       IList<IProgram> programs;
       bool result = programInfo.GetPrograms(title, timeFrom, timeTo, out programs);
@@ -468,9 +480,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
-      int channelGroupId = (int) inParams[0];
-      DateTime timeFrom = (DateTime) inParams[1];
-      DateTime timeTo = (DateTime) inParams[2];
+      int channelGroupId = (int)inParams[0];
+      DateTime timeFrom = (DateTime)inParams[1];
+      DateTime timeTo = (DateTime)inParams[2];
 
       IList<IProgram> programs;
       bool result = programInfo.GetProgramsGroup(new ChannelGroup { ChannelGroupId = channelGroupId }, timeFrom, timeTo, out programs);
@@ -485,11 +497,33 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
-      int channelId = (int) inParams[0];
+      int channelId = (int)inParams[0];
       IProgram programNow;
       IProgram programNext;
       bool result = programInfo.GetNowNextProgram(new Channel { ChannelId = channelId }, out programNow, out programNext);
       outParams = new List<object> { result, programNow, programNext };
+      return null;
+    }
+
+    private UPnPError OnGetNowNextProgramForGroup(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      if (programInfo == null)
+        return new UPnPError(500, "IProgramInfo service not available");
+
+      int channelGroupId = (int)inParams[0];
+      IList<IProgram> programs = new List<IProgram>();
+      IDictionary<int, IProgram[]> nowNextPrograms;
+      // Flatten to simple list for UPnP transfer
+      if (programInfo.GetNowAndNextForChannelGroup(new ChannelGroup { ChannelGroupId = channelGroupId }, out nowNextPrograms))
+      {
+        foreach (KeyValuePair<int, IProgram[]> nowNextProgram in nowNextPrograms)
+          foreach (var program in nowNextProgram.Value)
+            if (program != null)
+              programs.Add(program);
+      }
+      outParams = new List<object> { true, programs };
       return null;
     }
 
@@ -516,7 +550,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
-      int programId = (int) inParams[0];
+      int programId = (int)inParams[0];
       ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
       ISchedule schedule = null;
@@ -533,9 +567,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
-      int channelId = (int) inParams[0];
-      DateTime startTime = (DateTime) inParams[1];
-      DateTime endTime = (DateTime) inParams[2];
+      int channelId = (int)inParams[0];
+      DateTime startTime = (DateTime)inParams[1];
+      DateTime endTime = (DateTime)inParams[2];
       IProgram program = new Program { ChannelId = channelId, StartTime = startTime, EndTime = endTime, Title = "Manual" }; // TODO: localize
       ISchedule schedule = null;
       bool result = scheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
@@ -552,7 +586,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
-      int programId = (int) inParams[0];
+      int programId = (int)inParams[0];
       ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
       bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveScheduleForProgram(program, recordingType);
@@ -599,7 +633,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
-      int programId = (int) inParams[0];
+      int programId = (int)inParams[0];
       IProgram program;
       RecordingStatus recordingStatus = RecordingStatus.None;
       bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingStatus(program, out recordingStatus);
@@ -616,7 +650,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
-      int programId = (int) inParams[0];
+      int programId = (int)inParams[0];
       IProgram program;
       string fileOrStream = null;
       bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingFileOrStream(program, out fileOrStream);
