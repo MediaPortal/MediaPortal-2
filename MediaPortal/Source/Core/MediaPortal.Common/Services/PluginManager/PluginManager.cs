@@ -287,7 +287,7 @@ namespace MediaPortal.Common.Services.PluginManager
             if (!_coreComponents.TryGetValue(dependencyInfo.CoreDependencyName, out api))
               throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyInfo.CoreDependencyName);
             if (api.MinCompatibleAPI > dependencyInfo.CompatibleAPI || api.CurrentAPI < dependencyInfo.CompatibleAPI)
-              throw new PluginIncompatibleException("Plugin dependency '{0}' requires a different API '{1}' than is available '{2}'-'{3}'", dependencyInfo.CoreDependencyName, dependencyInfo.CompatibleAPI, api.MinCompatibleAPI, api.CurrentAPI);
+              throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", dependencyInfo.CoreDependencyName, dependencyInfo.CompatibleAPI, api.MinCompatibleAPI, api.CurrentAPI);
           }
           else
           {
@@ -295,7 +295,7 @@ namespace MediaPortal.Common.Services.PluginManager
             if (!_availablePlugins.TryGetValue(dependencyInfo.PluginId, out pr))
               throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyInfo.PluginId);
             if (pr.Metadata.MinCompatibleAPI > dependencyInfo.CompatibleAPI || pr.Metadata.CurrentAPI < dependencyInfo.CompatibleAPI)
-              throw new PluginIncompatibleException("Plugin dependency '{0}' requires a different API '{1}' than is available '{2}'-'{3}'", dependencyInfo.PluginId, dependencyInfo.CompatibleAPI, pr.Metadata.MinCompatibleAPI, pr.Metadata.CurrentAPI);
+              throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", pr.Metadata.Name, dependencyInfo.CompatibleAPI, pr.Metadata.MinCompatibleAPI, pr.Metadata.CurrentAPI);
             CollectionUtils.AddAll(result, FindConflicts(pr.Metadata, alreadyCheckedPlugins));
           }
         }
@@ -819,9 +819,22 @@ namespace MediaPortal.Common.Services.PluginManager
         ILogger logger = ServiceRegistration.Get<ILogger>();
         string pluginDisplayName = string.Format("'{0}' [Version: {1}; Authors: {2}; ID: '{3}']", plugin.Metadata.Name, plugin.Metadata.PluginVersion, plugin.Metadata.Author, plugin.Metadata.PluginId);
         logger.Debug("PluginManager: Trying to enable plugin {0}", pluginDisplayName);
-        if (FindConflicts(plugin.Metadata).Count > 0)
+        try
         {
-          logger.Info("PluginManager: Plugin {0} cannot be enabled - there are plugin conflicts", pluginDisplayName);
+          if (FindConflicts(plugin.Metadata).Count > 0)
+          {
+            logger.Warn("PluginManager: Plugin '{0}' cannot be enabled - there are plugin conflicts", plugin.Metadata.Name);
+            return false;
+          }
+        }
+        catch (PluginMissingDependencyException missingEx)
+        {
+          logger.Warn("PluginManager: Plugin '{0}' cannot be enabled: {1}", plugin.Metadata.Name, missingEx.Message);
+          return false;
+        }
+        catch (PluginIncompatibleException incompEx)
+        {
+          logger.Warn("PluginManager: Plugin '{0}' cannot be enabled: {1}", plugin.Metadata.Name, incompEx.Message);
           return false;
         }
 
