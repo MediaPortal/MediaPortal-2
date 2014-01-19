@@ -706,6 +706,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_tvHandler == null || _zapTimer != null)
         return;
 
+      // Update current programs for all channels of current group (visible inside MiniGuide).
+      UpdateAllCurrentPrograms();
+
       if (_tvHandler.NumberOfActiveSlots < 1)
       {
         PiPAvailable = false;
@@ -714,9 +717,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       PiPAvailable = true;
-
-      // Update current programs for all channels of current group (visible inside MiniGuide).
-      UpdateAllCurrentPrograms();
 
       // get the current channel and program out of the LiveTvMediaItems' TimeshiftContexes
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
