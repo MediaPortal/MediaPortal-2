@@ -24,6 +24,7 @@
 
 using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace UPnP.Infrastructure
@@ -143,6 +144,12 @@ namespace UPnP.Infrastructure
     /// event notification (unfortunately it is not specified how big it should be).
     /// </summary>
     public static int UDP_GENA_RECEIVE_BUFFER_SIZE = 16384;
+
+    /// <summary>
+    /// Factor to calculate the actual <see cref="Socket.ReceiveBufferSize"/> used for receiving UDP packets. The
+    /// resulting size will be buffer size * <see cref="UDP_RECEIVE_BUFFER_FACTOR"/>.
+    /// </summary>
+    public static int UDP_RECEIVE_BUFFER_FACTOR = 10;
 
     /// <summary>
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>

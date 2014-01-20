@@ -26,6 +26,11 @@ using System.Net.Sockets;
 
 namespace UPnP.Infrastructure.Utils
 {
+  /// <summary>
+  /// <see cref="UDPAsyncReceiveState{T}"/> holds information about a Endpoint of type <typeparamref name="T"/>, the associated Socket
+  /// and the receive buffer. The Socket's ReceiveBufferSize will be set to the <see cref="UPnPConsts.UDP_RECEIVE_BUFFER_FACTOR"/> times of the
+  /// given C# read buffer size.
+  /// </summary>
   public class UDPAsyncReceiveState<T>
   {
     protected byte[] _buffer;
@@ -37,6 +42,7 @@ namespace UPnP.Infrastructure.Utils
       _config = config;
       _buffer = new byte[bufferSize];
       _socket = socket;
+      _socket.ReceiveBufferSize = bufferSize * UPnPConsts.UDP_RECEIVE_BUFFER_FACTOR;
     }
 
     public T Endpoint

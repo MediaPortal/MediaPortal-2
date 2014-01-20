@@ -308,7 +308,6 @@ namespace UPnP.Infrastructure.CP.SSDP
 
           // Multicast receiver socket - used for receiving multicast messages
           Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
-          socket.ReceiveBufferSize = UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE * 10;
           config.SSDP_UDP_MulticastReceiveSocket = socket;
           try
           {
@@ -327,7 +326,6 @@ namespace UPnP.Infrastructure.CP.SSDP
           // We need a second socket here because the search responses which arrive at this port are structured
           // in another way than the notifications which arrive at our multicast socket.
           socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
-          socket.ReceiveBufferSize = UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE * 10;
           config.SSDP_UDP_UnicastSocket = socket;
           try
           {
