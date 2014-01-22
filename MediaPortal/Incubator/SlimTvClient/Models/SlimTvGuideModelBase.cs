@@ -127,10 +127,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void SetGroupName()
     {
-      if (_channelGroups != null && _webChannelGroupIndex < _channelGroups.Count)
+      if (CurrentChannelGroup != null)
       {
-        IChannelGroup group = _channelGroups[_webChannelGroupIndex];
-        GroupName = group.Name;
+        GroupName = CurrentChannelGroup.Name;
       }
     }
 

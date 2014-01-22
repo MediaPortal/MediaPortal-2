@@ -191,11 +191,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ShowSingleChannelGuide(IChannel channel)
     {
-      if (channel == null)
+      if (channel == null || CurrentChannelGroup == null)
         return;
 
       int channelId = channel.ChannelId;
-      int groupId = _channelGroups[_webChannelGroupIndex].ChannelGroupId;
+      int groupId = CurrentChannelGroup.ChannelGroupId;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
       navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
@@ -285,8 +285,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _bufferGroupIndex = _webChannelGroupIndex;
         _bufferStartTime = GuideStartTime.AddHours(-_bufferHours);
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
-        IChannelGroup group = _channelGroups[_webChannelGroupIndex];
-        _tvHandler.ProgramInfo.GetProgramsGroup(group, _bufferStartTime, _bufferEndTime, out _groupPrograms);
+        IChannelGroup group = CurrentChannelGroup;
+        if (group != null)
+          _tvHandler.ProgramInfo.GetProgramsGroup(group, _bufferStartTime, _bufferEndTime, out _groupPrograms);
       }
     }
 

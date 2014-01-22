@@ -82,6 +82,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Gets the currently selected channel group, or <c>null</c> if not initilalized.
+    /// </summary>
+    public IChannelGroup CurrentChannelGroup
+    {
+      get
+      {
+        return _channelGroups != null && _webChannelGroupIndex < _channelGroups.Count && _webChannelGroupIndex >= 0 ? 
+          _channelGroups[_webChannelGroupIndex] : 
+          null;
+      }
+    }
+
+    /// <summary>
     /// Skips group index to next one.
     /// </summary>
     public void NextGroup()
@@ -124,6 +137,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void SelectGroup()
     {
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
+    }
+
+    /// <summary>
+    /// Gets the currently selected channel, or <c>null</c> if not initilalized.
+    /// </summary>
+    public IChannel CurrentChannel
+    {
+      get
+      {
+        return _channels != null && _webChannelIndex < _channels.Count && _webChannelIndex >= 0 ?
+          _channels[_webChannelIndex] : null;
+      }
     }
 
     /// <summary>
@@ -274,14 +299,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void SetCurrentChannelGroup()
     {
-      if (_tvHandler.ChannelAndGroupInfo != null)
-        _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId = _channelGroups[_webChannelGroupIndex].ChannelGroupId;
+      if (_tvHandler.ChannelAndGroupInfo != null && CurrentChannelGroup != null)
+        _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId = CurrentChannelGroup.ChannelGroupId;
     }
 
     protected void SetCurrentChannel()
     {
-      if (_tvHandler.ChannelAndGroupInfo != null)
-        _tvHandler.ChannelAndGroupInfo.SelectedChannelId = _channels[_webChannelIndex].ChannelId;
+      if (_tvHandler.ChannelAndGroupInfo != null && CurrentChannel != null)
+        _tvHandler.ChannelAndGroupInfo.SelectedChannelId = CurrentChannel.ChannelId;
     }
 
     #endregion
@@ -333,9 +358,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected virtual void UpdateChannels()
     {
-      if (_webChannelGroupIndex < _channelGroups.Count)
+      IChannelGroup group = CurrentChannelGroup;
+      if (group != null)
       {
-        IChannelGroup group = _channelGroups[_webChannelGroupIndex];
         _tvHandler.ChannelAndGroupInfo.GetChannels(group, out _channels);
 
         _webChannelIndex = 0;

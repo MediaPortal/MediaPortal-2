@@ -107,11 +107,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       SetGroupName();
 
-      if (_webChannelIndex < _channels.Count)
+      if (CurrentChannel != null)
       {
-        IChannel channel = _channels[_webChannelIndex];
-        _channel = channel;
-        ChannelName = channel.Name;
+        _channel = CurrentChannel;
+        ChannelName = CurrentChannel.Name;
         SetCurrentChannel();
       }
       else

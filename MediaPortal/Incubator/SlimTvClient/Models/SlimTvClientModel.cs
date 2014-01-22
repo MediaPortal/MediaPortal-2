@@ -769,10 +769,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void UpdateChannels()
     {
       base.UpdateChannels();
-      if (_webChannelGroupIndex < _channelGroups.Count)
+      if (CurrentChannelGroup != null)
       {
-        IChannelGroup currentGroup = _channelGroups[_webChannelGroupIndex];
-        CurrentGroupName = currentGroup.Name;
+        CurrentGroupName = CurrentChannelGroup.Name;
       }
       _channelList.Clear();
       if (_channels == null)
@@ -825,12 +824,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetNowAndNextProgramsList()
     {
-      if (_tvHandler.ProgramInfo == null)
+      if (_tvHandler.ProgramInfo == null || CurrentChannelGroup == null)
         return;
       IDictionary<int, IProgram[]> programs;
-      IChannelGroup currentGroup = _channelGroups[_webChannelGroupIndex];
 
-      _tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(currentGroup, out programs);
+      _tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(CurrentChannelGroup, out programs);
       foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
       {
         IProgram[] nowNext;
@@ -838,8 +836,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         IProgram nextProgram = null;
         if (programs != null && programs.TryGetValue(channelItem.Channel.ChannelId, out nowNext))
         {
-          currentProgram = nowNext[0];
-          nextProgram = nowNext[1];
+          currentProgram = nowNext.Length > 0 ? nowNext[0] : null;
+          nextProgram = nowNext.Length > 1 ? nowNext[1] : null;
         }
 
         CreateProgramListItem(currentProgram, channelItem.Programs[0]);
