@@ -91,32 +91,32 @@ namespace MediaPortal.Plugins.SlimTv.Service
       };
     }
 
-    public static IProgram[] ToPrograms(this NowAndNext nowAndNext)
-    {
-      if (nowAndNext == null)
-        return null;
+    //public static IProgram[] ToPrograms(this NowAndNext nowAndNext)
+    //{
+    //  if (nowAndNext == null)
+    //    return null;
       
-      IProgram[] programs = new IProgram[2]; // 0: now; 1: next
-      programs[0] = new Program
-      {
-        ChannelId = nowAndNext.IdChannel,
-        ProgramId = nowAndNext.IdProgramNow,
-        Title = nowAndNext.TitleNow,
-        Description = nowAndNext.DescriptionNow,
-        StartTime = nowAndNext.StartTimeNow,
-        EndTime = nowAndNext.EndTimeNow
-      };
-      programs[1] = new Program
-      {
-        ChannelId = nowAndNext.IdChannel,
-        ProgramId = nowAndNext.IdProgramNext,
-        Title = nowAndNext.TitleNext,
-        Description = nowAndNext.DescriptionNext,
-        StartTime = nowAndNext.StartTimeNow,
-        EndTime = nowAndNext.StartTimeNext
-      };
-      return programs;
-    }
+    //  IProgram[] programs = new IProgram[2]; // 0: now; 1: next
+    //  programs[0] = new Program
+    //  {
+    //    ChannelId = nowAndNext.IdChannel,
+    //    ProgramId = nowAndNext.IdProgramNow,
+    //    Title = nowAndNext.TitleNow,
+    //    Description = nowAndNext.DescriptionNow,
+    //    StartTime = nowAndNext.StartTimeNow,
+    //    EndTime = nowAndNext.EndTimeNow
+    //  };
+    //  programs[1] = new Program
+    //  {
+    //    ChannelId = nowAndNext.IdChannel,
+    //    ProgramId = nowAndNext.IdProgramNext,
+    //    Title = nowAndNext.TitleNext,
+    //    Description = nowAndNext.DescriptionNext,
+    //    StartTime = nowAndNext.StartTimeNow,
+    //    EndTime = nowAndNext.StartTimeNext
+    //  };
+    //  return programs;
+    //}
 
     // Morpheus_xx, 2014-01-03: this helper method could be used to filter programs that are CanceledSchedules, because the actual Program.State does not reflect this situation
     // Using this extension works, but causes quite a big overhead. TVE35 should handle this situation internally.
