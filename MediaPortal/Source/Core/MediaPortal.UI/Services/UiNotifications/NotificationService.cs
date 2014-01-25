@@ -82,7 +82,7 @@ namespace MediaPortal.UI.Services.UiNotifications
       get
       {
         IList<INotification> result = new List<INotification>(_normalQueue);
-        CollectionUtils.AddAll(result, _urgentQueue);
+        CollectionUtils.AddAll(result, new List<INotification>(_urgentQueue));
         return result;
       }
     }
