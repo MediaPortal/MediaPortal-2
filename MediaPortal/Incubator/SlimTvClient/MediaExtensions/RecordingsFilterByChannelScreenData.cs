@@ -25,10 +25,11 @@
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 
-namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
+namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 {
   public class RecordingsFilterByChannelScreenData : AbstractChannelFilterScreenData
   {

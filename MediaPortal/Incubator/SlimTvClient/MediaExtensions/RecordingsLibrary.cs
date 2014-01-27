@@ -23,18 +23,22 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 
-namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
+namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 {
   public class RecordingsLibrary : BaseNavigationInitializer
   {
@@ -52,21 +56,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       _mediaNavigationRootState = SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE;
       _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+    }
+
+    protected override void Prepare()
+    {
+      base.Prepare();
 
       AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
-      _defaultScreen = new RecordingFilterByNameScreenData();
+      _defaultScreen = new VideosShowItemsScreenData(picd);
       _availableScreens = new List<AbstractScreenData>
         {
-          new VideosShowItemsScreenData(picd),
           _defaultScreen,
+          new RecordingFilterByNameScreenData(),
           new RecordingsFilterByChannelScreenData(),
-          new VideosFilterByActorScreenData(),
-          new VideosFilterByDirectorScreenData(),
-          new VideosFilterByWriterScreenData(),
-          new VideosFilterByGenreScreenData(),
-          new VideosFilterByYearScreenData(),
-          new VideosFilterBySystemScreenData(),
+          //new VideosFilterByActorScreenData(),
+          //new VideosFilterByDirectorScreenData(),
+          //new VideosFilterByWriterScreenData(),
+          //new VideosFilterByGenreScreenData(),
+          //new VideosFilterByYearScreenData(),
+          //new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(picd),
         };
 
@@ -75,15 +84,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         {
           _defaultSorting,
           new SortByTitle(),
-          new VideoSortByFirstGenre(),
-          new VideoSortByDuration(),
-          new VideoSortByFirstActor(),
-          new VideoSortByFirstDirector(),
-          new VideoSortByFirstWriter(),
-          new VideoSortBySize(),
-          new VideoSortByAspectRatio(),
-          new SortBySystem(),
+          //new VideoSortByFirstGenre(),
+          //new VideoSortByDuration(),
+          //new VideoSortByFirstActor(),
+          //new VideoSortByFirstDirector(),
+          //new VideoSortByFirstWriter(),
+          //new VideoSortBySize(),
+          //new VideoSortByAspectRatio(),
+          //new SortBySystem(),
         };
+
+      var optionalMias = new[]
+      {
+        MovieAspect.ASPECT_ID,
+        SeriesAspect.ASPECT_ID,
+        AudioAspect.ASPECT_ID,
+        VideoAspect.ASPECT_ID,
+        ImageAspect.ASPECT_ID
+      }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
+
+      _customRootViewSpecification = new StackingViewSpecification(_viewName, null, _necessaryMias, optionalMias, true)
+      {
+        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+      };
     }
   }
 }

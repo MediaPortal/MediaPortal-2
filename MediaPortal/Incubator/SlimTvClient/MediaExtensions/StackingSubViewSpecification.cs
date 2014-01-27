@@ -1,0 +1,83 @@
+#region Copyright (C) 2007-2013 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2013 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Views;
+
+namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
+{
+  /// <summary>
+  /// View which is created from a parent <see cref="StackingViewSpecification"/>. It will contain the MediaItems that have the same title.
+  /// </summary>
+  public class StackingSubViewSpecification : ViewSpecification
+  {
+    #region Protected fields
+
+    protected int? _absNumItems;
+    private readonly IList<MediaItem> _mediaItems;
+
+    #endregion
+
+    #region Ctor
+
+    public StackingSubViewSpecification(string viewDisplayName, IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, IList<MediaItem> mediaItems) :
+        base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
+    {
+      _mediaItems = mediaItems;
+      _absNumItems = _mediaItems.Count;
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Can be set to provide the overall number of all items and child items in this view.
+    /// </summary>
+    public override int? AbsNumItems
+    {
+      get { return _absNumItems; }
+    }
+
+    public override bool CanBeBuilt
+    {
+      get
+      {
+        // All values are already loaded.
+        return true;
+      }
+    }
+
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      return _mediaItems;
+    }
+
+    protected override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
+    {
+      mediaItems = _mediaItems;
+      subViewSpecifications = new List<ViewSpecification>();
+    }
+  }
+}
