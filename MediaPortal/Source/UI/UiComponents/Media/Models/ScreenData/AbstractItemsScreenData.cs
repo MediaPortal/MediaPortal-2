@@ -225,7 +225,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   if (sv.AbsNumItems.HasValue)
                     totalNumItems += sv.AbsNumItems.Value;
                 }
-                viewsList.Sort((v1, v2) => string.Compare(v1.SortString, v2.SortString));
+                // Morpheus_xx, 2014-01-27: Commented the sorting call, as it overrides the sorting of the SubViews list. This is required for cases
+                // where sorting is not done by name, but i.e. by "max date" of group of items (stacking view, sorted by max date).
+                // viewsList.Sort((v1, v2) => string.Compare(v1.SortString, v2.SortString));
                 CollectionUtils.AddAll(items, viewsList);
 
                 lock (_syncObj)
