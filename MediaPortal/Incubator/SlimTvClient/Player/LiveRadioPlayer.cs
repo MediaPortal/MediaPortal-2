@@ -24,6 +24,7 @@
 
 using System.Runtime.InteropServices;
 using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -89,15 +90,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
-        //_resourceAccessor points to an rtsp:// stream
-        var networkResourceAccessor = _resourceAccessor as INetworkResourceAccessor;
+        // _resourceAccessor points to an rtsp:// stream or network file
+        var sourcePathOrUrl = SourcePathOrUrl;
 
-        if (networkResourceAccessor == null)
+        if (sourcePathOrUrl == null)
           throw new IllegalCallException("The LiveRadioPlayer can only play network resources of type INetworkResourceAccessor");
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, networkResourceAccessor.URL);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, sourcePathOrUrl);
 
-        fileSourceFilter.Load(networkResourceAccessor.URL, null);
+        int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
+        new HRESULT(hr).Throw();
       }
       else
       {
