@@ -25,7 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
+using Poly2Tri;
 using SharpDX;
 using SharpDX.Direct3D9;
 
@@ -80,7 +82,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         else
           verts[offset + 2].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
       }
-      return;
     }
 
     /// <summary>
@@ -124,7 +125,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       if (close)
         // Last point is the first point to close the shape
         verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
-      return;
     }
 
     static PointF GetNextPoint(PointF[] points, int i, int max)
@@ -204,8 +204,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="lineJoin">The PenLineJoin to use.</param>
     /// <param name="verts">The generated verts.</param>
-    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin,
-        out PositionColoredTextured[] verts)
+    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
     {
       verts = null;
       PointF[] pathPoints = AdjustPoints(points);
@@ -309,11 +308,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         return;
       }
 
-      ICollection<CPolygon> polygons;
+      IList<DelaunayTriangle> polygons;
       try
       {
         // Triangulation can fail (i.e. polygon is self-intersecting)
-        polygons = new List<CPolygon>(new CPolygon(pathPoints).Triangulate());
+        var poly = new Poly2Tri.Polygon(pathPoints.Select(p => new PolygonPoint(p.X, p.Y)));
+        P2T.Triangulate(poly);
+        polygons = poly.Triangles;
       }
       catch (Exception)
       {
@@ -323,11 +324,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
       verts = new PositionColoredTextured[polygons.Count * 3];
       int offset = 0;
-      foreach (CPolygon triangle in polygons)
+      foreach (DelaunayTriangle triangle in polygons)
       {
-        verts[offset++].Position = new Vector3(triangle[0].X, triangle[0].Y, zCoord);
-        verts[offset++].Position = new Vector3(triangle[1].X, triangle[1].Y, zCoord);
-        verts[offset++].Position = new Vector3(triangle[2].X, triangle[2].Y, zCoord);
+        verts[offset++].Position = new Vector3((float)triangle.Points[0].X, (float)triangle.Points[0].Y, zCoord);
+        verts[offset++].Position = new Vector3((float)triangle.Points[1].X, (float)triangle.Points[1].Y, zCoord);
+        verts[offset++].Position = new Vector3((float)triangle.Points[2].X, (float)triangle.Points[2].Y, zCoord);
       }
     }
 
