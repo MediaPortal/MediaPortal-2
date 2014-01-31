@@ -5,11 +5,15 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="OSD,FullScreenContentConsts,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,Widgets"
     >
 
   <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
 
   <!-- ***************************************** OSD ************************************************** -->
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">
@@ -43,26 +47,62 @@
                 <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{StaticResource FANART_POSTER_WIDTH}"/>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                    <Grid DockPanel.Dock="Center">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                      </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    </Grid>
-                  </DockPanel>
+
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Grid.Column="1" Grid.Row="0"
+                          FontSize="{StaticResource BigFontSize}" Margin="20,0,0,0"  Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Grid>
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Cover_Template">
+                <Grid>
+                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}">
+                    <media:MovieAspectWrapper.IsVisible>
+                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                        <Binding Path="MediaItem" />
+                        <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                      </MultiBinding>
+                    </media:MovieAspectWrapper.IsVisible>
+                    <media:MovieAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
+                               FallbackSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
+                                    fanart:FanArtName="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>
+                      </ControlTemplate>
+                    </media:MovieAspectWrapper.Template>
+                  </media:MovieAspectWrapper>
+
+                  <media:SeriesAspectWrapper MediaItem="{Binding Path=MediaItem}">
+                    <media:SeriesAspectWrapper.IsVisible>
+                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                        <Binding Path="MediaItem" />
+                        <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                      </MultiBinding>
+                    </media:SeriesAspectWrapper.IsVisible>
+                    <media:SeriesAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
+                               FallbackSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster"
+                                    fanart:FanArtName="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>
+                      </ControlTemplate>
+                    </media:SeriesAspectWrapper.Template>
+                  </media:SeriesAspectWrapper>
                 </Grid>
               </ControlTemplate>
 
