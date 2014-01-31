@@ -5,12 +5,16 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="OSD,FullScreenContentConsts,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,Widgets"
     >
 
   <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
 
   <!-- ***************************************** OSD ************************************************** -->
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">
@@ -54,9 +58,48 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
 
-                  <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="5" Source="{Binding Path=MediaItem}"
-                     Stretch="Uniform" Width="180" Height="140"/>
-                    
+                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="5">
+                    <media:MovieAspectWrapper.IsVisible>
+                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                        <Binding Path="MediaItem" />
+                        <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                      </MultiBinding>
+                    </media:MovieAspectWrapper.IsVisible>
+                    <media:MovieAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
+                               FallbackSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
+                                    fanart:FanArtName="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>
+                      </ControlTemplate>
+                    </media:MovieAspectWrapper.Template>
+                  </media:MovieAspectWrapper>
+
+                  <media:SeriesAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="5">
+                    <media:SeriesAspectWrapper.IsVisible>
+                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                        <Binding Path="MediaItem" />
+                        <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                      </MultiBinding>
+                    </media:SeriesAspectWrapper.IsVisible>
+                    <media:SeriesAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
+                               FallbackSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster"
+                                    fanart:FanArtName="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>
+                      </ControlTemplate>
+                    </media:SeriesAspectWrapper.Template>
+                  </media:SeriesAspectWrapper>
+
                   <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="true" Margin="3">
                     <Grid DockPanel.Dock="Center">
                       <Grid.ColumnDefinitions>
@@ -504,9 +547,12 @@
                     <ScaleTransform ScaleX="0.6" ScaleY="0.6"/>
                   </TransformGroup>
                 </StackPanel.LayoutTransform>
-              </StackPanel> <!-- PlayControlsPanel -->
-            </Grid> <!-- PlayerGrid -->
-          </Border> <!-- OSD_Background -->
+              </StackPanel>
+              <!-- PlayControlsPanel -->
+            </Grid>
+            <!-- PlayerGrid -->
+          </Border>
+          <!-- OSD_Background -->
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
@@ -699,7 +745,7 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-      
+
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center"/>
     </Grid>
@@ -783,7 +829,7 @@
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
-  
+
   <!-- Movie Collection Filter -->
   <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl">
@@ -1584,7 +1630,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <Style x:Key="CoverMediaItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
