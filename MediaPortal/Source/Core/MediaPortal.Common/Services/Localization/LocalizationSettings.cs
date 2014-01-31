@@ -29,6 +29,7 @@ namespace MediaPortal.Common.Services.Localization
   public class LocalizationSettings
   {
     protected string _mediaDurationFormat = "{0}:{1:D2}";
+    protected string _mediaDurationHourFormat = "{0}:{1:D2}:{2:D2}";
 
     /// <summary>
     /// Returns a format string to format a media duration timespan. The format string has two placeholders for
@@ -47,6 +48,25 @@ namespace MediaPortal.Common.Services.Localization
     {
       get { return _mediaDurationFormat; }
       set { _mediaDurationFormat = value; }
+    }
+
+    /// <summary>
+    /// Returns a format string to format a media duration timespan that is greater than one hour. The format string has three placeholders for
+    /// the hours, minutes and the seconds.
+    /// </summary>
+    /// <remarks>
+    /// Typically, the returned format string is used like this:
+    /// <code>
+    /// LocalizationSettings ls = ...;
+    /// TimeSpan duration = ...;
+    /// string durationStr = string.Format(ls.MediaDurationHourFormat, duration.TotalHours, duration.Minutes, duration.Seconds)
+    /// </code>
+    /// </remarks>
+    [Setting(SettingScope.User)]
+    public string MediaDurationHourFormat
+    {
+      get { return _mediaDurationHourFormat; }
+      set { _mediaDurationHourFormat = value; }
     }
   }
 }

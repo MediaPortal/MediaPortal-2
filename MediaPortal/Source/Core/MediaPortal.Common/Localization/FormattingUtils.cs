@@ -43,6 +43,8 @@ namespace MediaPortal.Common.Localization
     public static string FormatMediaDuration(TimeSpan duration)
     {
       LocalizationSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LocalizationSettings>();
+      if (duration.Hours > 0)
+        return string.Format(settings.MediaDurationHourFormat, (int) duration.TotalHours, duration.Minutes, duration.Seconds);
       return string.Format(settings.MediaDurationFormat, (int) duration.TotalMinutes, duration.Seconds);
     }
   }
