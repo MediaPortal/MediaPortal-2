@@ -166,6 +166,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThumbnailProviders", "Thumb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellThumbnailProvider", "Extensions\MetadataExtractors\ShellThumbnailProvider\ShellThumbnailProvider.csproj", "{927AA852-186A-4880-A7B6-C11C543B97A9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests", "_Tests", "{6383E739-61E6-46EE-9B06-8940E50A13D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OnlineLibraries", "..\Tests\Test.OnlineLibraries\Test.OnlineLibraries.csproj", "{676098C4-CDBE-4569-A21A-43272D5F15E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -423,6 +427,10 @@ Global
 		{927AA852-186A-4880-A7B6-C11C543B97A9}.Debug|x86.Build.0 = Debug|x86
 		{927AA852-186A-4880-A7B6-C11C543B97A9}.Release|x86.ActiveCfg = Release|x86
 		{927AA852-186A-4880-A7B6-C11C543B97A9}.Release|x86.Build.0 = Release|x86
+		{676098C4-CDBE-4569-A21A-43272D5F15E9}.Debug|x86.ActiveCfg = Debug|x86
+		{676098C4-CDBE-4569-A21A-43272D5F15E9}.Debug|x86.Build.0 = Debug|x86
+		{676098C4-CDBE-4569-A21A-43272D5F15E9}.Release|x86.ActiveCfg = Release|x86
+		{676098C4-CDBE-4569-A21A-43272D5F15E9}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -501,5 +509,6 @@ Global
 		{927AA852-186A-4880-A7B6-C11C543B97A9} = {25FB2AD6-2FA0-4974-93EE-565FB51EF775}
 		{8E15FBE3-F6C8-4B76-A560-F391B4124E9C} = {C24F0D1B-C80A-4554-9469-68B6B9776D6B}
 		{F2DB11B5-4A06-4192-BA9D-F19624078CCD} = {C24F0D1B-C80A-4554-9469-68B6B9776D6B}
+		{676098C4-CDBE-4569-A21A-43272D5F15E9} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
 	EndGlobalSection
 EndGlobal
