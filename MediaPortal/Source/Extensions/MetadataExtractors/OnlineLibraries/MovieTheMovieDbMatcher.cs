@@ -278,7 +278,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    protected override bool Init()
+    public override bool Init()
     {
       if (!base.Init())
         return false;

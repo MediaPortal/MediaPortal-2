@@ -70,15 +70,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected BaseMatcher ()
     {
       // Use own thread to avoid delay during startup
-      ServiceRegistration.Get<IThreadPool>().Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+      if (threadPool != null)
+        threadPool.Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
-    protected virtual bool Init()
+    public virtual bool Init()
     {
-      if (!NetworkConnectionTracker.IsNetworkConnected)
-        return false;
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
+      if (!NetworkConnectionTracker.IsNetworkConnected)
+        return false;
       return true;
     }
 
