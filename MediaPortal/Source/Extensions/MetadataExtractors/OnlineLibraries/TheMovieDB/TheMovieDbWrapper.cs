@@ -124,7 +124,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Test Match for \"{0}\"", moviesName);
 
-      if (movies.Count == 1)
+      if (movies.Count == 1 && GetLevenshteinDistance(movies[0], moviesName) < MAX_LEVENSHTEIN_DIST)
       {
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\"!", moviesName);
         return true;
