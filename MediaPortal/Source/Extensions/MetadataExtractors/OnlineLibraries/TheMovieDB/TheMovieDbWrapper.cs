@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
   {
     protected MovieDbApiV3 _movieDbHandler;
     protected string _preferredLanguage;
-    public const int MAX_LEVENSHTEIN_DIST = 2;
+    public const int MAX_LEVENSHTEIN_DIST = 4;
 
     /// <summary>
     /// Sets the preferred language in short format like: en, de, ...
@@ -124,10 +124,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Test Match for \"{0}\"", moviesName);
 
-      if (movies.Count == 1 && GetLevenshteinDistance(movies[0], moviesName) < MAX_LEVENSHTEIN_DIST)
+      if (movies.Count == 1)
       {
-        ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\"!", moviesName);
-        return true;
+        if (GetLevenshteinDistance(movies[0], moviesName) <= MAX_LEVENSHTEIN_DIST)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Unique match found \"{0}\"!", moviesName);
+          return true;
+        }
+        // No valid match, clear list to allow further detection ways
+        movies.Clear();
+        return false;
       }
 
       // Multiple matches
@@ -157,7 +163,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
           }
         }
 
-        movies = movies.Where(s => GetLevenshteinDistance(s, moviesName) < MAX_LEVENSHTEIN_DIST).ToList();
+        movies = movies.Where(s => GetLevenshteinDistance(s, moviesName) <= MAX_LEVENSHTEIN_DIST).ToList();
         if (movies.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper      : Multiple matches found for \"{0}\" (count: {1})", moviesName, movies.Count);
 
@@ -219,9 +225,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <returns>Cleaned string</returns>
     protected string RemoveCharacters(string name)
     {
-      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'" }.Aggregate(name, (current, s) => current.Replace(s, ""));
+      name = name.ToLowerInvariant();
+      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]", "teil", "part" }.Aggregate(name, (current, s) => current.Replace(s, ""));
       result = result.Replace("&", "and");
-      return StringUtils.RemoveDiacritics(result.ToLowerInvariant());
+      return StringUtils.RemoveDiacritics(result);
     }
 
     /// <summary>
