@@ -31,7 +31,7 @@ namespace MediaPortal.Common.Localization
   /// Dummy class which implements the <see cref="ILocalization"/> interface, but
   /// doesn't provide any localized strings.
   /// </summary>
-  internal class NoLocalization : ILocalization
+  public class NoLocalization : ILocalization
   {
     public ICollection<CultureInfo> AvailableLanguages
     {
