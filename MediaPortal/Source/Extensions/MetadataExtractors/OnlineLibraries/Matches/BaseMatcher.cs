@@ -61,13 +61,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// </summary>
     protected UniqueEventedQueue<TId> _downloadQueue = new UniqueEventedQueue<TId>();
     protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
+    protected bool _downloadFanart = true;
     protected bool _downloadAllowed = true;
     protected Predicate<TMatch> _matchPredicate;
     protected MatchStorage<TMatch, TId> _storage;
 
     #endregion
 
-    protected BaseMatcher ()
+    #region Properties
+
+    /// <summary>
+    /// If set to <c>true</c> (default), online available content will be downloaded after match was successful.
+    /// This property can be used to disable downloads, i.e. for testing process.
+    /// </summary>
+    public bool DownloadFanart
+    {
+      get { return _downloadFanart; }
+      set { _downloadFanart = value; }
+    }
+
+    #endregion
+
+    protected BaseMatcher()
     {
       // Use own thread to avoid delay during startup
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
@@ -86,6 +101,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     public bool ScheduleDownload(TId tvDbId, bool force = false)
     {
+      if (!_downloadFanart)
+        return true;
       bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(tvDbId);
       if (fanArtDownloaded)
         return true;
