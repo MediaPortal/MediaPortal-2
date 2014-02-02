@@ -15,8 +15,10 @@ namespace Test.OnlineLibraries
   [TestClass]
   public class TheMovieDb
   {
-    [TestMethod]
-    public void TestMovieDbMatches()
+    MovieTheMovieDbMatcher _matcher;
+
+    [TestInitialize]
+    public void Init()
     {
       string testDataLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
       string cacheLocation = Path.Combine(testDataLocation, "TheMovieDB");
@@ -31,6 +33,13 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
       ServiceRegistration.Set<ILogger>(new NoLogger());
 
+      _matcher = new MovieTheMovieDbMatcher { DownloadFanart = false };
+      _matcher.Init();
+    }
+
+    [TestMethod]
+    public void MovieMatchesAreCorrect()
+    {
       // List of movie titles which are expected to be matched unique
       List<MovieInfo> shouldMatchMovies = new List<MovieInfo>
       {
@@ -103,6 +112,17 @@ namespace Test.OnlineLibraries
         new MovieInfo { MovieName = "Hangover 2" },
         new MovieInfo { MovieName = "Gnomeo und Julia" },
       };
+
+      foreach (MovieInfo movieInfo in shouldMatchMovies)
+      {
+        bool match = _matcher.FindAndUpdateMovie(movieInfo);
+        Assert.IsTrue(match, string.Format("Failed to look up '{0}'", movieInfo.MovieName));
+      }
+    }
+
+    [TestMethod]
+    public void MovieFalseMatches()
+    {
       // List of movie titles which are known to lead to false matching (i.e. only one result is returned, but is wrong)
       // At current code base, the matches are not considered as valid, as there is a similarity check.
       List<MovieInfo> shouldNotMatchMovies = new List<MovieInfo>
@@ -111,19 +131,10 @@ namespace Test.OnlineLibraries
         new MovieInfo { MovieName = "Landpartie" },
       };
 
-      MovieTheMovieDbMatcher matcher = new MovieTheMovieDbMatcher { DownloadFanart = false };
-      matcher.Init();
-
-      foreach (MovieInfo movieInfo in shouldMatchMovies)
-      {
-        bool match = matcher.FindAndUpdateMovie(movieInfo);
-        Assert.IsTrue(match, string.Format("Failed to look up '{0}'", movieInfo.MovieName));
-      }
-
       foreach (MovieInfo movieInfo in shouldNotMatchMovies)
       {
         string originalName = movieInfo.MovieName;
-        bool match = matcher.FindAndUpdateMovie(movieInfo);
+        bool match = _matcher.FindAndUpdateMovie(movieInfo);
         Assert.IsFalse(match, string.Format("Wrong online look up for '{0}' --> '{1}', should not be matched!", originalName, movieInfo.MovieName));
       }
     }
