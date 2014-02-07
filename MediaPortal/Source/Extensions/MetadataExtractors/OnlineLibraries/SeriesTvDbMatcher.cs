@@ -321,22 +321,23 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.SeriesBanners, _tv.PreferredLanguage);
+        TvdbLanguage language = _tv.PreferredLanguage;
+        SaveBanners(seriesDetail.SeriesBanners, language);
 
         // Save Season Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving season banners for ID {0}", tvDbId);
         // Build a key from Season number and banner type (season or seasonwide), so each combination is handled separately.
         var seasonLookup = seriesDetail.SeasonBanners.ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
         foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
-          SaveBanners(seasonLookup[tvdbSeasonBanners.Key], _tv.PreferredLanguage);
+          SaveBanners(seasonLookup[tvdbSeasonBanners.Key], language);
 
         // Save Posters
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.PosterBanners, _tv.PreferredLanguage);
+        SaveBanners(seriesDetail.PosterBanners, language);
 
         // Save FanArt
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.FanartBanners, _tv.PreferredLanguage);
+        SaveBanners(seriesDetail.FanartBanners, language);
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", tvDbId);
 
         // Remember we are finished
