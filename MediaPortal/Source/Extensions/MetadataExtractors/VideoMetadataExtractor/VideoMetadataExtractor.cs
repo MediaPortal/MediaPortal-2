@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected DateTime? _mediaDate;
 
       protected float? _ar;
-      protected int? _frameRate;
+      protected float? _frameRate;
       protected int? _width;
       protected int? _height;
       protected long? _playTime;
@@ -234,7 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (_ar.HasValue)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ASPECTRATIO, _ar.Value);
         if (_frameRate.HasValue)
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_FPS, _frameRate.Value);
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_FPS, (int)_frameRate.Value);
         if (_width.HasValue)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_WIDTH, _width.Value);
         if (_height.HasValue)

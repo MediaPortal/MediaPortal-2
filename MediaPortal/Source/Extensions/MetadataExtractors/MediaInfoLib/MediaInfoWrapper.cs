@@ -277,9 +277,9 @@ namespace MediaInfoLib
     /// <param name="stream">Number of video stream to examine.</param>
     /// <returns>Framerate in frames per second of the video or <c>null</c>, if the specified video
     /// stream doesn't exist.</returns>
-    public int? GetFramerate(int stream)
+    public float? GetFramerate(int stream)
     {
-      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, stream, "FrameRate"));
+      return GetFloatOrNull(_mediaInfo.Get(StreamKind.Video, stream, "FrameRate"));
     }
 
     /// <summary>
