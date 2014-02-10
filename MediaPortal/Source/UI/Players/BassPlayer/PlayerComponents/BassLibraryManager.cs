@@ -97,6 +97,11 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         return;
       }
 
+      // Fix for MP2-285: loading of some BASS plugin fails because unmanaged dlls are not found in executable folder.
+      // The working directory is temporary changed while loading plugins.
+      string currentDirectory = Directory.GetCurrentDirectory();
+      Directory.SetCurrentDirectory(playerPluginsDirectory);
+
       IDictionary<int, string> plugins = Bass.BASS_PluginLoadDirectory(playerPluginsDirectory);
       foreach (string pluginFile in plugins.Values)
         Log.Debug("Loaded plugin '{0}'", pluginFile);
@@ -106,6 +111,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         Log.Info("No audio decoders loaded; probably already loaded.");
       else
         Log.Info("Loaded {0} audio decoders.", plugins.Count);
+
+      Directory.SetCurrentDirectory(currentDirectory);
     }
 
     #endregion
