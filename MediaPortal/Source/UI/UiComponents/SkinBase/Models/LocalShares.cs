@@ -39,7 +39,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   {
     public LocalShares() : base(ShareEditMode.AddShare) { }
 
-    public LocalShares(Share share) : base(ShareEditMode.EditShare)
+    public LocalShares(Share share)
+      : base(ShareEditMode.EditShare)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       string localSystemName = systemResolver.GetSystemNameForSystemId(systemResolver.LocalSystemId).HostName ?? systemResolver.LocalSystemId;
@@ -134,13 +135,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected override bool ShareNameExists(string shareName)
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      return sharesManagement.Shares.Values.Any(share => share.ShareId != _origShare.ShareId && share.Name == shareName);
+      return sharesManagement.Shares.Values.Any(share => (_origShare == null || share.ShareId != _origShare.ShareId) && share.Name == shareName);
     }
 
     protected override bool SharePathExists(ResourcePath sharePath)
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      return sharesManagement.Shares.Values.Any(share => share.ShareId != _origShare.ShareId && share.BaseResourcePath == sharePath);
+      return sharesManagement.Shares.Values.Any(share => (_origShare == null || share.ShareId != _origShare.ShareId) && share.BaseResourcePath == sharePath);
     }
 
     public override string GetResourcePathDisplayName(ResourcePath path)
@@ -177,9 +178,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               {
                 yield return new ResourcePathMetadata
                   {
-                      ResourceName = childAccessor.ResourceName,
-                      HumanReadablePath = childAccessor.ResourcePathName,
-                      ResourcePath = childAccessor.CanonicalLocalResourcePath
+                    ResourceName = childAccessor.ResourceName,
+                    HumanReadablePath = childAccessor.ResourcePathName,
+                    ResourcePath = childAccessor.CanonicalLocalResourcePath
                   };
               }
         }
