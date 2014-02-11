@@ -416,11 +416,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         IPicture[] pics = tag.Tag.Pictures;
         if (pics.Length > 0)
         {
-          using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
-          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+          try
           {
-            MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+            using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
+            using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+            {
+              MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+            }
           }
+          // Decoding of invalid image data can fail, but main MediaItem is correct.
+          catch { }
         }
         else
         {
