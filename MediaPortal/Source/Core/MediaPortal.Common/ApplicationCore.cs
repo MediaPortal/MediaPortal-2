@@ -120,8 +120,19 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering IMediaAccessor service");
       ServiceRegistration.Set<IMediaAccessor>(new MediaAccessor());
 
-      logger.Debug("ApplicationCore: Registering IImporterWorker service");
-      ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());
+      // ToDo: Remove the old ImporterWorker and this setting once the NewGen ImporterWorker actually works
+      var importerWorkerSettings = ServiceRegistration.Get<ISettingsManager>().Load<ImporterWorkerSettings>();
+      if (importerWorkerSettings.UseNewImporterWorker)
+      {
+        logger.Debug("ApplicationCore: Registering IImporterWorker NewGen service");
+        ServiceRegistration.Set<IImporterWorker>(new ImporterWorkerNewGen());
+      }
+      else
+      {
+        logger.Debug("ApplicationCore: Registering IImporterWorker service");
+        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());        
+      }
+      ServiceRegistration.Get<ISettingsManager>().Save(importerWorkerSettings);
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
       ServiceRegistration.Set<IResourceServer>(new ResourceServer());

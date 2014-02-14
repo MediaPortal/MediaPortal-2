@@ -38,6 +38,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     #endregion
 
     /// <summary>
+    /// Indicates whether the NewGen ImporterWorker should be used or the old one
+    /// Todo: Remove this setting once the NewGen ImporterWorker actually works
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool UseNewImporterWorker { get; set; }
+
+    /// <summary>
     /// Gets or sets the Guid of the <see cref="Task"/> that is used for regular share imports.
     /// </summary>
     [Setting(SettingScope.Global)]
