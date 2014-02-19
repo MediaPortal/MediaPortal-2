@@ -5,6 +5,6 @@ using System.Reflection;
 // be deleted.
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2012")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2014")]
+[assembly: AssemblyVersion("2.0.0.1402")]
+[assembly: AssemblyFileVersion("2.0.0.1402")]
