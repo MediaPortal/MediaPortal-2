@@ -24,8 +24,10 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -36,6 +38,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly ImportJobInformation _importJobInformation;
     private readonly ImporterWorkerNewGen _parent;
 
+    private readonly DirectoryUnfoldBlock _directoryUnfoldBlock;
+
     #endregion
 
     #region Constructor
@@ -44,6 +48,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       _importJobInformation = importJobInformation;
       _parent = parent;
+
+      _directoryUnfoldBlock = new DirectoryUnfoldBlock(importJobInformation.BasePath);
+      _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResource>());
     }
 
     #endregion
@@ -55,7 +62,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       get
       {
         // Todo: This task shall complete when the ImportJob is completed. Most likely return the Completion property of the last DataflowBlock
-        return Task.Delay(10000);
+        return _directoryUnfoldBlock.Completion;
       }      
     }
 
