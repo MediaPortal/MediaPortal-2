@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           // FIXME: Some subtitles will have the attributed 'double height'
           // and therefore have an empty line between subs.
 
-          // ís this content a space attribute?
+          // ï¿½s this content a space attribute?
           if (MSB3_NP(lineContent[j]) == 0)
           {
             if (LSB4(lineContent[j]) == SPACE_ATTRIB_BOX_START)

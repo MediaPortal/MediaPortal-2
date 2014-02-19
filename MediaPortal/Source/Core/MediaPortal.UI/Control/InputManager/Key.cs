@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -241,7 +241,7 @@ namespace MediaPortal.UI.Control.InputManager
     /// Deserializes a key definition and returns a valid <see cref="Key"/>. The <paramref name="serializedKey"/> needs to be in one of those formats:
     /// <para>
     /// <c>S:KeyName</c> for special keys, where "KeyName" is any known special key (like "Play", "LiveTV"...)
-    /// <c>P:C</c> for printable keys, where "C" is a single printable character (A, B, 1, 2, !, ", § ...)
+    /// <c>P:C</c> for printable keys, where "C" is a single printable character (A, B, 1, 2, !, ", ï¿½ ...)
     /// </para>
     /// </summary>
     /// <param name="serializedKey">Key string</param>

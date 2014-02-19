@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,10 +43,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
        ')', '@', '/', ':',
        '_', ';', '+', '&',
        '%', '*', '=', '<',
-       '>', '£', '€', '$',
-       '¥', '¤', '[', ']',
+       '>', 'ï¿½', 'ï¿½', '$',
+       'ï¿½', 'ï¿½', '[', ']',
        '{', '}', '\\', '~',
-       '^', '¡', '¿', '§',
+       '^', 'ï¿½', 'ï¿½', 'ï¿½',
        '#', '|'};
 
     public static IDictionary<char, IList<char>> CELLPHONE_LAYOUT_LOWER = new Dictionary<char, IList<char>>

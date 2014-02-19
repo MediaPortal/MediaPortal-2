@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,7 +33,7 @@ using MediaPortal.Utilities.DeepCopy;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
-  /// Used within the template of an item control to specify the place in the control’s visual tree 
+  /// Used within the template of an item control to specify the place in the controlï¿½s visual tree 
   /// where the ItemsPanel defined by the ItemsControl is to be added.
   /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemspresenter.aspx
   /// </summary>

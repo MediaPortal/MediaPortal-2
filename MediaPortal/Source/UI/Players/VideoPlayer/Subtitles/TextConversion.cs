@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,7 +34,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   {
     private static readonly IDictionary<string, IDictionary<char, char>> _langSpecificMap = new Dictionary<string, IDictionary<char, char>>
       {
-          {"dan", new Dictionary<char, char> {{'ö', 'ø'}, {'ä', 'æ'}}}
+          {"dan", new Dictionary<char, char> {{'ï¿½', 'ï¿½'}, {'ï¿½', 'ï¿½'}}}
       };
 
     private static readonly byte[,] _vtx2Iso85591Table = new byte[8, 96]

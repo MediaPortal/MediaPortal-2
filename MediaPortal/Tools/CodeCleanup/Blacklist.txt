@@ -6,3 +6,7 @@ MediaPortal\Source\Extensions\MetadataExtractors\OnlineLibraries\Libraries\TvdbL
 MediaPortal\Source\Extensions\MetadataExtractors\TagLib
 MediaPortal\Source\External\Dokan
 MediaPortal\Source\UI\SkinEngine\MpfElements\Converters\expr
+MediaPortal\Incubator\WifiConfiguration\Models\NativeWifiWrapper
+MediaPortal\Source\UI\Players\DirectShowWrapper
+MediaPortal\Source\UI\SkinEngine\DirectX\Triangulate\Triangulation
+MediaPortal\Source\UI\SkinEngine\DirectX\Triangulate\Utility

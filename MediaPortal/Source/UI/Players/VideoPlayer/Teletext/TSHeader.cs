@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -64,9 +64,9 @@ namespace MediaPortal.UI.Players.Video.Teletext
       //ContinuityCounter							: 4			3				0xf   00001111
 
       //Two adaption field control bits which may take four values:
-      // 1. 01 – no adaptation field, payload only				0x10		1
-      // 2. 10 – adaptation field only, no payload				0x20		2
-      // 3. 11 – adaptation field followed by payload			0x30		3
+      // 1. 01 ï¿½ no adaptation field, payload only				0x10		1
+      // 2. 10 ï¿½ adaptation field only, no payload				0x20		2
+      // 3. 11 ï¿½ adaptation field followed by payload			0x30		3
       // 4. 00 - RESERVED for future use 									0x00
 
       SyncByte = data[0];

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -236,7 +236,7 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
-    /// Replaces diacritics from strings by their base character like <c>Beyoncé</c> to <c>Beyonce</c>. 
+    /// Replaces diacritics from strings by their base character like <c>Beyoncï¿½</c> to <c>Beyonce</c>. 
     /// </summary>
     /// <param name="text">Text to replace</param>
     /// <returns>Replaced text</returns>
