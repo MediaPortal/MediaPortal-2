@@ -50,6 +50,7 @@ namespace Tests.UPnP
         "Connection: keep-alive",
         "If-Modified-Since: Wed, 26 Feb 2014 18:49:15 GMT",
         "Cache-Control: max-age=0",
+        "",
         ""
       };
       Parse(requestHeaders);
@@ -65,6 +66,7 @@ namespace Tests.UPnP
         "Connection: keep-alive",
         "Connection: keep-alive",
         "Host: de-de.facebook.com",
+        "",
         ""
       };
       Parse(requestHeaders);
