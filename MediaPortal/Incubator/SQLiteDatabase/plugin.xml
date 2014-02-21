@@ -5,8 +5,12 @@
     Author="offbyone; MJGraf"
     Copyright="GPL"
     AutoActivate="true"
-    Description="Provides database access to an SQLite database"
-    PluginVersion="0.07">
+    Description="Provides database access to an SQLite database">
+
+  <Version
+    PluginVersion="0.07"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <Runtime>
     <Assembly FileName="SQLiteDatabase.dll"/>
