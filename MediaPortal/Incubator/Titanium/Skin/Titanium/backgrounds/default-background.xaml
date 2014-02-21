@@ -53,7 +53,7 @@ Default background image - no media present
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0"
+              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
                 Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}">
                 <Image.Triggers>
                   <Trigger Property="HasImage" Value="False">

@@ -131,7 +131,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     public ImageSource ImageSource
     {
       get { return (ImageSource) _imageSourceProperty.GetValue(); }
-      internal set { _imageSourceProperty.SetValue(value); }
+      set { _imageSourceProperty.SetValue(value); }
     }
 
     public void SetSelectedItem(ListItem item)

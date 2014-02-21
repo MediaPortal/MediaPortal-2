@@ -25,6 +25,7 @@
 using System;
 using System.Globalization;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
@@ -36,7 +37,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       result = null;
       FanArtImageSource imageSource = val as FanArtImageSource;
       if (imageSource == null)
+      {
+        ImageSource source = val as ImageSource;
+        if (source != null)
+        {
+          result = source;
+          return true;
+        }
         return false;
+      }
 
       string param = parameter as string;
       if (string.IsNullOrEmpty(param))
