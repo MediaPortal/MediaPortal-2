@@ -35,6 +35,8 @@ namespace MediaPortal.Common.MediaManagement
     Refresh
   }
 
+  // ToDo: ImportJobState is not required for ImporterWorkerNewGen anymore.
+  // The state is represented by the Completion task of the ImportJobController  
   public enum ImportJobState
   {
     None,

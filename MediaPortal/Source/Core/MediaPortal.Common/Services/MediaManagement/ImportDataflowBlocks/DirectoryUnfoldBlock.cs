@@ -28,24 +28,44 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using System.Web.Configuration;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
+  /// <summary>
+  /// Takes one directory and provides this directory and all its direct and indirect subdirectories
+  /// that are not treated as a single resource (like e.g. a DVD directory)
+  /// </summary>
+  /// <remarks>
+  /// Uses a TransformManyBlock and recursively posts the subdirectories of a given directory to this block
+  /// ToDo: Add an IsSingleResource method to the IMetadatExtractor interface and all its implementations
+  /// ToDo: If at least one of the MetadataExtractors to be applied returns true, the directory is
+  /// ToDo: treated as a single resource, not as a directory containing sub-items or subdirectories.
+  /// ToDo: Handle Cancellation
+  /// ToDo: Handle Suspension (This DataflowBlock is quick, so most likely we cancel and start over again on re-activation
+  /// ToDo: or we could even block suspension until this DataflowBlock has finished)
+  /// </remarks>
   class DirectoryUnfoldBlock : ISourceBlock<PendingImportResource>
   {
     #region Variables
 
     private readonly TransformManyBlock<IFileSystemResourceAccessor, PendingImportResource> _innerBlock;
     private readonly Stopwatch _stopWatch;
-    private int _directoriesProcessed = 0;
+    private int _directoriesProcessed;
 
     #endregion
 
     #region Constructor
 
+    /// <summary>
+    /// Initiates and starts the DirectoryUnfoldBlock
+    /// </summary>
+    /// <param name="path">Root path of the unfolding process</param>
+    /// <remarks>
+    /// <param name="path"></param> must point to a resource (a) for which we can create an IFileSystemResourceAccessor
+    /// and (b) which is a directory
+    /// </remarks>
     public DirectoryUnfoldBlock(ResourcePath path)
     {
       _innerBlock = new TransformManyBlock<IFileSystemResourceAccessor, PendingImportResource>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
@@ -66,6 +86,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       Interlocked.Increment(ref _directoriesProcessed);
 
       //ToDo: Only add if Directory is NOT a single resource (such as a DVD directory)
+      //ToDo: Implement parent directory treament; onle the root directory has Guid.Empty as parent directory ID
       var result = new HashSet<PendingImportResource> { new PendingImportResource(Guid.Empty, fsra) };
 
       ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra, false);

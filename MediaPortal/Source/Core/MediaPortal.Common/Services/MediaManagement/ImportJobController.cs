@@ -23,14 +23,27 @@
 #endregion
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
+  /// <summary>
+  /// An <see cref="ImportJobController"/> is responsible for handling a single ImportJob
+  /// </summary>
+  /// <remarks>
+  /// It holds the TPL Datflow network for the ImportJob and is responsible for cancelling
+  /// and suspending the particular ImportJob. If it determines that the <see cref="ImporterWorkerNewGen"/>
+  /// shoud be suspended (e.g. because on the MP2 Client side the MP2 Server is disconnected) it notifies the
+  /// <see cref="ImporterWorkerNewGen"/> (_parent) which will then make sure that all <see cref="ImportJobController"/>s
+  /// are suspended.
+  /// ToDo: Handle cancellation with a <see cref="CancellationToken"/>
+  /// ToDo: Handle suspension
+  /// ToDo: Make this class (or a separate status class) serializable by the XMLSerializer to be able to save the status on shutdown
+  /// </remarks>
   public class ImportJobController
   {
     #region Variables
@@ -38,7 +51,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly ImportJobInformation _importJobInformation;
     private readonly ImporterWorkerNewGen _parent;
 
-    private readonly DirectoryUnfoldBlock _directoryUnfoldBlock;
+    private DirectoryUnfoldBlock _directoryUnfoldBlock;
 
     #endregion
 
@@ -49,14 +62,17 @@ namespace MediaPortal.Common.Services.MediaManagement
       _importJobInformation = importJobInformation;
       _parent = parent;
 
-      _directoryUnfoldBlock = new DirectoryUnfoldBlock(importJobInformation.BasePath);
-      _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResource>());
+      SetupDataflowBlocks();
+      LinkDataflowBlocks();
     }
 
     #endregion
 
     #region Public properties
 
+    /// <summary>
+    /// Returns a <see cref="Task"/> that represents the status of the ImportJob
+    /// </summary>
     public Task Completion
     {
       get
@@ -69,6 +85,38 @@ namespace MediaPortal.Common.Services.MediaManagement
     #endregion
 
     #region Public methods
+
+    public void Cancel()
+    {      
+    }
+
+    public void Suspend()
+    {      
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Instantiates all the necessary DataflowBlocks for the given ImportJob
+    /// </summary>
+    /// <remarks>
+    /// ToDo: We need to handle three cases here:
+    /// - BasePath points to a single resource
+    /// - BasePath points to a directory which is not a single resource and the ImportJob does not include subdirectories
+    /// - BasePath points to a directory which is not a single resource and the ImportJob does include subdirectories
+    /// </remarks>
+    private void SetupDataflowBlocks()
+    {
+      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath);
+    }
+
+    private void LinkDataflowBlocks()
+    {
+      _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResource>());
+    }
+
     #endregion
 
     #region Base overrides
