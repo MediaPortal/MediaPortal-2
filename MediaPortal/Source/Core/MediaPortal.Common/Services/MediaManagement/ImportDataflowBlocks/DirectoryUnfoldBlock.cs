@@ -51,6 +51,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Variables
 
     private readonly TransformManyBlock<IFileSystemResourceAccessor, PendingImportResource> _innerBlock;
+    private readonly Task _completion;
     private readonly Stopwatch _stopWatch;
     private int _directoriesProcessed;
 
@@ -69,6 +70,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     public DirectoryUnfoldBlock(ResourcePath path)
     {
       _innerBlock = new TransformManyBlock<IFileSystemResourceAccessor, PendingImportResource>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
+      _completion = _innerBlock.Completion.ContinueWith(OnFinished);
       IResourceAccessor ra;
       path.TryCreateLocalResourceAccessor(out ra);
       var fsra = ra as IFileSystemResourceAccessor;
@@ -95,16 +97,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           _innerBlock.Post(subDirectory);
 
       if (_innerBlock.InputCount == 0)
-      {
         _innerBlock.Complete();
-        _stopWatch.Stop();
-        ServiceRegistration.Get<ILogger>().Info("DirectoryUnfoldBlock: Unfolded {0} directories. Time elapsed: {1}", _directoriesProcessed, _stopWatch.Elapsed);
-      }
 
       // ToDo: Remove this - just here to free the resources for now
       fsra.Dispose();
 
       return result;
+    }
+
+    private void OnFinished(Task previousTask)
+    {
+      // ToDo: Handle fault and cancelled states and react appropriately  
+      _stopWatch.Stop();
+        ServiceRegistration.Get<ILogger>().Info("DirectoryUnfoldBlock: Unfolded {0} directories. Time elapsed: {1}", _directoriesProcessed, _stopWatch.Elapsed);
     }
 
     #endregion
@@ -123,7 +128,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     public Task Completion
     {
-      get { return _innerBlock.Completion; }
+      get { return _completion; }
     }
 
     public IDisposable LinkTo(ITargetBlock<PendingImportResource> target, DataflowLinkOptions linkOptions)

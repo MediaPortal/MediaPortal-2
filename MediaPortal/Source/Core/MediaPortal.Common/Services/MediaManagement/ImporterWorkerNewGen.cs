@@ -125,7 +125,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
         var importJobInformation = new ImportJobInformation(newImportJobInformation);
         var importJobController = new ImportJobController(importJobInformation, this);
-        importJobController.Completion.ContinueWith(prevTask => OnImportJobCompleted(importJobInformation));
+        importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
         _importJobs[importJobInformation] = importJobController;
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started {0}", importJobController);
       }
@@ -136,11 +136,16 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Event handler
 
-    private void OnImportJobCompleted(ImportJobInformation importJobInformation)
+    private void OnImportJobFinished(Task previousTask, ImportJobInformation importJobInformation)
     {
       ImportJobController importJobController;
       _importJobs.TryRemove(importJobInformation, out importJobController);
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished {0}", importJobController);
+      if (previousTask.IsFaulted)
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Error while processing {0}", previousTask.Exception, importJobController);        
+      else if (previousTask.IsCanceled)
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceled {0}", importJobController);
+      else
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished {0}", importJobController);
     }
 
     #endregion
