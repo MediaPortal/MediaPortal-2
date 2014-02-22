@@ -35,10 +35,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
   /// Takes one directory and provides this directory and all its direct and indirect subdirectories
-  /// that are not treated as a single resource (like e.g. a DVD directory)
+  /// except those that are below single resource directory (like e.g. a DVD directory)
   /// </summary>
   /// <remarks>
-  /// Uses a TransformManyBlock and recursively posts the subdirectories of a given directory to this block
+  /// Uses a TransformBlock and recursively posts the subdirectories of a given directory to this block
   /// ToDo: Add an IsSingleResource method to the IMetadatExtractor interface and all its implementations
   /// ToDo: If at least one of the MetadataExtractors to be applied returns true, the directory is
   /// ToDo: treated as a single resource, not as a directory containing sub-items or subdirectories.
@@ -46,12 +46,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// ToDo: Handle Suspension (This DataflowBlock is quick, so most likely we cancel and start over again on re-activation
   /// ToDo: or we could even block suspension until this DataflowBlock has finished)
   /// </remarks>
-  class DirectoryUnfoldBlock : ISourceBlock<PendingImportResource>
+  class DirectoryUnfoldBlock : ISourceBlock<PendingImportResourceNewGen>
   {
     #region Variables
 
-    private readonly TransformManyBlock<IFileSystemResourceAccessor, PendingImportResource> _innerBlock;
-    private readonly Task _completion;
+    private readonly TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
+    private readonly int _maxDegreeOfParallelism;
     private readonly Stopwatch _stopWatch;
     private int _directoriesProcessed;
 
@@ -69,47 +69,52 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </remarks>
     public DirectoryUnfoldBlock(ResourcePath path)
     {
-      _innerBlock = new TransformManyBlock<IFileSystemResourceAccessor, PendingImportResource>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
-      _completion = _innerBlock.Completion.ContinueWith(OnFinished);
+      _maxDegreeOfParallelism = Environment.ProcessorCount;
+      
+      _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism });
+      _innerBlock.Completion.ContinueWith(OnFinished, TaskContinuationOptions.AttachedToParent);
       IResourceAccessor ra;
       path.TryCreateLocalResourceAccessor(out ra);
       var fsra = ra as IFileSystemResourceAccessor;
+      var rootImportResource = new PendingImportResourceNewGen(null, fsra);
 
       _stopWatch = Stopwatch.StartNew();
-      _innerBlock.Post(fsra);
+      _innerBlock.Post(rootImportResource);
     }
 
     #endregion
 
     #region Private methods
 
-    private IEnumerable<PendingImportResource> ProcessDirectory(IFileSystemResourceAccessor fsra)
+    private PendingImportResourceNewGen ProcessDirectory(PendingImportResourceNewGen importResource)
     {
       Interlocked.Increment(ref _directoriesProcessed);
 
-      //ToDo: Only add if Directory is NOT a single resource (such as a DVD directory)
-      //ToDo: Implement parent directory treament; onle the root directory has Guid.Empty as parent directory ID
-      var result = new HashSet<PendingImportResource> { new PendingImportResource(Guid.Empty, fsra) };
+      //ToDo: Only do this if Directory is NOT a single resource (such as a DVD directory)
+      importResource.IsIngleResource = false;
 
-      ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra, false);
-      if(directories != null)
-        foreach (var subDirectory in directories)
-          _innerBlock.Post(subDirectory);
+      if (!importResource.IsIngleResource)
+      {
+        ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
+        if (directories != null)
+          foreach (var subDirectory in directories)
+            _innerBlock.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor, subDirectory));
+      }
 
       if (_innerBlock.InputCount == 0)
         _innerBlock.Complete();
 
       // ToDo: Remove this - just here to free the resources for now
-      fsra.Dispose();
+      importResource.ResourceAccessor.Dispose();
 
-      return result;
+      return importResource;
     }
 
     private void OnFinished(Task previousTask)
     {
       // ToDo: Handle fault and cancelled states and react appropriately  
       _stopWatch.Stop();
-        ServiceRegistration.Get<ILogger>().Info("DirectoryUnfoldBlock: Unfolded {0} directories. Time elapsed: {1}", _directoriesProcessed, _stopWatch.Elapsed);
+        ServiceRegistration.Get<ILogger>().Info("DirectoryUnfoldBlock: Unfolded {0} directories; time elapsed: {1}; MaxDegreeOfParallelism = {2}", _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
     }
 
     #endregion
@@ -123,32 +128,32 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     public void Fault(Exception exception)
     {
-      (_innerBlock as ISourceBlock<PendingImportResource>).Fault(exception);
+      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).Fault(exception);
     }
 
     public Task Completion
     {
-      get { return _completion; }
+      get { return _innerBlock.Completion; }
     }
 
-    public IDisposable LinkTo(ITargetBlock<PendingImportResource> target, DataflowLinkOptions linkOptions)
+    public IDisposable LinkTo(ITargetBlock<PendingImportResourceNewGen> target, DataflowLinkOptions linkOptions)
     {
       return _innerBlock.LinkTo(target, linkOptions);
     }
 
-    public PendingImportResource ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResource> target, out bool messageConsumed)
+    public PendingImportResourceNewGen ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target, out bool messageConsumed)
     {
-      return (_innerBlock as ISourceBlock<PendingImportResource>).ConsumeMessage(messageHeader, target, out messageConsumed);
+      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
     }
 
-    public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResource> target)
+    public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
     {
-      return (_innerBlock as ISourceBlock<PendingImportResource>).ReserveMessage(messageHeader, target);
+      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
     }
 
-    public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResource> target)
+    public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
     {
-      (_innerBlock as ISourceBlock<PendingImportResource>).ReleaseReservation(messageHeader, target);
+      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
     }
 
     #endregion

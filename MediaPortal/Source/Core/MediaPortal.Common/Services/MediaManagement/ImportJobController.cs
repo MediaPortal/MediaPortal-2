@@ -114,7 +114,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private void LinkDataflowBlocks()
     {
-      _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResource>());
+      _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
     }
 
     #endregion
