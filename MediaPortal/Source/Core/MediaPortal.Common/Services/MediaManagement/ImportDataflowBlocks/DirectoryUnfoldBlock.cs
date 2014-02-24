@@ -70,10 +70,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </remarks>
     public DirectoryUnfoldBlock(ResourcePath path)
     {
-      if (path.IsNetworkResource)
-        _maxDegreeOfParallelism = Environment.ProcessorCount * 10;
-      else
-        _maxDegreeOfParallelism = Environment.ProcessorCount;
+      _maxDegreeOfParallelism = Environment.ProcessorCount;
       
       _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism });
       _completion = _innerBlock.Completion.ContinueWith(OnFinished, TaskContinuationOptions.AttachedToParent);
