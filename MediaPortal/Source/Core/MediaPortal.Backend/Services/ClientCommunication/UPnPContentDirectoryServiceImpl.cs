@@ -463,11 +463,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       // More state variables go here
 
-      #endregion
 
-      #region Device Actions
+      // Device Actions
 
-      #region UPnP 1.0 Device Actions
+      // UPnP 1.0 Device Actions
 
       // UPnP 1.0 - 2.7.1 GetSearchCapabilities - Required
       DvAction getSearchCapabiltiesAction = new DvAction("GetSearchCapabilities", OnGetSearchCapabilities,
@@ -544,9 +543,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // UPnP 1.0 - 2.7.13 DeleteResource - Optional
       // UPnP 1.0 - 2.7.14 CreateReference - Optional
 
-      #endregion
-
       // UPnP 1.0 - 2.7.15 Non-Stanard Actions Implementations
+
+
+      // MPnP 1.0 Actions
 
       #region MPnP 1.0 Device Actions
 
@@ -863,12 +863,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
           });
       AddAction(mpnp10NotifyPlaybackAction);
+
       
-      #endregion
+      // MPnP 1.1 Actions
 
-      #region MPnP 1.1 Device Actions
-
-      DvAction mpnp11BrowseAction = new DvAction("X_MediaPortal_Browse", OnMPnP11Browse,
+      DvAction browseAction = new DvAction("Browse", OnBrowse,
           new DvArgument[] {
             new DvArgument("ParentDirectory", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -879,9 +878,21 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
-      AddAction(mpnp11BrowseAction);
+      AddAction(browseAction);
 
-      DvAction mpnp11TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP11TextSearch,
+      DvAction searchAction = new DvAction("Search", OnSearch,
+          new DvArgument[] {
+            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In), 
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In), 
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(searchAction);
+
+      DvAction textSearchAction = new DvAction("SimpleTextSearch", OnTextSearch,
           new DvArgument[] {
             new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -896,9 +907,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
-      AddAction(mpnp11TextSearchAction);
+      AddAction(textSearchAction);
 
-      DvAction mpnp11LoadCustomPlaylistAction = new DvAction("X_MediaPortal_LoadCustomPlaylist", OnMPnP11LoadCustomPlaylist,
+      DvAction loadCustomPlaylistAction = new DvAction("LoadCustomPlaylist", OnLoadCustomPlaylist,
           new DvArgument[] {
             new DvArgument("MediaItemIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -909,9 +920,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true)
           });
-      AddAction(mpnp11LoadCustomPlaylistAction);
-
-      #endregion
+      AddAction(loadCustomPlaylistAction);
 
       // More actions go here
 
