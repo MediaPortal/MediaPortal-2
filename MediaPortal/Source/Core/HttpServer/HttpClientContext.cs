@@ -330,9 +330,9 @@ namespace HttpServer
         LogWriter.Write(this, LogPrio.Debug, "Failed to end receive : " + err.Message);
         Disconnect(SocketError.NotSocket);
       }
-      catch (NullReferenceException err)
+      catch(Exception err)
       {
-        LogWriter.Write(this, LogPrio.Debug, "Failed to end receive : NullRef: " + err.Message);
+        LogWriter.Write(this, LogPrio.Debug, "Failed to end receive : " + err.Message);
         Disconnect(SocketError.NoRecovery);
       }
     }
