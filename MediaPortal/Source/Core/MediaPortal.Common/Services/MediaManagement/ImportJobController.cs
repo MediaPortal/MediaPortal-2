@@ -23,10 +23,15 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using System.Web.UI;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks;
 
 namespace MediaPortal.Common.Services.MediaManagement
@@ -49,7 +54,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     #region Variables
 
     private readonly ImportJobInformation _importJobInformation;
-    private readonly ImporterWorkerNewGen _parent;
+    private readonly ImporterWorkerNewGen _parentImporterWorker;
+    private readonly Task _completion;
+
+    private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
 
     private DirectoryUnfoldBlock _directoryUnfoldBlock;
 
@@ -57,13 +65,18 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public ImportJobController(ImportJobInformation importJobInformation, ImporterWorkerNewGen parent)
+    public ImportJobController(ImportJobInformation importJobInformation, ImporterWorkerNewGen parentImporterWorker)
     {
       _importJobInformation = importJobInformation;
-      _parent = parent;
+      _parentImporterWorker = parentImporterWorker;
+
+      _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
 
       SetupDataflowBlocks();
       LinkDataflowBlocks();
+
+      // Todo: This continuation shall happen after the last DataflowBlock has finished
+      _completion = _directoryUnfoldBlock.Completion.ContinueWith(OnFinished);
     }
 
     #endregion
@@ -77,8 +90,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
-        // Todo: This task shall complete when the ImportJob is completed. Most likely return the Completion property of the last DataflowBlock
-        return _directoryUnfoldBlock.Completion;
+        return _completion;
       }      
     }
 
@@ -94,9 +106,45 @@ namespace MediaPortal.Common.Services.MediaManagement
     {      
     }
 
+    public void RegisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
+    {
+      if (!_pendingImportResources.TryAdd(pendingImportResource.ResourceAccessor.CanonicalLocalResourcePath, pendingImportResource))
+        ServiceRegistration.Get<ILogger>().Warn("ImportJobController: Could not register {0}", pendingImportResource);
+    }
+
+    public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
+    {
+      PendingImportResourceNewGen removedPendingImportResource;
+      if(!_pendingImportResources.TryRemove(pendingImportResource.ResourceAccessor.CanonicalLocalResourcePath, out removedPendingImportResource))
+        ServiceRegistration.Get<ILogger>().Warn("ImportJobController: Could not unregister {0}", pendingImportResource);
+    }
+
     #endregion
 
     #region Private methods
+
+    private void OnFinished(Task previousTask)
+    {
+      if (_pendingImportResources.Count > 0)
+      {
+        // The ImportJob has finished, but we have PendingImportJobResources left that have not been disposed.
+        // This should only happen when the ImportJob finishes in cancelled oder faulted state. When the ImportJob
+        // ran to completion, the DataflowBlocks should have disposed all the PendingImportResources.
+        if(!previousTask.IsCanceled && !previousTask.IsFaulted)
+          ServiceRegistration.Get<ILogger>().Warn("ImportJobController: The ImportJob ran to completion but there are {0} undisposed PendingImportResources left for {1}", _pendingImportResources.Count, this);
+        
+        var pendingImportReouces = new List<PendingImportResourceNewGen>(_pendingImportResources.Values);
+        foreach (var pendingImportResource in pendingImportReouces)
+          pendingImportResource.Dispose();
+      }
+
+      // We rethrow potential exceptions from previousTask (i.e. our _innerBlock.Completion task)
+      // to make the ImporterWorker aware of the status of this ImportJob
+      // ToDo: When creating this task, we need to pass the same CancelationToken we passed to the previousTask
+      // ToDo: so that this task gets a canceled status not a faulted status when we throw the OperationCanceledException here
+      if (previousTask.Exception != null)
+        throw previousTask.Exception;
+    }
 
     /// <summary>
     /// Instantiates all the necessary DataflowBlocks for the given ImportJob
@@ -109,7 +157,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </remarks>
     private void SetupDataflowBlocks()
     {
-      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath);
+      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath, this);
     }
 
     private void LinkDataflowBlocks()

@@ -51,6 +51,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Variables
 
     private readonly TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
+    private readonly ImportJobController _parentImportJobController;
     private readonly Task _completion;
     private readonly int _maxDegreeOfParallelism;
     private readonly Stopwatch _stopWatch;
@@ -64,12 +65,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Initiates and starts the DirectoryUnfoldBlock
     /// </summary>
     /// <param name="path">Root path of the unfolding process</param>
+    /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
     /// <remarks>
     /// <param name="path"></param> must point to a resource (a) for which we can create an IFileSystemResourceAccessor
     /// and (b) which is a directory
     /// </remarks>
-    public DirectoryUnfoldBlock(ResourcePath path)
+    public DirectoryUnfoldBlock(ResourcePath path, ImportJobController parentImportJobController)
     {
+      _parentImportJobController = parentImportJobController;
       _maxDegreeOfParallelism = Environment.ProcessorCount;
       
       _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism });
@@ -77,7 +80,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       IResourceAccessor ra;
       path.TryCreateLocalResourceAccessor(out ra);
       var fsra = ra as IFileSystemResourceAccessor;
-      var rootImportResource = new PendingImportResourceNewGen(null, fsra);
+      var rootImportResource = new PendingImportResourceNewGen(null, fsra, _parentImportJobController);
 
       _stopWatch = Stopwatch.StartNew();
       _innerBlock.Post(rootImportResource);
@@ -99,14 +102,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
         if (directories != null)
           foreach (var subDirectory in directories)
-            _innerBlock.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor, subDirectory));
+            _innerBlock.Post(new PendingImportResourceNewGen((IFileSystemResourceAccessor)importResource.ResourceAccessor.Clone(), subDirectory, _parentImportJobController));
       }
 
       if (_innerBlock.InputCount == 0)
         _innerBlock.Complete();
-
-      // ToDo: Remove this - just here to free the resources for now
-      importResource.ResourceAccessor.Dispose();
 
       return importResource;
     }

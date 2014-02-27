@@ -48,19 +48,24 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// </remarks>
   public class PendingImportResourceNewGen : IDisposable
   {
+    private readonly ImportJobController _parentImportJobController;
+    
     private IFileSystemResourceAccessor _parentDirectory;
     private IFileSystemResourceAccessor _resourceAccessor;
     private bool _isSingleResource = true;
     private bool _isValid = true;
 
-    public PendingImportResourceNewGen(IFileSystemResourceAccessor parentDirectory, IFileSystemResourceAccessor resourceAccessor)
+    public PendingImportResourceNewGen(IFileSystemResourceAccessor parentDirectory, IFileSystemResourceAccessor resourceAccessor, ImportJobController parentImportJobController)
     {
       _parentDirectory = parentDirectory;
       _resourceAccessor = resourceAccessor;
+      _parentImportJobController = parentImportJobController;
+      _parentImportJobController.RegisterPendingImportResource(this);
     }
 
     public void Dispose()
     {
+      _parentImportJobController.UnregisterPendingImportResource(this);
       try
       {
         if (_resourceAccessor != null)
