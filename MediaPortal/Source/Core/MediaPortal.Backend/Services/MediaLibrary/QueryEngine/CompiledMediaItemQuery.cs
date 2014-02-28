@@ -49,8 +49,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected readonly IFilter _filter;
-    protected uint? _offset;
-    protected uint? _limit;
+    protected readonly uint? _offset;
+    protected readonly uint? _limit;
 
     protected readonly IList<SortInformation> _sortInformation;
 
@@ -415,7 +415,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   {
     public static IEnumerable<IDataReader> AsEnumerable(this IDataReader reader)
     {
-      while(reader.Read())
+      while (reader.Read())
         yield return reader;
     }
   }
