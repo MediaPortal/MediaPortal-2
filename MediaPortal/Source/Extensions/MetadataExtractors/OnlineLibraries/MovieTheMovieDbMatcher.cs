@@ -54,6 +54,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
     protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
     protected static string _collectionMatchesFile = Path.Combine(CACHE_PATH, "CollectionMatches.xml");
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
 
     readonly MatchStorage<MovieCollectionMatch, int> _collectionStorage = new MatchStorage<MovieCollectionMatch, int>(_collectionMatchesFile);
 
@@ -66,7 +67,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Fields
 
-    protected Dictionary<string, Movie> _memoryCache = new Dictionary<string, Movie>();
+    protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
+    protected Dictionary<string, Movie> _memoryCache = new Dictionary<string, Movie>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Contains the initialized TheMovieDbWrapper.
@@ -206,6 +208,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       try
       {
         // Prefer memory cache
+        CheckCacheAndRefresh();
         if (_memoryCache.TryGetValue(movieName, out movieDetail))
           return true;
 
@@ -216,7 +219,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         movieDetail = null;
 
         // Use cached values before doing online query
-        MovieMatch match = matches.Find(m => m.ItemName == movieName || m.MovieDBName == movieName);
+        MovieMatch match = matches.Find(m => 
+          string.Equals(m.ItemName, movieName, StringComparison.OrdinalIgnoreCase) || 
+          string.Equals(m.MovieDBName, movieName, StringComparison.OrdinalIgnoreCase));
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && match.Id != 0);
 
         // Try online lookup
@@ -276,6 +281,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (movieDetail != null && !_memoryCache.ContainsKey(movieName))
           _memoryCache.Add(movieName, movieDetail);
       }
+    }
+
+    /// <summary>
+    /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
+    /// </summary>
+    private void CheckCacheAndRefresh()
+    {
+      if (DateTime.Now - _memoryCacheInvalidated <= MAX_MEMCACHE_DURATION)
+        return;
+      _memoryCache.Clear();
+      _memoryCacheInvalidated = DateTime.Now;
+
+      // TODO: when updating movie information is implemented, start here a job to do it
     }
 
     public override bool Init()

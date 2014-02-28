@@ -28,7 +28,6 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
-using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
@@ -819,8 +818,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <exception cref="TvdbCacheNotInitialisedException">In order to update, the cache has to be initialised</exception>
     public bool UpdateAllSeries(Interval interval, bool zipped, bool reloadOldContent)
     {
-      MakeUpdate(interval, zipped, reloadOldContent);
-      return true;
+      try
+      {
+        MakeUpdate(interval, zipped, reloadOldContent);
+        return true;
+      }
+      catch (Exception ex)
+      {
+        Log.Error("TvDbHandler: Error updating series information:", ex);
+        return false;
+      }
     }
 
     /// <summary>

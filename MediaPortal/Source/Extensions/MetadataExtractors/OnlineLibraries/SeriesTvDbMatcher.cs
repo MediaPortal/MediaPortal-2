@@ -32,6 +32,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
@@ -59,6 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
 
     protected override string MatchesSettingsFile
     {
@@ -69,7 +71,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Fields
 
-    protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>();
+    protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
+    protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>(StringComparer.OrdinalIgnoreCase);
     protected bool _useUniversalLanguage = false; // Universal language often leads to unwanted cover languages (i.e. russian)
 
     /// <summary>
@@ -175,6 +178,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       tvDbId = 0;
       // Prefer memory cache
       TvdbSeries seriesDetail;
+      CheckCacheAndRefresh();
       if (_memoryCache.TryGetValue(seriesName, out seriesDetail))
       {
         tvDbId = seriesDetail.Id;
@@ -211,6 +215,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       try
       {
         // Prefer memory cache
+        CheckCacheAndRefresh();
         if (_memoryCache.TryGetValue(seriesNameOrImdbId, out seriesDetail))
           return true;
 
@@ -223,7 +228,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         seriesDetail = null;
 
         // Use cached values before doing online query
-        SeriesMatch match = matches.Find(m => m.ItemName == seriesNameOrImdbId || m.TvDBName == seriesNameOrImdbId);
+        SeriesMatch match = matches.Find(m =>
+          string.Equals(m.ItemName, seriesNameOrImdbId, StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(m.TvDBName, seriesNameOrImdbId, StringComparison.OrdinalIgnoreCase));
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesNameOrImdbId, match != null && match.Id != 0);
 
         // Try online lookup
@@ -280,6 +287,23 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         if (seriesDetail != null && !_memoryCache.ContainsKey(seriesNameOrImdbId))
           _memoryCache.Add(seriesNameOrImdbId, seriesDetail);
+      }
+    }
+
+    /// <summary>
+    /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
+    /// </summary>
+    private void CheckCacheAndRefresh()
+    {
+      if (DateTime.Now - _memoryCacheInvalidated <= MAX_MEMCACHE_DURATION)
+        return;
+      _memoryCache.Clear();
+      _memoryCacheInvalidated = DateTime.Now;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+      if (threadPool != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Refreshing local cache");
+        threadPool.Add(() => _tv.UpdateCache());
       }
     }
 
