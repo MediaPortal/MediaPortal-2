@@ -136,7 +136,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     internal static String CreateUpdateLink(string apiKey, Interval interval, bool zipped)
     {
       String link = String.Format("{0}/api/{1}/updates/updates_{2}{3}", BASE_SERVER, apiKey,
-                                  interval, (zipped ? ".zip" : ".xml"));
+                                  interval.ToString().ToLowerInvariant(), (zipped ? ".zip" : ".xml"));
       return link;
     }
 
