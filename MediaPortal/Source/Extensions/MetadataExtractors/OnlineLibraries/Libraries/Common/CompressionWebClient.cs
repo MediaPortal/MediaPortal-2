@@ -38,7 +38,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       set { _requestTimeOut = value; }
     }
 
-    public CompressionWebClient (bool enableCompression)
+    public CompressionWebClient()
+      : this(true)
+    {
+    }
+
+    public CompressionWebClient(bool enableCompression)
     {
       _enableCompression = enableCompression;
     }

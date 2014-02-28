@@ -269,7 +269,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     {
       try
       {
-        WebClient client = new WebClient();
+        WebClient client = new CompressionWebClient();
         byte[] imgData = client.DownloadData(path);
         MemoryStream ms = new MemoryStream(imgData);
         Image img = Image.FromStream(ms, true, true);

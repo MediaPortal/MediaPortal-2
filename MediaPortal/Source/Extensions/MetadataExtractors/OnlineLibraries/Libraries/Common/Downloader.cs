@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         return true;
       try
       {
-        WebClient webClient = new WebClient();
+        WebClient webClient = new CompressionWebClient();
         webClient.DownloadFile(url, downloadFile);
         return true;
       }
