@@ -47,10 +47,12 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="parentDirectoryId">Id of the directory whose contents should be loaded.</param>
     /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned items must support.</param>
     /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned items can support.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Collection of media items.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    ICollection<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs);
+    IList<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+        IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit);
 
     /// <summary>
     /// Loads the creation dates of all managed MIAs in the MediaLibrary

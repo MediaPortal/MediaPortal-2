@@ -114,9 +114,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Result collection of media items at the given location.</returns>
-    ICollection<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+    IList<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit);
 
     /// <summary>
     /// Starts a search for media items.
@@ -216,9 +218,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// If media items don't have those media item aspects attached, they won't be returned even if they are present in
     /// the <paramref name="mediaItemIds"/> collection.</param>
     /// <param name="optionalMIATypes">Media item aspect types which will additionally be loaded, if present.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of media items.</returns>
     IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset, uint? limit);
 
     #endregion
 

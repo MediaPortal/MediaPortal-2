@@ -29,6 +29,7 @@ using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
@@ -68,7 +69,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE, UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_ID)
     {
-      // DvStateVariables
+      #region Device State Variables
       // Generic Types
 
       // Used for a boolean value
@@ -462,10 +463,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       // More state variables go here
 
+      #endregion
 
-      // Device Actions
+      #region Device Actions
 
-      // UPnP 1.0 Device Actions
+      #region UPnP 1.0 Device Actions
 
       // UPnP 1.0 - 2.7.1 GetSearchCapabilities - Required
       DvAction getSearchCapabiltiesAction = new DvAction("GetSearchCapabilities", OnGetSearchCapabilities,
@@ -542,29 +544,30 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // UPnP 1.0 - 2.7.13 DeleteResource - Optional
       // UPnP 1.0 - 2.7.14 CreateReference - Optional
 
+      #endregion
+
       // UPnP 1.0 - 2.7.15 Non-Stanard Actions Implementations
 
-
-      // MPnP 1.0 Actions
+      #region MPnP 1.0 Device Actions
 
       // Shares management
-      DvAction registerShareAction = new DvAction("RegisterShare", OnRegisterShare,
+      DvAction mpnp10RegisterShareAction = new DvAction("X_MediaPortal_RegisterShare", OnMPnP10RegisterShare,
           new DvArgument[] {
             new DvArgument("Share", A_ARG_TYPE_Share, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
-      AddAction(registerShareAction);
+      AddAction(mpnp10RegisterShareAction);
 
-      DvAction removeShareAction = new DvAction("RemoveShare", OnRemoveShare,
+      DvAction mpnp10RemoveShareAction = new DvAction("X_MediaPortal_RemoveShare", OnMPnP10RemoveShare,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In)
           },
           new DvArgument[] {
           });
-      AddAction(removeShareAction);
+      AddAction(mpnp10RemoveShareAction);
 
-      DvAction updateShareAction = new DvAction("UpdateShare", OnUpdateShare,
+      DvAction mpnp10UpdateShareAction = new DvAction("X_MediaPortal_UpdateShare", OnMPnP10UpdateShare,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("BaseResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
@@ -575,9 +578,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("NumAffectedMediaItems", A_ARG_TYPE_Count, ArgumentDirection.Out, true)
           });
-      AddAction(updateShareAction);
+      AddAction(mpnp10UpdateShareAction);
 
-      DvAction getSharesAction = new DvAction("GetShares", OnGetShares,
+      DvAction mpnp10GetSharesAction = new DvAction("X_MediaPortal_GetShares", OnMPnP10GetShares,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("SharesFilter", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
@@ -585,59 +588,59 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("Shares", A_ARG_TYPE_ShareEnumeration, ArgumentDirection.Out, true)
           });
-      AddAction(getSharesAction);
+      AddAction(mpnp10GetSharesAction);
 
-      DvAction getShareAction = new DvAction("GetShare", OnGetShare,
+      DvAction mpnp10GetShareAction = new DvAction("X_MediaPortal_GetShare", OnMPnP10GetShare,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Share", A_ARG_TYPE_Share, ArgumentDirection.Out, true)
           });
-      AddAction(getShareAction);
+      AddAction(mpnp10GetShareAction);
 
-      DvAction reImportShareAction = new DvAction("ReImportShare", OnReImportShare,
+      DvAction mpnp10ReImportShareAction = new DvAction("X_MediaPortal_ReImportShare", OnMPnP10ReImportShare,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
-      AddAction(reImportShareAction);
+      AddAction(mpnp10ReImportShareAction);
 
-      DvAction setupDefaultServerSharesAction = new DvAction("SetupDefaultServerShares", OnSetupDefaultServerShares,
+      DvAction mpnp10SetupDefaultServerSharesAction = new DvAction("X_MediaPortal_SetupDefaultServerShares", OnMPnP10SetupDefaultServerShares,
           new DvArgument[] {
           },
           new DvArgument[] {
           });
-      AddAction(setupDefaultServerSharesAction);
+      AddAction(mpnp10SetupDefaultServerSharesAction);
 
       // Media item aspect storage management
 
-      DvAction addMediaItemAspectStorageAction = new DvAction("AddMediaItemAspectStorage", OnAddMediaItemAspectStorage,
+      DvAction mpnp10AddMediaItemAspectStorageAction = new DvAction("X_MediaPortal_AddMediaItemAspectStorage", OnMPnP10AddMediaItemAspectStorage,
           new DvArgument[] {
             new DvArgument("MIAM", A_ARG_TYPE_MediaItemAspectMetadata, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
-      AddAction(addMediaItemAspectStorageAction);
+      AddAction(mpnp10AddMediaItemAspectStorageAction);
 
-      DvAction removeMediaItemAspectStorageAction = new DvAction("RemoveMediaItemAspectStorage", OnRemoveMediaItemAspectStorage,
+      DvAction mpnp10RemoveMediaItemAspectStorageAction = new DvAction("X_MediaPortal_RemoveMediaItemAspectStorage", OnMPnP10RemoveMediaItemAspectStorage,
           new DvArgument[] {
             new DvArgument("MIAM_Id", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
-      AddAction(removeMediaItemAspectStorageAction);
+      AddAction(mpnp10RemoveMediaItemAspectStorageAction);
 
-      DvAction getAllManagedMediaItemAspectTypesAction = new DvAction("GetAllManagedMediaItemAspectTypes", OnGetAllManagedMediaItemAspectTypes,
+      DvAction mpnp10GetAllManagedMediaItemAspectTypesAction = new DvAction("X_MediaPortal_GetAllManagedMediaItemAspectTypes", OnMPnP10GetAllManagedMediaItemAspectTypes,
           new DvArgument[] {
           },
           new DvArgument[] {
             new DvArgument("MIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true),
           });
-      AddAction(getAllManagedMediaItemAspectTypesAction);
+      AddAction(mpnp10GetAllManagedMediaItemAspectTypesAction);
 
-      DvAction getAllManagedMediaItemAspectCreationDatesAction = new DvAction("GetAllManagedMediaItemAspectCreationDates", OnGetAllManagedMediaItemAspectCreationDates,
+      DvAction mpnp10GetMediaItemAspectMetadataAction = new DvAction("X_MediaPortal_GetMediaItemAspectMetadata", OnMPnP10GetMediaItemAspectMetadata,
           new DvArgument[] {
           },
           new DvArgument[] {
@@ -645,18 +648,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(getAllManagedMediaItemAspectCreationDatesAction);
 
-      DvAction getMediaItemAspectMetadataAction = new DvAction("GetMediaItemAspectMetadata", OnGetMediaItemAspectMetadata,
           new DvArgument[] {
             new DvArgument("MIAM_Id", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MIAM", A_ARG_TYPE_MediaItemAspectMetadata, ArgumentDirection.Out, true),
           });
-      AddAction(getMediaItemAspectMetadataAction);
+      AddAction(mpnp10GetMediaItemAspectMetadataAction);
 
       // Media query
 
-      DvAction loadItemAction = new DvAction("LoadItem", OnLoadItem,
+      DvAction mpnp10LoadItemAction = new DvAction("X_MediaPortal_LoadItem", OnMPnP10LoadItem,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
@@ -666,45 +668,47 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
           });
-      AddAction(loadItemAction);
+      AddAction(mpnp10LoadItemAction);
 
-      DvAction browseAction = new DvAction("Browse", OnBrowse,
-          new DvArgument[] {
-            new DvArgument("ParentDirectory", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-          });
-      AddAction(browseAction);
+      // Superseded
+      //DvAction mpnp10BrowseAction = new DvAction("X_MediaPortal_Browse", OnMPnP10Browse,
+      //    new DvArgument[] {
+      //      new DvArgument("ParentDirectory", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+      //      new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //      new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //    },
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+      //    });
+      //AddAction(mpnp10BrowseAction);
 
-      DvAction searchAction = new DvAction("Search", OnSearch,
-          new DvArgument[] {
-            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
-            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-          });
-      AddAction(searchAction);
+      // Superseded
+      //DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
+      //    new DvArgument[] {
+      //      new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+      //      new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+      //    },
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+      //    });
+      //AddAction(mpnp10SearchAction);
 
-      DvAction textSearchAction = new DvAction("SimpleTextSearch", OnTextSearch,
-          new DvArgument[] {
-            new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
-            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
-            new DvArgument("SearchMode", A_ARG_TYPE_TextSearchMode, ArgumentDirection.In),
-            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-            new DvArgument("CapitalizationMode", A_ARG_TYPE_CapitalizationMode, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-          });
-      AddAction(textSearchAction);
+      //DvAction mpnp10TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP10TextSearch,
+      //    new DvArgument[] {
+      //      new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
+      //      new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //      new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //      new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+      //      new DvArgument("SearchMode", A_ARG_TYPE_TextSearchMode, ArgumentDirection.In),
+      //      new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+      //      new DvArgument("CapitalizationMode", A_ARG_TYPE_CapitalizationMode, ArgumentDirection.In),
+      //    },
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+      //    });
+      //AddAction(mpnp10TextSearchAction);
 
-      DvAction getValueGroupsAction = new DvAction("GetValueGroups", OnGetValueGroups,
+      DvAction mpnp10GetValueGroupsAction = new DvAction("X_MediaPortal_GetValueGroups", OnMPnP10GetValueGroups,
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
@@ -717,9 +721,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("ValueGroups", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
           });
-      AddAction(getValueGroupsAction);
+      AddAction(mpnp10GetValueGroupsAction);
 
-      DvAction groupValueGroupsAction = new DvAction("GroupValueGroups", OnGroupValueGroups,
+      DvAction mpnp10GroupValueGroupsAction = new DvAction("X_MediaPortal_GroupValueGroups", OnMPnP10GroupValueGroups,
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
@@ -733,9 +737,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("ResultGroups", A_ARG_TYPE_MLQueryResultGroupEnumeration, ArgumentDirection.Out, true),
           });
-      AddAction(groupValueGroupsAction);
+      AddAction(mpnp10GroupValueGroupsAction);
 
-      DvAction countMediaItemsAction = new DvAction("CountMediaItems", OnCountMediaItems,
+      DvAction mpnp10CountMediaItemsAction = new DvAction("X_MediaPortal_CountMediaItems", OnMPnP10CountMediaItems,
           new DvArgument[] {
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
@@ -744,58 +748,59 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("NumMediaItems", A_ARG_TYPE_Count, ArgumentDirection.Out, true),
           });
-      AddAction(countMediaItemsAction);
+      AddAction(mpnp10CountMediaItemsAction);
 
       // Playlist management
 
-      DvAction getPlaylistsAction = new DvAction("GetPlaylists", OnGetPlaylists,
+      DvAction mpnp10GetPlaylistsAction = new DvAction("X_MediaPortal_GetPlaylists", OnMPnP10GetPlaylists,
           new DvArgument[] {
           },
           new DvArgument[] {
             new DvArgument("Playlists", A_ARG_TYPE_PlaylistIdentificationDataEnumeration, ArgumentDirection.Out, true),
           });
-      AddAction(getPlaylistsAction);
+      AddAction(mpnp10GetPlaylistsAction);
 
-      DvAction savePlaylistAction = new DvAction("SavePlaylist", OnSavePlaylist,
+      DvAction mpnp10SavePlaylistAction = new DvAction("X_MediaPortal_SavePlaylist", OnMPnP10SavePlaylist,
           new DvArgument[] {
             new DvArgument("PlaylistRawData", A_ARG_TYPE_PlaylistRawData, ArgumentDirection.In)
           },
           new DvArgument[] {
           });
-      AddAction(savePlaylistAction);
+      AddAction(mpnp10SavePlaylistAction);
 
-      DvAction deletePlaylistAction = new DvAction("DeletePlaylist", OnDeletePlaylist,
+      DvAction mpnp10DeletePlaylistAction = new DvAction("X_MediaPortal_DeletePlaylist", OnMPnP10DeletePlaylist,
           new DvArgument[] {
             new DvArgument("PlaylistId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
-      AddAction(deletePlaylistAction);
+      AddAction(mpnp10DeletePlaylistAction);
 
-      DvAction exportPlaylistAction = new DvAction("ExportPlaylist", OnExportPlaylist,
+      DvAction mpnp10ExportPlaylistAction = new DvAction("X_MediaPortal_ExportPlaylist", OnMPnP10ExportPlaylist,
           new DvArgument[] {
             new DvArgument("PlaylistId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("PlaylistRawData", A_ARG_TYPE_PlaylistRawData, ArgumentDirection.Out, true)
           });
-      AddAction(exportPlaylistAction);
+      AddAction(mpnp10ExportPlaylistAction);
 
-      DvAction loadCustomPlaylistAction = new DvAction("LoadCustomPlaylist", OnLoadCustomPlaylist,
-          new DvArgument[] {
-            new DvArgument("MediaItemIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true)
-          });
-      AddAction(loadCustomPlaylistAction);
+      // Superseded
+      //DvAction mpnp10LoadCustomPlaylistAction = new DvAction("X_MediaPortal_LoadCustomPlaylist", OnMPnP10LoadCustomPlaylist,
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItemIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //      new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //      new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //    },
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true)
+      //    });
+      //AddAction(mpnp10LoadCustomPlaylistAction);
 
       // Media import
 
-      DvAction addOrUpdateMediaItemAction = new DvAction("AddOrUpdateMediaItem", OnAddOrUpdateMediaItem,
+      DvAction mpnp10AddOrUpdateMediaItemAction = new DvAction("X_MediaPortal_AddOrUpdateMediaItem", OnMPnP10AddOrUpdateMediaItem,
           new DvArgument[] {
             new DvArgument("ParentDirectoryId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
@@ -805,9 +810,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true),
           });
-      AddAction(addOrUpdateMediaItemAction);
+      AddAction(mpnp10AddOrUpdateMediaItemAction);
 
-      DvAction deleteMediaItemOrPathAction = new DvAction("DeleteMediaItemOrPath", OnDeleteMediaItemOrPath,
+      DvAction mpnp10DeleteMediaItemOrPathAction = new DvAction("X_MediaPortal_DeleteMediaItemOrPath", OnMPnP10DeleteMediaItemOrPath,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
@@ -815,46 +820,47 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           },
           new DvArgument[] {
           });
-      AddAction(deleteMediaItemOrPathAction);
+      AddAction(mpnp10DeleteMediaItemOrPathAction);
 
-      DvAction clientStartedShareImportAction = new DvAction("ClientStartedShareImport", OnClientStartedShareImport,
+      DvAction mpnp10ClientStartedShareImportAction = new DvAction("X_MediaPortal_ClientStartedShareImport", OnMPnP10ClientStartedShareImport,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
-      AddAction(clientStartedShareImportAction);
+      AddAction(mpnp10ClientStartedShareImportAction);
 
-      DvAction clientCompletedShareImportAction = new DvAction("ClientCompletedShareImport", OnClientCompletedShareImport,
+      DvAction mpnp10ClientCompletedShareImportAction = new DvAction("X_MediaPortal_ClientCompletedShareImport", OnMPnP10ClientCompletedShareImport,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
-      AddAction(clientCompletedShareImportAction);
+      AddAction(mpnp10ClientCompletedShareImportAction);
 
-      DvAction getCurrentlyImportingSharesAction = new DvAction("GetCurrentlyImportingShares", OnGetCurrentlyImportingShares,
+      DvAction mpnp10GetCurrentlyImportingSharesAction = new DvAction("X_MediaPortal_GetCurrentlyImportingShares", OnMPnP10GetCurrentlyImportingShares,
           new DvArgument[] {
           },
           new DvArgument[] {
             new DvArgument("ShareIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true), 
           });
-      AddAction(getCurrentlyImportingSharesAction);
+      AddAction(mpnp10GetCurrentlyImportingSharesAction);
 
       // Media playback
 
-      DvAction notifyPlaybackAction = new DvAction("NotifyPlayback", OnNotifyPlayback,
+      DvAction mpnp10NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP10NotifyPlayback,
           new DvArgument[] {
             new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In), 
           },
           new DvArgument[] {
           });
-      AddAction(notifyPlaybackAction);
-
+      AddAction(mpnp10NotifyPlaybackAction);
       
-      // MPnP 1.1 Actions
+      #endregion
 
-      DvAction browseAction = new DvAction("Browse", OnBrowse,
+      #region MPnP 1.1 Device Actions
+
+      DvAction mpnp11BrowseAction = new DvAction("X_MediaPortal_Browse", OnMPnP11Browse,
           new DvArgument[] {
             new DvArgument("ParentDirectory", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -865,9 +871,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
-      AddAction(browseAction);
+      AddAction(mpnp11BrowseAction);
 
-      DvAction searchAction = new DvAction("Search", OnSearch,
+      DvAction mpnp11SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP11Search,
           new DvArgument[] {
             new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
             new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
@@ -877,9 +883,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
-      AddAction(searchAction);
+      AddAction(mpnp11SearchAction);
 
-      DvAction textSearchAction = new DvAction("SimpleTextSearch", OnTextSearch,
+      DvAction mpnp11TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP11TextSearch,
           new DvArgument[] {
             new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -894,9 +900,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
-      AddAction(textSearchAction);
+      AddAction(mpnp11TextSearchAction);
 
-      DvAction loadCustomPlaylistAction = new DvAction("LoadCustomPlaylist", OnLoadCustomPlaylist,
+      DvAction mpnp11LoadCustomPlaylistAction = new DvAction("X_MediaPortal_LoadCustomPlaylist", OnMPnP11LoadCustomPlaylist,
           new DvArgument[] {
             new DvArgument("MediaItemIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -907,9 +913,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true)
           });
-      AddAction(loadCustomPlaylistAction);
+      AddAction(mpnp11LoadCustomPlaylistAction);
+
+      #endregion
 
       // More actions go here
+
+      #endregion
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
@@ -1063,7 +1073,159 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+    #region Device Actions Implementation
+
+    #region UPnP 1.0 Device Actions Implementation
+
+    /// <summary>
+    /// UPnP 1.0 - 2.7.1 GetSearchCapabilities - Required
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="inParams"></param>
+    /// <param name="outParams"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    static UPnPError OnGetSearchCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>
+      {
+        "", // fields which can be used to sort, examples: dc:title,dc:creator,dc:date,res@size
+      };
+      return null;
+    }
+
+    /// <summary>
+    /// UPnP 1.0 - 2.7.2 GetSortCapabilities - Required
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="inParams"></param>
+    /// <param name="outParams"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    static UPnPError OnGetSortCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>
+      {
+        "", // fields which can be used to sort, examples: dc:title,dc:creator,dc:date,res@size
+      };
+      return null;
+    }
+
+    /// <summary>
+    /// UPnP 1.0 - 2.7.3 GetSystemUpdateId - Required
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="inParams"></param>
+    /// <param name="outParams"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    static UPnPError OnGetSystemUpdateID(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>
+      {
+        0, // SystemUpdateID, always zero unless someone wishes to implement it.
+      };
+      return null;
+    }
+
+    /// <summary>
+    /// UPnP 1.0 - 2.7.4 Browse - Required
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="inParams"></param>
+    /// <param name="outParams"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    /// <example>
+    ///  new DvArgument[] {
+    ///  new DvArgument("ObjectId", A_ARG_TYPE_Uuid, ArgumentDirection.In),               // ParentDirectory
+    ///  new DvArgument("BrowseFlag", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),  // NecessaryMIATypes
+    ///  new DvArgument("Filter", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),      // OptionalMIATypes
+    ///  new DvArgument("StartingIndex", A_ARG_TYPE_Index, ArgumentDirection.In), 
+    ///  new DvArgument("RequestedCount", A_ARG_TYPE_Count, ArgumentDirection.In), 
+    ///  new DvArgument("SortCriteria", A_ARG_TYPE_SortCriteria, ArgumentDirection.In), 
+    ///},
+    ///new DvArgument[] {
+    ///  new DvArgument("Result", A_ARG_TYPE_Result, ArgumentDirection.Out, true),
+    ///  new DvArgument("NumberReturned", A_ARG_TYPE_Count, ArgumentDirection.Out, true),
+    ///  new DvArgument("TotalMatches", A_ARG_TYPE_Count, ArgumentDirection.Out, true),
+    ///  new DvArgument("UpdateID", A_ARG_TYPE_UpdateID, ArgumentDirection.Out, true), 
+    ///});
+    /// </example>
+    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      //Guid parentDirectoryId = (string)inParams[0] == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      //string browseFlag = inParams[1].ToString();
+      //string filter = inParams[2].ToString();
+      //int startIndex = Convert.ToInt32(inParams[3]);
+      //int requestedCount = Convert.ToInt32(inParams[4]);
+      //string sortCriteria = (string)inParams[5];
+
+      //var necessaryMIATypes = new List<Guid> { DirectoryAspect.ASPECT_ID };
+
+      //MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, null);
+
+      //IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Search(query, false, startIndex, requestedCount);
+
+      //outParams = new List<object>
+      //{
+      //  result,       // Result
+      //  null,         // NumberReturned
+      //  result.Count, // TotalMatches
+      //  null          // UpdateID
+      //};
+      outParams = null;
+      return null;
+    }
+
+    /// <summary>
+    /// UPnP 1.0 - 2.7.5 Search - Optional
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="inParams"></param>
+    /// <param name="outParams"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      //MediaItemQuery query = (MediaItemQuery)inParams[0];
+      //string onlineStateStr = (string)inParams[1];
+      //bool all;
+      //UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
+      //if (error != null)
+      //{
+      //  outParams = null;
+      //  return error;
+      //}
+      //IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all);
+      //outParams = new List<object>
+      //{
+      //  mediaItems,       // Result
+      //  null,             // NumberReturned
+      //  mediaItems.Count, // TotalMatches
+      //  null              // UpdateID
+      //};
+      outParams = null;
+      return null;
+    }
+
+    // UPnP 1.0 - 2.7.6 CreateObject - Optional
+    // UPnP 1.0 - 2.7.7 DestoryObject - Optional
+    // UPnP 1.0 - 2.7.8 UpdateObject - Optional
+    // UPnP 1.0 - 2.7.9 ImportResource - Optional
+    // UPnP 1.0 - 2.7.10 ExportResource - Optional
+    // UPnP 1.0 - 2.7.11 StopTransferResource - Optional
+    // UPnP 1.0 - 2.7.12 GetTransferProgress - Optional
+    // UPnP 1.0 - 2.7.13 DeleteResource - Optional
+    // UPnP 1.0 - 2.7.14 CreateReference - Optional
+
+    #endregion
+
+    #region MPnP 1.0 Device Actions Implementation
+
+    static UPnPError OnMPnP10RegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Share share = (Share) inParams[0];
@@ -1072,7 +1234,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnRemoveShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10RemoveShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1081,7 +1243,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnUpdateShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10UpdateShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1102,7 +1264,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetShares(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetShares(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       string systemId = (string) inParams[0];
@@ -1131,7 +1293,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1140,7 +1302,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnReImportShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10ReImportShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1150,7 +1312,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnSetupDefaultServerShares(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10SetupDefaultServerShares(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       ServiceRegistration.Get<IMediaLibrary>().SetupDefaultLocalShares();
@@ -1158,7 +1320,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnAddMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10AddMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) inParams[0];
@@ -1167,7 +1329,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnRemoveMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10RemoveMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1176,7 +1338,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetAllManagedMediaItemAspectTypes(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetAllManagedMediaItemAspectTypes(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       ICollection<Guid> result = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;
@@ -1192,7 +1354,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1201,7 +1363,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnLoadItem(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10LoadItem(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       string systemId = (string) inParams[0];
@@ -1214,19 +1376,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10Browse(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
-      ICollection<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes);
+      ICollection<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, null, null);
 
       outParams = new List<object> {result};
       return null;
     }
 
-    static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10Search(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       MediaItemQuery query = (MediaItemQuery) inParams[0];
@@ -1243,7 +1405,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnTextSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10TextSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       string searchText = (string) inParams[0];
@@ -1272,7 +1434,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1303,7 +1465,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGroupValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GroupValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1337,7 +1499,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnCountMediaItems(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10CountMediaItems(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[0]);
@@ -1353,7 +1515,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetPlaylists(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetPlaylists(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       ICollection<PlaylistInformationData> result = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
@@ -1361,7 +1523,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnSavePlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10SavePlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       PlaylistRawData playlistData = (PlaylistRawData) inParams[0];
@@ -1370,7 +1532,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnDeletePlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10DeletePlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1379,7 +1541,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnExportPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10ExportPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1388,19 +1550,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnLoadCustomPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10LoadCustomPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       IList<Guid> mediaItemIds = MarshallingHelper.ParseCsvGuidCollection((string) inParams[0]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
       IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
-          mediaItemIds, necessaryMIATypes, optionalMIATypes);
+        mediaItemIds, necessaryMIATypes, optionalMIATypes, null, null);
       outParams = new List<object> {result};
       return null;
     }
 
-    static UPnPError OnAddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10AddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1412,7 +1574,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnDeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10DeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       string systemId = (string) inParams[0];
@@ -1423,7 +1585,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnClientStartedShareImport(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10ClientStartedShareImport(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1432,7 +1594,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnClientCompletedShareImport(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10ClientCompletedShareImport(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -1441,7 +1603,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetCurrentlyImportingShares(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10GetCurrentlyImportingShares(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
@@ -1449,7 +1611,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnNotifyPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnMPnP10NotifyPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
@@ -1458,5 +1620,95 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       outParams = null;
       return null;
     }
+
+    #endregion
+
+    #region MPnP 1.1 Device Actions Implementation
+
+    static UPnPError OnMPnP11Browse(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
+      uint offset = (uint)inParams[3];
+      uint limit = (uint)inParams[4];
+      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, offset, limit);
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    static UPnPError OnMPnP11Search(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      MediaItemQuery query = (MediaItemQuery)inParams[0];
+      string onlineStateStr = (string)inParams[1];
+      uint offset = (uint)inParams[2];
+      uint limit = (uint)inParams[3];
+      bool all;
+      UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
+      if (error != null)
+      {
+        outParams = null;
+        return error;
+      }
+      query.Limit = limit;
+      query.Offset = offset;
+      IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all);
+      outParams = new List<object> { mediaItems };
+      return null;
+    }
+
+    static UPnPError OnMPnP11TextSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string searchText = (string)inParams[0];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
+      IFilter filter = (IFilter)inParams[3];
+      string searchModeStr = (string)inParams[4];
+      string onlineStateStr = (string)inParams[5];
+      string capitalizationMode = (string)inParams[6];
+      uint offset = (uint)inParams[7];
+      uint limit = (uint)inParams[8];
+      bool excludeCLOBs;
+      bool all = false;
+      bool caseSensitive = true;
+      UPnPError error = ParseSearchMode("SearchMode", searchModeStr, out excludeCLOBs) ??
+        ParseOnlineState("OnlineState", onlineStateStr, out all) ??
+        ParseCapitalizationMode("CapitalizationMode", capitalizationMode, out caseSensitive);
+      if (error != null)
+      {
+        outParams = null;
+        return error;
+      }
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      MediaItemQuery query = mediaLibrary.BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes,
+          filter, !excludeCLOBs, caseSensitive);
+      query.Limit = limit;
+      query.Offset = offset;
+      IList<MediaItem> mediaItems = mediaLibrary.Search(query, !all);
+      outParams = new List<object> { mediaItems };
+      return null;
+    }
+
+    static UPnPError OnMPnP11LoadCustomPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IList<Guid> mediaItemIds = MarshallingHelper.ParseCsvGuidCollection((string)inParams[0]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
+      uint offset = (uint)inParams[3];
+      uint limit = (uint)inParams[4];
+      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
+          mediaItemIds, necessaryMIATypes, optionalMIATypes, offset, limit);
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    #endregion
+
+    #endregion
   }
 }

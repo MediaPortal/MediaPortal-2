@@ -77,12 +77,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public ICollection<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      public IList<MediaItem> Browse(Guid parentDirectoryId,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, offset, limit);
         }
         catch (Exception)
         {
@@ -545,14 +545,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public ICollection<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    public IList<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit)
     {
       lock (_syncObj)
       {
         MediaItemQuery browseQuery = BuildBrowseQuery(parentDirectoryId);
         browseQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+        browseQuery.Limit = limit;
+        browseQuery.Offset = offset;
         return Search(browseQuery, false);
       }
     }
@@ -788,10 +790,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset, uint? limit)
     {
       IFilter filter = new MediaItemIdFilter(mediaItemIds);
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);
+      query.Limit = limit;
+      query.Offset = offset;
       // Sort media items
       IDictionary<Guid, MediaItem> searchResult = new Dictionary<Guid, MediaItem>();
       foreach (MediaItem item in Search(query, false))
