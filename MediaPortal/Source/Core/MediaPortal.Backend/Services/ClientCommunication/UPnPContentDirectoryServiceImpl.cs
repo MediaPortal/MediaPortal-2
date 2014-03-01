@@ -550,8 +550,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       #region MPnP 1.0 Device Actions
 
-      #region MPnP 1.0 Device Actions
-
       // Shares management
       DvAction mpnp10RegisterShareAction = new DvAction("X_MediaPortal_RegisterShare", OnMPnP10RegisterShare,
           new DvArgument[] {
@@ -686,15 +684,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       //AddAction(mpnp10BrowseAction);
 
       DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
-      //DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
-      //    new DvArgument[] {
-      //      new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
-      //      new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-      //    },
-      //    new DvArgument[] {
-      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          new DvArgument[] {
+            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
       AddAction(mpnp10SearchAction);
-      //AddAction(mpnp10SearchAction);
 
       // Superseded MPnP 1.1
       //DvAction mpnp10TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP10TextSearch,
@@ -876,18 +873,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
       AddAction(mpnp11BrowseAction);
-
-      DvAction mpnp11SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP11Search,
-          new DvArgument[] {
-            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
-            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In), 
-            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In), 
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-          });
-      AddAction(mpnp11SearchAction);
 
       DvAction mpnp11TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP11TextSearch,
           new DvArgument[] {
