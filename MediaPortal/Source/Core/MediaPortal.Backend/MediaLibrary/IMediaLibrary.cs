@@ -118,7 +118,8 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     IList<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit);
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+      uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items.
@@ -222,7 +223,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of media items.</returns>
     IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset, uint? limit);
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset = null, uint? limit = null);
 
     #endregion
 

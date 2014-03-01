@@ -670,7 +670,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp10LoadItemAction);
 
-      // Superseded
+      // Superseded MPnP 1.1
       //DvAction mpnp10BrowseAction = new DvAction("X_MediaPortal_Browse", OnMPnP10Browse,
       //    new DvArgument[] {
       //      new DvArgument("ParentDirectory", A_ARG_TYPE_Uuid, ArgumentDirection.In),
@@ -682,17 +682,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       //    });
       //AddAction(mpnp10BrowseAction);
 
-      // Superseded
-      //DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
-      //    new DvArgument[] {
-      //      new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
-      //      new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-      //    },
-      //    new DvArgument[] {
-      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-      //    });
-      //AddAction(mpnp10SearchAction);
+      DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
+          new DvArgument[] {
+            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp10SearchAction);
 
+      // Superseded MPnP 1.1
       //DvAction mpnp10TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP10TextSearch,
       //    new DvArgument[] {
       //      new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
@@ -872,18 +872,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
       AddAction(mpnp11BrowseAction);
-
-      DvAction mpnp11SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP11Search,
-          new DvArgument[] {
-            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
-            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In), 
-            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In), 
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-          });
-      AddAction(mpnp11SearchAction);
 
       DvAction mpnp11TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP11TextSearch,
           new DvArgument[] {

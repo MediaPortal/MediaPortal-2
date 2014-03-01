@@ -78,7 +78,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
       {
         try
         {
@@ -546,7 +546,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public IList<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset, uint? limit)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
@@ -790,7 +790,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset, uint? limit)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset = null, uint? limit = null)
     {
       IFilter filter = new MediaItemIdFilter(mediaItemIds);
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);

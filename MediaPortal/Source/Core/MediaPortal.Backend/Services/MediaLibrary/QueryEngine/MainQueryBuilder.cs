@@ -334,12 +334,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // TODO: Extent ISQLDatabase to build proper paging clause
       // Note: SQLCE 4.0 fails currently using this syntax, if query contains joins (single table query is fine).
-      //if (_offset.HasValue || _limit.HasValue)
-      //{
-      //  result.AppendFormat(" OFFSET {0} ROWS", _offset.HasValue ? _offset.Value : 0);
-      //  if (_limit.HasValue)
-      //    result.AppendFormat(" FETCH NEXT {0} ROWS ONLY", _limit.Value);
-      //}
+      if (_offset.HasValue || _limit.HasValue)
+      {
+        result.AppendFormat(" OFFSET {0} ROWS", _offset.HasValue ? _offset.Value : 0);
+        if (_limit.HasValue)
+          result.AppendFormat(" FETCH NEXT {0} ROWS ONLY", _limit.Value);
+      }
       statementStr = result.ToString();
     }
 

@@ -62,13 +62,54 @@ namespace MediaPortal.Common.SystemCommunication
   {
     #region Shares management
 
+    /// <summary>
+    /// Adds an existing share to the media librarie's collection of registered shares.
+    /// </summary>
+    /// <param name="share">Share to be added.</param>
     void RegisterShare(Share share);
+
+    /// <summary>
+    /// Removes the share with the specified id.
+    /// </summary>
+    /// <param name="shareId">Id of the share to be removed.</param>
     void RemoveShare(Guid shareId);
+
+    /// <summary>
+    /// Reconfigures the share with the specified <paramref name="shareId"/>.
+    /// </summary>
+    /// <remarks>
+    /// The share's native system cannot be changed by this method, else we would have to consider much more security problems.
+    /// </remarks>
+    /// <param name="shareId">Id of the share to be changed.</param>
+    /// <param name="baseResourcePath">Lookup path for the provider resource chain in the share's system.</param>
+    /// <param name="shareName">Name of the share.</param>
+    /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
+    /// the share. If set to <c>null</c>, the new share is a general share without attached media
+    /// categories.</param>
+    /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
+    /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
+    /// all media items from the specified share will be removed from the media library.</param>
+    /// <returns>Number of relocated or removed media items.</returns>
     int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
+
+
     ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter);
+
+    /// <summary>
+    /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
+    /// </summary>
+    /// <param name="shareId">Id of the share to return.</param>
+    /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
+    /// share doesn't exist, the method returns <c>null</c>.</returns>
     Share GetShare(Guid shareId);
+
     void ReImportShare(Guid guid);
+
+    /// <summary>
+    /// Tries to create default shares for the local system. Typically, this are the shares for the system's
+    /// MyMusic, MyVideos and MyPictures directories.
+    /// </summary>
     void SetupDefaultServerShares();
 
     #endregion
@@ -76,7 +117,9 @@ namespace MediaPortal.Common.SystemCommunication
     #region Media item aspect storage management
 
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
+
     void RemoveMediaItemAspectStorage(Guid aspectId);
+
     ICollection<Guid> GetAllManagedMediaItemAspectTypes();
     IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates();
     MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
@@ -85,18 +128,109 @@ namespace MediaPortal.Common.SystemCommunication
 
     #region Media query
 
+    /// <summary>
+    /// Loads the media item at the given <paramref name="systemId"/> and <paramref name="path"/>.
+    /// </summary>
+    /// <param name="systemId">System id of the item to load.</param>
+    /// <param name="path">Native resource path of the item to load.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
+    /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <returns></returns>
     MediaItem LoadItem(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
-    ICollection<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+
+    /// <summary>
+    /// Lists all media items with the given parent directory.
+    /// </summary>
+    /// <param name="parentDirectoryId">Media item id of the parent directory item to browse.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
+    /// If a media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
+    /// <returns>Result collection of media items at the given location.</returns>
+    IList<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+      uint? offset = null, uint? limit = null);
+
+    /// <summary>
+    /// Starts a search for media items.
+    /// </summary>
+    /// <param name="query">Query object which specifies the search parameters.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
+    /// are currently online are returned.</param>
+    /// <returns>List of matching media items with the media item aspects of the given
+    /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
+    /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+
+    /// <summary>
+    /// Starts a search for media items which searches items by a given <paramref name="searchText"/> and which is constrained
+    /// to the given <paramref name="necessaryMIATypes"/> and the given <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="searchText">The text which should be searched in each available column.</param>
+    /// <param name="necessaryMIATypes">MIA types which must be present in the result media items.</param>
+    /// <param name="optionalMIATypes">Optional MIA types which will be returned if present.</param>
+    /// <param name="filter">Additional filter constraint for the query.</param>
+    /// <param name="excludeCLOBs">If set to <c>false</c>, the query also searches in CLOB fields.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
+    /// are currently online are returned.</param>
+    /// <param name="caseSensitive">If set to <c>true</c>, the query is done case sensitive, else it is done case
+    /// insensitive.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
+    /// <returns>List of matching media items.</returns>
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-        IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
+        IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
+      uint? offset = null, uint? limit = null);
+
+    /// <summary>
+    /// Returns a map of existing attribute values mapped to their occurence count for the given
+    /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result values.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="attributeType"/>.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="attributeType"/> (long).</returns>
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+
+    /// <summary>
+    /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
+    /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result value groups.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="attributeType"/>.</param>
+    /// <param name="necessaryMIATypes">Necessary media item types. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <returns>List of value groups for the given query.</returns>
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
         IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
+
+    /// <summary>
+    /// Counts the count of media items matching the given criteria.
+    /// </summary>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each counted media item. Only
+    /// media items with those media item aspect types are counted.</param>
+    /// <param name="filter">Filter specifying the media items which will be counted.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
+    /// are counted.</param>
+    /// <returns>Number of matching media items.</returns>
     int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
 
     #endregion
@@ -136,9 +270,11 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="mediaItemIds">Ids of the media items to load.</param>
     /// <param name="necessaryMIATypes">Ids of media item aspects which need to be present for a media item to be returned.</param>
     /// <param name="optionalMIATypes">Ids of media item aspects which will be loaded for each returned media item, if present.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of media items matching the given <paramref name="mediaItemIds"/> and <paramref name="necessaryMIATypes"/>.</returns>
     IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
-        ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes);
+        ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes, uint? offset = null, uint? limit = null);
 
     #endregion
 
