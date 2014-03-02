@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -74,6 +76,14 @@ namespace MediaPortal.Common
       ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
 
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+
+      // Assembly and build information
+      FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
+      logger.Info("ApplicationCore: Comments:   {0}", fileVersionInfo.Comments);
+      logger.Info("ApplicationCore: Copyright:  {0}", fileVersionInfo.LegalCopyright);
+      logger.Info("ApplicationCore: Version:    {0}", fileVersionInfo.FileVersion);
+      logger.Info("ApplicationCore: Source:     {0}", fileVersionInfo.ProductVersion);
+      logger.Info("ApplicationCore: ----------------------------------------------------------");
 
       logger.Debug("ApplicationCore: Registering ILogger service");
       ServiceRegistration.Set<ILogger>(logger);
