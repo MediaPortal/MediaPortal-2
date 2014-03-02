@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using System.Web.UI;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -56,6 +55,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly ImportJobInformation _importJobInformation;
     private readonly ImporterWorkerNewGen _parentImporterWorker;
     private readonly Task _completion;
+    private readonly int _importJobNumber;
 
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
 
@@ -65,9 +65,10 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public ImportJobController(ImportJobInformation importJobInformation, ImporterWorkerNewGen parentImporterWorker)
+    public ImportJobController(ImportJobInformation importJobInformation, int importJobNumber, ImporterWorkerNewGen parentImporterWorker)
     {
       _importJobInformation = importJobInformation;
+      _importJobNumber = importJobNumber;
       _parentImporterWorker = parentImporterWorker;
 
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
@@ -109,14 +110,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     public void RegisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
       if (!_pendingImportResources.TryAdd(pendingImportResource.ResourceAccessor.CanonicalLocalResourcePath, pendingImportResource))
-        ServiceRegistration.Get<ILogger>().Warn("ImportJobController: Could not register {0}", pendingImportResource);
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not register {1}", this, pendingImportResource);
     }
 
     public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
       PendingImportResourceNewGen removedPendingImportResource;
       if(!_pendingImportResources.TryRemove(pendingImportResource.ResourceAccessor.CanonicalLocalResourcePath, out removedPendingImportResource))
-        ServiceRegistration.Get<ILogger>().Warn("ImportJobController: Could not unregister {0}", pendingImportResource);
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not unregister {1}", this, pendingImportResource);
     }
 
     #endregion
@@ -131,7 +132,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         // This should only happen when the ImportJob finishes in cancelled oder faulted state. When the ImportJob
         // ran to completion, the DataflowBlocks should have disposed all the PendingImportResources.
         if(!previousTask.IsCanceled && !previousTask.IsFaulted)
-          ServiceRegistration.Get<ILogger>().Warn("ImportJobController: The ImportJob ran to completion but there are {0} undisposed PendingImportResources left for {1}", _pendingImportResources.Count, this);
+          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: The ImportJob ran to completion but there are {1} undisposed PendingImportResources left. Disposing them now...", this, _pendingImportResources.Count);
         
         var pendingImportReouces = new List<PendingImportResourceNewGen>(_pendingImportResources.Values);
         foreach (var pendingImportResource in pendingImportReouces)
@@ -171,7 +172,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public override string ToString()
     {
-      return String.Format("ImportJob for path ='{0}', ImportJobType='{1}', IncludeSubdirectories='{2}'", _importJobInformation.BasePath, _importJobInformation.JobType, _importJobInformation.IncludeSubDirectories);
+      return String.Format("ImportJob #{0}", _importJobNumber);
     }
 
     #endregion

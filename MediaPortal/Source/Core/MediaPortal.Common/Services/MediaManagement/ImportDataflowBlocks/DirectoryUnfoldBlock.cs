@@ -125,11 +125,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       _stopWatch.Stop();
 
       if (previousTask.IsFaulted)
-        ServiceRegistration.Get<ILogger>().Error("DirectoryUnfoldBlock: Error while unfolding {0} directories; time elapsed: {1}; MaxDegreeOfParallelism = {2}", _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0} / DirectoryUnfoldBlock: Error while unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
       else if (previousTask.IsCanceled)
-        ServiceRegistration.Get<ILogger>().Info("DirectoryUnfoldBlock: Canceled after unfolding {0} directories; time elapsed: {1}; MaxDegreeOfParallelism = {2}", _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectoryUnfoldBlock: Canceled after unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
       else
-        ServiceRegistration.Get<ILogger>().Info("DirectoryUnfoldBlock: Unfolded {0} directories; time elapsed: {1}; MaxDegreeOfParallelism = {2}", _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectoryUnfoldBlock: Unfolded {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
  
       // We rethrow potential exceptions from previousTask (i.e. our _innerBlock.Completion task)
       // to make the ImporterWorker aware of the status of this ImportJob

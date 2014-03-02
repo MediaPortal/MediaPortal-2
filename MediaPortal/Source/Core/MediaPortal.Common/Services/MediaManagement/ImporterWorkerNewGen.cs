@@ -65,6 +65,16 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <see cref="ImportJobController"/> to be set up
     /// </summary>
     private readonly BlockingCollection<ImportJobInformation> _newImportJobRequests;
+
+    /// <summary>
+    /// Holds a unique number to be assigned to the next <see cref="ImportJobController"/>
+    /// </summary>
+    /// <remarks>
+    /// We only access this field from the ProcessNewImportJobRequests loop and therefore in a
+    /// sequential and threadsafe manner. As a result, no locking is required but this field
+    /// may not be accessed from anywhere else.
+    /// </remarks>
+    private int _numberOfNextImportJob;
     
     /// <summary>
     /// Executes <see cref="ProcessNewImportJobRequests"/>. Completes when <see cref="_newImportJobRequests"/>'
@@ -89,6 +99,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       _newImportJobRequests = new BlockingCollection<ImportJobInformation>();
       _importJobs = new ConcurrentDictionary<ImportJobInformation, ImportJobController>();
+      _numberOfNextImportJob = 1;
     }
 
     #endregion
@@ -124,10 +135,12 @@ namespace MediaPortal.Common.Services.MediaManagement
         // Todo: Check for overlaps with existing ImportJobs
 
         var importJobInformation = new ImportJobInformation(newImportJobInformation);
-        var importJobController = new ImportJobController(importJobInformation, this);
+        var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
         importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
         _importJobs[importJobInformation] = importJobController;
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started {0}", importJobController);
+        _numberOfNextImportJob++;
+
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started {0} (Path ='{1}', ImportJobType='{2}', IncludeSubdirectories='{3}')", importJobController, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
       }
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: NewImportJobRequestProcessor finished...");
     }
@@ -226,12 +239,12 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public void CancelPendingJobs()
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Cancelling pending jobs...");
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceling pending jobs...");
     }
 
     public void CancelJobsForPath(ResourcePath path)
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Cancelling jobs for path '{0}'...", path);
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceling jobs for path '{0}'...", path);
     }
 
     public void ScheduleImport(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
