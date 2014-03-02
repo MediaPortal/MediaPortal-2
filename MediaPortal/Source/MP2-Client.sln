@@ -170,6 +170,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests", "_Tests", "{6383E7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OnlineLibraries", "..\Tests\Test.OnlineLibraries\Test.OnlineLibraries.csproj", "{676098C4-CDBE-4569-A21A-43272D5F15E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefreshRateChanger", "..\Incubator\RefreshRateChanger\RefreshRateChanger.csproj", "{A14A88A1-CB81-4068-92E7-57BB368BFD05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
