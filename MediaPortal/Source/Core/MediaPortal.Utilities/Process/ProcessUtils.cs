@@ -26,6 +26,7 @@ using System;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 
 namespace MediaPortal.Utilities.Process
 {
@@ -182,24 +183,18 @@ namespace MediaPortal.Utilities.Process
     private static bool TryExecute(string executable, string arguments, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
     {
       StringBuilder outputBuilder = new StringBuilder();
-      using (System.Diagnostics.Process process = new System.Diagnostics.Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = redirectInputOutput } })
+      using (System.Diagnostics.Process process = new System.Diagnostics.Process())
+      using (AutoResetEvent outputWaitHandle = new AutoResetEvent(!redirectInputOutput))
       {
-        if (redirectInputOutput)
-        {
-          // Set UTF-8 encoding for standard output.
-          process.StartInfo.StandardOutputEncoding = CONSOLE_ENCODING;
-          // Enable raising events because Process does not raise events by default.
-          process.EnableRaisingEvents = true;
-          // Attach the event handler for OutputDataReceived before starting the process.
-          process.OutputDataReceived += (sender, e) => outputBuilder.Append(e.Data);
-        }
+        PrepareProcess(executable, arguments, redirectInputOutput, process, outputWaitHandle, outputBuilder);
+
         process.Start();
         process.PriorityClass = priorityClass;
 
         if (redirectInputOutput)
           process.BeginOutputReadLine();
 
-        if (process.WaitForExit(maxWaitMs))
+        if (process.WaitForExit(maxWaitMs) && outputWaitHandle.WaitOne(maxWaitMs))
         {
           result = RemoveEncodingPreamble(outputBuilder.ToString());
           return process.ExitCode == 0;
@@ -225,35 +220,60 @@ namespace MediaPortal.Utilities.Process
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
     private static bool TryExecute_Impersonated(string executable, string arguments, IntPtr token, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
     {
-      // TODO: code is 99% redundant to TryExecute, refactor Process/ImpersonationProcess and Start/StartAsUser!
+      // Note: Althought the code is nearly identical as TryExecute, it cannot be easily refactored, as the ImpersonationProcess implements many methods and properties with "new".
+      // If such an instance is assigned to "Process" base class, any access will fail here. 
       StringBuilder outputBuilder = new StringBuilder();
-      using (ImpersonationProcess process = new ImpersonationProcess { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = redirectInputOutput } })
+      using (ImpersonationProcess process = new ImpersonationProcess())
+      using (AutoResetEvent outputWaitHandle = new AutoResetEvent(!redirectInputOutput))
       {
-        if (redirectInputOutput)
-        {
-          // Set UTF-8 encoding for standard output.
-          process.StartInfo.StandardOutputEncoding = CONSOLE_ENCODING;
-          // Enable raising events because Process does not raise events by default.
-          process.EnableRaisingEvents = true;
-          // Attach the event handler for OutputDataReceived before starting the process.
-          process.OutputDataReceived += (sender, e) => outputBuilder.Append(e.Data);
-        }
+        PrepareProcess(executable, arguments, redirectInputOutput, process, outputWaitHandle, outputBuilder);
         process.StartAsUser(token);
         process.PriorityClass = priorityClass;
 
         if (redirectInputOutput)
           process.BeginOutputReadLine();
 
-        if (process.WaitForExit(maxWaitMs))
+        if (process.WaitForExit(maxWaitMs) && outputWaitHandle.WaitOne(maxWaitMs))
         {
+          if (redirectInputOutput)
+            process.CancelOutputRead();
           result = RemoveEncodingPreamble(outputBuilder.ToString());
           return process.ExitCode == 0;
         }
         if (!process.HasExited)
+        {
+          if (redirectInputOutput)
+            process.CancelOutputRead();
           process.Kill();
+        }
       }
       result = null;
       return false;
+    }
+
+    private static void PrepareProcess(string executable, string arguments, bool redirectInputOutput, System.Diagnostics.Process process, AutoResetEvent outputWaitHandle, StringBuilder outputBuilder)
+    {
+      process.StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = redirectInputOutput };
+      if (!redirectInputOutput)
+        return;
+
+      // Set UTF-8 encoding for standard output.
+      process.StartInfo.StandardOutputEncoding = CONSOLE_ENCODING;
+      // Enable raising events because Process does not raise events by default.
+      process.EnableRaisingEvents = true;
+      // Attach the event handler for OutputDataReceived before starting the process.
+      process.OutputDataReceived += (sender, e) =>
+      {
+        try
+        {
+          if (e.Data == null)
+            outputWaitHandle.Set();
+          else
+            outputBuilder.Append(e.Data);
+        }
+        // Avoid any exceptions in async calls, they lead to immediate crash.
+        catch { }
+      };
     }
 
     /// <summary>
