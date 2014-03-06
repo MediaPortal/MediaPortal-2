@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-    [DataContract]
-    public class TraktListSlug
-    {
-        [DataMember(Name = "username")]
-        public string UserName { get; set; }
+  [DataContract]
+  public class TraktListSlug
+  {
+    [DataMember(Name = "username")]
+    public string UserName { get; set; }
 
-        [DataMember(Name = "password")]
-        public string Password { get; set; }
+    [DataMember(Name = "password")]
+    public string Password { get; set; }
 
-        /// <summary>
-        /// Slug is an unique id for the list
-        /// This can be null when creating a new list
-        /// </summary>
-        [DataMember(Name = "slug")]
-        public string Slug { get; set; }
-    }
+    /// <summary>
+    /// Slug is an unique id for the list
+    /// This can be null when creating a new list
+    /// </summary>
+    [DataMember(Name = "slug")]
+    public string Slug { get; set; }
+  }
 }

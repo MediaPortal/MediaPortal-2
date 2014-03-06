@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-    public class SyncMovieCheck
-    {
-        [DataMember(Name = "last_skipped_sync")]
-        public long LastSkippedSync { get; set; }
+  public class SyncMovieCheck
+  {
+    [DataMember(Name = "last_skipped_sync")]
+    public long LastSkippedSync { get; set; }
 
-        [DataMember(Name = "movies")]
-        public List<TraktMovieSync.Movie> Movies { get; set; }
-    }
+    [DataMember(Name = "movies")]
+    public List<TraktMovieSync.Movie> Movies { get; set; }
+  }
 }

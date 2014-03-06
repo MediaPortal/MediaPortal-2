@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-    [DataContract]
-    public class TraktTopWatcher : TraktUser
-    {
-        [DataMember(Name = "plays")]
-        public int Plays { get; set; }
-    }
+  [DataContract]
+  public class TraktTopWatcher : TraktUser
+  {
+    [DataMember(Name = "plays")]
+    public int Plays { get; set; }
+  }
 }

@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
+  [DataContract]
+  public class TraktPerson
+  {
+    [DataMember(Name = "name")]
+    public string Name { get; set; }
+
+    [DataMember(Name = "images")]
+    public PersonImages Images { get; set; }
+
     [DataContract]
-    public class TraktPerson
+    public class PersonImages
     {
-        [DataMember(Name = "name")]
-        public string Name { get; set; }
-
-        [DataMember(Name = "images")]
-        public PersonImages Images { get; set; }
-
-        [DataContract]
-        public class PersonImages
-        {
-            [DataMember(Name = "headshot")]
-            public string Headshot { get; set; }
-        }
+      [DataMember(Name = "headshot")]
+      public string Headshot { get; set; }
     }
+  }
 }

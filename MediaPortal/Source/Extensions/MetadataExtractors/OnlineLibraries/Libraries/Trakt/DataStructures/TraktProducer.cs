@@ -1,16 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-    [DataContract]
-    public class TraktProducer : TraktPerson
-    {
-        [DataMember(Name = "executive")]
-        public bool Executive { get; set; }
-    }
+  [DataContract]
+  public class TraktProducer : TraktPerson
+  {
+    [DataMember(Name = "executive")]
+    public bool Executive { get; set; }
+  }
 }

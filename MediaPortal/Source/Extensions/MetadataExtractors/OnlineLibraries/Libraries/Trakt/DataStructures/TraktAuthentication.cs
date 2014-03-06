@@ -1,18 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-    [DataContract]
-    public class TraktAuthentication
-    {
-        [DataMember(Name = "username")]
-        public string Username { get; set; }
+  [DataContract]
+  public class TraktAuthentication
+  {
+    [DataMember(Name = "username")]
+    public string Username { get; set; }
 
-        [DataMember(Name = "password")]
-        public string Password { get; set; }
-    }
+    [DataMember(Name = "password")]
+    public string Password { get; set; }
+  }
 }

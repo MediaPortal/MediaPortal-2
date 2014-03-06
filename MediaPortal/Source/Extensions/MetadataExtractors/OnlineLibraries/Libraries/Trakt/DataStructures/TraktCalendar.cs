@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace TraktPlugin.TraktAPI.DataStructures
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-    [DataContract]
-    public class TraktCalendar : TraktResponse
-    {
-        [DataMember(Name = "date")]
-        public string Date { get; set; }
+  [DataContract]
+  public class TraktCalendar : TraktResponse
+  {
+    [DataMember(Name = "date")]
+    public string Date { get; set; }
 
-        [DataMember(Name = "episodes")]
-        public List<TraktEpisodeSummary> Episodes { get; set; }
-    }
+    [DataMember(Name = "episodes")]
+    public List<TraktEpisodeSummary> Episodes { get; set; }
+  }
 }

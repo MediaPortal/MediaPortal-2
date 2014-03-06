@@ -1,18 +1,19 @@
 ﻿using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using TraktPlugin.TraktAPI.DataStructures;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
+using TraktPlugin;
 
-namespace TraktPlugin
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 {
   static class TraktLogger
   {
     static TraktLogger()
     {
       // listen to webclient events from the TraktAPI so we can provide useful logging            
-      TraktAPI.TraktAPI.OnDataSend += TraktAPI_OnDataSend;
-      TraktAPI.TraktAPI.OnDataError += TraktAPI_OnDataError;
-      TraktAPI.TraktAPI.OnDataReceived += TraktAPI_OnDataReceived;
+      TraktAPI.OnDataSend += TraktAPI_OnDataSend;
+      TraktAPI.OnDataError += TraktAPI_OnDataError;
+      TraktAPI.OnDataReceived += TraktAPI_OnDataReceived;
     }
 
     internal static void Info(String log)
