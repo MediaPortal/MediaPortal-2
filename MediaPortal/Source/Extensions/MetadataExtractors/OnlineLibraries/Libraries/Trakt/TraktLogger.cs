@@ -2,7 +2,6 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
-using TraktPlugin;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 {

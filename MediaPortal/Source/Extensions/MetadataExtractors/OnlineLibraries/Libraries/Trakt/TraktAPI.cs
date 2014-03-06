@@ -6,13 +6,16 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Web;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension;
-using TraktPlugin;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 {
   #region Enumerables
+
+  // ReSharper disable InconsistentNaming
+  
   /// <summary>
   /// List of Scrobble States
   /// </summary>
@@ -142,6 +145,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     people = 8,
     users = 16
   }
+  // ReSharper restore InconsistentNaming
 
   #endregion
 
@@ -196,7 +200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       }
 
       // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.ScrobbleMovie, status.ToString()), scrobbleData.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.ScrobbleMovie, status), scrobbleData.ToJSON());
 
       // return success or failure
       return response.FromJSON<TraktResponse>();
@@ -226,7 +230,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       }
 
       // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.ScrobbleShow, status.ToString()), scrobbleData.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.ScrobbleShow, status), scrobbleData.ToJSON());
 
       // return success or failure
       return response.FromJSON<TraktResponse>();
@@ -257,7 +261,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       }
 
       // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncMovieLibrary, mode.ToString()), syncData.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.SyncMovieLibrary, mode), syncData.ToJSON());
 
       // return success or failure
       return response.FromJSON<TraktSyncResponse>();
@@ -283,7 +287,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       }
 
       // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncShowWatchList, mode.ToString()), syncData.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.SyncShowWatchList, mode), syncData.ToJSON());
 
       // return success or failure
       return response.FromJSON<TraktResponse>();
@@ -297,7 +301,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <returns>The response from trakt</returns>
     public static TraktResponse SyncEpisodeWatchList(TraktEpisodeSync syncData, TraktSyncModes mode)
     {
-      // check that we have everything we need            
+      // check that we have everything we need
       if (syncData == null || syncData.EpisodeList.Count == 0)
       {
         TraktResponse error = new TraktResponse
@@ -309,7 +313,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       }
 
       // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncEpisodeWatchList, mode.ToString()), syncData.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.SyncEpisodeWatchList, mode), syncData.ToJSON());
 
       // return success or failure
       return response.FromJSON<TraktResponse>();
@@ -335,7 +339,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       }
 
       // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncEpisodeLibrary, mode.ToString()), syncData.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.SyncEpisodeLibrary, mode), syncData.ToJSON());
 
       // return success or failure
       return response.FromJSON<TraktResponse>();
@@ -481,14 +485,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     public static TraktRateResponse RateEpisode(TraktRateEpisode episode)
     {
       if (episode == null) return null;
-      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.episode.ToString()), episode.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.episode), episode.ToJSON());
       return response.FromJSON<TraktRateResponse>();
     }
 
     /// <summary>
     /// Sends episodes rate data to Trakt
     /// </summary>
-    /// <param name="episode">The Trakt rate data to send</param>
+    /// <param name="episodes">The Trakt rate data to send</param>
     /// <returns>The response from Trakt</returns>
     public static TraktRateResponse RateEpisodes(TraktRateEpisodes episodes)
     {
@@ -500,7 +504,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Sends series rate data to Trakt
     /// </summary>
-    /// <param name="episode">The Trakt rate data to send</param>
+    /// <param name="series">The Trakt rate data to send</param>
     /// <returns>The response from Trakt</returns>
     public static TraktRateResponse RateSeries(TraktRateSeries series)
     {
@@ -512,7 +516,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Sends multiple series rate data to Trakt
     /// </summary>
-    /// <param name="episode">The Trakt rate data to send</param>
+    /// <param name="shows">The Trakt rate data to send</param>
     /// <returns>The response from Trakt</returns>
     public static TraktRateResponse RateSeries(TraktRateShows shows)
     {
@@ -524,7 +528,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Sends movie rate data to Trakt
     /// </summary>
-    /// <param name="episode">The Trakt rate data to send</param>
+    /// <param name="movie">The Trakt rate data to send</param>
     /// <returns>The response from Trakt</returns>
     public static TraktRateResponse RateMovie(TraktRateMovie movie)
     {
@@ -536,7 +540,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Sends movies rate data to Trakt
     /// </summary>
-    /// <param name="episode">The Trakt rate data to send</param>
+    /// <param name="movies">The Trakt rate data to send</param>
     /// <returns>The response from Trakt</returns>
     public static TraktRateResponse RateMovies(TraktRateMovies movies)
     {
@@ -1066,6 +1070,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// </summary>
     /// <param name="searchTerm">string to search for</param>
     /// <param name="types">a list of search types</param>
+    /// <param name="maxResults"></param>
     /// <returns>returns results from multiple search types</returns>
     public static TraktSearchResult Search(string searchTerm, HashSet<SearchType> types, int maxResults)
     {
@@ -1206,13 +1211,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Returns tv series details
     /// </summary>
-    /// <param name="ID">TVDB ID or slug</param>
+    /// <param name="id">TVDB ID or slug</param>
+    /// <param name="extended"></param>
     /// <returns></returns>
-    public static TraktShowSummary SeriesOverview(string ID, bool extended = false)
+    public static TraktShowSummary SeriesOverview(string id, bool extended = false)
     {
       string url = extended ? TraktURIs.SeriesOverviewExtended : TraktURIs.SeriesOverview;
 
-      string response = Transmit(string.Format(url, HttpUtility.UrlEncode(ID)), GetUserAuthentication());
+      string response = Transmit(string.Format(url, HttpUtility.UrlEncode(id)), GetUserAuthentication());
       return response.FromJSON<TraktShowSummary>();
     }
 
@@ -1244,8 +1250,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// Return a list of shouts for a episode
     /// </summary>
     /// <param name="title">The episode search term, either (title seperate spaces with '-'), imdbid, tmdbid</param>
-    /// <param name="season">The episode index</param>
-    /// <param name="indexc">The season index</param>
+    /// <param name="episode">The episode index</param>
+    /// <param name="season">The season index</param>
     public static IEnumerable<TraktShout> GetEpisodeShouts(string title, string season, string episode)
     {
       string response = Transmit(string.Format(TraktURIs.EpisodeShouts, title, season, episode), GetUserAuthentication());
@@ -1327,7 +1333,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <returns>The User Authentication json string</returns>
     private static string GetUserAuthentication()
     {
-      return new TraktAuthentication { Username = TraktAPI.Username, Password = TraktAPI.Password }.ToJSON();
+      return new TraktAuthentication { Username = Username, Password = Password }.ToJSON();
     }
 
     /// <summary>
@@ -1343,9 +1349,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       try
       {
         ServicePointManager.Expect100Continue = false;
-        WebClient client = new WebClient();
-        client.Encoding = Encoding.UTF8;
-        client.Headers.Add("user-agent", TraktAPI.UserAgent);
+        WebClient client = new CompressionWebClient(true) { Encoding = Encoding.UTF8 };
+        client.Headers.Add("user-agent", UserAgent);
 
         // wait for a response from the server
         string response = client.UploadString(address, data);

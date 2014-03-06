@@ -1,257 +1,126 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 
-namespace TraktPlugin
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 {
   public class TraktSettings
   {
-    private static Object lockObject = new object();
+    private readonly Object _lockObject = new object();
 
     #region Settings
-    static int SettingsVersion = 1;
+    int SettingsVersion = 1;
 
-    public static List<TraktAuthentication> UserLogins { get; set; }
-    public static int MovingPictures { get; set; }
-    public static int TVSeries { get; set; }
-    public static int MyVideos { get; set; }
-    public static int MyFilms { get; set; }
-    public static int OnlineVideos { get; set; }
-    public static int MyAnime { get; set; }
-    public static int MyTVRecordings { get; set; }
-    public static int MyTVLive { get; set; }
-    public static int ForTheRecordRecordings { get; set; }
-    public static int ForTheRecordTVLive { get; set; }
-    public static int ArgusRecordings { get; set; }
-    public static int ArgusTVLive { get; set; }
-    public static bool KeepTraktLibraryClean { get; set; }
-    public static List<String> BlockedFilenames { get; set; }
-    public static List<String> BlockedFolders { get; set; }
-    public static SyncMovieCheck SkippedMovies { get; set; }
-    public static SyncMovieCheck AlreadyExistMovies { get; set; }
+    public List<TraktAuthentication> UserLogins { get; set; }
+    public bool KeepTraktLibraryClean { get; set; }
+    public List<String> BlockedFilenames { get; set; }
+    public List<String> BlockedFolders { get; set; }
+    public SyncMovieCheck SkippedMovies { get; set; }
+    public SyncMovieCheck AlreadyExistMovies { get; set; }
     public static int LogLevel { get; set; }
-    public static int SyncTimerLength { get; set; }
-    public static int SyncStartDelay { get; set; }
-    public static int TrendingMoviesDefaultLayout { get; set; }
-    public static int TrendingShowsDefaultLayout { get; set; }
-    public static int ShowSeasonsDefaultLayout { get; set; }
-    public static int SeasonEpisodesDefaultLayout { get; set; }
-    public static int RecommendedMoviesDefaultLayout { get; set; }
-    public static int RecommendedShowsDefaultLayout { get; set; }
-    public static int WatchListMoviesDefaultLayout { get; set; }
-    public static int WatchListShowsDefaultLayout { get; set; }
-    public static int WatchListEpisodesDefaultLayout { get; set; }
-    public static int ListsDefaultLayout { get; set; }
-    public static int ListItemsDefaultLayout { get; set; }
-    public static int RelatedMoviesDefaultLayout { get; set; }
-    public static int RelatedShowsDefaultLayout { get; set; }
-    public static int SearchMoviesDefaultLayout { get; set; }
-    public static int SearchShowsDefaultLayout { get; set; }
-    public static int SearchEpisodesDefaultLayout { get; set; }
-    public static int SearchPeopleDefaultLayout { get; set; }
-    public static int SearchUsersDefaultLayout { get; set; }
-    public static int DefaultCalendarView { get; set; }
-    public static int DefaultCalendarStartDate { get; set; }
-    public static bool DownloadFullSizeFanart { get; set; }
-    public static bool DownloadFanart { get; set; }
-    public static int WebRequestCacheMinutes { get; set; }
-    public static bool GetFollowerRequestsOnStartup { get; set; }
-    public static int MovingPicturesCategoryId { get; set; }
-    public static bool MovingPicturesCategories { get; set; }
-    public static int MovingPicturesFiltersId { get; set; }
-    public static bool MovingPicturesFilters { get; set; }
-    public static bool CalendarHideTVShowsInWatchList { get; set; }
-    public static bool HideWatchedRelatedMovies { get; set; }
-    public static bool HideWatchedRelatedShows { get; set; }
-    public static int WebRequestTimeout { get; set; }
-    public static bool HideSpoilersOnShouts { get; set; }
-    public static bool SyncRatings { get; set; }
-    public static bool ShowRateDialogOnWatched { get; set; }
-    public static bool ShowCommunityActivity { get; set; }
-    public static bool IncludeMeInFriendsActivity { get; set; }
-    public static TraktActivity LastActivityLoad { get; set; }
-    public static IEnumerable<TraktTrendingMovie> LastTrendingMovies { get; set; }
-    public static IEnumerable<TraktTrendingShow> LastTrendingShows { get; set; }
-    public static int DashboardActivityPollInterval { get; set; }
-    public static int DashboardTrendingPollInterval { get; set; }
-    public static int DashboardLoadDelay { get; set; }
-    public static TraktUserProfile.Statistics LastStatistics { get; set; }
-    public static bool DashboardMovieTrendingActive { get; set; }
-    public static string MovieRecommendationGenre { get; set; }
-    public static bool MovieRecommendationHideCollected { get; set; }
-    public static bool MovieRecommendationHideWatchlisted { get; set; }
-    public static int MovieRecommendationStartYear { get; set; }
-    public static int MovieRecommendationEndYear { get; set; }
-    public static string ShowRecommendationGenre { get; set; }
-    public static bool ShowRecommendationHideCollected { get; set; }
-    public static bool ShowRecommendationHideWatchlisted { get; set; }
-    public static int ShowRecommendationStartYear { get; set; }
-    public static int ShowRecommendationEndYear { get; set; }
-    //public static SortBy SortByTrendingMovies { get; set; }
-    //public static SortBy SortByRecommendedMovies { get; set; }
-    //public static SortBy SortByWatchListMovies { get; set; }
-    //public static SortBy SortByTrendingShows { get; set; }
-    //public static SortBy SortByRecommendedShows { get; set; }
-    //public static SortBy SortByWatchListShows { get; set; }
-    public static bool EnableJumpToForTVShows { get; set; }
-    public static bool MyFilmsCategories { get; set; }
-    public static bool SortSeasonsAscending { get; set; }
-    public static bool RememberLastSelectedActivity { get; set; }
-    public static int MovPicsRatingDlgDelay { get; set; }
-    public static bool ShowRateDlgForPlaylists { get; set; }
-    public static string DefaultTVShowTrailerSite { get; set; }
-    public static string DefaultMovieTrailerSite { get; set; }
-    public static bool TrendingMoviesHideWatched { get; set; }
-    public static bool TrendingMoviesHideWatchlisted { get; set; }
-    public static bool TrendingMoviesHideCollected { get; set; }
-    public static bool TrendingMoviesHideRated { get; set; }
-    public static bool TrendingShowsHideWatched { get; set; }
-    public static bool TrendingShowsHideWatchlisted { get; set; }
-    public static bool TrendingShowsHideCollected { get; set; }
-    public static bool TrendingShowsHideRated { get; set; }
-    public static List<string> ShowsInCollection { get; set; }
-    public static int DefaultNetworkView { get; set; }
-    public static int RecentWatchedMoviesDefaultLayout { get; set; }
-    public static int RecentWatchedEpisodesDefaultLayout { get; set; }
-    public static int RecentAddedMoviesDefaultLayout { get; set; }
-    public static int RecentAddedEpisodesDefaultLayout { get; set; }
-    public static bool SyncLibrary { get; set; }
-    public static int SearchTypes { get; set; }
-    public static bool ShowSearchResultsBreakdown { get; set; }
-    public static int MaxSearchResults { get; set; }
-    public static bool FilterTrendingOnDashboard { get; set; }
-    public static bool UseTrailersPlugin { get; set; }
-    public static bool IgnoreWatchedPercentOnDVD { get; set; }
+    public int SyncTimerLength { get; set; }
+    public int SyncStartDelay { get; set; }
+    public int TrendingMoviesDefaultLayout { get; set; }
+    public int TrendingShowsDefaultLayout { get; set; }
+    public int ShowSeasonsDefaultLayout { get; set; }
+    public int SeasonEpisodesDefaultLayout { get; set; }
+    public int RecommendedMoviesDefaultLayout { get; set; }
+    public int RecommendedShowsDefaultLayout { get; set; }
+    public int WatchListMoviesDefaultLayout { get; set; }
+    public int WatchListShowsDefaultLayout { get; set; }
+    public int WatchListEpisodesDefaultLayout { get; set; }
+    public int ListsDefaultLayout { get; set; }
+    public int ListItemsDefaultLayout { get; set; }
+    public int RelatedMoviesDefaultLayout { get; set; }
+    public int RelatedShowsDefaultLayout { get; set; }
+    public int SearchMoviesDefaultLayout { get; set; }
+    public int SearchShowsDefaultLayout { get; set; }
+    public int SearchEpisodesDefaultLayout { get; set; }
+    public int SearchPeopleDefaultLayout { get; set; }
+    public int SearchUsersDefaultLayout { get; set; }
+    public int DefaultCalendarView { get; set; }
+    public int DefaultCalendarStartDate { get; set; }
+    public bool DownloadFullSizeFanart { get; set; }
+    public bool DownloadFanart { get; set; }
+    public int WebRequestCacheMinutes { get; set; }
+    public bool GetFollowerRequestsOnStartup { get; set; }
+    public int MovingPicturesCategoryId { get; set; }
+    public bool MovingPicturesCategories { get; set; }
+    public int MovingPicturesFiltersId { get; set; }
+    public bool MovingPicturesFilters { get; set; }
+    public bool CalendarHideTVShowsInWatchList { get; set; }
+    public bool HideWatchedRelatedMovies { get; set; }
+    public bool HideWatchedRelatedShows { get; set; }
+    public int WebRequestTimeout { get; set; }
+    public bool HideSpoilersOnShouts { get; set; }
+    public bool SyncRatings { get; set; }
+    public bool ShowRateDialogOnWatched { get; set; }
+    public bool ShowCommunityActivity { get; set; }
+    public bool IncludeMeInFriendsActivity { get; set; }
+    public TraktActivity LastActivityLoad { get; set; }
+    public IEnumerable<TraktTrendingMovie> LastTrendingMovies { get; set; }
+    public IEnumerable<TraktTrendingShow> LastTrendingShows { get; set; }
+    public int DashboardActivityPollInterval { get; set; }
+    public int DashboardTrendingPollInterval { get; set; }
+    public int DashboardLoadDelay { get; set; }
+    public TraktUserProfile.Statistics LastStatistics { get; set; }
+    public bool DashboardMovieTrendingActive { get; set; }
+    public string MovieRecommendationGenre { get; set; }
+    public bool MovieRecommendationHideCollected { get; set; }
+    public bool MovieRecommendationHideWatchlisted { get; set; }
+    public int MovieRecommendationStartYear { get; set; }
+    public int MovieRecommendationEndYear { get; set; }
+    public string ShowRecommendationGenre { get; set; }
+    public bool ShowRecommendationHideCollected { get; set; }
+    public bool ShowRecommendationHideWatchlisted { get; set; }
+    public int ShowRecommendationStartYear { get; set; }
+    public int ShowRecommendationEndYear { get; set; }
+    //public SortBy SortByTrendingMovies { get; set; }
+    //public SortBy SortByRecommendedMovies { get; set; }
+    //public SortBy SortByWatchListMovies { get; set; }
+    //public SortBy SortByTrendingShows { get; set; }
+    //public SortBy SortByRecommendedShows { get; set; }
+    //public SortBy SortByWatchListShows { get; set; }
+    public bool EnableJumpToForTVShows { get; set; }
+    public bool MyFilmsCategories { get; set; }
+    public bool SortSeasonsAscending { get; set; }
+    public bool RememberLastSelectedActivity { get; set; }
+    public int MovPicsRatingDlgDelay { get; set; }
+    public bool ShowRateDlgForPlaylists { get; set; }
+    public string DefaultTVShowTrailerSite { get; set; }
+    public string DefaultMovieTrailerSite { get; set; }
+    public bool TrendingMoviesHideWatched { get; set; }
+    public bool TrendingMoviesHideWatchlisted { get; set; }
+    public bool TrendingMoviesHideCollected { get; set; }
+    public bool TrendingMoviesHideRated { get; set; }
+    public bool TrendingShowsHideWatched { get; set; }
+    public bool TrendingShowsHideWatchlisted { get; set; }
+    public bool TrendingShowsHideCollected { get; set; }
+    public bool TrendingShowsHideRated { get; set; }
+    public List<string> ShowsInCollection { get; set; }
+    public int DefaultNetworkView { get; set; }
+    public int RecentWatchedMoviesDefaultLayout { get; set; }
+    public int RecentWatchedEpisodesDefaultLayout { get; set; }
+    public int RecentAddedMoviesDefaultLayout { get; set; }
+    public int RecentAddedEpisodesDefaultLayout { get; set; }
+    public bool SyncLibrary { get; set; }
+    public int SearchTypes { get; set; }
+    public bool ShowSearchResultsBreakdown { get; set; }
+    public int MaxSearchResults { get; set; }
+    public bool FilterTrendingOnDashboard { get; set; }
+    public bool UseTrailersPlugin { get; set; }
+    public bool IgnoreWatchedPercentOnDVD { get; set; }
     #endregion
 
     #region Constants
-    public const string cGuid = "a9c3845a-8718-4712-85cc-26f56520bb9a";
 
-    //private static string cLastActivityFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\Activity.json");
-    //private static string cLastTrendingMovieFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\TrendingMovies.json");
-    //private static string cLastTrendingShowFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\TrendingShows.json");
-    //private static string cLastStatisticsFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\UserStatistics.json");
+    //private string cLastActivityFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\Activity.json");
+    //private string cLastTrendingMovieFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\TrendingMovies.json");
+    //private string cLastTrendingShowFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\TrendingShows.json");
+    //private string cLastStatisticsFileCache = Path.Combine(Config.GetFolder(Config.Dir.Config), @"Trakt\Dashboard\UserStatistics.json");
 
-    private const string cTrakt = "Trakt";
-    private const string cSettingsVersion = "SettingsVersion";
-    private const string cUsername = "Username";
-    private const string cPassword = "Password";
-    private const string cMovingPictures = "MovingPictures";
-    private const string cTVSeries = "TVSeries";
-    private const string cMyVideos = "MyVideos";
-    private const string cMyFilms = "MyFilms";
-    private const string cOnlineVideos = "OnlineVideos";
-    private const string cMyAnime = "MyAnime";
-    private const string cMyTVRecordings = "MyTVRecordings";
-    private const string cMyTVLive = "MyTVLive";
-    private const string cForTheRecordRecordings = "ForTheRecordRecordings";
-    private const string cForTheRecordTVLive = "ForTheRecordTVLive";
-    private const string cArgusRecordings = "ArgusRecordings";
-    private const string cArgusTVLive = "ArgusTVLive";
-    private const string cKeepTraktLibraryClean = "KeepLibraryClean";
-    private const string cBlockedFilenames = "BlockedFilenames";
-    private const string cBlockedFolders = "BlockedFolders";
-    private const string cSkippedMovies = "SkippedMovies";
-    private const string cAlreadyExistMovies = "AlreadyExistMovies";
-    private const string cSyncTimerLength = "SyncTimerLength";
-    private const string cSyncStartDelay = "SyncStartDelay";
-    private const string cTrendingMoviesDefaultLayout = "TrendingMoviesDefaultLayout";
-    private const string cTrendingShowsDefaultLayout = "TrendingShowsDefaultLayout";
-    private const string cRecommendedMoviesDefaultLayout = "RecommendedMoviesDefaultLayout";
-    private const string cRecommendedShowsDefaultLayout = "RecommendedShowsDefaultLayout";
-    private const string cWatchListMoviesDefaultLayout = "WatchListMoviesDefaultLayout";
-    private const string cWatchListShowsDefaultLayout = "WatchListShowsDefaultLayout";
-    private const string cWatchListEpisodesDefaultLayout = "WatchListEpisodesDefaultLayout";
-    private const string cListsDefaultLayout = "ListsDefaultLayout";
-    private const string cListItemsDefaultLayout = "ListItemsDefaultLayout";
-    private const string cRelatedMoviesDefaultLayout = "RelatedMoviesDefaultLayout";
-    private const string cRelatedShowsDefaultLayout = "RelatedShowsDefaultLayout";
-    private const string cShowSeasonsDefaultLayout = "ShowSeasonsLayout";
-    private const string cSeasonEpisodesDefaultLayout = "SeasonEpisodesDefaultLayout";
-    private const string cSearchMoviesDefaultLayout = "SearchMoviesDefaultLayout";
-    private const string cSearchShowsDefaultLayout = "SearchShowsDefaultLayout";
-    private const string cSearchEpisodesDefaultLayout = "SearchEpisodesDefaultLayout";
-    private const string cSearchPeopleDefaultLayout = "SearchPeopleDefaultLayout";
-    private const string cSearchUsersDefaultLayout = "SearchUsersDefaultLayout";
-    private const string cDefaultCalendarView = "DefaultCalendarView";
-    private const string cDefaultCalendarStartDate = "DefaultCalendarStartDate";
-    private const string cDownloadFullSizeFanart = "DownloadFullSizeFanart";
-    private const string cDownloadFanart = "DownloadFanart";
-    private const string cWebRequestCacheMinutes = "WebRequestCacheMinutes";
-    private const string cGetFollowerRequestsOnStartup = "GetFriendRequestsOnStartup";
-    private const string cMovingPicturesCategoryId = "MovingPicturesCategoryId";
-    private const string cMovingPicturesCategories = "MovingPicturesCategories";
-    private const string cMovingPicturesFilterId = "MovingPicturesFilterId";
-    private const string cMovingPicturesFilters = "MovingPicturesFilters";
-    private const string cCalendarHideTVShowsInWatchList = "CalendarHideTVShowsInWatchList";
-    private const string cHideWatchedRelatedMovies = "HideWatchedRelatedMovies";
-    private const string cHideWatchedRelatedShows = "HideWatchedRelatedShows";
-    private const string cUserLogins = "UserLogins";
-    private const string cWebRequestTimeout = "WebRequestTimeout";
-    private const string cHideSpoilersOnShouts = "HideSpoilersOnShouts";
-    private const string cShowAdvancedRatingsDialog = "ShowAdvancedRatingsDialog";
-    private const string cSyncRatings = "SyncRatings";
-    private const string cShowRateDialogOnWatched = "ShowRateDialogOnWatched";
-    private const string cShowCommunityActivity = "ShowCommunityActivity";
-    private const string cIncludeMeInFriendsActivity = "IncludeMeInFriendsActivity";
-    private const string cLastActivityLoad = "LastActivityLoad";
-    private const string cLastTrendingMovies = "LastTrendingMovies";
-    private const string cLastTrendingShows = "LastTrendingShows";
-    private const string cLastStatistics = "LastStatistics";
-    private const string cDashboardActivityPollInterval = "DashboardActivityPollInterval";
-    private const string cDashboardTrendingPollInterval = "DashboardTrendingPollInterval";
-    private const string cDashboardLoadDelay = "DashboardLoadDelay";
-    private const string cDashboardMovieTrendingActive = "DashboardMovieTrendingActive";
-    private const string cMovieRecommendationGenre = "MovieRecommendationGenre";
-    private const string cMovieRecommendationHideCollected = "MovieRecommendationHideCollected";
-    private const string cMovieRecommendationHideWatchlisted = "MovieRecommendationHideWatchlisted";
-    private const string cMovieRecommendationStartYear = "MovieRecommendationStartYear";
-    private const string cMovieRecommendationEndYear = "MovieRecommendationEndYear";
-    private const string cShowRecommendationGenre = "ShowRecommendationGenre";
-    private const string cShowRecommendationHideCollected = "ShowRecommendationHideCollected";
-    private const string cShowRecommendationHideWatchlisted = "ShowRecommendationHideWatchlisted";
-    private const string cShowRecommendationStartYear = "ShowRecommendationStartYear";
-    private const string cShowRecommendationEndYear = "ShowRecommendationEndYear";
-    private const string cSortByTrendingMovies = "SortByTrendingMovies";
-    private const string cSortByRecommendedMovies = "SortByRecommendedMovies";
-    private const string cSortByWatchListMovies = "SortByWatchListMovies";
-    private const string cSortByTrendingShows = "SortByTrendingShows";
-    private const string cSortByRecommendedShows = "SortByRecommendedShows";
-    private const string cSortByWatchListShows = "SortByWatchListShows";
-    private const string cEnableJumpToForTVShows = "EnableJumpToForTVShows";
-    private const string cMyFilmsCategories = "MyFilmsCategories";
-    private const string cSortSeasonsAscending = "SortSeasonsAscending";
-    private const string cRememberLastSelectedActivity = "RememberLastSelectedActivity";
-    private const string cMovPicsRatingDlgDelay = "MovPicsRatingDlgDelay";
-    private const string cShowRateDlgForPlaylists = "ShowRateDlgForPlaylists";
-    private const string cDefaultTVShowTrailerSite = "DefaultTVShowTrailerSite";
-    private const string cDefaultMovieTrailerSite = "DefaultMovieTrailerSite";
-    private const string cTrendingMoviesHideWatched = "TrendingMoviesHideWatched";
-    private const string cTrendingMoviesHideWatchlisted = "TrendingMoviesHideWatchlisted";
-    private const string cTrendingMoviesHideCollected = "TrendingMoviesHideCollected";
-    private const string cTrendingMoviesHideRated = "TrendingMoviesHideRated";
-    private const string cTrendingShowsHideWatched = "TrendingShowsHideWatched";
-    private const string cTrendingShowsHideWatchlisted = "TrendingShowsHideWatchlisted";
-    private const string cTrendingShowsHideCollected = "TrendingShowsHideCollected";
-    private const string cTrendingShowsHideRated = "TrendingShowsHideRated";
-    private const string cShowsInCollection = "ShowsInCollection";
-    private const string cDefaultNetworkView = "DefaultNetworkView";
-    private const string cRecentWatchedMoviesDefaultLayout = "RecentWatchedMoviesDefaultLayout";
-    private const string cRecentWatchedEpisodesDefaultLayout = "RecentWatchedEpisodesDefaultLayout";
-    private const string cRecentAddedMoviesDefaultLayout = "RecentAddedMoviesDefaultLayout";
-    private const string cRecentAddedEpisodesDefaultLayout = "RecentAddedEpisodesDefaultLayout";
-    private const string cSyncLibrary = "SyncLibrary";
-    private const string cSearchTypes = "SearchTypes";
-    private const string cShowSearchResultsBreakdown = "ShowSearchResultsBreakdown";
-    private const string cMaxSearchResults = "MaxSearchResults";
-    private const string cFilterTrendingOnDashboard = "FilterTrendingOnDashboard";
-    private const string cUseTrailersPlugin = "UseTrailersPlugin";
-    private const string cIgnoreWatchedPercentOnDVD = "IgnoreWatchedPercentOnDVD";
     #endregion
 
     #region Properties
@@ -265,9 +134,10 @@ namespace TraktPlugin
       set
       {
         _username = value;
-        MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.TraktAPI.Username = _username;
+        TraktAPI.Username = _username;
       }
     }
+
     static string _username = null;
 
     public static string Password
@@ -279,16 +149,17 @@ namespace TraktPlugin
       set
       {
         _password = value;
-        MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.TraktAPI.Password = _password;
+        TraktAPI.Password = _password;
       }
     }
+
     static string _password = null;
 
     /// <summary>
     /// Show Advanced or Simple Ratings Dialog
     /// Settings is Synced from Server
     /// </summary>
-    public static bool ShowAdvancedRatingsDialog
+    public bool ShowAdvancedRatingsDialog
     {
       get
       {
@@ -300,7 +171,7 @@ namespace TraktPlugin
         _showAdvancedRatingsDialogs = value;
 
         // sync setting - delay on startup
-        Thread syncSetting = new Thread((o) =>
+        Thread syncSetting = new Thread(o =>
         {
           if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
             return;
@@ -308,7 +179,7 @@ namespace TraktPlugin
           Thread.Sleep(5000);
           TraktLogger.Info("Loading Online Settings");
 
-          TraktAccountSettings settings = MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.TraktAPI.GetAccountSettings();
+          TraktAccountSettings settings = TraktAPI.GetAccountSettings();
           if (settings != null && settings.Status == "success")
           {
             _showAdvancedRatingsDialogs = settings.ViewingSettings.RatingSettings.Mode == "advanced";
@@ -325,41 +196,12 @@ namespace TraktPlugin
         syncSetting.Start();
       }
     }
-    static bool _showAdvancedRatingsDialogs;
-
-    /// <summary>
-    /// Get Movie Plugin Count
-    /// </summary>
-    public static int MoviePluginCount
-    {
-      get
-      {
-        int count = 0;
-        if (MovingPictures >= 0) count++;
-        if (MyVideos >= 0) count++;
-        if (MyFilms >= 0) count++;
-        return count;
-      }
-    }
-
-    /// <summary>
-    /// Get TV Show Plugin Count
-    /// </summary>
-    public static int TvShowPluginCount
-    {
-      get
-      {
-        int count = 0;
-        if (TVSeries >= 0) count++;
-        if (MyAnime >= 0) count++;
-        return count;
-      }
-    }
+    bool _showAdvancedRatingsDialogs;
 
     /// <summary>
     /// Version of Plugin
     /// </summary>
-    public static string Version
+    public string Version
     {
       get
       {
@@ -368,20 +210,9 @@ namespace TraktPlugin
     }
 
     /// <summary>
-    /// MediaPortal Version
-    /// </summary>
-    public static Version MPVersion
-    {
-      get
-      {
-        return Assembly.GetEntryAssembly().GetName().Version;
-      }
-    }
-
-    /// <summary>
     /// UserAgent used for Web Requests
     /// </summary>
-    public static string UserAgent
+    public string UserAgent
     {
       get
       {
@@ -392,16 +223,16 @@ namespace TraktPlugin
     /// <summary>
     /// The current connection status to trakt.tv
     /// </summary>
-    public static ConnectionState AccountStatus
+    public ConnectionState AccountStatus
     {
       get
       {
-        lock (lockObject)
+        lock (_lockObject)
         {
-          if (_AccountStatus == ConnectionState.Pending)
+          if (_accountStatus == ConnectionState.Pending)
           {
             // update state, to inform we are connecting now
-            _AccountStatus = ConnectionState.Connecting;
+            _accountStatus = ConnectionState.Connecting;
 
             TraktLogger.Info("Signing into trakt.tv");
 
@@ -414,15 +245,15 @@ namespace TraktPlugin
             // test connection
             TraktAccount account = new TraktAccount
             {
-              Username = TraktSettings.Username,
-              Password = TraktSettings.Password
+              Username = Username,
+              Password = Password
             };
 
-            TraktResponse response = MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.TraktAPI.TestAccount(account);
+            TraktResponse response = TraktAPI.TestAccount(account);
             if (response != null && response.Status == "success")
             {
-              TraktLogger.Info("User {0} signed into trakt.", TraktSettings.Username);
-              _AccountStatus = ConnectionState.Connected;
+              TraktLogger.Info("User {0} signed into trakt.", Username);
+              _accountStatus = ConnectionState.Connected;
 
               if (!UserLogins.Exists(u => u.Username == Username))
               {
@@ -432,21 +263,21 @@ namespace TraktPlugin
             else
             {
               TraktLogger.Info("Username and/or Password is Invalid!");
-              _AccountStatus = ConnectionState.Invalid;
+              _accountStatus = ConnectionState.Invalid;
             }
           }
         }
-        return _AccountStatus;
+        return _accountStatus;
       }
       set
       {
-        lock (lockObject)
+        lock (_lockObject)
         {
-          _AccountStatus = value;
+          _accountStatus = value;
         }
       }
     }
-    static ConnectionState _AccountStatus = ConnectionState.Pending;
+    ConnectionState _accountStatus = ConnectionState.Pending;
 
     #endregion
 
@@ -454,12 +285,12 @@ namespace TraktPlugin
     /// <summary>
     /// Loads the Settings
     /// </summary>
-    internal static void LoadSettings()
+    internal void LoadSettings()
     {
       TraktLogger.Info("Loading Local Settings");
 
       // initialise API settings
-      MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.TraktAPI.UserAgent = UserAgent;
+      TraktAPI.UserAgent = UserAgent;
 
       //using (Settings xmlreader = new MPSettings())
       //{
@@ -585,7 +416,7 @@ namespace TraktPlugin
     /// <summary>
     /// Saves the Settings
     /// </summary>
-    internal static void SaveSettings()
+    internal void SaveSettings()
     {
       TraktLogger.Info("Saving Settings");
       //using (Settings xmlwriter = new MPSettings())
@@ -713,7 +544,7 @@ namespace TraktPlugin
     /// <summary>
     /// Modify External Plugin Settings
     /// </summary>
-    internal static void UpdateInternalPluginSettings()
+    internal void UpdateInternalPluginSettings()
     {
       //// disable internal plugin rate dialogs if we show trakt dialog
       //if (TraktSettings.ShowRateDialogOnWatched)
@@ -724,26 +555,6 @@ namespace TraktPlugin
       //    if (TraktHelper.IsMPTVSeriesAvailableAndEnabled)
       //        TraktHandlers.TVSeries.UpdateSettingAsBool("askToRate", false);
       //}
-    }
-
-    static string LoadFileCache(string file, string defaultValue)
-    {
-      string returnValue = defaultValue;
-
-      try
-      {
-        if (File.Exists(file))
-        {
-          returnValue = File.ReadAllText(file, Encoding.UTF8);
-        }
-      }
-      catch (Exception e)
-      {
-        TraktLogger.Error(string.Format("Error loading file: {0}, Error: {1}", file, e.Message));
-        return defaultValue;
-      }
-
-      return returnValue;
     }
 
     #endregion
