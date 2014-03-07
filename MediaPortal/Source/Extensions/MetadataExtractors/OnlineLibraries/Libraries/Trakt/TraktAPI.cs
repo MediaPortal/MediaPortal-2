@@ -533,7 +533,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     public static TraktRateResponse RateMovie(TraktRateMovie movie)
     {
       if (movie == null) return null;
-      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.movie.ToString()), movie.ToJSON());
+      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.movie), movie.ToJSON());
       return response.FromJSON<TraktRateResponse>();
     }
 
@@ -1200,11 +1200,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Returns full movie details
     /// </summary>
-    /// <param name="ID">TMDB ID, IMDB ID or slug</param>
+    /// <param name="id">TMDB ID, IMDB ID or slug</param>
     /// <returns></returns>
-    public static TraktMovieSummary MovieOverview(string ID)
+    public static TraktMovieSummary MovieOverview(string id)
     {
-      string response = Transmit(string.Format(TraktURIs.MovieOverview, HttpUtility.UrlEncode(ID)), GetUserAuthentication());
+      string response = Transmit(string.Format(TraktURIs.MovieOverview, HttpUtility.UrlEncode(id)), GetUserAuthentication());
       return response.FromJSON<TraktMovieSummary>();
     }
 

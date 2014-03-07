@@ -201,7 +201,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Version of Plugin
     /// </summary>
-    public string Version
+    public static string Version
     {
       get
       {
