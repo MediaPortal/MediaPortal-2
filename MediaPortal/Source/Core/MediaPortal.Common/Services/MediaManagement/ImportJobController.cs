@@ -44,7 +44,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// shoud be suspended (e.g. because on the MP2 Client side the MP2 Server is disconnected) it notifies the
   /// <see cref="ImporterWorkerNewGen"/> (_parent) which will then make sure that all <see cref="ImportJobController"/>s
   /// are suspended.
-  /// ToDo: Handle cancellation with a <see cref="CancellationToken"/>
   /// ToDo: Handle suspension
   /// ToDo: Make this class (or a separate status class) serializable by the XMLSerializer to be able to save the status on shutdown
   /// </remarks>
@@ -56,6 +55,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly ImporterWorkerNewGen _parentImporterWorker;
     private readonly TaskCompletionSource<object> _tcs;
     private readonly int _importJobNumber;
+    private readonly CancellationTokenSource _cts;
 
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
 
@@ -73,6 +73,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
       _tcs = new TaskCompletionSource<object>();
+      _cts = new CancellationTokenSource();
 
       SetupDataflowBlocks();
       LinkDataflowBlocks();
@@ -97,12 +98,17 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Public methods
 
-    public void Cancel()
+    public void Activate()
     {      
     }
 
     public void Suspend()
-    {      
+    {
+    }
+
+    public void Cancel()
+    {
+      _cts.Cancel();
     }
 
     public void RegisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
@@ -157,7 +163,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </remarks>
     private void SetupDataflowBlocks()
     {
-      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath, this);
+      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath, _cts.Token, this);
     }
 
     private void LinkDataflowBlocks()

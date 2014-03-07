@@ -57,7 +57,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// that only affect single ImportJobs are handled by the respective <see cref="ImportJobController"/>s.
   /// ToDo: Handle suspension
   /// ToDo: Handle state saving on shutdown
-  /// ToDo: Handle cancellation of ImportJobs
   /// ToDo: Handle messaging
   /// </remarks>
   public class ImporterWorkerNewGen : IImporterWorker, IDisposable
@@ -211,7 +210,29 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private void DoCancelImport(ImportJobInformation? importJobInformation)
     {
-      // ToDo
+      if (importJobInformation == null)
+      {
+        // Cancel all ImportJobs
+        foreach (var importJobController in _importJobs.Values)
+          importJobController.Cancel();
+      }
+      else
+      {
+        // Cancel only the ImportJobs for the specified path
+        // (all other fields of importJobInformation are meaningless in case of a cancelation request)
+        foreach (var importJobToCancel in _importJobs.Keys)
+          if (importJobToCancel.BasePath == importJobInformation.Value.BasePath)
+          {
+            // ImportJobControllers can be removed asynchronously from _importJobs
+            // when they finish. Therefore we double check for null here. If the
+            // ImportJobController is no longer there, the ImportJob has finished
+            // in the meantime. No need to cancel it anymore.
+            ImportJobController importJobController;
+            _importJobs.TryGetValue(importJobToCancel, out importJobController);
+            if (importJobController != null)
+              importJobController.Cancel();
+          }
+      }
     }
 
     private void DoSuspend()
@@ -321,7 +342,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public void CancelPendingJobs()
     {
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Cancelation of all pending jobs requested...");
-      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.CancelImport));
     }
 
     public void CancelJobsForPath(ResourcePath path)

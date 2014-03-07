@@ -40,11 +40,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// <remarks>
   /// Uses a TransformBlock and recursively posts the subdirectories of a given directory to this block
   /// ToDo: Add an IsSingleResource method to the IMetadatExtractor interface and all its implementations
-  /// ToDo: If at least one of the MetadataExtractors to be applied returns true, the directory is
-  /// ToDo: treated as a single resource, not as a directory containing sub-items or subdirectories.
-  /// ToDo: Handle Cancellation
-  /// ToDo: Handle Suspension (This DataflowBlock is quick, so most likely we cancel and start over again on re-activation
-  /// ToDo: or we could even block suspension until this DataflowBlock has finished)
+  ///       If at least one of the MetadataExtractors to be applied returns true, the directory is
+  ///       treated as a single resource, not as a directory containing sub-items or subdirectories.
+  /// ToDo: Handle Suspension
   /// </remarks>
   class DirectoryUnfoldBlock : ISourceBlock<PendingImportResourceNewGen>
   {
@@ -65,18 +63,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Initiates and starts the DirectoryUnfoldBlock
     /// </summary>
     /// <param name="path">Root path of the unfolding process</param>
+    /// <param name="ct">CancellationToken used to cancel this block</param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
     /// <remarks>
     /// <param name="path"></param> must point to a resource (a) for which we can create an IFileSystemResourceAccessor
     /// and (b) which is a directory
     /// </remarks>
-    public DirectoryUnfoldBlock(ResourcePath path, ImportJobController parentImportJobController)
+    public DirectoryUnfoldBlock(ResourcePath path, CancellationToken ct, ImportJobController parentImportJobController)
     {
       _parentImportJobController = parentImportJobController;
       _maxDegreeOfParallelism = Environment.ProcessorCount;
       
       _tcs = new TaskCompletionSource<object>();
-      _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism });
+      _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
       _innerBlock.Completion.ContinueWith(OnFinished);
 
       IResourceAccessor ra;
