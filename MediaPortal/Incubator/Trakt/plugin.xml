@@ -21,6 +21,10 @@
     <Model Id="65E4F7CA-3C9C-4538-966D-2A896BFEF4D3" Name="TraktSetupModel" ClassName="MediaPortal.UiComponents.Trakt.Models.TraktSetupModel"/>
   </Register>
 
+  <Register Location="/Services">
+    <Service Id="TraktHandler" RegistrationClassName="MediaPortal.UiComponents.Trakt.Service.TraktHandler" ServiceClassName="MediaPortal.UiComponents.Trakt.Service.TraktHandler"/>
+  </Register>
+
   <Register Location="/Workflow/States">
     <DialogState Id="3DB8C6DB-F4E4-4A87-80CE-53339AECF494" Name="TraktSetup" DialogScreen="dialogTraktSetup"
         DisplayLabel="[Settings.Plugins.Trakt.TraktSetup]" WorkflowModel="65E4F7CA-3C9C-4538-966D-2A896BFEF4D3"/>

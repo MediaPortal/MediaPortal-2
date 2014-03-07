@@ -45,6 +45,7 @@
     </Compile>
     <Compile Include="Models\TraktSetupModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\TraktHandler.cs" />
     <Compile Include="Settings\Configuration\TraktSettingConfiguration.cs" />
     <Compile Include="Settings\TraktSettings.cs" />
   </ItemGroup>
