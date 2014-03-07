@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -97,16 +99,17 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (pc == null || pc.CurrentMediaItem == null)
         return;
 
-      if (pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+      AbstractScrobble scrobbleData;
+      TraktScrobbleStates state;
+      if (TryCreateScrobbleData(pc, starting, out scrobbleData, out state))
       {
-        TraktMovieScrobble scrobbleData;
-        TraktScrobbleStates state;
-        if (TryCreateScrobbleData(pc, starting, out scrobbleData, out state))
-          TraktAPI.ScrobbleMovieState(scrobbleData, state);
-      }
-      else if (pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-      {
-        // TODO
+        TraktMovieScrobble movie = scrobbleData as TraktMovieScrobble;
+        if (movie != null)
+          TraktAPI.ScrobbleMovieState(movie, state);
+
+        TraktEpisodeScrobble episode = scrobbleData as TraktEpisodeScrobble;
+        if (episode != null)
+          TraktAPI.ScrobbleEpisodeState(episode, state);
       }
     }
 
@@ -118,7 +121,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
     /// <param name="scrobbleData"></param>
     /// <param name="state"></param>
     /// <returns>The Trakt scrobble data to send</returns>
-    public bool TryCreateScrobbleData(IPlayerContext pc, bool starting, out TraktMovieScrobble scrobbleData, out TraktScrobbleStates state)
+    public bool TryCreateScrobbleData(IPlayerContext pc, bool starting, out AbstractScrobble scrobbleData, out TraktScrobbleStates state)
     {
       scrobbleData = null;
       state = starting ? TraktScrobbleStates.watching : TraktScrobbleStates.scrobble;
@@ -140,37 +143,65 @@ namespace MediaPortal.UiComponents.Trakt.Service
         return true;
       }
 
+      bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
+      bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
+      if (!isMovie && !isSeries)
+        return false;
+
       string title = pc.CurrentPlayer != null ? pc.CurrentPlayer.MediaItemTitle : null;
-      scrobbleData = new TraktMovieScrobble
-      {
-        Title = title,
-        PluginVersion = TraktSettings.Version,
-        MediaCenter = "MediaPortal 2",
-        MediaCenterVersion = Assembly.GetEntryAssembly().GetName().Version.ToString(),
-        MediaCenterBuildDate = String.Empty,
-        UserName = username,
-        Password = password
-      };
       string value;
       int iValue;
       DateTime dtValue;
       long lValue;
 
-      if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
-        scrobbleData.IMDBID = value;
+      if (isMovie)
+      {
+        TraktMovieScrobble movie = new TraktMovieScrobble();
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
+          movie.IMDBID = value;
 
-      if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) && iValue > 0)
-        scrobbleData.TMDBID = iValue.ToString();
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) && iValue > 0)
+          movie.TMDBID = iValue.ToString();
 
-      if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
-        scrobbleData.Year = dtValue.Year.ToString();
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
+          movie.Year = dtValue.Year.ToString();
 
-      if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_RUNTIME_M, out iValue) && iValue > 0)
-        scrobbleData.Duration = iValue.ToString();
-      else
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, VideoAspect.ATTR_DURATION, out lValue) && lValue > 0)
-          scrobbleData.Duration = (lValue / 60).ToString();
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_RUNTIME_M, out iValue) && iValue > 0)
+          movie.Duration = iValue.ToString();
 
+        scrobbleData = movie;
+      }
+      if (isSeries)
+      {
+        TraktEpisodeScrobble series = new TraktEpisodeScrobble();
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
+          series.Title = value;
+
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_FIRSTAIRED, out dtValue))
+          series.Year = dtValue.Year.ToString();
+
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SEASON, out iValue))
+          series.Season = iValue.ToString();
+        List<int> intList;
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
+          series.Episode = intList.First().ToString(); // TODO: multi episode files?!
+
+        scrobbleData = series;
+      }
+
+      // Fallback duration info
+      if (string.IsNullOrWhiteSpace(scrobbleData.Duration) && MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, VideoAspect.ATTR_DURATION, out lValue) && lValue > 0)
+        scrobbleData.Duration = (lValue / 60).ToString();
+
+      if (string.IsNullOrWhiteSpace(scrobbleData.Title))
+        scrobbleData.Title = title;
+
+      scrobbleData.PluginVersion = TraktSettings.Version;
+      scrobbleData.MediaCenter = "MediaPortal 2";
+      scrobbleData.MediaCenterVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+      scrobbleData.MediaCenterBuildDate = String.Empty;
+      scrobbleData.Username = username;
+      scrobbleData.Password = password;
       return true;
     }
 
