@@ -54,7 +54,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private readonly ImportJobInformation _importJobInformation;
     private readonly ImporterWorkerNewGen _parentImporterWorker;
-    private readonly Task _completion;
+    private readonly TaskCompletionSource<object> _tcs;
     private readonly int _importJobNumber;
 
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
@@ -72,12 +72,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       _parentImporterWorker = parentImporterWorker;
 
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
+      _tcs = new TaskCompletionSource<object>();
 
       SetupDataflowBlocks();
       LinkDataflowBlocks();
 
       // Todo: This continuation shall happen after the last DataflowBlock has finished
-      _completion = _directoryUnfoldBlock.Completion.ContinueWith(OnFinished);
+      _directoryUnfoldBlock.Completion.ContinueWith(OnFinished);
     }
 
     #endregion
@@ -89,10 +90,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     public Task Completion
     {
-      get
-      {
-        return _completion;
-      }      
+      get { return _tcs.Task; }      
     }
 
     #endregion
@@ -139,12 +137,13 @@ namespace MediaPortal.Common.Services.MediaManagement
           pendingImportResource.Dispose();
       }
 
-      // We rethrow potential exceptions from previousTask (i.e. our _innerBlock.Completion task)
-      // to make the ImporterWorker aware of the status of this ImportJob
-      // ToDo: When creating this task, we need to pass the same CancelationToken we passed to the previousTask
-      // ToDo: so that this task gets a canceled status not a faulted status when we throw the OperationCanceledException here
-      if (previousTask.Exception != null)
-        throw previousTask.Exception;
+      if (previousTask.IsFaulted)
+        // ReSharper disable once AssignNullToNotNullAttribute
+        _tcs.SetException(previousTask.Exception);
+      else if (previousTask.IsCanceled)
+        _tcs.SetCanceled();
+      else
+        _tcs.SetResult(null);
     }
 
     /// <summary>

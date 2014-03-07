@@ -52,7 +52,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     private readonly TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
     private readonly ImportJobController _parentImportJobController;
-    private readonly Task _completion;
+    private readonly TaskCompletionSource<object> _tcs;
     private readonly int _maxDegreeOfParallelism;
     private readonly Stopwatch _stopWatch;
     private int _directoriesProcessed;
@@ -75,8 +75,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       _parentImportJobController = parentImportJobController;
       _maxDegreeOfParallelism = Environment.ProcessorCount;
       
+      _tcs = new TaskCompletionSource<object>();
       _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism });
-      _completion = _innerBlock.Completion.ContinueWith(OnFinished, TaskContinuationOptions.AttachedToParent);
+      _innerBlock.Completion.ContinueWith(OnFinished);
+
       IResourceAccessor ra;
       path.TryCreateLocalResourceAccessor(out ra);
       var fsra = ra as IFileSystemResourceAccessor;
@@ -125,18 +127,21 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       _stopWatch.Stop();
 
       if (previousTask.IsFaulted)
+      {
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0} / DirectoryUnfoldBlock: Error while unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        // ReSharper disable once AssignNullToNotNullAttribute
+        _tcs.SetException(previousTask.Exception);
+      }
       else if (previousTask.IsCanceled)
+      {
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectoryUnfoldBlock: Canceled after unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        _tcs.SetCanceled();
+      }
       else
+      {
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectoryUnfoldBlock: Unfolded {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
- 
-      // We rethrow potential exceptions from previousTask (i.e. our _innerBlock.Completion task)
-      // to make the ImporterWorker aware of the status of this ImportJob
-      // ToDo: When creating this task, we need to pass the same CancelationToken we passed to the previousTask
-      // ToDo: so that this task gets a canceled status not a faulted status when we throw the OperationCanceledException here
-      if (previousTask.Exception != null)
-        throw previousTask.Exception;
+        _tcs.SetResult(null);
+      }
     }
 
     #endregion
@@ -155,7 +160,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     public Task Completion
     {
-      get { return _completion; }
+      get { return _tcs.Task; }
     }
 
     public IDisposable LinkTo(ITargetBlock<PendingImportResourceNewGen> target, DataflowLinkOptions linkOptions)
