@@ -93,6 +93,7 @@
     <Compile Include="Libraries\Trakt\DataStructures\TraktAuthentication.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktCalendar.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktEpisode.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\AbstractScrobble.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeScrobble.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeSummary.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeSync.cs" />
