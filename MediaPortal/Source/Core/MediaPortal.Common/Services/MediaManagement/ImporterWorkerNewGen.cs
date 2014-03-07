@@ -26,7 +26,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -43,9 +45,11 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// the MediaLibrary is abstracted through <see cref="IImportResultHandler"/> and <see cref="IMediaBrowsing"/>
   /// While on the MP2 Server side the respective classes provide direct access to the MediaLibrary, on the
   /// MP2 Clients' side access to the MediaLibrary is routed via UPnP.
-  /// This class makes heavy use of multitasking. Adding ImportJobs returns nearly immediately to the caller.
-  /// These ImportJobs are added to a BlockingCollection from where they are picked up by <see cref="ProcessNewImportJobRequests"/>
-  /// running in another task. This task sets up an <see cref="ImportJobController"/> for every ImportJob. the
+  /// This class makes heavy use of multitasking. Calls to any of the <see cref="IImporterWorker"/>-methods
+  /// immediately return to the caller. For every such call, an <see cref="ImporterWorkerAction"/> is instantiated
+  /// and posted to an ActionBlock. From there, the <see cref="ImporterWorkerAction"/>s are picked up and
+  /// processed sequentially but asynchronously.
+  /// For every scheduled ImportJob, an <see cref="ImportJobController"/> is instantiated. The
   /// <see cref="ImportJobController"/> is added to a ConcurrentDictionary where it remains until the respective
   /// ImportJob is finished. The ImportJob itself (including setting up the necessary TPL Dataflow network) is
   /// handled by the respective <see cref="ImportJobController"/>.
@@ -58,38 +62,42 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// </remarks>
   public class ImporterWorkerNewGen : IImporterWorker, IDisposable
   {
+    #region Enums
+
+    public enum Status
+    {
+      Shutdown,
+      Suspended,
+      Activated
+    }
+
+    #endregion
+
     #region Variables
 
     /// <summary>
-    /// Holds an <see cref="ImportJobInformation"/> for every ImportJob waiting for its
-    /// <see cref="ImportJobController"/> to be set up
-    /// </summary>
-    private readonly BlockingCollection<ImportJobInformation> _newImportJobRequests;
-
-    /// <summary>
-    /// Holds a unique number to be assigned to the next <see cref="ImportJobController"/>
+    /// Processes the <see cref="ImporterWorkerAction"/>s that are requested
     /// </summary>
     /// <remarks>
-    /// We only access this field from the ProcessNewImportJobRequests loop and therefore in a
-    /// sequential and threadsafe manner. As a result, no locking is required but this field
-    /// may not be accessed from anywhere else.
+    /// This DataflowBlock must not have a MaxDegreeOfParallelism other than 1 which is the default value.
+    /// It is required behaviour for this block to process one <see cref="ImporterWorkerAction"/> after the other.
     /// </remarks>
-    private int _numberOfNextImportJob;
-    
-    /// <summary>
-    /// Executes <see cref="ProcessNewImportJobRequests"/>. Completes when <see cref="_newImportJobRequests"/>'
-    /// CompleteAdding method is called and <see cref="ImportJobController"/>s for all remaining entries of
-    /// <see cref="_newImportJobRequests"/> have been set up
-    /// </summary>
-    private Task _newImportJobRequestProcessorTask;
-    
+    private readonly ActionBlock<ImporterWorkerAction> _actionBlock;
+
     /// <summary>
     /// Holds one <see cref="ImportJobController"/> for every active ImportJob
     /// </summary>
     private readonly ConcurrentDictionary<ImportJobInformation, ImportJobController> _importJobs;
-    
+
+    /// <summary>
+    /// Holds a unique number to be assigned to the next <see cref="ImportJobController"/>
+    /// </summary>
+    private int _numberOfNextImportJob;
+
     private IImportResultHandler _importResultHandler;
     private IMediaBrowsing _mediaBrowsing;
+
+    private volatile Status _status;
 
     #endregion
 
@@ -97,68 +105,150 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public ImporterWorkerNewGen()
     {
-      _newImportJobRequests = new BlockingCollection<ImportJobInformation>();
+      _actionBlock = new ActionBlock<ImporterWorkerAction>(action => ProcessActionRequest(action));
       _importJobs = new ConcurrentDictionary<ImportJobInformation, ImportJobController>();
       _numberOfNextImportJob = 1;
-    }
-
-    #endregion
-
-    #region Public properties
-
-    public IMediaBrowsing MediaBrowsing
-    {
-      get { return _mediaBrowsing; }
-    }
-
-    public IImportResultHandler ImportResultHandler
-    {
-      get { return _importResultHandler; }
+      _status = Status.Shutdown;
     }
 
     #endregion
 
     #region Private methods
 
-    #region Processing Loops
+    #region ImporterWorkerAction handling
 
     /// <summary>
-    /// Runs in a separate task and creates an <see cref="ImportJobController"/> for every
-    /// <see cref="ImportJobInformation"/> in <see cref="_newImportJobRequests"/>
+    /// Requests an <see cref="ImporterWorkerAction"/>
     /// </summary>
-    private void ProcessNewImportJobRequests()
+    /// <param name="action"><see cref="ImporterWorkerAction"/> to be requested</param>
+    /// <returns><see cref="Task"/> that completes when the <see cref="ImporterWorkerAction"/> has completed</returns>
+    private Task RequestAction(ImporterWorkerAction action)
     {
-      // GetConsumingEnumerable returns an Enumerable which blocks until (a) the next item is
-      // available or (b) the CompleteAdding method is called
-      foreach (var newImportJobInformation in _newImportJobRequests.GetConsumingEnumerable())
+      _actionBlock.Post(action);
+      return action.Completion;
+    }
+
+    /// <summary>
+    /// Processes <see cref="ImporterWorkerAction"/>s posted to the <see cref="_actionBlock"/>
+    /// </summary>
+    /// <param name="action"><see cref="ImporterWorkerAction"/> to be processed</param>
+    private void ProcessActionRequest(ImporterWorkerAction action)
+    {
+      try
       {
-        // Todo: Check for overlaps with existing ImportJobs
-
-        var importJobInformation = new ImportJobInformation(newImportJobInformation);
-        var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
-        importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
-        _importJobs[importJobInformation] = importJobController;
-        _numberOfNextImportJob++;
-
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started {0} (Path ='{1}', ImportJobType='{2}', IncludeSubdirectories='{3}')", importJobController, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
+        switch (action.Type)
+        {
+          case ImporterWorkerAction.ActionType.Startup:
+            DoStartup();
+            break;
+          case ImporterWorkerAction.ActionType.Activate:
+            DoActivate(action.MediaBrowsingCallback, action.ImportResultHandler);
+            break;
+          case ImporterWorkerAction.ActionType.StartImport:
+            DoStartImport(action.JobInformation.GetValueOrDefault());
+            break;
+          case ImporterWorkerAction.ActionType.CancelImport:
+            DoCancelImport(action.JobInformation);
+            break;
+          case ImporterWorkerAction.ActionType.Suspend:
+            DoSuspend();
+            break;
+          case ImporterWorkerAction.ActionType.Shutdown:
+            DoShutdown();
+            break;
+        }
+        action.Complete();
       }
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: NewImportJobRequestProcessor finished...");
+      catch (Exception ex)
+      {
+        action.Fault(ex);
+      }
+    }
+
+    #endregion
+
+    #region ImportWorkerAction implementations
+
+    // The methods in this region mirror the methods from the IImporterWorker interface.
+    // They are only called from the _actionBlock which ensures that only one of these
+    // methods runs at the same time.
+    
+    private void DoStartup()
+    {
+      if (_status != Status.Shutdown)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Startup was requested although status was not 'Shutdown' but '{0}'", _status);
+        return;
+      }
+      // ToDo: Start messaging, load persisted Jobs, schedule regular imports
+      _status = Status.Suspended;
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started");
+    }
+
+    private void DoActivate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
+    {
+      if (_status != Status.Suspended)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Activation was requested although status was not 'Started' but '{0}'", _status);
+        return;
+      }
+      Interlocked.Exchange(ref _mediaBrowsing, mediaBrowsingCallback);
+      Interlocked.Exchange(ref _importResultHandler, importResultHandler);
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activated");
+    }
+
+    private void DoStartImport(ImportJobInformation importJobInformation)
+    {
+      // ToDo. Check for Status
+      // Todo: Check for overlaps with existing ImportJobs
+
+      var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
+      importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
+      _importJobs[importJobInformation] = importJobController;
+      Interlocked.Increment(ref _numberOfNextImportJob);
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started {0} (Path ='{1}', ImportJobType='{2}', IncludeSubdirectories='{3}')", importJobController, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
+    }
+
+    private void DoCancelImport(ImportJobInformation? importJobInformation)
+    {
+      // ToDo
+    }
+
+    private void DoSuspend()
+    {
+      // ToDo
+    }
+
+    private void DoShutdown()
+    {
+      // ToDo: Check for Status
+      _actionBlock.Complete();
+      if (_actionBlock.InputCount == 0)
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutdown");
+      // ToDo: If there are Actions left after shutdown, cancel the Block
     }
 
     #endregion
 
     #region Event handler
 
+    /// <summary>
+    /// Continuation that runs after an ImportJob has finished
+    /// </summary>
     private void OnImportJobFinished(Task previousTask, ImportJobInformation importJobInformation)
     {
       ImportJobController importJobController;
-      _importJobs.TryRemove(importJobInformation, out importJobController);
-      if (previousTask.IsFaulted)
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Error while processing {0}", previousTask.Exception, importJobController);        
-      else if (previousTask.IsCanceled)
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceled {0}", importJobController);
+      if (_importJobs.TryRemove(importJobInformation, out importJobController))
+      {
+        if (previousTask.IsFaulted)
+          ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Error while processing {0}", previousTask.Exception, importJobController);
+        else if (previousTask.IsCanceled)
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceled {0}", importJobController);
+        else
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished {0}", importJobController);
+      }
       else
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished {0}", importJobController);
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Could not remove ImportJobController for path '{0}'", importJobInformation.BasePath);
     }
 
     #endregion
@@ -186,14 +276,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
-        return false;
-      }
-      internal set
-      {
-        if (value)
-        {
-          
-        }
+        return _status == Status.Suspended;
       }
     }
 
@@ -201,64 +284,77 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
+        // ToDo
         return new List<ImportJobInformation>();
       }
     }
 
     public void Startup()
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Starting up...");
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Startup requested...");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Startup));
     }
 
     public void Shutdown()
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutting down...");
-      
-      // Do not allow adding more ImportJobs.
-      // At the same time ends the ProcessNewImportJobRequests loop.
-      _newImportJobRequests.CompleteAdding();
-      _newImportJobRequestProcessorTask.Wait();
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutdown requested...");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Shutdown)).Wait();
     }
 
     public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activating...");
+      if (mediaBrowsingCallback == null)
+        throw new ArgumentNullException("mediaBrowsingCallback");
+      if (importResultHandler == null)
+        throw new ArgumentNullException("importResultHandler");
 
-      _mediaBrowsing = mediaBrowsingCallback;
-      _importResultHandler = importResultHandler;
-      
-      // Start the ProcessNewImportJobRequests loop and reserve a separate Thread for it in
-      // the ThreadPool (therefore we use TaskCreationOptions.LongRunning)
-      _newImportJobRequestProcessorTask = Task.Factory.StartNew(ProcessNewImportJobRequests, TaskCreationOptions.LongRunning);
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activation requested...");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Activate, mediaBrowsingCallback, importResultHandler));
     }
 
     public void Suspend()
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspending...");
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspension requested...");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
     }
 
     public void CancelPendingJobs()
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceling pending jobs...");
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Cancelation of all pending jobs requested...");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
     }
 
     public void CancelJobsForPath(ResourcePath path)
     {
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceling jobs for path '{0}'...", path);
+      if (path == null)
+        throw new ArgumentNullException("path");
+
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Cancelation of jobs for path '{0}' requested...", path);
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.CancelImport, new ImportJobInformation { BasePath = path }));
     }
 
     public void ScheduleImport(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
     {
+      if (path == null)
+        throw new ArgumentNullException("path");
+      if (mediaCategories == null)
+        throw new ArgumentNullException("mediaCategories");
+
       var categories = mediaCategories as string[] ?? mediaCategories.ToArray();
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Scheduling import for path '{0}', MediaCategories: '{1}', {2}including subdirectories...", path, String.Join(",", categories), includeSubDirectories ? "" : "not ");
-      _newImportJobRequests.Add(new ImportJobInformation(ImportJobType.Import, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories));
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Import for path '{0}', MediaCategories: '{1}', {2}including subdirectories requested...", path, String.Join(",", categories), includeSubDirectories ? "" : "not ");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.StartImport, new ImportJobInformation(ImportJobType.Import, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories)));
     }
 
     public void ScheduleRefresh(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
     {
+      if (path == null)
+        throw new ArgumentNullException("path");
+      if (mediaCategories == null)
+        throw new ArgumentNullException("mediaCategories");
+
       var categories = mediaCategories as string[] ?? mediaCategories.ToArray();
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Scheduling refresh for path '{0}', MediaCategories: '{1}', {2}including subdirectories...", path, String.Join(",", categories), includeSubDirectories ? "" : "not ");
-      _newImportJobRequests.Add(new ImportJobInformation(ImportJobType.Refresh, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories));
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Refresh for path '{0}', MediaCategories: '{1}', {2}including subdirectories requested...", path, String.Join(",", categories), includeSubDirectories ? "" : "not ");
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.StartImport, new ImportJobInformation(ImportJobType.Refresh, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories)));
     }
 
     #endregion

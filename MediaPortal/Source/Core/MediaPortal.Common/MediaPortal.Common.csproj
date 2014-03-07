@@ -67,6 +67,7 @@
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectoryUnfoldBlock.cs" />
+    <Compile Include="Services\MediaManagement\ImporterWorkerAction.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerNewGen.cs" />
     <Compile Include="Services\MediaManagement\ImportJobController.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
