@@ -34,7 +34,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       Startup,
       Activate,
-      StartImport,
+      ScheduleImport,
       CancelImport,
       Suspend,
       Shutdown
@@ -50,8 +50,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       if (actionType == ActionType.Activate)
         throw new ArgumentException("ActionType.Activate requires an IMediaBrowsing and an IImportResultHandler");
-      if (actionType == ActionType.StartImport)
-        throw new ArgumentException("ActionType.StartImport requires an ImportJobInformation");
+      if (actionType == ActionType.ScheduleImport)
+        throw new ArgumentException("ActionType.ScheduleImport requires an ImportJobInformation");
       _actionType = actionType;
       _importJobInformation = null;
       _mediaBrowsingCallback = null;
@@ -80,8 +80,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       if (actionType == ActionType.Startup)
         throw new ArgumentException("ActionType.Startup must not relate to an IMediaBrowsing and an IImportResultHandler");
-      if (actionType == ActionType.StartImport)
-        throw new ArgumentException("ActionType.StartImport must not relate to an IMediaBrowsing and an IImportResultHandler and requires an ImportJobInformation");
+      if (actionType == ActionType.ScheduleImport)
+        throw new ArgumentException("ActionType.ScheduleImport must not relate to an IMediaBrowsing and an IImportResultHandler and requires an ImportJobInformation");
       if (actionType == ActionType.CancelImport)
         throw new ArgumentException("ActionType.CancelImport must not relate to an IMediaBrowsing and an IImportResultHandler");
       if (actionType == ActionType.Suspend)

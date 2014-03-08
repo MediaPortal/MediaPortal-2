@@ -61,11 +61,32 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// methods of the relevant <see cref="ImportJobController"/>s.
   /// ToDo: Handle state saving on shutdown
   /// ToDo: Handle messaging
+  /// ToDo: Handle regular refresh ImportJobs
   /// </remarks>
   public class ImporterWorkerNewGen : IImporterWorker, IDisposable
   {
     #region Enums
 
+    /// <summary>
+    /// Represents the status of the <see cref="ImporterWorkerNewGen"/>
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Shutdown"/>: The <see cref="ImporterWorkerNewGen "/> was either just instantiated and Startup()
+    /// has not yet been called or the <see cref="ImporterWorkerNewGen"/>'s Shutdown() method has been called.
+    /// In this state the <see cref="ImporterWorkerNewGen"/>'s status is saved to disk. It does not listen to or
+    /// send messages, nor does it process any ImportJobs or accept any new ImportJobs to be scheduled.
+    /// <see cref="Suspended"/>: Either the <see cref="ImporterWorkerNewGen"/> had the state <see cref="Shutdown"/>
+    /// and the Startup() method has been called or it had the state <see cref="Activated"/> and the Suspend()
+    /// method has been called. In this state, the <see cref="ImporterWorkerNewGen"/> listens to and sends messages,
+    /// accepts new ImportJobs to be scheduled or cancelations of existing ImportJobs. However, all pending ImportJobs
+    /// are not processed, but suspended. In the MP2-Server this state is valid only for a short time when the MP2-Server
+    /// service starts or when the service terminates. In the MP2-Client this status is additionally valid when the
+    /// client has lost its connection to the MP2-Server.
+    /// <see cref="Activated"/>: The <see cref="ImporterWorkerNewGen"/>'s Activate() method has been called. In this
+    /// state, all the pending ImportJobs are being processed.
+    /// State changes are only valid in the following order:
+    /// Shutdown -> Suspended, Suspended -> Shutdown, Suspended -> Activated and Activated -> Suspended.
+    /// </remarks>
     public enum Status
     {
       Shutdown,
@@ -78,7 +99,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     #region Variables
 
     /// <summary>
-    /// Processes the <see cref="ImporterWorkerAction"/>s that are requested
+    /// Processes the requested <see cref="ImporterWorkerAction"/>s
     /// </summary>
     /// <remarks>
     /// This DataflowBlock must not have a MaxDegreeOfParallelism other than 1 which is the default value.
@@ -89,6 +110,11 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <summary>
     /// Holds one <see cref="ImportJobController"/> for every active ImportJob
     /// </summary>
+    /// <remarks>
+    /// This dictionaly is in general only accessed through <see cref="ImporterWorkerAction"/>s and thus sequentially.
+    /// However, when an ImportJob finishes, the ImportJob is removed from this dictionaly asynchronously, which is
+    /// why we need to use a ConcurrentDictionary.
+    /// </remarks>
     private readonly ConcurrentDictionary<ImportJobInformation, ImportJobController> _importJobs;
 
     /// <summary>
@@ -96,9 +122,29 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     private int _numberOfNextImportJob;
 
+    /// <summary>
+    /// Abstraction object for write access to the MediaLibrary
+    /// </summary>
+    /// <remarks>
+    /// This field is only accessed through <see cref="ImporterWorkerAction"/>s and thus sequentially
+    /// </remarks>
     private IImportResultHandler _importResultHandler;
+    
+    /// <summary>
+    /// Abstraction object for read access to the MediaLibrary
+    /// </summary>
+    /// <remarks>
+    /// This field is only accessed through <see cref="ImporterWorkerAction"/>s and thus sequentially
+    /// </remarks>
     private IMediaBrowsing _mediaBrowsing;
 
+    /// <summary>
+    /// <see cref="Status"/> of the <see cref="ImporterWorkerNewGen"/>
+    /// </summary>
+    /// <remarks>
+    /// This field may be accessed asynchronously through the <see cref="IsSuspended"/> property, which
+    /// is why we make it volatile.
+    /// </remarks>
     private volatile Status _status;
 
     #endregion
@@ -123,7 +169,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// Requests an <see cref="ImporterWorkerAction"/>
     /// </summary>
     /// <param name="action"><see cref="ImporterWorkerAction"/> to be requested</param>
-    /// <returns><see cref="Task"/> that completes when the <see cref="ImporterWorkerAction"/> has completed</returns>
+    /// <returns><see cref="Task"/> that completes when the <see cref="ImporterWorkerAction"/> is completed</returns>
     private Task RequestAction(ImporterWorkerAction action)
     {
       _actionBlock.Post(action);
@@ -146,8 +192,8 @@ namespace MediaPortal.Common.Services.MediaManagement
           case ImporterWorkerAction.ActionType.Activate:
             DoActivate(action.MediaBrowsingCallback, action.ImportResultHandler);
             break;
-          case ImporterWorkerAction.ActionType.StartImport:
-            DoStartImport(action.JobInformation.GetValueOrDefault());
+          case ImporterWorkerAction.ActionType.ScheduleImport:
+            DoScheduleImport(action.JobInformation.GetValueOrDefault());
             break;
           case ImporterWorkerAction.ActionType.CancelImport:
             DoCancelImport(action.JobInformation);
@@ -169,7 +215,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #endregion
 
-    #region ImportWorkerAction implementations
+    #region ImporterWorkerAction implementations
 
     // The methods in this region mirror the methods from the IImporterWorker interface.
     // They are only called from the _actionBlock which ensures that only one of these
@@ -182,7 +228,11 @@ namespace MediaPortal.Common.Services.MediaManagement
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Startup was requested although status was not 'Shutdown' but '{0}'", _status);
         return;
       }
-      // ToDo: Start messaging, load persisted Jobs, schedule regular imports
+
+      // ToDo: Start MessageQueue
+      // ToDo: Load persisted ImportJobs
+      // ToDo: Schedule regular refresh ImportJobs
+
       _status = Status.Suspended;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started");
     }
@@ -194,75 +244,98 @@ namespace MediaPortal.Common.Services.MediaManagement
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Activation was requested although status was not 'Suspended' but '{0}'", _status);
         return;
       }
-      Interlocked.Exchange(ref _mediaBrowsing, mediaBrowsingCallback);
-      Interlocked.Exchange(ref _importResultHandler, importResultHandler);
 
-      foreach (var importJobController in _importJobs.Values)
-        importJobController.Activate(_mediaBrowsing, _importResultHandler);
+      _mediaBrowsing = mediaBrowsingCallback;
+      _importResultHandler = importResultHandler;
+
+      foreach (var kvp in _importJobs)
+        kvp.Value.Activate(_mediaBrowsing, _importResultHandler);
 
       _status = Status.Activated;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activated ({0} ImportJobs pending)", _importJobs.Count);
     }
 
-    private void DoStartImport(ImportJobInformation importJobInformation)
+    private void DoScheduleImport(ImportJobInformation importJobInformation)
     {
-      // ToDo. Check for Status
+      if (_status == Status.Shutdown)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Scheduling of an ImportJob was requested although status was neither 'Activated' nor 'Suspended' but 'Shutdown'");
+        return;
+      }
+
       // Todo: Check for overlaps with existing ImportJobs
 
       var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
-      if (_status == Status.Activated)
-        importJobController.Activate(_mediaBrowsing, _importResultHandler);
       importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
       _importJobs[importJobInformation] = importJobController;
       Interlocked.Increment(ref _numberOfNextImportJob);
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started {0} (Path ='{1}', ImportJobType='{2}', IncludeSubdirectories='{3}')", importJobController, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
+
+      if (_status == Status.Activated)
+        importJobController.Activate(_mediaBrowsing, _importResultHandler);
+
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Scheduled {0} ({1}) (Path ='{2}', ImportJobType='{3}', IncludeSubdirectories='{4}')", importJobController, _status, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
     }
 
     private void DoCancelImport(ImportJobInformation? importJobInformation)
     {
-      // ToDo: Check for Status
+      if (_status == Status.Shutdown)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Cancelation of an ImportJob was requested although status was neither 'Activated' nor 'Suspended' but 'Shutdown'");
+        return;
+      }
 
       if (importJobInformation == null)
       {
         // Cancel all ImportJobs
-        foreach (var importJobController in _importJobs.Values)
-          importJobController.Cancel();
+        foreach (var kvp in _importJobs)
+          kvp.Value.Cancel();
       }
       else
       {
-        // Cancel only the ImportJobs for the specified path
-        // (all other fields of importJobInformation are meaningless in case of a cancelation request)
-        foreach (var importJobToCancel in _importJobs.Keys)
-          if (importJobToCancel.BasePath == importJobInformation.Value.BasePath)
-          {
-            // ImportJobControllers can be removed asynchronously from _importJobs
-            // when they finish. Therefore we double check for null here. If the
-            // ImportJobController is no longer there, the ImportJob has finished
-            // in the meantime. No need to cancel it anymore.
-            ImportJobController importJobController;
-            _importJobs.TryGetValue(importJobToCancel, out importJobController);
-            if (importJobController != null)
-              importJobController.Cancel();
-          }
+        // Cancel only the ImportJobs for the specified path and all its child paths
+        foreach (var kvp in _importJobs)
+          if (importJobInformation.Value.BasePath.IsSameOrParentOf(kvp.Key.BasePath))
+            kvp.Value.Cancel();
       }
     }
 
     private void DoSuspend()
     {
-      // ToDo: Check for Status
-      foreach (var importJobController in _importJobs.Values)
-        importJobController.Suspend();
+      // This method can be called when the Status is Active or already Suspended. The reason for the latter is
+      // that when a DataflowBlock contained in an ImportJobController accesses the MediaLibrary and realizes that
+      // the MediaLibrary is not accessible because the connection to the MP2-Server was lost, it will request a
+      // call to this method. Since we run multiple DataflowBlocks in parallel, several DataflowBlocks may realize
+      // the disconnect and each of them requests a call to this method.
+      if (_status == Status.Shutdown)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Suspension was requested although status was 'Shutdown'");
+        return;
+      }
+
+      foreach (var kvp in _importJobs)
+        kvp.Value.Suspend();
+
+      // ToDo: Only log this once although it is called multiple times (currently like this for debugging purposes)
       _status = Status.Suspended;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspended ({0} ImportJobs pending)", _importJobs.Count);
     }
 
     private void DoShutdown()
     {
-      // ToDo: Check for Status
+      if (_status == Status.Shutdown)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Shutdown was requested although status was already 'Shutdown'");
+        return;
+      }
+      if (_status == Status.Activated)
+        DoSuspend();
+
+      // ToDo: Shutdown MessageQueue
+      // ToDo: Save pending ImportJobs to Disk
+      
       _actionBlock.Complete();
-      if (_actionBlock.InputCount == 0)
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutdown");
-      // ToDo: If there are Actions left after shutdown, cancel the Block
+      _status = Status.Shutdown;
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutdown");
     }
 
     #endregion
@@ -379,7 +452,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
       var categories = mediaCategories as string[] ?? mediaCategories.ToArray();
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Import for path '{0}', MediaCategories: '{1}', {2}including subdirectories requested...", path, String.Join(",", categories), includeSubDirectories ? "" : "not ");
-      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.StartImport, new ImportJobInformation(ImportJobType.Import, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories)));
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.ScheduleImport, new ImportJobInformation(ImportJobType.Import, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories)));
     }
 
     public void ScheduleRefresh(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
@@ -391,7 +464,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
       var categories = mediaCategories as string[] ?? mediaCategories.ToArray();
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Refresh for path '{0}', MediaCategories: '{1}', {2}including subdirectories requested...", path, String.Join(",", categories), includeSubDirectories ? "" : "not ");
-      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.StartImport, new ImportJobInformation(ImportJobType.Refresh, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories)));
+      RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.ScheduleImport, new ImportJobInformation(ImportJobType.Refresh, path, GetMetadataExtractorIdsForMediaCategories(categories), includeSubDirectories)));
     }
 
     #endregion
@@ -400,6 +473,8 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public void Dispose()
     {
+      if (_status != Status.Shutdown)
+        DoShutdown();
     }
 
     #endregion
