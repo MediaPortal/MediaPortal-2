@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Trakt.Settings.Configuration
