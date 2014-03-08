@@ -46,16 +46,19 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// While on the MP2 Server side the respective classes provide direct access to the MediaLibrary, on the
   /// MP2 Clients' side access to the MediaLibrary is routed via UPnP.
   /// This class makes heavy use of multitasking. Calls to any of the <see cref="IImporterWorker"/>-methods
-  /// immediately return to the caller. For every such call, an <see cref="ImporterWorkerAction"/> is instantiated
-  /// and posted to an ActionBlock. From there, the <see cref="ImporterWorkerAction"/>s are picked up and
-  /// processed sequentially but asynchronously.
+  /// (except for Shutdown()) immediately return to the caller. For every such call, an 
+  /// <see cref="ImporterWorkerAction"/> is instantiated and posted to an ActionBlock. From there,
+  /// the <see cref="ImporterWorkerAction"/>s are picked up and processed sequentially but asynchronously.
+  /// A call to Shutdown() blocks until the shutdown is completed.
   /// For every scheduled ImportJob, an <see cref="ImportJobController"/> is instantiated. The
   /// <see cref="ImportJobController"/> is added to a ConcurrentDictionary where it remains until the respective
-  /// ImportJob is finished. The ImportJob itself (including setting up the necessary TPL Dataflow network) is
-  /// handled by the respective <see cref="ImportJobController"/>.
-  /// This class handles every situation that may affect all ImportJobs, such as suspension or shutdown. Situations
-  /// that only affect single ImportJobs are handled by the respective <see cref="ImportJobController"/>s.
-  /// ToDo: Handle suspension
+  /// ImportJob is finished.
+  /// Situations affecting a particular ImportJob (including setting up the necessary TPL Dataflow network for an
+  /// ImportJob, canceling, suspending or activating a particular ImportJob) are handled by the respective
+  /// <see cref="ImportJobController"/>.
+  /// This class handles every situation that may affect all ImportJobs, such as suspension or activation of all
+  /// ImportJobs or shutdown. It coordinates these actions between all the ImportJobs and then calls the respective
+  /// methods of the relevant <see cref="ImportJobController"/>s.
   /// ToDo: Handle state saving on shutdown
   /// ToDo: Handle messaging
   /// </remarks>
@@ -188,12 +191,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       if (_status != Status.Suspended)
       {
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Activation was requested although status was not 'Started' but '{0}'", _status);
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Activation was requested although status was not 'Suspended' but '{0}'", _status);
         return;
       }
       Interlocked.Exchange(ref _mediaBrowsing, mediaBrowsingCallback);
       Interlocked.Exchange(ref _importResultHandler, importResultHandler);
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activated");
+
+      foreach (var importJobController in _importJobs.Values)
+        importJobController.Activate(_mediaBrowsing, _importResultHandler);
+
+      _status = Status.Activated;
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activated ({0} ImportJobs pending)", _importJobs.Count);
     }
 
     private void DoStartImport(ImportJobInformation importJobInformation)
@@ -202,6 +210,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       // Todo: Check for overlaps with existing ImportJobs
 
       var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
+      if (_status == Status.Activated)
+        importJobController.Activate(_mediaBrowsing, _importResultHandler);
       importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
       _importJobs[importJobInformation] = importJobController;
       Interlocked.Increment(ref _numberOfNextImportJob);
@@ -210,6 +220,8 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private void DoCancelImport(ImportJobInformation? importJobInformation)
     {
+      // ToDo: Check for Status
+
       if (importJobInformation == null)
       {
         // Cancel all ImportJobs
@@ -237,7 +249,11 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private void DoSuspend()
     {
-      // ToDo
+      // ToDo: Check for Status
+      foreach (var importJobController in _importJobs.Values)
+        importJobController.Suspend();
+      _status = Status.Suspended;
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspended ({0} ImportJobs pending)", _importJobs.Count);
     }
 
     private void DoShutdown()

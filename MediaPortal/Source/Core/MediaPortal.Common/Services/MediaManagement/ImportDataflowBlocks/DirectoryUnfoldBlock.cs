@@ -42,13 +42,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// ToDo: Add an IsSingleResource method to the IMetadatExtractor interface and all its implementations
   ///       If at least one of the MetadataExtractors to be applied returns true, the directory is
   ///       treated as a single resource, not as a directory containing sub-items or subdirectories.
-  /// ToDo: Handle Suspension
   /// </remarks>
   class DirectoryUnfoldBlock : ISourceBlock<PendingImportResourceNewGen>
   {
     #region Variables
 
+    private readonly BufferBlock<PendingImportResourceNewGen> _suspensionBufferBlock;
     private readonly TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
+    private IDisposable _suspensionLink;
     private readonly ImportJobController _parentImportJobController;
     private readonly TaskCompletionSource<object> _tcs;
     private readonly int _maxDegreeOfParallelism;
@@ -75,7 +76,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       _maxDegreeOfParallelism = Environment.ProcessorCount;
       
       _tcs = new TaskCompletionSource<object>();
-      _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
+      _suspensionBufferBlock = new BufferBlock<PendingImportResourceNewGen>(new DataflowBlockOptions { CancellationToken = ct });
+      _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { BoundedCapacity = _maxDegreeOfParallelism, MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
       _innerBlock.Completion.ContinueWith(OnFinished);
 
       IResourceAccessor ra;
@@ -83,8 +85,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var fsra = ra as IFileSystemResourceAccessor;
       var rootImportResource = new PendingImportResourceNewGen(null, fsra, _parentImportJobController);
 
-      _stopWatch = Stopwatch.StartNew();
-      _innerBlock.Post(rootImportResource);
+      _suspensionBufferBlock.Post(rootImportResource);
+
+      _stopWatch = new Stopwatch();
     }
 
     #endregion
@@ -103,11 +106,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
         if (directories != null)
           foreach (var subDirectory in directories)
-            _innerBlock.Post(new PendingImportResourceNewGen((IFileSystemResourceAccessor)importResource.ResourceAccessor.Clone(), subDirectory, _parentImportJobController));
+            _suspensionBufferBlock.Post(new PendingImportResourceNewGen((IFileSystemResourceAccessor)importResource.ResourceAccessor.Clone(), subDirectory, _parentImportJobController));
       }
 
-      if (_innerBlock.InputCount == 0)
-        _innerBlock.Complete();
+      if (_suspensionBufferBlock.Count == 0)
+        _suspensionBufferBlock.Complete();
 
       return importResource;
     }
@@ -145,16 +148,36 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
+    #region Public methods
+
+    public void Activate()
+    {
+      _suspensionLink = _suspensionBufferBlock.LinkTo(_innerBlock, new DataflowLinkOptions { PropagateCompletion = true });
+      _stopWatch.Start();
+    }
+
+    public void Suspend()
+    {
+      if (_suspensionLink != null)
+      {
+        _suspensionLink.Dispose();
+        _suspensionLink = null;
+      }
+      _stopWatch.Stop();
+    }
+
+    #endregion
+
     #region Interface implementations
 
     public void Complete()
     {
-      _innerBlock.Complete();
+      _suspensionBufferBlock.Complete();
     }
 
-    public void Fault(Exception exception)
+    void IDataflowBlock.Fault(Exception exception)
     {
-      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).Fault(exception);
+      (_suspensionBufferBlock as IDataflowBlock).Fault(exception);
     }
 
     public Task Completion
@@ -167,19 +190,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       return _innerBlock.LinkTo(target, linkOptions);
     }
 
-    public PendingImportResourceNewGen ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target, out bool messageConsumed)
+    PendingImportResourceNewGen ISourceBlock<PendingImportResourceNewGen>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target, out bool messageConsumed)
     {
-      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
+      return (_suspensionBufferBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
     }
 
-    public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
+    bool ISourceBlock<PendingImportResourceNewGen>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
     {
-      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
+      return (_suspensionBufferBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
     }
 
-    public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
+    void ISourceBlock<PendingImportResourceNewGen>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
     {
-      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
+      (_suspensionBufferBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
     }
 
     #endregion

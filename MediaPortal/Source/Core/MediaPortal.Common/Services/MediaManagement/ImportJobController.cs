@@ -44,7 +44,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// shoud be suspended (e.g. because on the MP2 Client side the MP2 Server is disconnected) it notifies the
   /// <see cref="ImporterWorkerNewGen"/> (_parent) which will then make sure that all <see cref="ImportJobController"/>s
   /// are suspended.
-  /// ToDo: Handle suspension
   /// ToDo: Make this class (or a separate status class) serializable by the XMLSerializer to be able to save the status on shutdown
   /// </remarks>
   public class ImportJobController
@@ -76,7 +75,6 @@ namespace MediaPortal.Common.Services.MediaManagement
       _cts = new CancellationTokenSource();
 
       SetupDataflowBlocks();
-      LinkDataflowBlocks();
 
       // Todo: This continuation shall happen after the last DataflowBlock has finished
       _directoryUnfoldBlock.Completion.ContinueWith(OnFinished);
@@ -98,12 +96,16 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Public methods
 
-    public void Activate()
-    {      
+    public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
+    {
+      // ToDo: Make sure we activate all blocks (if necessary with mediaBrowsingCallback and importResultHandler)
+      _directoryUnfoldBlock.Activate();
     }
 
     public void Suspend()
     {
+      // ToDo: Make sure we suspend all blocks
+      _directoryUnfoldBlock.Suspend();
     }
 
     public void Cancel()
@@ -163,11 +165,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </remarks>
     private void SetupDataflowBlocks()
     {
+      // Create the blocks
       _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath, _cts.Token, this);
-    }
 
-    private void LinkDataflowBlocks()
-    {
+      // Link the blocks
       _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
     }
 
