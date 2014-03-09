@@ -26,11 +26,13 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Trakt.Settings;
+using TraktSettings = MediaPortal.UiComponents.Trakt.Settings.TraktSettings;
 
 namespace MediaPortal.UiComponents.Trakt.Models
 {
@@ -38,6 +40,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
   {
     #region Consts
 
+    public const string DEFAULT_TEXT = "[Trakt.TestAccount]";
     public const string TRAKT_SETUP_MODEL_ID_STR = "65E4F7CA-3C9C-4538-966D-2A896BFEF4D3";
     public readonly static Guid TRAKT_SETUP_MODEL_ID = new Guid(TRAKT_SETUP_MODEL_ID_STR);
 
@@ -48,6 +51,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
     protected readonly AbstractProperty _isEnabledProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _usermameProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _passwordProperty = new WProperty(typeof(string), null);
+    protected readonly AbstractProperty _testStatusProperty = new WProperty(typeof(string), DEFAULT_TEXT);
 
     #endregion
 
@@ -86,6 +90,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
       set { _passwordProperty.SetValue(value); }
     }
 
+    public AbstractProperty TestStatusProperty
+    {
+      get { return _testStatusProperty; }
+    }
+
+    public string TestStatus
+    {
+      get { return (string)_testStatusProperty.GetValue(); }
+      set { _testStatusProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public methods - Commands
@@ -101,6 +116,28 @@ namespace MediaPortal.UiComponents.Trakt.Models
       settings.Authentication = new TraktAuthentication { Username = Username, Password = Password };
       // Save
       settingsManager.Save(settings);
+    }
+
+    /// <summary>
+    /// Uses the current accound information and tries to validate them at trakt.
+    /// </summary>
+    public void TestAccount()
+    {
+      try
+      {
+        TraktResponse result = TraktAPI.TestAccount(new TraktAccount { Username = Username, Password = Password });
+        if (!string.IsNullOrWhiteSpace(result.Error))
+          TestStatus = result.Error;
+        else if (!string.IsNullOrWhiteSpace(result.Message))
+          TestStatus = result.Message;
+        else
+          TestStatus = DEFAULT_TEXT;
+      }
+      catch (Exception ex)
+      {
+        TestStatus = "Error";
+        ServiceRegistration.Get<ILogger>().Error("Trakt.tv: Exception while testing account.", ex);
+      }
     }
 
     #endregion
@@ -124,6 +161,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       IsEnabled = settings.EnableTrakt;
       Username = settings.Authentication != null ? settings.Authentication.Username : null;
       Password = settings.Authentication != null ? settings.Authentication.Password : null;
+      TestStatus = DEFAULT_TEXT;
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

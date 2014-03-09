@@ -15,8 +15,9 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
 
-      <Grid DataContext="{Binding Source={StaticResource Model}}" MinHeight="300" MinWidth="600">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" MinHeight="350" MinWidth="700">
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -25,14 +26,14 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
           <CheckBox x:Name="UseCredentials" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
               IsChecked="{Binding Path=IsEnabled,Mode=TwoWay}"
               Content="{Binding}" />
           <Label Content="[Trakt.Enable]" Color="{ThemeResource TextColor}" Margin="5"/>
         </StackPanel>
 
-        <GroupBox x:Name="UsernamePasswordGroup" Header="[Trakt.UsernamePasswordGroup]" Grid.Row="2" Margin="10"
+        <GroupBox x:Name="UsernamePasswordGroup" Header="[Trakt.UsernamePasswordGroup]" Grid.Row="1" Grid.ColumnSpan="2" Margin="10"
              Style="{ThemeResource ContentGroupBoxStyle}" IsVisible="{Binding Path=IsEnabled}">
 
           <Grid Margin="5">
@@ -54,7 +55,10 @@
           </Grid>
         </GroupBox>
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Button x:Name="Test" Content="{Binding Path=TestStatus}" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                IsEnabled="{Binding Path=IsEnabled}" Command="{Command TestAccount}"/>
+
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource Model}" Path="SaveSettings"/>
