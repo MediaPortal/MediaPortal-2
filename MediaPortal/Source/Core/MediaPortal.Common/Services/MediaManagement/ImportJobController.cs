@@ -146,12 +146,20 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
 
       if (previousTask.IsFaulted)
-        // ReSharper disable once AssignNullToNotNullAttribute
-        _tcs.SetException(previousTask.Exception);
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Error while processing", previousTask.Exception, this);
       else if (previousTask.IsCanceled)
-        _tcs.SetCanceled();
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Canceled", this);
       else
-        _tcs.SetResult(null);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Completed", this);
+
+      ImportJobController importJobController;
+      if (!_parentImporterWorker.RunningImportJobs.TryRemove(_importJobInformation, out importJobController))
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not remove myself from the ImporterWorker's dictionaly of running ImportJobs", this);
+
+      // If this ImportJob faulted or was cancelled we can't do anything but log it (which we do above).
+      // Therefore the Completion Task of this ImportJobController always returns 'RunToCompletion' to
+      // avoid exceptions being thrown when this Task is awaited.
+      _tcs.SetResult(null);
     }
 
     /// <summary>

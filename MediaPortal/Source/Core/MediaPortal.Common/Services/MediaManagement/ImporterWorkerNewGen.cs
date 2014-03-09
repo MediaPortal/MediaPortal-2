@@ -263,10 +263,20 @@ namespace MediaPortal.Common.Services.MediaManagement
         return;
       }
 
-      // Todo: Check for overlaps with existing ImportJobs
+      // if the ImportJob to be scheduled is the same as or contains an
+      // already running ImportJob, cancel the already running ImportJob
+      // and schedule this one
+      var jobsToBeCancelled = new HashSet<Task>();
+      foreach (var kvp in _importJobs)
+        if (importJobInformation >= kvp.Key)
+        {
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0} is contained in or the same as the ImportJob which is currently being scheduled. Canceling {1}", kvp.Value, kvp.Value);
+          kvp.Value.Cancel();
+          jobsToBeCancelled.Add(kvp.Value.Completion);
+        }
+      Task.WhenAll(jobsToBeCancelled.ToArray()).Wait();
 
       var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
-      importJobController.Completion.ContinueWith(previousTask => OnImportJobFinished(previousTask, importJobInformation));
       _importJobs[importJobInformation] = importJobController;
       Interlocked.Increment(ref _numberOfNextImportJob);
 
@@ -342,25 +352,6 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Event handler
 
-    /// <summary>
-    /// Continuation that runs after an ImportJob has finished
-    /// </summary>
-    private void OnImportJobFinished(Task previousTask, ImportJobInformation importJobInformation)
-    {
-      ImportJobController importJobController;
-      if (_importJobs.TryRemove(importJobInformation, out importJobController))
-      {
-        if (previousTask.IsFaulted)
-          ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Error while processing {0}", previousTask.Exception, importJobController);
-        else if (previousTask.IsCanceled)
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Canceled {0}", importJobController);
-        else
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished {0}", importJobController);
-      }
-      else
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Could not remove ImportJobController for path '{0}'", importJobInformation.BasePath);
-    }
-
     #endregion
 
     #region Basic helper methods
@@ -375,6 +366,15 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     #endregion
+
+    #endregion
+
+    #region Internal Properties
+
+    internal ConcurrentDictionary<ImportJobInformation, ImportJobController> RunningImportJobs
+    {
+      get { return _importJobs; }
+    }
 
     #endregion
 
