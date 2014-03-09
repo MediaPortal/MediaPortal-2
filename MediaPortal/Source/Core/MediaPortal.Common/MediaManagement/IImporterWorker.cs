@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -64,7 +65,7 @@ namespace MediaPortal.Common.MediaManagement
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public struct ImportJobInformation
+  public struct ImportJobInformation : IEquatable<ImportJobInformation>, IComparable<ImportJobInformation>
   {
     private ImportJobType _jobType;
     private ResourcePath _basePath;
@@ -125,6 +126,68 @@ namespace MediaPortal.Common.MediaManagement
       set { _state = value; }
     }
 
+    public bool Equals(ImportJobInformation other)
+    {
+      return _basePath == other._basePath &&
+             _jobType == other._jobType &&
+             _includeSubDirectories == other._includeSubDirectories &&
+             _metadataExtractorIds.SetEquals(other._metadataExtractorIds) &&
+             // ToDo: Remove when ImporterWorkerNewGen is ready
+             _state == other._state;
+    }
+
+    public static bool operator ==(ImportJobInformation i1, ImportJobInformation i2)
+    {
+      return i1.Equals(i2);
+    }
+
+    public static bool operator !=(ImportJobInformation i1, ImportJobInformation i2)
+    {
+      return !(i1 == i2);
+    }
+
+    /// <summary>
+    /// Checks whether an ImportJob is contained in another ImportJob
+    /// (a >= b means a contains b)
+    /// </summary>
+    /// <param name="other">ImportJobInformation to compare with</param>
+    /// <returns></returns>
+    public int CompareTo(ImportJobInformation other)
+    {
+      // both are equal
+      if (Equals(other))
+        return 0;
+
+      // the current ImportJobInformation contains other
+      if (_basePath.IsParentOf(other._basePath) &&
+        _jobType == other._jobType &&
+        _includeSubDirectories &&
+        _metadataExtractorIds.IsSupersetOf(other._metadataExtractorIds))
+          return 1;
+
+      return -1;
+    }
+
+    public static bool operator >(ImportJobInformation i1, ImportJobInformation i2)
+    {
+      return i1.CompareTo(i2) > 0;
+    }
+
+    public static bool operator <(ImportJobInformation i1, ImportJobInformation i2)
+    {
+      return i1.CompareTo(i2) < 0;
+    }
+
+    public static bool operator >=(ImportJobInformation i1, ImportJobInformation i2)
+    {
+      return (i1 == i2) || (i1 > i2);
+    }
+
+    public static bool operator <=(ImportJobInformation i1, ImportJobInformation i2)
+    {
+      return (i1 == i2) || (i1 < i2);
+    }
+
     public override bool Equals(object obj)
     {
       if (!(obj is ImportJobInformation))
@@ -132,6 +195,7 @@ namespace MediaPortal.Common.MediaManagement
       ImportJobInformation other = (ImportJobInformation) obj;
       return _basePath == other._basePath && _jobType == other._jobType &&
           _includeSubDirectories == other._includeSubDirectories &&
+          _metadataExtractorIds.SetEquals(other._metadataExtractorIds) &&
           _state == other._state;
     }
 
