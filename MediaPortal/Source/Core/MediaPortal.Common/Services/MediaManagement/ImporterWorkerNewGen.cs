@@ -274,7 +274,9 @@ namespace MediaPortal.Common.Services.MediaManagement
           kvp.Value.Cancel();
           jobsToBeCancelled.Add(kvp.Value.Completion);
         }
-      Task.WhenAll(jobsToBeCancelled.ToArray()).Wait();
+      // we need to wait here until the canceled ImportJobs are removed from _importJobs
+      // otherwise we run into trouble when the ImportJobs equal each other
+      Task.WhenAll(jobsToBeCancelled).Wait();
 
       var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
       _importJobs[importJobInformation] = importJobController;
@@ -299,13 +301,19 @@ namespace MediaPortal.Common.Services.MediaManagement
         // Cancel all ImportJobs
         foreach (var kvp in _importJobs)
           kvp.Value.Cancel();
+        Task.WhenAll(_importJobs.Values.Select(i => i.Completion)).Wait();
       }
       else
       {
         // Cancel only the ImportJobs for the specified path and all its child paths
+        var jobsToBeCanceled = new HashSet<Task>();
         foreach (var kvp in _importJobs)
           if (importJobInformation.Value.BasePath.IsSameOrParentOf(kvp.Key.BasePath))
+          {
             kvp.Value.Cancel();
+            jobsToBeCanceled.Add(kvp.Value.Completion);
+          }
+        Task.WhenAll(jobsToBeCanceled).Wait();
       }
     }
 
