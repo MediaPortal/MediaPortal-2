@@ -55,8 +55,13 @@
           </Grid>
         </GroupBox>
 
-        <Button x:Name="Test" Content="{Binding Path=TestStatus}" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0">
+          <Button x:Name="Test" Content="{Binding Path=TestStatus}" HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 IsEnabled="{Binding Path=IsEnabled}" Command="{Command TestAccount}"/>
+
+          <Button x:Name="Sync" Content="Sync to Trakt" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                IsEnabled="{Binding Path=IsEnabled}" Command="{Command SyncMediaToTrakt}"/>
+        </StackPanel>
 
         <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
