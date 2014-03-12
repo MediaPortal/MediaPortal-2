@@ -62,6 +62,10 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
       <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
       <Name>OnlineLibraries</Name>

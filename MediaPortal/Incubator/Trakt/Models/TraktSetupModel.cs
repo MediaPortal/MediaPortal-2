@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -38,6 +39,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Utilities;
 using TraktSettings = MediaPortal.UiComponents.Trakt.Settings.TraktSettings;
 
 namespace MediaPortal.UiComponents.Trakt.Models
@@ -148,6 +150,12 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     public void SyncMediaToTrakt()
     {
+      SyncMovies();
+      SyncSeries();
+    }
+
+    public void SyncMovies()
+    {
       try
       {
         Guid[] types = { MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID };
@@ -160,7 +168,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
         TraktSyncModes traktSyncMode = TraktSyncModes.library;
         var response = TraktAPI.SyncMovieLibrary(syncData, traktSyncMode);
-        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Synchronized '{0}': {1} inserted, {2} existing, {3} skipped movies.", traktSyncMode, response.Inserted, SafeCount(response.AlreadyExistMovies), SafeCount(response.SkippedMovies));
+        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Movies '{0}': {1} inserted, {2} existing, {3} skipped movies.", traktSyncMode, response.Inserted, SafeCount(response.AlreadyExistMovies), SafeCount(response.SkippedMovies));
 
         syncData.MovieList.Clear();
         // Then send only the watched movies as "seen"
@@ -169,7 +177,69 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
         traktSyncMode = TraktSyncModes.seen;
         response = TraktAPI.SyncMovieLibrary(syncData, traktSyncMode);
-        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Synchronized '{0}': {1} inserted, {2} existing, {3} skipped movies.", traktSyncMode, response.Inserted, SafeCount(response.AlreadyExistMovies), SafeCount(response.SkippedMovies));
+        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Movies '{0}': {1} inserted, {2} existing, {3} skipped movies.", traktSyncMode, response.Inserted, SafeCount(response.AlreadyExistMovies), SafeCount(response.SkippedMovies));
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Trakt.tv: Exception while synchronizing media library.", ex);
+      }
+    }
+
+    public void SyncSeries()
+    {
+      try
+      {
+        Guid[] types = { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID };
+
+        MediaItemQuery mediaItemQuery = new MediaItemQuery(types, null, null);
+        var episodes = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(mediaItemQuery, true);
+
+        var series = episodes.ToLookup(GetSeriesKey);
+        foreach (var serie in series)
+        {
+          TraktEpisodeSync syncData = new TraktEpisodeSync
+          {
+            UserName = Username,
+            Password = Password,
+            EpisodeList = new List<TraktEpisodeSync.Episode>(),
+            Title = serie.Key,
+            Year = serie.Min(e =>
+            {
+              int year;
+              string seriesTitle;
+              GetSeriesTitleAndYear(e, out seriesTitle, out year);
+              return year;
+            }).ToString()
+            // TODO: add IMDBID, TMDBID to series aspect and use information here to uniquely indentify series and episodes
+          };
+
+          HashSet<TraktEpisodeSync.Episode> uniqueEpisodes = new HashSet<TraktEpisodeSync.Episode>();
+          foreach (var episode in serie)
+          {
+            string seriesTitle;
+            int year = 0;
+            if (!GetSeriesTitle /*AndYear*/(episode, out seriesTitle /*, out year*/))
+              continue;
+
+            // First send all movies to Trakt that we have so they appear in library
+            CollectionUtils.AddAll(uniqueEpisodes, ToSeries(episode));
+          }
+          syncData.EpisodeList = uniqueEpisodes.ToList();
+
+          TraktSyncModes traktSyncMode = TraktSyncModes.library;
+          var response = TraktAPI.SyncEpisodeLibrary(syncData, traktSyncMode);
+          ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Series '{0}' '{1}': {2}{3}", syncData.Title, traktSyncMode, response.Message, response.Error);
+
+          // Then send only the watched movies as "seen"
+          uniqueEpisodes.Clear();
+          foreach (var seenEpisode in episodes.Where(IsWatched))
+            CollectionUtils.AddAll(uniqueEpisodes, ToSeries(seenEpisode));
+          syncData.EpisodeList = uniqueEpisodes.ToList();
+
+          traktSyncMode = TraktSyncModes.seen;
+          response = TraktAPI.SyncEpisodeLibrary(syncData, traktSyncMode);
+          ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Series '{0}' '{1}': {2}{3}", syncData.Title, traktSyncMode, response.Message, response.Error);
+        }
       }
       catch (Exception ex)
       {
@@ -210,25 +280,54 @@ namespace MediaPortal.UiComponents.Trakt.Models
       return movie;
     }
 
-    private string ToSeries(MediaItem mediaItem)
+    private string GetSeriesKey(MediaItem mediaItem)
     {
-      string value;
-      int iValue;
-      DateTime dtValue;
+      string series;
+      //int year;
+      if (!GetSeriesTitle(mediaItem, out series))
+        return string.Empty;
 
-      TraktEpisodeScrobble series = new TraktEpisodeScrobble();
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
-        series.Title = value;
+      return string.Format("{0}", series);
+      //return string.Format("{0} ({1})", series, year);
+    }
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_FIRSTAIRED, out dtValue))
-        series.Year = dtValue.Year.ToString();
+    private static bool GetSeriesTitleAndYear(MediaItem mediaItem, out string series, out int year)
+    {
+      DateTime dtFirstAired;
+      year = 0;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SEASON, out iValue))
-        series.Season = iValue.ToString();
-      List<int> intList;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
-        series.Episode = intList.First().ToString(); // TODO: multi episode files?!
-      return null;
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out series) || string.IsNullOrWhiteSpace(series))
+        return false;
+
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_FIRSTAIRED, out dtFirstAired))
+        return false;
+
+      year = dtFirstAired.Year;
+      return true;
+    }
+
+    private static bool GetSeriesTitle(MediaItem mediaItem, out string series)
+    {
+      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out series) && !string.IsNullOrWhiteSpace(series);
+    }
+
+    private List<TraktEpisodeSync.Episode> ToSeries(MediaItem mediaItem)
+    {
+      int seriesIndex;
+      List<int> episodeList;
+
+      List<TraktEpisodeSync.Episode> episodes = new List<TraktEpisodeSync.Episode>();
+
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SEASON, out seriesIndex))
+        return episodes;
+
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out episodeList))
+        return episodes;
+
+      foreach (var episode in episodeList)
+        episodes.Add(new TraktEpisodeSync.Episode { SeasonIndex = seriesIndex.ToString(), EpisodeIndex = episode.ToString() });
+
+      return episodes;
     }
 
     #endregion
