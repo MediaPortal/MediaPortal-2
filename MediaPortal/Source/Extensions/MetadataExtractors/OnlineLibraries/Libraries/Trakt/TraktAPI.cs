@@ -328,7 +328,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       // check that we have everything we need
       // server can accept title/year if imdb id is not supplied
-      if (syncData == null || string.IsNullOrEmpty(syncData.SeriesID))
+      if (syncData == null || string.IsNullOrEmpty(syncData.SeriesID) && string.IsNullOrEmpty(syncData.Title) && string.IsNullOrEmpty(syncData.Year))
       {
         TraktResponse error = new TraktResponse
         {
