@@ -5,7 +5,7 @@
   /// </summary>
   public static class TraktURIs
   {
-    public const string ApiKey = "0edee4275d03fe72117e3f69a28815939b082548";
+    public const string ApiKey = "32414037ddd94db084ca56be1a60095f0d7520db"; // MP2 specific
     public const string ScrobbleShow = @"http://api.trakt.tv/show/{0}/" + ApiKey;
     public const string ScrobbleMovie = @"http://api.trakt.tv/movie/{0}/" + ApiKey;
     public const string UserWatchedEpisodes = @"http://api.trakt.tv/user/library/shows/watched.json/" + ApiKey + @"/{0}{1}";
