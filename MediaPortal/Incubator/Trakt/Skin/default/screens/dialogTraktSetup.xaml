@@ -23,6 +23,8 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -45,7 +47,6 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Label Content="[Trakt.Username]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="0"/>
@@ -57,9 +58,14 @@
           </Grid>
         </GroupBox>
 
-        <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="2" Grid.ColumnSpan="2"/>
-        
-        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0">
+        <StackPanel IsVisible="{Binding Path=IsEnabled}" Grid.Row="2" Grid.ColumnSpan="2">
+          <Image Source="{Binding SeriesBanner}" Width="800" Margin="5" />
+          <Image Source="{Binding MoviesBanner}" Width="800" Margin="5" />
+        </StackPanel>
+
+        <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="3" Grid.ColumnSpan="2"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="0">
           <Button x:Name="Test" Content="[Trakt.TestAccount]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command TestAccount}">
             <Button.IsEnabled>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -79,7 +85,7 @@
           </Button>
         </StackPanel>
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource Model}" Path="SaveSettings"/>

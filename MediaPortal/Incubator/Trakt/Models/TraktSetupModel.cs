@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
@@ -50,6 +51,9 @@ namespace MediaPortal.UiComponents.Trakt.Models
     #region Consts
 
     public const string TRAKT_SETUP_MODEL_ID_STR = "65E4F7CA-3C9C-4538-966D-2A896BFEF4D3";
+    public const string SERIES_BANNER_URL = "http://trakt.tv/user/{0}/widgets/watched/episode-thin-banner@2x.jpg";
+    public const string MOVIES_BANNER_URL = "http://trakt.tv/user/{0}/widgets/watched/movie-thin-banner@2x.jpg";
+
     public readonly static Guid TRAKT_SETUP_MODEL_ID = new Guid(TRAKT_SETUP_MODEL_ID_STR);
 
     #endregion
@@ -61,6 +65,8 @@ namespace MediaPortal.UiComponents.Trakt.Models
     protected readonly AbstractProperty _usermameProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _passwordProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _testStatusProperty = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _seriesBannerProperty = new WProperty(typeof(string), string.Empty);
+    protected readonly AbstractProperty _moviesBannerProperty = new WProperty(typeof(string), string.Empty);
 
     #endregion
 
@@ -121,6 +127,28 @@ namespace MediaPortal.UiComponents.Trakt.Models
       set { _testStatusProperty.SetValue(value); }
     }
 
+    public AbstractProperty SeriesBannerProperty
+    {
+      get { return _seriesBannerProperty; }
+    }
+
+    public string SeriesBanner
+    {
+      get { return (string)_seriesBannerProperty.GetValue(); }
+      set { _seriesBannerProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MoviesBannerProperty
+    {
+      get { return _moviesBannerProperty; }
+    }
+
+    public string MoviesBanner
+    {
+      get { return (string)_moviesBannerProperty.GetValue(); }
+      set { _moviesBannerProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public methods - Commands
@@ -152,6 +180,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
           TestStatus = result.Message;
         else
           TestStatus = string.Empty;
+        BuildBannerUrls();
       }
       catch (Exception ex)
       {
@@ -176,6 +205,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       SyncSeries();
       TestStatus = "[Trakt.SyncFinished]";
       IsSynchronizing = false;
+      BuildBannerUrls();
     }
 
     public void SyncMovies()
@@ -271,6 +301,18 @@ namespace MediaPortal.UiComponents.Trakt.Models
       {
         ServiceRegistration.Get<ILogger>().Error("Trakt.tv: Exception while synchronizing media library.", ex);
       }
+    }
+
+    private void BuildBannerUrls()
+    {
+      if (string.IsNullOrEmpty(Username))
+      {
+        SeriesBanner = MoviesBanner = string.Empty;
+        return;
+      }
+      string noCache = "?nocache=" + DateTime.Now.Ticks;
+      SeriesBanner = string.Format(SERIES_BANNER_URL, Username) + noCache;
+      MoviesBanner = string.Format(MOVIES_BANNER_URL, Username) + noCache;
     }
 
     private static bool IsWatched(MediaItem mediaItem)
@@ -378,6 +420,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       Username = settings.Authentication != null ? settings.Authentication.Username : null;
       Password = settings.Authentication != null ? settings.Authentication.Password : null;
       TestStatus = string.Empty;
+      BuildBannerUrls();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
