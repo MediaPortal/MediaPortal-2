@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <DockPanel.Resources>
+      <ResourceWrapper x:Key="TextContent">MediaPortal 2 Alpha 4 released
+Written by Team MediaPortal on 20 December 2013.
+We are proud to offer a special Christmas gift for you: MediaPortal 2 Alpha 4!
+Summary of changes
+------------------
+This release brings a lot of new technologies to your HTPC. We upgraded to .NET 4.5.1 framework, switched from SlimDX to SharpDX, switched the default database to SQLite, updated many 3rd party libraries, implemented new features and of course fixed some bugs.
+    Improved user experience:
+        Major improvements to Media Library navigation and layouts, user selections are now saved and reused the next time. This affects filter, sorting and layout of each screen.
+        Reduced complexity in Media Library menu items, moved filters into own dialog.
+        Added support for browsing Media Library shares by filesystem structure.
+        Improved GUI performance due to newly added VirtualizingWrapPanel (which reduces memory required and speeds up display because only visible items are allocated).
+        Improved media importing performance.
+        Improved video thumbnail creation.
+        Improved database performance with no size limits due to SQLite as new default database.
+    Fixes
+        Browsing network shares could fail under certain cases.
+        Some minor fixes in the MediaPortal UPnP library.
+    Updated plugins
+        OnlineVideos plugin is included in this release.
+        SlimTV plugin (both NativeTV and MPExtended) has been significantly improved for Alpha 4 release.
+        WebRadio plugin to play your favourite web radio streams inside MP2!</ResourceWrapper>
+    </DockPanel.Resources>
+
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Text scrolling test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows some text labels which are used in different ways. The rendered glyphs should always look the same."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+
+    <Grid DockPanel.Dock="Center" HorizontalAlignment="Center" Background="#E0000000">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="400"/>
+        <ColumnDefinition Width="30"/>
+        <ColumnDefinition Width="400"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="250"/>
+        <RowDefinition Height="250"/>
+      </Grid.RowDefinitions>
+
+      <Label Width="350" Grid.Column="0" Grid.Row="0" x:Name="NoScrollBlue"
+        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Background="Blue" Content="{StaticResource TextContent}" Margin="10" Wrap="True"/>
+
+      <ScrollViewer CanContentScroll="False"  HorizontalScrollBarVisibility="Disabled" Focusable="True" Grid.Column="2" Grid.Row="0">
+        <Label Width="350" x:Name="ScrollBlue" Grid.Column="0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Background="Blue" Content="{StaticResource TextContent}" Margin="10" Wrap="True"/>
+      </ScrollViewer>
+
+      <Label Width="350" Grid.Column="0" Grid.Row="1" x:Name="NoScrollNoColor"
+        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Content="{StaticResource TextContent}" Margin="10" Wrap="True"/>
+
+      <ScrollViewer CanContentScroll="False"  HorizontalScrollBarVisibility="Disabled" Focusable="True" Grid.Column="2" Grid.Row="1">
+        <Label Width="350" x:Name="ScrollNoColor" Grid.Column="0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Content="{StaticResource TextContent}" Margin="10" Wrap="True"/>
+      </ScrollViewer>
+
+    </Grid>
+  </DockPanel>
+</Screen>
