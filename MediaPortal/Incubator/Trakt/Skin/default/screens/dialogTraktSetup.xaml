@@ -29,6 +29,7 @@
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
           <CheckBox x:Name="UseCredentials" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
               IsChecked="{Binding Path=IsEnabled,Mode=TwoWay}"
+              IsEnabled="{Binding Path=!IsSynchronizing}"
               Content="{Binding}" />
           <Label Content="[Trakt.Enable]" Color="{ThemeResource TextColor}" Margin="5"/>
         </StackPanel>
@@ -44,6 +45,7 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Label Content="[Trakt.Username]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="0"/>
@@ -55,15 +57,29 @@
           </Grid>
         </GroupBox>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0">
-          <Button x:Name="Test" Content="{Binding Path=TestStatus}" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                IsEnabled="{Binding Path=IsEnabled}" Command="{Command TestAccount}"/>
+        <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="2" Grid.ColumnSpan="2"/>
+        
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0">
+          <Button x:Name="Test" Content="[Trakt.TestAccount]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command TestAccount}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <Binding Path="IsEnabled"/>
+                <Binding Path="!IsSynchronizing"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
 
-          <Button x:Name="Sync" Content="Sync to Trakt" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                IsEnabled="{Binding Path=IsEnabled}" Command="{Command SyncMediaToTrakt}"/>
+          <Button x:Name="Sync" Content="Sync to Trakt" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command SyncMediaToTrakt}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <Binding Path="IsEnabled"/>
+                <Binding Path="!IsSynchronizing"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
         </StackPanel>
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource Model}" Path="SaveSettings"/>

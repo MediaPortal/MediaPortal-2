@@ -25,8 +25,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.UI.Presentation.Models;
@@ -48,7 +49,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
   {
     #region Consts
 
-    public const string DEFAULT_TEXT = "[Trakt.TestAccount]";
     public const string TRAKT_SETUP_MODEL_ID_STR = "65E4F7CA-3C9C-4538-966D-2A896BFEF4D3";
     public readonly static Guid TRAKT_SETUP_MODEL_ID = new Guid(TRAKT_SETUP_MODEL_ID_STR);
 
@@ -57,9 +57,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
     #region Protected fields
 
     protected readonly AbstractProperty _isEnabledProperty = new WProperty(typeof(bool), false);
+    protected readonly AbstractProperty _isSynchronizingProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _usermameProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _passwordProperty = new WProperty(typeof(string), null);
-    protected readonly AbstractProperty _testStatusProperty = new WProperty(typeof(string), DEFAULT_TEXT);
+    protected readonly AbstractProperty _testStatusProperty = new WProperty(typeof(string), string.Empty);
 
     #endregion
 
@@ -74,6 +75,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       get { return (bool)_isEnabledProperty.GetValue(); }
       set { _isEnabledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsSynchronizingProperty
+    {
+      get { return _isSynchronizingProperty; }
+    }
+
+    public bool IsSynchronizing
+    {
+      get { return (bool)_isSynchronizingProperty.GetValue(); }
+      set { _isSynchronizingProperty.SetValue(value); }
     }
 
     public AbstractProperty UsernameProperty
@@ -139,7 +151,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
         else if (!string.IsNullOrWhiteSpace(result.Message))
           TestStatus = result.Message;
         else
-          TestStatus = DEFAULT_TEXT;
+          TestStatus = string.Empty;
       }
       catch (Exception ex)
       {
@@ -150,14 +162,27 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     public void SyncMediaToTrakt()
     {
+      if (!IsSynchronizing)
+      {
+        IsSynchronizing = true;
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+        threadPool.Add(SyncMediaToTrakt_Async, ThreadPriority.BelowNormal);
+      }
+    }
+
+    public void SyncMediaToTrakt_Async()
+    {
       SyncMovies();
       SyncSeries();
+      TestStatus = "[Trakt.SyncFinished]";
+      IsSynchronizing = false;
     }
 
     public void SyncMovies()
     {
       try
       {
+        TestStatus = "[Trakt.SyncMovies]";
         Guid[] types = { MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID };
 
         var movies = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(new MediaItemQuery(types, null, null), true);
@@ -189,6 +214,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       try
       {
+        TestStatus = "[Trakt.SyncSeries]";
         Guid[] types = { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID };
 
         MediaItemQuery mediaItemQuery = new MediaItemQuery(types, null, null);
@@ -351,7 +377,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       IsEnabled = settings.EnableTrakt;
       Username = settings.Authentication != null ? settings.Authentication.Username : null;
       Password = settings.Authentication != null ? settings.Authentication.Password : null;
-      TestStatus = DEFAULT_TEXT;
+      TestStatus = string.Empty;
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
