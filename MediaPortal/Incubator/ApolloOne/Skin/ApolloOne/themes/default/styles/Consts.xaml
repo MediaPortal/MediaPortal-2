@@ -6,6 +6,9 @@
 
   <!-- Master_Bare layout -->
   <ResourceWrapper x:Key="HeaderPanelHeight" Resource="135" />
-  <ResourceWrapper x:Key="FooterPanelHeight" Resource="210" />
+  <ResourceWrapper x:Key="FooterPanelHeight" Resource="220" />
+
+  <!-- Player control -->
+  <ResourceWrapper x:Key="PlayerControlBorderRadius" Resource="15" />
 
 </ResourceDictionary>

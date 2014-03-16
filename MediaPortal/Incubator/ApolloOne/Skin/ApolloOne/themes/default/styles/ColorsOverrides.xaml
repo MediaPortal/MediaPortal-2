@@ -28,5 +28,13 @@
   <ResourceWrapper x:Key="ButtonBackgroundFill" Resource="#80000000"/>
   <ResourceWrapper x:Key="ButtonBackgroundDisabledFill" Resource="#F0101010"/>
   <ResourceWrapper x:Key="ButtonBackgroundFocusFill" Resource="#70136D96"/>
+  
+  <!-- Player control -->
+  <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="#FF404040"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#FFDCD9D9"/>
+  <ResourceWrapper x:Key="PlaybackControlsBackgroundColor" Resource="#FF1E1E1E"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#FFDCD9D9"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#FF1B7EE6"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#001B7EE6"/>
 
 </ResourceDictionary>

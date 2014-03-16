@@ -12,6 +12,6 @@
     <ControlTemplate x:Key="Alternative_Contents_Template">
       <Control x:Name="HomeScreenContentsControl" Template="{ThemeResource HomeScreenContentsControlTemplate}"/>
     </ControlTemplate>
-    
+
   </Include.Resources>
 </Include>
