@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:ap="clr-namespace:MediaPortal.UiComponents.ApolloOne.Models;assembly=ApolloOne"
     >
   <Include.Resources>
 
@@ -12,16 +13,16 @@
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True" Margin="115,0,0,-40">
         <DockPanel.Resources>
-          <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+          <!--<Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>-->
+          <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
         </DockPanel.Resources>
-        <ListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}"
+        <ap:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}"
             Width="350" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
-          <ListView.Resources>
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}">
+          <ap:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </ListView.Resources>
-        </ListView>
-
+          </ap:GridListView.Resources>
+        </ap:GridListView>
       </DockPanel>
     </ControlTemplate>
 

@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
