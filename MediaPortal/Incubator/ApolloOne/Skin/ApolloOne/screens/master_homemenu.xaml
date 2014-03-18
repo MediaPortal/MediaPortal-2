@@ -11,13 +11,22 @@
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="115,0,0,-40">
+      <DockPanel LastChildFill="True" Margin="115,-100,0,-40">
         <DockPanel.Resources>
           <!--<Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>-->
           <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
         </DockPanel.Resources>
-        <ap:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}"
-            Width="350" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
+
+        <ListView x:Name="GroupList" DockPanel.Dock="Top" HorizontalAlignment="Center" Style="{ThemeResource HomeGroupListViewStyle}"
+            VerticalAlignment="Stretch"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <ap:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,70,0,0" 
+            VerticalAlignment="Stretch" SetFocusPrio="Fallback"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}">
           <ap:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>

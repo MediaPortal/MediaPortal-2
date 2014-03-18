@@ -66,6 +66,7 @@
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\MenuSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
