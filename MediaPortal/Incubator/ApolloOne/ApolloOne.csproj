@@ -75,8 +75,11 @@
     <Content Include="Skin\ApolloOne\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\ApolloOne\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\ApolloOne\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\ApolloOne\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
     <Content Include="Skin\ApolloOne\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\ApolloOne\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
     <Content Include="Skin\ApolloOne\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\ApolloOne\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
     <Content Include="Skin\ApolloOne\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\ApolloOne\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\ApolloOne\images\Background.jpg" />
@@ -85,6 +88,7 @@
     <Content Include="Skin\ApolloOne\images\shadow_complete.png" />
     <Content Include="Skin\ApolloOne\skin.xml" />
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
+    <Content Include="Skin\ApolloOne\themes\default\workflow\ApolloOne-actions.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\ApolloOne\backgrounds\" />
