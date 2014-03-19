@@ -34,6 +34,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.ApolloOne.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.UiComponents.ApolloOne.Models
 {
@@ -88,7 +89,7 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
     {
       get
       {
-        Dictionary<Guid, GridPosition> positions;
+        SerializableDictionary<Guid, GridPosition> positions;
         if (_menuSettings == null || !_menuSettings.MenuItems.TryGetValue(CurrentKey, out positions))
           return new Dictionary<Guid, GridPosition>();
 
@@ -153,7 +154,7 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
           continue;
 
         // Under "others" all items are places, that do not fit into any other category
-        if (CurrentKey == MenuSettings.OTHERS_MENU_NAME)
+        if (CurrentKey == MenuSettings.MENU_NAME_OTHERS)
         {
           bool found = _menuSettings.MenuItems.Keys.Any(key => _menuSettings.MenuItems[key].ContainsKey(wfAction.ActionId));
           if (!found)
@@ -203,7 +204,10 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
       var menuSettings = ServiceRegistration.Get<ISettingsManager>().Load<MenuSettings>();
       if (menuSettings.MenuItems.Count == 0)
       {
-        var positions = new Dictionary<Guid, GridPosition>();
+        menuSettings.MainMenuGroupNames = new List<string> { MenuSettings.MENU_NAME_IMAGE, MenuSettings.MENU_NAME_AUDIO, MenuSettings.MENU_NAME_MEDIAHUB, MenuSettings.MENU_NAME_TV, MenuSettings.MENU_NAME_WEATHER, MenuSettings.MENU_NAME_NEWS, MenuSettings.MENU_NAME_SETTINGS, MenuSettings.MENU_NAME_OTHERS };
+        menuSettings.DefaultIndex = 2;
+
+        var positions = new SerializableDictionary<Guid, GridPosition>();
         positions[new Guid("A4DF2DF6-8D66-479a-9930-D7106525EB07")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Videos
         positions[new Guid("80D2E2CC-BAAA-4750-807B-F37714153751")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Movies
         positions[new Guid("30F57CBA-459C-4202-A587-09FFF5098251")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Series
@@ -211,16 +215,39 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
 
         positions[new Guid("93442DF7-186D-42e5-A0F5-CF1493E68F49")] = new GridPosition { Column = 3 * MenuSettings.DEFAULT_ROWSPAN_NORMAL + 1, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Media
         positions[new Guid("17D2390E-5B05-4fbd-89F6-24D60CEB427F")] = new GridPosition { Column = 3 * MenuSettings.DEFAULT_ROWSPAN_NORMAL + 1, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Local (exclusive)
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_MEDIAHUB] = positions;
 
-        menuSettings.MainMenuGroupNames = new List<string> { "[Menu.Images]", "[Menu.Audio]", "[Menu.MediaHub]", "[Menu.TV]", "[Menu.Weather]", "[Menu.News]", "[Menu.Settings]", "[Menu.More]" };
-        menuSettings.MenuItems["[Menu.MediaHub]"] = positions;
-        menuSettings.DefaultIndex = 2;
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("55556593-9FE9-436c-A3B6-A971E10C9D44")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_IMAGE] = positions;
+
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("30715D73-4205-417f-80AA-E82F0834171F")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Audio
+        positions[new Guid("E00B8442-8230-4D7B-B871-6AC77755A0D5")] = new GridPosition { Column = MenuSettings.DEFAULT_ROWSPAN_NORMAL + 2, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // PartyMusicPlayer
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_AUDIO] = positions;
+
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("B4A9199F-6DD4-4bda-A077-DE9C081F7703")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // TV Home
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_TV] = positions;
+
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Weather
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_WEATHER] = positions;
+
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("BB49A591-7705-408F-8177-45D633FDFAD0")] = new GridPosition { Column = 1 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Weather
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_NEWS] = positions;
+
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("F6255762-C52A-4231-9E67-14C28735216E")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Configuration
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_SETTINGS] = positions;
+
         ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
       }
       _menuSettings = menuSettings;
-      if (!_menuSettings.MainMenuGroupNames.Contains(MenuSettings.OTHERS_MENU_NAME))
+      if (!_menuSettings.MainMenuGroupNames.Contains(MenuSettings.MENU_NAME_OTHERS))
       {
-        _menuSettings.MainMenuGroupNames.Add(MenuSettings.OTHERS_MENU_NAME);
+        _menuSettings.MainMenuGroupNames.Add(MenuSettings.MENU_NAME_OTHERS);
         ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
       }
     }

@@ -21,6 +21,11 @@
     <Model Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3" Name="HomeMenuModel" ClassName="MediaPortal.UiComponents.ApolloOne.Models.HomeMenuModel"/>
   </Register>
 
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="ApolloOneLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
   <Register Location="/Resources/Skin">
     <Resource Id="ApolloOneSkin" Directory="Skin" Type="Skin"/>
   </Register>

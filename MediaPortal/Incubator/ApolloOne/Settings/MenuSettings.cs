@@ -26,13 +26,21 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.ApolloOne.Models;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.UiComponents.ApolloOne.Settings
 {
   public class MenuSettings
   {
-    public const string OTHERS_MENU_NAME = "[Menu.Others]";
-    
+    public const string MENU_NAME_AUDIO = "[Menu.Audio]";
+    public const string MENU_NAME_IMAGE = "[Menu.Image]";
+    public const string MENU_NAME_MEDIAHUB = "[Menu.MediaHub]";
+    public const string MENU_NAME_TV = "[Menu.TV]";
+    public const string MENU_NAME_WEATHER = "[Menu.Weather]";
+    public const string MENU_NAME_NEWS = "[Menu.News]";
+    public const string MENU_NAME_SETTINGS = "[Menu.Settings]";
+    public const string MENU_NAME_OTHERS = "[Menu.Others]";
+
     public const int DEFAULT_ROWSPAN_SMALL = 2;
     public const int DEFAULT_COLSPAN_SMALL = 2;
 
@@ -41,23 +49,23 @@ namespace MediaPortal.UiComponents.ApolloOne.Settings
 
     public const int DEFAULT_ROWSPAN_LARGE = 6;
     public const int DEFAULT_COLSPAN_LARGE = 6;
-    
+
     public const int DEFAULT_NUM_ROWS = 6;
     public const int DEFAULT_NUM_COLS = 16;
 
     public MenuSettings()
     {
       MainMenuGroupNames = new List<string>();
-      MenuItems = new Dictionary<string, Dictionary<Guid, HomeMenuModel.GridPosition>>();
+      MenuItems = new SerializableDictionary<string, SerializableDictionary<Guid, HomeMenuModel.GridPosition>>();
     }
 
     [Setting(SettingScope.Global, 0)]
     public int DefaultIndex { get; set; }
 
     [Setting(SettingScope.Global)]
-    public IList<string> MainMenuGroupNames { get; set; }
+    public List<string> MainMenuGroupNames { get; set; }
 
     [Setting(SettingScope.Global)]
-    public Dictionary<string, Dictionary<Guid, HomeMenuModel.GridPosition>> MenuItems { get; set; }
+    public SerializableDictionary<string, SerializableDictionary<Guid, HomeMenuModel.GridPosition>> MenuItems { get; set; }
   }
 }
