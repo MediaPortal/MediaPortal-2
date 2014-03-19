@@ -71,6 +71,7 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
+    <Content Include="Skin\ApolloOne\fonts\default-font.xml" />
     <Content Include="Skin\ApolloOne\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\ApolloOne\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\ApolloOne\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
@@ -87,7 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\ApolloOne\backgrounds\" />
-    <Folder Include="Skin\ApolloOne\fonts\" />
     <Folder Include="Skin\ApolloOne\sounds\" />
     <Folder Include="Skin\ApolloOne\superlayers\" />
     <Folder Include="Skin\ApolloOne\themes\default\images\" />
@@ -105,6 +105,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="Skin\ApolloOne\fonts\bebas-neue.ttf" />
+    <None Include="Skin\ApolloOne\fonts\bebas-neue.desc" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\themes\default\styles\Graphics.xaml">

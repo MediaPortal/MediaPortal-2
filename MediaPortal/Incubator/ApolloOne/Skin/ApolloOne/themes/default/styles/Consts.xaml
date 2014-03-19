@@ -11,4 +11,17 @@
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlBorderRadius" Resource="15" />
 
+  <!-- General font sizes -->
+  <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
+  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="40"/>
+
+  <ResourceWrapper x:Key="DateTimeFontSize" Resource="26"/>
+
+  <ResourceWrapper x:Key="BigFontSize" Resource="36"/>
+  <ResourceWrapper x:Key="SmallFontSize" Resource="26"/>
+  <ResourceWrapper x:Key="SmallerFontSize" Resource="24"/>
+  <ResourceWrapper x:Key="TinyFontSize" Resource="20"/>
+
+  <ResourceWrapper x:Key="OsdTitleFontSize" Resource="46"/>
+
 </ResourceDictionary>
