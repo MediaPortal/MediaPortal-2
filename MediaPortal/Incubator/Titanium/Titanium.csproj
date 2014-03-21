@@ -421,11 +421,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Titanium\screens\shares_config_choose_resource_provider.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\Titanium\screens\shares_config_choose_system.xaml">
       <SubType>Designer</SubType>
     </Content>
