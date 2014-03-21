@@ -167,7 +167,6 @@
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Media sources configuration</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Remove media sources</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Media sources info</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Choose system</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Choose resource provider</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Edit path</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Choose path</string>

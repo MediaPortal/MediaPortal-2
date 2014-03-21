@@ -74,10 +74,10 @@
         MainScreen="shares_config_share_info"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Select if a new share should be created on the server or on the client -->
+    <!-- Select resource provider of local and/or remote system -->
     <WorkflowState Id="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
         Name="SharesAddChooseSystem"
-        DisplayLabel="[SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel]"
+        DisplayLabel="[SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel]"
         MainScreen="shares_config_choose_system"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
