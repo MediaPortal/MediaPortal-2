@@ -134,12 +134,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
       else if (previousTask.IsCanceled)
       {
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectoryUnfoldBlock: Canceled after unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker / {0} / DirectoryUnfoldBlock: Canceled after unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
         _tcs.SetCanceled();
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectoryUnfoldBlock: Unfolded {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker / {0} / DirectoryUnfoldBlock: Unfolded {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
         _tcs.SetResult(null);
       }
     }
