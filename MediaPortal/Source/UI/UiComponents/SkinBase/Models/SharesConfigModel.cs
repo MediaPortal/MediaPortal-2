@@ -583,6 +583,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       lock (_syncObj)
       {
+        IsResourceProviderSelected = false;
         _systemsList = new ItemsList();
 
         if (_enableLocalShares)
