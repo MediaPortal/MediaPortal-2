@@ -74,13 +74,13 @@
   <string name="ImporterMessages.ImportCompletedTitle">Import completed</string>
   <string name="ImporterMessages.ImportCompletedText">The import of \'{0}\' has finished.</string>
 
-  <string name="LocalFsResourceProvider.Name">Local filesystem resource provider</string>
+  <string name="LocalFsResourceProvider.Name">Local filesystem</string>
   <string name="LocalFsResourceProvider.Description">Access the local filesystem</string>
 
-  <string name="RemoteResourceProvider.Name">Remote resource provider</string>
+  <string name="RemoteResourceProvider.Name">Remote resources</string>
   <string name="RemoteResourceProvider.Description">Access resources located at another MediaPortal 2 system</string>
 
-  <string name="RawUrlResourceProvider.Name">Raw Url resource provider</string>
+  <string name="RawUrlResourceProvider.Name">Raw Url</string>
   <string name="RawUrlResourceProvider.Description">Access raw Uri sources</string>
 
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>

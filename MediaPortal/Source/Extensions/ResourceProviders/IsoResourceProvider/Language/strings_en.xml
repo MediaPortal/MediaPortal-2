@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="IsoResourceProvider.Name">ISO file resource provider</string>
+  <string name="IsoResourceProvider.Name">ISO file</string>
   <string name="IsoResourceProvider.Description">Access files and directories in ISO images</string>
 </resources>
