@@ -81,13 +81,6 @@
         MainScreen="shares_config_choose_system"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Directly select the base media provider of a share, skipping the "choose system" step -->
-    <WorkflowState Id="7DDE6ADF-7EA2-4376-A2A2-94459490B207"
-        Name="SharesAddChooseSystemResourceProvider"
-        DisplayLabel="[SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel]"
-        MainScreen="shares_config_choose_resource_provider"
-        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
-
     <!-- Select the base media provider of a share -->
     <WorkflowState Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
         Name="SharesEditChooseResourceProvider"
