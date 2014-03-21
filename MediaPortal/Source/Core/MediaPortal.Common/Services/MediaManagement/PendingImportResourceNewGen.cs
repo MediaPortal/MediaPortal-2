@@ -44,24 +44,176 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
   /// If changed, this has to be taken into consideration.
   /// </para>
+  /// <para>
+  /// This class is not threadsafe. In particular the ResourceAccessor property must only be accesseed from one
+  /// thread at a time. While flowing through the Dataflow network, TPL Dataflow ensures that only one thread
+  /// accesses one particular object of this class.
+  /// </para>
   /// ToDo: Adapt to additional DataflowBlocks
   /// </remarks>
   public class PendingImportResourceNewGen : IDisposable
   {
-    private readonly ImportJobController _parentImportJobController;
-    
-    private IFileSystemResourceAccessor _parentDirectory;
-    private IFileSystemResourceAccessor _resourceAccessor;
-    private bool _isSingleResource = true;
-    private bool _isValid = true;
+    #region Enums
 
-    public PendingImportResourceNewGen(IFileSystemResourceAccessor parentDirectory, IFileSystemResourceAccessor resourceAccessor, ImportJobController parentImportJobController)
+    public enum DataflowNetworkPosition : byte 
     {
-      _parentDirectory = parentDirectory;
-      _resourceAccessor = resourceAccessor;
+      None,
+      DirectoryUnfoldBlock,
+      // ToDo: Add additional DataflowBlocks
+    }
+
+    #endregion
+
+    #region Variables
+
+    // Runtime data not persisted during serialization
+    private int _pendingImportResourceNumber;
+    private ImportJobController _parentImportJobController;
+    private bool _isValid;
+    
+    // Resource data recreated after deserialization
+    // The _resourceAccessor will after deserialization only be created from the _resourcePathString
+    // on demand, i.e. if the ResourceAccessor property is accessed
+    private IFileSystemResourceAccessor _resourceAccessor;
+    
+    // Resource data that is (de)serializable
+    private String _resourcePathString;
+    private String _parentDirectoryResourcePathString;
+    private bool _isSingleResource = true;
+    private DataflowNetworkPosition _lastFinishedBlock;
+
+    #endregion
+
+    #region Constructor
+
+    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, DataflowNetworkPosition lastFinishedBlock, ImportJobController parentImportJobController)
+    {
+      _parentDirectoryResourcePathString = (parentDirectory == null) ? "" : parentDirectory.Serialize();
+      _resourceAccessor = resourceAccessor;      
+      _lastFinishedBlock = lastFinishedBlock;
       _parentImportJobController = parentImportJobController;
+      _pendingImportResourceNumber = _parentImportJobController.GetNumberOfNextPendingImportResource();
+
+      _isValid = (_resourceAccessor != null);
+
       _parentImportJobController.RegisterPendingImportResource(this);
     }
+
+    #endregion
+
+    #region Public properties
+
+    [XmlIgnore]
+    public int PendingImportResourceNumber
+    {
+      get { return _pendingImportResourceNumber; }
+    }
+
+    [XmlIgnore]
+    public ResourcePath ParentDirectory
+    {
+      get
+      {
+        if (_parentDirectoryResourcePathString == "")
+            return null;
+        return ResourcePath.Deserialize(_parentDirectoryResourcePathString);
+      }
+    }
+
+    [XmlIgnore]
+    public IFileSystemResourceAccessor ResourceAccessor
+    {
+      get
+      {
+        if (_resourceAccessor != null)
+          return _resourceAccessor;
+        _isValid = GetFsraFromResourcePathString(_resourcePathString, out _resourceAccessor);
+        return _resourceAccessor;
+      }
+    }
+
+    [XmlIgnore]
+    public ResourcePath PendingResourcePath
+    {
+      get
+      {
+        if (!String.IsNullOrEmpty(_resourcePathString))
+          return ResourcePath.Deserialize(_resourcePathString);
+        return _resourceAccessor.CanonicalLocalResourcePath;
+      }
+    }
+
+    [XmlIgnore]
+    public bool IsSingleResource
+    {
+      get { return _isSingleResource; }
+      set { _isSingleResource = value; }
+    }
+
+    [XmlIgnore]
+    public DataflowNetworkPosition LastFinishedBlock
+    {
+      get { return _lastFinishedBlock; }
+      set { _lastFinishedBlock = value; }
+    }
+
+    [XmlIgnore]
+    public bool IsValid
+    {
+      get { return _isValid; }
+      set
+      {
+        if (value)
+          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: A PendingImportResource's IsValid property should not be set to true from outside.", _parentImportJobController);
+        _isValid = value;
+      }
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private bool GetFsraFromResourcePathString(String resourcePathString, out IFileSystemResourceAccessor fsra)
+    {
+      try
+      {
+        IResourceAccessor ra;
+        if (!ResourcePath.Deserialize(resourcePathString).TryCreateLocalResourceAccessor(out ra))
+        {
+          fsra = null;
+          ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Could not create ResourceAccessor for resource '{1}': It is no filesystem resource", _parentImportJobController, resourcePathString);
+          return false;
+        }
+        fsra = ra as IFileSystemResourceAccessor;
+        if (fsra == null)
+        {
+          ra.Dispose();
+          ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Could not load resource '{1}': It is no filesystem resource", _parentImportJobController, resourcePathString);
+          return false;
+        }
+      }
+      catch (Exception ex)
+      {
+        fsra = null;
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Error creating ResourceAccessor for resource '{1}'", ex, _parentImportJobController, resourcePathString);
+        return false;
+      }
+      return true;
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      string identifier = (_resourceAccessor != null) ? _resourceAccessor.CanonicalLocalResourcePath.ToString() : _resourcePathString ?? "<null>";
+      return string.Format("PendingImportResource '{0}' (parent directory={1})", identifier, _parentDirectoryResourcePathString);
+    }
+
+    #endregion
+
+    #region Interface Implementations
 
     public void Dispose()
     {
@@ -78,86 +230,78 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         ServiceRegistration.Get<ILogger>().Warn("PendingImportResource: Could not dispose resource", e);
       }
-      try
-      {
-        if (_parentDirectory != null)
-        {
-          _parentDirectory.Dispose();
-          _parentDirectory = null;
-        }
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("PendingImportResource: Could not dispose resource", e);
-      }
     }
 
-    [XmlIgnore]
-    public IFileSystemResourceAccessor ParentDirectory
-    {
-      get { return _parentDirectory; }
-    }
-
-    [XmlIgnore]
-    public IFileSystemResourceAccessor ResourceAccessor
-    {
-      get { return _resourceAccessor; }
-    }
-
-    [XmlIgnore]
-    public bool IsIngleResource
-    {
-      get { return _isSingleResource; }
-      set { _isSingleResource = value; }
-    }
-
-    [XmlIgnore]
-    public bool IsValid
-    {
-      get { return _isValid; }
-    }
-
-    public override string ToString()
-    {
-      return string.Format("PendingImportResource '{0}' (parent directory={1})", _resourceAccessor, _parentDirectory);
-    }
+    #endregion
 
     #region Additional members for the XML serialization
 
+    /// <summary>
+    /// Constructor for internal use of the XML serialization system only.
+    /// </summary>
     internal PendingImportResourceNewGen()
     {
+    }
+
+    /// <summary>
+    /// Initializes this PendingImportResource after deserialization
+    /// </summary>
+    /// <remarks>
+    /// This method must be called onces after this PendingImportResource has been deserialized.
+    /// It must not be called in any other circumstances.
+    /// </remarks>
+    /// <param name="parentImportJobController">ImportJobController this PendingImportResource belongs to</param>
+    public void InitializeAfterDeserialization(ImportJobController parentImportJobController)
+    {
+      _parentImportJobController = parentImportJobController;
+      _pendingImportResourceNumber = _parentImportJobController.GetNumberOfNextPendingImportResource();
+      _isValid = true;
+      _parentImportJobController.RegisterPendingImportResource(this);
     }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlAttribute("ResourceAccessor")]
-    public string XML_ResourceAccessor
+    public string XmlResourceAccessor
     {
-      get { return _resourceAccessor.CanonicalLocalResourcePath.Serialize(); }
-      set
+      get
       {
-        try
-        {
-          IResourceAccessor ra;
-          if (!ResourcePath.Deserialize(value).TryCreateLocalResourceAccessor(out ra))
-          {
-            _isValid = false;
-            return;
-          }
-          var fsra = ra as IFileSystemResourceAccessor;
-          if (fsra == null)
-          {
-            ra.Dispose();
-            ServiceRegistration.Get<ILogger>().Error("PendingImportResource: Could not load resource '{0}': It is no filesystem resource", value);
-          }
-          _resourceAccessor = fsra;
-        }
-        catch (Exception)
-        {
-          _isValid = false;
-        }
+        if (_resourcePathString != null)
+          return _resourcePathString;
+        return _resourceAccessor != null ? _resourceAccessor.CanonicalLocalResourcePath.Serialize() : "";
       }
+      set { _resourcePathString = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("ParentDirectory")]
+    public string XmlParentDirectoryResourcePathString
+    {
+      get { return _parentDirectoryResourcePathString; }
+      set { _parentDirectoryResourcePathString = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("IsSingleResource")]
+    public bool XmlIsSingleResource
+    {
+      get { return _isSingleResource; }
+      set { _isSingleResource = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("LastFinishedBlock")]
+    public DataflowNetworkPosition XmlLastFinishedBlock
+    {
+      get { return _lastFinishedBlock; }
+      set { _lastFinishedBlock = value; }
     }
 
     #endregion

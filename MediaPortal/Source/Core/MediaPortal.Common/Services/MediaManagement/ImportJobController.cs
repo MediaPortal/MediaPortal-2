@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -42,9 +43,8 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// It holds the TPL Datflow network for the ImportJob and is responsible for cancelling
   /// and suspending the particular ImportJob. If it determines that the <see cref="ImporterWorkerNewGen"/>
   /// shoud be suspended (e.g. because on the MP2 Client side the MP2 Server is disconnected) it notifies the
-  /// <see cref="ImporterWorkerNewGen"/> (_parent) which will then make sure that all <see cref="ImportJobController"/>s
-  /// are suspended.
-  /// ToDo: Make this class (or a separate status class) serializable by the XMLSerializer to be able to save the status on shutdown
+  /// <see cref="ImporterWorkerNewGen"/> (_parentImporterWorker) which will then make sure that
+  /// all <see cref="ImportJobController"/>s are suspended.
   /// </remarks>
   public class ImportJobController
   {
@@ -53,9 +53,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly ImportJobInformation _importJobInformation;
     private readonly ImporterWorkerNewGen _parentImporterWorker;
     private readonly TaskCompletionSource<object> _tcs;
-    private readonly int _importJobNumber;
     private readonly CancellationTokenSource _cts;
-
+    private readonly int _importJobNumber;
+    private int _numberOfLastPendingImportResource;
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
 
     private DirectoryUnfoldBlock _directoryUnfoldBlock;
@@ -64,17 +64,17 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public ImportJobController(ImportJobInformation importJobInformation, int importJobNumber, ImporterWorkerNewGen parentImporterWorker)
+    public ImportJobController(ImportJobNewGen importJob, int importJobNumber, ImporterWorkerNewGen parentImporterWorker)
     {
-      _importJobInformation = importJobInformation;
+      _importJobInformation = importJob.ImportJobInformation;
       _importJobNumber = importJobNumber;
       _parentImporterWorker = parentImporterWorker;
-
+      _numberOfLastPendingImportResource = 0;
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
       _tcs = new TaskCompletionSource<object>();
       _cts = new CancellationTokenSource();
 
-      SetupDataflowBlocks();
+      SetupDataflowBlocks(importJob.PendingImportResources);
 
       // Todo: This continuation shall happen after the last DataflowBlock has finished
       _directoryUnfoldBlock.Completion.ContinueWith(OnFinished);
@@ -92,6 +92,23 @@ namespace MediaPortal.Common.Services.MediaManagement
       get { return _tcs.Task; }      
     }
 
+    /// <summary>
+    /// Returns the Information that describes then current ImportJob and its state
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="ImportJobNewGen"/> returned by this property is only valid when this property is
+    /// accessed while the <see cref="ImporterWorkerNewGen"/> is suspended. Otherwise this property returns null.
+    /// </remarks>
+    public ImportJobNewGen ImportJob
+    {
+      get
+      {
+        if (_parentImporterWorker.IsSuspended)
+          return new ImportJobNewGen(_importJobInformation, _pendingImportResources.Values.OrderBy(pir => pir.PendingImportResourceNumber).ToList());
+        return null;
+      }
+    }
+
     #endregion
 
     #region Public methods
@@ -100,12 +117,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       // ToDo: Make sure we activate all blocks (if necessary with mediaBrowsingCallback and importResultHandler)
       _directoryUnfoldBlock.Activate();
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Activated", this);
     }
 
     public void Suspend()
     {
       // ToDo: Make sure we suspend all blocks
       _directoryUnfoldBlock.Suspend();
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Suspended", this);
     }
 
     public void Cancel()
@@ -113,16 +132,21 @@ namespace MediaPortal.Common.Services.MediaManagement
       _cts.Cancel();
     }
 
+    public int GetNumberOfNextPendingImportResource()
+    {
+      return Interlocked.Increment(ref _numberOfLastPendingImportResource);
+    }
+    
     public void RegisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
-      if (!_pendingImportResources.TryAdd(pendingImportResource.ResourceAccessor.CanonicalLocalResourcePath, pendingImportResource))
+      if (!_pendingImportResources.TryAdd(pendingImportResource.PendingResourcePath, pendingImportResource))
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not register {1}", this, pendingImportResource);
     }
 
     public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
       PendingImportResourceNewGen removedPendingImportResource;
-      if(!_pendingImportResources.TryRemove(pendingImportResource.ResourceAccessor.CanonicalLocalResourcePath, out removedPendingImportResource))
+      if(!_pendingImportResources.TryRemove(pendingImportResource.PendingResourcePath, out removedPendingImportResource))
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not unregister {1}", this, pendingImportResource);
     }
 
@@ -152,8 +176,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       else
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Completed", this);
 
-      ImportJobController importJobController;
-      if (!_parentImporterWorker.RunningImportJobs.TryRemove(_importJobInformation, out importJobController))
+      if (!_parentImporterWorker.TryUnregisterImportJobController(_importJobInformation))
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not remove myself from the ImporterWorker's dictionaly of running ImportJobs", this);
 
       // If this ImportJob faulted or was cancelled we can't do anything but log it (which we do above).
@@ -171,13 +194,44 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// - BasePath points to a directory which is not a single resource and the ImportJob does not include subdirectories
     /// - BasePath points to a directory which is not a single resource and the ImportJob does include subdirectories
     /// </remarks>
-    private void SetupDataflowBlocks()
+    private void SetupDataflowBlocks(IEnumerable<PendingImportResourceNewGen> pendingImportResources)
     {
       // Create the blocks
-      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_importJobInformation.BasePath, _cts.Token, this);
+      _directoryUnfoldBlock = new DirectoryUnfoldBlock(_cts.Token, this);
 
       // Link the blocks
       _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
+
+      // Fill the blocks
+      if (pendingImportResources == null)
+      {
+        // This ImportJob was freshly created and not persisted to disk before
+        // Just post the BasePath as new PendingImportResource
+        IResourceAccessor ra;
+        _importJobInformation.BasePath.TryCreateLocalResourceAccessor(out ra);
+        var fsra = ra as IFileSystemResourceAccessor;
+        var rootImportResource = new PendingImportResourceNewGen(null, fsra, PendingImportResourceNewGen.DataflowNetworkPosition.None, this);
+        _directoryUnfoldBlock.Post(rootImportResource);
+      }
+      else
+      {
+        // This ImportJob was persisted to disk before
+        foreach (var pendingImportResource in pendingImportResources)
+        {
+          pendingImportResource.InitializeAfterDeserialization(this);
+          
+          // ToDo: Adapt to further DataflowBlocks
+          switch (pendingImportResource.LastFinishedBlock)
+          {
+            case PendingImportResourceNewGen.DataflowNetworkPosition.None:
+              _directoryUnfoldBlock.Post(pendingImportResource);
+              break;
+            case PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock:
+              pendingImportResource.Dispose();
+              break;
+          }
+        }
+      }
     }
 
     #endregion

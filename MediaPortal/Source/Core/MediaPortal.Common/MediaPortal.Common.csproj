@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
     <Compile Include="Network\UriExtension.cs" />
     <Compile Include="ResourceAccess\IResourceDeletor.cs" />
     <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Services\MediaManagement\ImporterWorkerNewGen.cs" />
     <Compile Include="Services\MediaManagement\ImportJobController.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
+    <Compile Include="Services\MediaManagement\PendingResourcesSettings.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />

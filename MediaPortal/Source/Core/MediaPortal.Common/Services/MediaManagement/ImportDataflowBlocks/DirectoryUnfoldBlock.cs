@@ -35,13 +35,22 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
   /// Takes one directory and provides this directory and all its direct and indirect subdirectories
-  /// except those that are below single resource directory (like e.g. a DVD directory)
+  /// except those that are below single resource directories (like e.g. a DVD directory)
   /// </summary>
   /// <remarks>
-  /// Uses a TransformBlock and recursively posts the subdirectories of a given directory to this block
+  /// Uses a BufferBlock to keep the <see cref="PendingImportResourceNewGen"/>s to be processed when the
+  /// <see cref="ImporterWorkerNewGen"/> is suspended. The actual work is done in a TransformBlock
+  /// to which the subdirectories of a given directory are posted recursively. The TransformBlock must be
+  /// run with a MaxDegreeOfParallelism of 1 to ensure that the PendingImportResourceNumber of the
+  /// PendingImportResources to be processed are in the right order also after this ImportJob was persisted
+  /// to disk and reloaded. The reason is that we have to make sure that parent directories are always saved
+  /// to the database before their respective child directories as we store the parent directory's MediaItemId
+  /// in the respective child directory's MediaItem and we only get this MediaItemId when the parent directory's
+  /// MediaItem was stored in the database.
   /// ToDo: Add an IsSingleResource method to the IMetadatExtractor interface and all its implementations
   ///       If at least one of the MetadataExtractors to be applied returns true, the directory is
   ///       treated as a single resource, not as a directory containing sub-items or subdirectories.
+  /// ToDo: Handle database-deletion of no longer existing directories during refresh imports
   /// </remarks>
   class DirectoryUnfoldBlock : ISourceBlock<PendingImportResourceNewGen>
   {
@@ -61,31 +70,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constructor
 
     /// <summary>
-    /// Initiates and starts the DirectoryUnfoldBlock
+    /// Initiates the DirectoryUnfoldBlock
     /// </summary>
-    /// <param name="path">Root path of the unfolding process</param>
     /// <param name="ct">CancellationToken used to cancel this block</param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    /// <remarks>
-    /// <param name="path"></param> must point to a resource (a) for which we can create an IFileSystemResourceAccessor
-    /// and (b) which is a directory
-    /// </remarks>
-    public DirectoryUnfoldBlock(ResourcePath path, CancellationToken ct, ImportJobController parentImportJobController)
+    public DirectoryUnfoldBlock(CancellationToken ct, ImportJobController parentImportJobController)
     {
       _parentImportJobController = parentImportJobController;
-      _maxDegreeOfParallelism = Environment.ProcessorCount;
+      _maxDegreeOfParallelism = 1;
       
       _tcs = new TaskCompletionSource<object>();
       _suspensionBufferBlock = new BufferBlock<PendingImportResourceNewGen>(new DataflowBlockOptions { CancellationToken = ct });
       _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { BoundedCapacity = _maxDegreeOfParallelism, MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
       _innerBlock.Completion.ContinueWith(OnFinished);
-
-      IResourceAccessor ra;
-      path.TryCreateLocalResourceAccessor(out ra);
-      var fsra = ra as IFileSystemResourceAccessor;
-      var rootImportResource = new PendingImportResourceNewGen(null, fsra, _parentImportJobController);
-
-      _suspensionBufferBlock.Post(rootImportResource);
 
       _stopWatch = new Stopwatch();
     }
@@ -99,19 +96,20 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       Interlocked.Increment(ref _directoriesProcessed);
 
       //ToDo: Only do this if Directory is NOT a single resource (such as a DVD directory)
-      importResource.IsIngleResource = false;
+      importResource.IsSingleResource = false;
 
-      if (!importResource.IsIngleResource)
+      if (!importResource.IsSingleResource)
       {
         ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
         if (directories != null)
           foreach (var subDirectory in directories)
-            _suspensionBufferBlock.Post(new PendingImportResourceNewGen((IFileSystemResourceAccessor)importResource.ResourceAccessor.Clone(), subDirectory, _parentImportJobController));
+            _suspensionBufferBlock.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, PendingImportResourceNewGen.DataflowNetworkPosition.None, _parentImportJobController));
       }
 
       if (_suspensionBufferBlock.Count == 0)
         _suspensionBufferBlock.Complete();
 
+      importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock;
       return importResource;
     }
 
@@ -164,6 +162,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         _suspensionLink = null;
       }
       _stopWatch.Stop();
+    }
+
+    public bool Post(PendingImportResourceNewGen importResource)
+    {
+      return _suspensionBufferBlock.Post(importResource);
     }
 
     #endregion

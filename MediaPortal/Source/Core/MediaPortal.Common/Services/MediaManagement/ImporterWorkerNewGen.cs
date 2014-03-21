@@ -32,6 +32,7 @@ using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.Services.MediaManagement
@@ -59,7 +60,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// This class handles every situation that may affect all ImportJobs, such as suspension or activation of all
   /// ImportJobs or shutdown. It coordinates these actions between all the ImportJobs and then calls the respective
   /// methods of the relevant <see cref="ImportJobController"/>s.
-  /// ToDo: Handle state saving on shutdown
   /// ToDo: Handle messaging
   /// ToDo: Handle regular refresh ImportJobs
   /// </remarks>
@@ -115,12 +115,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// However, when an ImportJob finishes, the ImportJob is removed from this dictionaly asynchronously, which is
     /// why we need to use a ConcurrentDictionary.
     /// </remarks>
-    private readonly ConcurrentDictionary<ImportJobInformation, ImportJobController> _importJobs;
+    private readonly ConcurrentDictionary<ImportJobInformation, ImportJobController> _importJobControllers;
 
     /// <summary>
-    /// Holds a unique number to be assigned to the next <see cref="ImportJobController"/>
+    /// Holds the unique number that was assigned to the last <see cref="ImportJobController"/>
     /// </summary>
-    private int _numberOfNextImportJob;
+    private int _numberOfLastImportJob;
 
     /// <summary>
     /// Abstraction object for write access to the MediaLibrary
@@ -154,8 +154,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     public ImporterWorkerNewGen()
     {
       _actionBlock = new ActionBlock<ImporterWorkerAction>(action => ProcessActionRequest(action));
-      _importJobs = new ConcurrentDictionary<ImportJobInformation, ImportJobController>();
-      _numberOfNextImportJob = 1;
+      _importJobControllers = new ConcurrentDictionary<ImportJobInformation, ImportJobController>();
+      _numberOfLastImportJob = 0;
       _status = Status.Shutdown;
     }
 
@@ -228,9 +228,9 @@ namespace MediaPortal.Common.Services.MediaManagement
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Startup was requested although status was not 'Shutdown' but '{0}'", _status);
         return;
       }
-
+      
       // ToDo: Start MessageQueue
-      // ToDo: Load persisted ImportJobs
+      LoadPendingImportJobs();
       // ToDo: Schedule regular refresh ImportJobs
 
       _status = Status.Suspended;
@@ -248,11 +248,19 @@ namespace MediaPortal.Common.Services.MediaManagement
       _mediaBrowsing = mediaBrowsingCallback;
       _importResultHandler = importResultHandler;
 
-      foreach (var kvp in _importJobs)
+      foreach (var kvp in _importJobControllers)
+      {
+        // To avoid peaks on system startup when multiple ImportJobs were saved to disk and are now
+        // reactivated, we start one ImportJob every 500ms.
+        // Currently we also need this because the MediaAccessor is not threadsafe on startup
+        // see here: http://forum.team-mediaportal.com/threads/mediaaccessor-not-thread-safe.125132/
+        // ToDo: Make MediaAccessor threadsafe on startup
+        Task.Delay(500).Wait();
         kvp.Value.Activate(_mediaBrowsing, _importResultHandler);
+      }
 
       _status = Status.Activated;
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activated ({0} ImportJobs pending)", _importJobs.Count);
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Activated ({0} ImportJobs pending)", _importJobControllers.Count);
     }
 
     private void DoScheduleImport(ImportJobInformation importJobInformation)
@@ -267,25 +275,25 @@ namespace MediaPortal.Common.Services.MediaManagement
       // already running ImportJob, cancel the already running ImportJob
       // and schedule this one
       var jobsToBeCancelled = new HashSet<Task>();
-      foreach (var kvp in _importJobs)
+      foreach (var kvp in _importJobControllers)
         if (importJobInformation >= kvp.Key)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0} is contained in or the same as the ImportJob which is currently being scheduled. Canceling {1}", kvp.Value, kvp.Value);
           kvp.Value.Cancel();
           jobsToBeCancelled.Add(kvp.Value.Completion);
         }
-      // we need to wait here until the canceled ImportJobs are removed from _importJobs
-      // otherwise we run into trouble when the ImportJobs equal each other
+      // We need to wait here until the canceled ImportJobs are removed from _importJobControllers
+      // otherwise we run into trouble when the ImportJobs equal each other because then they
+      // have the same key in _importJobControllers.
       Task.WhenAll(jobsToBeCancelled).Wait();
 
-      var importJobController = new ImportJobController(importJobInformation, _numberOfNextImportJob, this);
-      _importJobs[importJobInformation] = importJobController;
-      Interlocked.Increment(ref _numberOfNextImportJob);
+      var importJobController = new ImportJobController(new ImportJobNewGen(importJobInformation, null), Interlocked.Increment(ref _numberOfLastImportJob), this);
+      _importJobControllers[importJobInformation] = importJobController;
+
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Scheduled {0} ({1}) (Path ='{2}', ImportJobType='{3}', IncludeSubdirectories='{4}')", importJobController, _status, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
 
       if (_status == Status.Activated)
         importJobController.Activate(_mediaBrowsing, _importResultHandler);
-
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Scheduled {0} ({1}) (Path ='{2}', ImportJobType='{3}', IncludeSubdirectories='{4}')", importJobController, _status, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
     }
 
     private void DoCancelImport(ImportJobInformation? importJobInformation)
@@ -299,15 +307,15 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (importJobInformation == null)
       {
         // Cancel all ImportJobs
-        foreach (var kvp in _importJobs)
+        foreach (var kvp in _importJobControllers)
           kvp.Value.Cancel();
-        Task.WhenAll(_importJobs.Values.Select(i => i.Completion)).Wait();
+        Task.WhenAll(_importJobControllers.Values.Select(i => i.Completion)).Wait();
       }
       else
       {
         // Cancel only the ImportJobs for the specified path and all its child paths
         var jobsToBeCanceled = new HashSet<Task>();
-        foreach (var kvp in _importJobs)
+        foreach (var kvp in _importJobControllers)
           if (importJobInformation.Value.BasePath.IsSameOrParentOf(kvp.Key.BasePath))
           {
             kvp.Value.Cancel();
@@ -330,12 +338,12 @@ namespace MediaPortal.Common.Services.MediaManagement
         return;
       }
 
-      foreach (var kvp in _importJobs)
+      foreach (var kvp in _importJobControllers)
         kvp.Value.Suspend();
 
       // ToDo: Only log this once although it is called multiple times (currently like this for debugging purposes)
       _status = Status.Suspended;
-      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspended ({0} ImportJobs pending)", _importJobs.Count);
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspended ({0} ImportJobs pending)", _importJobControllers.Count);
     }
 
     private void DoShutdown()
@@ -349,8 +357,15 @@ namespace MediaPortal.Common.Services.MediaManagement
         DoSuspend();
 
       // ToDo: Shutdown MessageQueue
-      // ToDo: Save pending ImportJobs to Disk
-      
+
+      int numberOfPendingImportJobs = _importJobControllers.Count();
+      PersistPendingImportJobs();
+      if (numberOfPendingImportJobs > 0)
+      {
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Persisted {0} pending ImportJobs to disk. Canceling them now...", numberOfPendingImportJobs);
+        DoCancelImport(null);
+      }
+
       _actionBlock.Complete();
       _status = Status.Shutdown;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutdown");
@@ -373,15 +388,53 @@ namespace MediaPortal.Common.Services.MediaManagement
       return result;
     }
 
-    #endregion
-
-    #endregion
-
-    #region Internal Properties
-
-    internal ConcurrentDictionary<ImportJobInformation, ImportJobController> RunningImportJobs
+    private void PersistPendingImportJobs()
     {
-      get { return _importJobs; }
+      if (_status != Status.Suspended)
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: ImportJobs can only be persisted if the ImporterWorker is in status suspended.");
+      else
+      {
+        var settings = new PendingResourcesSettings { PendingImportJobs = _importJobControllers.Values.Select(i => i.ImportJob).ToList() };
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
+
+    private void LoadPendingImportJobs()
+    {
+      if (_status != Status.Shutdown)
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: ImportJobs can only be loaded if the ImporterWorker is in status shutdown.");
+      else
+      {
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<PendingResourcesSettings>();
+        if (settings.PendingImportJobs.Count > 0)
+        {
+          foreach (var importJob in settings.PendingImportJobs)
+          {
+            var importJobController = new ImportJobController(importJob, Interlocked.Increment(ref _numberOfLastImportJob), this);
+            _importJobControllers[importJob.ImportJobInformation] = importJobController;
+          }
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0} persisted ImportJobs loaded from disk", settings.PendingImportJobs.Count);
+        }
+      }
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Internal helper methods
+
+    /// <summary>
+    /// Tries to remove an ImportJobController from <see cref="_importJobControllers"/>
+    /// </summary>
+    /// <param name="importJobInformation">
+    /// <see cref="ImportJobInformation"/> describing the <see cref="ImportJobController"/> to be removed
+    /// </param>
+    /// <returns>true if removal was successful, otherwise false</returns>
+    internal bool TryUnregisterImportJobController(ImportJobInformation importJobInformation)
+    {
+      ImportJobController removedController;
+      return _importJobControllers.TryRemove(importJobInformation, out removedController);
     }
 
     #endregion
@@ -402,8 +455,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
-        // ToDo
-        return new List<ImportJobInformation>();
+        return _importJobControllers.Keys;
       }
     }
 
