@@ -147,6 +147,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </remarks>
     private volatile Status _status;
 
+    /// <summary>
+    /// A value that is incremented by one for every notification this <see cref="ImporterWorkerNewGen"/>
+    /// received from one of its <see cref="ImportJobController"/>s
+    /// </summary>
+    private long _numberOfProgressNotifications;
+
     #endregion
 
     #region Constructor
@@ -156,6 +162,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       _actionBlock = new ActionBlock<ImporterWorkerAction>(action => ProcessActionRequest(action));
       _importJobControllers = new ConcurrentDictionary<ImportJobInformation, ImportJobController>();
       _numberOfLastImportJob = 0;
+      _numberOfProgressNotifications = 0;
       _status = Status.Shutdown;
     }
 
@@ -291,6 +298,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       _importJobControllers[importJobInformation] = importJobController;
 
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Scheduled {0} ({1}) (Path ='{2}', ImportJobType='{3}', IncludeSubdirectories='{4}')", importJobController, _status, importJobInformation.BasePath, importJobInformation.JobType, importJobInformation.IncludeSubDirectories);
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportScheduled, importJobInformation.BasePath, importJobInformation.JobType);
 
       if (_status == Status.Activated)
         importJobController.Activate(_mediaBrowsing, _importResultHandler);
@@ -418,6 +426,20 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    private void SendProgressNotificationMessage()
+    {
+      // ToDo
+    }
+
+    private void LogProgress()
+    {
+      var progress = _importJobControllers.Select(kvp => kvp.Value.Progress).ToList();
+      var created = progress.Sum(i => i.Item1);
+      var completed = progress.Sum(i => i.Item2);
+      if (completed != 0)
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0:P0} completed ({1} ImportJobs, in total {2} of currently {3} pending resources)", (double)completed / created, progress.Count, completed, created);
+    }
+
     #endregion
 
     #endregion
@@ -435,6 +457,31 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       ImportJobController removedController;
       return _importJobControllers.TryRemove(importJobInformation, out removedController);
+    }
+
+    /// <summary>
+    /// This method is called by <see cref="ImportJobController"/>s when they think it's time to notify about progress
+    /// </summary>
+    /// <remarks>
+    /// <param name="forceNotification"></param> is true when the ImportJobController was just created or has finished.
+    /// In this case we always send an ImportProgress message, but don't log because start and completion of an
+    /// <see cref="ImportJobController"/> is already logged.
+    /// In all other cases <param name="forceNotification"></param> is false. We only react on every fourth notification
+    /// of this kind and then log the progress and send a respective ImportProgress messsage.
+    /// </remarks>
+    /// <param name="forceNotification">If true, an ImportProgress message is guaranteed to be sent</param>
+    internal void NotifyProgress(bool forceNotification)
+    {
+      if (forceNotification)
+      {
+        SendProgressNotificationMessage();
+        return;
+      }
+      if (Interlocked.Increment(ref _numberOfProgressNotifications) % 4 == 0)
+      {
+        LogProgress();
+        SendProgressNotificationMessage();
+      }
     }
 
     #endregion

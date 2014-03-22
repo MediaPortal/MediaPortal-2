@@ -56,6 +56,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly CancellationTokenSource _cts;
     private readonly int _importJobNumber;
     private int _numberOfLastPendingImportResource;
+    private int _numberOfDisposedPendingImportResources;
+    private bool _notifyProgress;
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
 
     private DirectoryUnfoldBlock _directoryUnfoldBlock;
@@ -70,9 +72,12 @@ namespace MediaPortal.Common.Services.MediaManagement
       _importJobNumber = importJobNumber;
       _parentImporterWorker = parentImporterWorker;
       _numberOfLastPendingImportResource = 0;
+      _numberOfDisposedPendingImportResources = 0;
+      _notifyProgress = true;
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
       _tcs = new TaskCompletionSource<object>();
       _cts = new CancellationTokenSource();
+      _parentImporterWorker.NotifyProgress(true);
 
       SetupDataflowBlocks(importJob.PendingImportResources);
 
@@ -109,6 +114,24 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    /// <summary>
+    /// Returns the progress of this <see cref="ImportJobController"/>
+    /// </summary>
+    /// <remarks>
+    /// Return type is a Tuple of two integers, the first of which is the number of <see cref="PendingImportResource"/>s
+    /// created during this import, the second of which is the number of <see cref="PendingImportResource"/>s
+    /// disposed (i.e. completed) during this import.
+    /// </remarks>
+    public Tuple<int, int> Progress
+    {
+      get
+      {
+        int created = _numberOfLastPendingImportResource;
+        int completed = created - _pendingImportResources.Count;
+        return new Tuple<int, int>(created, completed);
+      }
+    }
+
     #endregion
 
     #region Public methods
@@ -118,6 +141,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       // ToDo: Make sure we activate all blocks (if necessary with mediaBrowsingCallback and importResultHandler)
       _directoryUnfoldBlock.Activate();
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Activated", this);
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
     }
 
     public void Suspend()
@@ -148,6 +172,11 @@ namespace MediaPortal.Common.Services.MediaManagement
       PendingImportResourceNewGen removedPendingImportResource;
       if(!_pendingImportResources.TryRemove(pendingImportResource.PendingResourcePath, out removedPendingImportResource))
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not unregister {1}", this, pendingImportResource);
+      
+      // If this ImportJobController is not completed, notify the ImporterWorker
+      // every 25 disposed (i.e. completed) PendingImportResources
+      if (_notifyProgress && Interlocked.Increment(ref _numberOfDisposedPendingImportResources) % 25 == 0)
+        _parentImporterWorker.NotifyProgress(false);
     }
 
     #endregion
@@ -156,6 +185,9 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private void OnFinished(Task previousTask)
     {
+      // Do not notify about progress anymore for every disposed PendingImportResource
+      _notifyProgress = false;
+      
       if (_pendingImportResources.Count > 0)
       {
         // The ImportJob has finished, but we have PendingImportJobResources left that have not been disposed.
@@ -178,6 +210,9 @@ namespace MediaPortal.Common.Services.MediaManagement
 
       if (!_parentImporterWorker.TryUnregisterImportJobController(_importJobInformation))
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: Could not remove myself from the ImporterWorker's dictionaly of running ImportJobs", this);
+
+      ImporterWorkerMessaging.SendImportMessage(previousTask.IsCanceled ? ImporterWorkerMessaging.MessageType.ImportScheduleCanceled : ImporterWorkerMessaging.MessageType.ImportCompleted, _importJobInformation.BasePath);
+      _parentImporterWorker.NotifyProgress(true);
 
       // If this ImportJob faulted or was cancelled we can't do anything but log it (which we do above).
       // Therefore the Completion Task of this ImportJobController always returns 'RunToCompletion' to

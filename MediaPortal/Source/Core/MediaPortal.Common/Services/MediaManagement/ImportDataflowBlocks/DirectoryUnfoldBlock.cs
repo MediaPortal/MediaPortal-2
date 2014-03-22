@@ -110,6 +110,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         _suspensionBufferBlock.Complete();
 
       importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock;
+
+      // ToDo: Remove this and do it later
+      importResource.Dispose();
+
       return importResource;
     }
 
