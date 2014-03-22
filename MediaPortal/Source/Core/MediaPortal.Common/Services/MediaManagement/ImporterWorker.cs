@@ -134,7 +134,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             if (dueTask.ID == _importerTaskId)
               // Forward a new message which will be handled by MediaLibrary (it knows the shares and configuration), then it will
               // schedule the local shares.
-              ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.RefreshLocalShares, null);
+              ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.RefreshLocalShares);
             break;
         }
       }

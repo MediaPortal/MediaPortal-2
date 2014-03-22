@@ -216,6 +216,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       catch (Exception ex)
       {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Error while processing Action of type {0}", ex, action.Type);
         action.Fault(ex);
       }
     }
@@ -428,7 +429,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     private void SendProgressNotificationMessage()
     {
-      // ToDo
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportProgress, _importJobControllers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Progress));
     }
 
     private void LogProgress()
@@ -437,7 +438,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       var created = progress.Sum(i => i.Item1);
       var completed = progress.Sum(i => i.Item2);
       if (completed != 0)
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0:P0} completed ({1} ImportJobs, in total {2} of currently {3} pending resources)", (double)completed / created, progress.Count, completed, created);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0:P0} completed ({1} ImportJob(s), in total {2} of {3} so far identified resources processed)", (double)completed / created, progress.Count, completed, created);
     }
 
     #endregion
