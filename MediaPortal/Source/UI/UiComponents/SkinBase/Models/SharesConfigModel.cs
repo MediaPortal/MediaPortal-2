@@ -82,6 +82,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AbstractProperty _showLocalSharesProperty;
     protected AbstractProperty _isSystemSelectedProperty;
     protected AbstractProperty _anyShareAvailableProperty;
+    protected bool _isAttached = true;
     protected bool _enableLocalShares = true;
     protected bool _enableServerShares = true;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -588,8 +589,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
         if (_enableLocalShares)
         {
+          ResourceProviderMetadata.SystemAffinity affinity = ResourceProviderMetadata.SystemAffinity.Client;
+          if (!_isAttached)
+            affinity |= ResourceProviderMetadata.SystemAffinity.DetachedClient;
+
           ListItem localSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_LOCAL_SHARE);
-          LocalShares proxy = new LocalShares();
+          LocalShares proxy = new LocalShares { SystemAffinity = affinity };
           proxy.UpdateResourceProvidersList();
           proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
           localSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
@@ -600,7 +605,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (_enableServerShares)
         {
           ListItem serverSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_GLOBAL_SHARE);
-          ServerShares proxy = new ServerShares();
+          ServerShares proxy = new ServerShares { SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server };
           proxy.UpdateResourceProvidersList();
           proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
           serverSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
@@ -755,6 +760,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IsLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
         lock (_syncObj)
         {
+          _isAttached = homeServerSystem != null;
           _enableLocalShares = !IsLocalHomeServer;
           _enableServerShares = IsHomeServerConnected;
         }

@@ -129,7 +129,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     static void SelectMediaCategoryHierarchy(TreeItem item)
     {
       item.Selected = true;
-      TreeItem parent = (TreeItem) item.AdditionalProperties[Consts.KEY_PARENT_ITEM];
+      TreeItem parent = (TreeItem)item.AdditionalProperties[Consts.KEY_PARENT_ITEM];
       if (parent == null)
         return;
       SelectMediaCategoryHierarchy(parent);
@@ -198,7 +198,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsResourceProviderSelected
     {
-      get { return (bool) _isResourceProviderSelectedProperty.GetValue(); }
+      get { return (bool)_isResourceProviderSelectedProperty.GetValue(); }
       set { _isResourceProviderSelectedProperty.SetValue(value); }
     }
 
@@ -212,10 +212,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public ResourceProviderMetadata BaseResourceProvider
     {
-      get { return (ResourceProviderMetadata) _baseResourceProviderProperty.GetValue(); }
+      get { return (ResourceProviderMetadata)_baseResourceProviderProperty.GetValue(); }
       set
       {
-        ResourceProviderMetadata oldVAlue = (ResourceProviderMetadata) _baseResourceProviderProperty.GetValue();
+        ResourceProviderMetadata oldVAlue = (ResourceProviderMetadata)_baseResourceProviderProperty.GetValue();
         _baseResourceProviderProperty.SetValue(value);
         if (value == null || oldVAlue == null || value.ResourceProviderId != oldVAlue.ResourceProviderId)
           ChoosenResourcePath = null;
@@ -232,7 +232,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public string NativeSystem
     {
-      get { return (string) _nativeSystemProperty.GetValue(); }
+      get { return (string)_nativeSystemProperty.GetValue(); }
       set { _nativeSystemProperty.SetValue(value); }
     }
 
@@ -250,7 +250,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </remarks>
     public string ChoosenResourcePathStr
     {
-      get { return (string) _choosenResourcePathStrProperty.GetValue(); }
+      get { return (string)_choosenResourcePathStrProperty.GetValue(); }
       set { _choosenResourcePathStrProperty.SetValue(value); }
     }
 
@@ -269,7 +269,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </remarks>
     public ResourcePath ChoosenResourcePath
     {
-      get { return (ResourcePath) _choosenResourcePathProperty.GetValue(); }
+      get { return (ResourcePath)_choosenResourcePathProperty.GetValue(); }
       set { _choosenResourcePathProperty.SetValue(value); }
     }
 
@@ -284,7 +284,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsChoosenPathValid
     {
-      get { return (bool) _isChoosenPathValidProperty.GetValue(); }
+      get { return (bool)_isChoosenPathValidProperty.GetValue(); }
       set { _isChoosenPathValidProperty.SetValue(value); }
     }
 
@@ -298,7 +298,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public string ChoosenResourcePathDisplayName
     {
-      get { return (string) _choosenResourcePathDisplayNameProperty.GetValue(); }
+      get { return (string)_choosenResourcePathDisplayNameProperty.GetValue(); }
       set { _choosenResourcePathDisplayNameProperty.SetValue(value); }
     }
 
@@ -317,7 +317,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsMediaCategoriesSelected
     {
-      get { return (bool) _isMediaCategoriesSelectedProperty.GetValue(); }
+      get { return (bool)_isMediaCategoriesSelectedProperty.GetValue(); }
       set { _isMediaCategoriesSelectedProperty.SetValue(value); }
     }
 
@@ -345,7 +345,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public string ShareName
     {
-      get { return (string) _shareNameProperty.GetValue(); }
+      get { return (string)_shareNameProperty.GetValue(); }
       set { _shareNameProperty.SetValue(value); }
     }
 
@@ -359,7 +359,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsShareNameValid
     {
-      get { return (bool) _isShareNameValidProperty.GetValue(); }
+      get { return (bool)_isShareNameValidProperty.GetValue(); }
       set { _isShareNameValidProperty.SetValue(value); }
     }
 
@@ -373,7 +373,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public string InvalidShareHint
     {
-      get { return (string) _invalidShareHintProperty.GetValue(); }
+      get { return (string)_invalidShareHintProperty.GetValue(); }
       set { _invalidShareHintProperty.SetValue(value); }
     }
 
@@ -392,6 +392,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return _mediaCategories; }
     }
+
+    /// <summary>
+    /// Gets or sets the <see cref="ResourceProviderMetadata.SystemAffinity"/> which will be used for filtering the available <see cref="AllBaseResourceProviders"/>.
+    /// </summary>
+    public ResourceProviderMetadata.SystemAffinity SystemAffinity { get; set; }
 
     #endregion
 
@@ -442,7 +447,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _allBaseResourceProvidersList.Clear();
       bool selected = false;
       List<ResourceProviderMetadata> resourceProviderMDs = new List<ResourceProviderMetadata>(
-          GetAvailableBaseResourceProviders().Where(metadata => !metadata.TransientMedia));
+          GetAvailableBaseResourceProviders().Where(metadata => 
+            !metadata.TransientMedia &&
+            (metadata.ProviderSystemAffinity & SystemAffinity) != ResourceProviderMetadata.SystemAffinity.Undefined));
       resourceProviderMDs.Sort((a, b) => a.Name.CompareTo(b.Name));
       ResourceProviderMetadata choosenBaseResourceProvider = BaseResourceProvider;
       foreach (ResourceProviderMetadata metadata in resourceProviderMDs)
@@ -481,14 +488,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         pathItem.SubItems.FireChange();
       }
       else
-        RefreshResourceProviderPathList(pathItem.SubItems, (ResourcePath) pathItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH]);
+        RefreshResourceProviderPathList(pathItem.SubItems, (ResourcePath)pathItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH]);
     }
 
     protected static ResourcePath FindChoosenResourcePath(ItemsList items)
     {
       foreach (TreeItem directoryItem in items)
         if (directoryItem.Selected)
-          return (ResourcePath) directoryItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH];
+          return (ResourcePath)directoryItem.AdditionalProperties[Consts.KEY_RESOURCE_PATH];
         else
         {
           ResourcePath childPath = FindChoosenResourcePath(directoryItem.SubItems);
@@ -592,7 +599,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
       void OnExpandedChanged(AbstractProperty property, object oldvalue)
       {
-        bool expanded = (bool) property.GetValue();
+        bool expanded = (bool)property.GetValue();
         _parent.RefreshOrClearSubPathItems(_directoryItem, !expanded);
       }
 
@@ -603,7 +610,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
       public bool IsExpanded
       {
-        get { return (bool) _isExpandedProperty.GetValue(); }
+        get { return (bool)_isExpandedProperty.GetValue(); }
         set { _isExpandedProperty.SetValue(value); }
       }
     }
@@ -679,7 +686,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// <returns>Collection of media category names.</returns>
     protected ICollection<string> GetMediaCategoryIncludingParents(MediaCategory mediaCategory)
     {
-      ICollection<string> result = new List<string> {mediaCategory.CategoryName};
+      ICollection<string> result = new List<string> { mediaCategory.CategoryName };
       foreach (MediaCategory parentCategory in mediaCategory.ParentCategories)
         CollectionUtils.AddAll(result, GetMediaCategoryIncludingParents(parentCategory));
       return result;
