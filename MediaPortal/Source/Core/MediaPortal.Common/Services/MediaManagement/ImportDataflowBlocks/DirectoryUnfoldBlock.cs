@@ -57,7 +57,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Variables
 
     private readonly BufferBlock<PendingImportResourceNewGen> _suspensionBufferBlock;
-    private readonly TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
+    private readonly TransformManyBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
     private IDisposable _suspensionLink;
     private readonly ImportJobController _parentImportJobController;
     private readonly TaskCompletionSource<object> _tcs;
@@ -81,7 +81,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       
       _tcs = new TaskCompletionSource<object>();
       _suspensionBufferBlock = new BufferBlock<PendingImportResourceNewGen>(new DataflowBlockOptions { CancellationToken = ct });
-      _innerBlock = new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { BoundedCapacity = _maxDegreeOfParallelism, MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
+      _innerBlock = new TransformManyBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { BoundedCapacity = _maxDegreeOfParallelism, MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
       _innerBlock.Completion.ContinueWith(OnFinished);
 
       _stopWatch = new Stopwatch();
@@ -91,30 +91,38 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Private methods
 
-    private PendingImportResourceNewGen ProcessDirectory(PendingImportResourceNewGen importResource)
+    private IEnumerable<PendingImportResourceNewGen> ProcessDirectory(PendingImportResourceNewGen importResource)
     {
-      Interlocked.Increment(ref _directoriesProcessed);
-
-      //ToDo: Only do this if Directory is NOT a single resource (such as a DVD directory)
-      importResource.IsSingleResource = false;
-
-      if (!importResource.IsSingleResource)
+      try
       {
-        ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
-        if (directories != null)
-          foreach (var subDirectory in directories)
-            _suspensionBufferBlock.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, PendingImportResourceNewGen.DataflowNetworkPosition.None, _parentImportJobController));
+        Interlocked.Increment(ref _directoriesProcessed);
+
+        //ToDo: Only do this if Directory is NOT a single resource (such as a DVD directory)
+        importResource.IsSingleResource = false;
+
+        if (!importResource.IsSingleResource)
+        {
+          ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
+          if (directories != null)
+            foreach (var subDirectory in directories)
+              _suspensionBufferBlock.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, PendingImportResourceNewGen.DataflowNetworkPosition.None, _parentImportJobController));
+        }
+
+        if (_suspensionBufferBlock.Count == 0)
+          _suspensionBufferBlock.Complete();
+
+        importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock;
+
+        // ToDo: Remove this and do it later
+        importResource.Dispose();
+
+        return new HashSet<PendingImportResourceNewGen> { importResource };
       }
-
-      if (_suspensionBufferBlock.Count == 0)
-        _suspensionBufferBlock.Complete();
-
-      importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock;
-
-      // ToDo: Remove this and do it later
-      importResource.Dispose();
-
-      return importResource;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0} / DirectoryUnfoldBlock: Error while processing {1}", ex, _parentImportJobController, importResource);
+        return new HashSet<PendingImportResourceNewGen>();
+      }
     }
 
     /// <summary>
