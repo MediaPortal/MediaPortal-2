@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="default-large" Version="1.0">
+  <BasedOnTheme>default</BasedOnTheme>
+  <ShortDescription>Titanium default-large theme</ShortDescription>
+  <Preview>images\preview.jpg</Preview>
+  <Author>Team MediaPortal</Author>
+  <ThemeVersion>1.0</ThemeVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <MinColorDepth>16</MinColorDepth>
+</Theme>

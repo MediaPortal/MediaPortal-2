@@ -192,12 +192,18 @@
     <Content Include="Skin\Titanium\skin.xml" />
     <Content Include="Skin\Titanium\sounds\click.wav" />
     <Content Include="Skin\Titanium\sounds\navigate.wav" />
+    <Content Include="Skin\Titanium\themes\blue-large\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\themes\blue-large\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\blue-large\theme.xml" />
     <Content Include="Skin\Titanium\themes\blue\images\background.png" />
     <Content Include="Skin\Titanium\themes\blue\images\preview.jpg" />
     <Content Include="Skin\Titanium\themes\blue\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Content Include="Skin\Titanium\themes\default-large\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\themes\default-large\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\default-large\theme.xml" />
     <Content Include="Skin\Titanium\themes\default\images\AudioLarge.png" />
     <Content Include="Skin\Titanium\themes\default\images\AudioSmall.png" />
     <Content Include="Skin\Titanium\themes\default\images\FilterLarge.png" />
@@ -465,6 +471,27 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Titanium\screens\BrowseMediaNavigation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue-large\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue-large\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default-large\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default-large\styles\Consts.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
