@@ -207,6 +207,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     void OnResourceProviderSelected(AbstractProperty property, object oldvalue)
     {
+      UpdateProviderSelected();
+    }
+
+    private void UpdateProviderSelected()
+    {
       bool anySelected = false;
       foreach (ListItem systemItem in _systemsList)
       {
@@ -587,6 +592,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IsResourceProviderSelected = false;
         _systemsList = new ItemsList();
 
+        bool multipleSources = _enableLocalShares && _enableServerShares;
         if (_enableLocalShares)
         {
           ResourceProviderMetadata.SystemAffinity affinity = ResourceProviderMetadata.SystemAffinity.Client;
@@ -594,7 +600,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             affinity |= ResourceProviderMetadata.SystemAffinity.DetachedClient;
 
           ListItem localSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_LOCAL_SHARE);
-          LocalShares proxy = new LocalShares { SystemAffinity = affinity };
+          LocalShares proxy = new LocalShares { SystemAffinity = affinity, MultipleSources = multipleSources };
           proxy.UpdateResourceProvidersList();
           proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
           localSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
@@ -605,7 +611,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (_enableServerShares)
         {
           ListItem serverSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_GLOBAL_SHARE);
-          ServerShares proxy = new ServerShares { SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server };
+          ServerShares proxy = new ServerShares { SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server, MultipleSources = multipleSources };
           proxy.UpdateResourceProvidersList();
           proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
           serverSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
@@ -616,6 +622,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (_systemsList.Count > 0)
           _systemsList[0].Selected = true;
       }
+      // Call once after list is initialized, this is required for single options only and to avoid locking issues for callback while filling _systemsList.
+      UpdateProviderSelected();
       _systemsList.FireChange();
     }
 

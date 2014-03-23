@@ -398,6 +398,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public ResourceProviderMetadata.SystemAffinity SystemAffinity { get; set; }
 
+    /// <summary>
+    /// Indicator if this instance is the only available source. If <c>true</c> and only one resource provider is available, it will be preselected.
+    /// </summary>
+    public bool MultipleSources { get; set; }
+
     #endregion
 
     #region Public methods
@@ -457,7 +462,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         ListItem resourceProviderItem = new ListItem(Consts.KEY_NAME, metadata.Name);
         resourceProviderItem.AdditionalProperties[Consts.KEY_RESOURCE_PROVIDER_METADATA] = metadata;
         if ((choosenBaseResourceProvider != null && choosenBaseResourceProvider.ResourceProviderId == metadata.ResourceProviderId) ||
-            resourceProviderMDs.Count == 1)
+            resourceProviderMDs.Count == 1 && !MultipleSources) /* pre-select single option only, if there are not multiple share proxies used */
         {
           resourceProviderItem.Selected = true;
           selected = true;
