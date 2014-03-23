@@ -27,13 +27,17 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Utilities;
+using Task = System.Threading.Tasks.Task;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -60,8 +64,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// This class handles every situation that may affect all ImportJobs, such as suspension or activation of all
   /// ImportJobs or shutdown. It coordinates these actions between all the ImportJobs and then calls the respective
   /// methods of the relevant <see cref="ImportJobController"/>s.
-  /// ToDo: Handle messaging
-  /// ToDo: Handle regular refresh ImportJobs
   /// </remarks>
   public class ImporterWorkerNewGen : IImporterWorker, IDisposable
   {
@@ -153,6 +155,21 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     private long _numberOfProgressNotifications;
 
+    /// <summary>
+    /// Message queue to listen to system messages
+    /// </summary>
+    private readonly AsynchronousMessageQueue _messageQueue;
+
+    /// <summary>
+    /// Notifies about changes to the <see cref="ImporterWorkerSettings"/>
+    /// </summary>
+    private readonly SettingsChangeWatcher<ImporterWorkerSettings> _settings;
+
+    /// <summary>
+    /// GUID of the regular refresh import task
+    /// </summary>
+    private Guid _importerTaskId;
+
     #endregion
 
     #region Constructor
@@ -164,6 +181,14 @@ namespace MediaPortal.Common.Services.MediaManagement
       _numberOfLastImportJob = 0;
       _numberOfProgressNotifications = 0;
       _status = Status.Shutdown;
+      _settings = new SettingsChangeWatcher<ImporterWorkerSettings>();
+      _settings.SettingsChanged += OnSettingsChanged;
+      _messageQueue = new AsynchronousMessageQueue(this, new[]
+        {
+          SystemMessaging.CHANNEL,
+          TaskSchedulerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     #endregion
@@ -176,7 +201,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// Requests an <see cref="ImporterWorkerAction"/>
     /// </summary>
     /// <param name="action"><see cref="ImporterWorkerAction"/> to be requested</param>
-    /// <returns><see cref="Task"/> that completes when the <see cref="ImporterWorkerAction"/> is completed</returns>
+    /// <returns><see cref="System.Threading.Tasks.Task"/> that completes when the <see cref="ImporterWorkerAction"/> is completed</returns>
     private Task RequestAction(ImporterWorkerAction action)
     {
       _actionBlock.Post(action);
@@ -235,12 +260,10 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Startup was requested although status was not 'Shutdown' but '{0}'", _status);
         return;
-      }
-      
-      // ToDo: Start MessageQueue
+      }     
+      _messageQueue.Start();
       LoadPendingImportJobs();
-      // ToDo: Schedule regular refresh ImportJobs
-
+      ScheduleRegularRefreshImports();
       _status = Status.Suspended;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Started");
     }
@@ -365,7 +388,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (_status == Status.Activated)
         DoSuspend();
 
-      // ToDo: Shutdown MessageQueue
+      _messageQueue.Shutdown();
 
       int numberOfPendingImportJobs = _importJobControllers.Count();
       PersistPendingImportJobs();
@@ -375,6 +398,8 @@ namespace MediaPortal.Common.Services.MediaManagement
         DoCancelImport(null);
       }
 
+      _settings.Dispose();
+
       _actionBlock.Complete();
       _status = Status.Shutdown;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Shutdown");
@@ -383,6 +408,46 @@ namespace MediaPortal.Common.Services.MediaManagement
     #endregion
 
     #region Event handler
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        var messageType = (SystemMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SystemMessaging.MessageType.SystemStateChanged:
+            var newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+            if (newState == SystemState.ShuttingDown)
+              Suspend();
+            break;
+        }
+      }
+      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
+      {
+        var messageType = (TaskSchedulerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case TaskSchedulerMessaging.MessageType.DUE:
+            var dueTask = (Common.TaskScheduler.Task)message.MessageData[TaskSchedulerMessaging.TASK];
+            if (dueTask.ID == _importerTaskId)
+              // Forward a new message which will be handled by MediaLibrary (it knows the shares and configuration), then it will
+              // schedule the local shares.
+              ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.RefreshLocalShares);
+            break;
+        }
+      }
+    }
+
+    private void OnSettingsChanged(object sender, EventArgs e)
+    {
+      // Do not react on next SettingsChanged event
+      // ScheduleRegularRefreshImports() may change the ImporterWorkerSettings, which would
+      // trigger the OnSettingsChaned event resulting in an infinite loop.
+      _settings.SettingsChanged = null;
+      ScheduleRegularRefreshImports();
+      _settings.SettingsChanged += OnSettingsChanged;
+    }
 
     #endregion
 
@@ -449,6 +514,43 @@ namespace MediaPortal.Common.Services.MediaManagement
       var completed = progress.Sum(i => i.Item2);
       if (created != 0)
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0:P0} completed ({1} ImportJob(s), in total {2} of {3} so far identified resources processed)", (double)completed / created, progress.Count, completed, created);
+    }
+
+    private void ScheduleRegularRefreshImports()
+    {
+      var scheduler = ServiceRegistration.Get<ITaskScheduler>();
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      _importerTaskId = _settings.Settings.ImporterScheduleId;
+
+      // Allow removal of existing import tasks
+      if (!_settings.Settings.EnableAutoRefresh)
+      {
+        if (_importerTaskId != Guid.Empty)
+        {
+          scheduler.RemoveTask(_importerTaskId);
+          _importerTaskId = _settings.Settings.ImporterScheduleId = Guid.Empty;
+          settingsManager.Save(_settings.Settings);
+        }
+        return;
+      }
+
+      var schedule = new Schedule
+      {
+        Hour = (int)_settings.Settings.ImporterStartTime,
+        Minute = (int)((_settings.Settings.ImporterStartTime - (int)_settings.Settings.ImporterStartTime) * 60),
+        Day = -1,
+        Type = ScheduleType.TimeBased
+      };
+
+      var importTask = new Common.TaskScheduler.Task("ImporterWorker", schedule, Occurrence.Repeat, DateTime.MaxValue, true, true);
+      if (_importerTaskId == Guid.Empty)
+      {
+        _importerTaskId = scheduler.AddTask(importTask);
+        _settings.Settings.ImporterScheduleId = _importerTaskId;
+        settingsManager.Save(_settings.Settings);
+      }
+      else
+        scheduler.UpdateTask(_importerTaskId, importTask);
     }
 
     #endregion
