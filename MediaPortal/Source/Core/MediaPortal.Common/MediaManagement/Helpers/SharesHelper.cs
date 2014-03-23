@@ -56,6 +56,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (bestMatchShare == null)
         {
           bestMatchShare = share;
+          bestMatchPathLength = currentSharePath.Serialize().Length;
           continue;
         }
         // We want to find a share which is as close as possible to the given path
