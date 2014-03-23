@@ -19,6 +19,10 @@
     <PluginStateTracker ClassName="MediaPortal.UI.Players.BassPlayer.BassPlayerPlugin"/>
   </Runtime>
 
+  <Register Location="/Models">
+    <Model Id="0EB2A664-5CA1-4B1E-B661-527004D6019B" Name="BassPlayerSetupModel" ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.BassPlayerSetupModel"/>
+  </Register>
+
   <Register Location="/Players/Builders">
     <PlayerBuilder Id="1CBD4219-4ABD-4543-A3FE-37F6D7DDD78D" ClassName="MediaPortal.UI.Players.BassPlayer.BassPlayerPlugin"/>
   </Register>
@@ -27,7 +31,19 @@
     <Resource Id="BassPlayerLanguage" Directory="Language" Type="Language"/>
   </Register>
 
-  <!-- Root Sections -->
+  <Register Location="/Resources/Skin">
+    <Resource Id="BassPlayerSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+  
+  <Register Location="/Workflow/States">
+    <DialogState Id="330F967A-AB94-4890-9C6C-C1F86E672487"
+        Name="BassPlayerSetup"
+        DialogScreen="BassPlayerSetup"
+        DisplayLabel="[Settings.Players.BassPlayer.Setup]"
+        WorkflowModel="0EB2A664-5CA1-4B1E-B661-527004D6019B"/> <!-- BassPlayer config model -->
+  </Register>
+
+    <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
@@ -38,20 +54,27 @@
   <!-- Contents of '/Players' section -->
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
-        Id="Rendering"
+        Id="AudioPlayer"
         Redundant="true"
-        Text="[Settings.Players.Rendering]"/>
+        Text="[Settings.Players.AudioPlayer]"/>
   </Register>
 
-  <!-- Contents of '/Players/Rendering' section -->
-  <Register Location="/Configuration/Settings/Players/Rendering">
+  <!-- Contents of '/Configuration/Settings/Players/AudioPlayer' group -->
+  <Register Location="/Configuration/Settings/Players/AudioPlayer">
+    <CustomConfigSetting
+        Id="BassPlayerSetup"
+        Text="[Settings.Players.BassPlayer.Setup]"
+        HelpText="[Settings.Players.BassPlayer.Setup.Help]"
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.BassPlayerCustomSetting"
+        AdditionalData="WorkflowState=330F967A-AB94-4890-9C6C-C1F86E672487,ConfAppPanel=..."/>
+ 
     <ConfigGroup
         Id="CrossFading"
         Redundant="true"
         Text="[Settings.Players.Rendering.CrossFading]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Rendering/CrossFading">
+  <Register Location="/Configuration/Settings/Players/AudioPlayer/CrossFading">
     <ConfigSetting
         Id="CrossFadingEnabled"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"

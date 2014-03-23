@@ -23,9 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
-using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
@@ -36,38 +34,22 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
   /// <summary>
   /// Represents the user-selected DirectX outputdevice.
   /// </summary>
-  internal class DirectXOutputDevice : IOutputDevice
+  internal class DirectXOutputDevice : AbstractOutputDevice
   {
-    #region Static members
-
-    protected static readonly Dictionary<int, DeviceInfo> _deviceInfos = new Dictionary<int, DeviceInfo>();
-
-    #endregion
-
     #region Fields
 
-    private readonly Controller _controller;
     private readonly STREAMPROC _streamWriteProcDelegate;
-    private readonly int _deviceNo;
-    private readonly Silence _silence;
-    private volatile DeviceState _deviceState;
-
-    private BassStream _inputStream = null;
     private BassStream _outputStream = null;
-    private BassStreamFader _fader = null;
-    private bool _outputStreamEnded = false;
 
     #endregion
 
     public DirectXOutputDevice(Controller controller)
+      : base(controller)
     {
-      _controller = controller;
-      _deviceState = DeviceState.Stopped;
       _streamWriteProcDelegate = OutputStreamWriteProc;
-      _silence = new Silence();
-
       _deviceNo = GetDeviceNo();
 
+      // TODO: move to SetStream?
       BASSInit flags = BASSInit.BASS_DEVICE_DEFAULT;
 
       // Because all deviceinfo is saved in a static dictionary,
@@ -114,9 +96,9 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     #region IDisposable Members
 
-    public void Dispose()
+    public override void Dispose()
     {
-      Stop();
+      base.Dispose();
 
       Log.Debug("Disposing output stream");
 
@@ -142,47 +124,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     #region IOutputDevice Members
 
-    public BassStream InputStream
-    {
-      get { return _inputStream; }
-    }
-
-    public DeviceState DeviceState
-    {
-      get { return _deviceState; }
-    }
-
-    public string Name
-    {
-      get { return _deviceInfos[_deviceNo].Name; }
-    }
-
-    public string Driver
-    {
-      get { return _deviceInfos[_deviceNo].Driver; }
-    }
-
-    public int Channels
-    {
-      get { return _deviceInfos[_deviceNo].Channels; }
-    }
-
-    public int MinRate
-    {
-      get { return _deviceInfos[_deviceNo].MinRate; }
-    }
-
-    public int MaxRate
-    {
-      get { return _deviceInfos[_deviceNo].MaxRate; }
-    }
-
-    public TimeSpan Latency
-    {
-      get { return _deviceInfos[_deviceNo].Latency + Controller.GetSettings().DirectSoundBufferSize; }
-    }
-
-    public void SetInputStream(BassStream stream, bool passThrough)
+    public override void SetInputStream(BassStream stream, bool passThrough)
     {
       if (_deviceState != DeviceState.Stopped)
         throw new BassPlayerException("Device state is not 'DeviceState.Stopped'");
@@ -210,32 +152,11 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       ResetState();
     }
 
-    public void PrepareFadeIn()
-    {
-      if (_fader != null)
-        _fader.PrepareFadeIn();
-    }
-
-    public void FadeIn(bool async)
-    {
-      if (_fader != null)
-        _fader.FadeIn(async);
-    }
-
-    public void FadeOut(bool async)
-    {
-      if (_fader != null && !_outputStreamEnded)
-      {
-        Log.Debug("Fading out");
-        _fader.FadeOut(async);
-      }
-    }
-
-    public void Start()
+    public override void Start()
     {
       if (_deviceState == DeviceState.Started)
         return;
-      
+
       Log.Debug("Starting output");
       _deviceState = DeviceState.Started;
 
@@ -243,7 +164,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
         throw new BassLibraryException("BASS_ChannelPlay");
     }
 
-    public void Stop()
+    public override void Stop()
     {
       if (_deviceState == DeviceState.Stopped)
         return;
@@ -255,22 +176,9 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
         throw new BassLibraryException("BASS_ChannelStop");
     }
 
-    public void ClearBuffers()
+    public override void ClearBuffers()
     {
       Bass.BASS_ChannelSetPosition(_outputStream.Handle, 0L);
-    }
-
-    #endregion
-
-    #region Public members
-
-    public DeviceInfo CurrentDeviceInfo
-    {
-      get
-      {
-        lock (_deviceInfos)
-          return _deviceInfos[_deviceNo];
-      }
     }
 
     #endregion
@@ -298,12 +206,12 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
         DeviceInfo deviceInfo = new DeviceInfo
           {
-              Name = bassDeviceInfo.name,
-              Driver = bassDeviceInfo.driver,
-              Channels = bassInfo.speakers,
-              MinRate = bassInfo.minrate,
-              MaxRate = bassInfo.maxrate,
-              Latency = TimeSpan.FromMilliseconds(bassInfo.latency)
+            Name = bassDeviceInfo.name,
+            Driver = bassDeviceInfo.driver,
+            Channels = bassInfo.speakers,
+            MinRate = bassInfo.minrate,
+            MaxRate = bassInfo.maxrate,
+            Latency = TimeSpan.FromMilliseconds(bassInfo.latency)
           };
 
         lock (_deviceInfos)
@@ -345,27 +253,17 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     }
 
     /// <summary>
-    /// Schedules a call to <see cref="PlaybackProcessor.HandleOutputStreamEnded"/> when our output device has finished
-    /// playing.
-    /// </summary>
-    internal void HandleOutputStreamAboutToEnd()
-    {
-      _controller.EnqueueWorkItem(new WorkItem(new Controller.WorkItemDelegate(WaitAndHandleOutputEnd_Sync)));
-    }
-
-    /// <summary>
     /// Blocks the current thread until our output device has finished and then calls
     /// <see cref="PlaybackProcessor.HandleOutputStreamEnded"/>.
     /// </summary>
-    internal void WaitAndHandleOutputEnd_Sync()
+    protected internal override void WaitAndHandleOutputEnd_Sync()
     {
       DateTime timeout = DateTime.Now + CurrentDeviceInfo.Latency + TimeSpan.FromSeconds(1);
       BassStream stream = _outputStream;
       if (stream != null)
         while (Bass.BASS_ChannelIsActive(stream.Handle) != BASSActive.BASS_ACTIVE_STOPPED && DateTime.Now < timeout)
           Thread.Sleep(10);
-      if (_deviceState == DeviceState.Started)
-        _controller.PlaybackProcessor.HandleOutputStreamEnded();
+      base.WaitAndHandleOutputEnd_Sync();
     }
 
     /// <summary>
@@ -378,33 +276,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     /// <returns>Number of bytes read.</returns>
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
-      if (_deviceState == DeviceState.Stopped)
-        return (int) BASSStreamProc.BASS_STREAMPROC_END;
-      if (_outputStreamEnded)
-        return (int) BASSStreamProc.BASS_STREAMPROC_END;
-      int read = _inputStream.Read(buffer, requestedBytes);
-      if (read == -1)
-      {
-        // We're done!
-
-        // Play silence until playback has stopped to avoid any buffer underruns.
-        read = _silence.Write(buffer, requestedBytes);
-
-        // Set a flag so we call HandleOutputStreamEnded() only once.
-        _outputStreamEnded = true;
-
-        // Our input stream is finished, wait for device to end playback
-        HandleOutputStreamAboutToEnd();
-      }
-      return read;
-    }
-
-    /// <summary>
-    /// Resets all stored state.
-    /// </summary>
-    private void ResetState()
-    {
-      _outputStreamEnded = false;
+      return WriteOutputStream(buffer, requestedBytes);
     }
 
     #endregion

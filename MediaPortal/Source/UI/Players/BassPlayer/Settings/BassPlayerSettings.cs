@@ -31,7 +31,6 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
   /// <summary>
   /// Contains the bass player user configuration.
   /// </summary>
-  /// TODO: Write configuration classes for those settings
   public class BassPlayerSettings
   {
     public static class Constants
@@ -43,6 +42,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     {
       public const OutputMode AudioOutputMode = OutputMode.DirectSound;
       public const string DirectSoundDevice = "";
+      public const string WASAPIDevice = "";
       public const int DirectSoundBufferSizeMilliSecs = 200;
       public const int PlaybackBufferSizeMilliSecs = 500;
       public const int SeekIncrementSeconds = 20;
@@ -62,6 +62,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
 
     private OutputMode _outputMode = Defaults.AudioOutputMode;
     private string _directSoundDevice = Defaults.DirectSoundDevice;
+    private string _WASAPIDevice = Defaults.WASAPIDevice;
     private TimeSpan _directSoundBufferSize = TimeSpan.FromMilliseconds(Defaults.DirectSoundBufferSizeMilliSecs);
     private TimeSpan _playbackBufferSize = TimeSpan.FromMilliseconds(Defaults.PlaybackBufferSizeMilliSecs);
     private TimeSpan _seekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
@@ -71,6 +72,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     private bool _crossFadeEnabled = Defaults.CrossFadeEnabled;
     private TimeSpan _vizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
     private List<string> _supportedExtensions = new List<string>(Defaults.SupportedExtensions);
+    private bool _WASAPIExclusiveMode = true;
 
     #endregion
 
@@ -88,6 +90,20 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     {
       get { return _directSoundDevice; }
       set { _directSoundDevice = value; }
+    }
+
+    [Setting(SettingScope.Global, Defaults.WASAPIDevice)]
+    public string WASAPIDevice
+    {
+      get { return _WASAPIDevice; }
+      set { _WASAPIDevice = value; }
+    }
+
+    [Setting(SettingScope.Global, true)]
+    public bool WASAPIExclusiveMode
+    {
+      get { return _WASAPIExclusiveMode; }
+      set { _WASAPIExclusiveMode = value; }
     }
 
     [Setting(SettingScope.Global, Defaults.DirectSoundBufferSizeMilliSecs)]

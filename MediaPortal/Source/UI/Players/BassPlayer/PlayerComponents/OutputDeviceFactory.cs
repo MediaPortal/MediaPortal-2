@@ -66,7 +66,9 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         case OutputMode.DirectSound:
           outputDevice = new DirectXOutputDevice(_controller);
           break;
-
+        case OutputMode.WASAPI:
+          outputDevice = new WASAPIOutputDevice(_controller);
+          break;
         default:
           throw new BassPlayerException(String.Format("Unimplemented audio output mode {0}", settings.OutputMode));
       }
