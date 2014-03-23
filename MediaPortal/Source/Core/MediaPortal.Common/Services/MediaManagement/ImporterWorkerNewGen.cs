@@ -417,12 +417,22 @@ namespace MediaPortal.Common.Services.MediaManagement
         var settings = ServiceRegistration.Get<ISettingsManager>().Load<PendingResourcesSettings>();
         if (settings.PendingImportJobs.Count > 0)
         {
+          int numberOfSuccessfullyRestoredImportJobs = 0;
           foreach (var importJob in settings.PendingImportJobs)
           {
-            var importJobController = new ImportJobController(importJob, Interlocked.Increment(ref _numberOfLastImportJob), this);
-            _importJobControllers[importJob.ImportJobInformation] = importJobController;
+            try
+            {
+              var importJobController = new ImportJobController(importJob, Interlocked.Increment(ref _numberOfLastImportJob), this);
+              numberOfSuccessfullyRestoredImportJobs++;
+              _importJobControllers[importJob.ImportJobInformation] = importJobController;
+
+            }
+            catch (Exception ex)
+            {
+              ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Error while restoring ImportJob from disk", ex);
+            }
           }
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0} persisted ImportJobs loaded from disk", settings.PendingImportJobs.Count);
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0} persisted ImportJobs restored from disk", numberOfSuccessfullyRestoredImportJobs);
         }
       }
     }
@@ -437,7 +447,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       var progress = _importJobControllers.Select(kvp => kvp.Value.Progress).ToList();
       var created = progress.Sum(i => i.Item1);
       var completed = progress.Sum(i => i.Item2);
-      if (completed != 0)
+      if (created != 0)
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0:P0} completed ({1} ImportJob(s), in total {2} of {3} so far identified resources processed)", (double)completed / created, progress.Count, completed, created);
     }
 
@@ -466,7 +476,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <remarks>
     /// <param name="forceNotification"></param> is true when the ImportJobController was just created or has finished.
     /// In this case we always send an ImportProgress message, but don't log because start and completion of an
-    /// <see cref="ImportJobController"/> is already logged.
+    /// <see cref="ImportJobController"/> are already logged.
     /// In all other cases <param name="forceNotification"></param> is false. We only react on every fourth notification
     /// of this kind and then log the progress and send a respective ImportProgress messsage.
     /// </remarks>
