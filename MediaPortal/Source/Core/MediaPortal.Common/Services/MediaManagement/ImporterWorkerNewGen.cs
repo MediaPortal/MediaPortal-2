@@ -302,6 +302,10 @@ namespace MediaPortal.Common.Services.MediaManagement
         return;
       }
 
+      // For now we always set this to active to make it look like the old ImporterWorker
+      // ToDo: Remove this and all usages of ImportJobInformation.State
+      importJobInformation.State = ImportJobState.Active;
+      
       // if the ImportJob to be scheduled is the same as or contains an
       // already running ImportJob, cancel the already running ImportJob
       // and schedule this one
