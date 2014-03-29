@@ -74,4 +74,11 @@
   <Import Project="..\..\..\Packages\BASS.2.4.10\build\bass.targets" Condition="Exists('..\..\..\Packages\BASS.2.4.10\build\bass.targets')" />
   <Import Project="..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets" Condition="Exists('..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets')" />
   <Import Project="..\..\..\Packages\bass.mix.2.4.7.2\build\bass.mix.targets" Condition="Exists('..\..\..\Packages\bass.mix.2.4.7.2\build\bass.mix.targets')" />
+  <Import Project="..\..\..\Packages\bass.wasapi.2.4.0\build\bass.wasapi.targets" Condition="Exists('..\..\..\Packages\bass.wasapi.2.4.0\build\bass.wasapi.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Aktivieren Sie die Wiederherstellung von NuGet-Paketen, um die fehlende Datei herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\Packages\bass.wasapi.2.4.0\build\bass.wasapi.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.wasapi.2.4.0\build\bass.wasapi.targets'))" />
+  </Target>
 </Project>
