@@ -27,6 +27,7 @@ using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Service.UPnP;

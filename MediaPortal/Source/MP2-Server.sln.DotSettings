@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PublicFields/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="_" Suffix="" Style="aaBb" /&gt;</s:String>
 	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=0AF19F3CE8B6924CBA98DB3E81BD97A7/AbsolutePath/@EntryValue">D:\MediaPortal\Sources\MediaPortal-2-dev\MediaPortal\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
 	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=0AF19F3CE8B6924CBA98DB3E81BD97A7/RelativePath/@EntryValue">..\..\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
 	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=0AF19F3CE8B6924CBA98DB3E81BD97A7/@KeyIndexDefined">True</s:Boolean>

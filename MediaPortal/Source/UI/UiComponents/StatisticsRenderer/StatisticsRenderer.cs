@@ -28,6 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;

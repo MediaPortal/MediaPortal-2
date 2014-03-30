@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 
 namespace MediaPortal.Common.Services.PluginManager.Builders
 {
@@ -46,7 +47,7 @@ namespace MediaPortal.Common.Services.PluginManager.Builders
       BuilderHelper.CheckParameter("Directory", itemData);
       return new PluginResource(
           (PluginResourceType) Enum.Parse(typeof (PluginResourceType), itemData.Attributes["Type"]),
-          plugin.Metadata.GetAbsolutePath(itemData.Attributes["Directory"]));
+          plugin.Metadata.SourceInfo.GetAbsolutePath(itemData.Attributes["Directory"]));
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)

@@ -26,7 +26,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Attributes;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Models;
 
 namespace MediaPortal.Common.PluginManager
 {
@@ -142,23 +144,6 @@ namespace MediaPortal.Common.PluginManager
     /// by the builder to register.</param>
     /// <param name="builderInstance">The plugin item builder to register.</param>
     void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance);
-
-    /// <summary>
-    /// Returns the ids of all plugins conflicting with the specified <paramref name="plugin"/>.
-    /// </summary>
-    /// <param name="plugin">The metadata of the plugin to check.</param>
-    /// <returns>Collection of ids of the conflicting plugins.</returns>
-    /// <exception cref="PluginMissingDependencyException">If the specified plugin depends on
-    /// a missing plugin.</exception>
-    ICollection<Guid> FindConflicts(IPluginMetadata plugin);
-
-    /// <summary>
-    /// Returns the ids of all plugins, from which the specified <paramref name="plugin"/> is dependent
-    /// and which are not known by the plugin manager yet.
-    /// </summary>
-    /// <param name="plugin">The plugin whose dependencies should be checked.</param>
-    /// <returns>Collection of plugin ids.</returns>
-    ICollection<Guid> FindMissingDependencies(IPluginMetadata plugin);
 
     /// <summary>
     /// Returns the metadata of a registered item at the specified <paramref name="location"/> with

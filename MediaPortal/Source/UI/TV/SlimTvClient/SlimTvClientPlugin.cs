@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Plugins.SlimTv.Client.MediaExtensions;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UI.Services.Workflow

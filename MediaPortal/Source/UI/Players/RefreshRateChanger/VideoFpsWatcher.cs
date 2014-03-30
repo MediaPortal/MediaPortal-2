@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Plugins.RefreshRateChanger.Settings;
 using MediaPortal.UI.Presentation.Players;

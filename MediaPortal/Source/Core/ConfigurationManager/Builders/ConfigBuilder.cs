@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 
 namespace MediaPortal.Configuration.Builders
 {
@@ -66,8 +67,8 @@ namespace MediaPortal.Configuration.Builders
       if (text == null)
         throw new ArgumentException("'ConfigSection' item needs an attribute 'Text'");
       return new ConfigSectionMetadata(location, text, sort,
-                                       plugin.Metadata.GetAbsolutePath(iconSmallPath),
-                                       plugin.Metadata.GetAbsolutePath(iconLargePath));
+                                       plugin.Metadata.SourceInfo.GetAbsolutePath(iconSmallPath),
+                                       plugin.Metadata.SourceInfo.GetAbsolutePath(iconLargePath));
     }
 
     protected static ConfigGroupMetadata BuildGroup(

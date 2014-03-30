@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.PluginManager.Activation;
 
 namespace MediaPortal.Common.PluginManager
 {

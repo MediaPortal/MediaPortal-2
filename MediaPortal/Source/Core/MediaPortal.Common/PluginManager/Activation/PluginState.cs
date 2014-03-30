@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
   /// Enumeration of states which a plugin can assume during its lifetime.

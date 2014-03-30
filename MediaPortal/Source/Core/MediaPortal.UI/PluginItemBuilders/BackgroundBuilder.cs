@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.PluginItemBuilders

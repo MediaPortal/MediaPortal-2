@@ -26,6 +26,7 @@ using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.RemovableMedia;

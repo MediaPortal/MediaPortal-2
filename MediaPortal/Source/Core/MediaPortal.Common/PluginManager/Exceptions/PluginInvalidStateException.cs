@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,25 +24,13 @@
 
 using System;
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Exceptions
 {
-  public class PluginDependencyInfo
+  public class PluginInvalidStateException : PluginManagerException
   {
-    public PluginDependencyInfo(Guid pluginId, int compatibleAPI)
-    {
-      PluginId = pluginId;
-      CompatibleAPI = compatibleAPI;
-    }
-
-    public PluginDependencyInfo(string coreDependencyName, int compatibleAPI)
-    {
-      CoreDependencyName = coreDependencyName;
-      CompatibleAPI = compatibleAPI;
-    }
-
-    public Guid PluginId { get; protected set; }
-    public string CoreDependencyName { get; protected set; }
-    public bool IsCoreDependency { get { return !string.IsNullOrWhiteSpace(CoreDependencyName); } }
-    public int CompatibleAPI { get; protected set; }
+    public PluginInvalidStateException(string msg, params object[] args):
+      base(msg, args) { }
+    public PluginInvalidStateException(string msg, Exception ex, params object[] args):
+      base(msg, ex, args) { }
   }
 }

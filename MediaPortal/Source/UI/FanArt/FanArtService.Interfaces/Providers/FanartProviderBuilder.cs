@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.Services.PluginManager.Builders;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers

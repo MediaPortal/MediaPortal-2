@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Common.PluginManager.Activation;
 
 namespace MediaPortal.Common.PluginManager
 {

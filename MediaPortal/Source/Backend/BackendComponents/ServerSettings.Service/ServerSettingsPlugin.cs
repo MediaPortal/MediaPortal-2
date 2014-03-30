@@ -33,6 +33,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -75,7 +76,7 @@ namespace MediaPortal.Plugins.ServerSettings
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       foreach (PluginRuntime plugin in pluginManager.AvailablePlugins.Values)
-        CollectionUtils.AddAll(_knownAssemblies, plugin.Metadata.AssemblyFilePaths);
+        CollectionUtils.AddAll(_knownAssemblies, plugin.Metadata.ActivationInfo.Assemblies);
     }
 
     Assembly PluginsAssemblyResolver(object sender, ResolveEventArgs args)

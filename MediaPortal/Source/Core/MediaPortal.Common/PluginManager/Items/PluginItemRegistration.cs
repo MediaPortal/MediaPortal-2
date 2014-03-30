@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Common.PluginManager.Activation;
 
 namespace MediaPortal.Common.PluginManager
 {
@@ -37,6 +38,7 @@ namespace MediaPortal.Common.PluginManager
     protected PluginItemMetadata _pluginItemMetadata;
 
     protected object _itemInstance = null;
+    // TODO collections need to be made thread-safe
     protected ICollection<IPluginItemStateTracker> _stateTrackers = new List<IPluginItemStateTracker>();
     protected ICollection<PluginItemMetadata> _additionalRedundantItemsMetadata =
         new List<PluginItemMetadata>();
