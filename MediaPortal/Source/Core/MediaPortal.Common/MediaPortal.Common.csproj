@@ -78,6 +78,7 @@
     <Compile Include="PluginManager\Discovery\PluginSortOrder.cs" />
     <Compile Include="PluginManager\Exceptions\PluginIncompatibleException.cs" />
     <Compile Include="PluginManager\Exceptions\PluginInternalException.cs" />
+    <Compile Include="PluginManager\Exceptions\PluginInvalidMetadataException.cs" />
     <Compile Include="PluginManager\Exceptions\PluginInvalidStateException.cs" />
     <Compile Include="PluginManager\Exceptions\PluginItemBuildException.cs" />
     <Compile Include="PluginManager\Exceptions\PluginLockException.cs" />

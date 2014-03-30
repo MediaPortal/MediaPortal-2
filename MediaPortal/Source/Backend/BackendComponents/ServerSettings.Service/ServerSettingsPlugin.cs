@@ -75,8 +75,8 @@ namespace MediaPortal.Plugins.ServerSettings
     private void InitPluginAssemblyList()
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      foreach (PluginRuntime plugin in pluginManager.AvailablePlugins.Values)
-        CollectionUtils.AddAll(_knownAssemblies, plugin.Metadata.ActivationInfo.Assemblies);
+      foreach (var plugin in pluginManager.AvailablePlugins.Values)
+        CollectionUtils.AddAll(_knownAssemblies, plugin.ActivationInfo.Assemblies);
     }
 
     Assembly PluginsAssemblyResolver(object sender, ResolveEventArgs args)

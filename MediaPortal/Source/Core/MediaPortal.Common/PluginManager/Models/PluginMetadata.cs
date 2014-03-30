@@ -48,7 +48,33 @@ namespace MediaPortal.Common.PluginManager.Models
 
     public override string ToString()
     {
-      return string.Format( "'{0}' [Version: {1}; Authors: {2}; ID: '{3}']", Name, PluginVersion, Author, PluginId );
+      return LogInfo;
     }
+
+    #region Internal Logging Helpers
+    /// <summary>
+    /// Returns a string with the plugins name, version, author and id.
+    /// </summary>
+    internal string LogInfo
+    {
+      get { return string.Format( "'{0}' (version: {1}; authors: {2}; id '{3}')", Name, PluginVersion, Author, PluginId ); }
+    }
+
+    /// <summary>
+    /// Returns a string with the plugins name and id.
+    /// </summary>
+    internal string LogId
+    {
+      get { return string.Format( "'{0}' (id '{1}')", Name, PluginId ); }
+    }
+
+    /// <summary>
+    /// Returns a string with the plugins name.
+    /// </summary>
+    internal string LogName
+    {
+      get { return string.Format( "'{0}'", Name ); }
+    }
+    #endregion
   }
 }

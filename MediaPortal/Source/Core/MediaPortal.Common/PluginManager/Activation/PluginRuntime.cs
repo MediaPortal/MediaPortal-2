@@ -70,9 +70,10 @@ namespace MediaPortal.Common.PluginManager.Activation
     #region Fields
     // readonly fields
     private readonly object _syncObj = new object();
-    private readonly IPluginMetadata _pluginMetadata;
+    private readonly PluginMetadata _pluginMetadata;
     private readonly PluginItemManager _itemManager;
     private readonly PluginBuilderManager _builderManager;
+    private readonly PluginActivator _activator;
     // fields
     private PluginState _state;
     private IPluginStateTracker _stateTracker = null;
@@ -88,10 +89,12 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <param name="metaData">The metadata of the plugin to create this runtime structure for.</param>
     /// <param name="builderManager">The builder manager where this plugin can register and find 
     /// builder instances.</param>
-    internal PluginRuntime( IPluginMetadata metaData, PluginBuilderManager builderManager )
+    /// <param name="activator">The PluginActivator instance creating this object.</param>
+    internal PluginRuntime( PluginMetadata metaData, PluginBuilderManager builderManager, PluginActivator activator )
     {
       _pluginMetadata = metaData;
       _builderManager = builderManager;
+      _activator = activator;
       _state = PluginState.Available;
       _itemManager = new PluginItemManager( this );
     }
@@ -116,7 +119,7 @@ namespace MediaPortal.Common.PluginManager.Activation
               State = PluginState.EndRequest;
               if( _stateTracker != null && !_stateTracker.RequestEnd() )
               {
-                Log.Debug( "PluginRuntime: Cannot disable plugin '{0}' because its state tracker doesn't want to be disabled", Metadata.Name );
+                Log.Debug( "PluginRuntime: Cannot disable plugin {0} because its state tracker doesn't want to be disabled", LogName );
                 State = PluginState.Active;
                 return false;
               }
@@ -134,8 +137,8 @@ namespace MediaPortal.Common.PluginManager.Activation
                   }
                   catch( Exception e )
                   {
-                    Log.Warn( "Error stopping plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
-                      _stateTracker, Metadata.Name, Metadata.PluginId );
+                    Log.Warn( "Error stopping plugin state tracker '{0}' in plugin {1}", e,
+                      _stateTracker, LogId );
                   }
                   RevokePluginObject( _stateTracker.GetType().FullName );
                   _stateTracker = null;
@@ -151,8 +154,8 @@ namespace MediaPortal.Common.PluginManager.Activation
               }
               else
               {
-                Log.Debug( "PluginManager: Cannot disable plugin '{0}', because it is still in use by '{1}'",
-                  Metadata.Name, failedStateTrackers.Select( failedStateTracker => failedStateTracker.UsageDescription ) );
+                Log.Debug( "PluginManager: Cannot disable plugin {0}, because it is still in use by '{1}'",
+                  LogName, failedStateTrackers.Select( failedStateTracker => failedStateTracker.UsageDescription ) );
                 if( _stateTracker != null )
                   _stateTracker.Continue();
                 _itemManager.ContinueOpenEndRequests( endRequestsToClose );
@@ -162,9 +165,8 @@ namespace MediaPortal.Common.PluginManager.Activation
             State = PluginState.Disabled;
             return true;
           default: // invalid current state for requested state change
-            var disableFailedMessage = String.Format( "PluginActivator: cannot disable plugin '{0}' while in state {1}.", Metadata, State );
-            Log.Error( disableFailedMessage );
-            throw new PluginInvalidStateException( disableFailedMessage );
+            ThrowInvalidStateException( "disable" );
+            return false;
         }
       }
     }
@@ -185,9 +187,8 @@ namespace MediaPortal.Common.PluginManager.Activation
               State = PluginState.Enabled;
             return success;
           default: // invalid current state for requested state change
-            var msg = String.Format( "PluginActivator: cannot enable plugin '{0}' while in state {1}.", Metadata, State );
-            Log.Error( msg );
-            throw new PluginInvalidStateException( msg );
+            ThrowInvalidStateException( "enable" );
+            return false;
         }
       }
     }
@@ -211,8 +212,8 @@ namespace MediaPortal.Common.PluginManager.Activation
                 object obj = InstantiatePluginObject( Metadata.ActivationInfo.StateTrackerClassName );
                 var stateTracker = obj as IPluginStateTracker;
                 if( obj == null )
-                  Log.Error( "PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin '{1}'",
-                    Metadata.ActivationInfo.StateTrackerClassName, Metadata );
+                  Log.Error( "PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin {1}",
+                    Metadata.ActivationInfo.StateTrackerClassName, LogId );
                 else if( stateTracker != null )
                 {
                   _stateTracker = stateTracker;
@@ -222,31 +223,36 @@ namespace MediaPortal.Common.PluginManager.Activation
                   }
                   catch( Exception e )
                   {
-                    Log.Warn( "Error activating plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
-                      stateTracker, Metadata.Name, Metadata.PluginId );
+                    Log.Warn( "Error activating plugin state tracker '{0}' in plugin {1}", e, stateTracker, LogId );
                   }
                 }
                 else
                 {
-                  Log.Error( "PluginManager: Plugin state tracker class '{0}' of plugin '{1}' doesn't implement interface {3}",
-                    Metadata.ActivationInfo.StateTrackerClassName, Metadata.Name, typeof(IPluginStateTracker).Name );
+                  Log.Error( "PluginManager: Plugin state tracker class '{0}' of plugin {1} doesn't implement interface {3}",
+                    Metadata.ActivationInfo.StateTrackerClassName, LogName, typeof(IPluginStateTracker).Name );
                   RevokePluginObject( Metadata.ActivationInfo.StateTrackerClassName );
                 }
               }
               catch( Exception e )
               {
-                Log.Error( "PluginManager: Error instantiating plugin state tracker class '{0}' for plugin '{1}' (id '{2}')",
-                  e, Metadata.ActivationInfo.StateTrackerClassName, Metadata.Name, Metadata.PluginId );
+                Log.Error( "PluginManager: Error instantiating plugin state tracker class '{0}' for plugin {1}",
+                  e, Metadata.ActivationInfo.StateTrackerClassName, LogId );
               }
             }
             State = PluginState.Active;
             return true;
           default:
-            var activationFailedMessage = String.Format( "PluginActivator: cannot activate plugin '{0}' while in state {1}.", Metadata, State );
-            Log.Error( activationFailedMessage );
-            throw new PluginInvalidStateException( activationFailedMessage );
+            ThrowInvalidStateException( "activate" );
+            return false;
         }
       }
+    }
+
+    private void ThrowInvalidStateException( string action )
+    {
+      var msg = String.Format( "PluginActivator: cannot {0} plugin {1} while it is in state {2}.", action, LogName, State );
+      Log.Error( msg );
+      throw new PluginInvalidStateException( msg );
     }
 
     public void Shutdown()
@@ -261,11 +267,36 @@ namespace MediaPortal.Common.PluginManager.Activation
           }
           catch( Exception e )
           {
-            Log.Warn( "Error shutting plugin state tracker '{0}' down in plugin '{1}' (id '{2})", e,
-              _stateTracker, Metadata.Name, Metadata.PluginId );
+            Log.Warn( "Error shutting plugin state tracker '{0}' down in plugin {1}", e, _stateTracker, LogId );
           }
         }
       }
+    }
+    #endregion
+
+    #region Internal Metadata Formatters (Logging Helpers)
+    /// <summary>
+    /// Returns a string with the plugins name, version, author and id.
+    /// </summary>
+    internal string LogInfo
+    {
+      get { return _pluginMetadata.LogInfo; }
+    }
+
+    /// <summary>
+    /// Returns a string with the plugins name and id.
+    /// </summary>
+    internal string LogId
+    {
+      get { return _pluginMetadata.LogId; }
+    }
+
+    /// <summary>
+    /// Returns a string with the plugins name.
+    /// </summary>
+    internal string LogName
+    {
+      get { return _pluginMetadata.LogName; }
     }
     #endregion
 
@@ -455,7 +486,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       lock( _syncObj )
       {
-        return _itemManager.RequestItem( itemRegistration, type, stateTracker );
+        return _itemManager.RequestItem( itemRegistration, type, stateTracker, _activator );
       }
     }
 

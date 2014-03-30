@@ -29,6 +29,7 @@ using MediaPortal.Attributes;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.PluginManager.Models;
 using MediaPortal.Common.PluginManager.Validation;
 using MediaPortal.Common.Services.PluginManager;
@@ -226,10 +227,11 @@ namespace MediaPortal.Common.PluginManager.Discovery
           result.Reverse();
         return result.Distinct().ToList();
       }
-      catch( KeyNotFoundException )
+      catch( KeyNotFoundException knf )
       {
-        // TODO log error (incomplete repository, dependent plugin not found) and throw
-        throw;
+        var msg = string.Format( "PluginRepository: plugin (id '{0}') or one of its dependencies is not available/installed.", pluginId );
+        Log.Error( msg, knf );
+        throw new PluginMissingDependencyException( msg, knf );
       }
     }
 
