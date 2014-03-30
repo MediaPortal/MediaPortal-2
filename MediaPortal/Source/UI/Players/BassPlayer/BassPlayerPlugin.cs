@@ -26,6 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
@@ -45,7 +46,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      _pluginDirectory = pluginRuntime.Metadata.GetAbsolutePath(string.Empty);
+      _pluginDirectory = pluginRuntime.Metadata.SourceInfo.GetAbsolutePath(string.Empty);
     }
 
     public bool RequestEnd()

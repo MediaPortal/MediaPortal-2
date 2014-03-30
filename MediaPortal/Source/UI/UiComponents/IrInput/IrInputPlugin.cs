@@ -30,6 +30,7 @@ using System.Threading;
 using System.Xml.Serialization;
 
 using MediaPortal.Common;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -258,7 +259,7 @@ namespace MediaPortal.UiComponents.IrInput
       IrInputSettings settings = settingsManager.Load<IrInputSettings>();
       _mappedKeyCodes = new Dictionary<string, Key>();
       ICollection<MappedKeyCode> keyCodes = settings.RemoteMap ??
-          LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
+          LoadRemoteMap(pluginRuntime.Metadata.SourceInfo.GetAbsolutePath("DefaultRemoteMap.xml"));
       foreach (MappedKeyCode mkc in keyCodes)
         _mappedKeyCodes.Add(mkc.Code, mkc.Key);
 

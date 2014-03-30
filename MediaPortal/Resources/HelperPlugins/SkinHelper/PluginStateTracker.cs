@@ -25,6 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.Helpers.SkinHelper

@@ -33,6 +33,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MceRemoteReceiver.Hardware;
 using MediaPortal.UI.Control.InputManager;
@@ -324,13 +325,13 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
       // We initialize the key code map here instead of in the constructor because here, we have access to the plugin's
       // directory (via the pluginRuntime parameter).
       _mappedKeyCodes = new Dictionary<int, Key>();
-      ICollection<MappedKeyCode> keyCodes = settings.RemoteMap ?? LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
+      ICollection<MappedKeyCode> keyCodes = settings.RemoteMap ?? LoadRemoteMap(pluginRuntime.Metadata.SourceInfo.GetAbsolutePath("DefaultRemoteMap.xml"));
       foreach (MappedKeyCode mkc in keyCodes)
         _mappedKeyCodes.Add(mkc.Code, mkc.Key);
 
       //_eHomeTransceivers.Add(new eHomeTransceiver() { DeviceID = "testKey", Name = "testValue" });
       //SaveTransceivers(pluginRuntime.Metadata.GetAbsolutePath("eHomeTransceiverList.xml"), _eHomeTransceivers);
-      ICollection<eHomeTransceiver> transceivers = settings.Transceivers ?? LoadTransceivers(pluginRuntime.Metadata.GetAbsolutePath("eHomeTransceiverList.xml"));
+      ICollection<eHomeTransceiver> transceivers = settings.Transceivers ?? LoadTransceivers(pluginRuntime.Metadata.SourceInfo.GetAbsolutePath("eHomeTransceiverList.xml"));
       if (transceivers.Count > 0)
         Remote.Transceivers.AddRange(transceivers);
 

@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather

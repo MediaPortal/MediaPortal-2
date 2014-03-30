@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
 
 namespace MediaPortal.Common.Services.PluginManager.Builders
 {
