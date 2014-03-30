@@ -4,13 +4,19 @@
     PluginId="{21FC7331-8E52-4ced-AD3B-8B27B050D6C5}"
     Author = "Frodo, Albert"
     Copyright="GPL"
-    Description="Metadata extractor for many kinds of video file formats"
-    PluginVersion="1.0">
+    Description="Metadata extractor for many kinds of video file formats">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
-    <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}"/> <!-- MatroskaLib -->
-    <PluginReference PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}"/> <!-- TagLibPlugin -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}" CompatibleAPI="1"/> <!-- MediaInfoPlugin -->
+    <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}" CompatibleAPI="1"/> <!-- MatroskaLib -->
+    <PluginReference PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}" CompatibleAPI="1"/> <!-- TagLibPlugin -->
   </DependsOn>
 
   <Runtime>

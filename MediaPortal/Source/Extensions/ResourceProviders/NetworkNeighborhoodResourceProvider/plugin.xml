@@ -4,8 +4,17 @@
     PluginId="{B1F33F5C-3E2C-4151-9DCE-9F965CA5CDFC}"
     Author="Albert"
     Copyright="GPL"
-    Description="Network neighborhood resource provider"
-    PluginVersion="1.0">
+    Description="Network neighborhood resource provider">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="NetworkNeighborhoodResourceProvider.dll"/>

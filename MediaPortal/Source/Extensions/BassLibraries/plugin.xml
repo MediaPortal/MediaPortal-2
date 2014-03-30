@@ -4,8 +4,16 @@
     PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"
     Author="un4seen, Team MediaPortal"
     Copyright="GPL"
-    Description="Bass support plugin"
-    PluginVersion="1.0">
+    Description="Bass support plugin">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="BassLibraries.dll"/>

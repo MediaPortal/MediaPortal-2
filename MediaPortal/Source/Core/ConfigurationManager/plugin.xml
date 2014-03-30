@@ -4,9 +4,17 @@
     PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"
     Author="SMa, Albert"
     Copyright="GPL"
-    Description="MediaPortal 2 configuration engine"
-    PluginVersion="1.0">
+    Description="MediaPortal 2 configuration engine">
 
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+  </DependsOn>
+  
   <Runtime>
     <Assembly FileName="ConfigurationManager.dll"/>
   </Runtime>

@@ -1,5 +1,5 @@
-<!ELEMENT MediaPortalPlugin (DependsOn?, ConflictsWith?, Runtime?, (Register | Builder)*)>
-<!ATTLIST MediaPortalPlugin
+<!ELEMENT Plugin (Version, DependsOn?, ConflictsWith?, Runtime?, (Register | Builder)*)>
+<!ATTLIST Plugin
           DescriptorVersion CDATA #REQUIRED
           PluginId          CDATA #REQUIRED
           Name              CDATA #REQUIRED
@@ -7,16 +7,23 @@
           Author            CDATA #IMPLIED
           Copyright         CDATA #IMPLIED
           Description       CDATA #IMPLIED
-          PluginVersion     CDATA #REQUIRED
           AutoActivate      (True|False) "False"
           DeploymentType    (Frontend|Backend) #REQUIRED
           >
 
+<!ELEMENT Version EMPTY>
+<!ATTLIST Version
+          PluginVersion     CDATA #REQUIRED
+		  ReleaseDate		CDATA #REQUIRED
+		  CurrentAPI 		CDATA #REQUIRED
+		  MinCompatibleAPI  CDATA #IMPLIED
+		  >
+		  
 <!ELEMENT Runtime (Assembly*, PluginStateTracker?)>
 
-<!ELEMENT DependsOn (PluginReference)>
+<!ELEMENT DependsOn (CoreDependency | PluginReference)+>
 
-<!ELEMENT ConflictsWith (PluginReference)>
+<!ELEMENT ConflictsWith (PluginReference+)>
 
 <!ELEMENT Register ANY>
 <!ATTLIST Register
@@ -37,4 +44,10 @@
 
 <!ELEMENT PluginReference EMPTY>
 <!ATTLIST PluginReference
-          PluginId CDATA #REQUIRED>
+          PluginId 		CDATA #REQUIRED
+		  CompatibleAPI CDATA #REQUIRED>
+
+<!ELEMENT CoreDependency EMPTY>
+<!ATTLIST CoreDependency
+          Name 		CDATA #REQUIRED
+		  CompatibleAPI CDATA #REQUIRED>

@@ -5,11 +5,18 @@
     Author="Albert"
     Copyright="GPL"
     AutoActivate="true" 
-    Description="Provides several helper functions for skinners"
-    PluginVersion="1.0">
+    Description="Provides several helper functions for skinners">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
   </DependsOn>
 
   <Runtime>

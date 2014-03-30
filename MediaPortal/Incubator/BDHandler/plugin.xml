@@ -4,15 +4,22 @@
     PluginId="{7C75B1E0-B977-4349-ACC2-C4B9B7EE20F1}"
     Author="ArmandP, Morpheus_xx"
     Copyright="GPL"
-    Description="BDHandler"
-    PluginVersion="1.0">
+    Description="BDHandler">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"/> <!-- VideoPlayers -->
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
-    <PluginReference PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}"/> <!-- BluRayMetadataExtractor -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/> <!-- VideoPlayers -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration Model -->
+    <PluginReference PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}" CompatibleAPI="1"/> <!-- BluRayMetadataExtractor -->
   </DependsOn>
 
   <Runtime>

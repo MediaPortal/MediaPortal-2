@@ -4,8 +4,18 @@
     PluginId="C28ABD6B-9615-4512-B8DA-A04096F35628"
     Author="Albert"
     Copyright="GPL"
-    Description="Sample plugin"
-    PluginVersion="0.1">
+    Description="Sample plugin">
+
+  <Version
+    PluginVersion="0.1"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="HelloWorld.dll"/>

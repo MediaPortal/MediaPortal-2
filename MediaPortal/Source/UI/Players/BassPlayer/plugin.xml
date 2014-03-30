@@ -4,14 +4,21 @@
     PluginId="{9886EB43-B3EB-4cf1-A979-8D4D8874C555}"
     Author="hwahrmann, Symphy, Albert"
     Copyright="GPL"
-    Description="Bass Audio Player"
-    PluginVersion="1.0">
+    Description="Bass Audio Player">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"/> <!-- BassLibraries -->
-    <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}"/> <!-- AudioCDResourceProvider -->
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> <!-- BassLibraries -->
+    <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}" CompatibleAPI="1"/> <!-- AudioCDResourceProvider -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Runtime>

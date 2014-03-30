@@ -4,8 +4,17 @@
     PluginId="{6B042DB8-69AD-4B57-B869-1BCEA4E43C77}"
     Author="Bavarian"
     Copyright="GPL"
-    Description="Zip files resource provider"
-    PluginVersion="1.0">
+    Description="Zip files resource provider">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="ZipResourceProvider.dll"/>

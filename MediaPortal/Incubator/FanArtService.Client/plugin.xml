@@ -4,11 +4,20 @@
     PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}"
     Author="Morpheus_xx"
     Copyright="GPL"
-    Description="Provides Client access to Fanart stored in MP2 Server"
-    PluginVersion="1.0">
+    Description="Provides Client access to Fanart stored in MP2 Server">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="1"/> <!-- Media -->
   </DependsOn>
 
   <Runtime>

@@ -5,8 +5,19 @@
     Author="Morpheus_xx"
     Copyright="GPL"
     Description="Provides TV service"
-    AutoActivate="true"
-    PluginVersion="1.0">
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="SlimTv.Service.dll"/>
