@@ -91,12 +91,7 @@ namespace MediaPortal.Common.PluginManager.Activation
       _repository.Initialize();
       Log.Info( "PluginManager: Initializing" );
       State = PluginManagerState.Initializing;
-      foreach( var pm in _repository.Models.Values )
-      {
-        var runtime = AddPlugin( pm );
-        if( !_runtimes.TryAdd( pm.PluginId, runtime ) )
-          Log.Error( "PluginManager: Plugin '{0}' could not be registered because of a duplicate identifier." );
-      }
+      _repository.Models.Values.ForEach( pm => AddPlugin( pm ) );
       Log.Debug( "PluginManager: Initialized" );
     }
 
@@ -139,15 +134,16 @@ namespace MediaPortal.Common.PluginManager.Activation
     #endregion
 
     #region Add/Start/Stop Plugin
-    public PluginRuntime AddPlugin( IPluginMetadata pluginMetadata )
+    // we should make this private.. but it's part of IPluginManager
+    internal PluginRuntime AddPlugin( PluginMetadata pluginMetadata )
     {
-      var result = new PluginRuntime( pluginMetadata, _builderManager );
-      if( !_runtimes.TryAdd( pluginMetadata.PluginId, result ) )
-      {
-        Log.Error( "TODO" );
-        throw new Exception( "TODO" );
-      }
-      return result;
+      var result = new PluginRuntime( pluginMetadata, _builderManager, this );
+      if( _runtimes.TryAdd( pluginMetadata.PluginId, result ) ) 
+        return result;
+      var msg = string.Format( "PluginManager: Plugin '{0}' (id '{1}') could not be registered because of a duplicate identifier.", 
+        pluginMetadata.Name, pluginMetadata.PluginId );
+      Log.Error( msg );
+      throw new PluginInvalidMetadataException( msg );
     }
 
     public bool TryStartPlugin( Guid pluginId, bool activate )
@@ -185,7 +181,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// be enabled, else <c>false</c>.</returns>
     public bool TryEnable( PluginRuntime plugin, bool doAutoActivate )
     {
-      return TryChangePluginState( plugin.Metadata.PluginId, PluginStateChange.Enable, doAutoActivate );
+      return TryChangePluginState( plugin.Metadata.PluginId, PluginState.Enabled, doAutoActivate );
     }
 
     /// <summary>
@@ -195,7 +191,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <returns><c>true</c>, if the plugin could be activated or was already active, else <c>false</c>.</returns>
     public bool TryActivate( PluginRuntime plugin )
     {
-      return TryChangePluginState( plugin.Metadata.PluginId, PluginStateChange.Activate );
+      return TryChangePluginState( plugin.Metadata.PluginId, PluginState.Active );
     }
 
     /// <summary>
@@ -208,55 +204,52 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// items usages could be stopped, else <c>false</c>.</returns>
     public bool TryDisable( PluginRuntime plugin )
     {
-      return TryChangePluginState( plugin.Metadata.PluginId, PluginStateChange.Disable );
+      return TryChangePluginState( plugin.Metadata.PluginId, PluginState.Disabled );
     }
 
     #region TryChangePluginState
-    // TODO docs
-    private bool TryChangePluginState( Guid pluginId, PluginStateChange stateChange, bool autoActivateOnEnable = false )
+    private bool TryChangePluginState( Guid pluginId, PluginState targetState, bool autoActivateOnEnable = false )
     {
       var plugin = _repository.GetPlugin( pluginId );
-
-      // make sure plugin and its dependencies are all available and compatible
-      if( !_repository.IsCompatible( plugin ) )
-        return false;
-
-      // get list of plugin with dependencies from repository
-      var sortOrder = stateChange == PluginStateChange.Disable ? PluginSortOrder.DependenciesLast : PluginSortOrder.DependenciesFirst;
-      var pluginsToEnable = _repository.GetPluginAndDependencies( pluginId, sortOrder ).Select( pm => pm.PluginId ).ToList();
-
       lock( _pluginStateChangeLock )
       {
+        // make sure plugin and its dependencies are all available and compatible
+        if( !_repository.IsCompatible( plugin ) )
+          return false;
+
+        // get list of plugin with dependencies from repository
+        var sortOrder = targetState == PluginState.Disabled ? PluginSortOrder.DependenciesLast : PluginSortOrder.DependenciesFirst;
+        var plugins = _repository.GetPluginAndDependencies( pluginId, sortOrder ).Select( pm => pm.PluginId ).ToList();
+
         try
         {
           // get corresponding list of plugin runtimes
-          var pluginRuntimes = pluginsToEnable.Select( id => _runtimes[ id ] ).ToList();
-
-          foreach( var runtime in pluginRuntimes )
+          var pluginRuntimes = plugins.Select( id => _runtimes[ id ] ).ToList();
+          foreach( var runtime in pluginRuntimes.Where( r => r.State != targetState ) )
           {
-            Log.Debug( "PluginActivator: Trying to {0} plugin '{1}'", stateChange.ToString().ToLower(), runtime.Metadata );
-            switch( stateChange )
+            Log.Debug( "PluginActivator: Trying to change plugin {0} to state '{1}'...", runtime.LogInfo, targetState.ToString().ToLower() );
+            switch( targetState )
             {
-              case PluginStateChange.Enable:
+              case PluginState.Enabled:
                 if( !runtime.Enable() )
                   return false;
                 if( autoActivateOnEnable && runtime.Metadata.ActivationInfo.AutoActivate )
                 {
-                  Log.Debug( "PluginActivator: auto-activating plugin '{0}' as part of enable.", runtime.Metadata.Name );
+                  Log.Debug( "PluginActivator: Auto-activating plugin {0} as part of enable.", runtime.LogName );
                   if( !runtime.Activate( MaintenanceMode ) )
                     return false;
                 }
                 break;
-              case PluginStateChange.Activate:
+              case PluginState.Active:
                 if( !runtime.Activate( MaintenanceMode ) )
                   return false;
                 break;
-              case PluginStateChange.Disable:
+              case PluginState.Disabled:
                 if( !runtime.Disable() )
                   return false;
                 break;
             }
-            Log.Info( "PluginActivator: Plugin '{0}' {1}d.", runtime.Metadata, stateChange.ToString().ToLower() );
+            Log.Info( "PluginActivator: Plugin {0} was changed to state '{1}'.", runtime.LogName, runtime.State.ToString().ToLower() );
           }
         }
         catch( PluginInvalidStateException )

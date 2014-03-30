@@ -81,12 +81,12 @@ namespace MediaPortal.Common.Services.PluginManager
 
     public IDictionary<string, CoreAPIAttribute> CoreComponents
     {
-      get { throw new NotSupportedException( "Direct access to core components is no longer supported." ); }
+      get { return _repository.CoreComponents; }
     }
 
-    public IDictionary<Guid, PluginRuntime> AvailablePlugins
+    public IDictionary<Guid, PluginMetadata> AvailablePlugins
     {
-      get { throw new NotSupportedException( "Direct access to core components is no longer supported." ); }
+      get { return _repository.Models; }
     }
 
     public bool MaintenanceMode
@@ -111,7 +111,10 @@ namespace MediaPortal.Common.Services.PluginManager
 
     public PluginRuntime AddPlugin( IPluginMetadata pluginMetadata )
     {
-      return _activator.AddPlugin( pluginMetadata );
+      var metadata = pluginMetadata as PluginMetadata;
+      if( metadata == null )
+        throw new ArgumentException( "We cannot change this interface, but callers are expected to pass an instance of the PluginMetadata class.");
+      return _activator.AddPlugin( metadata );
     }
 
     public bool TryStartPlugin( Guid pluginId, bool activate )

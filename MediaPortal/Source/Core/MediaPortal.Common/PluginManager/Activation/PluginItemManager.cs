@@ -48,27 +48,25 @@ namespace MediaPortal.Common.PluginManager.Activation
     #endregion
 
     #region Item Requests
-    internal object RequestItem( PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker )
+    internal object RequestItem( PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker, PluginActivator activator )
     {
       PluginRuntime plugin = itemRegistration.Metadata.PluginRuntime;
       var isActive = plugin.State == PluginState.Active;
       var isEnabled = plugin.State == PluginState.Enabled;
       if( !(isActive || isEnabled) )
-        throw new PluginInvalidStateException( "Plugin '{0}' (id '{1}') neither is enabled nor active; cannot request items in this state",
-          plugin.Metadata.Name, plugin.Metadata.PluginId );
-
+        throw new PluginInvalidStateException( "Plugin {0} is neither enabled nor active; cannot request items in this state", plugin.LogId ); 
+      
       try
       {
         PluginItemMetadata itemMetadata = itemRegistration.Metadata;
         IPluginItemBuilder builder = plugin.GetOrCreateBuilder( itemMetadata.BuilderName );
         bool mustBuild = itemRegistration.Item == null;
         bool mustBeActive = builder.NeedsPluginActive( itemMetadata, plugin );
-        if( mustBuild && mustBeActive && !isActive )
-          throw new PluginInvalidStateException( string.Format(
-                                                               "Plugin '{0}' (id '{1}') must be in active state for item requests. It is currently in state '{2}'.",
-            plugin.Metadata.Name, plugin.Metadata.PluginId, plugin.State ) );
+        if( mustBuild && mustBeActive && !isActive && !activator.TryActivate( plugin ) )
+          throw new PluginInvalidStateException( 
+            string.Format( "Plugin {0} must be in active state for item requests. It is currently in state '{1}'.",
+              plugin.LogId, plugin.State ) );
 
-        // TODO review WTF this does and whether we can simplify it
         object item = builder.BuildItem( itemMetadata, plugin );
         if( item == null )
           return null;
@@ -136,7 +134,7 @@ namespace MediaPortal.Common.PluginManager.Activation
       }
       catch( Exception e )
       {
-        Log.Error( "Error registering plugin items for plugin {0}", e, _pluginRuntime.Metadata.ToString() );
+        Log.Error( "Error registering plugin items for plugin {0}", e, _pluginRuntime.LogId );
         UnregisterItems();
         return false;
       }

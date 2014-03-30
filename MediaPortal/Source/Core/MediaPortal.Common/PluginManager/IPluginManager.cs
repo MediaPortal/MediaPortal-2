@@ -74,7 +74,7 @@ namespace MediaPortal.Common.PluginManager
     /// Returns a dictionary containing the guids of all plugins known by the plugin manager,
     /// mapped to their plugin runtime descriptors.
     /// </summary>
-    IDictionary<Guid, PluginRuntime> AvailablePlugins { get; }
+    IDictionary<Guid, PluginMetadata> AvailablePlugins { get; }
 
     /// <summary>
     /// Returns the information whether the plugin manager is in maintenance mode. This mode is for
