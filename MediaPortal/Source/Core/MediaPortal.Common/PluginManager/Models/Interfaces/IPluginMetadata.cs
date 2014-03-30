@@ -20,8 +20,6 @@
 */
 #endregion
 
-using MediaPortal.Common.PluginManager.Packages;
-
 namespace MediaPortal.Common.PluginManager.Models
 {
   /// <summary>
