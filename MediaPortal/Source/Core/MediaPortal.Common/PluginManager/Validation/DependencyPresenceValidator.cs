@@ -42,19 +42,21 @@ namespace MediaPortal.Common.PluginManager.Validation
 
     public HashSet<Guid> Validate( PluginMetadata plugin )
     {
-      return FindMissingDependencies( plugin );
+      return FindMissingDependencies( plugin, new HashSet<Guid>() );
     }
 
-    private HashSet<Guid> FindMissingDependencies( IPluginMetadata plugin )
+    private HashSet<Guid> FindMissingDependencies( IPluginMetadata plugin, HashSet<Guid> verifiedPlugins )
     {
       var result = new HashSet<Guid>();
-      foreach( PluginDependency dependency in plugin.DependencyInfo.DependsOn.Where( d => !d.IsCoreDependency ) )
+      verifiedPlugins.Add( plugin.PluginId );
+      foreach( PluginDependency dependency in plugin.DependencyInfo.DependsOn
+        .Where( d => !d.IsCoreDependency && !verifiedPlugins.Contains( d.PluginId ) ) )
       {
         PluginMetadata pluginDependency;
         if( !_availablePlugins.TryGetValue( dependency.PluginId, out pluginDependency ) )
           result.Add( dependency.PluginId );
-        if( pluginDependency != null )
-          result.UnionWith( FindMissingDependencies( pluginDependency ) );
+        else
+          result.UnionWith( FindMissingDependencies( pluginDependency, verifiedPlugins ) );
       }
       return result;
     }

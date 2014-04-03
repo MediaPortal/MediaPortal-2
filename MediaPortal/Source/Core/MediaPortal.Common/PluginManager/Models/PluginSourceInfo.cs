@@ -41,7 +41,7 @@ namespace MediaPortal.Common.PluginManager.Models
 
     public string GetAbsolutePath( string relativePath )
     {
-      return PluginPath == null || relativePath == null ? null : Path.Combine( Path.GetDirectoryName( PluginPath ), relativePath );
+      return PluginPath == null || relativePath == null ? null : Path.Combine( PluginPath, relativePath );
     }
   }
 }
