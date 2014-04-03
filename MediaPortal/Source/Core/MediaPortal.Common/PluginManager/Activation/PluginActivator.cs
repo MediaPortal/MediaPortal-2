@@ -225,7 +225,8 @@ namespace MediaPortal.Common.PluginManager.Activation
         {
           // get corresponding list of plugin runtimes
           var pluginRuntimes = plugins.Select( id => _runtimes[ id ] ).ToList();
-          foreach( var runtime in pluginRuntimes.Where( r => r.State != targetState ) )
+          // filter plugins to operate on: exclude those already in target state and avoid downgrading from active to enabled
+          foreach( var runtime in pluginRuntimes.Where( r => r.State != targetState && !(r.State == PluginState.Active && targetState == PluginState.Enabled) ) )
           {
             Log.Debug( "PluginActivator: Trying to change plugin {0} to state '{1}'...", runtime.LogInfo, targetState.ToString().ToLower() );
             switch( targetState )
