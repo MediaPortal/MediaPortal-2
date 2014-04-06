@@ -328,7 +328,7 @@ namespace MediaPortal.Common.PluginManager.Activation
         lock( _syncObj )
         {
           _state = value;
-          if( _loadedAssemblies == null && (value == PluginState.Active || value == PluginState.Enabled) )
+          if( _loadedAssemblies == null && value == PluginState.Active) //|| value == PluginState.Enabled) )
             LoadAssemblies();
         }
       }

@@ -47,6 +47,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
     private readonly ConcurrentDictionary<string, CoreAPIAttribute> _coreComponents = new ConcurrentDictionary<string, CoreAPIAttribute>();
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _models = new ConcurrentDictionary<Guid, PluginMetadata>();
     private readonly ConcurrentHashSet<Guid> _disabledPlugins = new ConcurrentHashSet<Guid>();
+    private readonly ConcurrentHashSet<Guid> _validatedPlugins = new ConcurrentHashSet<Guid>();
     private long _initialized;
     #endregion
 
@@ -95,7 +96,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
       foreach( var pm in plugins.Values )
       {
         if( !_models.TryAdd( pm.PluginId, pm ) )
-          Log.Error( "PluginRepository: Plugin '{0}' could not be registered because of a duplicate identifier." );
+          Log.Error( "PluginRepository: Plugin {0} could not be registered because of a duplicate identifier.", pm.LogId );
       }
     }
 
@@ -170,24 +171,29 @@ namespace MediaPortal.Common.PluginManager.Discovery
     public bool IsCompatible( IPluginMetadata plugin )
     {
       ThrowIfNotInitialized();
+      if( _validatedPlugins.Contains( plugin.PluginId ) )
+        return true;
       var validator = new Validator( _models, _disabledPlugins, _coreComponents );
       PluginMetadata metadata;
       if( !_models.TryGetValue( plugin.PluginId, out metadata ) )
         return false;
       var result = validator.Validate( metadata );
 
-      // TODO we should log names instead of GUIDs
       if( !result.IsComplete )
       {
-        result.MissingDependencies.ForEach( d => Log.Warn( "PluginManager: Plugin '{0}' is missing dependency: {1}", metadata.Name, d ) );
+        result.MissingDependencies.Select( id => _models[id] )
+          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is missing dependency {1}", metadata.LogName, d.LogName ) );
         return false;
       }
       if( !result.CanEnable )
       {
-        result.ConflictsWith.ForEach( d => Log.Warn( "PluginManager: Plugin '{0}' cannot be enabled due to conflict with: {1}", metadata.Name, d ) );
-        result.IncompatibleWith.ForEach( d => Log.Warn( "PluginManager: Plugin '{0}' cannot be enabled due to incompatibility with: {1}", metadata.Name, d ) );
+        result.ConflictsWith.Select( id => _models[id] )
+          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is in conflict with {1}", metadata.LogName, d.LogName ) );
+        result.IncompatibleWith.Select( id => _models[id] )
+          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is incompatible with {1}", metadata.LogInfo, d.LogInfo ) );
         return false;
       }
+      _validatedPlugins.Add( plugin.PluginId );
       return true;
     }
     #endregion
@@ -207,25 +213,37 @@ namespace MediaPortal.Common.PluginManager.Discovery
       {
         var models = Models; // use IDictionary to simplify lookup code; causes exceptions for missing lookups, but we don't expect any misses
         var plugin = models[ pluginId ];
-        var result = new List<IPluginMetadata>() { plugin };
-        var resultSet = new HashSet<Guid>() { plugin.PluginId };        
-        var stack = new Stack<PluginMetadata>( plugin.DependencyInfo.DependsOn.Where( d => !d.IsCoreDependency ).Select( d => models[ d.PluginId ] ) );
+        var result = new List<IPluginMetadata>();
+        var resultSet = new HashSet<Guid>();
+        var stack = new Stack<PluginMetadata>( new [] { plugin } );
         while( stack.Count > 0 )
         {
           plugin = stack.Pop();
-          result.Add( plugin );
+          if( resultSet.Contains( plugin.PluginId ) ) 
+            continue;
+          var insertAtIndex = result.Count;
           resultSet.Add( plugin.PluginId );
           if( plugin.DependencyInfo != null && plugin.DependencyInfo.DependsOn.Count > 0 )
           {
             // we check the resultSet to handle cyclic dependencies that would otherwise cause an infinite loop
-            plugin.DependencyInfo.DependsOn.Where( d => !d.IsCoreDependency ).Select( d => models[ d.PluginId ] )
-              .Where( pm => !resultSet.Contains( pm.PluginId ) )
-              .ForEach( stack.Push );
+            var dependencies = plugin.DependencyInfo.DependsOn.Where( d => !d.IsCoreDependency ).Select( d => models[ d.PluginId ] );
+            foreach( var dependency in dependencies )
+            {
+              if( !resultSet.Contains( dependency.PluginId ) )
+              {
+                stack.Push( dependency );
+              }
+              else // insert plugin before dependencies in result
+              {
+                insertAtIndex = Math.Min( insertAtIndex, result.IndexOf( dependency ) );
+              }
+            }
           }
-        }      
+          result.Insert( insertAtIndex, plugin );
+        }
         if( sortOrder == PluginSortOrder.DependenciesFirst )
           result.Reverse();
-        return result.Distinct().ToList();
+        return result;
       }
       catch( KeyNotFoundException knf )
       {

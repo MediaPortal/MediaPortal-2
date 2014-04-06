@@ -7,7 +7,7 @@ using System.Reflection;
 [assembly: AssemblyProduct("MediaPortal 2")]
 [assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2014")]
 // Note: Following two line will be modified by AssemblyInfoHelper in build process. The last 4 digits will be replaced by "YYMM" (year-month)
-[assembly: AssemblyVersion("2.0.0.1402")]
-[assembly: AssemblyFileVersion("2.0.0.1402")]
+[assembly: AssemblyVersion("2.0.0.1404")]
+[assembly: AssemblyFileVersion("2.0.0.1404")]
 // Note: This line will be filled by AssemblyInfoHelper in build process.
-[assembly: AssemblyInformationalVersion("")]
+[assembly: AssemblyInformationalVersion("origin/FEAT_PluginManager_Refactoring-80afc6")]
