@@ -94,6 +94,9 @@
     <Compile Include="PluginManager\Activation\PluginBuilderManager.cs" />
     <Compile Include="PluginManager\Activation\PluginActivator.cs" />
     <Compile Include="PluginManager\Discovery\PluginRepository.cs" />
+    <Compile Include="PluginManager\Tests\PluginDependencyCheckerTests.cs" />
+    <Compile Include="PluginManager\Tests\PluginActivationTests.cs" />
+    <Compile Include="PluginManager\Tests\PluginDefinitionParserTests.cs" />
     <Compile Include="PluginManager\Validation\ConflictValidator.cs" />
     <Compile Include="PluginManager\Validation\DependencyPresenceValidator.cs" />
     <Compile Include="PluginManager\Validation\CompatibilityValidator.cs" />

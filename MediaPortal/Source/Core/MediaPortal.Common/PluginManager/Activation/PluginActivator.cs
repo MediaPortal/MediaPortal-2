@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common.General;
@@ -88,40 +89,46 @@ namespace MediaPortal.Common.PluginManager.Activation
     #region Initialize/Startup/Shutdown
     public void Initialize()
     {
+      var stopWatch = Stopwatch.StartNew();
       _repository.Initialize();
-      Log.Info( "PluginManager: Initializing" );
+      Log.Info( "PluginActivator: Initializing..." );
       State = PluginManagerState.Initializing;
       _repository.Models.Values.ForEach( pm => AddPlugin( pm ) );
-      Log.Debug( "PluginManager: Initialized" );
+      stopWatch.Stop();
+      Log.Debug("PluginActivator: Initialized (in {0}ms)", stopWatch.ElapsedMilliseconds);
     }
 
     public void Startup( bool maintenanceMode )
     {
-      Log.Info( maintenanceMode ? "PluginManager: Startup in maintenance mode" : "PluginManager: Startup" );
+      var stopWatch = Stopwatch.StartNew();
+      Log.Info( maintenanceMode ? "PluginActivator: Startup in maintenance mode..." : "PluginActivator: Startup..." );
       MaintenanceMode = maintenanceMode;
       State = PluginManagerState.Starting;
       PluginManagerMessaging.SendPluginManagerMessage( PluginManagerMessaging.MessageType.Startup );
 
-      Log.Debug( "PluginManager: Checking dependencies" );
+      Log.Debug( "PluginActivator: Checking dependencies" );
       ICollection<PluginRuntime> availablePlugins = _runtimes.Values;
       foreach( PluginRuntime plugin in availablePlugins )
       {
         if( _repository.IsDisabled( plugin.Metadata.PluginId ) )
-          plugin.Disable();          
+          plugin.Disable();
         else
           TryEnable( plugin, !MaintenanceMode );
       }
 
       PluginManagerMessaging.SendPluginManagerMessage( PluginManagerMessaging.MessageType.PluginsInitialized );
       State = PluginManagerState.Running;
-      Log.Debug( maintenanceMode ? "PluginManager: Running in maintenance mode" : "PluginManager: Ready" );
+      Log.Debug( maintenanceMode ? "PluginActivator: Running in maintenance mode" : "PluginActivator: Ready" );
+      var time = stopWatch.ElapsedMilliseconds;
       ServiceRegistration.LoadServicesFromPlugins();
+      // performance logging
+      Log.Info("PluginActivator: Spent {0}ms in {1} ({2}ms before loading services)", stopWatch.ElapsedMilliseconds, "Startup", time);
     }
 
     public void Shutdown()
     {
       ServiceRegistration.RemoveAndDisposePluginServices();
-      Log.Info( "PluginManager: Shutdown" );
+      Log.Info( "PluginActivator: Shutdown" );
       ICollection<PluginRuntime> availablePlugins = _runtimes.Values;
       State = PluginManagerState.ShuttingDown;
       PluginManagerMessaging.SendPluginManagerMessage( PluginManagerMessaging.MessageType.Shutdown );
@@ -140,7 +147,7 @@ namespace MediaPortal.Common.PluginManager.Activation
       var result = new PluginRuntime( pluginMetadata, _builderManager, this );
       if( _runtimes.TryAdd( pluginMetadata.PluginId, result ) ) 
         return result;
-      var msg = string.Format( "PluginManager: Plugin '{0}' (id '{1}') could not be registered because of a duplicate identifier.", 
+      var msg = string.Format( "PluginActivator: Plugin '{0}' (id '{1}') could not be registered because of a duplicate identifier.", 
         pluginMetadata.Name, pluginMetadata.PluginId );
       Log.Error( msg );
       throw new PluginInvalidMetadataException( msg );
@@ -226,28 +233,41 @@ namespace MediaPortal.Common.PluginManager.Activation
           // get corresponding list of plugin runtimes
           var pluginRuntimes = plugins.Select( id => _runtimes[ id ] ).ToList();
           // filter plugins to operate on: exclude those already in target state and avoid downgrading from active to enabled
-          foreach( var runtime in pluginRuntimes.Where( r => r.State != targetState && !(r.State == PluginState.Active && targetState == PluginState.Enabled) ) )
+          var runtimesToChange = pluginRuntimes.Where( r => r.State != targetState && !(r.State == PluginState.Active && targetState == PluginState.Enabled) ).ToList();
+          foreach( var runtime in runtimesToChange )
           {
             Log.Debug( "PluginActivator: Trying to change plugin {0} to state '{1}'...", runtime.LogInfo, targetState.ToString().ToLower() );
             switch( targetState )
             {
               case PluginState.Enabled:
                 if( !runtime.Enable() )
+                {
+                  Log.Error("PluginActivator: Plugin {0} could not be enabled!", runtime.LogName);
                   return false;
+                }
                 if( autoActivateOnEnable && runtime.Metadata.ActivationInfo.AutoActivate )
                 {
                   Log.Debug( "PluginActivator: Auto-activating plugin {0} as part of enable.", runtime.LogName );
                   if( !runtime.Activate( MaintenanceMode ) )
+                  {
+                    Log.Error("PluginActivator: Plugin {0} could not be activated!", runtime.LogName);
                     return false;
+                  }
                 }
                 break;
               case PluginState.Active:
                 if( !runtime.Activate( MaintenanceMode ) )
+                {
+                  Log.Error("PluginActivator: Plugin {0} could not be activated!", runtime.LogName);
                   return false;
+                }
                 break;
               case PluginState.Disabled:
                 if( !runtime.Disable() )
+                {
+                  Log.Error("PluginActivator: Plugin {0} could not be disabled!", runtime.LogName);
                   return false;
+                }
                 break;
             }
             Log.Info( "PluginActivator: Plugin {0} was changed to state '{1}'.", runtime.LogName, runtime.State.ToString().ToLower() );

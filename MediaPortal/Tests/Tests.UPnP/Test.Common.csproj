@@ -6,8 +6,8 @@
     <ProjectGuid>{603B25D4-27AD-4EE0-BAC1-B48F4FC19984}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tests.UPnP</RootNamespace>
-    <AssemblyName>Tests.UPnP</AssemblyName>
+    <RootNamespace>Test.Common</RootNamespace>
+    <AssemblyName>Test.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -71,7 +71,10 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="HttpHeaders.cs" />
+    <Compile Include="UPnP\HttpHeaders.cs" />
+    <Compile Include="PluginManager\PluginActivationTests.cs" />
+    <Compile Include="PluginManager\PluginDefinitionParserTests.cs" />
+    <Compile Include="PluginManager\PluginDependencyCheckerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

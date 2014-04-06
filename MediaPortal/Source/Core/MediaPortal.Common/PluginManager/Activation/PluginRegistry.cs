@@ -225,15 +225,14 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, true);
       if (node.Items != null && node.Items.ContainsKey(itemMetadata.Id))
-        if (itemMetadata.IsRedundant)
-        {
-          itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
-          itemRegistration.AdditionalRedundantItemsMetadata.Add(itemMetadata);
-          return false;
-        }
-        else
-          throw new ArgumentException(string.Format("At location '{0}', a plugin item with id '{1}' is already registered",
-              itemMetadata.RegistrationLocation, itemMetadata.Id));
+      {
+        if( !itemMetadata.IsRedundant )
+          throw new ArgumentException( string.Format( "At location '{0}', a plugin item with id '{1}' is already registered",
+            itemMetadata.RegistrationLocation, itemMetadata.Id ) );
+        itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
+        itemRegistration.AdditionalRedundantItemsMetadata.Add(itemMetadata);
+        return false;
+      }
       itemRegistration = new PluginItemRegistration(itemMetadata);
       node.AddItem(itemMetadata.Id, itemRegistration);
       return true;
