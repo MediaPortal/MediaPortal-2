@@ -147,8 +147,7 @@ namespace MediaPortal.Common.PluginManager.Activation
       var result = new PluginRuntime( pluginMetadata, _builderManager, this );
       if( _runtimes.TryAdd( pluginMetadata.PluginId, result ) ) 
         return result;
-      var msg = string.Format( "PluginActivator: Plugin '{0}' (id '{1}') could not be registered because of a duplicate identifier.", 
-        pluginMetadata.Name, pluginMetadata.PluginId );
+      var msg = string.Format( "PluginActivator: Plugin {0} could not be registered because of a duplicate identifier.", pluginMetadata.LogId );
       Log.Error( msg );
       throw new PluginInvalidMetadataException( msg );
     }
