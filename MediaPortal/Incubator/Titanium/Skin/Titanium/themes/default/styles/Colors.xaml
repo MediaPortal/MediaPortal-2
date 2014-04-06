@@ -4,6 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
+  <!-- Master_Bare colors -->
+  <ResourceWrapper x:Key="FooterShapeFillColor" Resource="#FF00B7FF"/>
+  
   <!-- ************************** Black theme colors ****************************** -->
 
   <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF505050"/>
