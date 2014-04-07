@@ -247,7 +247,8 @@ namespace MediaPortal.Common.PluginManager.Discovery
       }
       catch( KeyNotFoundException knf )
       {
-        var msg = string.Format( "PluginRepository: plugin (id '{0}') or one of its dependencies is not available/installed.", pluginId );
+        var plugin = Models[ pluginId ];
+        var msg = string.Format( "PluginRepository: Plugin {0} or one of its dependencies is not available/installed.", plugin.LogId );
         Log.Error( msg, knf );
         throw new PluginMissingDependencyException( msg, knf );
       }
@@ -270,7 +271,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
     private void ThrowIfNotInitialized()
     {
       if( !IsInitialized )
-        throw new InvalidOperationException("The PluginRepository can only be used after initialization is complete.");
+        throw new InvalidOperationException("PluginRepository can only be used after initialization is complete.");
     }
     #endregion
 

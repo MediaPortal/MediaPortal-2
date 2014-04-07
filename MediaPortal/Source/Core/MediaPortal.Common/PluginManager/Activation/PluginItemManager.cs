@@ -28,8 +28,8 @@ using MediaPortal.Common.PluginManager.Exceptions;
 namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
-  /// This class is responsible for managing item registrations.
-  /// It is a helper class solely intended for use by the PluginRuntime class.
+  /// This class is responsible for managing item registrations. It is an internal helper
+  /// class intended only for use by the PluginRuntime class.
   /// </summary>
   internal class PluginItemManager
   {
@@ -41,7 +41,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     #endregion
 
     #region Ctor
-    public PluginItemManager( PluginRuntime pluginRuntime )
+    internal PluginItemManager( PluginRuntime pluginRuntime )
     {
       _pluginRuntime = pluginRuntime;
     }
@@ -67,6 +67,11 @@ namespace MediaPortal.Common.PluginManager.Activation
             string.Format( "Plugin {0} must be in active state for item requests. It is currently in state '{1}'.",
               plugin.LogId, plugin.State ) );
 
+        // TODO REVIEW
+        if( _pluginRuntime != itemRegistration.Metadata.PluginRuntime )
+          throw new ArgumentException("OMG why designed this?!");
+        // this code below can be simplified, assuming that _pluginRuntime == itemRegistration.Metadata.PluginRuntime, 
+        // since then we know that we have the runtime instance lock: building twice should not be possible.
         object item = builder.BuildItem( itemMetadata, plugin );
         if( item == null )
           return null;
@@ -94,7 +99,7 @@ namespace MediaPortal.Common.PluginManager.Activation
       }
       catch( Exception e )
       {
-        Log.Error( "PluginManager: Error building plugin item '{0}' at location '{1}'",
+        Log.Error( "PluginItemManager: Error building plugin item '{0}' at location '{1}'",
           e, itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation );
       }
       // Requested item isn't of type T - revoke usage again
@@ -107,8 +112,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     #region Register/Unregister Items
     /// <summary>
     /// Registers all items of this plugin in the plugin tree and notifies the change listeners
-    /// for all changed locations. This method should be called when the plugin gets
-    /// enabled.
+    /// for all changed locations. This method should be called when the plugin gets enabled.
     /// </summary>
     internal bool RegisterItems()
     {
@@ -120,21 +124,17 @@ namespace MediaPortal.Common.PluginManager.Activation
           itemMetadata.PluginRuntime = _pluginRuntime;
           if( !RegisterItem( itemMetadata ) )
             continue;
-          // Prepare data for change listener calls
-          ICollection<PluginItemMetadata> changedMetadataInLocation;
-          if( changedLocations.ContainsKey( itemMetadata.RegistrationLocation ) )
-            changedMetadataInLocation = changedLocations[ itemMetadata.RegistrationLocation ];
-          else
-            changedMetadataInLocation = changedLocations[ itemMetadata.RegistrationLocation ] = new List<PluginItemMetadata>();
-          changedMetadataInLocation.Add( itemMetadata );
+          // save changed locations so we can notify listeners when done
+          if( !changedLocations.ContainsKey( itemMetadata.RegistrationLocation ) )
+            changedLocations[ itemMetadata.RegistrationLocation ] = new List<PluginItemMetadata>();
+          changedLocations[ itemMetadata.RegistrationLocation ].Add( itemMetadata );
         }
-        // Call change listeners
         _pluginRegistry.NotifyItemsChanged( changedLocations, added: true );
         return true;
       }
       catch( Exception e )
       {
-        Log.Error( "Error registering plugin items for plugin {0}", e, _pluginRuntime.LogId );
+        Log.Error( "PluginItemManager: Error registering plugin items for plugin {0}", e, _pluginRuntime.LogId );
         UnregisterItems();
         return false;
       }
@@ -146,23 +146,18 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// </summary>
     internal void UnregisterItems()
     {
-      // Collect data for listener calls
+      // collect data on changed locations so we can notify listeners when done
       var changedLocations = new Dictionary<string, ICollection<PluginItemMetadata>>();
       foreach( PluginItemMetadata itemMetadata in _itemRegistrations.Keys )
       {
-        ICollection<PluginItemMetadata> changedMetadataInLocation;
-        if( changedLocations.ContainsKey( itemMetadata.RegistrationLocation ) )
-          changedMetadataInLocation = changedLocations[ itemMetadata.RegistrationLocation ];
-        else
-          changedMetadataInLocation = changedLocations[ itemMetadata.RegistrationLocation ] = new List<PluginItemMetadata>();
-        changedMetadataInLocation.Add( itemMetadata );
+        if( !changedLocations.ContainsKey( itemMetadata.RegistrationLocation ) )
+          changedLocations[ itemMetadata.RegistrationLocation ] = new List<PluginItemMetadata>();
+        changedLocations[ itemMetadata.RegistrationLocation ].Add( itemMetadata );
       }
-      // Unregistration of items
       foreach( PluginItemMetadata itemMetadata in _pluginRuntime.Metadata.ActivationInfo.Items )
       {
         UnregisterItem( itemMetadata );
       }
-      // Call change listeners
       _pluginRegistry.NotifyItemsChanged( changedLocations, added: false );
     }
     #endregion

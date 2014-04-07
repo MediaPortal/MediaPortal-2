@@ -1,5 +1,4 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
-
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -19,36 +18,28 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
-
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml.XPath;
 using MediaPortal.Attributes;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.PluginManager.Models;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.PluginManager.Discovery
 {
   /// <summary>
   /// Class providing logic to enumerate all core components from currently loaded assemblies.
   /// </summary>
-  class AssemblyScanner
+  internal class AssemblyScanner
   {
     public IDictionary<string, CoreAPIAttribute> PerformDiscovery()
     {
       var coreComponents = new Dictionary<string, CoreAPIAttribute>();
-      foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+      foreach( var assembly in AppDomain.CurrentDomain.GetAssemblies() )
       {
-        var attributes = assembly.GetCustomAttributes(typeof(CoreAPIAttribute), false);
-        if (attributes.Length > 0)
+        var attributes = assembly.GetCustomAttributes( typeof(CoreAPIAttribute), false );
+        if( attributes.Length > 0 )
         {
-          var coreApi = attributes[0] as CoreAPIAttribute;
+          var coreApi = attributes[ 0 ] as CoreAPIAttribute;
           var componentName = assembly.GetName().Name;
           coreComponents.Add( componentName, coreApi );
         }
