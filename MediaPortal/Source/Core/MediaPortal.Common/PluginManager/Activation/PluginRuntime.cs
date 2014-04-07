@@ -31,31 +31,23 @@ using MediaPortal.Common.PluginManager.Models;
 namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
-  /// Plugin runtime management class. Provides access to the plugin metadata, exposes the
-  /// plugin's state and provides methods to switch between states.
+  /// Plugin runtime management class. Every installed plugin will have its own instance of this class,
+  /// which manages <see cref="State"/> transitions and resources allocated by the plugin. Metadata for 
+  /// the plugin can be accessed through the <see cref="Metadata"/> property. The class is thread-safe.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// <b>Responsibility of <see cref="PluginRuntime"/>:</b>
+  /// <b>Responsibilities of <see cref="PluginRuntime"/>:</b>
   /// <list type="bullet">
   /// <item>Storing plugin runtime data like the <see cref="State"/>, the <see cref="StateTracker"/>
   /// and the loaded assemblies.</item>
-  /// <item>Registration of items in the plugin tree/registry and managing item location change listeners</item>
-  /// <item>Instantiation of classes stored in assemblies of this plugin</item>
+  /// <item>Instantiation of classes stored in assemblies of this plugin.</item>
+  /// <item>Registration of items in the plugin tree/registry and managing item location change listeners.
+  /// This is done by delegating to an instance of the <see cref="PluginItemManager"/> class owned by the
+  /// <see cref="PluginRuntime"/>. Builders are managed by the <see cref="PluginBuilderManager"/> class,
+  /// which is shared between all plugins.</item>
   /// </list>
   /// </para>
-  /// <para>
-  /// <b>Responsibility of the <see cref="IPluginManager"/> service:</b>
-  /// <list type="bullet">
-  /// <item>Management of the plugin state</item>
-  /// <item>Management of the item usages</item>
-  /// <item>Instantiation of the <see cref="StateTracker"/></item>
-  /// <item>Management of plugin builder usages</item>
-  /// </list>
-  /// </para>
-  /// The reason why all the plugin state management and instantiating of objects is done in the
-  /// plugin manager is because those jobs require also the management of dependent plugins and so
-  /// they encompass also other <see cref="PluginRuntime"/> instances.
   /// </remarks>
   public class PluginRuntime
   {
@@ -100,207 +92,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     }
     #endregion
 
-    #region Enable/Activate/Disable/Shutdown
-    internal bool Disable()
-    {
-      lock( _syncObj )
-      {
-        switch( State )
-        {
-          case PluginState.Disabled:
-            return true;
-          case PluginState.Available:
-            State = PluginState.Disabled;
-            return true;
-          case PluginState.Active:
-          case PluginState.Enabled:
-            if( State == PluginState.Active )
-            {
-              State = PluginState.EndRequest;
-              if( _stateTracker != null && !_stateTracker.RequestEnd() )
-              {
-                Log.Debug( "PluginRuntime: Cannot disable plugin {0} because its state tracker doesn't want to be disabled", LogName );
-                State = PluginState.Active;
-                return false;
-              }
-              IDictionary<PluginItemRegistration, ICollection<IPluginItemStateTracker>> endRequestsToClose;
-              ICollection<IPluginItemStateTracker> failedStateTrackers;
-              _itemManager.PerformEndRequests( out endRequestsToClose, out failedStateTrackers );
-              if( failedStateTrackers.Count == 0 )
-              {
-                State = PluginState.Stopping;
-                if( _stateTracker != null )
-                {
-                  try
-                  {
-                    _stateTracker.Stop();
-                  }
-                  catch( Exception e )
-                  {
-                    Log.Warn( "Error stopping plugin state tracker '{0}' in plugin {1}", e,
-                      _stateTracker, LogId );
-                  }
-                  RevokePluginObject( _stateTracker.GetType().FullName );
-                  _stateTracker = null;
-                }
-                _itemManager.StopOpenEndRequests( endRequestsToClose );
-                _itemManager.UnregisterItems();
-                foreach( string builderName in Metadata.ActivationInfo.Builders.Keys )
-                {
-                  object builder = _builderManager.GetBuilder( builderName );
-                  RevokePluginObject( builder.GetType().FullName );
-                  _builderManager.RemoveBuilder( builderName );
-                }
-              }
-              else
-              {
-                Log.Debug( "PluginManager: Cannot disable plugin {0}, because it is still in use by '{1}'",
-                  LogName, failedStateTrackers.Select( failedStateTracker => failedStateTracker.UsageDescription ) );
-                if( _stateTracker != null )
-                  _stateTracker.Continue();
-                _itemManager.ContinueOpenEndRequests( endRequestsToClose );
-                return false;
-              }
-            }
-            State = PluginState.Disabled;
-            return true;
-          default: // invalid current state for requested state change
-            ThrowInvalidStateException( "disable" );
-            return false;
-        }
-      }
-    }
-
-    internal bool Enable()
-    {
-      lock( _syncObj )
-      {
-        switch( State )
-        {
-          case PluginState.Active:
-          case PluginState.Enabled:
-            return true;
-          case PluginState.Available:
-          case PluginState.Disabled:
-            var success = _itemManager.RegisterItems() && _builderManager.CreateBuilderRegistrations( this );
-            if( success )
-              State = PluginState.Enabled;
-            return success;
-          default: // invalid current state for requested state change
-            ThrowInvalidStateException( "enable" );
-            return false;
-        }
-      }
-    }
-
-    internal bool Activate( bool maintenanceMode )
-    {
-      lock( _syncObj )
-      {
-        switch( State )
-        {
-          case PluginState.Active:
-            return true;
-          case PluginState.Available:
-          case PluginState.Disabled:
-            return Enable() && Activate( maintenanceMode );
-          case PluginState.Enabled:
-            if( Metadata.ActivationInfo.StateTrackerClassName != null && !maintenanceMode )
-            {
-              try
-              {
-                object obj = InstantiatePluginObject( Metadata.ActivationInfo.StateTrackerClassName );
-                var stateTracker = obj as IPluginStateTracker;
-                if( obj == null )
-                  Log.Error( "PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin {1}",
-                    Metadata.ActivationInfo.StateTrackerClassName, LogId );
-                else if( stateTracker != null )
-                {
-                  _stateTracker = stateTracker;
-                  try
-                  {
-                    stateTracker.Activated( this );
-                  }
-                  catch( Exception e )
-                  {
-                    Log.Warn( "Error activating plugin state tracker '{0}' in plugin {1}", e, stateTracker, LogId );
-                  }
-                }
-                else
-                {
-                  Log.Error( "PluginManager: Plugin state tracker class '{0}' of plugin {1} doesn't implement interface {3}",
-                    Metadata.ActivationInfo.StateTrackerClassName, LogName, typeof(IPluginStateTracker).Name );
-                  RevokePluginObject( Metadata.ActivationInfo.StateTrackerClassName );
-                }
-              }
-              catch( Exception e )
-              {
-                Log.Error( "PluginManager: Error instantiating plugin state tracker class '{0}' for plugin {1}",
-                  e, Metadata.ActivationInfo.StateTrackerClassName, LogId );
-              }
-            }
-            State = PluginState.Active;
-            return true;
-          default:
-            ThrowInvalidStateException( "activate" );
-            return false;
-        }
-      }
-    }
-
-    private void ThrowInvalidStateException( string action )
-    {
-      var msg = String.Format( "PluginActivator: cannot {0} plugin {1} while it is in state {2}.", action, LogName, State );
-      Log.Error( msg );
-      throw new PluginInvalidStateException( msg );
-    }
-
-    public void Shutdown()
-    {
-      lock( _syncObj )
-      {
-        if( _stateTracker != null )
-        {
-          try
-          {
-            _stateTracker.Shutdown();
-          }
-          catch( Exception e )
-          {
-            Log.Warn( "Error shutting plugin state tracker '{0}' down in plugin {1}", e, _stateTracker, LogId );
-          }
-        }
-      }
-    }
-    #endregion
-
-    #region Internal Metadata Formatters (Logging Helpers)
-    /// <summary>
-    /// Returns a string with the plugins name, version, author and id.
-    /// </summary>
-    internal string LogInfo
-    {
-      get { return _pluginMetadata.LogInfo; }
-    }
-
-    /// <summary>
-    /// Returns a string with the plugins name and id.
-    /// </summary>
-    internal string LogId
-    {
-      get { return _pluginMetadata.LogId; }
-    }
-
-    /// <summary>
-    /// Returns a string with the plugins name.
-    /// </summary>
-    internal string LogName
-    {
-      get { return _pluginMetadata.LogName; }
-    }
-    #endregion
-
-    #region Public properties & methods
+    #region Properties
     /// <summary>
     /// Returns the plugin's metadata.
     /// </summary>
@@ -365,7 +157,209 @@ namespace MediaPortal.Common.PluginManager.Activation
         }
       }
     }
+    #endregion
 
+    #region Enable/Activate/Disable/Shutdown
+    internal bool Disable()
+    {
+      lock( _syncObj )
+      {
+        switch( State )
+        {
+          case PluginState.Disabled:
+            return true;
+          case PluginState.Available:
+            State = PluginState.Disabled;
+            return true;
+          case PluginState.Active:
+          case PluginState.Enabled:
+            if( State == PluginState.Active )
+            {
+              State = PluginState.EndRequest;
+              if( _stateTracker != null && !_stateTracker.RequestEnd() )
+              {
+                Log.Debug( "PluginRuntime: Cannot disable plugin {0} because its state tracker doesn't want to be disabled", LogName );
+                State = PluginState.Active;
+                return false;
+              }
+              IDictionary<PluginItemRegistration, ICollection<IPluginItemStateTracker>> endRequestsToClose;
+              ICollection<IPluginItemStateTracker> failedStateTrackers;
+              _itemManager.PerformEndRequests( out endRequestsToClose, out failedStateTrackers );
+              if( failedStateTrackers.Count == 0 )
+              {
+                State = PluginState.Stopping;
+                if( _stateTracker != null )
+                {
+                  try
+                  {
+                    _stateTracker.Stop();
+                  }
+                  catch( Exception e )
+                  {
+                    Log.Warn( "PluginRuntime: Error stopping plugin state tracker '{0}' in plugin {1}", e,
+                      _stateTracker, LogId );
+                  }
+                  RevokePluginObject( _stateTracker.GetType().FullName );
+                  _stateTracker = null;
+                }
+                _itemManager.StopOpenEndRequests( endRequestsToClose );
+                _itemManager.UnregisterItems();
+                foreach( string builderName in Metadata.ActivationInfo.Builders.Keys )
+                {
+                  object builder = _builderManager.GetBuilder( builderName );
+                  RevokePluginObject( builder.GetType().FullName );
+                  _builderManager.RemoveBuilder( builderName );
+                }
+              }
+              else
+              {
+                Log.Debug( "PluginRuntime: Cannot disable plugin {0}, because it is still in use by '{1}'",
+                  LogName, failedStateTrackers.Select( failedStateTracker => failedStateTracker.UsageDescription ) );
+                if( _stateTracker != null )
+                  _stateTracker.Continue();
+                _itemManager.ContinueOpenEndRequests( endRequestsToClose );
+                return false;
+              }
+            }
+            State = PluginState.Disabled;
+            return true;
+          default: // invalid current state for requested state change
+            ThrowInvalidStateException( "disable" );
+            return false;
+        }
+      }
+    }
+
+    internal bool Enable()
+    {
+      lock( _syncObj )
+      {
+        switch( State )
+        {
+          case PluginState.Active:
+          case PluginState.Enabled:
+            return true;
+          case PluginState.Available:
+          case PluginState.Disabled:
+            var success = _itemManager.RegisterItems() && _builderManager.CreateBuilderRegistrations( this );
+            if( success )
+              State = PluginState.Enabled;
+            return success;
+          default: // invalid current state for requested state change
+            ThrowInvalidStateException( "enable" );
+            return false;
+        }
+      }
+    }
+
+    internal bool Activate( bool maintenanceMode )
+    {
+      lock( _syncObj )
+      {
+        switch( State )
+        {
+          case PluginState.Active:
+            return true;
+          case PluginState.Available:
+          case PluginState.Disabled:
+            return Enable() && Activate( maintenanceMode );
+          case PluginState.Enabled:
+            if( Metadata.ActivationInfo.StateTrackerClassName != null && !maintenanceMode )
+            {
+              try
+              {
+                object obj = InstantiatePluginObject( Metadata.ActivationInfo.StateTrackerClassName );
+                var stateTracker = obj as IPluginStateTracker;
+                if( obj == null )
+                  Log.Error( "PluginRuntime: Couldn't instantiate plugin state tracker class '{0}' for plugin {1}",
+                    Metadata.ActivationInfo.StateTrackerClassName, LogId );
+                else if( stateTracker != null )
+                {
+                  _stateTracker = stateTracker;
+                  try
+                  {
+                    stateTracker.Activated( this );
+                  }
+                  catch( Exception e )
+                  {
+                    Log.Warn( "PluginRuntime: Error activating plugin state tracker '{0}' in plugin {1}", e, stateTracker, LogId );
+                  }
+                }
+                else
+                {
+                  Log.Error( "PluginRuntime: Plugin state tracker class '{0}' of plugin {1} doesn't implement interface {3}",
+                    Metadata.ActivationInfo.StateTrackerClassName, LogName, typeof(IPluginStateTracker).Name );
+                  RevokePluginObject( Metadata.ActivationInfo.StateTrackerClassName );
+                }
+              }
+              catch( Exception e )
+              {
+                Log.Error( "PluginRuntime: Error instantiating plugin state tracker class '{0}' for plugin {1}",
+                  e, Metadata.ActivationInfo.StateTrackerClassName, LogId );
+              }
+            }
+            State = PluginState.Active;
+            return true;
+          default:
+            ThrowInvalidStateException( "activate" );
+            return false;
+        }
+      }
+    }
+
+    internal void Shutdown()
+    {
+      lock( _syncObj )
+      {
+        if( _stateTracker != null )
+        {
+          try
+          {
+            _stateTracker.Shutdown();
+          }
+          catch( Exception e )
+          {
+            Log.Warn( "PluginRuntime: Error shutting down plugin state tracker '{0}' for plugin {1}", e, _stateTracker, LogId );
+          }
+        }
+      }
+    }
+
+    private void ThrowInvalidStateException( string action )
+    {
+      var msg = String.Format( "PluginRuntime: Cannot {0} plugin {1} while it is in state {2}.", action, LogName, State );
+      Log.Error( msg );
+      throw new PluginInvalidStateException( msg );
+    }
+    #endregion
+
+    #region Internal Metadata Formatters (Logging Helpers)
+    /// <summary>
+    /// Returns a string with the plugins name, version, author and id.
+    /// </summary>
+    internal string LogInfo
+    {
+      get { return _pluginMetadata.LogInfo; }
+    }
+
+    /// <summary>
+    /// Returns a string with the plugins name and id.
+    /// </summary>
+    internal string LogId
+    {
+      get { return _pluginMetadata.LogId; }
+    }
+
+    /// <summary>
+    /// Returns a string with the plugins name.
+    /// </summary>
+    internal string LogName
+    {
+      get { return _pluginMetadata.LogName; }
+    }
+    #endregion
+
+    #region Object Access (GetPluginType, Instantiate/Revoke PluginObject)
     /// <summary>
     /// Returns instances of types which are implemented in this plugin's assemblies.
     /// </summary>
@@ -509,7 +503,7 @@ namespace MediaPortal.Common.PluginManager.Activation
         }
         catch( Exception e )
         {
-          Log.Error( "Error revoking usage of item '{0}' at location '{1}' (item builder is '{2}')", e,
+          Log.Error( "PluginRuntime: Error revoking usage of item '{0}' at location '{1}' (item builder is '{2}')", e,
             itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation, itemRegistration.Metadata.BuilderName );
         }
       }

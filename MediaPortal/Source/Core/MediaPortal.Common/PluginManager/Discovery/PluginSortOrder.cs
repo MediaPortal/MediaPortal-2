@@ -22,6 +22,10 @@
 
 namespace MediaPortal.Common.PluginManager.Discovery
 {
+  /// <summary>
+  /// Specifies the order in which plugins are returned when requested from
+  /// the <see cref="PluginRepository"/>.
+  /// </summary>
   public enum PluginSortOrder
   {
     DependenciesFirst, // use when enabling

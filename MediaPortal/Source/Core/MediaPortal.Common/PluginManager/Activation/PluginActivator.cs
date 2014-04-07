@@ -35,19 +35,16 @@ using MediaPortal.Common.PluginManager.Models;
 namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
-  /// 
+  /// This class is responsible for orchestrating plugin state changes. It uses the
+  /// <see cref="PluginRepository"/> to locate available plugins, and manages the overall
+  /// intialization, startup and shutdown sequences for plugins. The <see cref="PluginActivator"/>
+  /// class automatically performs appropriate actions for all plugin dependencies affected by 
+  /// a state change operation. The class is thread-safe.
+  /// The logic to perform state transitions for a single plugin is handled by the
+  /// <see cref="PluginRuntime"/> class, which also maintains the plugins <see cref="PluginState"/>.
   /// </summary>
   internal class PluginActivator
   {
-    #region Nested Classes and Structs
-    private enum PluginStateChange
-    {
-      Enable,
-      Activate,
-      Disable
-    }
-    #endregion
-
     #region Fields
     private readonly PluginRepository _repository;
     private readonly PluginBuilderManager _builderManager;

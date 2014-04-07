@@ -92,12 +92,20 @@ namespace MediaPortal.Common.Services.Registry
 
     public IDictionary<string, IRegistryNode> SubNodes
     {
-      get { return _subNodes; }
+      get
+      {
+        lock( _syncObj )
+          return _subNodes.ToDictionary( p => p.Key, p => p.Value );
+      }
     }
 
     public IDictionary<string, object> Items
     {
-      get { return _items; }
+      get
+      {
+        lock( _syncObj )
+          return _items.ToDictionary( p => p.Key, p => p.Value );
+      }
     }
 
     public IRegistryNode GetSubNodeByPath(string path, bool createOnNotExist)

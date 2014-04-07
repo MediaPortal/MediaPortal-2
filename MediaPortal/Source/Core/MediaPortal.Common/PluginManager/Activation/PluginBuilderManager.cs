@@ -34,12 +34,13 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
-  /// This class is responsible for maintaining builder registrations, including creating builders. 
+  /// This class is responsible for maintaining builder registrations, including creating builders. It is
+  /// intended for use internally by the plugin subsystem only. The class is thread-safe.
   /// </summary>
   internal class PluginBuilderManager
   {
     #region Fields
-    private ConcurrentDictionary<string, PluginBuilderRegistration> _builders = new ConcurrentDictionary<string, PluginBuilderRegistration>();
+    private readonly ConcurrentDictionary<string, PluginBuilderRegistration> _builders = new ConcurrentDictionary<string, PluginBuilderRegistration>();
     #endregion
 
     #region Ctor
@@ -52,8 +53,8 @@ namespace MediaPortal.Common.PluginManager.Activation
     }
     #endregion
 
-    #region Registration
-    public bool RegisterSystemPluginItemBuilder( string builderName, IPluginItemBuilder builderInstance )
+    #region Registration (RegisterSystemPluginItemBuilder, CreateBuilderRegistrations)
+    internal bool RegisterSystemPluginItemBuilder( string builderName, IPluginItemBuilder builderInstance )
     {
       var item = CreateSystemBuilderRegistration( builderName, builderInstance );
       return _builders.TryAdd( item.Key, item.Value );
@@ -64,7 +65,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <paramref name="plugin"/>.
     /// </summary>
     /// <param name="plugin">The plugin to take the builders from.</param>
-    /// <returns>Dictionary of builder name to builder registration mappings.</returns>
+    /// <returns>True if the builders were successfully registered, false otherwise.</returns>
     internal bool CreateBuilderRegistrations( PluginRuntime plugin )
     {
       try
@@ -74,17 +75,24 @@ namespace MediaPortal.Common.PluginManager.Activation
         {
           var builder = new PluginBuilderRegistration( pair.Key, pair.Value, plugin );
           if( !_builders.TryAdd( pair.Key, builder ) )
-            throw new Exception( "TODO" ); // TODO
+          {
+            Log.Error( "PluginBuilderManager: Error registering builder '{0}' for plugin {1}.", pair.Key, plugin.LogName );
+            return false;
+          }
         }
-        // Check if builder dependencies are explicitly named (has to be done after dependencies are loaded - builders could be added by dependent plugins)
+        // check if builder dependencies are explicitly declared (has to be done after dependencies are 
+        // loaded, as builders could be added by dependent plugins)
         return CheckDependencyDeclarations( plugin.Metadata as PluginMetadata );
       }
-      catch( Exception ) // TODO
+      catch( Exception ex )
       {
+        Log.Error( "PluginBuilderManager: An unspecified error occurred while registering builders for plugin {0}.", ex, plugin.LogName );
         return false;
       }
     }
+    #endregion
 
+    #region Private Helpers (CreateSystemBuilderRegistration, GetDefaultBuilders)
     private KeyValuePair<string, PluginBuilderRegistration> CreateSystemBuilderRegistration(
       string builderName, IPluginItemBuilder builderInstance )
     {
@@ -106,8 +114,8 @@ namespace MediaPortal.Common.PluginManager.Activation
     }
     #endregion
 
-    #region Access
-    public IPluginItemBuilder GetBuilder( string builderName )
+    #region Builder Access (GetBuilder, GetOrCreateBuilder)
+    internal IPluginItemBuilder GetBuilder( string builderName )
     {
       PluginBuilderRegistration builderRegistration;
       if( !_builders.TryGetValue( builderName, out builderRegistration ) )
@@ -147,8 +155,8 @@ namespace MediaPortal.Common.PluginManager.Activation
     }
     #endregion
 
-    #region Remove
-    public void RemoveBuilder( string builderName )
+    #region Remove (RemoveBuilder)
+    internal void RemoveBuilder( string builderName )
     {
       PluginBuilderRegistration builderRegistration;
       if( !_builders.TryRemove( builderName, out builderRegistration ) )
@@ -157,34 +165,35 @@ namespace MediaPortal.Common.PluginManager.Activation
     #endregion
 
     #region Validation
+    /// <summary>
+    /// Verifies that all builders required by <param name="plugin" /> are available. It also verifies
+    /// that only builders from plugins declared as dependencies are used (without this check it would
+    /// be possible for plugins to omit dependency declarations, which could result in errors if a
+    /// dependency is later removed or disabled).
+    /// </summary>
+    /// <param name="plugin">The plugin to verify.</param>
+    /// <returns>True if all checks pass and false otherwise.</returns>
     internal bool CheckDependencyDeclarations( PluginMetadata plugin )
     {
       foreach( string builderName in plugin.ActivationInfo.GetNecessaryBuilders() )
       {
-        // Check if all plugins providing required builders are explicitly named as dependencies.
-        // We require this check, because we want to ensure the plugin will run once it is enabled.
-        // If we wouldn't force the plugin to place an explicit dependency on all its builder plugins,
-        // some of the builder plugins could be removed and the new plugin would fail creating items.
-        if( plugin.ActivationInfo.Builders.Keys.Contains( builderName ) )
-          // Builder is provided by the plugin itself
+        if( plugin.ActivationInfo.Builders.Keys.Contains( builderName ) ) // builder is provided by the plugin itself
           continue;
 
         PluginBuilderRegistration builderRegistration;
         if( !_builders.TryGetValue( builderName, out builderRegistration ) )
         {
-          Log.Warn( "Plugin {0}: Builder '{1}' is not available - plugin won't be enabled", plugin.Name, builderName );
+          Log.Warn( "PluginBuilderManager: Plugin {0} requires builder '{1}', which is not available (the plugin cannot be enabled).", plugin.LogName, builderName );
           return false;
         }
 
-        // TODO may need something else here, as we're trying to uncouple metadata checks from runtime things
-        if( builderRegistration.PluginRuntime == null )
-          // Builder is a default builder
+        if( builderRegistration.PluginRuntime == null ) // builder is a default builder
           continue;
 
         if( !plugin.DependencyInfo.DependsOn.Any( d => !d.IsCoreDependency && d.PluginId == builderRegistration.PluginRuntime.Metadata.PluginId ) )
         {
-          Log.Error( "Plugin {0}: Builder '{1}' (implemented by plugin '{2}') is used, but this plugin dependency is not explicitly specified.",
-            plugin.Name, builderName, builderRegistration.PluginRuntime.Metadata.Name );
+          Log.Error( "PluginBuilderManager: Plugin {0} uses builder '{1}' from plugin {2}, but does not declare it as a dependency (this error will prevent the plugin from being enabled).",
+            plugin.LogName, builderName, builderRegistration.PluginRuntime.LogName );
           return false;
         }
       }

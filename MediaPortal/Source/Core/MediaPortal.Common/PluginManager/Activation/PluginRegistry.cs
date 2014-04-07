@@ -29,25 +29,20 @@ using System.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Registry;
+using MediaPortal.Common.Services.Registry;
 
 namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
   /// This class is responsible for all registry operations for plugins. It contains no state
-  /// and is thread-safe only to the extent provided by the accessed registry content. Access
-  /// to registry itself should be thread-safe (not sure about node.Items and other return 
-  /// values though).
+  /// and is thread-safe only to the extent provided by the accessed registry content. 
+  /// It relies on access to registry, including reading from <see cref="RegistryNode"/> 
+  /// properties (such as the Items or SubNodes dictionaries), being thread-safe.
   /// </summary>
   internal class PluginRegistry
   {
     #region Fields
     private const string ITEMCHANGELISTENER_ID = "PLUGIN_ITEM_CHANGE_LISTENERS";
-    #endregion
-
-    #region Ctor
-    public PluginRegistry()
-    {
-    }
     #endregion
 
     #region Item Metadata Lookup
@@ -162,9 +157,6 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// Returns the item registration instance for the specified <paramref name="location"/> and the specified
     /// <paramref name="id"/>.
     /// </summary>
-    /// <remarks>
-    /// The plugin manager's synchronization object must be locked when this method is called.
-    /// </remarks>
     /// <param name="location">Registration location of the requested item registration instance.</param>
     /// <param name="id">Id of the requested item registration instance.</param>
     /// <returns>Requested item registration instance, if it exists.</returns>
@@ -179,9 +171,6 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <summary>
     /// Returns all item registration instances for the specified <paramref name="location"/>.
     /// </summary>
-    /// <remarks>
-    /// The plugin manager's synchronization object must be locked when this method is called.
-    /// </remarks>
     /// <param name="location">Registration location of the requested item registration instances.</param>
     /// <returns>Collection of item registration instances at the specified location.</returns>
     internal ICollection<PluginItemRegistration> GetItemRegistrations(string location)
@@ -196,9 +185,6 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <summary>
     /// Returns a collection of available child locations of the given <paramref name="location"/>.
     /// </summary>
-    /// <remarks>
-    /// The plugin manager's synchronization object must be locked when this method is called.
-    /// </remarks>
     /// <param name="location">Location for that the child locations should be returned.</param>
     /// <returns>Collection of child locations of the given parent <paramref name="location"/>.</returns>
     internal ICollection<string> GetAvailableChildLocations(string location)
@@ -275,9 +261,6 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// Adds the specified item registration change <paramref name="listener"/> which will be notified
     /// when items are registered at the specified <paramref name="location"/>.
     /// </summary>
-    /// <remarks>
-    /// The plugin manager's synchronization object must be locked when this method is called.
-    /// </remarks>
     /// <param name="location">Location to add the listener to. The added <paramref name="listener"/> will
     /// be called when items are added to or removed from this location in the plugin tree.</param>
     /// <param name="listener">The listener to add.</param>
@@ -291,9 +274,6 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// Removes the specified change <paramref name="listener"/> instance from the specified
     /// <paramref name="location"/>.
     /// </summary>
-    /// <remarks>
-    /// The plugin manager's synchronization object must be locked when this method is called.
-    /// </remarks>
     /// <param name="location">Location to remove the listener from.</param>
     /// <param name="listener">The listener to remove.</param>
     internal void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
@@ -309,9 +289,6 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// </summary>
     /// <param name="location">Location to return the listeners for.</param>
     /// <param name="createOnNotExist">If set to <c>true</c>, the plugin tree node will be created, if it doesn't exist.</param>
-    /// <remarks>
-    /// The plugin manager's synchronization object must be locked when this method is called.
-    /// </remarks>
     private ICollection<IItemRegistrationChangeListener> GetListenersForLocation(string location, bool createOnNotExist)
     {
       IRegistryNode node = GetRegistryNode(location, createOnNotExist);
@@ -329,7 +306,12 @@ namespace MediaPortal.Common.PluginManager.Activation
       return null;
     }
 
-    public void NotifyItemsChanged( Dictionary<string, ICollection<PluginItemMetadata>> changedLocations, bool added )
+    /// <summary>
+    /// Notifies registered listeners that items have been added or removed.
+    /// </summary>
+    /// <param name="changedLocations">The locations that have been modified.</param>
+    /// <param name="added"><c>True</c> if items were added and <c>false</c> if items were removed.</param>
+    internal void NotifyItemsChanged( Dictionary<string, ICollection<PluginItemMetadata>> changedLocations, bool added )
     {
       foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
       {

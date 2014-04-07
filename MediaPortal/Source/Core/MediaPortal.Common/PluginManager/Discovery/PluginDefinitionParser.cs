@@ -30,7 +30,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Models;
 using MediaPortal.Utilities;
-using CollectionExtensions = MediaPortal.Common.General.CollectionExtensions;
 
 namespace MediaPortal.Common.PluginManager.Discovery
 {
@@ -39,11 +38,13 @@ namespace MediaPortal.Common.PluginManager.Discovery
   /// </summary>
   public static class PluginDefinitionParserExtensions
   {
+    #region Constants
     public const string PLUGIN_META_FILE = "plugin.xml";
-
     public const int PLUGIN_DESCRIPTOR_VERSION_MAJOR = 1;
     public const int MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR = 0;
+    #endregion
 
+    #region Path Helpers
     private static string PluginDefinitionFilePath( this string pluginDirectoryPath )
     {
       return Path.Combine( pluginDirectoryPath, PLUGIN_META_FILE );
@@ -59,7 +60,9 @@ namespace MediaPortal.Common.PluginManager.Discovery
       if( !definitionFileExists )
         throw new ArgumentException("Directory '" + path + "' does not have a plugin descriptor file (plugin.xml).");
     }
+    #endregion
 
+    #region TryParsePluginDefinition
     public static bool TryParsePluginDefinition( this string pluginDirectoryPath, out PluginMetadata pluginMetadata )
     {
       pluginDirectoryPath.VerifyIsPluginDirectory();
@@ -191,6 +194,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
       pluginMetadata = model;
       return true;
     }
+    #endregion
 
     #region Parsing helper methods
     /// <summary>

@@ -54,7 +54,8 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// The plugin is enabled.
     /// The plugin state tracker might not be instantiated yet in this state.
     /// Enabled plugins are ready to be activated at any time.
-    /// Plugin items (classes, resources) may be requested from the plugin in this state.
+    /// Plugin items (classes, resources) may be requested from the plugin in this state (the
+    /// plugin will be activated if an item is requested).
     /// </summary>
     Enabled,
 
