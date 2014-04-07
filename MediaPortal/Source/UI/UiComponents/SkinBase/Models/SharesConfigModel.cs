@@ -594,30 +594,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
         bool multipleSources = _enableLocalShares && _enableServerShares;
         if (_enableLocalShares)
-        {
-          ResourceProviderMetadata.SystemAffinity affinity = ResourceProviderMetadata.SystemAffinity.Client;
-          if (!_isAttached)
-            affinity |= ResourceProviderMetadata.SystemAffinity.DetachedClient;
-
-          ListItem localSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_LOCAL_SHARE);
-          LocalShares proxy = new LocalShares { SystemAffinity = affinity, MultipleSources = multipleSources };
-          proxy.UpdateResourceProvidersList();
-          proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
-          localSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
-          localSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
-          _systemsList.Add(localSystemItem);
-        }
+          CreateLocalShareRPs(multipleSources);
 
         if (_enableServerShares)
-        {
-          ListItem serverSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_GLOBAL_SHARE);
-          ServerShares proxy = new ServerShares { SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server, MultipleSources = multipleSources };
-          proxy.UpdateResourceProvidersList();
-          proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
-          serverSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
-          serverSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
-          _systemsList.Add(serverSystemItem);
-        }
+          CreateServerShareRPs(multipleSources);
 
         if (_systemsList.Count > 0)
           _systemsList[0].Selected = true;
@@ -625,6 +605,69 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       // Call once after list is initialized, this is required for single options only and to avoid locking issues for callback while filling _systemsList.
       UpdateProviderSelected();
       _systemsList.FireChange();
+    }
+
+    protected void UpdateSystemsListForEditShare_NoLock()
+    {
+      lock (_syncObj)
+      {
+        IsResourceProviderSelected = false;
+        _systemsList = new ItemsList();
+
+        if (ShareProxy is LocalShares)
+          CreateLocalShareRPs(false, true);
+
+        if (ShareProxy is ServerShares)
+          CreateServerShareRPs(false, true);
+
+        if (_systemsList.Count > 0)
+          _systemsList[0].Selected = true;
+      }
+      // Call once after list is initialized, this is required for single options only and to avoid locking issues for callback while filling _systemsList.
+      UpdateProviderSelected();
+      _systemsList.FireChange();
+    }
+
+    private void CreateServerShareRPs(bool multipleSources, bool useCurrent = false)
+    {
+      ListItem serverSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_GLOBAL_SHARE);
+      ServerShares proxy;
+      if (useCurrent && _shareProxy is ServerShares)
+      {
+        proxy = (ServerShares)_shareProxy;
+        proxy.SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server;
+      }
+      else
+        proxy = new ServerShares { SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server, MultipleSources = multipleSources };
+
+      proxy.UpdateResourceProvidersList();
+      proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
+      serverSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
+      serverSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
+      _systemsList.Add(serverSystemItem);
+    }
+
+    private void CreateLocalShareRPs(bool multipleSources, bool useCurrent = false)
+    {
+      ResourceProviderMetadata.SystemAffinity affinity = ResourceProviderMetadata.SystemAffinity.Client;
+      if (!_isAttached)
+        affinity |= ResourceProviderMetadata.SystemAffinity.DetachedClient;
+
+      ListItem localSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_LOCAL_SHARE);
+      LocalShares proxy;
+      if (useCurrent && _shareProxy is LocalShares)
+      {
+        proxy = (LocalShares)_shareProxy;
+        proxy.SystemAffinity = ResourceProviderMetadata.SystemAffinity.Client;
+      }
+      else
+        proxy = new LocalShares { SystemAffinity = affinity, MultipleSources = multipleSources };
+
+      proxy.UpdateResourceProvidersList();
+      proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
+      localSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
+      localSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
+      _systemsList.Add(localSystemItem);
     }
 
     protected internal void UpdateSharesLists_NoLock(bool create)
@@ -813,7 +856,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER)
         {
           // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
-          _shareProxy.UpdateResourceProvidersList();
+          UpdateSystemsListForEditShare_NoLock();
         }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_EDIT_PATH)
         {
