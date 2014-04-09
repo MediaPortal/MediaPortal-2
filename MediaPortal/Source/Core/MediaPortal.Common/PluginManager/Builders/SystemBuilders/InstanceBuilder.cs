@@ -22,38 +22,40 @@
 
 #endregion
 
-using System;
-using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
-namespace MediaPortal.Common.PluginItemBuilders
+namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
 {
-  public class MIATypeRegistration
+  /// <summary>
+  /// Builds an item of type "Instance". The "Instance" item type provides an instance of a
+  /// specified class which will be loaded from the plugin's assemblies.
+  /// </summary>
+  /// <remarks>
+  /// The item registration has to provide the parameter "ClassName" which holds the fully
+  /// qualified name of the class to instantiate:
+  /// <example>
+  /// &lt;Instance ClassName="Foo.Bar"/&gt;
+  /// </example>
+  /// </remarks>
+  public class InstanceBuilder : IPluginItemBuilder
   {
-    public Guid MediaItemAspectTypeId;
-  }
-
-  public class MIATypeRegistrationBuilder : IPluginItemBuilder
-  {
-    #region IPluginItemBuilder Member
-
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("MediaItemAspectTypeId", itemData);
-      return new MIATypeRegistration { MediaItemAspectTypeId = new Guid(itemData.Attributes["MediaItemAspectTypeId"]) };
+      itemData.CheckParameter("ClassName");
+      return plugin.InstantiatePluginObject(itemData.Attributes["ClassName"]);
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      // Nothing to do
+      if (item == null)
+        return;
+      plugin.RevokePluginObject(item.GetType().FullName);
     }
 
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       return true;
     }
-
-    #endregion
   }
 }

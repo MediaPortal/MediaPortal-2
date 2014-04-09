@@ -25,7 +25,8 @@
 using System;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Extensions
 {
@@ -40,8 +41,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Extensions
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("Caption", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("Caption");
       return new SlimTvProgramExtension(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Caption"], itemData.Id);
     }
 

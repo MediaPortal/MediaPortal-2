@@ -36,6 +36,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Models;

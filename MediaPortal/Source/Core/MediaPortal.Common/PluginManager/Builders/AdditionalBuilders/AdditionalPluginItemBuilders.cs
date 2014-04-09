@@ -22,36 +22,20 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Common.Settings;
-
-namespace MediaPortal.Common.Services.PluginManager
+namespace MediaPortal.Common.PluginManager.Builders.AdditionalBuilders
 {
-  public class PluginManagerSettings
+  /// <summary>
+  /// This class registers additional plugin item builders at the <see cref="IPluginManager">plugin manager</see> which
+  /// are provided by the <c>MediaPortal.Common</c> project.
+  /// </summary>
+  public class AdditionalPluginItemBuilders
   {
-    #region Protected properties
+    public const string MIA_TYPE_REGISTRATION_BUILDER_NAME = "MIATypeRegistration";
 
-    protected List<Guid> _userDisabledPlugins = new List<Guid>();
-
-    #endregion
-
-    public void AddUserDisabledPlugin(Guid pluginId)
+    public static void Register()
     {
-      if (!_userDisabledPlugins.Contains(pluginId))
-        _userDisabledPlugins.Add(pluginId);
-    }
-
-    public void RemoveUserDisabledPlugin(Guid pluginId)
-    {
-      _userDisabledPlugins.Remove(pluginId);
-    }
-
-    [Setting(SettingScope.User)]
-    public List<Guid> UserDisabledPlugins
-    {
-      get { return _userDisabledPlugins; }
-      set { _userDisabledPlugins = value; }
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      pluginManager.RegisterSystemPluginItemBuilder(MIA_TYPE_REGISTRATION_BUILDER_NAME, new MIATypeRegistrationBuilder());
     }
   }
 }

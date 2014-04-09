@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace MediaPortal.Common.PluginManager
+using MediaPortal.Common.PluginManager.Activation;
+
+namespace MediaPortal.Common.PluginManager.Items
 {
   /// <summary>
   /// Interface with handshake methods to query the stopping process of a plugin. Implementors

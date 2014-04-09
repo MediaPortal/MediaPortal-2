@@ -26,6 +26,9 @@ using System;
 
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
+  /// <summary>
+  /// Exception thrown when the plugin definition file is invalid.
+  /// </summary>
   public class PluginInvalidMetadataException : PluginManagerException
   {
     public PluginInvalidMetadataException(string msg, params object[] args):

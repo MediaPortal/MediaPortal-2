@@ -26,11 +26,14 @@ using System;
 
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
-  public class PluginLockException : PluginManagerException
+  /// <summary>
+  /// Exception thrown when a builder declared by a plugin couldn't be created.
+  /// </summary>
+  public class PluginBuilderException : PluginManagerException
   {
-    public PluginLockException(string msg, params object[] args):
+    public PluginBuilderException(string msg, params object[] args):
       base(msg, args) { }
-    public PluginLockException(string msg, Exception ex, params object[] args):
+    public PluginBuilderException(string msg, Exception ex, params object[] args):
       base(msg, ex, args) { }
   }
 }

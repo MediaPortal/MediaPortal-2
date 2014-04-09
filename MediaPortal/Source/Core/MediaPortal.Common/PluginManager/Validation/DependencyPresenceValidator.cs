@@ -33,19 +33,35 @@ namespace MediaPortal.Common.PluginManager.Validation
   /// </summary>
   public class DependencyPresenceValidator : IValidator
   {
+    #region Fields
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _availablePlugins;
+    #endregion
 
+    #region Ctor
     public DependencyPresenceValidator( ConcurrentDictionary<Guid, PluginMetadata> availablePlugins )
     {
       _availablePlugins = availablePlugins;
-    }
+    } 
+    #endregion
 
+    #region IValidate
+    /// <summary>
+    /// Validates the given <paramref name="plugin"/> by checking for missing dependencies,
+    /// both those declared directly by the plugin and those indirectly references through
+    /// the dependencies. Currently disabled plugins are considered during validation, and
+    /// the fact that they are disabled does not make them count as a missing dependency.
+    /// </summary>
+    /// <param name="plugin">The plugin to validate.</param>
+    /// <returns>A set of plugin ids found to be missing, or an empty set if no missing
+    /// dependencies were found.</returns>
     public HashSet<Guid> Validate( PluginMetadata plugin )
     {
       return FindMissingDependencies( plugin, new HashSet<Guid>() );
     }
+    #endregion
 
-    private HashSet<Guid> FindMissingDependencies( IPluginMetadata plugin, HashSet<Guid> verifiedPlugins )
+    #region Validation Implementation (FindMissingDependencies)
+    private HashSet<Guid> FindMissingDependencies( PluginMetadata plugin, HashSet<Guid> verifiedPlugins )
     {
       var result = new HashSet<Guid>();
       verifiedPlugins.Add( plugin.PluginId );
@@ -55,10 +71,11 @@ namespace MediaPortal.Common.PluginManager.Validation
         PluginMetadata pluginDependency;
         if( !_availablePlugins.TryGetValue( dependency.PluginId, out pluginDependency ) )
           result.Add( dependency.PluginId );
-        else
+        else // TODO we could optimize performance by adopting the stack-based algorithm from PluginActivator.TryChangePluginState
           result.UnionWith( FindMissingDependencies( pluginDependency, verifiedPlugins ) );
       }
       return result;
     }
+    #endregion
   }
 }

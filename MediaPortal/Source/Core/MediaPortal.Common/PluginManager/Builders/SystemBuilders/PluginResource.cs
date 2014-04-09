@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Common.Services.PluginManager
+namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
 {
   public enum PluginResourceType
   {

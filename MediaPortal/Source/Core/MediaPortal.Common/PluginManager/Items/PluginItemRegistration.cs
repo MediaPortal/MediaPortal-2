@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Common.PluginManager.Activation;
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Items
 {
   /// <summary>
   /// Plugin item registration class. Instances of this class are registered in the registry at the items

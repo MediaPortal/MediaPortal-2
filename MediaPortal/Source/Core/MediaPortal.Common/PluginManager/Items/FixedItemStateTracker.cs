@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Items
 {
   /// <summary>
   /// Default implementation of a plugin item state tracker which will prevent to reject the item

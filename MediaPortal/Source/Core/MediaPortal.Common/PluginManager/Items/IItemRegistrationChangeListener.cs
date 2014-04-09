@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Items
 {
   /// <summary>
   /// Interface for a change listener which gets called when plugin item registrations change.

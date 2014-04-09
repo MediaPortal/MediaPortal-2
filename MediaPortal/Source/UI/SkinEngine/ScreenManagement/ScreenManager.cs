@@ -30,6 +30,7 @@ using System.Threading;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.UiNotifications;

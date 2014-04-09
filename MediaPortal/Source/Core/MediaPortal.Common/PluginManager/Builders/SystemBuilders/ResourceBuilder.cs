@@ -22,40 +22,43 @@
 
 #endregion
 
-using MediaPortal.Common.PluginManager;
+using System;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Items;
+using MediaPortal.Common.Services.PluginManager;
 
-namespace MediaPortal.Common.Services.PluginManager.Builders
+namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
 {
   /// <summary>
-  /// Builds an item of type "Instance". The "Instance" item type provides an instance of a
-  /// specified class which will be loaded from the plugin's assemblies.
+  /// Builds an item of type "Resource". The resource item type provides access to a resource
+  /// directory which is provided by a plugin.
   /// </summary>
   /// <remarks>
-  /// The item registration has to provide the parameter "ClassName" which holds the fully
-  /// qualified name of the class to instantiate:
+  /// The item registration has to provide the parameters "Type" and "Directory":
   /// <example>
-  /// &lt;Instance ClassName="Foo.Bar"/&gt;
+  /// &lt;Resource Type="Skin" Directory="Skin"/&gt;
   /// </example>
+  /// The values for the "Type" parameter come from the type <see cref="PluginResourceType"/>.
   /// </remarks>
-  public class InstanceBuilder : IPluginItemBuilder
+  public class ResourceBuilder : IPluginItemBuilder
   {
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      return plugin.InstantiatePluginObject(itemData.Attributes["ClassName"]);
+      itemData.CheckParameter("Type");
+      itemData.CheckParameter("Directory");
+      return new PluginResource(
+          (PluginResourceType) Enum.Parse(typeof (PluginResourceType), itemData.Attributes["Type"]),
+          plugin.Metadata.SourceInfo.GetAbsolutePath(itemData.Attributes["Directory"]));
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      if (item == null)
-        return;
-      plugin.RevokePluginObject(item.GetType().FullName);
+      // Nothing to do here
     }
 
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      return true;
+      return false;
     }
   }
 }

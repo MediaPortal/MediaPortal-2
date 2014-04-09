@@ -29,6 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {

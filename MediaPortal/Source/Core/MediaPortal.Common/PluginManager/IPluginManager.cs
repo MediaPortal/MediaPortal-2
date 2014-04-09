@@ -27,35 +27,24 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.PluginManager.Models;
 
 namespace MediaPortal.Common.PluginManager
 {
-  public enum PluginManagerState
-  {
-    Uninitialized,
-    Initializing,
-    Starting,
-    Running,
-    ShuttingDown
-  }
-
   /// <summary>
   /// Interface to access the MediaPortal plugin manager. It exposes the globally available methods
-  /// to be called from throughout the application.
+  /// to be called from throughout the application, and provides a single point of access to the
+  /// plugin subsystem.
   /// </summary>
   /// <remarks>
-  /// The plugin manager is responsible for managing all installed plugins. It resolves plugin conflicts,
-  /// defines the load order and manages the lifecycle of the plugins.
-  /// Its external interface provides methods to access items by their registration location and id.
-  /// Plugin items will be lazily built. At the time an item is requested, it will be built if it was not
-  /// built yet.
-  /// TODO: Document multithreading.
-  /// We need to make all methods able to be called while holding locks, e.g. requesting/revoking plugin items.
-  /// So if we let all methods be called while other locks are held, we mustn't call other components in a synchronous
-  /// way (e.g. callbacks for removing plugin items), so we must make them asynchronous.
-  /// So, methods like start/stop plugin must be made asynchronous.
+  /// The <see cref="PluginManager"/> class implementing this interface is a thin shell that
+  /// delegates all requests to other classes in the plugin subsystem. It exists solely to make
+  /// it easier to interact with plugins and the plugin subsystem, and provides no logic of its
+  /// own. The <see cref="PluginManager"/> class is thread-safe (this includes all the classes
+  /// to which it delegates the various operations).
   /// </remarks>
   public interface IPluginManager
   {
@@ -109,7 +98,7 @@ namespace MediaPortal.Common.PluginManager
     /// Adds a plugin to the <see cref="AvailablePlugins"/> collection during runtime.
     /// </summary>
     /// <param name="pluginMetadata">The new plugin's metadata instance.</param>
-    PluginRuntime AddPlugin(IPluginMetadata pluginMetadata);
+    PluginRuntime AddPlugin(PluginMetadata pluginMetadata);
 
     /// <summary>
     /// Tries to enable the plugin with the specified <paramref name="pluginId"/>. The plugin will be
@@ -122,7 +111,6 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="activate">If set to <c>true</c>, the plugin will be activated at once.</param>
     /// <returns><c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
     /// is already enabled or activated, the return value will be <c>true</c>.</returns>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     bool TryStartPlugin(Guid pluginId, bool activate);
 
     /// <summary>
@@ -133,7 +121,6 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="pluginId">The id of the plugin to be stopped.</param>
     /// <returns><c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
     /// is already disabled, the return value will be <c>true</c>.</returns>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     bool TryStopPlugin(Guid pluginId);
 
     /// <summary>
@@ -189,7 +176,6 @@ namespace MediaPortal.Common.PluginManager
     /// If the requested item doesn't have type <see cref="T"/>, the item will be loaded anyhow,
     /// but in this case, the <paramref name="stateTracker"/> won't be registered at the item.
     /// </remarks>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     /// <seealso cref="RequestAllPluginItems{T}"/>
     T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class;
@@ -203,7 +189,6 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="stateTracker">Instance used to track the item's state.</param>
     /// <returns>The plugin item instance or <c>null</c>, if an item with the specified
     /// criteria was not registered.</returns>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker);
 
@@ -222,7 +207,6 @@ namespace MediaPortal.Common.PluginManager
     /// All items at the specified <paramref name="location"/> will be loaded. For those items which don't have
     /// type <see cref="T"/>, the <paramref name="stateTracker"/> won't be registered.
     /// </remarks>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class;
 
@@ -233,7 +217,6 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="type">Class of the requested items.</param>
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker);
 
@@ -246,7 +229,6 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="id">Id which was used to register the item to revoke.</param>
     /// <param name="stateTracker">State tracker instance which was registered by the call to
     /// <see cref="RequestPluginItem{T}"/> or <see cref="RequestAllPluginItems{T}"/> before.</param>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker);
 
     /// <summary>
@@ -257,7 +239,6 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="location">Registration location of the items to revoke.</param>
     /// <param name="stateTracker">State tracker instance which was registered by the call to
     /// <see cref="RequestAllPluginItems{T}"/> before.</param>
-    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker);
 
     /// <summary>

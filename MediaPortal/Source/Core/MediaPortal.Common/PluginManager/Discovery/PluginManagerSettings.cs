@@ -22,22 +22,37 @@
 
 #endregion
 
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.PluginManager.Exceptions;
+using System;
+using System.Collections.Generic;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Common.Services.PluginManager.Builders
+namespace MediaPortal.Common.PluginManager.Discovery
 {
   /// <summary>
-  /// Provides helper methods for plugin item builders.
+  /// Settings class used to persist information on plugin states between system restarts.
   /// </summary>
-  public abstract class BuilderHelper
+  public class PluginManagerSettings
   {
-    public static void CheckParameter(string parameterName, PluginItemMetadata itemData)
+    #region Fields
+    protected List<Guid> _userDisabledPlugins = new List<Guid>();
+    #endregion
+
+    public void AddUserDisabledPlugin(Guid pluginId)
     {
-      if (!itemData.Attributes.ContainsKey(parameterName))
-        throw new PluginItemBuildException(
-            "'{0}' item at registration location '{1}' needs to specify the '{2}' parameter",
-                itemData.BuilderName, itemData.RegistrationLocation, parameterName);
+      if (!_userDisabledPlugins.Contains(pluginId))
+        _userDisabledPlugins.Add(pluginId);
+    }
+
+    public void RemoveUserDisabledPlugin(Guid pluginId)
+    {
+      _userDisabledPlugins.Remove(pluginId);
+    }
+
+    [Setting(SettingScope.User)]
+    public List<Guid> UserDisabledPlugins
+    {
+      get { return _userDisabledPlugins; }
+      set { _userDisabledPlugins = value; }
     }
   }
 }

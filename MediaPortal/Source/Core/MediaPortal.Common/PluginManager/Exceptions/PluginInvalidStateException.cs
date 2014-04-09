@@ -26,6 +26,9 @@ using System;
 
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
+  /// <summary>
+  /// Exception thrown when a plugin is in an invalid state for the current operation.
+  /// </summary>
   public class PluginInvalidStateException : PluginManagerException
   {
     public PluginInvalidStateException(string msg, params object[] args):

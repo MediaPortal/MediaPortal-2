@@ -25,13 +25,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders.SystemBuilders;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.PluginManager.Models;
-using MediaPortal.Common.Services.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Common.PluginManager.Activation
+namespace MediaPortal.Common.PluginManager.Builders
 {
   /// <summary>
   /// This class is responsible for maintaining builder registrations, including creating builders. It is
@@ -70,8 +70,8 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       try
       {
-        IPluginMetadata md = plugin.Metadata;
-        foreach( var pair in md.ActivationInfo.Builders )
+        var pluginMetadata = plugin.Metadata;
+        foreach( var pair in pluginMetadata.ActivationInfo.Builders )
         {
           var builder = new PluginBuilderRegistration( pair.Key, pair.Value, plugin );
           if( !_builders.TryAdd( pair.Key, builder ) )
@@ -139,18 +139,18 @@ namespace MediaPortal.Common.PluginManager.Activation
       }
       catch( Exception e )
       {
-        Log.Error( "Error instanciating plugin item builder '{0}' (id '{1}')", e,
+        Log.Error( "PluginBuilderManager: Error instanciating plugin item builder '{0}' (id '{1}')", e,
           runtime.Metadata.Name, runtime.Metadata.PluginId );
       }
       if( obj == null )
-        throw new PluginInternalException( "Builder class '{0}' could not be instantiated",
+        throw new PluginBuilderException( "Builder class '{0}' could not be instantiated",
           builderRegistration.BuilderClassName );
       builderRegistration.Builder = obj as IPluginItemBuilder;
       if( builderRegistration.Builder != null )
         return builderRegistration.Builder;
       // build creation failed, remove builder registration
       runtime.RevokePluginObject( builderRegistration.BuilderClassName );
-      throw new PluginInternalException( "Builder class '{0}' does not implement the plugin item builder interface '{1}'",
+      throw new PluginBuilderException( "Builder class '{0}' does not implement the plugin item builder interface '{1}'",
         builderRegistration.BuilderClassName, typeof(IPluginItemBuilder).Name );
     }
     #endregion

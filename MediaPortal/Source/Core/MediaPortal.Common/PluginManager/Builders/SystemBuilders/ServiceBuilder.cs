@@ -24,10 +24,10 @@
 
 using System;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Items;
 
-namespace MediaPortal.Common.Services.PluginManager.Builders
+namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
 {
   /// <summary>
   /// Builds an item of type "Service". The "Service" item type provides an instance of a system service of a
@@ -72,7 +72,7 @@ namespace MediaPortal.Common.Services.PluginManager.Builders
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ServiceClassName", itemData);
+      itemData.CheckParameter("ServiceClassName");
       string serviceClassName = itemData.Attributes["ServiceClassName"];
       object serviceInstance = plugin.InstantiatePluginObject(serviceClassName);
       if (serviceInstance == null)

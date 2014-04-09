@@ -26,6 +26,9 @@ using System;
 
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
+  /// <summary>
+  /// Exception thrown when plugin object construction fails due to a missing build parameter.
+  /// </summary>
   public class PluginItemBuildException : PluginManagerException
   {
     public PluginItemBuildException(string msg, params object[] args):

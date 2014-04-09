@@ -29,7 +29,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.PluginItemBuilders;
+using MediaPortal.Common.PluginManager.Builders.AdditionalBuilders;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;

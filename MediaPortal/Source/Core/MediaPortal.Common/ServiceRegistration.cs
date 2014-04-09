@@ -29,8 +29,9 @@ using System.Linq;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Builders.SystemBuilders;
 using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common

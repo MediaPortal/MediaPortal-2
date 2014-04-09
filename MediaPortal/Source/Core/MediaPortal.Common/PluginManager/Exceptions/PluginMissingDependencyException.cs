@@ -26,6 +26,9 @@ using System;
 
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
+  /// <summary>
+  /// Exception thrown when a plugin is missing a required dependency.
+  /// </summary>
   public class PluginMissingDependencyException : PluginManagerException
   {
     public PluginMissingDependencyException(string msg, params object[] args):

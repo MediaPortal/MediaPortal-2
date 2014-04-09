@@ -19,27 +19,19 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
-
 #endregion
 
-namespace MediaPortal.Common.PluginManager.Models
+namespace MediaPortal.Common.PluginManager
 {
   /// <summary>
-  /// Plugin metadata interface. Provides access to the plugin installation directory.
+  /// Enumeration of possible <see cref="PluginManager"/> states.
   /// </summary>
-  public interface IPluginSourceInfo
+  public enum PluginManagerState
   {
-    /// <summary>
-    /// Returns the plugin's directory location (if installed locally).
-    /// </summary>
-    string PluginPath { get; }
-
-    /// <summary>
-    /// Returns an absolute path from the relative path expression which is based on the plugin
-    /// directory.
-    /// </summary>
-    /// <param name="relativePath">File path relative to the plugin directory.</param>
-    /// <returns>Absolute file path of the specified relative path.</returns>
-    string GetAbsolutePath(string relativePath);
+    Uninitialized,
+    Initializing,
+    Starting,
+    Running,
+    ShuttingDown
   }
 }

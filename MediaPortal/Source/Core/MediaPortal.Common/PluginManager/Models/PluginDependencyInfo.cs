@@ -30,19 +30,42 @@ namespace MediaPortal.Common.PluginManager.Models
   /// <summary>
   /// Plugin metadata class responsible for storing dependency and versioning information.
   /// </summary>
-  public class PluginDependencyInfo : IPluginDependencyInfo
+  public class PluginDependencyInfo
   {
+    #region Compatibility Details and Dependency/Conflict Collections
+    /// <summary>
+    /// Returns the identifier of the plugin to which this information belongs.
+    /// </summary>
     public Guid PluginId { get; protected set; }
-	  public int CurrentApi { get; internal set; }
-	  public int MinCompatibleApi { get; internal set; }
-	  public IList<PluginDependency> DependsOn { get; internal set; }
-	  public ICollection<Guid> ConflictsWith { get; internal set; }
 
-    public PluginDependencyInfo( Guid pluginId )
+    /// <summary>
+    /// Returns the current API level of this version of the plugin.
+    /// </summary>
+    public int CurrentApi { get; internal set; }
+		
+    /// <summary>
+    /// Returns the minimum API level of this plugin that is compatible with the current API level of this plugin's version.
+    /// </summary>
+    public int MinCompatibleApi { get; internal set; }
+
+    /// <summary>
+    /// Returns a collection of plugins that this plugin depends on.
+    /// </summary>
+    public IList<PluginDependency> DependsOn { get; internal set; }
+
+    /// <summary>
+    /// Returns a collection of plugin identifiers that this plugin is in conflict with.
+    /// </summary>
+    public ICollection<Guid> ConflictsWith { get; internal set; }    
+    #endregion
+
+    #region Ctor
+	  public PluginDependencyInfo( Guid pluginId )
     {
       PluginId = pluginId;
       DependsOn = new List<PluginDependency>();
       ConflictsWith = new HashSet<Guid>();
     }
+  	#endregion  
   }
 }

@@ -23,41 +23,34 @@
 #endregion
 
 using System;
-using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Items;
 
-namespace MediaPortal.Common.Services.PluginManager.Builders
+namespace MediaPortal.Common.PluginManager.Builders.AdditionalBuilders
 {
-  /// <summary>
-  /// Builds an item of type "Resource". The resource item type provides access to a resource
-  /// directory which is provided by a plugin.
-  /// </summary>
-  /// <remarks>
-  /// The item registration has to provide the parameters "Type" and "Directory":
-  /// <example>
-  /// &lt;Resource Type="Skin" Directory="Skin"/&gt;
-  /// </example>
-  /// The values for the "Type" parameter come from the type <see cref="PluginResourceType"/>.
-  /// </remarks>
-  public class ResourceBuilder : IPluginItemBuilder
+  public class MIATypeRegistration
   {
+    public Guid MediaItemAspectTypeId;
+  }
+
+  public class MIATypeRegistrationBuilder : IPluginItemBuilder
+  {
+    #region IPluginItemBuilder Member
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("Type", itemData);
-      BuilderHelper.CheckParameter("Directory", itemData);
-      return new PluginResource(
-          (PluginResourceType) Enum.Parse(typeof (PluginResourceType), itemData.Attributes["Type"]),
-          plugin.Metadata.SourceInfo.GetAbsolutePath(itemData.Attributes["Directory"]));
+      itemData.CheckParameter("MediaItemAspectTypeId");
+      return new MIATypeRegistration { MediaItemAspectTypeId = new Guid(itemData.Attributes["MediaItemAspectTypeId"]) };
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      // Nothing to do here
+      // Nothing to do
     }
 
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      return false;
+      return true;
     }
+    #endregion
   }
 }

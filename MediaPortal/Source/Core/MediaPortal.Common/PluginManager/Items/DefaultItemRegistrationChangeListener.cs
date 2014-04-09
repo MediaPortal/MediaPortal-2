@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Items
 {
   public delegate void ItemRegistrationChangedDlgt(string location, ICollection<PluginItemMetadata> items);
 

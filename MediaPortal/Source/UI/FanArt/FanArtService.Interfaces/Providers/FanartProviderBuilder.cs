@@ -25,7 +25,8 @@
 using System;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers
 {
@@ -40,8 +41,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("MediaTypes", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("MediaTypes");
       return new FanartProviderRegistration(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["MediaTypes"], itemData.Id);
     }
 

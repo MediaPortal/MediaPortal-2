@@ -62,7 +62,7 @@ namespace MediaPortal.Common.PluginManager
 
     public static void SendPluginManagerMessage(MessageType messageType)
     {
-      SystemMessage msg = new SystemMessage(messageType);
+      var msg = new SystemMessage(messageType);
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

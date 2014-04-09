@@ -58,8 +58,7 @@ namespace MediaPortal.Common.PluginManager
     /// the stopping, the plugin will continue to be active and the method <see cref="Continue()"/>
     /// will be called.
     /// </remarks>
-    /// <returns><c>true</c>, if this plugin can be stopped at this time, else <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c>, if this plugin can be stopped at this time, else <c>false</c>.</returns>
     bool RequestEnd();
 
     /// <summary>

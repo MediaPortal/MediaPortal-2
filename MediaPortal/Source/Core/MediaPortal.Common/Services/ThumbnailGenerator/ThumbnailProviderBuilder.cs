@@ -25,7 +25,8 @@
 using System;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.Common.Services.ThumbnailGenerator
 {
@@ -40,9 +41,9 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("ProviderName", itemData);
-      BuilderHelper.CheckParameter("Priority", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("ProviderName");
+      itemData.CheckParameter("Priority");
       return new ThumbnailProviderRegistration(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Id, itemData.Attributes["ProviderName"], itemData.Attributes["Priority"]);
     }
 
