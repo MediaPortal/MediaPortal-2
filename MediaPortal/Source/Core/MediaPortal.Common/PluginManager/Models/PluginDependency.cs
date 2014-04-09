@@ -29,23 +29,44 @@ namespace MediaPortal.Common.PluginManager.Models
   /// <summary>
   /// Plugin metadata class representing a single plugin dependency declaration.
   /// </summary>
-  public class PluginDependency : IPluginDependency
+  public class PluginDependency
   {
-    public PluginDependency(Guid pluginId, int compatibleApi)
+    #region Dependency Details
+    /// <summary>
+    /// Returns the identifier of the referenced plugin, or Guid.Empty if this dependency is 
+    /// for a named core dependency.
+    /// </summary>
+    public Guid PluginId { get; protected set; }
+
+    /// <summary>
+    /// Returns the name of the core dependency, or null if this dependency is for a normal 
+    /// plugin dependency.
+    /// </summary>
+    public string CoreDependencyName { get; protected set; }
+
+    /// <summary>
+    /// Returns true if this reference is for a named core dependency.
+    /// </summary>
+    public bool IsCoreDependency { get { return !string.IsNullOrWhiteSpace( CoreDependencyName ); } }
+
+    /// <summary>
+    /// Returns the compatible API version of the referenced dependency.
+    /// </summary>
+    public int CompatibleApi { get; protected set; }    
+    #endregion
+
+    #region Ctor
+    public PluginDependency( Guid pluginId, int compatibleApi )
     {
       PluginId = pluginId;
       CompatibleApi = compatibleApi;
     }
 
-    public PluginDependency(string coreDependencyName, int compatibleApi)
+    public PluginDependency( string coreDependencyName, int compatibleApi )
     {
       CoreDependencyName = coreDependencyName;
       CompatibleApi = compatibleApi;
     }
-
-    public Guid PluginId { get; protected set; }
-    public string CoreDependencyName { get; protected set; }
-    public bool IsCoreDependency { get { return !string.IsNullOrWhiteSpace(CoreDependencyName); } }
-    public int CompatibleApi { get; protected set; }
+    #endregion
   }
 }

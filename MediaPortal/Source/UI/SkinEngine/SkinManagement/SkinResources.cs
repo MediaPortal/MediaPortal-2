@@ -29,6 +29,7 @@ using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;

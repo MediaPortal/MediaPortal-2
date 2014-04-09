@@ -26,40 +26,20 @@ using System.Collections.Generic;
 using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Discovery;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.PluginManager.Models;
 
 namespace MediaPortal.Common.Services.PluginManager
 {
   /// <summary>
-  /// Implementation of the <see cref="IPluginManager"/> interface that reads plugins from plugin directories, with
-  /// plugin.xml descriptor files.
+  /// Implementation of the <see cref="IPluginManager"/> interface. All exposed functionality is provided
+  /// by helper classes in the <see cref="MediaPortal.Common.PluginManager" /> namespace.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// We store a collection of all plugins which are available in the system. Each of these plugins can be
-  /// enabled, or in a running state, or can be disabled, either explicitly by the user or because of other
-  /// conflicting plugins.
-  /// </para>
-  /// <para>
-  /// Responsibilities regarding plugin state and item management are split up to the classes
-  /// <see cref="PluginManager"/> and <see cref="PluginRuntime"/>. See the docs of
-  /// <see cref="PluginRuntime"/> for more info.
-  /// </para>
-  /// <seealso cref="PluginState"/>.
-  /// </remarks>
-
-  // Implementation hints (multithreading strategy):
-  // - C# locks are held shortly only to protect internal data structures against data corruption
-  // - Protection of plugin states against concurrent modification during state changes or during item request/revocation is
-  //   done by the use of explicit, non-blocking reader/writer locks implemented in PluginRuntime class
-  // - It is possible to lock a plugin state dependency (reader lock) or a state lock for write (writer lock). Also a reader
-  //   lock can be turned into a writer lock.
-  // - With this implementation, we shouldn't get too many problems with concurrent state modifications; the only thing to
-  //   care about is the startup and shutdown phase, where potentially multiple concurrent services try to enable plugins.
   public class PluginManager : IPluginManager, IStatus
   {
-    #region Protected fields
+    #region Fields
     private readonly PluginRepository _repository = new PluginRepository();
     private readonly PluginRegistry _registry = new PluginRegistry();
     private readonly PluginBuilderManager _builderManager = new PluginBuilderManager();
@@ -109,12 +89,9 @@ namespace MediaPortal.Common.Services.PluginManager
       _activator.Shutdown();
     }
 
-    public PluginRuntime AddPlugin( IPluginMetadata pluginMetadata )
+    public PluginRuntime AddPlugin( PluginMetadata pluginMetadata )
     {
-      var metadata = pluginMetadata as PluginMetadata;
-      if( metadata == null )
-        throw new ArgumentException( "We cannot change this interface, but callers are expected to pass an instance of the PluginMetadata class.");
-      return _activator.AddPlugin( metadata );
+      return _activator.AddPlugin( pluginMetadata );
     }
 
     public bool TryStartPlugin( Guid pluginId, bool activate )
@@ -188,6 +165,7 @@ namespace MediaPortal.Common.Services.PluginManager
     }
     #endregion
 
+    // TODO remove these? can't see them being used anywhere
     #region Public methods
     /// <summary>
     /// Tries to enable the specified <paramref name="plugin"/>.

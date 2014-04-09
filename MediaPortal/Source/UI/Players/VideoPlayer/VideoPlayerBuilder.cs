@@ -27,12 +27,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -45,8 +46,8 @@ namespace MediaPortal.UI.Players.Video
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("MimeType", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("MimeType");
       return new VideoPlayerMimeTypeMapping(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["MimeType"]);
     }
 

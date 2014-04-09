@@ -10,4 +10,4 @@ using System.Reflection;
 [assembly: AssemblyVersion("2.0.0.1404")]
 [assembly: AssemblyFileVersion("2.0.0.1404")]
 // Note: This line will be filled by AssemblyInfoHelper in build process.
-[assembly: AssemblyInformationalVersion("origin/FEAT_PluginManager_Refactoring-80afc6")]
+[assembly: AssemblyInformationalVersion("origin/FEAT_PluginManager_Refactoring-869fb4")]

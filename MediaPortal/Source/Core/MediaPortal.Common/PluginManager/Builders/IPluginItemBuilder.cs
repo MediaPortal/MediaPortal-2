@@ -23,8 +23,9 @@
 #endregion
 
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Items;
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Builders
 {
   /// <summary>
   /// Interface for plugin item builder classes. An item builder allows a plugin to

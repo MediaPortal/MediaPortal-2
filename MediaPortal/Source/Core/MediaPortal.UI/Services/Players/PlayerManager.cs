@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Services.Players.Settings;

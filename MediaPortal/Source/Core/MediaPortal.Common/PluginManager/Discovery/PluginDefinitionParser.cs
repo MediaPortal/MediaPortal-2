@@ -28,6 +28,7 @@ using System.IO;
 using System.Xml.XPath;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.PluginManager.Models;
 using MediaPortal.Utilities;
 

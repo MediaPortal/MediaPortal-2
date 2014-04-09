@@ -22,24 +22,47 @@
 
 #endregion
 
-namespace MediaPortal.Common.PluginManager.Models
+namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
 {
-  /// <summary>
-  /// Plugin metadata interface. Provides access to the plugin installation directory.
-  /// </summary>
-  public interface IPluginSourceInfo
+  public enum PluginResourceType
   {
-    /// <summary>
-    /// Returns the plugin's directory location (if installed locally).
-    /// </summary>
-    string PluginPath { get; }
+    Language,
+    Skin
+  }
+
+  /// <summary>
+  /// Provides the file access location of a plugin resource.
+  /// </summary>
+  public class PluginResource
+  {
+    protected string _path;
+    protected PluginResourceType _type;
+
+    public PluginResource(PluginResourceType type, string path)
+    {
+      _type = type;
+      _path = path;
+    }
 
     /// <summary>
-    /// Returns an absolute path from the relative path expression which is based on the plugin
-    /// directory.
+    /// Returns the type of this resource.
     /// </summary>
-    /// <param name="relativePath">File path relative to the plugin directory.</param>
-    /// <returns>Absolute file path of the specified relative path.</returns>
-    string GetAbsolutePath(string relativePath);
+    public PluginResourceType Type
+    {
+      get { return _type; }
+    }
+
+    /// <summary>
+    /// Returns the absolute file- or directory-path of this resource.
+    /// </summary>
+    public string Path
+    {
+      get { return _path; }
+    }
+
+    public override string ToString()
+    {
+      return string.Format("PluginResource Path='{0}', Type='{1}'", _path, _type);
+    }
   }
 }

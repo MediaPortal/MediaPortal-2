@@ -27,13 +27,13 @@ using System;
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
   /// <summary>
-  /// Base class for all exceptions in the plugin manager classes.
+  /// Base class for all exceptions thrown in the plugin subsystem.
   /// </summary>
-  public class PluginManagerException : ApplicationException
+  public abstract class PluginManagerException : ApplicationException
   {
-    public PluginManagerException(string msg, params object[] args):
+    protected PluginManagerException(string msg, params object[] args):
         base(string.Format(msg, args)) { }
-    public PluginManagerException(string msg, Exception ex, params object[] args):
+    protected PluginManagerException(string msg, Exception ex, params object[] args):
         base(string.Format(msg, args), ex) { }
   }
 }

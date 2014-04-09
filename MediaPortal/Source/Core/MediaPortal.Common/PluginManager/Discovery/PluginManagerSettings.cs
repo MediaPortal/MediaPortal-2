@@ -23,14 +23,36 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Common.PluginManager.Exceptions
+namespace MediaPortal.Common.PluginManager.Discovery
 {
-  public class PluginInternalException : PluginManagerException
+  /// <summary>
+  /// Settings class used to persist information on plugin states between system restarts.
+  /// </summary>
+  public class PluginManagerSettings
   {
-    public PluginInternalException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginInternalException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    #region Fields
+    protected List<Guid> _userDisabledPlugins = new List<Guid>();
+    #endregion
+
+    public void AddUserDisabledPlugin(Guid pluginId)
+    {
+      if (!_userDisabledPlugins.Contains(pluginId))
+        _userDisabledPlugins.Add(pluginId);
+    }
+
+    public void RemoveUserDisabledPlugin(Guid pluginId)
+    {
+      _userDisabledPlugins.Remove(pluginId);
+    }
+
+    [Setting(SettingScope.User)]
+    public List<Guid> UserDisabledPlugins
+    {
+      get { return _userDisabledPlugins; }
+      set { _userDisabledPlugins = value; }
+    }
   }
 }

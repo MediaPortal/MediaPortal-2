@@ -35,20 +35,34 @@ namespace MediaPortal.Common.PluginManager.Validation
   /// </summary>
   public class ConflictValidator : IValidator
   {
+    #region Fields
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _availablePlugins;
     private readonly ConcurrentHashSet<Guid> _disabledPlugins;
+    #endregion
 
+    #region Ctor
     public ConflictValidator( ConcurrentDictionary<Guid, PluginMetadata> availablePlugins, ConcurrentHashSet<Guid> disabledPlugins )
     {
       _availablePlugins = availablePlugins;
       _disabledPlugins = disabledPlugins;
     }
+    #endregion
 
+    #region IValidate
+    /// <summary>
+    /// Validates the given <paramref name="plugin"/> by checking for conflicts with other
+    /// installed plugins. Currently disabled plugins are not considered during validation.
+    /// </summary>
+    /// <param name="plugin">The plugin to validate.</param>
+    /// <returns>A set of plugin ids found to be in conflict with the given plugin, or an
+    /// empty set if no conflicts were found.</returns>
     public HashSet<Guid> Validate( PluginMetadata plugin )
     {
       return FindConflicts( plugin, new HashSet<Guid>() );
     }
+    #endregion
 
+    #region Validation Implementation (FindConflicts)
     /// <summary>
     /// Conflicts are searched recursive, but plugins might be referenced multiple times in the hierarchy.
     /// So in order to speed up this process and prevent a StackOverflowException we pass a list of already 
@@ -56,8 +70,9 @@ namespace MediaPortal.Common.PluginManager.Validation
     /// </summary>
     /// <param name="plugin"></param>
     /// <param name="alreadyCheckedPlugins"></param>
-    /// <returns></returns>
-    private HashSet<Guid> FindConflicts( IPluginMetadata plugin, HashSet<Guid> alreadyCheckedPlugins )
+    /// <returns>A set of plugin ids found to be in conflict with the given plugin, or an
+    /// empty set if no conflicts were found.</returns>
+    private HashSet<Guid> FindConflicts( PluginMetadata plugin, HashSet<Guid> alreadyCheckedPlugins )
     {
       var result = new HashSet<Guid>();
       if( alreadyCheckedPlugins.Contains( plugin.PluginId ) )
@@ -88,5 +103,6 @@ namespace MediaPortal.Common.PluginManager.Validation
       }
       return result;
     }
+    #endregion
   }
 }

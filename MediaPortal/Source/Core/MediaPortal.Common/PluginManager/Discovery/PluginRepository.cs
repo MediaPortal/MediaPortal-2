@@ -168,7 +168,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
     #endregion
 
     #region Validation
-    public bool IsCompatible( IPluginMetadata plugin )
+    public bool IsCompatible( PluginMetadata plugin )
     {
       ThrowIfNotInitialized();
       if( _validatedPlugins.Contains( plugin.PluginId ) )
@@ -199,21 +199,21 @@ namespace MediaPortal.Common.PluginManager.Discovery
     #endregion
 
     #region Metadata Lookup and Dependency Information
-    public IPluginMetadata GetPlugin( Guid pluginId )
+    public PluginMetadata GetPlugin( Guid pluginId )
     {
       ThrowIfNotInitialized();
       PluginMetadata result;
       return _models.TryGetValue( pluginId, out result ) ? result : null;
     }
 
-    public IList<IPluginMetadata> GetPluginAndDependencies( Guid pluginId, PluginSortOrder sortOrder )
+    public IList<PluginMetadata> GetPluginAndDependencies( Guid pluginId, PluginSortOrder sortOrder )
     {
       ThrowIfNotInitialized();
       try
       {
         var models = Models; // use IDictionary to simplify lookup code; causes exceptions for missing lookups, but we don't expect any misses
         var plugin = models[ pluginId ];
-        var result = new List<IPluginMetadata>();
+        var result = new List<PluginMetadata>();
         var resultSet = new HashSet<Guid>();
         var stack = new Stack<PluginMetadata>( new [] { plugin } );
         while( stack.Count > 0 )

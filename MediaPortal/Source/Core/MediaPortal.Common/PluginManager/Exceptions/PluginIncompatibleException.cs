@@ -26,6 +26,9 @@ using System;
 
 namespace MediaPortal.Common.PluginManager.Exceptions
 {
+  /// <summary>
+  /// Exception thrown when a plugin is found to be API incompatible with another plugin.
+  /// </summary>
   public class PluginIncompatibleException : PluginManagerException
   {
     public PluginIncompatibleException(string msg, params object[] args) :

@@ -22,18 +22,20 @@
 
 #endregion
 
-using System;
-
-namespace MediaPortal.Common.PluginManager.Exceptions
+namespace MediaPortal.Common.PluginManager.Builders.AdditionalBuilders
 {
   /// <summary>
-  /// Exception thrown when the plugin definition file is invalid.
+  /// This class registers additional plugin item builders at the <see cref="IPluginManager">plugin manager</see> which
+  /// are provided by the <c>MediaPortal.Common</c> project.
   /// </summary>
-  public class PluginInvalidMetadataException : PluginManagerException
+  public class AdditionalPluginItemBuilders
   {
-    public PluginInvalidMetadataException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginInvalidMetadataException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    public const string MIA_TYPE_REGISTRATION_BUILDER_NAME = "MIATypeRegistration";
+
+    public static void Register()
+    {
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      pluginManager.RegisterSystemPluginItemBuilder(MIA_TYPE_REGISTRATION_BUILDER_NAME, new MIATypeRegistrationBuilder());
+    }
   }
 }

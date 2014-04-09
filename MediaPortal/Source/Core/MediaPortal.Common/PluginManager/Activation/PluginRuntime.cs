@@ -25,7 +25,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.PluginManager.Models;
 
 namespace MediaPortal.Common.PluginManager.Activation
@@ -96,7 +98,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <summary>
     /// Returns the plugin's metadata.
     /// </summary>
-    public IPluginMetadata Metadata
+    public PluginMetadata Metadata
     {
       get
       {

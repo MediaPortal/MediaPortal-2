@@ -19,21 +19,19 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
-
 #endregion
 
-using System;
-
-namespace MediaPortal.Common.PluginManager.Exceptions
+namespace MediaPortal.Common.PluginManager
 {
   /// <summary>
-  /// Exception thrown when the plugin definition file is invalid.
+  /// Enumeration of possible <see cref="PluginManager"/> states.
   /// </summary>
-  public class PluginInvalidMetadataException : PluginManagerException
+  public enum PluginManagerState
   {
-    public PluginInvalidMetadataException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginInvalidMetadataException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    Uninitialized,
+    Initializing,
+    Starting,
+    Running,
+    ShuttingDown
   }
 }

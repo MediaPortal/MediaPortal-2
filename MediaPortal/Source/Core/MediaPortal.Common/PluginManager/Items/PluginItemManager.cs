@@ -23,9 +23,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Exceptions;
 
-namespace MediaPortal.Common.PluginManager.Activation
+namespace MediaPortal.Common.PluginManager.Items
 {
   /// <summary>
   /// This class is responsible for managing item registrations. It is an internal helper

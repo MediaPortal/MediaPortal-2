@@ -24,8 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Exceptions;
 
-namespace MediaPortal.Common.PluginManager
+namespace MediaPortal.Common.PluginManager.Items
 {
   /// <summary>
   /// Holds the item data for a plugin item.
@@ -124,6 +125,20 @@ namespace MediaPortal.Common.PluginManager
     {
       get { return _pluginRuntime; }
       internal set { _pluginRuntime = value; }
+    }
+
+    /// <summary>
+    /// Helper method to verify builder parameters.
+    /// </summary>
+    /// <param name="parameterName">The name of the parameter to check.</param>
+    public void CheckParameter(string parameterName)
+    {
+      if (!Attributes.ContainsKey(parameterName))
+      {
+        throw new PluginItemBuildException(
+          "'{0}' item at registration location '{1}' needs to specify the '{2}' parameter",
+          BuilderName, RegistrationLocation, parameterName);
+      }
     }
 
     #region Base overrides

@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Discovery;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.PluginManager.Models;

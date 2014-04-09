@@ -31,6 +31,7 @@ using System.Threading;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Common.Services.ThumbnailGenerator

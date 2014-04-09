@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.Registry;
 using MediaPortal.Common.Services.Registry;
 

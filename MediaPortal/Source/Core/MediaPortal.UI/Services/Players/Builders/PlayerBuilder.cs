@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Builders.SystemBuilders;
 
 namespace MediaPortal.UI.Services.Players.Builders
 {

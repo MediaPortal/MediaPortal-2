@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.Common.Registry;
 using MediaPortal.Utilities;
 
