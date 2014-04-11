@@ -290,7 +290,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (_isActive)
           throw new IllegalCallException("SSDPClientController is already active");
         _isActive = true;
-        IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses());
+        IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses(UPnPConfiguration.IP_ADDRESS_BINDINGS));
 
         // Add endpoints
         foreach (IPAddress address in addresses)

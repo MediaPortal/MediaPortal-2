@@ -100,6 +100,11 @@ namespace HttpServer
       get { return _port; }
     }
 
+    public IPAddress Address
+    {
+      get { return _address; }
+    }
+
     /// <summary>
     /// Gives you a change to receive log entries for all internals of the HTTP library.
     /// </summary>

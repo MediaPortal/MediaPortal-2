@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using HttpServer;
@@ -31,6 +33,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
@@ -66,13 +69,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    protected readonly HttpServer.HttpServer _httpServerV4;
-    protected readonly HttpServer.HttpServer _httpServerV6;
+    protected readonly List<HttpServer.HttpServer> _httpServers;
 
     public ResourceServer()
     {
-      _httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
-      _httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
+      _httpServers = new List<HttpServer.HttpServer>();
       ResourceAccessModule module = new ResourceAccessModule();
       AddHttpModule(module);
     }
@@ -86,11 +87,17 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public void StartServers()
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      List<string> filters = settings.IPAddressBindingsList;
       if (settings.UseIPv4)
         try
         {
-          _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
-          ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv4) at port {0}", _httpServerV4.Port);
+          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters))
+          {
+            HttpServer.HttpServer httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
+            httpServerV4.Start(address, settings.HttpServerPort);
+            ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv4) on address {0} at port {1}", address, httpServerV4.Port);
+            _httpServers.Add(httpServerV4);
+          }
         }
         catch (SocketException e)
         {
@@ -99,8 +106,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (settings.UseIPv6)
         try
         {
-          _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
-          ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv6) at port {0}", _httpServerV6.Port);
+          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters))
+          {
+            HttpServer.HttpServer httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
+            httpServerV6.Start(address, settings.HttpServerPort);
+            ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv6) on address {0} at port {1}", address, httpServerV6.Port);
+            _httpServers.Add(httpServerV6);
+          }
         }
         catch (SocketException e)
         {
@@ -108,56 +120,58 @@ namespace MediaPortal.Common.Services.ResourceAccess
         }
     }
 
-    public void StopServers()
+    private void StopServer(HttpServer.HttpServer server)
     {
       try
       {
-        _httpServerV4.Stop();
+        server.Stop();
       }
       catch (SocketException e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv4)", e);
+        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server", e);
       }
+    }
+
+    public void StopServers()
+    {
+      _httpServers.ForEach(StopServer);
+    }
+
+    public void DisposeServer(HttpServer.HttpServer server)
+    {
       try
       {
-        _httpServerV6.Stop();
+        server.Dispose();
       }
       catch (SocketException e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv6)", e);
+        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server", e);
       }
     }
 
     public void DisposeServers()
     {
-      try
-      {
-        _httpServerV4.Dispose();
-      }
-      catch (SocketException e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv4)", e);
-      }
-      try
-      {
-        _httpServerV6.Dispose();
-      }
-      catch (SocketException e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv6)", e);
-      }
+      _httpServers.ForEach(DisposeServer);
     }
 
     #region IResourceServer implementation
 
     public int PortIPv4
     {
-      get { return _httpServerV4.Port; }
+      get
+      {
+        var server = _httpServers.FirstOrDefault(s => s.IsIPv4);
+        return server != null ? server.Port : 0;
+      }
     }
 
     public int PortIPv6
     {
-      get { return _httpServerV6.Port; }
+      get
+      {
+        var server = _httpServers.FirstOrDefault(s => s.IsIPv6);
+        return server != null ? server.Port : 0;
+      }
     }
 
     public void Startup()
@@ -180,14 +194,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void AddHttpModule(HttpModule module)
     {
-      _httpServerV4.Add(module);
-      _httpServerV6.Add(module);
+      _httpServers.ForEach(x => x.Add(module));
     }
 
     public void RemoveHttpModule(HttpModule module)
     {
-      _httpServerV4.Remove(module);
-      _httpServerV6.Remove(module);
+      _httpServers.ForEach(x => x.Remove(module));
     }
 
     #endregion

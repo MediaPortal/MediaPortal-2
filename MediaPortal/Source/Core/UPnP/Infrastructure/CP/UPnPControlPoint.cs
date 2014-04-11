@@ -24,13 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.Utils;
-using HttpListener=HttpServer.HttpListener;
+using HttpListener = HttpServer.HttpListener;
 
 namespace UPnP.Infrastructure.CP
 {
@@ -78,8 +79,7 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public static int DEFAULT_HTTP_REQUEST_QUEUE_SIZE = 5;
 
-    protected HttpListener _httpListenerV4 = null;
-    protected HttpListener _httpListenerV6 = null;
+    protected List<HttpListener> _httpListeners = new List<HttpListener>();
     protected bool _isActive = false;
     protected IDictionary<string, DeviceConnection> _connectedDevices = new Dictionary<string, DeviceConnection>();
     protected CPData _cpData;
@@ -111,7 +111,7 @@ namespace UPnP.Infrastructure.CP
 
     private void OnHttpListenerRequestReceived(object sender, RequestEventArgs e)
     {
-      IHttpClientContext context = (IHttpClientContext) sender;
+      IHttpClientContext context = (IHttpClientContext)sender;
       lock (_cpData.SyncObj)
       {
         if (!_isActive)
@@ -179,47 +179,48 @@ namespace UPnP.Infrastructure.CP
         if (_isActive)
           throw new IllegalCallException("UPnP control point mustn't be started multiple times");
 
+        UPnPConfiguration.LOGGER.Debug("Will listen on IPs filtered by [{0}]", (UPnPConfiguration.IP_ADDRESS_BINDINGS != null ? String.Join(",", UPnPConfiguration.IP_ADDRESS_BINDINGS) : null));
+
+        _cpData.HttpPortV4 = 0;
         if (UPnPConfiguration.USE_IPV4)
         {
-          _httpListenerV4 = HttpListener.Create(IPAddress.Any, 0);
-          _httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-          try
+          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, UPnPConfiguration.IP_ADDRESS_BINDINGS))
           {
-            _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-            _cpData.HttpPortV4 = _httpListenerV4.LocalEndpoint.Port;
-          }
-          catch (SocketException e)
-          {
-            _httpListenerV4 = null;
-            _cpData.HttpPortV4 = 0;
-            UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv4)", e);
+            HttpListener httpListenerV4 = HttpListener.Create(address, _cpData.HttpPortV4);
+            httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
+            try
+            {
+              httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
+              _cpData.HttpPortV4 = httpListenerV4.LocalEndpoint.Port;
+              UPnPConfiguration.LOGGER.Debug("UPnPControlPoint: HTTP listener for IPv4 protocol started at address '{0}' on port '{1}'", address, _cpData.HttpPortV4);
+              _httpListeners.Add(httpListenerV4);
+            }
+            catch (SocketException e)
+            {
+              UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv4)", e);
+            }
           }
         }
-        else
-        {
-          _httpListenerV4 = null;
-          _cpData.HttpPortV4 = 0;
-        }
+
+        _cpData.HttpPortV6 = 0;
         if (UPnPConfiguration.USE_IPV6)
         {
-          _httpListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
-          _httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-          try
+          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, UPnPConfiguration.IP_ADDRESS_BINDINGS))
           {
-            _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
-            _cpData.HttpPortV6 = _httpListenerV6.LocalEndpoint.Port;
+            HttpListener httpListenerV6 = HttpListener.Create(address, _cpData.HttpPortV6);
+            httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
+            try
+            {
+              httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
+              _cpData.HttpPortV6 = httpListenerV6.LocalEndpoint.Port;
+              UPnPConfiguration.LOGGER.Debug("UPnPControlPoint: HTTP listener for IPv6 protocol started at address '{0}' on port '{1}'", address, _cpData.HttpPortV6);
+              _httpListeners.Add(httpListenerV6);
+            }
+            catch (SocketException e)
+            {
+              UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv6)", e);
+            }
           }
-          catch (SocketException e)
-          {
-            _httpListenerV6 = null;
-            _cpData.HttpPortV6 = 0;
-            UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv6)", e);
-          }
-        }
-        else
-        {
-          _httpListenerV6 = null;
-          _cpData.HttpPortV6 = 0;
         }
         _networkTracker.RootDeviceRemoved += OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted += OnDeviceRebooted;
@@ -241,17 +242,8 @@ namespace UPnP.Infrastructure.CP
         if (!_isActive)
           return;
         _isActive = false;
-        if (_httpListenerV4 != null)
-        {
-          listenersToClose.Add(_httpListenerV4);
-          _httpListenerV4 = null;
-        }
-        _httpListenerV4 = null;
-        if (_httpListenerV6 != null)
-        {
-          listenersToClose.Add(_httpListenerV6);
-          _httpListenerV6 = null;
-        }
+        _httpListeners.ForEach(x => listenersToClose.Add(x));
+        _httpListeners.Clear();
         _networkTracker.RootDeviceRemoved -= OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted -= OnDeviceRebooted;
       }
