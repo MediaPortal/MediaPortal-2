@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Penyedia sumber CD Audio</string>
   <string name="AudioCDResourceProvider.Description">Akses track CD Audio</string>
 </resources>

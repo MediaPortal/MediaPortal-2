@@ -40,6 +40,8 @@
   <string name="Media.ImageFilterBig">גדול</string>
   <string name="Media.SwitchToBrowseMLView">עבור לתצוגת שרת</string>
   <string name="Media.SwitchToLocalMediaView">עבור לתצוגה מקומית</string>
+  <string name="Media.SwitchToBrowseShareView">עבור לתצוגת תיקיות</string>
+  <string name="Media.SwitchToMediaLibraryView">עבור לתצוגת ספרייה</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -202,6 +204,8 @@
   <string name="Media.EnqueueVideoImageItem">הוסף פריטי וידאו ותמונות</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">נגן פריט וידאו/תמונה ברקע; המשך במקביל פריט אודיו</string>
   <string name="Media.PlayVideoImageItemPiP">נגן פריט וידאו/תמונה בתצורת תמונה בתוך תמונה</string>
+  <string name="Media.PlaybackResume">המשך לנגן</string>
+  <string name="Media.PlaybackFromStart">התחל לנגן מההתחלה</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">וידאו/תמונה</string>
   <string name="Media.AudioContextName">אודיו</string>
@@ -309,6 +313,8 @@
   <string name="Media.SortByDate">סדר לפי תאריך הקלטה</string>
   <string name="Media.SortByEpisode">סדר לפי פרק</string>
   <string name="Media.SortingBrowseDefault">סידור ברירת מחדל</string>
+  <string name="Media.SwitchFilterMenuItem">מסנן</string>
+  <string name="Media.SwitchFilterDialogTitle">מסנן</string>
   <string name="Settings.Players">נגנים</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">סגור נגן בעת סיום</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">סמן אפשרות זו כדי לגרום למדיה פורטל לסגור נגנים שהסתיימו בצורה אוטומטית</string>

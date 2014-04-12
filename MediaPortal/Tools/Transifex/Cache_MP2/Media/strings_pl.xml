@@ -1,44 +1,200 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Menu items for the five Media navigation parts-->
+  <string name="Media.BrowseMediaMenuItem">Przeglądaj media</string>
+  <string name="Media.LocalMediaMenuItem">Media lokalne</string>
+  <string name="Media.AudioMenuItem">Dźwięk</string>
   <string name="Media.VideosMenuItem">Wideo</string>
+  <string name="Media.SeriesMenuItem">Serial</string>
+  <string name="Media.ImagesMenuItem">Obrazy</string>
   <!--Filter titles-->
+  <string name="Media.FilterByArtistMenuItem">Filtruj wg artysty</string>
+  <string name="Media.FilterByAlbumMenuItem">Filtruj wg albumu</string>
+  <string name="Media.FilterByAudioGenreMenuItem">Filtruj wg gatunku</string>
+  <string name="Media.FilterByDecadeMenuItem">Filtruj wg dekady</string>
+  <string name="Media.FilterByActorMenuItem">Filtruj wg aktora</string>
+  <string name="Media.FilterByVideoGenreMenuItem">Filtruj wg gatunku</string>
+  <string name="Media.FilterByVideoYearMenuItem">Filtruj wg roku</string>
+  <string name="Media.FilterByImageSizeMenuItem">Filtruj wg rozmiaru</string>
+  <string name="Media.FilterByImageYearMenuItem">Filtruj wg roku</string>
+  <string name="Media.FilterBySystemMenuItem">Filtruj wg systemu</string>
+  <string name="Media.FilterBySeriesNameMenuItem">Filtruj wg serialu</string>
+  <string name="Media.FilterBySeriesSeasonMenuItem">Filtruj wg sezonu</string>
+  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtruj wg odcinka</string>
   <string name="Media.SimpleSearchFilterMenuItem">Wyszukaj</string>
+  <string name="Media.ShowAllAudioItemsMenuItem">Pokaż wszystkie</string>
+  <string name="Media.ShowAllVideoItemsMenuItem">Pokaż wszystkie</string>
+  <string name="Media.ShowAllImageItemsMenuItem">Pokaż wszystkie</string>
+  <string name="Media.ShowAllMoviesMenuItem">Pokaż wszystkie</string>
   <!--Special filters names-->
+  <string name="Media.ImageFilterSmall">Mały</string>
+  <string name="Media.ImageFilterMedium">Średni</string>
+  <string name="Media.ImageFilterBig">Wielki</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
   <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
+  <string name="Media.FilterArtistNavbarDisplayLabel">Artysta: {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumNavbarDisplayLabel">Album; {0}</string>
+  <string name="Media.FilterAudioGenreNavbarDisplayLabel">Gatunek: {0}</string>
+  <string name="Media.FilterDecadeNavbarDisplayLabel">Dekada: {0}</string>
+  <string name="Media.FilterActorNavbarDisplayLabel">Aktor: {0}</string>
+  <string name="Media.FilterVideoGenreNavbarDisplayLabel">Gatunek: {0}</string>
+  <string name="Media.FilterVideoYearNavbarDisplayLabel">Rok: {0}</string>
+  <string name="Media.FilterImageSizeNavbarDisplayLabel">Rozmiar: {0}</string>
+  <string name="Media.FilterImageYearNavbarDisplayLabel">Rok: {0}</string>
+  <string name="Media.FilterAudioItemsNavbarDisplayLabel">Nazwa: {0}</string>
+  <string name="Media.FilterVideoItemsNavbarDisplayLabel">Nazwa: {0}</string>
   <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
+  <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Sezon {0}</string>
+  <string name="Media.FilterImageItemsNavbarDisplayLabel">Nazwa: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
   <!--Display labels for workflow navigation contexts-->
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Przeglądaj media</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Media lokalne</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteka audio</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteka wideo</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteka seriali</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteka obrazów</string>
+  <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Bieżące wideo</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Wideo pełnoekranowe</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Bieżące audio</string>
   <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Wizualizacja audio</string>
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">Lista odtwarzania</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">Edytuj Listę odtwarzania</string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">Listy odtwarzania</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">Informacje Listy odtwarzania</string>
+  <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">Usuń listy odtwarzania</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">Zmień nazwę listy odtwarzania</string>
+  <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel">Pomyślnie</string>
+  <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">Niepowodzenie</string>
+  <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Odtwarzaj/dodaj do kolejki elementy</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Wybierz rodzaj mediów</string>
   <!--Screen headers-->
+  <string name="Media.BrowseMediaNavigationHeader">Przeglądaj w poszukiwaniu mediów</string>
+  <string name="Media.LocalMediaNavigationHeader">Przeglądaj lokalne media</string>
+  <string name="Media.MediaItemsHeader">Elementy mediów</string>
   <string name="Media.VideoItemsHeader">Wideo</string>
+  <string name="Media.AudioItemsHeader">Elementy audio</string>
+  <string name="Media.SeriesItemsHeader">Odcinki</string>
+  <string name="Media.ImageItemsHeader">Obrazy</string>
+  <string name="Media.SimpleSearchHeader">Wyszukiwanie proste</string>
+  <string name="Media.ChooseActorHeader">Wybierz aktora</string>
+  <string name="Media.ChooseVideoGenreHeader">Wybierz gatunek</string>
+  <string name="Media.ChooseVideoYearHeader">Wybierz rok</string>
+  <string name="Media.ChooseSeriesHeader">Wybierz serial</string>
+  <string name="Media.ChooseSeasonHeader">Wybierz sezon</string>
+  <string name="Media.ChooseAudioDecadeHeader">Wybierz dekadę</string>
+  <string name="Media.ChooseAlbumHeader">Wybierz album</string>
+  <string name="Media.ChooseArtistHeader">Wybierz artystę</string>
+  <string name="Media.ChooseAudioGenreHeader">Wybierz gatunek</string>
+  <string name="Media.ChooseImageYearHeader">Wybierz rok</string>
+  <string name="Media.ChooseImageSizeHeader">Wybierz rozmiar</string>
+  <string name="Media.ChooseSystemHeader">Wybierz system</string>
+  <string name="Media.PlaylistsOverviewHeader">Listy odtwarzania</string>
+  <string name="Media.SavePlaylistEditNameHeader">Zapisz listę odtwarzania</string>
+  <string name="Media.SavePlaylistFailedHeader">Zapisz listę odtwarzania</string>
+  <string name="Media.SavePlaylistSuccessfulHeader">Zapisz listę odtwarzania</string>
+  <string name="Media.RemovePlaylistsHeader">Usuń listy odtwarzania</string>
+  <string name="Media.PlaylistDetailsHeader">Detale listy odtwarzania</string>
+  <string name="Media.PlaylistLoadNoPlaylistText">Brak listy odtwarzania do załadowania</string>
+  <string name="Media.PlaylistLoadErrorLoadingPlaylist">Błąd ładowania listy odtwarzania</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Lista odtwarzania może być zapisana jedynie w przypadku, gdy wszystkie elementy listy zostały pobrane z serwera (a nie np. z odłączonego lokalnego zasobu).</string>
   <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">Przeglądaj media</string>
+  <string name="Media.LocalMediaRootViewName">Media lokalne</string>
+  <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Wideo</string>
+  <string name="Media.SeriesRootViewName">Serial</string>
+  <string name="Media.ImagesRootViewName">Obrazy</string>
+  <string name="Media.SimpleSearchViewName">Wyszukiwanie proste</string>
   <!--General strings used in views-->
+  <string name="Media.ViewInvalid">Nie udało się stworzyć widoku</string>
+  <string name="Media.ViewEmpty">&lt;Nie ma nic do wyświetlenia&gt;</string>
+  <string name="Media.NoItems">Brak elementów</string>
   <!--Shown in the header of an items list-->
+  <string name="Media.OneItem">Jeden element</string>
   <!--Shown in the header of an items list-->
+  <string name="Media.OneOfOneItem">1/1 element</string>
   <!--Shown in the header of an items list-->
+  <string name="Media.NOfMItems">{0}/{1} elementów</string>
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <string name="Media.NItems">{0} elementów</string>
   <!--Shown in the header of an items list, e.g. "45 items"-->
+  <string name="Media.MoreThanMaxItemsHint">Ten widok zawiera więcej niż {0} elementów. Dodaj więcej filtrów aby zmniejszyć liczbę elementów.</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Widok zawiera więcej niż {0} elementów.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Wyniki wyszukiwania zawierają więcej niż {0} elementów. Zawęź kryteria wyszukiwania.</string>
+  <string name="Media.ListIsBeingBuiltHint">Lista elementów jest budowana...</string>
+  <string name="Media.SearchResultIsBeingBuiltHint">Wyszukiwanie...</string>
   <!--Playlists-->
+  <string name="Media.ManagePlaylists">Listy odtwarzania</string>
+  <string name="Media.AddAllToPlaylist">Dodaj do listy odtwarzania</string>
+  <string name="Media.NoItemsToAddHeader">Brak elementów do dodania</string>
+  <string name="Media.NoItemsToAddText">Bieżący widok nie zawiera żadnych elementów</string>
+  <string name="Media.ChooseAVTypeDialogHeader">Wybierz rodzaj elementów</string>
+  <string name="Media.AddAllAudio">Dodaj elementy audio</string>
+  <string name="Media.AddAllVideo">Dodaj elementy wideo</string>
+  <string name="Media.AddAllImages">Dodaj elementy obrazy</string>
+  <string name="Media.AddAllVideosAndImages">Dodaj elementy wideo i obrazy</string>
   <string name="Media.AddToPlaylistProgressDialogHeader">Postęp</string>
+  <string name="Media.AddToPlaylistProgressText">Dodawania elementó do listy odtwarzania...</string>
+  <string name="Media.NItemsAdded">{0} dodanych elementów</string>
+  <string name="Media.StopAddToPlaylistButton">Zatrzymaj</string>
+  <string name="Media.NoPlaylistsAvailable">- Brak list odtwarzania -</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Serwer główny jest obecnie niedostępny, zarządzanie listami odtwarzania nie jest teraz możliwe.</string>
+  <string name="Media.EditNameOfPlaylist">Zmień nazwę listy odtwarzania</string>
+  <string name="Media.SavePlaylistSuccessfulText">Lista odtwarzania \'{0}\' została pomyślnie zapisana na serwerze.</string>
+  <string name="Media.SavePlaylistFailedText">Nie udało się zapisać listy. Komunikat błędu; \'{0}\'</string>
+  <string name="Media.SavePlaylistFailedAlreadyExists">Zapis listy nie powiódł się: Lista odtwarzania \'{0}\' już istnieje</string>
+  <string name="Media.ChoosePlaylistsToBeRemovedText">Wybierz listę odtwarzania do usunięcia</string>
+  <string name="Media.PlaylistNameInfoLabel">Nazwa listy odtwarzania</string>
+  <string name="Media.PlaylistTypeInfoLabel">Rodzaj listy odtwarzania</string>
+  <string name="Media.PlaylistNumItemsLabel">Liczba elementów</string>
+  <string name="Media.PlaylistIdInfoLabel">Wewnętrzny identyfikator listy odtwarzania</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Domyślne</string>
   <!--Play items dialog-->
+  <string name="Media.PlayItemDialogHeader">Odtwórz element</string>
+  <string name="Media.PlayAudioItems">Odtwórz elementy audio</string>
+  <string name="Media.EnqueueAudioItems">Dodaj do kolejki elementy audio</string>
+  <string name="Media.MuteVideoAndPlayAudioItems">Odtwórz elementy audio równocześnie</string>
+  <string name="Media.PlayVideoImageItems">Odtwórz elementy wideo/obrazy</string>
+  <string name="Media.EnqueueVideoImageItems">Dodaj do kolejki elementy wideo/obrazy</string>
+  <string name="Media.PlayVideoImageItemsMutedConcurrentAudio">Odtwórz elementy wideo/obrazy w tle &amp; kontynuuj równoczesny element audio</string>
+  <string name="Media.PlayVideoImageItemsPiP">Odtwórz elementy wideo/obrazy w trybie PiP</string>
+  <string name="Media.PlayAudioItem">Odtwórz element audio</string>
+  <string name="Media.EnqueueAudioItem">Dodaj do kolejki element audio</string>
+  <string name="Media.MuteVideoAndPlayAudioItem">Odtwórz element audio równocześnie</string>
+  <string name="Media.PlayVideoImageItem">Odtwórz element wideo/obraz</string>
+  <string name="Media.EnqueueVideoImageItem">Dodaj do kolejki element wideo/obraz</string>
+  <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Odtwórz element wideo/obraz w tle &amp; kontynuuj równoczesny element audio</string>
+  <string name="Media.PlayVideoImageItemPiP">Odtwórz element wideo/obraz w trybie PiP</string>
   <!--Player context names-->
+  <string name="Media.VideoImageContextName">Wideo/obraz</string>
+  <string name="Media.AudioContextName">Dźwięk</string>
   <!--Video currently playing-->
+  <string name="Media.VideoCurrentlyPlayingHeader">Informacje bieżącego wideo</string>
+  <string name="Media.VideoTitleLabel">Tytuł:</string>
+  <string name="Media.VideoGenreLabel">Gatunek:</string>
+  <string name="Media.VideoYearLabel">Rok:</string>
+  <string name="Media.VideoDurationLabel">Czas:</string>
+  <string name="Media.VideoActorsLabel">Aktorzy:</string>
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
   <!--Audio currently playing-->
+  <string name="Media.AudioTitleLabel">Tytuł:</string>
+  <string name="Media.AudioYearLabel">Rok:</string>
+  <string name="Media.AudioDurationLabel">Czas:</string>
+  <string name="Media.SavePlaylistAction">Zapisz listę odtwarzania</string>
+  <string name="Media.RemovePlaylistsAction">Usuń listy odtwarzania</string>
   <string name="Media.RepeatMode.None">Żaden</string>
   <string name="Media.RepeatMode.All">Wszystkie</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SwitchFilterMenuItem">Filtr</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtr</string>
   <string name="Settings.Players">Odtwarzacze</string>
 </resources>

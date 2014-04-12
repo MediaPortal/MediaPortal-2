@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Audio CD pružatelj informacija</string>
   <string name="AudioCDResourceProvider.Description">Pristupi audio CD zapisima</string>
 </resources>

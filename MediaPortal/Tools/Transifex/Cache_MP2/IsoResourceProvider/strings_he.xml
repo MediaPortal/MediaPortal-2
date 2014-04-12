@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">ספק משאבי קבצי ISO</string>
   <string name="IsoResourceProvider.Description">גישה לקבצים וספריות בקבצי ISO</string>
 </resources>

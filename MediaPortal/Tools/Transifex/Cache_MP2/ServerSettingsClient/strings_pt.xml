@@ -1,2 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.ServerSettings">Definições do servidor</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Letra da unidade para montar a pasta de conteúdos</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configura a letra da unidade remota no da paste de conteúdos do servidor</string>
+  <string name="Settings.ServerSettings.NetworkCredentials">Credenciais da rede</string>
+  <string name="Settings.ServerSettings.NetworkCredentials.Help">Configura o utilizador e palavra-passe para aceder aos recursos de rede do servidor.</string>
+  <string name="Settings.ServerSettings.ImpersonateInteractive">Usar as credenciais da sessão interativa no servidor</string>
+  <string name="Settings.ServerSettings.UseCredentials">Utilize o utilizador e palavra-passe para aceder á rede</string>
+  <string name="Settings.ServerSettings.UsernamePasswordGroup">Utilizador e palavra-passe</string>
+  <string name="Settings.ServerSettings.Username">Utilizador:</string>
+  <string name="Settings.ServerSettings.Password">Palavra-passe:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Configuração do importador de origem de conteúdos multimédia</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Configurar atualização automática das partilhas</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Ativar actualização automática</string>
+  <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Executar á hora (Base 24h)</string>
+</resources>

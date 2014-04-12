@@ -33,4 +33,6 @@
   <string name="Media.RepeatMode.All">Всичко</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SwitchFilterMenuItem">Филтър</string>
+  <string name="Media.SwitchFilterDialogTitle">Филтър</string>
 </resources>

@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">Czy zapisać zmiany przed zamknięciem?</string>
+  <string name="configuration.unsaved_warning">Uwaga: Niezapisane zmiany</string>
+  <string name="configuration.browse">Przeglądaj</string>
   <string name="configuration.areas.settings">Ustawienia</string>
+  <string name="configuration.areas.logs">Dzienniki</string>
 </resources>

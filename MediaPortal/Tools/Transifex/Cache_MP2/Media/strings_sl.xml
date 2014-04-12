@@ -40,6 +40,8 @@
   <string name="Media.ImageFilterBig">Velike</string>
   <string name="Media.SwitchToBrowseMLView">Na pregled strežnika</string>
   <string name="Media.SwitchToLocalMediaView">Na pregled lokalnih vsebin</string>
+  <string name="Media.SwitchToBrowseShareView">Pojdi na pregled map</string>
+  <string name="Media.SwitchToMediaLibraryView">Pojdi v knjižnjico</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -202,6 +204,8 @@
   <string name="Media.EnqueueVideoImageItem">Dodaj video / sliko v vrsto</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Predvajaj video / slike v ozadju in nadaljuj audio sočasno</string>
   <string name="Media.PlayVideoImageItemPiP">Predvajaj video / slike v PiP načinu</string>
+  <string name="Media.PlaybackResume">Nadaljuj predvajanje</string>
+  <string name="Media.PlaybackFromStart">Predvajaj od začetka</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video / slika</string>
   <string name="Media.AudioContextName">Audio</string>
@@ -309,6 +313,8 @@
   <string name="Media.SortByDate">Uredi po datumu snemanja</string>
   <string name="Media.SortByEpisode">Uredi po epizodah</string>
   <string name="Media.SortingBrowseDefault">Privzeto urejanje</string>
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
+  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Predvajalniki</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zapri predvajalnike ob koncu</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Vključi to nastavitev, da bo MediaPortal ob koncu zaprl predvajalnike</string>

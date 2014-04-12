@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Música</string>
   <string name="Media.MyVideos">Vídeos</string>
   <string name="Media.MyPictures">Imatges</string>
-  <string name="Media.InvalidShareName">Lloc compartit no vàlid</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Servidor MP2 disponible</string>
   <string name="ServerConnection.NotificationServerAvailableText">A la xarxa hi ha com a mínim un servidor MediaPortal2 disponible. Vinculeu-vos-hi per a obtenir-ne totes les funcions.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' al host \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">El servidor d\'inici està desconnectat</string>
   <string name="ServerConnection.DetachMenu">Desvincula</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Desvincula\'t del servidor d\'inici</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Si us desvinculeu del servidor d\'inici totes les dades de llocs compartits locals i els elements media s\'eliminaran de la seva biblioteca. Us hi podeu tornar a vincular més tard. Voleu desvincular del servidor d\'inici \'{0}\' al host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Cerca servidors</string>
   <string name="ServerConnection.DetachFromServer">Desvincula\'t del servidor d\'inici</string>
   <string name="ServerConnection.AttachToServerHeader">Vincula\'t del servidor del MediaPortal 2</string>
@@ -67,9 +65,7 @@
   <string name="ImporterMessages.ImportStartedText">S\'ha iniciat la importació de \'{0}\'.</string>
   <string name="ImporterMessages.ImportCompletedTitle">S\'ha completat la importació</string>
   <string name="ImporterMessages.ImportCompletedText">S\'ha acabat la importació de \'{0}\'.</string>
-  <string name="LocalFsResourceProvider.Name">Proveïdor de recursos del sistema de fitxers local</string>
   <string name="LocalFsResourceProvider.Description">Accedeix al sistema de fitxers local</string>
-  <string name="RemoteResourceProvider.Name">Proveïdor de recursos remot</string>
   <string name="RemoteResourceProvider.Description">Accedeix als recursos d\'un altre sistema MediaPortal 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -122,25 +118,13 @@
   <string name="Settings.Regional.Language">Idioma</string>
   <string name="Settings.Regional.Language.Main">Idioma</string>
   <string name="Settings.Regional.Language.Main.Help">Estableix l\'idioma principal per l\'aplicació</string>
-  <string name="Settings.Shares">Llocs compartits</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Configura llocs compartits</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configuració de llocs compartits</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configura tots els llocs compartits</string>
   <string name="Settings.Shares.Overview">Vista</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Visió dels llocs compartits</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Visió global dels llocs compartits</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Torna a importar tots els llocs compartits</string>
   <string name="Settings.Plugins">Connectors</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Visió dels llocs compartits</string>
-  <string name="SharesOverview.Title">Visió dels llocs compartits</string>
-  <string name="SharesOverview.ReImportAllShares">Torna a importar tots els llocs compartits</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">No es pot recuperar informació dels llocs compartits del sistema, ja que el servidor d\'inici no és connectat.</string>
-  <string name="Shares.NoSharesInThisView">- No hi ha cap lloc compartit a la vista -</string>
   <string name="Shares.InvalidPath">INVCAMÍ NO VÀLID: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">En línia</string>
@@ -148,69 +132,28 @@
   <string name="Shares.ReImport">Torna a importar</string>
   <string name="Shares.Importing">S\'està important...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configuració de llocs compartits</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Elimina llocs compartits</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informació de llocs compartits</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Trieu el sistema</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Trieu el proveïdor de recursos</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Edita el camí</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Trieu el camí</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Edita el nom</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Trieu categories</string>
-  <string name="SharesConfig.CannotAddSharesTitle">No es poden afegir llocs compartits</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">El servidor d\'inici es troba al mateix ordinador, per tant, s\'hi han de registrar tots els llocs compartits. El servidor no és connectat encara; inicieu el servidor d\'inici i proveu de nou.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Configuració de llocs compartits</string>
-  <string name="SharesConfig.NoSharesAvailable">No hi han llocs compartits disponibles</string>
-  <string name="SharesConfig.ShareInformationHeader">Informació de llocs compartits</string>
   <string name="SharesConfig.ShareNameInfo">Nom:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Proveïdor de recursos de referència</string>
   <string name="SharesConfig.ShareSystem">Sistema:</string>
   <string name="SharesConfig.SharePathInfo">Camí:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Camí tècnic:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Categories dels media:</string>
-  <string name="SharesConfig.ReImportShare">Torna a importar el lloc compartit</string>
-  <string name="SharesConfig.SetupDefaultShares">Configura els llocs compartits per defecte</string>
-  <string name="SharesConfig.RemoveShares">Elimina llocs compartits</string>
-  <string name="SharesConfig.EditShare">Edita llocs compartits</string>
   <string name="SharesConfig.ChooseSystem">Trieu sistema</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Seleccioneu els llocs compartits a eliminar</string>
-  <string name="SharesConfig.ChooseSystemForShare">Trieu el sistema del nou lloc compartit</string>
-  <string name="SharesConfig.LocalShare">Lloc compartit local</string>
-  <string name="SharesConfig.LocalShares">Llocs compartits locals</string>
-  <string name="SharesConfig.GlobalShare">Lloc compartit global</string>
-  <string name="SharesConfig.GlobalShares">Llocs compartits globals</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">No es poden gestionar els llocs compartits, ja que el servidor d\'inici no és connectat.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">El servidor d\'inici es troba al mateix ordinador, per tant, només es pot configurar llocs compartits globals.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Seleccioneu un proveïdor de recursos pel lloc compartit</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Edita el camí del lloc compartit</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Editeu un camí vàlid del proveïdor de recursos triat. Podeu editar un camí senzill que sigui comprès pel proveïdor de recursos. Tanmateix, podeu editar un camí complex amb el format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Tria el camí del lloc compartit</string>
-  <string name="SharesConfig.EditShareName">Edita el nom en pantalla del lloc compartit</string>
-  <string name="SharesConfig.ChooseShareCategories">Trieu les categories dels continguts media al lloc compartit</string>
-  <string name="SharesConfig.SharePathExists">Ja hi ha un lloc compartit amb aquest camí</string>
-  <string name="SharesConfig.ShareNameExists">Ja hi ha un lloc compartit amb aquest nom</string>
-  <string name="SharesConfig.ShareNameEmpty">Edita el nom del lloc compartit</string>
-  <string name="SharesConfig.EditShareProblemHeader">S\'ha produït un problema en configurar el lloc compartit</string>
-  <string name="SharesConfig.EditShareProblemText">S\'ha produït un error intern en configurar el lloc compartit</string>
-  <string name="SharesConfig.MenuAddShare">Afegeix un lloc compartit</string>
   <string name="SharesConfig.MenuEditShares">Edita</string>
-  <string name="SharesConfig.MenuRemoveShares">Elimina llocs compartits</string>
-  <string name="SharesConfig.AddServerShare">Afegeix un lloc compartit global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Edita un lloc compartit global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Afegeix un lloc compartit locall</string>
-  <string name="SharesConfig.EditLocalShare">Edita un lloc compartit local</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Actualitza el lloc compartit</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">S\'ha actualitzat el proveïdor de recursos i/o el camí del lloc compartit.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La informació dels elements a la biblioteca de media del lloc compartit es pot actualitzar (moure), o buidar i tornar a importar.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Voleu actualitzar, o buidar i tornar a importar?</string>
   <string name="SharesConfig.Relocate">Actualitzar</string>
   <string name="SharesConfig.ReImport">Torna a importar</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - la GUI del MediaPortal. Reprodueix contingut media, allotja els llocs compartits locals i proveeix la interfície d\'usuari.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

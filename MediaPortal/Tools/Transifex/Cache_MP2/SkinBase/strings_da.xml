@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Musik</string>
   <string name="Media.MyVideos">Videoer</string>
   <string name="Media.MyPictures">Billeder</string>
-  <string name="Media.InvalidShareName">Invalid share</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server tilgængelig</string>
   <string name="ServerConnection.NotificationServerAvailableText">Der er mindst en MediaPortal 2 server på dette netværk. Knyt forbindelse til den for at opnå alle MediaPortal 2\'s fordele.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' på vært \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Hjemmeserver er pt ikke tilknyttet.</string>
   <string name="ServerConnection.DetachMenu">Afbryd </string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Afbryd fra hjemmeserver</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Hvis du afbryder forbindelse til hjemmeserveren, så slettes alle data om lokal deling og deres medie emner vil blive fjernet fra hjemmeserverens medie bibliotek. Du kan genetablere forbindelsen senere. Vil du virkelig afbryder forbindelse til hjemmeserveren \'{0}\' på vært \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Søger efter servere</string>
   <string name="ServerConnection.DetachFromServer">Afbryd fra hjemmeserver</string>
   <string name="ServerConnection.AttachToServerHeader">Tilknyt MediaPortal 2 server</string>
@@ -67,9 +65,7 @@
   <string name="ImporterMessages.ImportStartedText">Import af \'{0}\' er startet.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import er afsluttet</string>
   <string name="ImporterMessages.ImportCompletedText">Import af \'{0}\' er afsluttet.</string>
-  <string name="LocalFsResourceProvider.Name">Lokale filesystem ressourceudbyder</string>
   <string name="LocalFsResourceProvider.Description">Adgang til lokale filsystem</string>
-  <string name="RemoteResourceProvider.Name">Ekstern ressourceudbyder</string>
   <string name="RemoteResourceProvider.Description">Få adgang til ressourcer placeret på et andet MediaPortal 2-system</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -122,25 +118,13 @@
   <string name="Settings.Regional.Language">Sprog</string>
   <string name="Settings.Regional.Language.Main">Sprog</string>
   <string name="Settings.Regional.Language.Main.Help">Vælg hovedsproget for applikationen.</string>
-  <string name="Settings.Shares">Delinger</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Konfigurer delinger</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Delings konfiguration</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Konfigurer alle lokale delinger</string>
   <string name="Settings.Shares.Overview">Oversigt</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Delingsoversigt</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Global delingsoversigt</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Genimporter alle delinger</string>
   <string name="Settings.Plugins">Plugins</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Delingsoversigt</string>
-  <string name="SharesOverview.Title">Delingsoversigt</string>
-  <string name="SharesOverview.ReImportAllShares">Genimporter alle delinger</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Hjemmeserveren er ikke forbundet, system delingsinformation kan ikke hentes.</string>
-  <string name="Shares.NoSharesInThisView">- Ingen delinger i denne oversigt -</string>
   <string name="Shares.InvalidPath">Ulovlig sti: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -148,69 +132,28 @@
   <string name="Shares.ReImport">Genimporter</string>
   <string name="Shares.Importing">importer</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Delings konfiguration</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Fjern deling</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Delings info</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Vælg system</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Vælg ressource leverandør</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Ret sti</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Vælg sti</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Ret navn</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Vælg kategorier</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Kan ikke tilføje delinger</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Hjemmeserveren findes på samme computer, derfor skal alle delinger registreres på serveren. Men serveren er ikke forbundet i øjeblikket. Start venligst hjemmeserveren og prøv igen.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Delingskonfiguration</string>
-  <string name="SharesConfig.NoSharesAvailable">Der er ingen delinger til rådighed</string>
-  <string name="SharesConfig.ShareInformationHeader">Delings information</string>
   <string name="SharesConfig.ShareNameInfo">Navn:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Base ressourceudbyder:</string>
   <string name="SharesConfig.ShareSystem">System:</string>
   <string name="SharesConfig.SharePathInfo">Sti:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Teknisk sti:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Media kategorier:</string>
-  <string name="SharesConfig.ReImportShare">Reimporter deling</string>
-  <string name="SharesConfig.SetupDefaultShares">Opsætning af standard delinger</string>
-  <string name="SharesConfig.RemoveShares">Fjern delinger</string>
-  <string name="SharesConfig.EditShare">Ret deling</string>
   <string name="SharesConfig.ChooseSystem">Vælg system</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Vælg venligst de delinger, der skal fjernes.</string>
-  <string name="SharesConfig.ChooseSystemForShare">Vælg system til den nye deling</string>
-  <string name="SharesConfig.LocalShare">Lokal deling</string>
-  <string name="SharesConfig.LocalShares">Lokale delinger</string>
-  <string name="SharesConfig.GlobalShare">Global deling</string>
-  <string name="SharesConfig.GlobalShares">Globale delinger</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Hjemmeserveren er pt ikke tilknyttet, så globale delinger kan ikke vedligeholdes i øjeblikket.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Hjemmeserveren er placeret på samme maskine, så kun globale delinger kan konfigureres,</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Vælg venligst en ressourceudbyder til delingen</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Ret stien til delingen</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Vælg en gyldig sti på den valgte ressourceudbyderen. Du kan bruge en simpel sti, som er forståelig for ressourceudbyderen. Du kan også lave en compleks sti i formatet {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare"> Vælg delingens sti.</string>
-  <string name="SharesConfig.EditShareName">Ret delingens display navn</string>
-  <string name="SharesConfig.ChooseShareCategories">Vælg kategorierne, der beskriver media indholdet i delingen.</string>
-  <string name="SharesConfig.SharePathExists">En deling med den sti findes allerede</string>
-  <string name="SharesConfig.ShareNameExists">En deling med det navn findes allerede</string>
-  <string name="SharesConfig.ShareNameEmpty">Giv delingen et navn</string>
-  <string name="SharesConfig.EditShareProblemHeader">Fejl opstået under konfiguration af deling</string>
-  <string name="SharesConfig.EditShareProblemText">Intern fejl opstået under konfiguration af deling</string>
-  <string name="SharesConfig.MenuAddShare">Tilføj deling</string>
   <string name="SharesConfig.MenuEditShares">Ret</string>
-  <string name="SharesConfig.MenuRemoveShares">Fjern deling</string>
-  <string name="SharesConfig.AddServerShare">Tilføj global deling</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Ret global deling</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Tilføj lokal deling</string>
-  <string name="SharesConfig.EditLocalShare">Ret lokal deling</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Opdater deling</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Delingens ressource udbyder og / eller sti er blevet opdateret.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Mediebibliotekets oplysninger om medieelementer på den pågældende deling kan opdateres (flyttes) eller sletttes og genimporteres.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Ønsker du at flytte eller slette, og importere?</string>
   <string name="SharesConfig.Relocate">Flyt</string>
   <string name="SharesConfig.ReImport">ReImport</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 klient</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 klient - MediaPortal GUI. Afspiller medieindhold, vært for lokale delinger og tilbyder brugergrænsefladen.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 klient</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

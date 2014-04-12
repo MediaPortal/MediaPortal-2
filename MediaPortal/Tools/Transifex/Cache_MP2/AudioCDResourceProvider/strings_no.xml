@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">CD-plate ressurstilbyder</string>
   <string name="AudioCDResourceProvider.Description">Hent sporene til CD-plate</string>
 </resources>

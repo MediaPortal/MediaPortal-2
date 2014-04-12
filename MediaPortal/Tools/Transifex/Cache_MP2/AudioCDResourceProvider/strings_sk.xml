@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Obsluha Audio CD</string>
   <string name="AudioCDResourceProvider.Description">Prístup k stopám na audio CD</string>
 </resources>

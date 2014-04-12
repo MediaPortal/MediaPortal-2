@@ -26,7 +26,6 @@
   <string name="Media.MyMusic">Muusika</string>
   <string name="Media.MyVideos">Videod</string>
   <string name="Media.MyPictures">Pildid</string>
-  <string name="Media.InvalidShareName">Vigane jagamine</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server saadaval</string>
   <string name="ServerConnection.NotificationServerAvailableText">Vähemalt üks MP2 server saadaval, ühenda see MediaPortal 2 kõigi võimaluste kasutamiseks.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' hostil \'{1}\'</string>
@@ -44,7 +43,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Koduserver on hetkel eraldatud</string>
   <string name="ServerConnection.DetachMenu">Eralda</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Eraldu koduserverist</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Kui eraldud koduserverist eemaldatakse kõik andmed kohalike jagamisete ja meediafailide kohta meedia loetelust. Hiljem saab uuesti ühenduda. Kas eralduda koduserverist \'{0}\' hostil \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Serveri otsimine</string>
   <string name="ServerConnection.DetachFromServer">Eraldu koduserverist</string>
   <string name="ServerConnection.AttachToServerHeader">Ühendu MediaPortal 2 serveriga</string>
@@ -65,9 +63,7 @@
   <string name="ImporterMessages.ImportStartedText">\'{0}\' import  on alustatud</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import valmis</string>
   <string name="ImporterMessages.ImportCompletedText">\'{0}\' import on valmis</string>
-  <string name="LocalFsResourceProvider.Name">Kohaliku failisüsteemi ressursipakkuja</string>
   <string name="LocalFsResourceProvider.Description">Pääs kohalikku failisüsteemi</string>
-  <string name="RemoteResourceProvider.Name">Kauge ressursipakkuja</string>
   <string name="RemoteResourceProvider.Description">Pääs teise MediaPortal 2 süsteemi ressurssi</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -117,25 +113,13 @@
   <string name="Settings.Regional.Language">Keel</string>
   <string name="Settings.Regional.Language.Main">Keel</string>
   <string name="Settings.Regional.Language.Main.Help">Sea põhikeeleks</string>
-  <string name="Settings.Shares">Jagamised</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Seadista jagamisi</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Jagamiste seaded</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Seadista kõik kohalikud jagamised</string>
   <string name="Settings.Shares.Overview">Ülevaade</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Jagamiste Ülevaade</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Globaalne jagamiste ülevaade</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Taasimpordi kõik jagamised</string>
   <string name="Settings.Plugins">Lisad</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Jagamiste ülevaade</string>
-  <string name="SharesOverview.Title">Jagamiste ülevaade</string>
-  <string name="SharesOverview.ReImportAllShares">Taasimpordi kõik jagamised</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Koduserver pole ühendatud, süsteemi jagamiste info pole saadaval.</string>
-  <string name="Shares.NoSharesInThisView">-Selles vaates pole jagamisi-</string>
   <string name="Shares.InvalidPath">VIGANE TEE: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -143,69 +127,28 @@
   <string name="Shares.ReImport">Taasimport</string>
   <string name="Shares.Importing">Impordin...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Jagamiste seaded</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Eemalda jagamised</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Jagamiste info</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Vali süsteem</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Vali ressursipakkuja</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Muuda teed</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Vali tee</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Muuda nime</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Vali kategooriad</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Ei saa jagada</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Koduserver on samas arvutis ja kõik jagamised peavad olema serveris registreeritud. Kuid server pole hetkel ühendatud. Palun käivitage koduserver ja proovige uuesti.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Jagamiste seaded</string>
-  <string name="SharesConfig.NoSharesAvailable">Jagamisi pole saadaval</string>
-  <string name="SharesConfig.ShareInformationHeader">Jagamise info</string>
   <string name="SharesConfig.ShareNameInfo">Nimi</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Põhiressursi pakkuja</string>
   <string name="SharesConfig.ShareSystem">Süsteem:</string>
   <string name="SharesConfig.SharePathInfo">Tee:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Tehniline tee:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Meedia kategooriad</string>
-  <string name="SharesConfig.ReImportShare">Taasimpordi jagamine</string>
-  <string name="SharesConfig.SetupDefaultShares">Sea vaikejagamised</string>
-  <string name="SharesConfig.RemoveShares">Eemalda jagamised</string>
-  <string name="SharesConfig.EditShare">Muuda jagamist</string>
   <string name="SharesConfig.ChooseSystem">Vali süsteem</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Palun vali eemaldatavad jagamised</string>
-  <string name="SharesConfig.ChooseSystemForShare">Palun vali uuele jagamisele süsteem</string>
-  <string name="SharesConfig.LocalShare">Kohalik jagamine</string>
-  <string name="SharesConfig.LocalShares">Kohalikud jagamised</string>
-  <string name="SharesConfig.GlobalShare">Globaalne jagamine</string>
-  <string name="SharesConfig.GlobalShares">Globaalsed jagamised</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Koduserver pole ühendatud ja globaalseid jagamisi ei saa juhtida.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Koduserver on samas masinas, seadistada saab ainult globaalseid jagamisi.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Palun valida jagamise ressursipakkuja</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Muuda jagamise teed</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Muuda lubatud teed valitud ressursipakkujas. Võib muuta lihtsat teed mis on ressursipakkujale arusaadav. Võib muuta teed ka kujul  {[Baasressursipakkuja-ID]}://[Baasressursipakkuja-Tee]&gt;{[Seotud ressursipakkuja-ID]}://[Seotud ressursipakkuja-Tee]&gt;..</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Vali tee jagamisele</string>
-  <string name="SharesConfig.EditShareName">Muuda jagamise nimesilti</string>
-  <string name="SharesConfig.ChooseShareCategories">Vali jagamise meediakategooriad</string>
-  <string name="SharesConfig.SharePathExists">Selle tee jagamine on juba</string>
-  <string name="SharesConfig.ShareNameExists">Selle nimega jagamine on juba </string>
-  <string name="SharesConfig.ShareNameEmpty">Muuda jagamise nime</string>
-  <string name="SharesConfig.EditShareProblemHeader">Jagamise seadmise probleem</string>
-  <string name="SharesConfig.EditShareProblemText">Jagamise seadmisel tekkis sisemine viga</string>
-  <string name="SharesConfig.MenuAddShare">Lisa jagamine</string>
   <string name="SharesConfig.MenuEditShares">Muuda</string>
-  <string name="SharesConfig.MenuRemoveShares">Eemalda jagamised</string>
-  <string name="SharesConfig.AddServerShare">Lisa globaalne jagamine</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Muuda globaalset jagamist</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Lisa kohalik jagamine</string>
-  <string name="SharesConfig.EditLocalShare">Muuda kohalikku jagamist</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Värskenda jagamist</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Jagamise ressurs ja/või tee on muutunud</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Meedialoetelu infot saab täiendada, puhastada või taasimportida</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Kas soovite taasimportida või asukohta muuta?</string>
   <string name="SharesConfig.Relocate">Muuda asukohta</string>
   <string name="SharesConfig.ReImport">Taasimpordi</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPartal 2 klient</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 klient - MediaPortal GUI. Esitab meediat, säilitab kohalikke jagamisi ning on kasutajaliides.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 klient</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

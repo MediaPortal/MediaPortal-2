@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Resursförsörjare för ISO-filer</string>
+  <string name="IsoResourceProvider.Name">ISO-fil</string>
   <string name="IsoResourceProvider.Description">Ger åtkomst till filer och mappar i ISO-avbildningar (CD/DVD skivor)</string>
 </resources>

@@ -26,7 +26,6 @@
   <string name="Media.MyMusic">Zene</string>
   <string name="Media.MyVideos">Videók</string>
   <string name="Media.MyPictures">Képek</string>
-  <string name="Media.InvalidShareName">Érvénytelen megosztás</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 szerver elérhető</string>
   <string name="ServerConnection.NotificationServerAvailableText">Legalább egy elérhető MediaPortal 2 szerver van a hálózaton. Csatlakozzon a MediaPortal 2 összes funkciójának a használatához.</string>
   <!--{0} = server name, {1} = host name-->
@@ -103,24 +102,13 @@
   <string name="Settings.Regional.Language">Nyelv</string>
   <string name="Settings.Regional.Language.Main">Nyelv</string>
   <string name="Settings.Regional.Language.Main.Help">Adja meg a program használatának a fő nyelvét</string>
-  <string name="Settings.Shares">Megosztások</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Állítsa be a megosztásokat</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Megosztások beállítása</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Összes helyi megosztás beállítása</string>
   <string name="Settings.Shares.Overview">Áttekintés</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Megosztások áttekintése</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Megosztások globális áttekintése</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Összes megosztás újraimportálása</string>
   <string name="Settings.Plugins">Bővítmények</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Megosztások áttekintése</string>
-  <string name="SharesOverview.Title">Megosztások áttekintése</string>
-  <string name="SharesOverview.ReImportAllShares">Összes megosztás újraimportálása</string>
-  <string name="Shares.NoSharesInThisView">- Nincsenek megosztások ebben a nézetben -</string>
   <string name="Shares.InvalidPath">ÉRVÉNYTELEN ÚTVONAL: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -128,51 +116,19 @@
   <string name="Shares.ReImport">Újraimportálás</string>
   <string name="Shares.Importing">Importálás...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Megosztások beállítása</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Megosztások eltávolítása</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Megosztás infó</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Rendszer kiválasztása</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Útvonal szerkesztése</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Útvonal kiválasztása</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Név szerkesztése</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Kategória kiválasztása</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Nem lehet a megosztást hozzáadni</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Megosztások beállítása</string>
-  <string name="SharesConfig.NoSharesAvailable">Nincsenek elérhető megosztások</string>
-  <string name="SharesConfig.ShareInformationHeader">Megosztás információi</string>
   <string name="SharesConfig.ShareNameInfo">Név:</string>
   <string name="SharesConfig.ShareSystem">Rendszer:</string>
   <string name="SharesConfig.SharePathInfo">Útvonal:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technikai útvonal:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Média kategóriák:</string>
-  <string name="SharesConfig.ReImportShare">Megosztás újraimportálása</string>
-  <string name="SharesConfig.SetupDefaultShares">Alapértelmezett megosztások beállítása</string>
-  <string name="SharesConfig.RemoveShares">Megosztások eltávolítása</string>
-  <string name="SharesConfig.EditShare">Megosztás szerkesztése</string>
   <string name="SharesConfig.ChooseSystem">Rendszer kiválasztása</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Kérjük válassza ki az eltávolítandó megosztásokat</string>
-  <string name="SharesConfig.LocalShare">Helyi megosztás</string>
-  <string name="SharesConfig.LocalShares">Helyi megosztások</string>
-  <string name="SharesConfig.GlobalShare">Globális megosztás</string>
-  <string name="SharesConfig.GlobalShares">Globális megosztások</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Szerkessze a megosztás elérési útvonalát</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Válassza ki a megosztás elérési útvonalát</string>
-  <string name="SharesConfig.EditShareName">Szerkessze a megosztás megjelenítő nevét</string>
-  <string name="SharesConfig.SharePathExists">Egy megosztás ezzel az elérési útvonallal már létezik</string>
-  <string name="SharesConfig.ShareNameExists">Egy megosztás ezzel a névvel már létezik</string>
-  <string name="SharesConfig.ShareNameEmpty">Szerkessze a megosztás nevét</string>
-  <string name="SharesConfig.EditShareProblemHeader">Probléma a megosztás beállításánál</string>
-  <string name="SharesConfig.EditShareProblemText">Egy belső hiba történt a megosztás beállításánál</string>
-  <string name="SharesConfig.MenuAddShare">Megosztás hozzáadása</string>
   <string name="SharesConfig.MenuEditShares">Szerkesztés</string>
-  <string name="SharesConfig.MenuRemoveShares">Megosztások eltávolítása</string>
-  <string name="SharesConfig.AddServerShare">Globális megosztás hozzáadása</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Globális megosztás szerkesztése</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Helyi megosztás hozzáadása</string>
-  <string name="SharesConfig.EditLocalShare">Helyi megosztás szerkesztése</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Megosztás frissítése</string>
   <string name="SharesConfig.Relocate">Újrameghatározás</string>
   <string name="SharesConfig.ReImport">Újraimportálás</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 kliens</string>

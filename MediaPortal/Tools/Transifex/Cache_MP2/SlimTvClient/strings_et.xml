@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV Kava</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Saate info</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Saade</string>
@@ -17,5 +19,8 @@
   <string name="SlimTvClient.RecordNow">Salvesta kohe</string>
   <string name="SlimTvClient.DeleteSchedule">Kustuta salvestuste plaan</string>
   <string name="SlimTvClient.CreateSchedule">Planeeri salvestus</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

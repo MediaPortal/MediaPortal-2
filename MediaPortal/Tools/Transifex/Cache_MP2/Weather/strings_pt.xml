@@ -37,7 +37,6 @@
   <string name="Weather.Showers">Pancadas</string>
   <string name="Weather.Few">Pouco</string>
   <string name="Weather.Scattered">Esparso</string>
-  <string name="Weather.Wind">Vento</string>
   <string name="Weather.Strong">Forte</string>
   <string name="Weather.Clear">Limpo</string>
   <string name="Weather.Early">Mais cedo</string>
@@ -83,4 +82,7 @@
   <string name="WeatherSetup.SearchCity">Procurar cidade</string>
   <string name="WeatherSetup.AddCity">Adicionar cidade</string>
   <string name="WeatherSetup.RemoveCity">Remover cidade</string>
+  <string name="WeatherSetup.Detect">Detetar</string>
+  <string name="WeatherSetup.DetectionFailed">Falhou a deteção</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Falhou a deteção automática da sua localização.</string>
 </resources>

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="PartyMusicPlayer.MenuItem">舞会音乐播放器</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">舞会音乐播放器</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">舞会音乐播放器</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">舞会音乐播放器配置</string>
+  <string name="PartyMusicPlayer.Playlist">播放列表</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">选择播放列表</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">使用转义密码</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">关闭屏幕保护</string>
+  <string name="PartyMusicPlayer.StartPartyMode">开始舞会模式</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">选择播放列表</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">转义密码</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">请输入舞会模式的转义密码</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">转义密码错误</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">对不起，转义密码错误！</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">服务器未连接</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">此动作必须在服务器连接的情况使用</string>
+  <string name="PartyMusicPlayer.PlayerContextName">舞会音乐播放器</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">艺术家</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">标题</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">显示播放列表</string>
+</resources>

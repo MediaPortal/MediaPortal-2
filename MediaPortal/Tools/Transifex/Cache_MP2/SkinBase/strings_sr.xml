@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Музика</string>
   <string name="Media.MyVideos">Видео</string>
   <string name="Media.MyPictures">Слике</string>
-  <string name="Media.InvalidShareName">Немогуће је делити</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">МП2 сервер је доступан</string>
   <string name="ServerConnection.NotificationServerAvailableText">Најмање један МедиајПортал 2 је доступан на мрежи. Прикачи се на њега како би добио све могућности Медија Портала 2</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' на домаћину \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Кућни сервер није тренутно прикључен.</string>
   <string name="ServerConnection.DetachMenu">Раскачи</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Разкачи са кућног сервера</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Ако се раскачите са кућног сервера, сви подаци о локалним фајловима за размену ће бити одстрањени са библиотеке кућног сервера. Можете их накачити поново. Да ли стварно желите за се раскачите са кућног сервера?</string>
   <string name="ServerConnection.SearchForServers">Поздрави сервере</string>
   <string name="ServerConnection.DetachFromServer">Раскачи се са кућног сервера</string>
   <string name="ServerConnection.AttachToServerHeader">Накачи МедијаПортал 2 сервер</string>
@@ -67,9 +65,7 @@
   <string name="ImporterMessages.ImportStartedText">Унос \'{0}\' је започет.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Унос је завршен</string>
   <string name="ImporterMessages.ImportCompletedText">Унос \'{0}\' је завршен.</string>
-  <string name="LocalFsResourceProvider.Name">Локални фајл систем извор.</string>
   <string name="LocalFsResourceProvider.Description">Приступи локалном фајл систему</string>
-  <string name="RemoteResourceProvider.Name">Даљински извор</string>
   <string name="RemoteResourceProvider.Description">Приступи изворима који се налазе на другом МедијаПортал 2 систему</string>
   <string name="ScreenSaver.MediaPortal2">МедијаПортал 2</string>
   <!--For MP UI player subsystem-->
@@ -122,25 +118,13 @@
   <string name="Settings.Regional.Language">Језик</string>
   <string name="Settings.Regional.Language.Main">Језик</string>
   <string name="Settings.Regional.Language.Main.Help">Подеси главни језик у програму</string>
-  <string name="Settings.Shares">Фајлови за размену</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Подеси размену фајлова</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Размена фајлова - подешавање</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Подеси све локалне размене фајлова</string>
   <string name="Settings.Shares.Overview">Преглед</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Преглед размена</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Глобални преглед размена</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Поново увези све реазмене</string>
   <string name="Settings.Plugins">Прикључци</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Преглед размена</string>
-  <string name="SharesOverview.Title">Преглед размена</string>
-  <string name="SharesOverview.ReImportAllShares">Поново увези све размене</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Кућни сервер није прикључен, информације о разменама се не могу добити</string>
-  <string name="Shares.NoSharesInThisView">Нема размена у овом приказу</string>
   <string name="Shares.InvalidPath">Неважећа путања: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Онлајн</string>
@@ -148,69 +132,28 @@
   <string name="Shares.ReImport">Поново увези</string>
   <string name="Shares.Importing">Увоз ...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Размена фајлова подешавање</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Избаци фајлове за размену</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Информације о размени</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Изабери систем</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Одабери клијента за размену</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Промени путању</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Одабери путању</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Измени име</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Изабети категорију</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Није могуће додати размењене фајлове</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Кућни сервер је лоциран на истом компјутеру. Према томе, сви фајлови за размену морају бити регистровани на серверу. АЛи, сервер није тренутно прикачен. Покрени сервер и пробај поново.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Размене - подешавање</string>
-  <string name="SharesConfig.NoSharesAvailable">Не постоје фајлови за размену.</string>
-  <string name="SharesConfig.ShareInformationHeader">Информације о размени</string>
   <string name="SharesConfig.ShareNameInfo">Име:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Извор размене:</string>
   <string name="SharesConfig.ShareSystem">Систем:</string>
   <string name="SharesConfig.SharePathInfo">Путања:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Техничка путања:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Категорије медије:</string>
-  <string name="SharesConfig.ReImportShare">\"Релпорт\" размена</string>
-  <string name="SharesConfig.SetupDefaultShares">Подеси подразумеване размене</string>
-  <string name="SharesConfig.RemoveShares">Одстрани размену</string>
-  <string name="SharesConfig.EditShare">Измени размену</string>
   <string name="SharesConfig.ChooseSystem">Изабери систем</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Одаберите рамену за одстрањивање</string>
-  <string name="SharesConfig.ChooseSystemForShare">Одабери систем за нову размену</string>
-  <string name="SharesConfig.LocalShare">Локална размена</string>
-  <string name="SharesConfig.LocalShares">Локалне размене</string>
-  <string name="SharesConfig.GlobalShare">Глобална размена</string>
-  <string name="SharesConfig.GlobalShares">Глобалне размене</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Кућни сервер тренутно није прикачен. Глобалне размене се не могу мењати.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Кућни сервер се налази на истој машини. Једино глобалне размене се могу мењати.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Одабери извор размене.</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Измени путању до размене</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Измените важећу путању на изабраном извору размене. Можете изменити једноставну путању која је разумљива за извор размене. Можете такође изменити комплексну путању за извор размене у формату  {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Одаберите путању до размене</string>
-  <string name="SharesConfig.EditShareName">Измени назив размене</string>
-  <string name="SharesConfig.ChooseShareCategories">Изабери категорије медије која се налази у размени</string>
-  <string name="SharesConfig.SharePathExists">Размена за овом путањом већ постоји</string>
-  <string name="SharesConfig.ShareNameExists">Размена за овим именом већ постоји</string>
-  <string name="SharesConfig.ShareNameEmpty">Измени име размене</string>
-  <string name="SharesConfig.EditShareProblemHeader">Проблем приликом подешавања размене</string>
-  <string name="SharesConfig.EditShareProblemText">Појавила се унутрашња грешка приликом подешавања размене</string>
-  <string name="SharesConfig.MenuAddShare">Додај размену</string>
   <string name="SharesConfig.MenuEditShares">Измени</string>
-  <string name="SharesConfig.MenuRemoveShares">Избаци размене</string>
-  <string name="SharesConfig.AddServerShare">Додај глобалну размену</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Измени глобалну размену</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Додај локалну размену</string>
-  <string name="SharesConfig.EditLocalShare">Измени локалну размену</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Освежи размену</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Извор размене је освежен</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Информација о медији у овој размени мође бити озвежена или обризана или поново унесена.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Да ли желите да промените место размени или да је очистире или поново унесете?</string>
   <string name="SharesConfig.Relocate">Промени место</string>
   <string name="SharesConfig.ReImport">Поново унеси</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">МедијаПортал 2 клијент</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">МедијаПортал 2 клијент - МедијаПортал ГУИ. </string>
   <string name="UPnPFrontendServer.ModelName">МедијаПортал 2 клијент</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

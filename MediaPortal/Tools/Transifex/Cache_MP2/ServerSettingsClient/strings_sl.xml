@@ -10,4 +10,8 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Uporabniški ime in geslo</string>
   <string name="Settings.ServerSettings.Username">Uporabniško ime:</string>
   <string name="Settings.ServerSettings.Password">Geslo:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Konfiguracija importerja izvora medijev</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Nastavi avtomatično osveževanje virov</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Omogoči avtomatsko osveževanje</string>
+  <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Izvajaj ob navedeni uri dneva (0 - 24)</string>
 </resources>

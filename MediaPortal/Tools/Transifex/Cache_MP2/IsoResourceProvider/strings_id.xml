@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Penyedia sumber file ISO</string>
   <string name="IsoResourceProvider.Description">Akses file dan direktori di dalam citra ISO</string>
 </resources>

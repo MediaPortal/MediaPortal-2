@@ -10,7 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Usuario y clave</string>
   <string name="Settings.ServerSettings.Username">Usuario:</string>
   <string name="Settings.ServerSettings.Password">Clave:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Configuración del importador de compartidos</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Configuración para importar archivos</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurar el refresco automático de los compartidos</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Activar refresco automático</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Ejecutar a la hora del día (formato de 24h)</string>

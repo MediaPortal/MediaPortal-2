@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Клієнт Slim TV</string>
+  <string name="SlimTvClient.Main">ТБ</string>
   <string name="SlimTvClient.ChannelLabel">Канал</string>
   <string name="SlimTvClient.ProgramLabel">Програма</string>
   <string name="SlimTvClient.DescriptionLabel">Опис</string>
@@ -8,4 +9,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Час початку</string>
   <string name="SlimTvClient.ProgramEndLabel">Час кінця</string>
   <string name="SlimTvClient.EpisodeLabel">Епізод</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
 </resources>

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">ЦД аудио давалац услуга</string>
   <string name="AudioCDResourceProvider.Description">Приступи Аудио ЦД нумерама</string>
 </resources>

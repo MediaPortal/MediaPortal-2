@@ -39,5 +39,7 @@
   <string name="Media.RepeatMode.All">सभी</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SwitchFilterMenuItem">फ़िल्टर</string>
+  <string name="Media.SwitchFilterDialogTitle">फ़िल्टर</string>
   <string name="Settings.Players">प्लेयर</string>
 </resources>

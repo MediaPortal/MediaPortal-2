@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Resursförsörjare för det lokala nätverket</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Nätverk</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Åtkomst till mappar på datorer i det lokala nätverket</string>
 </resources>

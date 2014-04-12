@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Nach drahtlosen Netzwerken suchen</string>
+  <string name="Network.NoWirelessNetworksFound">Keine drahtlosen Netzwerke gefunden</string>
+  <string name="Network.Connect">Verbinden</string>
+  <string name="Network.Disconnect">Trennen</string>
+  <string name="Network.EnterWifiPassword">Wi-Fi-Passwort eingeben</string>
+  <string name="Network.DeleteProfile">Wi-Fi-Profil entfernen</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wi-Fi-Verbindung</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Mit drahtlosem Netzwerk verbinden</string>
+</resources>

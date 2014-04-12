@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.System">系统</string>
+  <string name="Settings.Appearance.System.Fullscreen">全屏</string>
+  <string name="Settings.Appearance.System.Fullscreen.Help">全屏显示MediaPortal</string>
+  <string name="Settings.Appearance.System.StartupScreen">开始屏幕</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">选择开始屏幕</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">不适用屏幕选择</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">手机输入方式</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">使用手机/SMS短信输入方式</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled">启用屏幕保护</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">设置是否显示屏保</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">屏保超时</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">配置启动屏保的时间(分钟)</string>
+  <string name="Settings.Appearance.System.Antialiasing">用户图形界面抗锯齿</string>
+  <string name="Settings.Appearance.System.Antialiasing.Help">抗锯齿能够提高显示效果但是会降低视频效果</string>
+  <string name="Settings.Appearance.Skin">皮肤</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">皮肤和主题</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">改变皮肤</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">改变的MediaPortal2的外观和感觉</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">改变主题</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">改变当前皮肤图像</string>
+  <string name="Settings.Players">播放器</string>
+  <string name="Settings.Players.Rendering">渲染</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">默认缩放模式</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">设置默认的视频播放器缩放模式</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel">配置Windows节能</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">在MediaPortal 2运行时，Windows可进入节能模式(自动挂起/关闭/关闭显示屏)</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.None">允许所有系统节能级别</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">禁止系统挂起，但是可以关闭显示</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">禁止系统挂起和关闭显示</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinTitle">读取皮肤错误</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText">恢复到当前皮肤</string>
+  <string name="ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText">恢复到默认皮肤</string>
+  <string name="ScreenManager.ErrorLoadingSkinResource">读取皮肤资源错误</string>
+  <string name="ScreenManager.ScreenMissing">未能找到屏幕\'{0}\'的皮肤资源</string>
+  <string name="ScreenManager.ScreenBroken">显示 \'{0}\' 的皮肤资源已损坏</string>
+  <string name="ScreenManager.BackgroundScreenMissing">未找到显示\'{0}\'的背景皮肤资源</string>
+  <string name="ScreenManager.BackgroundScreenBroken">显示\'{0}\'的背景皮肤资源已损坏</string>
+  <string name="ScreenManager.SuperLayerScreenMissing">未找到屏幕\'{0}\'的超级层的皮肤资源</string>
+  <string name="ScreenManager.SuperLayerScreenBroken">屏幕 \'{0}\' 超级层的皮肤资源已损坏</string>
+  <string name="Geometries.IntelligentZoom">智能缩放</string>
+  <string name="Geometries.LetterBox">Letterbox 4:3</string>
+  <string name="Geometries.Normal">正常</string>
+  <string name="Geometries.Original">原始</string>
+  <string name="Geometries.PanAndScan">全景和扫描</string>
+  <string name="Geometries.Stretch">拉伸</string>
+  <string name="Geometries.Zoom">缩放</string>
+  <string name="Geometries.Zoom149">14:9拉伸</string>
+  <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
+  <string name="Effects.denoise">降噪</string>
+  <string name="Effects.directional_blur">定向模糊</string>
+  <string name="Effects.glass_tiles">玻璃砖</string>
+  <string name="Effects.greyscale">灰阶</string>
+  <string name="Effects.invert">倒置</string>
+  <string name="Effects.none">无</string>
+  <string name="Effects.pixelate">像素化</string>
+  <string name="Effects.sepia">墨色</string>
+  <string name="Effects.sharpen">锐化</string>
+  <string name="Effects.sharpen_complex">锐化(复杂)</string>
+  <string name="Effects.zoom_blur">模糊缩放</string>
+  <string name="PlayerControl.NoPlayer">没有播放器</string>
+  <string name="PlayerControl.NoMediaItem">- 无媒体项-</string>
+  <string name="PlayerControl.UnknownMediaItem">未知媒体项</string>
+  <string name="PlayerControl.UnknownPlayerContextName">播放器</string>
+  <string name="PlayerControl.HeaderNormal">{0}</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.HeaderPiP">{0} (画中画)</string>
+  <!--{0} = media item title-->
+  <string name="PlayerControl.Playing">播放中</string>
+  <string name="PlayerControl.Paused">暂停</string>
+  <string name="PlayerControl.SeekingForward">向前搜索({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SeekingBackward">向后搜索({0})</string>
+  <!--For example: "Seeking forward (2x)"-->
+  <string name="PlayerControl.SlowMotionForward">慢动作向前({0})</string>
+  <!--For example: "Slowmotion forward (0.5x)"-->
+  <string name="PlayerControl.SlowMotionBackward">慢动作向后({0})</string>
+  <!--For example: "Slowmotion backward (0.5x)"-->
+  <string name="PlayerControl.PlaybackRateHint">{0}x</string>
+  <!--For example: 2x or 0.5x-->
+  <string name="PlayerControl.Stopped">已停止</string>
+  <string name="PlayerControl.Ended">结束</string>
+  <string name="PlayerControl.Active">有效的</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">主体颜色</string>
+  <string name="SkinHelper.MenuShowThemeColors">显示主题颜色</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">主题颜色</string>
+  <string name="SkinHelper.ShowThemeColorsText">此屏幕显示了所有当前主题定义的颜色资源(和继承资源)</string>
+  <string name="SkinHelper.LoadSkinTitle">载入皮肤</string>
+  <string name="SkinHelper.LoadThemeTitle">载入主题</string>
+</resources>

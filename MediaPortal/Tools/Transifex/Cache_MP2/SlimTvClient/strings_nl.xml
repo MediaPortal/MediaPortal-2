@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV-gids</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programma-informatie</string>
   <string name="SlimTvClient.ChannelLabel">Zender</string>
   <string name="SlimTvClient.ProgramLabel">Programma</string>
@@ -12,12 +14,20 @@
   <string name="SlimTvClient.Guide">TV-gids</string>
   <string name="SlimTvClient.NoProgram">Geen programma-informatie</string>
   <string name="SlimTvClient.ChooseProgramAction">Kies programma actie...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Kies zendergroep...</string>
   <string name="SlimTvClient.ProgramOver">Programma is reeds afgelopen</string>
   <string name="SlimTvClient.WatchNow">Programma nu bekijken</string>
   <string name="SlimTvClient.RecordNow">Nu opnemen</string>
   <string name="SlimTvClient.DeleteSchedule">Verwijder geplande opname</string>
   <string name="SlimTvClient.CreateSchedule">Plan een opname</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">TV aanbieder (nog) niet beschikbaar</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Aantal rijen in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Stel het aantal rijen (zenders) in dat wordt weergegeven in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Aantal uren in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Stel het aantal uren (programma\'s) in dat wordt weergegeven in EPG</string>
   <string name="SlimTvClient.RecordingsMenuItem">Opnames</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opnames</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filteren op kanaal</string>

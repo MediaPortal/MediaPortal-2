@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Musiikki</string>
   <string name="Media.MyVideos">Videot</string>
   <string name="Media.MyPictures">Kuvat</string>
-  <string name="Media.InvalidShareName">Virheellinen verkkojako</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 palvelin saatavilla</string>
   <string name="ServerConnection.NotificationServerAvailableText">Ainakin yksi MediaPortal 2-palvelin on käytettävissä verkossa. Liity siihen saadaksesi käyttöön kaikki MediaPortal 2:n ominaisuudet.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' isännälle \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Kotipalvelinta ei ole yhdistetty</string>
   <string name="ServerConnection.DetachMenu">Irroita yhteys</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Irrottaudu kotipalvelimesta</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Jos irrottaudut kotipalvelimesta, kaikki tiedot paikallisista verkkojaoista ja niiden mediatiedot poistetaan kotipalvelimen mediakirjastosta. Voit liittää palvelimen myöhemmin uudelleen. Haluatko todella irrottatua kotipalvelimesta \'{0}\' isännällä \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Etsi palvelimia</string>
   <string name="ServerConnection.DetachFromServer">Irrottaudu kotipalvelimesta</string>
   <string name="ServerConnection.AttachToServerHeader">Liity MediaPortal 2 palvelimeen</string>
@@ -67,11 +65,8 @@
   <string name="ImporterMessages.ImportStartedText">Aloitettu \'{0}\'n tuominen.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Tuonti suoritettu.</string>
   <string name="ImporterMessages.ImportCompletedText">Lopettu \'{0}\'n tuominen.</string>
-  <string name="LocalFsResourceProvider.Name">Paikallisen tiedostojärjestelmä resurssin tarjoaja</string>
   <string name="LocalFsResourceProvider.Description">Yhdistä paikalliseen tiedostojärjestelmään</string>
-  <string name="RemoteResourceProvider.Name">Etäresurssien tarjoaja</string>
   <string name="RemoteResourceProvider.Description">Yhdistä toisen MediaPortal 2 järjestelmän resursseihin</string>
-  <string name="RawUrlResourceProvider.Name">Raw Url resurssien tarjoaja</string>
   <string name="RawUrlResourceProvider.Description">Ota yhteyttä raw Url-lähteisiin</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -124,25 +119,13 @@
   <string name="Settings.Regional.Language">Kieli</string>
   <string name="Settings.Regional.Language.Main">Kieli</string>
   <string name="Settings.Regional.Language.Main.Help">Aseta sovelluksen käyttämä pääasiallinen kieli</string>
-  <string name="Settings.Shares">Verkkojaot</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Määritä verkkojaot</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Verkkojakojen määritykset</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Määritä kaikki paikalliset jaot</string>
   <string name="Settings.Shares.Overview">Yleiskatsaus</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Verkkojakojen yleiskatsaus</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Yleiskatsaus verkkojaoista</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Tuo uudellen kaikki verkkojaot</string>
   <string name="Settings.Plugins">Lisäosat</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Verkkojakojen yleiskatsaus</string>
-  <string name="SharesOverview.Title">Verkkojakojen yleiskatsaus</string>
-  <string name="SharesOverview.ReImportAllShares">Tuo uudellen kaikki verkkojaot</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Kotipalvelinta ei ole kytketty, järjestelmän verkkojakojen tietoja ei voi hakea</string>
-  <string name="Shares.NoSharesInThisView">-Tässä näkymässä ei ole verkkojakoja-</string>
   <string name="Shares.InvalidPath">VIRHEELLINEN POLKU: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Verkossa</string>
@@ -150,69 +133,28 @@
   <string name="Shares.ReImport">Tuo uudelleen</string>
   <string name="Shares.Importing">Tuonti...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Verkkojakojen määritykset</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Poista verkkojaot</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Verkkojakojen tiedot</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Valitse järjestelmä</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Valitse resurssin tarjoaja</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Muuta polkua</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Valitse polku</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Muuta nimi</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Valitse luokat</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Ei voi lisätä verkkojakoja</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Kotipalvelin sijaitsee samassa tietokoneessa, joten kaikki jaot on rekisteröitävä palvelimella. Mutta palvelin ei ole yhdistetty tällä hetkellä. Käynnistä kotipalvelin ja yritä uudelleen.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Verkkojakojen määritykset</string>
-  <string name="SharesConfig.NoSharesAvailable">Verkkojakoja ei ole käytettävissä</string>
-  <string name="SharesConfig.ShareInformationHeader">Tietoja verkkojaoista</string>
   <string name="SharesConfig.ShareNameInfo">Nimi:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Perus resurssien tarjoaja:</string>
   <string name="SharesConfig.ShareSystem">Järjestelmä:</string>
   <string name="SharesConfig.SharePathInfo">Polku:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Tekninen polku:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Media-luokat:</string>
-  <string name="SharesConfig.ReImportShare">Tuo verkkojaot uudelleen</string>
-  <string name="SharesConfig.SetupDefaultShares">Määritä oletus verkkojaot</string>
-  <string name="SharesConfig.RemoveShares">Poista verkkojaot</string>
-  <string name="SharesConfig.EditShare">Muokkaa verkkojakoa</string>
   <string name="SharesConfig.ChooseSystem">Valitse järjstelmä</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Valitse poistettavat verkkojaot</string>
-  <string name="SharesConfig.ChooseSystemForShare">Valitse uuden verkkojaon järjestelmä</string>
-  <string name="SharesConfig.LocalShare">Paikallinen verkkojako</string>
-  <string name="SharesConfig.LocalShares">Paikalliset verkkojaot</string>
-  <string name="SharesConfig.GlobalShare">Yleinen verkkojako</string>
-  <string name="SharesConfig.GlobalShares">Yleiset verkkojaot</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Kotipalvelin ei ole juuri nyt kytkettynä, joten yleisiä jakoja ei voida käsitellä tällä hetkellä.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Kotipalvelin sijaitsee samassa tietokoneessa, joten vain yleisiä jakoja voidaan määritellä.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Valitse verkkojaon resurssin tarjoaja</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Muokkaa verkkojaon polku</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Syötä kelvollinen polku valitsemallesi resurssintarjoajalle. Voit syöttää yksinkertaisen polun, jonka resurssientarjoaja ymmärtää. Voit myös syöttää monimutkaisen polun muodossa. {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Valitse verkkojaon polku</string>
-  <string name="SharesConfig.EditShareName">Muokkaa verkkojaon näyttönimi</string>
-  <string name="SharesConfig.ChooseShareCategories">Valitse verkkojaolla sijaitsevien media-sisältöjen luokat</string>
-  <string name="SharesConfig.SharePathExists">Verkkojako annetulla polulla on jo olemassa</string>
-  <string name="SharesConfig.ShareNameExists">Verkkojako annetulla nimellä on jo olemassa</string>
-  <string name="SharesConfig.ShareNameEmpty">Muokkaa verkkojaon nimeä</string>
-  <string name="SharesConfig.EditShareProblemHeader">Ongelma verkkojaon määrittämisessä</string>
-  <string name="SharesConfig.EditShareProblemText">Sisäinen ongelma verkkojaon määrittämisessä</string>
-  <string name="SharesConfig.MenuAddShare">Lisää</string>
   <string name="SharesConfig.MenuEditShares">Muokkaa</string>
-  <string name="SharesConfig.MenuRemoveShares">Poista</string>
-  <string name="SharesConfig.AddServerShare">Lisää yleinen jako</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Muokkaa yleistä jakoa</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Lisää paikallinen jako</string>
-  <string name="SharesConfig.EditLocalShare">Muokkaa paikallista jakoa</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Päivitä jako</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Jaon resurssin tarjoaja ja/tai polku on päivitetty</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Mediakirjaston mediakohteiden tiedot voidaan päivittää (siirretty) tai poistettu ja uudelleen tuotu.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Haluatko siirtää tai poistaa ja tuoda uudelleen?</string>
   <string name="SharesConfig.Relocate">Siirrä</string>
   <string name="SharesConfig.ReImport">Tuo uudelleen</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 asiakaskone</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 asiakasohjelma - MediaPortal GUI. Toistaa mediasisältöä, isännöi paikallisia verkkojakoja ja tarjoaa käyttöliittymän.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 asiakaskone</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

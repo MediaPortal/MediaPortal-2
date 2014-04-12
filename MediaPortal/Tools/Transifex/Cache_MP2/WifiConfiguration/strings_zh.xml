@@ -1,2 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">搜索无线网络</string>
+  <string name="Network.NoWirelessNetworksFound">未发现无线网络</string>
+  <string name="Network.Connect">连接</string>
+  <string name="Network.Disconnect">断开连接</string>
+  <string name="Network.EnterWifiPassword">输入Wifi密码</string>
+  <string name="Network.DeleteProfile">删除Wifi配置</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi连接</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">连接到无线网路</string>
+</resources>

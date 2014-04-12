@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Network naboskab ressourceudbyder</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Tilgå Windows delinger på computerer i det lokale netværks nabolag</string>
 </resources>

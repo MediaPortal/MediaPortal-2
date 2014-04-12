@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV klient</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV program</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informácie o programe</string>
   <string name="SlimTvClient.ChannelLabel">Kanál</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -18,7 +20,14 @@
   <string name="SlimTvClient.RecordNow">Nahrať</string>
   <string name="SlimTvClient.DeleteSchedule">Vymazať tento plán</string>
   <string name="SlimTvClient.CreateSchedule">Naplánovať záznam</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Žiadny TV poskytovateľ nie je zatiaľ dostupný</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Počet riadkov v EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Určuje počet riadkov (kanálov) zobrazených v EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Počet hodín v EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Určuje počet hodín (relácií) zobrazených v EPG</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nahrávky</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV nahrávky</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrovať podľa kanála</string>

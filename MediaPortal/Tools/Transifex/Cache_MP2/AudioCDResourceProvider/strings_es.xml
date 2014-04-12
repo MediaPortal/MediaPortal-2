@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Proveedor de recursos de audio CD</string>
+  <string name="AudioCDResourceProvider.Name">CD de Audio</string>
   <string name="AudioCDResourceProvider.Description">Aceso a pistas de audio CD</string>
 </resources>

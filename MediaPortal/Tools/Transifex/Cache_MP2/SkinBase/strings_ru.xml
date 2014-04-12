@@ -21,7 +21,6 @@
   <string name="Media.MyMusic">Музыка</string>
   <string name="Media.MyVideos">Видео</string>
   <string name="Media.MyPictures">Картинки</string>
-  <string name="Media.InvalidShareName">Неправильное хранилище</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Доступен сервер MP2</string>
   <string name="ServerConnection.NotificationServerAvailableText">По крайней мере один MediaPortal 2 сервер доступен в сети. Подключитесь к нему чтобы получить все возможности MediaPortal 2.</string>
   <!--{0} = server name, {1} = host name-->
@@ -52,10 +51,6 @@
   <!--Setting-->
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Удалить</string>
-  <string name="SharesConfig.RemoveShares">Удалить</string>
-  <string name="SharesConfig.MenuAddShare">Добавить</string>
-  <string name="SharesConfig.MenuRemoveShares">Удалить</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

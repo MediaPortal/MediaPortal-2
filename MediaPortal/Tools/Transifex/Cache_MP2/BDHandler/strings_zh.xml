@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">蓝光源过滤器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">设置用于蓝光播放的源过滤器。目前，只支持Gabest和LAV分离器源。</string>
+</resources>

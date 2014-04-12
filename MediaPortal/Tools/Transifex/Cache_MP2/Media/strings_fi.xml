@@ -40,6 +40,8 @@
   <string name="Media.ImageFilterBig">Suuri</string>
   <string name="Media.SwitchToBrowseMLView">Palvelin näkymään</string>
   <string name="Media.SwitchToLocalMediaView">Paikalliseen näkymään</string>
+  <string name="Media.SwitchToBrowseShareView">Kansio näkymään</string>
+  <string name="Media.SwitchToMediaLibraryView">Kirjasto näkymään</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -311,6 +313,8 @@
   <string name="Media.SortByDate">Lajittele tallennuspäivän mukaan</string>
   <string name="Media.SortByEpisode">Lajittele jakson mukaan</string>
   <string name="Media.SortingBrowseDefault">Oletus lajittelu</string>
+  <string name="Media.SwitchFilterMenuItem">Suodata</string>
+  <string name="Media.SwitchFilterDialogTitle">Suodata</string>
   <string name="Settings.Players">Soittimet</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sammuta soittimet lopuksi</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aseta tämä asetus päälle jotta MediaPortal sammuttaa soittimet automaattisesti</string>

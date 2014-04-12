@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Hudba</string>
   <string name="Media.MyVideos">Videá</string>
   <string name="Media.MyPictures">Galéria</string>
-  <string name="Media.InvalidShareName">Chybná vzdialená zložka</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 server je dostupný</string>
   <string name="ServerConnection.NotificationServerAvailableText">V sieti je najmenej jeden MediaPortal 2 server. Pokiaľ sa k nemu pripojíte, získate všetky možnosti aplikácie MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' na serveri \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Domáci server je odpojený.</string>
   <string name="ServerConnection.DetachMenu">Odpojiť</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Odpojiť sa od domáceho serveru</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Ak sa odpojíte od domáceho servera, všetky dáta o lokálnych zdieľaných zložkách a ich médiách budú odstránené z knižnice médií domáceho servera. Môžete sa potom znovu pripojť. Naozaj sa teraz chcete odpojiť od domáceho servera \'{0}\' na \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Hľadať servery</string>
   <string name="ServerConnection.DetachFromServer">Odpojiť sa od domáceho serveru</string>
   <string name="ServerConnection.AttachToServerHeader">Pripojiť sa k MediaPortal 2 serveru</string>
@@ -67,11 +65,8 @@
   <string name="ImporterMessages.ImportStartedText">Import \'{0}\' bol spustený</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import bol dokončený</string>
   <string name="ImporterMessages.ImportCompletedText">Import \'{0}\' bol dokončený</string>
-  <string name="LocalFsResourceProvider.Name">Obsluha lokálneho súborového systému</string>
   <string name="LocalFsResourceProvider.Description">Prístup na lokálny súborový systém</string>
-  <string name="RemoteResourceProvider.Name">Obsluha vzdialených zdrojov</string>
   <string name="RemoteResourceProvider.Description">Prístup na na zdroje umiestnené na inom MediaPortal 2 systéme</string>
-  <string name="RawUrlResourceProvider.Name">Obsluha čistého URL</string>
   <string name="RawUrlResourceProvider.Description">Pristupovať k čistým zdrojom URL</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -124,25 +119,13 @@
   <string name="Settings.Regional.Language">Jazyk</string>
   <string name="Settings.Regional.Language.Main">Jazyk</string>
   <string name="Settings.Regional.Language.Main.Help">Vyberte hlavný jazyk, ktorý bude používaný v aplikácii</string>
-  <string name="Settings.Shares">Zdieľania</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Nastaviť zdieľanie</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Konfigurácia zdieľaných zložiek</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Konfigurovať lokálne zdieľané zložky</string>
   <string name="Settings.Shares.Overview">Prehľad</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Prehľad zdieľaných zložiek</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Prehľad globálnych zdieľaných zložiek</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">ReImportovať všetky zdieľané zložky</string>
   <string name="Settings.Plugins">Doplnky</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Prehľad zdieľaných zložiek</string>
-  <string name="SharesOverview.Title">Prehľad zdieľaných zložiek</string>
-  <string name="SharesOverview.ReImportAllShares">Reimportovať všetky zdieľané zložky</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Domáci server nie je pripojený, systémové zdieľané zložky sa nedajú načítať</string>
-  <string name="Shares.NoSharesInThisView">- Tomuto pohľadu nevyhovujú žiadne zdieľané zložky -</string>
   <string name="Shares.InvalidPath">NEPLATNÁ CESTA: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -150,69 +133,28 @@
   <string name="Shares.ReImport">ReImportovať</string>
   <string name="Shares.Importing">Importujem...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Konfigurácia zdieľaný zložiek</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Odstrániť zdieľané zložky</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informácie o zdieľaní</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Vybrať systém</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Vybrať obsluhu</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Upraviť cestu</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Vybrať cestu</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Upraviť meno</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Vybrať kategórie</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Nie je možné pridať zdieľané zložky</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Domáci server je na tomto istom počítači, preto všetky zdieľané zložky musia byť registorvané na serveri. Ale k serveru práve nie som pripojený. Spustitee prosím domáci server a skúste znovu.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Konfigurácia zdieľaných zložiek</string>
-  <string name="SharesConfig.NoSharesAvailable">Žiadne zdieľané zložky nie sú dostupné</string>
-  <string name="SharesConfig.ShareInformationHeader">Informácia o zdieľanej zložke</string>
   <string name="SharesConfig.ShareNameInfo">Meno:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Základná obsluha:</string>
   <string name="SharesConfig.ShareSystem">Systém:</string>
   <string name="SharesConfig.SharePathInfo">Cesta:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technická cesta:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Kategórie média:</string>
-  <string name="SharesConfig.ReImportShare">Reimportovať zdieľanú zložku</string>
-  <string name="SharesConfig.SetupDefaultShares">Nastavte predvolené zdieľané zložky</string>
-  <string name="SharesConfig.RemoveShares">Odstrániť zdieľané zložky</string>
-  <string name="SharesConfig.EditShare">Upraviť zdieľanú zložky</string>
   <string name="SharesConfig.ChooseSystem">Vybrať systém</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Vyberte zdieľané zložky, ktoré majú byť odstránené</string>
-  <string name="SharesConfig.ChooseSystemForShare">Vyberte systém novej zdieľanej zložky</string>
-  <string name="SharesConfig.LocalShare">Lokálne zdieľané zložky</string>
-  <string name="SharesConfig.LocalShares">Lokálne zdieľané zložky</string>
-  <string name="SharesConfig.GlobalShare">Globálna zdieľaná zložka</string>
-  <string name="SharesConfig.GlobalShares">Globálne zdieľané zložky</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Domáci server je teraz odpojený, teda ich práve nie je možné menežovať.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Domáci server je na tom istom počítači, teda je možné nastavovať len globálne zdieľané zložky.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Nastavte obsluhu pre zdieľané zložky</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Upravte cestu k zdieľanej zložke</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Upravte cestu k vybranej obsluhe. Je možné zadať jednoduchú cestu, ktorej rozumie obsluha, alebo vo formáte {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Vyberte cestu zdieľanej zložky</string>
-  <string name="SharesConfig.EditShareName">Upravte meno zdieľanej zložky</string>
-  <string name="SharesConfig.ChooseShareCategories">Vyberte kategórie obsahu zdieľanej zložky</string>
-  <string name="SharesConfig.SharePathExists">Zdieľaná zložka s takouto cestou už existuje</string>
-  <string name="SharesConfig.ShareNameExists">Zdieľaná zložka s takýmto menom už existuje</string>
-  <string name="SharesConfig.ShareNameEmpty">Upravte meno zdieľanej zložky</string>
-  <string name="SharesConfig.EditShareProblemHeader">Problém konfigurácie zdieľanej zložky</string>
-  <string name="SharesConfig.EditShareProblemText">Počas konfigurácie zdieľanej zložky nastala chyba</string>
-  <string name="SharesConfig.MenuAddShare">Pridať</string>
   <string name="SharesConfig.MenuEditShares">Upraviť</string>
-  <string name="SharesConfig.MenuRemoveShares">Odstrániť</string>
-  <string name="SharesConfig.AddServerShare">Pridať globálnu zdieľanú zložku</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Upraviť globálnu zdieľanú zložku</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Pridať lokálnu zdieľanú zložku</string>
-  <string name="SharesConfig.EditLocalShare">Upraviť lokálnu zdieľanú zložku</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Obnoviť zdieľanú zložku</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Obsluha zdieľanej zložky, alebo jej cesta bola aktualizovaná.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Informácie o médiách v zdieľaných zložkách môžu byť aktualizované (presunuté), alebo vymazané a reimportované.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Chcete ju premiestniť, alebo vymazať a reimportovať?</string>
   <string name="SharesConfig.Relocate">Premiestniť</string>
   <string name="SharesConfig.ReImport">ReImportovať</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 klient - MediaPortal GUI. Prehráva médiá, poskytuje lokálne zdieľané zložky a zobrazuje používateľské rozhranie.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 klient</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

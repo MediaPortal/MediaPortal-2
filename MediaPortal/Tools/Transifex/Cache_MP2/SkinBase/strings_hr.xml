@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Kopiraj</string>
+  <string name="Keys.Paste">Zalijepi</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Početni zaslon</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -31,6 +33,7 @@
   <!--{0} = server name, {1} = host name-->
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.ResourceNotFoundText">Resurs \'{0}\' nije pronađen</string>
   <string name="Players.FullscreenVideo">Puni zaslon {0}</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.AudioVisualization">Audio vizualizacija</string>
@@ -44,6 +47,7 @@
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format vremena</string>
   <string name="Settings.General.System">Sustav</string>
+  <string name="Settings.General.Connectivity">Povezivost</string>
   <string name="Settings.Regional.Language">Jezik</string>
   <string name="Settings.Regional.Language.Main">Jezik</string>
   <string name="Settings.Regional.Language.Main.Help"> Postavi glavni jezik korišten u aplikaciji</string>

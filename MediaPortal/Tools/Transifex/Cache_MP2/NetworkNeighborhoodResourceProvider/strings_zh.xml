@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="NetworkNeighborhoodResourceProvider.Description">在本地网络邻居里访问Windows共享文件</string>
+</resources>

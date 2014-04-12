@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.GenreLabel">Είδος</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

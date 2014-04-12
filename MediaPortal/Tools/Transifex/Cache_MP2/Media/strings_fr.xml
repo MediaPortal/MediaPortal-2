@@ -40,6 +40,8 @@
   <string name="Media.ImageFilterBig">Grand</string>
   <string name="Media.SwitchToBrowseMLView">Vers vue serveur</string>
   <string name="Media.SwitchToLocalMediaView">Vers vue locale</string>
+  <string name="Media.SwitchToBrowseShareView">Vers la vue Dossier</string>
+  <string name="Media.SwitchToMediaLibraryView">Vers la vue Bibliothèque </string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -202,6 +204,8 @@
   <string name="Media.EnqueueVideoImageItem">Ajouter les vidéos/images à la playlist</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Lire les vidéos/images en arrière-plan tout en poursuivant la lecture des fichiers audio</string>
   <string name="Media.PlayVideoImageItemPiP">Lire les vidéos/images en mode \"Picture in picture\"</string>
+  <string name="Media.PlaybackResume">Reprendre la lecture</string>
+  <string name="Media.PlaybackFromStart">Lecture au début</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Vidéos/images</string>
   <string name="Media.AudioContextName">Audio</string>
@@ -309,6 +313,8 @@
   <string name="Media.SortByDate">Trier par date d\'enregistrement</string>
   <string name="Media.SortByEpisode">Trier par épisode</string>
   <string name="Media.SortingBrowseDefault">Tri par défaut</string>
+  <string name="Media.SwitchFilterMenuItem">Tri par</string>
+  <string name="Media.SwitchFilterDialogTitle">Tri par</string>
   <string name="Settings.Players">Lecteurs</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fermeture des lecteurs aprés lecture</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activer cette option pour vous assurer que MediaPortal ferme automatiquement les lecteurs</string>

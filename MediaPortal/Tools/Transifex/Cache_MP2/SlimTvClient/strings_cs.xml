@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Klient Slim TV</string>
+  <string name="SlimTvClient.Main">Televize</string>
+  <string name="SlimTvClient.TvGuide">TV program</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informace o programu</string>
   <string name="SlimTvClient.ChannelLabel">Kanál</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Nahrávat nyní</string>
   <string name="SlimTvClient.DeleteSchedule">Odstranit časový plán</string>
   <string name="SlimTvClient.CreateSchedule">Naplánovat nahrávání</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Není dostupný poskytovatel TV (zatím)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Nahrávky</string>
   <string name="SlimTvClient.RecordingsRootViewName">Televizní nahrávky</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrovat podle kanálu</string>

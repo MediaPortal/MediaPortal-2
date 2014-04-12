@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Ses CD\'si kaynak sağlayıcısı</string>
   <string name="AudioCDResourceProvider.Description">Ses CD parçalarına erişim servis sağlayıcı ismi</string>
 </resources>

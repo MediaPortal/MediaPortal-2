@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Poskytovatel zdrojových souborů ISO</string>
   <string name="IsoResourceProvider.Description">Přístup k souborům a adresářům v obrazech ISO</string>
 </resources>

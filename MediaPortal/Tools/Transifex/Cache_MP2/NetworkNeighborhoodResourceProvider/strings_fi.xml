@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Verkkoympäristön resurssien tarjoaja</string>
-  <string name="NetworkNeighborhoodResourceProvider.Description">Ota yhteyttä Windows-jakoihin lähiverkon tietokoneissa</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Verkkoympäristö</string>
+  <string name="NetworkNeighborhoodResourceProvider.Description">Ota yhteys Windows-jakoihin lähiverkon tietokoneissa</string>
 </resources>

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Preišči brezžična omrežja</string>
+  <string name="Network.NoWirelessNetworksFound">Nisem našel brezžičnih omrežij</string>
+  <string name="Network.Connect">Poveži</string>
+  <string name="Network.Disconnect">Prekini povezavo</string>
+  <string name="Network.EnterWifiPassword">Vpiši wifi geslo</string>
+  <string name="Network.DeleteProfile">Briši wifi profil</string>
+  <string name="Settings.General.Connectivity.WifiConnection">wifi povezava</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Poveži se z brezžičnim omrežjem</string>
+</resources>

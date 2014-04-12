@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">ספק משאבי רשת מקומית</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">גישה לאזורי שיתוף במחשבים השייכים לרשת המקומית</string>
 </resources>

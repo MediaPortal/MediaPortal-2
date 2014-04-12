@@ -73,7 +73,7 @@
   <!--For example: "Seeking forward (2x)"-->
   <string name="PlayerControl.SeekingBackward">Skok vzad ({0})</string>
   <!--For example: "Seeking forward (2x)"-->
-  <string name="PlayerControl.SlowMotionForward">Spomalene vprad ({0})</string>
+  <string name="PlayerControl.SlowMotionForward">Spomalene vpred ({0})</string>
   <!--For example: "Slowmotion forward (0.5x)"-->
   <string name="PlayerControl.SlowMotionBackward">Spomalene vzad ({0})</string>
   <!--For example: "Slowmotion backward (0.5x)"-->

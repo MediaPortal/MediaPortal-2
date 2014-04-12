@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Tynn TV Klient</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV-Guide</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programinformasjon</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Ta opp nå</string>
   <string name="SlimTvClient.DeleteSchedule">Fjerne planlagt</string>
   <string name="SlimTvClient.CreateSchedule">Planlegg opptak</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV kilde er tilgjengelig (enda)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Opptak</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opptak</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer etter kanal</string>

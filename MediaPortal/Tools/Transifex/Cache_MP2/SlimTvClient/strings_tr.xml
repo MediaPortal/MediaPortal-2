@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV İstemci</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV Rehberi</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Program bilgisi</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -17,6 +19,9 @@
   <string name="SlimTvClient.RecordNow">Şimdi kaydet</string>
   <string name="SlimTvClient.DeleteSchedule">Kayıt zamanlamasını sil</string>
   <string name="SlimTvClient.CreateSchedule">Zamanı gelince kaydet</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Kayıtlar</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Kayıtları</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Kanala göre filtrele</string>

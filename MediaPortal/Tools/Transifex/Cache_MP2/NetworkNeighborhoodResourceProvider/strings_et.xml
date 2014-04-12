@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Lähivõrgu ressursid</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Ligipääs lähivõrgu windowsi jagamistele</string>
 </resources>

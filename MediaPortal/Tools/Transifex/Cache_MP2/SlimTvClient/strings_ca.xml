@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Client Slim Tv</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">Guia de TV</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informació de programa</string>
   <string name="SlimTvClient.ChannelLabel">Canal</string>
   <string name="SlimTvClient.ProgramLabel">Programa</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Enregistra</string>
   <string name="SlimTvClient.DeleteSchedule">Suprimeix la planificació</string>
   <string name="SlimTvClient.CreateSchedule">Planificació d\'enregistraments</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ni hi ha cap proveïdor disponible (encara)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Enregistraments</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistraments de TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtra per canal</string>

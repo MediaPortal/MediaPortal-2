@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Kerfi fyrir heimanet</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Tengjast windows miðlurum á heimaneti</string>
 </resources>

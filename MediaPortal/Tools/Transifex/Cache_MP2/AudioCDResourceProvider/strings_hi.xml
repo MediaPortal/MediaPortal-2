@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">ऑडियो सीडी संसाधन प्रदाता</string>
   <string name="AudioCDResourceProvider.Description">ऑडियो सीडी ट्रैक को एक्सेस करें </string>
 </resources>

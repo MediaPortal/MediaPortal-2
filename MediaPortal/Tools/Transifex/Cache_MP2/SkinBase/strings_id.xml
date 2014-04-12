@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Musik</string>
   <string name="Media.MyVideos">Video</string>
   <string name="Media.MyPictures">Gambar</string>
-  <string name="Media.InvalidShareName">Share cacat</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Server MP2 tersedia</string>
   <string name="ServerConnection.NotificationServerAvailableText">Terdapat sedikitnya satu server MediaPortal 2 tersedia di jaringan. Kaitkan dengannya untuk memperoleh semua fitur MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' pada host \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Server pusat sudah tidak terhubung.</string>
   <string name="ServerConnection.DetachMenu">Putuskan</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Putuskan dari server pusat</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Bila anda memutus dari server pusat, semua data yang dibagikan secara lokal termasuk item-item medianya akan dihapus dari pustaka media server pusat. Anda yakin untuk terputus dari server pusat \'{0}\' pada host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Mencari server</string>
   <string name="ServerConnection.DetachFromServer">Terputus dari server pusat</string>
   <string name="ServerConnection.AttachToServerHeader">Terkait ke server MediaPortal 2</string>
@@ -67,9 +65,7 @@
   <string name="ImporterMessages.ImportStartedText">Import \'{0}\' telah dimulai.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Impor selesai</string>
   <string name="ImporterMessages.ImportCompletedText">Impor \'{0}\' telah selesai.</string>
-  <string name="LocalFsResourceProvider.Name">Penyedian sumber filesystem lokal</string>
   <string name="LocalFsResourceProvider.Description">Akses filesystem lokal</string>
-  <string name="RemoteResourceProvider.Name">Penyedia sumber terkendali</string>
   <string name="RemoteResourceProvider.Description">Akses sumber temuan pada sistem MediaPortal 2 lainnya</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -120,25 +116,13 @@
   <string name="Settings.Regional.Language">Bahasa</string>
   <string name="Settings.Regional.Language.Main">Bahasa</string>
   <string name="Settings.Regional.Language.Main.Help">Setel bahasa utama yang digunakan dalam aplikasi</string>
-  <string name="Settings.Shares">Share</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Konfigurasikan share</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Konfigurasi share</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Konfigurasikan semua share lokal</string>
   <string name="Settings.Shares.Overview">Tinjauan</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Tinjauan share</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Tinjauan global antar share</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Impor ulang semua share</string>
   <string name="Settings.Plugins">Plugin</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Tinjauan share</string>
-  <string name="SharesOverview.Title">Tinjauan share</string>
-  <string name="SharesOverview.ReImportAllShares">Impor ulang semua share</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Server pusat tidak terhubung, informasi sistem share tidak dapat diterima.</string>
-  <string name="Shares.NoSharesInThisView">- Tidak ada share di tampilan ini -</string>
   <string name="Shares.InvalidPath">PATH CACAT: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Daring</string>
@@ -146,69 +130,28 @@
   <string name="Shares.ReImport">Impor ulang</string>
   <string name="Shares.Importing">Mengimpor...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Konfigurasi share</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Hapus share</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Info share</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Pilih sistem</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Pilih penyedia sumber</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Edit path</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Pilih path</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Edit nama</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Pilih kategori</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Tidak dapat menambah share</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Server pusat berlokasi pada komputer yang sama, dengan demikian semua share harus didaftarkan pada server. Tetapi server tersebut tidak dihubungkan untuk sementara waktu. Silahkan nyalakan server pusat dan coba lagi.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Konfigurasi share</string>
-  <string name="SharesConfig.NoSharesAvailable">Tidak ada share yang tersedia</string>
-  <string name="SharesConfig.ShareInformationHeader">Informasi share</string>
   <string name="SharesConfig.ShareNameInfo">Nama:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Penyedia sumber dasar:</string>
   <string name="SharesConfig.ShareSystem">Sistem:</string>
   <string name="SharesConfig.SharePathInfo">Path:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Path teknis:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Kategori media:</string>
-  <string name="SharesConfig.ReImportShare">Impor ulang share</string>
-  <string name="SharesConfig.SetupDefaultShares">Setel share baku</string>
-  <string name="SharesConfig.RemoveShares">Hapus share</string>
-  <string name="SharesConfig.EditShare">Edit share</string>
   <string name="SharesConfig.ChooseSystem">Pilih sistem</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Silahkan pilih share yang akan dihapus</string>
-  <string name="SharesConfig.ChooseSystemForShare">Pilih sistem untuk share baru</string>
-  <string name="SharesConfig.LocalShare">Bagi lokal</string>
-  <string name="SharesConfig.LocalShares">Share lokal</string>
-  <string name="SharesConfig.GlobalShare">Share global</string>
-  <string name="SharesConfig.GlobalShares">Share global</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Server pusat tidak terhubung saat ini, sehingga share global tidak dapat dikelola untuk sementara waktu.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Serper pusat berlokasi pada mesin yang sama, sehingga hanya share global yang dapat dikonfigurasi.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Silahkan pilih penyedia sumber untuk share</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Edit path ke share</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Edit path yang benar pada penyedia sumber yang terpilih. Anda dapat mengedit sebuah path sederhana yang dapat dimengerti oleh penyedia sumber. Anda dapat juga mengedit sebuah path yang kompleks dalam format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Pilih path dari share</string>
-  <string name="SharesConfig.EditShareName">Edit nama tampil share</string>
-  <string name="SharesConfig.ChooseShareCategories">Pilih kategori dari konten media yang berlokasi di share</string>
-  <string name="SharesConfig.SharePathExists">Share dengan path tersebut sudah ada</string>
-  <string name="SharesConfig.ShareNameExists">Share dengan nama tersebut sudah ada</string>
-  <string name="SharesConfig.ShareNameEmpty">Edit nama share</string>
-  <string name="SharesConfig.EditShareProblemHeader">Masalah mengkonfigurasi share</string>
-  <string name="SharesConfig.EditShareProblemText">Terdapat masalah internal saat mengkonfigurasi share</string>
-  <string name="SharesConfig.MenuAddShare">Tambah share</string>
   <string name="SharesConfig.MenuEditShares">Edit</string>
-  <string name="SharesConfig.MenuRemoveShares">Hapus share</string>
-  <string name="SharesConfig.AddServerShare">Tambah share global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Edit share global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Tambah share lokal</string>
-  <string name="SharesConfig.EditLocalShare">Edit share lokal</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Perbarui share</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Share penyedia sumber dan/atau path sudah diperbarui.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Informasi pustaka media tentang item-item media yang ada di share dapat diperbarui (direlokasi) atau dibersihkan dan diimporkan.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Apakah anda ingin merelokasi atau bersihkan dan impor ulang?</string>
   <string name="SharesConfig.Relocate">Relokasi</string>
   <string name="SharesConfig.ReImport">Impor ulang</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Klien MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Tim MediaPortal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Klien MediaPortal 2 - GUI MediaPortal. Maikan konten media, host share lokal dan menyediakan antarmuka pengguna.</string>
   <string name="UPnPFrontendServer.ModelName">Klien MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

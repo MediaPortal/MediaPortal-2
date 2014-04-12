@@ -10,7 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Benutzername und Passwort</string>
   <string name="Settings.ServerSettings.Username">Benutzername:</string>
   <string name="Settings.ServerSettings.Password">Passwort:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Importeinstellungen für die Freigaben konfigurieren</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Importeinstellungen für Medienquellen konfigurieren</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Automatische Aktualisierung der Freigaben konfigurieren</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktiviere automatische Aktualisierung</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Zu dieser Stunde ausführen (24h Basis)</string>

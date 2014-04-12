@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Servern är inte startad</string>
-  <string name="ServerStatus.Attached">Inkopplad till server</string>
-  <string name="ServerStatus.Connected">Ansluten till server</string>
+  <string name="ServerStatus.Attached">Ansluten till server</string>
+  <string name="ServerStatus.Connected">Uppkopplad till server</string>
   <string name="ServerStatus.Detached">Koppla från servern</string>
-  <string name="ServerStatus.Disconnected">Inte ansluten till server</string>
-  <string name="ServerStatus.ClientConnected">Klient(er) som är anslutna till servern</string>
+  <string name="ServerStatus.Disconnected">Frånkopplad från server</string>
+  <string name="ServerStatus.ClientConnected">Klient(er) som är uppkopplade till servern</string>
   <string name="MainWindow.ServerStatus">Serverstatus</string>
   <string name="MainWindow.AttachedClients">Anslutna klienter:</string>
   <string name="ContextMenu.ShowWin">Visa fönster</string>

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
+  <string name="configuration.save_on_exit">你要在关闭之前保存变更么？</string>
+  <string name="configuration.unsaved_warning">警告：未保存变更</string>
+  <string name="configuration.browse">浏览</string>
+  <string name="configuration.areas.settings">设置</string>
+  <string name="configuration.areas.logs">Logs</string>
+</resources>

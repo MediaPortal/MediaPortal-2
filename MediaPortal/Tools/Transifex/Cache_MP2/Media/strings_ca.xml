@@ -309,6 +309,8 @@
   <string name="Media.SortByDate">Filtra per data d\'enregistrament</string>
   <string name="Media.SortByEpisode">Filtra per episodi</string>
   <string name="Media.SortingBrowseDefault">Filtratge per defecte</string>
+  <string name="Media.SwitchFilterMenuItem">Filtra</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtra</string>
   <string name="Settings.Players">Reproductors</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tanca els reproductors en acabar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activeu el paràmetre per a que el MediaPortal tanqui automàticmanet els reproductors en acabar</string>

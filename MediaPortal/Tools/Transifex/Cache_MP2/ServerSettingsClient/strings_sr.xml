@@ -10,7 +10,6 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Корисничко име и лозинка</string>
   <string name="Settings.ServerSettings.Username">Корисничко име:</string>
   <string name="Settings.ServerSettings.Password">Лозинка:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Делити конфигурацију за увоз података</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Конфигуриши аутоматско освежавање дељених фајлова</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Омогући аутоматско освежавање</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Покрени у одређени сат у дану (24h)</string>

@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Appearance.Skin.Background.VideoBackground">Video fonas</string>
   <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Įjungti ir pasirinkti video foną</string>
-  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Šjungti video foną</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Įjungti video foną</string>
   <string name="Settings.Appearance.Skin.Background.Setup">Video fono konfigūravimas</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Video failas</string>
   <string name="Settings.Appearance.Skin.Background.Setup.Select">Pasirinkti</string>

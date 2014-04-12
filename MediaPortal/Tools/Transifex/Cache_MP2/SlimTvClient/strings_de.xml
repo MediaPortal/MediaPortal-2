@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV Guide</string>
+  <string name="SlimTvClient.SingleChannelGuide">Kanal Guide</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programminformationen</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Programm</string>
@@ -15,10 +18,45 @@
   <string name="SlimTvClient.ChooseChannelGroup">Kanalgruppe wählen</string>
   <string name="SlimTvClient.ProgramOver">Programm ist bereits vorbei</string>
   <string name="SlimTvClient.WatchNow">Jetzt ansehen</string>
+  <string name="SlimTvClient.WatchFromBeginning">Aufnahme vom Anfang wiedergeben</string>
   <string name="SlimTvClient.RecordNow">Aufnehmen</string>
   <string name="SlimTvClient.DeleteSchedule">Aufnahmeplan löschen</string>
   <string name="SlimTvClient.CreateSchedule">Aufnahme planen</string>
+  <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Aktionen</string>
+  <string name="SlimTvClient.StopCurrentRecording">Laufende Aufnahme \'{0}\' beenden</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Programm \'{0}\' aufnehmen</string>
+  <string name="SlimTvClient.RecordManual">Aufnehmen bis manuell gestoppt</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Manuelle Aufnahme</string>
+  <string name="SlimTvClient.RecordProgram">Program aufnehmen</string>
+  <string name="SlimTvClient.DontRecordProgram">Nicht aufnehmen</string>
+  <string name="SlimTvClient.RecordSeries">Serienaufnahme</string>
+  <string name="SlimTvClient.ChooseScheduleType">Wähle die Art der Serienaufnahme</string>
+  <string name="SlimTvClient.DeleteScheduleType">Wie soll Aufnahmeplan gelöscht werden?</string>
+  <string name="SlimTvClient.DeleteSingle">Einzelne Sendung löschen</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Gesamte Serienaufnahme löschen</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Einzelne Sendung löschen</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Einmalig</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Täglich</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Wöchentlich</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Immer auf diesem Kanal</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Immer auf allen Kanälen</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Am Wochenende</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">An Werktagen</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Wöchentlich auf diesem Kanal</string>
+  <!--Schedule management-->
+  <string name="SlimTvClient.ScheduleDetails">Aufnahmeplan-Details</string>
+  <string name="SlimTvClient.ScheduleName">Name des Aufnahmeplans</string>
+  <string name="SlimTvClient.ScheduleType">Art des Aufnahmeplans</string>
+  <string name="SlimTvClient.Schedules">Aufnahmepläne</string>
+  <string name="SlimTvClient.ExtendedSchedule">Erweiterte Aufnahmeplanung</string>
+  <string name="SlimTvClient.ScheduleManagement">Aufnahmepläne verwalten</string>
   <string name="SlimTvClient.ErrorNoTvProvider">(Noch) kein TV-Anbieter verfügbar</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Anzahl von Zeilen im EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Legt die Anzahl der angezeigten Zeilen (Sender) im EPG fest</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Anzahl der Stunden im EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Legt die Anzahl der angezeigten Stunden (Programme) im EPG fest</string>
   <string name="SlimTvClient.RecordingsMenuItem">Aufnahmen</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Aufnahmen</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter nach Kanal</string>

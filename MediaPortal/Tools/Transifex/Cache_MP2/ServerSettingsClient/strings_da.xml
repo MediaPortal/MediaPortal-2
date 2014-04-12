@@ -10,7 +10,6 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Brugernavn og adgangskode</string>
   <string name="Settings.ServerSettings.Username">Brugernavn:</string>
   <string name="Settings.ServerSettings.Password">Adgangskode:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Del importerings konfiguration</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Konfigurer automatisk opdatering af delinger</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktivér automatisk opdatering</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Kør på tidspunkt af dagen (24 timers ur)</string>

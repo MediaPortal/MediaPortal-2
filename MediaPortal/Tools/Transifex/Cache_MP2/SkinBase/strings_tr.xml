@@ -26,7 +26,6 @@
   <string name="Media.MyMusic">Müzik</string>
   <string name="Media.MyVideos">Videolar</string>
   <string name="Media.MyPictures">Resimler</string>
-  <string name="Media.InvalidShareName">Geçersiz paylaşım</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 sunucu müsait</string>
   <string name="ServerConnection.NotificationServerAvailableText">Ağda en az bir tane MediaPortal 2 sunucu var. Ona bağlanarak MediaPortal 2 nin sağladığı tüm özellikleri kullanabilirsiniz. </string>
   <string name="ServerConnection.ServerFormatText">\'{1}\' alanındaki \'{0}\'</string>
@@ -44,7 +43,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Ev sunucusu şu an bağlı değil.</string>
   <string name="ServerConnection.DetachMenu">Ayır</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Sunucu bağlantısını kopar.</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Ev sunucusundan ayrılırsanız,  ev sunucusu ile ilgili tüm paylaşımlar ev sunucusunun medya kütüphanesinden çıkarılacaktır. Daha sonra yeniden bağlanabilirsiniz. \'{1}\' alanındaki \'{0}\' ev sunucusundan gerçekten ayrılmak istiyor musunuz?</string>
   <string name="ServerConnection.SearchForServers">Sunucu ara</string>
   <string name="ServerConnection.DetachFromServer">Ev sunucusundan ayrıl</string>
   <string name="ServerConnection.AttachToServerHeader">MEdiaPortal 2 sunucusuna bağlan</string>
@@ -65,9 +63,7 @@
   <string name="ImporterMessages.ImportStartedText">\'{0}\' ın içe aktarımı başladı.</string>
   <string name="ImporterMessages.ImportCompletedTitle">İçe aktarım tamamlandı</string>
   <string name="ImporterMessages.ImportCompletedText">\'{0}\' ın içe aktarımı tamamlandı.</string>
-  <string name="LocalFsResourceProvider.Name">Yerel dosya sistemi kaynak sağlayıcı</string>
   <string name="LocalFsResourceProvider.Description">Yerel dosya sistemine erişim</string>
-  <string name="RemoteResourceProvider.Name">Uzak kaynak sağlayıcı</string>
   <string name="RemoteResourceProvider.Description">Başka bir MediaPortal 2 sisteminin kaynaklarına erişim</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -117,25 +113,13 @@
   <string name="Settings.Regional.Language">Dil</string>
   <string name="Settings.Regional.Language.Main">Dil</string>
   <string name="Settings.Regional.Language.Main.Help">Uygulamada kullanılan ana dili seçiniz.</string>
-  <string name="Settings.Shares">Paylaşımlar</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Paylaşımları yapılandır</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Paylaşımları yapılandır</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Tüm yerel paylaşımları yapılandır</string>
   <string name="Settings.Shares.Overview">Genel Bakış</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Paylaşımlara genel bakış</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Paylaşımlar için genel görünüm</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Tüm paylaşımları yeniden içe aktar</string>
   <string name="Settings.Plugins">Eklentiler</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Paylaşımlara genel bakış</string>
-  <string name="SharesOverview.Title">Paylaşımlara genel bakış</string>
-  <string name="SharesOverview.ReImportAllShares">Tüm paylaşımları yeniden içe aktar</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Ev sunucusuna bağlı değil, sistem paylaşım bilgileri alınamadı.</string>
-  <string name="Shares.NoSharesInThisView">- Bu görünümde paylaşım yok -</string>
   <string name="Shares.InvalidPath">GEÇERSİZ YOL: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Çevrimiçi</string>
@@ -143,69 +127,28 @@
   <string name="Shares.ReImport">Yeniden içe aktar</string>
   <string name="Shares.Importing">İçe aktarılıyor...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Paylaşımları yapılandır</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Paylaşımları çıkart</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Paylaşım bilgisi</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Sistem seçin</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Kaynak sağlayıcı seçin</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Yolu düzenle</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Yolu seç</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Adı düzenle</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Kategori seç</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Paylaşımlar eklenemiyor</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Ana sunucu aynı bilgisayarda olduğundan, tüm paylaşımlar sunucuda tanımlanmalı. Ancak sunucuya şu anda bağlanılmamış. Lütfen sunucuyu başlatıp yeniden deneyin.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Paylaşım yapılandırma</string>
-  <string name="SharesConfig.NoSharesAvailable">Hiç paylaşım yok</string>
-  <string name="SharesConfig.ShareInformationHeader">Paylaşım bilgisi</string>
   <string name="SharesConfig.ShareNameInfo">İsim:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Ana kaynak sağlayıcı:</string>
   <string name="SharesConfig.ShareSystem">Sistem:</string>
   <string name="SharesConfig.SharePathInfo">Yol:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Kaynak paylaşım noktası:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Medya kategorileri:</string>
-  <string name="SharesConfig.ReImportShare">Paylaşımı yeniden içe aktar</string>
-  <string name="SharesConfig.SetupDefaultShares">Varsayılan paylaşımları kur </string>
-  <string name="SharesConfig.RemoveShares">Paylaşımları kaldır</string>
-  <string name="SharesConfig.EditShare">Paylaşımı düzenle</string>
   <string name="SharesConfig.ChooseSystem">Sistem seç</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Lütfen kaldırılacak paylaşımları seçin</string>
-  <string name="SharesConfig.ChooseSystemForShare">Yeni paylaşım için sistem seçin</string>
-  <string name="SharesConfig.LocalShare">Yerel paylaşım</string>
-  <string name="SharesConfig.LocalShares">Yerel paylaşımlar</string>
-  <string name="SharesConfig.GlobalShare">Genel paylaşım</string>
-  <string name="SharesConfig.GlobalShares">Genel paylaşımlar</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Şu an ev sunucusu bağlı olmadığından genel paylaşımlar yönetilemez.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Ev sunucusu aynı makinede bulunduğundan sadece genel paylaşımlar ayarlanabilir.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Lütfen paylaşım için sağlayıcı seçin</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Paylaşım için yolu girin</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Seçilmiş kaynak sağlayıcı için geçerli bir yol girin. Kayak sağlayıcı için sağlayıcının anlayabileceği basit bir yol girmelisiniz. İsterseniz karmaşık bir yolu sü sekilde girebilirsiniz: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Paylaşım için paylaşım noktası seçin</string>
-  <string name="SharesConfig.EditShareName">Paylaşım için bir gösterim ismi girin</string>
-  <string name="SharesConfig.ChooseShareCategories">Paylaşım içerisinde bulununan medya için kategorilerini seçin</string>
-  <string name="SharesConfig.SharePathExists">Zaten aynı yol ile kayıtlı bir paylaşım var</string>
-  <string name="SharesConfig.ShareNameExists">Zaten aynı isimle kayıtlı bir paylaşım var</string>
-  <string name="SharesConfig.ShareNameEmpty">Paylaşım için isim tanımlayın</string>
-  <string name="SharesConfig.EditShareProblemHeader">Paylaşım değişikliği sırasında bir problem oldu</string>
-  <string name="SharesConfig.EditShareProblemText">Paylaşım değişikliği sırasında dahili hata oluştu</string>
-  <string name="SharesConfig.MenuAddShare">Yeni paylaşım tanımla</string>
   <string name="SharesConfig.MenuEditShares">Düzenle</string>
-  <string name="SharesConfig.MenuRemoveShares">Paylaşımı kaldır</string>
-  <string name="SharesConfig.AddServerShare">Yeni ana paylaşımı tanımla</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Ana paylaşımı düzenle</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Yeni yerel paylaşım tanımla</string>
-  <string name="SharesConfig.EditLocalShare">Yerel paylaşımı düzenle</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Paylaşımı güncelle</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Paylaşım kaynak sağlayıcı ve/veya paylaşım noktası güncellendi</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Bu paylaşımdaki medyanın kütüphane bilgisi güncellenebilir (yeri değiştirilebilir) veya sıfırlanıp yeniden içe alınabilir.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Yer değiştirmek veya sıfırlayarak yeniden içe almak ister misiniz?</string>
   <string name="SharesConfig.Relocate">Yer değiştirmek</string>
   <string name="SharesConfig.ReImport">Yeniden içe al</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Mediaportal 2 istemcisi</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 istemcisi - Mediaportal için grafik arabirimi. Medya içeriği çalar, yerel içerik paylaşımı sağlar ve grafik arabirimi kullanmanızı sağlar.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 istemcisi</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

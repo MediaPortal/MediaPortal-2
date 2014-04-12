@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">播放器</string>
+  <string name="Settings.Players.Rendering">渲染</string>
+  <string name="Settings.Players.Rendering.CrossFading">淡入淡出</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">淡入淡出已启用</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">如果可能的话，确定是否MediaPortal对歌曲进行淡入淡出效果。</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">淡入淡出时间</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">到淡入淡出的时间(秒)</string>
+</resources>

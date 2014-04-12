@@ -1,2 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Buscar redes Wifi</string>
+  <string name="Network.NoWirelessNetworksFound">No se encuentran redes Wifi</string>
+  <string name="Network.Connect">Conectar</string>
+  <string name="Network.Disconnect">Desconectar</string>
+  <string name="Network.EnterWifiPassword">Escriba la contraseña</string>
+  <string name="Network.DeleteProfile">Borrar perfil Wifi</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Coneccion Wifi</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Conectar a la red Wifi</string>
+</resources>

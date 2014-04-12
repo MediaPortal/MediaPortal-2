@@ -301,6 +301,8 @@
   <string name="Media.SortByDate">Röðun á dags. upptöku</string>
   <string name="Media.SortByEpisode">Röðun á þátt</string>
   <string name="Media.SortingBrowseDefault">Sjálfgefin röðun</string>
+  <string name="Media.SwitchFilterMenuItem">Sía</string>
+  <string name="Media.SwitchFilterDialogTitle">Sía</string>
   <string name="Settings.Players">Spilarar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Loka spilara þegar spilun er lokið</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Virkið þessa stillingu til að MediaPortal lokið óvirkum spilurum sjálfvirkt</string>

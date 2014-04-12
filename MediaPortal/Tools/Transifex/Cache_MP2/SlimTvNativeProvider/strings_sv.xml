@@ -4,9 +4,9 @@
   <string name="Settings.Plugins.TV.MPExtendedServerAddress">Adresser till MPExtended-servrar</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Skriv in servernamn eller IP-adresser, separerade med \';\' (standardvärde är localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">Användarnamn till MPExtended-service </string>
-  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Skriv in användarnamn för att ansluta. Tomt användarnamn kommer att använda anonym anslutning.</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Skriv in användarnamn för att koppla upp. Tomt användarnamn kommer att använda anonym uppkoppling.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">Lösenord till MPExtended-service </string>
-  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Skriv in lösenordet för att ansluta. Tomt lösenord kommer att använda anonym anslutning.</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Anslutningsfel</string>
-  <string name="Settings.Plugins.TV.ConnectionErrorText">Kan inte ansluta till MPExtendedServerAddress-Server: {0}</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Skriv in lösenordet för att koppla upp. Tomt lösenord kommer att använda anonym uppkoppling.</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">Fel vid uppkoppling</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">Kan inte koppla upp MPExtendedServerAddress-Server: {0}</string>
 </resources>

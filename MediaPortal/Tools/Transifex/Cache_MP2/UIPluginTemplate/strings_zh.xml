@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--This file contains language resources for the english language. There can be present localziation resource files
+     for arbitrary languages. The naming of the file must always be like this: strings_[culture name].xml
+     The localization system of MediaPortal 2 will always fallback to the next general language and at the end to the
+     default (english) language when a string isn't present in the localization resources for the user's configured
+     language.-->
+  <string name="MyPlugin.String1">英文字符串1</string>
+  <string name="MyPlugin.String2">英文字符串2</string>
+  <string name="MyPlugin.StateDisplayLabel">导航栏状态名称</string>
+  <string name="MyPlugin.MenuEntry">我的插件</string>
+</resources>

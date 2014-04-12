@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Proveïdor de recursos de la xarxa</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Accedeix a recursos compartits del Windows als ordinadors de la xarxa local</string>
 </resources>

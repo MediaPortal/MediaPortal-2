@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Penyedia sumber Network neighborhood</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Akses window share pada komputer di jaringan lokal</string>
 </resources>

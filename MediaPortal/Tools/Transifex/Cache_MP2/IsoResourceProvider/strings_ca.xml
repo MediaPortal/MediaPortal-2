@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Proveïdor de fitxers ISO</string>
   <string name="IsoResourceProvider.Description">Accedeix a fitxers i directoris en imatges ISO</string>
 </resources>

@@ -281,6 +281,8 @@
   <string name="Media.SortByDate">Sorteerimine salvestuskuupäeva järgi</string>
   <string name="Media.SortByEpisode">Sorteerimine episoodi järgi</string>
   <string name="Media.SortingBrowseDefault">Vaikejärjekord</string>
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
+  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Pleierid</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sule pleierid kui lõpetavad</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Sule lõpetanud pleierid automaatselt</string>

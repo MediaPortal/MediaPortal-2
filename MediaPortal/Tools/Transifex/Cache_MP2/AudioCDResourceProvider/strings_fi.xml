@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Audio CD resurssien tarjoaja</string>
+  <string name="AudioCDResourceProvider.Name">Ääni CD</string>
   <string name="AudioCDResourceProvider.Description">Aktivoi audio CD-raitojen käyttö</string>
 </resources>

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">संजाल पड़ोसी संसाधन प्रदाता</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">स्थानीय संजाल पड़ोस में कंप्यूटर पर विंडोज़ को शेयर करने के लिए एक्सेस करें</string>
 </resources>

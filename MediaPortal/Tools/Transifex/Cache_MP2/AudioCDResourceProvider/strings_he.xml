@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">ספק משאבי תקליטור מוזיקה</string>
   <string name="AudioCDResourceProvider.Description">מספק גישה לרצועות שמע בתקליטור מוזיקה</string>
 </resources>

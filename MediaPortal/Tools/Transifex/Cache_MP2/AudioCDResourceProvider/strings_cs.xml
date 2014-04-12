@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Poskytovatel zdroje audio CD</string>
   <string name="AudioCDResourceProvider.Description">Přístup ke stopám audio CD</string>
 </resources>

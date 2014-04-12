@@ -256,6 +256,8 @@
   <string name="Media.SortByDate">по дате записи</string>
   <string name="Media.SortByEpisode">по эпизоду</string>
   <string name="Media.SortingBrowseDefault">по умолчанию</string>
+  <string name="Media.SwitchFilterMenuItem">Фильтр</string>
+  <string name="Media.SwitchFilterDialogTitle">Фильтр</string>
   <string name="Settings.Players">Проигрыватели</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Закрывать проигрыватель</string>
   <string name="Settings.Players.InstantSkipPercent">Процент немедленного пропуска</string>

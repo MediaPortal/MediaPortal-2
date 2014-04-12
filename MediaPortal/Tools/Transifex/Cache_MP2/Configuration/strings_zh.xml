@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">设置</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">设置</string>
+  <string name="Configuration.MainSettings">主要设置</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">此部分没有设置项</string>
+  <string name="Configuration.ErrorFloatingPointValue">\'{0}\' 不是有效的浮点数</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\' 不是有效整数</string>
+  <string name="Configuration.ErrorNumericLowerLimit">在 \'{1}\' 和 \'{2}\' 之间选一个值</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">在 \'{1}\' 和 \'{2}\' 之间选一个值</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

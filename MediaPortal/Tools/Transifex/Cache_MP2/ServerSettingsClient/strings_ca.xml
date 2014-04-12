@@ -10,7 +10,6 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nom d\'usuari i contrasenya</string>
   <string name="Settings.ServerSettings.Username">Nom d\'usuari</string>
   <string name="Settings.ServerSettings.Password">Contrasenya:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Configuració de l\'importador de compartits</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurar el refresc automàtic dels compartits</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Activar refresc automàtic</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Executar a l\'hora del dia (format de 24h)</string>

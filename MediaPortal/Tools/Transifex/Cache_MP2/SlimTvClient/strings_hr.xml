@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV klijent</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV Vodič</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programske informacije</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Snimajte odmah</string>
   <string name="SlimTvClient.DeleteSchedule">Obrišite raspored</string>
   <string name="SlimTvClient.CreateSchedule">Snimanje po rasporedu</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">(Još) nije dostupan TV provider</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Snimci</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV snimci</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtriraj prema kanalu</string>

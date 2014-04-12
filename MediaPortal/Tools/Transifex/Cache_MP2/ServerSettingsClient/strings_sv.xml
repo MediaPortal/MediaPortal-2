@@ -10,7 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Användarnamn och lösenord</string>
   <string name="Settings.ServerSettings.Username">Användarnamn:</string>
   <string name="Settings.ServerSettings.Password">Lösenord:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Konfigurera mappimportören</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Konfigurera importören av mediakällor</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Konfigurera automatiska mappimporteringar</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktivera automatiska mappimporteringar</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Kör automatiska mappimporteringar klockan</string>
