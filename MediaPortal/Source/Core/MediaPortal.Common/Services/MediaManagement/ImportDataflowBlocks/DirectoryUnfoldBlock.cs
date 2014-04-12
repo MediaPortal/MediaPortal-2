@@ -112,10 +112,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           _suspensionBufferBlock.Complete();
 
         importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock;
-
-        // ToDo: Remove this and do it later
-        importResource.Dispose();
-
         return new HashSet<PendingImportResourceNewGen> { importResource };
       }
       catch (Exception ex)
@@ -207,17 +203,17 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     PendingImportResourceNewGen ISourceBlock<PendingImportResourceNewGen>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target, out bool messageConsumed)
     {
-      return (_suspensionBufferBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
+      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
     }
 
     bool ISourceBlock<PendingImportResourceNewGen>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
     {
-      return (_suspensionBufferBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
+      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
     }
 
     void ISourceBlock<PendingImportResourceNewGen>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
     {
-      (_suspensionBufferBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
+      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
     }
 
     #endregion

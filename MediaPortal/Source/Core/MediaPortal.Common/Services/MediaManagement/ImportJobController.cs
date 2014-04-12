@@ -61,6 +61,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
 
     private DirectoryUnfoldBlock _directoryUnfoldBlock;
+    private DirectorySaveBlock _directorySaveBlock;
 
     #endregion
 
@@ -82,7 +83,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       SetupDataflowBlocks(importJob.PendingImportResources);
 
       // Todo: This continuation shall happen after the last DataflowBlock has finished
-      _directoryUnfoldBlock.Completion.ContinueWith(OnFinished);
+      _directorySaveBlock.Completion.ContinueWith(OnFinished);
     }
 
     #endregion
@@ -132,6 +133,11 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    public ImporterWorkerNewGen ParentImporterWorker
+    {
+      get { return _parentImporterWorker; }
+    }
+
     #endregion
 
     #region Public methods
@@ -139,7 +145,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
     {
       // ToDo: Make sure we activate all blocks (if necessary with mediaBrowsingCallback and importResultHandler)
+      // To avoid peaks on system startup we start one Block every 100ms.
+      // Currently we also need this because the MediaAccessor is not threadsafe on startup
+      // see here: http://forum.team-mediaportal.com/threads/mediaaccessor-not-thread-safe.125132/
+      // ToDo: Make MediaAccessor threadsafe on startup
       _directoryUnfoldBlock.Activate();
+      Task.Delay(100).Wait();
+      _directorySaveBlock.Activate(mediaBrowsingCallback, importResultHandler);
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Activated", this);
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
     }
@@ -148,6 +160,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       // ToDo: Make sure we suspend all blocks
       _directoryUnfoldBlock.Suspend();
+      _directorySaveBlock.Suspend();
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0}: Suspended", this);
     }
 
@@ -233,9 +246,11 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       // Create the blocks
       _directoryUnfoldBlock = new DirectoryUnfoldBlock(_cts.Token, this);
+      _directorySaveBlock = new DirectorySaveBlock(_cts.Token, _importJobInformation.JobType == ImportJobType.Refresh, this);
 
       // Link the blocks
-      _directoryUnfoldBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
+      _directoryUnfoldBlock.LinkTo(_directorySaveBlock, new DataflowLinkOptions { PropagateCompletion = true });
+      _directorySaveBlock.LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
 
       // Fill the blocks
       if (pendingImportResources == null)
@@ -262,6 +277,9 @@ namespace MediaPortal.Common.Services.MediaManagement
               _directoryUnfoldBlock.Post(pendingImportResource);
               break;
             case PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock:
+              _directorySaveBlock.Post(pendingImportResource);
+              break;
+            case PendingImportResourceNewGen.DataflowNetworkPosition.DirectorySaveBlock:
               pendingImportResource.Dispose();
               break;
           }

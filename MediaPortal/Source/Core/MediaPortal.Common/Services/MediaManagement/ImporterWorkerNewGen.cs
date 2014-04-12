@@ -198,17 +198,6 @@ namespace MediaPortal.Common.Services.MediaManagement
     #region ImporterWorkerAction handling
 
     /// <summary>
-    /// Requests an <see cref="ImporterWorkerAction"/>
-    /// </summary>
-    /// <param name="action"><see cref="ImporterWorkerAction"/> to be requested</param>
-    /// <returns><see cref="System.Threading.Tasks.Task"/> that completes when the <see cref="ImporterWorkerAction"/> is completed</returns>
-    private Task RequestAction(ImporterWorkerAction action)
-    {
-      _actionBlock.Post(action);
-      return action.Completion;
-    }
-
-    /// <summary>
     /// Processes <see cref="ImporterWorkerAction"/>s posted to the <see cref="_actionBlock"/>
     /// </summary>
     /// <param name="action"><see cref="ImporterWorkerAction"/> to be processed</param>
@@ -562,6 +551,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     #endregion
 
     #region Internal helper methods
+
+    /// <summary>
+    /// Requests an <see cref="ImporterWorkerAction"/>
+    /// </summary>
+    /// <param name="action"><see cref="ImporterWorkerAction"/> to be requested</param>
+    /// <returns><see cref="System.Threading.Tasks.Task"/> that completes when the <see cref="ImporterWorkerAction"/> is completed</returns>
+    internal Task RequestAction(ImporterWorkerAction action)
+    {
+      _actionBlock.Post(action);
+      return action.Completion;
+    }
 
     /// <summary>
     /// Tries to remove an ImportJobController from <see cref="_importJobControllers"/>

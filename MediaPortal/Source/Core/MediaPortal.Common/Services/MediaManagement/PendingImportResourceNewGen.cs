@@ -59,6 +59,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       None,
       DirectoryUnfoldBlock,
+      DirectorySaveBlock,
       // ToDo: Add additional DataflowBlocks
     }
 
