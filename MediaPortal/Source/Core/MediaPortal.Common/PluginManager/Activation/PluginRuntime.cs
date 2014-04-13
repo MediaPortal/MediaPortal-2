@@ -490,7 +490,7 @@ namespace MediaPortal.Common.PluginManager.Activation
 
       lock( _syncObj )
       {
-        return _itemManager.RequestItem( itemRegistration, type, stateTracker, _activator );
+        return _itemManager.RequestItem( itemRegistration, type, stateTracker );
       }
     }
 
