@@ -96,7 +96,7 @@ namespace MediaPortal.Common.Services.Registry
       {
         lock( _syncObj )
         {
-          return _subNodes != null ? _subNodes.ToDictionary( p => p.Key, p => p.Value ) : null;
+          return _subNodes != null ? _subNodes.ToDictionary( p => p.Key, p => p.Value, StringComparer.InvariantCultureIgnoreCase ) : null;
         }
       }
     }
@@ -107,7 +107,7 @@ namespace MediaPortal.Common.Services.Registry
       {
         lock( _syncObj )
         {
-          return _items != null ? _items.ToDictionary( p => p.Key, p => p.Value ) : null;
+          return _items != null ? _items.ToDictionary( p => p.Key, p => p.Value, StringComparer.InvariantCultureIgnoreCase ) : null;
         }
       }
     }

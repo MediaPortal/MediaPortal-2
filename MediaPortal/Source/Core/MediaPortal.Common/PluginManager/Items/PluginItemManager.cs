@@ -66,7 +66,7 @@ namespace MediaPortal.Common.PluginManager.Items
       return mustBuild && mustBeActive && !isActive;
     }
 
-    internal object RequestItem( PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker, PluginActivator activator )
+    internal object RequestItem( PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker )
     {
       PluginRuntime plugin = itemRegistration.Metadata.PluginRuntime;
       if( IsActivationRequiredForItemRequests( itemRegistration ) )
