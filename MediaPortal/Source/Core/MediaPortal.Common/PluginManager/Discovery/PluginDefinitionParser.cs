@@ -46,12 +46,12 @@ namespace MediaPortal.Common.PluginManager.Discovery
     #endregion
 
     #region Path Helpers
-    private static string PluginDefinitionFilePath( this string pluginDirectoryPath )
+    public static string PluginDefinitionFilePath( this string pluginDirectoryPath )
     {
       return Path.Combine( pluginDirectoryPath, PLUGIN_META_FILE );
     }
 
-    private static void VerifyIsPluginDirectory( this string path )
+    public static void VerifyIsPluginDirectory( this string path )
     {
       var pathExists = Directory.Exists( path );
       if( !pathExists )
@@ -67,18 +67,10 @@ namespace MediaPortal.Common.PluginManager.Discovery
     public static bool TryParsePluginDefinition( this string pluginDirectoryPath, out PluginMetadata pluginMetadata )
     {
       pluginDirectoryPath.VerifyIsPluginDirectory();
-      try
+      var data = File.ReadAllBytes( pluginDirectoryPath.PluginDefinitionFilePath() );
+      using( var stream = new MemoryStream( data ) )
       {
-        var data = File.ReadAllBytes( pluginDirectoryPath.PluginDefinitionFilePath() );
-        using( var stream = new MemoryStream( data ) )
-        {
-          return stream.TryParsePluginDefinition( pluginDirectoryPath, out pluginMetadata );
-        }
-      }
-      catch( IOException )
-      {
-        // TODO log error here?
-        throw;
+        return stream.TryParsePluginDefinition( pluginDirectoryPath, out pluginMetadata );
       }
     }
 

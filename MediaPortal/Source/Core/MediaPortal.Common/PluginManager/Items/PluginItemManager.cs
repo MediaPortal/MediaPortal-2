@@ -50,28 +50,40 @@ namespace MediaPortal.Common.PluginManager.Items
     #endregion
 
     #region Item Requests
+    internal bool IsActivationRequiredForItemRequests( PluginItemRegistration itemRegistration )
+    {
+      var plugin = itemRegistration.Metadata.PluginRuntime;
+      var state = plugin.State;
+      var isActive = state == PluginState.Active;
+      var isEnabled = state == PluginState.Enabled;
+      if( !(isActive || isEnabled) )
+        throw new PluginInvalidStateException( "Plugin {0} is neither enabled nor active; cannot request items in this state", plugin.LogId );
+
+      PluginItemMetadata itemMetadata = itemRegistration.Metadata;
+      IPluginItemBuilder builder = plugin.GetOrCreateBuilder( itemMetadata.BuilderName );
+      bool mustBuild = itemRegistration.Item == null;
+      bool mustBeActive = builder.NeedsPluginActive( itemMetadata, plugin );
+      return mustBuild && mustBeActive && !isActive;
+    }
+
     internal object RequestItem( PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker, PluginActivator activator )
     {
       PluginRuntime plugin = itemRegistration.Metadata.PluginRuntime;
-      var isActive = plugin.State == PluginState.Active;
-      var isEnabled = plugin.State == PluginState.Enabled;
-      if( !(isActive || isEnabled) )
-        throw new PluginInvalidStateException( "Plugin {0} is neither enabled nor active; cannot request items in this state", plugin.LogId ); 
-      
+      if( IsActivationRequiredForItemRequests( itemRegistration ) )
+      {
+        throw new PluginInvalidStateException(
+          string.Format( "Plugin {0} must be in active state for item requests. It is currently in state '{1}'.",
+            plugin.LogId, plugin.State ) );
+      }
+        
       try
       {
         PluginItemMetadata itemMetadata = itemRegistration.Metadata;
         IPluginItemBuilder builder = plugin.GetOrCreateBuilder( itemMetadata.BuilderName );
-        bool mustBuild = itemRegistration.Item == null;
-        bool mustBeActive = builder.NeedsPluginActive( itemMetadata, plugin );
-        if( mustBuild && mustBeActive && !isActive && !activator.TryActivate( plugin ) )
-          throw new PluginInvalidStateException( 
-            string.Format( "Plugin {0} must be in active state for item requests. It is currently in state '{1}'.",
-              plugin.LogId, plugin.State ) );
 
         // TODO REVIEW
         if( _pluginRuntime != itemRegistration.Metadata.PluginRuntime )
-          throw new ArgumentException("OMG why designed this?!");
+          throw new ArgumentException("Mismatch between PluginRuntime references");
         // this code below can be simplified, assuming that _pluginRuntime == itemRegistration.Metadata.PluginRuntime, 
         // since then we know that we have the runtime instance lock: building twice should not be possible.
         object item = builder.BuildItem( itemMetadata, plugin );

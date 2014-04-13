@@ -95,7 +95,10 @@ namespace MediaPortal.Common.Services.Registry
       get
       {
         lock( _syncObj )
+        {
+          CheckSubNodeCollectionPresent();
           return _subNodes.ToDictionary( p => p.Key, p => p.Value );
+        }
       }
     }
 
@@ -104,7 +107,10 @@ namespace MediaPortal.Common.Services.Registry
       get
       {
         lock( _syncObj )
+        {
+          CheckItemCollectionPresent();
           return _items.ToDictionary( p => p.Key, p => p.Value );
+        }
       }
     }
 

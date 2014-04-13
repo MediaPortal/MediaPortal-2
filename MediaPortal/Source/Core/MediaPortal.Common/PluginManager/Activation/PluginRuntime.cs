@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Exceptions;
@@ -69,7 +70,7 @@ namespace MediaPortal.Common.PluginManager.Activation
     private readonly PluginBuilderManager _builderManager;
     private readonly PluginActivator _activator;
     // fields
-    private PluginState _state;
+    private long _state = (long) PluginState.Available; // PluginState
     private IPluginStateTracker _stateTracker = null;
     private ICollection<Assembly> _loadedAssemblies = null; // Lazy initialized
     private IDictionary<string, ObjectReference> _instantiatedObjects = null; // Lazy initialized
@@ -89,7 +90,6 @@ namespace MediaPortal.Common.PluginManager.Activation
       _pluginMetadata = metaData;
       _builderManager = builderManager;
       _activator = activator;
-      _state = PluginState.Available;
       _itemManager = new PluginItemManager( this );
     }
     #endregion
@@ -114,14 +114,13 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       get
       {
-        lock( _syncObj )
-          return _state;
+        return (PluginState) Interlocked.Read( ref _state );
       }
       private set
       {
         lock( _syncObj )
         {
-          _state = value;
+          Interlocked.Exchange( ref _state, (long)value );
           if( _loadedAssemblies == null && value == PluginState.Active)
             LoadAssemblies();
         }
@@ -470,9 +469,9 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       lock( _syncObj )
       {
-        if( _state != PluginState.Active && _state != PluginState.Enabled )
+        if( State != PluginState.Active && State != PluginState.Enabled )
           throw new PluginInvalidStateException( "PluginRuntime: GetOrCreateBuilder can only be called for enabled or active plugins." );
-        return _builderManager.GetOrCreateBuilder( builderName, _state );
+        return _builderManager.GetOrCreateBuilder( builderName, State );
       }
     }
     #endregion
@@ -480,6 +479,15 @@ namespace MediaPortal.Common.PluginManager.Activation
     #region Item Access
     internal object RequestItem( PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker )
     {
+      bool requiresActivation;
+      lock( _syncObj )
+      {
+        requiresActivation = _itemManager.IsActivationRequiredForItemRequests( itemRegistration );
+      }
+      // must not hold lock on self when calling out
+      if( requiresActivation ) 
+        _activator.TryActivate( this );
+
       lock( _syncObj )
       {
         return _itemManager.RequestItem( itemRegistration, type, stateTracker, _activator );
