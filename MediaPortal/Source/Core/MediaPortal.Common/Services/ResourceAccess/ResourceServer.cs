@@ -69,13 +69,32 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    protected readonly List<HttpServer.HttpServer> _httpServers;
+    protected readonly IDictionary<IPAddress, HttpServer.HttpServer> _httpServers;
 
     public ResourceServer()
     {
-      _httpServers = new List<HttpServer.HttpServer>();
+      _httpServers = new Dictionary<IPAddress, HttpServer.HttpServer>();
+      CreateServers();
       ResourceAccessModule module = new ResourceAccessModule();
       AddHttpModule(module);
+    }
+
+    private void CreateServers()
+    {
+      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      List<string> filters = settings.IPAddressBindingsList;
+      List<IPAddress> validAddresses = new List<IPAddress>();
+
+      if (settings.UseIPv4)
+        validAddresses.AddRange(NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters));
+      if (settings.UseIPv6)
+        validAddresses.AddRange(NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters));
+
+      foreach (IPAddress address in validAddresses)
+      {
+        HttpServer.HttpServer httpServer = new HttpServer.HttpServer(new HttpLogWriter());
+        _httpServers[address] = httpServer;
+      }
     }
 
     public void Dispose()
@@ -87,37 +106,22 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public void StartServers()
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-      List<string> filters = settings.IPAddressBindingsList;
-      if (settings.UseIPv4)
+      string addressType = string.Empty;
+      foreach (KeyValuePair<IPAddress, HttpServer.HttpServer> addressServerPair in _httpServers)
+      {
         try
         {
-          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters))
-          {
-            HttpServer.HttpServer httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
-            httpServerV4.Start(address, settings.HttpServerPort);
-            ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv4) on address {0} at port {1}", address, httpServerV4.Port);
-            _httpServers.Add(httpServerV4);
-          }
+          var address = addressServerPair.Key;
+          var server = addressServerPair.Value;
+          addressType = address.AddressFamily == AddressFamily.InterNetwork ? "IPv4" : "IPv6";
+          server.Start(address, settings.HttpServerPort);
+          ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server ({0}) on address {1} at port {2}", addressType, address, server.Port);
         }
         catch (SocketException e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server (IPv4)", e);
+          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server ({0})", addressType, e);
         }
-      if (settings.UseIPv6)
-        try
-        {
-          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters))
-          {
-            HttpServer.HttpServer httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
-            httpServerV6.Start(address, settings.HttpServerPort);
-            ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv6) on address {0} at port {1}", address, httpServerV6.Port);
-            _httpServers.Add(httpServerV6);
-          }
-        }
-        catch (SocketException e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server (IPv6)", e);
-        }
+      }
     }
 
     private void StopServer(HttpServer.HttpServer server)
@@ -134,7 +138,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void StopServers()
     {
-      _httpServers.ForEach(StopServer);
+      _httpServers.Values.ToList().ForEach(StopServer);
     }
 
     public void DisposeServer(HttpServer.HttpServer server)
@@ -151,7 +155,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void DisposeServers()
     {
-      _httpServers.ForEach(DisposeServer);
+      _httpServers.Values.ToList().ForEach(DisposeServer);
+      _httpServers.Clear();
     }
 
     #region IResourceServer implementation
@@ -160,7 +165,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       get
       {
-        var server = _httpServers.FirstOrDefault(s => s.IsIPv4);
+        var server = _httpServers.Values.FirstOrDefault(s => s.IsIPv4);
         return server != null ? server.Port : 0;
       }
     }
@@ -169,7 +174,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       get
       {
-        var server = _httpServers.FirstOrDefault(s => s.IsIPv6);
+        var server = _httpServers.Values.FirstOrDefault(s => s.IsIPv6);
         return server != null ? server.Port : 0;
       }
     }
@@ -194,12 +199,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void AddHttpModule(HttpModule module)
     {
-      _httpServers.ForEach(x => x.Add(module));
+      _httpServers.Values.ToList().ForEach(x => x.Add(module));
     }
 
     public void RemoveHttpModule(HttpModule module)
     {
-      _httpServers.ForEach(x => x.Remove(module));
+      _httpServers.Values.ToList().ForEach(x => x.Remove(module));
     }
 
     #endregion
