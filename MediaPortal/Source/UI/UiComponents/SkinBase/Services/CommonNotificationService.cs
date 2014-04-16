@@ -62,15 +62,21 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       {
         INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
         ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType) message.MessageType;
-        ResourcePath resourcePath = (ResourcePath) message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
+        ResourcePath resourcePath;
         if (messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
+        {
+          resourcePath = (ResourcePath) message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
           notificationService.EnqueueNotification(NotificationType.Info,
-              LocalizationHelper.Translate(Consts.RES_IMPORT_STARTED_TITLE),
-              LocalizationHelper.Translate(Consts.RES_IMPORT_STARTED_TEXT, resourcePath), false);
+            LocalizationHelper.Translate(Consts.RES_IMPORT_STARTED_TITLE),
+            LocalizationHelper.Translate(Consts.RES_IMPORT_STARTED_TEXT, resourcePath), false);
+        }
         else if (messageType == ImporterWorkerMessaging.MessageType.ImportCompleted)
+        {
+          resourcePath = (ResourcePath) message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
           notificationService.EnqueueNotification(NotificationType.Info,
-              LocalizationHelper.Translate(Consts.RES_IMPORT_COMPLETED_TITLE),
-              LocalizationHelper.Translate(Consts.RES_IMPORT_COMPLETED_TEXT, resourcePath), false);
+            LocalizationHelper.Translate(Consts.RES_IMPORT_COMPLETED_TITLE),
+            LocalizationHelper.Translate(Consts.RES_IMPORT_COMPLETED_TEXT, resourcePath), false);
+        }
       }
     }
   }
