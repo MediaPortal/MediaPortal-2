@@ -49,22 +49,9 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// thread at a time. While flowing through the Dataflow network, TPL Dataflow ensures that only one thread
   /// accesses one particular object of this class.
   /// </para>
-  /// ToDo: Adapt to additional DataflowBlocks
   /// </remarks>
   public class PendingImportResourceNewGen : IDisposable
   {
-    #region Enums
-
-    public enum DataflowNetworkPosition : byte 
-    {
-      None,
-      DirectoryUnfoldBlock,
-      DirectorySaveBlock,
-      // ToDo: Add additional DataflowBlocks
-    }
-
-    #endregion
-
     #region Variables
 
     // Runtime data not persisted during serialization
@@ -81,17 +68,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     private String _resourcePathString;
     private String _parentDirectoryResourcePathString;
     private bool _isSingleResource = true;
-    private DataflowNetworkPosition _lastFinishedBlock;
+    private String _currentBlock;
 
     #endregion
 
     #region Constructor
 
-    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, DataflowNetworkPosition lastFinishedBlock, ImportJobController parentImportJobController)
+    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController)
     {
       _parentDirectoryResourcePathString = (parentDirectory == null) ? "" : parentDirectory.Serialize();
       _resourceAccessor = resourceAccessor;      
-      _lastFinishedBlock = lastFinishedBlock;
+      _currentBlock = currentBlock;
       _parentImportJobController = parentImportJobController;
       _pendingImportResourceNumber = _parentImportJobController.GetNumberOfNextPendingImportResource();
 
@@ -152,10 +139,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     [XmlIgnore]
-    public DataflowNetworkPosition LastFinishedBlock
+    public String CurrentBlock
     {
-      get { return _lastFinishedBlock; }
-      set { _lastFinishedBlock = value; }
+      get { return _currentBlock; }
+      set { _currentBlock = value; }
     }
 
     [XmlIgnore]
@@ -165,7 +152,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       set
       {
         if (value)
-          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0}: A PendingImportResource's IsValid property should not be set to true from outside.", _parentImportJobController);
+          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: A PendingImportResource's IsValid property should not be set to true from outside.", _parentImportJobController);
         _isValid = value;
       }
     }
@@ -182,21 +169,21 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (!ResourcePath.Deserialize(resourcePathString).TryCreateLocalResourceAccessor(out ra))
         {
           fsra = null;
-          ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Could not create ResourceAccessor for resource '{1}': It is no filesystem resource", _parentImportJobController, resourcePathString);
+          ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Could not create ResourceAccessor for resource '{1}': It is no filesystem resource", _parentImportJobController, resourcePathString);
           return false;
         }
         fsra = ra as IFileSystemResourceAccessor;
         if (fsra == null)
         {
           ra.Dispose();
-          ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Could not load resource '{1}': It is no filesystem resource", _parentImportJobController, resourcePathString);
+          ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Could not load resource '{1}': It is no filesystem resource", _parentImportJobController, resourcePathString);
           return false;
         }
       }
       catch (Exception ex)
       {
         fsra = null;
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0}: Error creating ResourceAccessor for resource '{1}'", ex, _parentImportJobController, resourcePathString);
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Error creating ResourceAccessor for resource '{1}'", ex, _parentImportJobController, resourcePathString);
         return false;
       }
       return true;
@@ -299,10 +286,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlAttribute("LastFinishedBlock")]
-    public DataflowNetworkPosition XmlLastFinishedBlock
+    public String XmlLastFinishedBlock
     {
-      get { return _lastFinishedBlock; }
-      set { _lastFinishedBlock = value; }
+      get { return _currentBlock; }
+      set { _currentBlock = value; }
     }
 
     #endregion

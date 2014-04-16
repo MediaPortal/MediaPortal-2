@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -38,12 +37,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// except those that are below single resource directories (like e.g. a DVD directory)
   /// </summary>
   /// <remarks>
-  /// Uses a BufferBlock to keep the <see cref="PendingImportResourceNewGen"/>s to be processed when the
-  /// <see cref="ImporterWorkerNewGen"/> is suspended. The actual work is done in a TransformBlock
-  /// to which the subdirectories of a given directory are posted recursively. The TransformBlock must be
-  /// run with a MaxDegreeOfParallelism of 1 to ensure that the PendingImportResourceNumber of the
-  /// PendingImportResources to be processed are in the right order also after this ImportJob was persisted
-  /// to disk and reloaded. The reason is that we have to make sure that parent directories are always saved
+  /// The actual work of this block is done in a TransformBlock. It posts the subdirectories of a given
+  /// directory recursively to the InputBlock. The TransformBlock must be run with a MaxDegreeOfParallelism of 1
+  /// and a BoundedCapacity of 1 to ensure that the <see cref="PendingImportResourceNewGen"/>s are processed one
+  /// by one in the right order - also after this ImportJob was persisted to disk and restored from disk.
+  /// The reason is that we have to make sure that parent directories are always saved
   /// to the database before their respective child directories as we store the parent directory's MediaItemId
   /// in the respective child directory's MediaItem and we only get this MediaItemId when the parent directory's
   /// MediaItem was stored in the database.
@@ -52,18 +50,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   ///       treated as a single resource, not as a directory containing sub-items or subdirectories.
   /// ToDo: Handle database-deletion of no longer existing directories during refresh imports
   /// </remarks>
-  class DirectoryUnfoldBlock : ISourceBlock<PendingImportResourceNewGen>
+  class DirectoryUnfoldBlock : ImporterWorkerDataflowBlockBase
   {
-    #region Variables
+    #region Constants
 
-    private readonly BufferBlock<PendingImportResourceNewGen> _suspensionBufferBlock;
-    private readonly TransformManyBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
-    private IDisposable _suspensionLink;
-    private readonly ImportJobController _parentImportJobController;
-    private readonly TaskCompletionSource<object> _tcs;
-    private readonly int _maxDegreeOfParallelism;
-    private readonly Stopwatch _stopWatch;
-    private int _directoriesProcessed;
+    public const String BLOCK_NAME = "DirectoryUnfoldBlock";
 
     #endregion
 
@@ -74,29 +65,22 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </summary>
     /// <param name="ct">CancellationToken used to cancel this block</param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public DirectoryUnfoldBlock(CancellationToken ct, ImportJobController parentImportJobController)
+    public DirectoryUnfoldBlock(CancellationToken ct, ImportJobController parentImportJobController) : base(
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      BLOCK_NAME, true, parentImportJobController)
     {
-      _parentImportJobController = parentImportJobController;
-      _maxDegreeOfParallelism = 1;
-      
-      _tcs = new TaskCompletionSource<object>();
-      _suspensionBufferBlock = new BufferBlock<PendingImportResourceNewGen>(new DataflowBlockOptions { CancellationToken = ct });
-      _innerBlock = new TransformManyBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { BoundedCapacity = _maxDegreeOfParallelism, MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
-      _innerBlock.Completion.ContinueWith(OnFinished);
-
-      _stopWatch = new Stopwatch();
     }
 
     #endregion
 
     #region Private methods
 
-    private IEnumerable<PendingImportResourceNewGen> ProcessDirectory(PendingImportResourceNewGen importResource)
+    private PendingImportResourceNewGen ProcessDirectory(PendingImportResourceNewGen importResource)
     {
       try
       {
-        Interlocked.Increment(ref _directoriesProcessed);
-
         //ToDo: Only do this if Directory is NOT a single resource (such as a DVD directory)
         importResource.IsSingleResource = false;
 
@@ -105,115 +89,34 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false);
           if (directories != null)
             foreach (var subDirectory in directories)
-              _suspensionBufferBlock.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, PendingImportResourceNewGen.DataflowNetworkPosition.None, _parentImportJobController));
+              this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
         }
 
-        if (_suspensionBufferBlock.Count == 0)
-          _suspensionBufferBlock.Complete();
+        var inputBlock = (TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>)InputBlock;
+        if (inputBlock.InputCount == 0 && inputBlock.OutputCount == 0)
+          InputBlock.Complete();
 
-        importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectoryUnfoldBlock;
-        return new HashSet<PendingImportResourceNewGen> { importResource };
+        return importResource;
+      }
+      catch (TaskCanceledException)
+      {
+        return importResource;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0} / DirectoryUnfoldBlock: Error while processing {1}", ex, _parentImportJobController, importResource);
-        return new HashSet<PendingImportResourceNewGen>();
-      }
-    }
-
-    /// <summary>
-    /// Runs when the _innerBlock is finished
-    /// </summary>
-    /// <remarks>
-    /// We just log a short message on the status of the _innerBlock. Potential exceptions are not logged, but
-    /// rethrown here so that the ImportJobController and finally the ImporterWorker know
-    /// about the status of the _innerBlock. The exceptions themselves are logged by ImporterWorker.
-    /// </remarks>
-    /// <param name="previousTask">_innerBlock.Completion</param>
-    private void OnFinished(Task previousTask)
-    {
-      _stopWatch.Stop();
-
-      if (previousTask.IsFaulted)
-      {
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0} / DirectoryUnfoldBlock: Error while unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
-        // ReSharper disable once AssignNullToNotNullAttribute
-        _tcs.SetException(previousTask.Exception);
-      }
-      else if (previousTask.IsCanceled)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker / {0} / DirectoryUnfoldBlock: Canceled after unfolding {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
-        _tcs.SetCanceled();
-      }
-      else
-      {
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker / {0} / DirectoryUnfoldBlock: Unfolded {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
-        _tcs.SetResult(null);
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.IsValid = false;
+        return importResource;
       }
     }
 
     #endregion
 
-    #region Public methods
+    #region Base overrides
 
-    public void Activate()
+    protected override IPropagatorBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> CreateInnerBlock()
     {
-      _suspensionLink = _suspensionBufferBlock.LinkTo(_innerBlock, new DataflowLinkOptions { PropagateCompletion = true });
-      _stopWatch.Start();
-    }
-
-    public void Suspend()
-    {
-      if (_suspensionLink != null)
-      {
-        _suspensionLink.Dispose();
-        _suspensionLink = null;
-      }
-      _stopWatch.Stop();
-    }
-
-    public bool Post(PendingImportResourceNewGen importResource)
-    {
-      return _suspensionBufferBlock.Post(importResource);
-    }
-
-    #endregion
-
-    #region Interface implementations
-
-    public void Complete()
-    {
-      _suspensionBufferBlock.Complete();
-    }
-
-    void IDataflowBlock.Fault(Exception exception)
-    {
-      (_suspensionBufferBlock as IDataflowBlock).Fault(exception);
-    }
-
-    public Task Completion
-    {
-      get { return _tcs.Task; }
-    }
-
-    public IDisposable LinkTo(ITargetBlock<PendingImportResourceNewGen> target, DataflowLinkOptions linkOptions)
-    {
-      return _innerBlock.LinkTo(target, linkOptions);
-    }
-
-    PendingImportResourceNewGen ISourceBlock<PendingImportResourceNewGen>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target, out bool messageConsumed)
-    {
-      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
-    }
-
-    bool ISourceBlock<PendingImportResourceNewGen>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
-    {
-      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
-    }
-
-    void ISourceBlock<PendingImportResourceNewGen>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
-    {
-      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
+      return new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(new Func<PendingImportResourceNewGen, PendingImportResourceNewGen>(ProcessDirectory), InnerBlockOptions);
     }
 
     #endregion

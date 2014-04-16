@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -40,12 +38,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// <summary>
   /// Takes directory MediaItems and saves them to the MediaLibrary
   /// </summary>
-  /// <remarks>
-  /// </remarks>
-  class DirectorySaveBlock : IPropagatorBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>
+  class DirectorySaveBlock : ImporterWorkerDataflowBlockBase
   {
     #region Consts
 
+    public const String BLOCK_NAME = "DirectorySaveBlock";
     private static readonly IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new[]
       {
         DirectoryAspect.ASPECT_ID
@@ -56,19 +53,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Variables
 
-    private readonly BufferBlock<PendingImportResourceNewGen> _inputBufferBlock;
-    private readonly BufferBlock<PendingImportResourceNewGen> _suspensionBufferBlock;
-    private readonly TransformManyBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> _innerBlock;
-    private readonly ConcurrentBag<IDisposable> _suspensionLinks;
-    private readonly ImportJobController _parentImportJobController;
-    private readonly TaskCompletionSource<object> _tcs;
-    private readonly int _maxDegreeOfParallelism;
-    private readonly Stopwatch _stopWatch;
-    private IMediaBrowsing _mediaBrowsingCallback;
-    private IImportResultHandler _importResultHandler;
     private readonly bool _refresh;
-    private readonly ConcurrentDictionary<ResourcePath, Guid> _parentDirectoryIds;
-    private int _directoriesProcessed;
+    private readonly ConcurrentDictionary<ResourcePath, Guid> _parentDirectoryIds = new ConcurrentDictionary<ResourcePath, Guid>();
 
     #endregion
 
@@ -78,23 +64,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Initiates the DirectoryUnfoldBlock
     /// </summary>
     /// <param name="ct">CancellationToken used to cancel this block</param>
-    /// <param name="refresh">true if this is a refresh import, otherwise false</param>
+    /// <param name="refresh"><c>true</c> if this is a refresh import, otherwise <c>false</c></param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public DirectorySaveBlock(CancellationToken ct, bool refresh, ImportJobController parentImportJobController)
+    public DirectorySaveBlock(CancellationToken ct, bool refresh, ImportJobController parentImportJobController) : base(
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      BLOCK_NAME, true, parentImportJobController)
     {
-      _parentImportJobController = parentImportJobController;
       _refresh = refresh;
-      _maxDegreeOfParallelism = 1;
-      _parentDirectoryIds = new ConcurrentDictionary<ResourcePath, Guid>();
-      
-      _tcs = new TaskCompletionSource<object>();
-      _inputBufferBlock = new BufferBlock<PendingImportResourceNewGen>(new DataflowBlockOptions { CancellationToken = ct });
-      _suspensionBufferBlock = new BufferBlock<PendingImportResourceNewGen>(new DataflowBlockOptions { CancellationToken = ct });
-      _innerBlock = new TransformManyBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(p => ProcessDirectory(p), new ExecutionDataflowBlockOptions { BoundedCapacity = _maxDegreeOfParallelism, MaxDegreeOfParallelism = _maxDegreeOfParallelism, CancellationToken = ct });
-      _innerBlock.Completion.ContinueWith(OnFinished);
-      _suspensionLinks = new ConcurrentBag<IDisposable>();
-
-      _stopWatch = new Stopwatch();
     }
 
     #endregion
@@ -106,12 +84,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </summary>
     /// <param name="importResource">Directory resource to be saved to the MediaLibrary</param>
     /// <returns></returns>
-    private IEnumerable<PendingImportResourceNewGen> ProcessDirectory(PendingImportResourceNewGen importResource)
+    private async Task<PendingImportResourceNewGen> ProcessDirectory(PendingImportResourceNewGen importResource)
     {
       try
       {
-        Interlocked.Increment(ref _directoriesProcessed);
-
         // Directories that are single resources (such as DVD directories) are not saved in this block
         // We just pass them to the next block.
         if (!importResource.IsSingleResource)
@@ -119,50 +95,47 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // We only save to the MediaLibrary if
           // (a) this is a first time import (i.e. not a refresh import), or
           // (b) this is a refresh import and the respective directory MediaItem is not yet in the MediaLibrary
-          if (!_refresh || IsRefreshNeeded(importResource.ResourceAccessor))
+          if (!_refresh || await IsRefreshNeeded(importResource.ResourceAccessor))
           {
-            Guid? parentDirectoryId = GetParentDirectoryId(importResource.ParentDirectory);
+            var parentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
             if (parentDirectoryId == null)
             {
               // If we cannot determine the parent directory ID we have an error case and
               // cannot save this directory MediaItem
-              importResource.Dispose();
-              return new HashSet<PendingImportResourceNewGen>();
+              importResource.IsValid = false;
+              return importResource;
             }
-            Guid directoryId = AddDirectory(importResource.ResourceAccessor, parentDirectoryId.Value);
+            var directoryId = await AddDirectory(importResource.ResourceAccessor, parentDirectoryId.Value);
             _parentDirectoryIds[importResource.PendingResourcePath] = directoryId;
           }
         }
 
-        importResource.LastFinishedBlock = PendingImportResourceNewGen.DataflowNetworkPosition.DirectorySaveBlock;
-
         // ToDo: Remove this and do it later
-        importResource.Dispose();
+        importResource.IsValid = false;
 
-        return new HashSet<PendingImportResourceNewGen> { importResource };
+        return importResource;
       }
-      catch (DisconnectedException)
+      catch (TaskCanceledException)
       {
-        // The MediaLibrary has been disconnected.
-        // Post the PendingImportResource currently being processed back to the _suspensionBufferBlock,
-        // Request suspension of the ImporterWorker and wait until we are in suspended state.
-        _suspensionBufferBlock.Post(importResource);
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker / {0} / DirectorySaveBlock: MediaLibrary disconnected. Requesting suspension...", _parentImportJobController);
-        _parentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
-        return new HashSet<PendingImportResourceNewGen>();
+        return importResource;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker / {0} / DirectorySaveBlock: Error while processing {1}", ex, _parentImportJobController, importResource);
-        importResource.Dispose();
-        return new HashSet<PendingImportResourceNewGen>();
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.IsValid = false;
+        return importResource;
       }
     }
 
-    private bool IsRefreshNeeded(IFileSystemResourceAccessor directoryAccessor)
+    /// <summary>
+    /// Checks, in case of refresh-imports, whether a refresh of a given directory is necessary
+    /// </summary>
+    /// <param name="directoryAccessor">ResourceAccessor to the directory to be checked</param>
+    /// <returns></returns>
+    private async Task<bool> IsRefreshNeeded(IFileSystemResourceAccessor directoryAccessor)
     {
       var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
-      var directoryItem = _mediaBrowsingCallback.LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
+      var directoryItem = await LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
         MediaItemAspect directoryAspect;
@@ -170,7 +143,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           // This is the case if the parentResourcePath was formerly imported as a single resource.
           // We cannot reuse it and it is necessary to delete this old MediaItem.
-          _importResultHandler.DeleteMediaItem(directoryPath);
+          await DeleteMediaItem(directoryPath);
           directoryItem = null;
         }
         else
@@ -181,7 +154,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       return (directoryItem == null);
     }
     
-    private Guid? GetParentDirectoryId(ResourcePath parentResourcePath)
+    /// <summary>
+    /// Determines the MediaItemId of a given MediaItem's parent directory
+    /// </summary>
+    /// <param name="parentResourcePath">Path to the MediaItem for which the parent directory ID is requested</param>
+    /// <returns>MediaItemId of the parent directory or <c>null</c> if it cannot be determined</returns>
+    private async Task<Guid?> GetParentDirectoryId(ResourcePath parentResourcePath)
     {
       // Parent directory of a share's BasePath is null and must be saved
       // with Guid.Empty as parent directory ID
@@ -200,12 +178,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // the MediaLibrary to get its ID. This should only be necessary if the ImportJob was
       // persisted to disk before and resumed after a restart of the application. In this
       // case we don't have the parent directory IDs cached in _parentDirectoryIds.
-      var parentDirectoryMediaItem = _mediaBrowsingCallback.LoadLocalItem(parentResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
+      var parentDirectoryMediaItem = await LoadLocalItem(parentResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
       if (parentDirectoryMediaItem == null)
       {
         // If the parent directory ID could not be found in the MediaLibrary, this is an error
         // case: The order of the directories to be saved was wrong.
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0} / DirectorySaveBlock: Could not find GUID of parent directory ({1}). Directories were posted to this block in the wrong order.", _parentImportJobController, parentResourcePath);
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}.{1}: Could not find GUID of parent directory ({2}). Directories were posted to this block in the wrong order.", ParentImportJobController, ToString(), parentResourcePath);
         return null;
       }
       // If we had to load the parent directory ID from the MediaLibrary, we store it in our
@@ -215,7 +193,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       return parentDirectoryMediaItem.MediaItemId;
     }
 
-    private Guid AddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId)
+    /// <summary>
+    /// Adds a direcotry MediaItem to the MediaLibrary
+    /// </summary>
+    /// <param name="directoryAccessor">ResourceAccessor to the directory to be saved</param>
+    /// <param name="parentDirectoryId">ID of the parent Directory</param>
+    /// <returns></returns>
+    private async Task<Guid> AddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId)
     {
       var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
       var mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
@@ -231,108 +215,16 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             mediaAspect,
             directoryAspect
         });
-      return _importResultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects);
-    }
-
-    /// <summary>
-    /// Runs when the _innerBlock is finished
-    /// </summary>
-    /// <param name="previousTask">_innerBlock.Completion</param>
-    private void OnFinished(Task previousTask)
-    {
-      _stopWatch.Stop();
-      _parentDirectoryIds.Clear();
-
-      if (previousTask.IsFaulted)
-      {
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker / {0} / DirectorySaveBlock: Error after saving {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
-        // ReSharper disable once AssignNullToNotNullAttribute
-        _tcs.SetException(previousTask.Exception);
-      }
-      else if (previousTask.IsCanceled)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker / {0} / DirectorySaveBlock: Canceled after saving {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
-        _tcs.SetCanceled();
-      }
-      else
-      {
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker / {0} / DirectorySaveBlock: Saved {1} directories; time elapsed: {2}; MaxDegreeOfParallelism = {3}", _parentImportJobController, _directoriesProcessed, _stopWatch.Elapsed, _maxDegreeOfParallelism);
-        _tcs.SetResult(null);
-      }
+      return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects);
     }
 
     #endregion
 
-    #region Public methods
+    #region Base overrides
 
-    public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
+    protected override IPropagatorBlock<PendingImportResourceNewGen, PendingImportResourceNewGen> CreateInnerBlock()
     {
-      _mediaBrowsingCallback = mediaBrowsingCallback;
-      _importResultHandler = importResultHandler;
-      _suspensionLinks.Add(_inputBufferBlock.LinkTo(_suspensionBufferBlock, new DataflowLinkOptions { PropagateCompletion = true }));
-      _suspensionLinks.Add(_suspensionBufferBlock.LinkTo(_innerBlock, new DataflowLinkOptions { PropagateCompletion = true }));
-      _stopWatch.Start();
-    }
-
-    public void Suspend()
-    {
-      IDisposable link;
-      while (_suspensionLinks.TryTake(out link))
-        link.Dispose();
-      _stopWatch.Stop();
-
-      // We need to reorder the items in the _suspensionBufferBlock by their PendingImportResourceNumber
-      IList<PendingImportResourceNewGen> items;
-      if (_suspensionBufferBlock.TryReceiveAll(out items))
-      {
-        var sortedItems = items.OrderBy(item => item.PendingImportResourceNumber);
-        foreach (var item in sortedItems)
-          _suspensionBufferBlock.Post(item);
-      }
-    }
-
-    #endregion
-
-    #region Interface implementations
-
-    public DataflowMessageStatus OfferMessage(DataflowMessageHeader messageHeader, PendingImportResourceNewGen messageValue, ISourceBlock<PendingImportResourceNewGen> source, bool consumeToAccept)
-    {
-      return (_inputBufferBlock as ITargetBlock<PendingImportResourceNewGen>).OfferMessage(messageHeader, messageValue, source, consumeToAccept);
-    }
-
-    public void Complete()
-    {
-      _inputBufferBlock.Complete();
-    }
-
-    void IDataflowBlock.Fault(Exception exception)
-    {
-      (_inputBufferBlock as IDataflowBlock).Fault(exception);
-    }
-
-    public Task Completion
-    {
-      get { return _tcs.Task; }
-    }
-
-    public IDisposable LinkTo(ITargetBlock<PendingImportResourceNewGen> target, DataflowLinkOptions linkOptions)
-    {
-      return _innerBlock.LinkTo(target, linkOptions);
-    }
-
-    PendingImportResourceNewGen ISourceBlock<PendingImportResourceNewGen>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target, out bool messageConsumed)
-    {
-      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ConsumeMessage(messageHeader, target, out messageConsumed);
-    }
-
-    bool ISourceBlock<PendingImportResourceNewGen>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
-    {
-      return (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReserveMessage(messageHeader, target);
-    }
-
-    void ISourceBlock<PendingImportResourceNewGen>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<PendingImportResourceNewGen> target)
-    {
-      (_innerBlock as ISourceBlock<PendingImportResourceNewGen>).ReleaseReservation(messageHeader, target);
+      return new TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>(new Func<PendingImportResourceNewGen, Task<PendingImportResourceNewGen>>(ProcessDirectory), InnerBlockOptions);
     }
 
     #endregion
