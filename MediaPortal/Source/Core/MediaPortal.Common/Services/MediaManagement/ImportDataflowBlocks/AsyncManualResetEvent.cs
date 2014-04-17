@@ -46,7 +46,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       if (cancellationToken == null)
         throw new ArgumentNullException("cancellationToken");
-      cancellationToken.Register(() => _tcs.SetCanceled());
+      cancellationToken.Register(() => _tcs.TrySetCanceled());
     }
 
     public Task WaitAsync()
