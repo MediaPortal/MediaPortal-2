@@ -356,17 +356,19 @@ namespace MediaPortal.Common.Services.MediaManagement
       // that when a DataflowBlock contained in an ImportJobController accesses the MediaLibrary and realizes that
       // the MediaLibrary is not accessible because the connection to the MP2-Server was lost, it will request a
       // call to this method. Since we run multiple DataflowBlocks in parallel, several DataflowBlocks may realize
-      // the disconnect and each of them requests a call to this method.
+      // the disconnect and each of them requests a call to this method. If the state was already Suspended, we do
+      // noting and just return.
       if (_status == Status.Shutdown)
       {
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker: Suspension was requested although status was 'Shutdown'");
         return;
       }
+      if (_status == Status.Suspended)
+        return;
 
       foreach (var kvp in _importJobControllers)
         kvp.Value.Suspend();
 
-      // ToDo: Only log this once although it is called multiple times (currently like this for debugging purposes)
       _status = Status.Suspended;
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspended ({0} ImportJobs pending)", _importJobControllers.Count);
     }
