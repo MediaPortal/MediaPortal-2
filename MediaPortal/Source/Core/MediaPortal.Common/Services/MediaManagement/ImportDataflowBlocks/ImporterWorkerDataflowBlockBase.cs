@@ -144,7 +144,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       InnerBlock = CreateInnerBlock();
 
       InnerBlock.LinkTo(OutputBlock, new DataflowLinkOptions { PropagateCompletion = true });
-      InnerBlock.Completion.ContinueWith(OnInnerBlockFinishedSuccessfully, TaskContinuationOptions.OnlyOnRanToCompletion);
+      InnerBlock.Completion.ContinueWith(OnInnerBlockFinishedSuccessfully, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
       OutputBlock.Completion.ContinueWith(OnOutputBlockFinished);
     }
 
@@ -218,7 +218,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // are still MediaItems in the OutputBlock, which is e.g. the case if the following
       // DataflowBlock has a bounded capacity.
       if (!OutputBlock.Completion.IsCompleted)
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: InnerBlock finished processing {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);      
+        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: InnerBlock finished; time elapsed: {2}; MaxDegreeOfParallelism(InnerBlock) = {3}", ParentImportJobController, _blockName, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);      
     }
     
     /// <summary>
@@ -315,6 +315,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           _importResultHandler.DeleteMediaItem(path);
+          return;
         }
         catch (DisconnectedException)
         {
@@ -332,6 +333,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           _importResultHandler.DeleteUnderPath(path);
+          return;
         }
         catch (DisconnectedException)
         {
