@@ -98,10 +98,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (!importResource.IsSingleResource)
         {
           ICollection<IFileSystemResourceAccessor> subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
-          foreach (var subDirectory in subDirectories)
-            this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
+          
+          // This may throw an exception in case of cancellation and therefore needs to be done before
+          // posting the subdirectories to the InputBufferBlock to avoid duplicate ImportResources when
+          // reactivating this block after it has been deserialized from disk.
           if (ImportJobInformation.JobType == ImportJobType.Refresh)
             await DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(importResource, subDirectories);
+          
+          foreach (var subDirectory in subDirectories)
+            this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
         }
 
         var inputBlock = (TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>)InputBlock;
