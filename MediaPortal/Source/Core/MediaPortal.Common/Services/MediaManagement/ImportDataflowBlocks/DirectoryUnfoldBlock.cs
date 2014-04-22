@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 
@@ -65,27 +66,21 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
-    #region Variables
-
-    private readonly bool _refresh;
-
-    #endregion
-
     #region Constructor
 
     /// <summary>
     /// Initiates the DirectoryUnfoldBlock
     /// </summary>
     /// <param name="ct">CancellationToken used to cancel this block</param>
-    /// <param name="refresh"><c>true</c> if this is a refresh import, otherwise <c>false</c></param>
+    /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public DirectoryUnfoldBlock(CancellationToken ct, bool refresh, ImportJobController parentImportJobController) : base(
+    public DirectoryUnfoldBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
+      importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, true, parentImportJobController)
     {
-      _refresh = refresh;
     }
 
     #endregion
@@ -96,15 +91,16 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        //ToDo: Only do this if Directory is NOT a single resource (such as a DVD directory)
-        importResource.IsSingleResource = false;
+        //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
+        if (await ExtractMetadata(importResource.ResourceAccessor, true) == null)
+          importResource.IsSingleResource = false;
 
         if (!importResource.IsSingleResource)
         {
           ICollection<IFileSystemResourceAccessor> subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
           foreach (var subDirectory in subDirectories)
             this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
-          if (_refresh)
+          if (ImportJobInformation.JobType == ImportJobType.Refresh)
             await DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(importResource, subDirectories);
         }
 

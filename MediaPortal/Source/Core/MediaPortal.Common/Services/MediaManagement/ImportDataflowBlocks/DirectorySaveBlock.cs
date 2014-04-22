@@ -53,7 +53,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Variables
 
-    private readonly bool _refresh;
     private readonly ConcurrentDictionary<ResourcePath, Guid> _parentDirectoryIds = new ConcurrentDictionary<ResourcePath, Guid>();
 
     #endregion
@@ -64,15 +63,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Initiates the DirectoryUnfoldBlock
     /// </summary>
     /// <param name="ct">CancellationToken used to cancel this block</param>
-    /// <param name="refresh"><c>true</c> if this is a refresh import, otherwise <c>false</c></param>
+    /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public DirectorySaveBlock(CancellationToken ct, bool refresh, ImportJobController parentImportJobController) : base(
+    public DirectorySaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
+      importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, true, parentImportJobController)
     {
-      _refresh = refresh;
     }
 
     #endregion
@@ -95,7 +94,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // We only save to the MediaLibrary if
           // (a) this is a first time import (i.e. not a refresh import), or
           // (b) this is a refresh import and the respective directory MediaItem is not yet in the MediaLibrary
-          if (!_refresh || await IsRefreshNeeded(importResource.ResourceAccessor))
+          if (ImportJobInformation.JobType == ImportJobType.Import || await IsRefreshNeeded(importResource.ResourceAccessor))
           {
             var parentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
             if (parentDirectoryId == null)

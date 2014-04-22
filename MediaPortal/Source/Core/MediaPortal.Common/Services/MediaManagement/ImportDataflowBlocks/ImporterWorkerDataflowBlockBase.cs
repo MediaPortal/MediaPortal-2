@@ -102,6 +102,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     private IMediaBrowsing _mediaBrowsingCallback;
     private IImportResultHandler _importResultHandler;
 
+    protected readonly ImportJobInformation ImportJobInformation;
     protected readonly ExecutionDataflowBlockOptions InputBlockOptions;
     protected readonly ExecutionDataflowBlockOptions InnerBlockOptions;
     protected readonly ExecutionDataflowBlockOptions OutputBlockOptions;
@@ -118,6 +119,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Initializes the DataflowBlock
     /// </summary>
+    /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="inputBlockOptions"><see cref="ExecutionDataflowBlockOptions"/> for the <see cref="InputBlock"/></param>
     /// <param name="innerBlockOptions"><see cref="ExecutionDataflowBlockOptions"/> for the <see cref="InnerBlock"/></param>
     /// <param name="outputBlockOptions"><see cref="ExecutionDataflowBlockOptions"/> for the <see cref="OutputBlock"/></param>
@@ -126,10 +128,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <c>true</c>, if after deserialiization from disk, <see cref="PendingImportResourceNewGen"/>s are restored to
     /// this block. If <c>false</c>, they are restored to the last passed DataflowBlock having this parameter <c>true</c></param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
-    protected ImporterWorkerDataflowBlockBase(ExecutionDataflowBlockOptions inputBlockOptions, ExecutionDataflowBlockOptions innerBlockOptions, ExecutionDataflowBlockOptions outputBlockOptions, String blockname, bool isRestorePointAfterDeserialization, ImportJobController parentImportJobController)
+    protected ImporterWorkerDataflowBlockBase(ImportJobInformation importJobInformation, ExecutionDataflowBlockOptions inputBlockOptions, ExecutionDataflowBlockOptions innerBlockOptions, ExecutionDataflowBlockOptions outputBlockOptions, String blockname, bool isRestorePointAfterDeserialization, ImportJobController parentImportJobController)
     {
       _blockName = blockname;
       _isRestorePointAfterDeserialization = isRestorePointAfterDeserialization;
+      ImportJobInformation = importJobInformation;
       InputBlockOptions = inputBlockOptions;
       InnerBlockOptions = innerBlockOptions;
       OutputBlockOptions = outputBlockOptions;
@@ -341,6 +344,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
         }
       }
+    }
+
+    protected Task<IDictionary<Guid, MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, bool forceQuickMode)
+    {
+      // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, forceQuickMode));
     }
 
     #endregion

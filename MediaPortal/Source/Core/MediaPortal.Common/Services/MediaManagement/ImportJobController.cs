@@ -243,8 +243,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       // ToDo: Add additional blocks here
       // Create the blocks
-      _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation.JobType == ImportJobType.Refresh, this));
-      _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation.JobType == ImportJobType.Refresh, this));
+      _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
+      _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
 
       // Link the blocks
       for (int i = 0; i < _dataflowBlocks.Count -1; i++)
