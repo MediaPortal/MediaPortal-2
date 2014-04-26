@@ -65,8 +65,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     private IFileSystemResourceAccessor _resourceAccessor;
     
     // Resource data that is (de)serializable
+    private Guid? _mediaItemId;
     private String _resourcePathString;
     private String _parentDirectoryResourcePathString;
+    private Guid? _parentDirectoryId;
     private bool _isSingleResource = true;
     private String _currentBlock;
 
@@ -74,8 +76,10 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController)
+    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null)
     {
+      _parentDirectoryId = parentDirectoryId;
+      _mediaItemId = mediaItemId;
       _parentDirectoryResourcePathString = (parentDirectory == null) ? "" : parentDirectory.Serialize();
       _resourceAccessor = resourceAccessor;      
       _currentBlock = currentBlock;
@@ -129,6 +133,19 @@ namespace MediaPortal.Common.Services.MediaManagement
           return ResourcePath.Deserialize(_resourcePathString);
         return _resourceAccessor.CanonicalLocalResourcePath;
       }
+    }
+
+    [XmlIgnore]
+    public Guid? ParentDirectoryId
+    {
+      get { return _parentDirectoryId; }
+      set { _parentDirectoryId = value; }
+    }
+
+    [XmlIgnore] public Guid? MediaItemId
+    {
+      get { return _mediaItemId; }
+      set { _mediaItemId = value; }
     }
 
     [XmlIgnore]
@@ -275,6 +292,26 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
+    [XmlAttribute("ParentDirectoryId")]
+    public String XmlParentDirectoryId
+    {
+      get { return _parentDirectoryId.HasValue ? _parentDirectoryId.ToString() : null; }
+      set { _parentDirectoryId = String.IsNullOrEmpty(value) ? default(Guid?) : Guid.Parse(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("MediaItemId")]
+    public String XmlMediaItemId
+    {
+      get { return _mediaItemId.HasValue ? _mediaItemId.ToString() : null; }
+      set { _mediaItemId = String.IsNullOrEmpty(value) ? default(Guid?) : Guid.Parse(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
     [XmlAttribute("IsSingleResource")]
     public bool XmlIsSingleResource
     {
@@ -285,8 +322,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlAttribute("LastFinishedBlock")]
-    public String XmlLastFinishedBlock
+    [XmlAttribute("CurrentBlock")]
+    public String XmlCurrentBlock
     {
       get { return _currentBlock; }
       set { _currentBlock = value; }

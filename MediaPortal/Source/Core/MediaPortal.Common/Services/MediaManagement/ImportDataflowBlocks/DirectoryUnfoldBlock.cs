@@ -51,6 +51,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// ToDo: Add an IsSingleResource method to the IMetadatExtractor interface and all its implementations
   ///       If at least one of the MetadataExtractors to be applied returns true, the directory is
   ///       treated as a single resource, not as a directory containing sub-items or subdirectories.
+  /// ToDo: Handle multi directory MediaItems (such as DVD1 and DVD2 of a single movie) here
   /// </remarks>
   class DirectoryUnfoldBlock : ImporterWorkerDataflowBlockBase
   {
@@ -97,7 +98,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
         if (!importResource.IsSingleResource)
         {
-          ICollection<IFileSystemResourceAccessor> subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
+          var subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
           
           // This may throw an exception in case of cancellation and therefore needs to be done before
           // posting the subdirectories to the InputBufferBlock to avoid duplicate ImportResources when
@@ -153,7 +154,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // Find out which subdirectories are stored in the MediaLibrary that do not exist anymore
       // in the filesystem and delete them (including all subdirectories and subitems)
       var subDirectoryResourcePathsInFileSystem = subDirectories.Select(ra => ra.CanonicalLocalResourcePath);
-      var noLongerExistingSubdirectoryResourcePaths = subDirectoryResourcePathsInMediaLibrary.Except(subDirectoryResourcePathsInFileSystem);
+      var noLongerExistingSubdirectoryResourcePaths = subDirectoryResourcePathsInMediaLibrary.Except(subDirectoryResourcePathsInFileSystem).ToList();
       foreach (var noLongerExistingSubdirectoryResourcePath in noLongerExistingSubdirectoryResourcePaths)
         await DeleteMediaItem(noLongerExistingSubdirectoryResourcePath);
     }

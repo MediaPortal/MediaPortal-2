@@ -87,6 +87,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
+        importResource.ParentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
+        
         // Directories that are single resources (such as DVD directories) are not saved in this block
         // We just pass them to the next block.
         if (!importResource.IsSingleResource)
@@ -94,24 +96,20 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // We only save to the MediaLibrary if
           // (a) this is a first time import (i.e. not a refresh import), or
           // (b) this is a refresh import and the respective directory MediaItem is not yet in the MediaLibrary
-          if (ImportJobInformation.JobType == ImportJobType.Import || await IsRefreshNeeded(importResource.ResourceAccessor))
+          if (ImportJobInformation.JobType == ImportJobType.Import || await IsRefreshNeeded(importResource))
           {
-            var parentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
-            if (parentDirectoryId == null)
+            if (importResource.ParentDirectoryId == null)
             {
               // If we cannot determine the parent directory ID we have an error case and
               // cannot save this directory MediaItem
               importResource.IsValid = false;
               return importResource;
             }
-            var directoryId = await AddDirectory(importResource.ResourceAccessor, parentDirectoryId.Value);
-            _parentDirectoryIds[importResource.PendingResourcePath] = directoryId;
+            Guid newId = await AddDirectory(importResource.ResourceAccessor, importResource.ParentDirectoryId.Value);
+            importResource.MediaItemId = newId;
+            _parentDirectoryIds[importResource.PendingResourcePath] = newId;
           }
         }
-
-        // ToDo: Remove this and do it later
-        importResource.IsValid = false;
-
         return importResource;
       }
       catch (TaskCanceledException)
@@ -129,11 +127,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Checks, in case of refresh-imports, whether a refresh of a given directory is necessary
     /// </summary>
-    /// <param name="directoryAccessor">ResourceAccessor to the directory to be checked</param>
+    /// <param name="importResource">PendingImportResource of the directory to be checked</param>
     /// <returns></returns>
-    private async Task<bool> IsRefreshNeeded(IFileSystemResourceAccessor directoryAccessor)
+    private async Task<bool> IsRefreshNeeded(PendingImportResourceNewGen importResource)
     {
-      var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
+      var directoryPath = importResource.ResourceAccessor.CanonicalLocalResourcePath;
       var directoryItem = await LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
@@ -146,9 +144,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           directoryItem = null;
         }
         else
+        {
           // This directory is already correctly stored in the MediaLibrary. No need to store it again,
           // we just cache its ID for potential subdirectories to be stored during this refresh.
           _parentDirectoryIds[directoryPath] = directoryItem.MediaItemId;
+          importResource.MediaItemId = directoryItem.MediaItemId;
+        }
       }
       return (directoryItem == null);
     }
