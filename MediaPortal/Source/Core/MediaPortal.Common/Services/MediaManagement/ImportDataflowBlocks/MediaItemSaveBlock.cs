@@ -32,40 +32,31 @@ using MediaPortal.Common.MediaManagement;
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
-  /// Takes MediaItems and tries to extract Metadata for them
+  /// Takes MediaItems and saves their aspects to the Database
   /// </summary>
-  class MetadataExtractorBlock : ImporterWorkerDataflowBlockBase
+  class MediaItemSaveBlock : ImporterWorkerDataflowBlockBase
   {
     #region Consts
 
-    public const String BLOCK_NAME_QUICK = "MetadataExtractorBlock_Quick";
-    public const String BLOCK_NAME_FULL = "MetadataExtractorBlock_Full";
-
-    #endregion
-
-    #region Variables
-
-    private readonly bool _forceQuickMode;
+    public const String BLOCK_NAME = "MediaItemSaveBlock";
 
     #endregion
 
     #region Constructor
 
     /// <summary>
-    /// Initiates the DirectoryUnfoldBlock
+    /// Initiates the MediaItemSaveBlock
     /// </summary>
     /// <param name="ct">CancellationToken used to cancel this block</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    /// <param name="forceQuickMode"><c>true</c> if this is the MetadataExtractorBlock used for first pass imports, else <c>false</c></param>
-    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode) : base(
+    public MediaItemSaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
       importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      forceQuickMode ? BLOCK_NAME_QUICK : BLOCK_NAME_FULL, true, parentImportJobController)
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      BLOCK_NAME, false, parentImportJobController)
     {
-      _forceQuickMode = forceQuickMode;
     }
 
     #endregion
@@ -81,22 +72,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        if (ImportJobInformation.JobType == ImportJobType.Refresh)
-        {
-          // Do not import again, if the file or directory wasn't changed since the last import
-          // This is the behavior of the old ImporterWorker.
-          // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
-          if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged)
-          {
-            importResource.IsValid = false;
-            return importResource;
-          }
-        }
-        
-        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, _forceQuickMode);
-        if (importResource.Aspects == null)
-          importResource.IsValid = false;
+        // ReSharper disable once PossibleInvalidOperationException
+        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.Aspects.Values);
 
+        if (ImportJobInformation.JobType == ImportJobType.Refresh)
+          if(importResource.IsSingleResource)
+            await DeleteUnderPath(importResource.PendingResourcePath);
+
+        importResource.IsValid = false;
         return importResource;
       }
       catch (TaskCanceledException)
