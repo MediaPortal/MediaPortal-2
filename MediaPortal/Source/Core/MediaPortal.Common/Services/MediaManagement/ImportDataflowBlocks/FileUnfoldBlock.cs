@@ -46,9 +46,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constants
 
     public const String BLOCK_NAME = "FileUnfoldBlock";
-    private static readonly IEnumerable<Guid> PROVIDERRESOURCE_MIA_ID_ENUMERATION = new[]
+    private static readonly IEnumerable<Guid> PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION = new[]
       {
-        ProviderResourceAspect.ASPECT_ID
+        ProviderResourceAspect.ASPECT_ID,
+        ImporterAspect.ASPECT_ID
       };
     private static readonly IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new[]
       {
@@ -90,15 +91,27 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         // FileSystemResourceNavigator.GetChildDirectories (such as zip-files).
         // ToDo: Clarify if this is a bug
         var files = FileSystemResourceNavigator.GetFiles(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
-          
+        IDictionary<ResourcePath, DateTime> path2LastImportDate = null;
+
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
-          await DeleteNoLongerExistingFilesFromMediaLibrary(importResource, files);
+        {
+          MediaItemAspect directoryAspect;
+          // ReSharper disable once PossibleInvalidOperationException
+          path2LastImportDate = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
+            .Where(mi => !mi.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out directoryAspect))
+            .ToDictionary(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)), mi => mi[ImporterAspect.ASPECT_ID].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
+        }
 
         result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.ParentDirectoryId)));
 
-        // ToDo: Remove this and do it later
-        foreach (var fsra in result)
-          fsra.IsValid = false;
+        // If this is a refresh and we found already files in the MediaLibrary,
+        // store the DateOfLastImport in the PendingImportResource
+        DateTime dateTime;
+        if (path2LastImportDate != null)
+          foreach (var pir in result)
+            if(path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
+              pir.DateOfLastImport = dateTime;
 
         return result;
       }
@@ -117,16 +130,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Deletes no longer existing files from the MediaLibrary
     /// </summary>
-    /// <param name="importResource"><see cref="PendingImportResourceNewGen"/>representing the currently processed directory</param>
     /// <param name="filesInDirectory">Existing filesInDirectory in the currently processed directory</param>
+    /// <param name="fileResourcePathsInMediaLibrary">ResourcePaths of file MediaItems stored as sub-items of this importResource in the MediaLibrary</param>
     /// <returns></returns>
-    private async Task DeleteNoLongerExistingFilesFromMediaLibrary(PendingImportResourceNewGen importResource, IEnumerable<IFileSystemResourceAccessor> filesInDirectory)
+    private async Task DeleteNoLongerExistingFilesFromMediaLibrary(IEnumerable<IFileSystemResourceAccessor> filesInDirectory, ICollection<ResourcePath> fileResourcePathsInMediaLibrary)
     {
-      // Get the files stored in the MediaLibrary for the currently procesed directory
-      MediaItemAspect directoryAspect;
-      // ReSharper disable once PossibleInvalidOperationException
-      var fileResourcePathsInMediaLibrary = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION)).Where(mi => !mi.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out directoryAspect)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
-      
       // If there are no files stored in the MediaLibrary, there is no need to delete any of them
       if (!fileResourcePathsInMediaLibrary.Any())
         return;

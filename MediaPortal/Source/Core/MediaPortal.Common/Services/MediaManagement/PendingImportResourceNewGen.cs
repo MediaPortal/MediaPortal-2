@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement
@@ -58,6 +60,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private int _pendingImportResourceNumber;
     private ImportJobController _parentImportJobController;
     private bool _isValid;
+    private IDictionary<Guid, MediaItemAspect> _aspects;
     
     // Resource data recreated after deserialization
     // The _resourceAccessor will after deserialization only be created from the _resourcePathString
@@ -71,6 +74,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private Guid? _parentDirectoryId;
     private bool _isSingleResource = true;
     private String _currentBlock;
+    private DateTime _dateOfLastImport; // only valid for refresh imports
 
     #endregion
 
@@ -170,8 +174,31 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         if (value)
           ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: A PendingImportResource's IsValid property should not be set to true from outside.", _parentImportJobController);
+        else
+        {
+          // We don't need heavy payload anymore.
+          if (_aspects != null)
+          {
+            _aspects.Clear();
+            _aspects = null;
+          }
+        }
         _isValid = value;
       }
+    }
+
+    [XmlIgnore]
+    public IDictionary<Guid, MediaItemAspect> Aspects
+    {
+      get { return _aspects; }
+      set { _aspects = value; }
+    }
+
+    [XmlIgnore]
+    public DateTime DateOfLastImport
+    {
+      get { return _dateOfLastImport; }
+      set { _dateOfLastImport = value; }
     }
 
     #endregion
@@ -327,6 +354,16 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get { return _currentBlock; }
       set { _currentBlock = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("DateOfLastImport")]
+    public DateTime XmlDateOfLastImport
+    {
+      get { return _dateOfLastImport; }
+      set { _dateOfLastImport = value; }
     }
 
     #endregion
