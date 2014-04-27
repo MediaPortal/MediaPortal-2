@@ -35,19 +35,19 @@ using MediaPortal.Common.ResourceAccess;
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
-  /// Base class for all TPL DataflowBlocks used in the <see cref="ImporterWorkerNewGen"/>
+  /// Base class for all DataflowBlocks used in the <see cref="ImporterWorkerNewGen"/>
   /// </summary>
   /// <remarks>
-  /// The <see cref="ImporterWorkerNewGen"/> makes heavy use of TPL dataflow. As a result, an ImportJob technically consists of a
+  /// The <see cref="ImporterWorkerNewGen"/> makes heavy use of TPL Dataflow. As a result, an ImportJob technically consists of a
   /// chain of so called DataflowBlocks. Every DataflowBlock has a well defined responsibility (such as "find all the subdirectories
   /// of a given directory" or "find all the files in one directory" or "extract the metadata of the given MediaItem" or "save the
-  /// metadata of a given MediaItems into the database", etc.) and is linked to the next DataflowBlock.
+  /// metadata of a given MediaItem into the database", etc.) and is linked to the next DataflowBlock.
   /// The data that (automatically) "flows" through this chain of DataflowBlocks are <see cref="PendingImportResourceNewGen"/>-objects.
   /// These objects hold the information necessary for the respective next DataflowBlock to perform its task. A given
-  /// <see cref="PendingImportResourceNewGen"/>-object represents a single MediaItem (such as a directory or a media file).
-  /// Every DataflowBlock in the chain described above may be an object of a different class. But every such class should
+  /// <see cref="PendingImportResourceNewGen"/>-object represents a single MediaItem (such as a directory or a file).
+  /// Every DataflowBlock in the chain described above may be of a different type. But every such type should
   /// derive from this abstract base class.
-  /// Thia abstract base class consists of an <see cref="InputBlock"/>, an <see cref="InnerBlock"/> and an <see cref="OutputBlock"/>.
+  /// This abstract base class consists of an <see cref="InputBlock"/>, an <see cref="InnerBlock"/> and an <see cref="OutputBlock"/>.
   /// The <see cref="InputBlock"/> is a TransformBlock&lt;PendingImportResourceNewGen, PendingImportResourceNewGen&gt;. The <see cref="OutputBlock"/>
   /// is a TransformManyBlock&lt;PendingImportResourceNewGen, PendingImportResourceNewGen&gt;.
   /// The <see cref="InnerBlock"/> variable is defined as IPropagatorBlock&lt;PendingImportResourceNewGen, PendingImportResourceNewGen&gt;.
@@ -61,32 +61,33 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// <see cref="InputBlock"/> sets the CurrentBlock property of the respective PendingImportResource to <see cref="_blockName"/>. As a
   /// result, after an ImportJob has been suspended to disk and restored from disk, the respective PendingImportResource will
   /// be restored to exactly this DataflowBlock in the chain - based on its <see cref="_blockName"/>. However, the CurrentBlock property will
-  /// only be set, if the isRestorePointAfterDeserialization parameter of the constructor of this class is true. If it is false, the
+  /// only be set, if the isRestorePointAfterDeserialization parameter of the constructor of this class is <c>true</c>. If it is <c>false</c>, the
   /// PendingImportResource will be restored to the last DataflowBlock in the chain where this parameter was true. This is helpful, if the
   /// preceding block stores information in the <see cref="PendingImportResourceNewGen"/>, which is not serialized to disk so that after
   /// deserialization, it is necessary to let the last block do its magic again.
   /// The <see cref="OutputBlock"/> counts the number of processed MediaItems and checks, whether the current
-  /// <see cref="PendingImportResourceNewGen"/> is valid. If so, it propagates the object to the next block. If it is not
+  /// <see cref="PendingImportResourceNewGen"/> is valid. If so, it propagates it to the next DataflowBlock. If it is not
   /// valid (in particular because the <see cref="InnerBlock"/> set the IsValid property to false), it is disposed and no
-  /// <see cref="PendingImportResourceNewGen"/> object is propagated to the next DataflowBlock (this is the reson why the
+  /// <see cref="PendingImportResourceNewGen"/> object is propagated to the next DataflowBlock (this is the reason why the
   /// <see cref="OutputBlock"/> is a TransformManyBlock instead of a TransformBlock. A TransformBlock MUST return exactly one
   /// item, whereas the TransformManyBlock may return an empty collection of items).
   /// The real magic happens in the <see cref="InnerBlock"/>, which is indirectly defined by the deriving class. There are
   /// a few things to take into account when implementing a class deriving from this base class:
   /// - The main method of the <see cref="InnerBlock"/> MUST NOT throw exceptions, unless it is intended that the ImportJob is
-  ///   cancelled in a faulted state. The import will then not be restarted automatically. All statements in that block should
+  ///   cancelled in a faulted state. The import will then not be restarted automatically. All statements in the <see cref="InnerBlock"/> should
   ///   therefore reside in a try-block.
-  /// - The main method of the <see cref="InnerBlock"/> MUST catch the <see cref="TaskCanceledException"/> separately and treat it
-  ///   differently from all other exceptions. The reaction to a <see cref="TaskCanceledException"/> MUST be just to
-  ///   return the current <see cref="PendingImportResourceNewGen"/>.
+  /// - The main method of the <see cref="InnerBlock"/> MUST catch the <see cref="TaskCanceledException"/>.
+  ///   The reaction to a <see cref="TaskCanceledException"/> MUST be just to return the current <see cref="PendingImportResourceNewGen"/>.
   /// - The main method of the <see cref="InnerBlock"/> MUST NOT (and cannot) access the database directly via the (private)
   ///   IMediaBrowsing and IImportResultHandler variables. It MUST use the protected async methods from this base class to
   ///   do so. The task returned by these methods will (when awaited) automatically take care of the <see cref="ImporterWorkerNewGen"/>
   ///   being suspended or (re)activated. If it is suspended while trying to access the database (e.g. because the
   ///   <see cref="ImporterWorkerNewGen"/> runs inside the MP2 Client and the MP2 Server was shutdown), these methods will
-  ///   "block asynchronously" until (a) the <see cref="ImporterWorkerNewGen"/> is (re)activated or (b) is shut down. On shut down,
-  ///   awaiting the task returned by one of these methods will throw the above mentioned <see cref="TaskCanceledException"/> after
-  ///   the current state of the ImportJob has been saved to disk.
+  ///   "block asynchronously" until
+  ///     (a) the <see cref="ImporterWorkerNewGen"/> is (re)activated, or
+  ///     (b) is shut down.
+  ///   On shut down, awaiting the task returned by one of these methods will throw the above mentioned <see cref="TaskCanceledException"/>
+  ///   after the current state of the ImportJob has been saved to disk.
   /// Additionally, this base class takes care of logging and measuring the time the respective DataflowBlock needs to finish its task.
   /// </remarks>
   internal abstract class ImporterWorkerDataflowBlockBase : IPropagatorBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>
@@ -126,7 +127,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="blockname">Name of this DataflowBlock (must be unique in a given chain of DataflowBlocks)</param>
     /// <param name="isRestorePointAfterDeserialization">
     /// <c>true</c>, if after deserialiization from disk, <see cref="PendingImportResourceNewGen"/>s are restored to
-    /// this block. If <c>false</c>, they are restored to the last passed DataflowBlock having this parameter <c>true</c></param>
+    /// this block. If <c>false</c>, they are restored to the last passed DataflowBlock having this parameter set to <c>true</c>
+    /// </param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
     protected ImporterWorkerDataflowBlockBase(ImportJobInformation importJobInformation, ExecutionDataflowBlockOptions inputBlockOptions, ExecutionDataflowBlockOptions innerBlockOptions, ExecutionDataflowBlockOptions outputBlockOptions, String blockname, bool isRestorePointAfterDeserialization, ImportJobController parentImportJobController)
     {
@@ -194,7 +196,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Method performed on each <see cref="PendingImportResourceNewGen"/> by the <see cref="OutputBlock"/>
     /// </summary>
     /// <remarks>
-    /// Filters and disposes invalid <see cref="PendingImportResourceNewGen"/>s.
+    /// - Filters and disposes invalid <see cref="PendingImportResourceNewGen"/>s.
+    /// - Counts the <see cref="PendingImportResourceNewGen"/>s processed by this DataflowBlock
     /// </remarks>
     /// <param name="pendingImportResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
     /// <returns></returns>

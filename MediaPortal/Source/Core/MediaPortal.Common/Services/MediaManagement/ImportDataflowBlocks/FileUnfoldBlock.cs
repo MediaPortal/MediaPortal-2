@@ -36,7 +36,7 @@ using MediaPortal.Common.ResourceAccess;
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
-  /// Lists for a given directory all the files in that directory and the directory itself
+  /// Takes a directory and provides this directory and all the files in that directory
   /// </summary>
   /// <remarks>
   /// ToDo: Handle multi file MediaItems
@@ -61,13 +61,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constructor
 
     /// <summary>
-    /// Initiates the DirectoryUnfoldBlock
+    /// Initiates the FileUnfoldBlock
     /// </summary>
-    /// <param name="ct">CancellationToken used to cancel this block</param>
+    /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
-    /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public FileUnfoldBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
-      importJobInformation,
+    /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
+    public FileUnfoldBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
+      : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
@@ -79,6 +79,22 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Private methods
 
+    /// <summary>
+    /// Main process method for the InnerBlock
+    /// </summary>
+    /// <remarks>
+    /// - SingleResources are just passed to the next DataflowBlock
+    /// - If it's not a SingleResource
+    ///   - it finds all the files in the current directory,
+    ///   - in case of a RefreshImport
+    ///     - it deletes all the files in the MediaLibrary that do not exist anymore in the filesystem,
+    ///     - it stores the DateOfLastImport of all the files in the <see cref="PedingImportResourceNewGen"/>
+    /// </remarks>
+    /// <param name="importResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
+    /// <returns>
+    /// a HashSet of <see cref="PendingImportResourceNewGen"/>s containing the current <see cref="PendingImportResource"/>
+    /// after processing as well as <see cref="PendingImportResourceNewGen"/>s for all files in the current directory
+    /// </returns>
     private async Task<IEnumerable<PendingImportResourceNewGen>> ProcessDirectory(PendingImportResourceNewGen importResource)
     {
       var result = new HashSet<PendingImportResourceNewGen> { importResource };
@@ -105,7 +121,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
         result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
 
-        // If this is a refresh and we found already files in the MediaLibrary,
+        // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
         // store the DateOfLastImport in the PendingImportResource
         DateTime dateTime;
         if (path2LastImportDate != null)
@@ -132,10 +148,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </summary>
     /// <param name="filesInDirectory">Existing filesInDirectory in the currently processed directory</param>
     /// <param name="fileResourcePathsInMediaLibrary">ResourcePaths of file MediaItems stored as sub-items of this importResource in the MediaLibrary</param>
-    /// <returns></returns>
     private async Task DeleteNoLongerExistingFilesFromMediaLibrary(IEnumerable<IFileSystemResourceAccessor> filesInDirectory, ICollection<ResourcePath> fileResourcePathsInMediaLibrary)
     {
-      // If there are no files stored in the MediaLibrary, there is no need to delete any of them
+      // If there are no files stored in the MediaLibrary, there is no need to delete anything
       if (!fileResourcePathsInMediaLibrary.Any())
         return;
       

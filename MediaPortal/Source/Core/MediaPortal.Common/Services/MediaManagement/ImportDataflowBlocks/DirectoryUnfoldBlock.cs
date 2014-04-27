@@ -72,11 +72,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Initiates the DirectoryUnfoldBlock
     /// </summary>
-    /// <param name="ct">CancellationToken used to cancel this block</param>
+    /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
-    /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public DirectoryUnfoldBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
-      importJobInformation,
+    /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
+    public DirectoryUnfoldBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
+      : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
@@ -88,6 +88,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Private methods
 
+    /// <summary>
+    /// Main process method for the InnerBlock
+    /// </summary>
+    /// <remarks>
+    /// - Checks whether the current resource is a SingleResource.
+    /// - If this is not the case (i.e. there are subitems under this resource)
+    ///   - it posts all the subdirectories under this resource to this DataflowBlock
+    ///   - and in case of a RefreshImport, it deletes all subdirectories of the current resource in the MediaLibrary
+    ///     that do not exist anymore.
+    ///  - If there are no more resources to be processed after this resource, it completes this DataflowBlock
+    /// </remarks>
+    /// <param name="importResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
+    /// <returns><see cref="PendingImportResourceNewGen"/> after processing</returns>
     private async Task<PendingImportResourceNewGen> ProcessDirectory(PendingImportResourceNewGen importResource)
     {
       try
@@ -129,7 +142,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     }
 
     /// <summary>
-    /// Deletes no longer existing directories from the MediaLibrary
+    /// Deletes no longer existing subdirectories from the MediaLibrary
     /// </summary>
     /// <param name="importResource"><see cref="PendingImportResourceNewGen"/>representing the currently processed directory</param>
     /// <param name="subDirectories">Existing subdirectories of the currently processed directory</param>
@@ -147,7 +160,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // Get the subdirectories stored in the MediaLibrary for the currently procesed directory
       var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, DIRECTORY_AND_PROVIDERRESOURCE_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
       
-      // If there are no subdirectories stored in the MediaLibrary, there is no need to delete any of them
+      // If there are no subdirectories stored in the MediaLibrary, there is no need to delete anything
       if (!subDirectoryResourcePathsInMediaLibrary.Any())
         return;
       

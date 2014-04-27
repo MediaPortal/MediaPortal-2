@@ -32,8 +32,14 @@ using MediaPortal.Common.MediaManagement;
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
-  /// Takes MediaItems and saves their aspects to the Database
+  /// Takes MediaItems and saves their MIAs to the Database
   /// </summary>
+  /// <remarks>
+  /// This DataflowBlock expects that the <see cref="PendingImportResourceNewGen"/>s passed to it do not have
+  /// a <c>null</c> value in their Aspects property
+  /// ToDo: Extend this DataflowBlock for the saving process of SecondPassImports
+  ///       (in particular give it a unique BLOCK_NAME in case of multiple instances)
+  /// </remarks>
   class MediaItemSaveBlock : ImporterWorkerDataflowBlockBase
   {
     #region Consts
@@ -47,11 +53,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Initiates the MediaItemSaveBlock
     /// </summary>
-    /// <param name="ct">CancellationToken used to cancel this block</param>
+    /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
-    /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public MediaItemSaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
-      importJobInformation,
+    /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
+    public MediaItemSaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
+      : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
@@ -64,10 +70,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Private methods
 
     /// <summary>
-    /// Main method that is called for every <see cref="PendingImportResourceNewGen"/> in this block
+    /// Main process method for the InnerBlock
     /// </summary>
-    /// <param name="importResource">Directory resource to be saved to the MediaLibrary</param>
-    /// <returns></returns>
+    /// <remarks>
+    /// - Saves all MediaItems with their MIAs to the Database
+    /// - In case of SingleResources in RefreshImports it also deletes all MediaItems below the current one in the database
+    ///   (necessary if in a previous import this MediaItem was saved to the Database as a directory instead of a SingleResource)
+    /// </remarks>
+    /// <param name="importResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
+    /// <returns><see cref="PendingImportResourceNewGen"/> after processing</returns>
     private async Task<PendingImportResourceNewGen> ProcessMediaItem(PendingImportResourceNewGen importResource)
     {
       try

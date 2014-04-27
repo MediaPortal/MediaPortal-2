@@ -64,8 +64,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       while (true)
       {
         var tcs = _tcs;
+        #pragma warning disable 420
+        // It is ok to call Interlocked members on volatile fields
         // ReSharper disable once CSharpWarnings::CS0420
         if (!tcs.Task.IsCompleted || Interlocked.CompareExchange(ref _tcs, new TaskCompletionSource<bool>(), tcs) == tcs)
+        #pragma warning restore 420
           return;
       }
     }

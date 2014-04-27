@@ -60,13 +60,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constructor
 
     /// <summary>
-    /// Initiates the DirectoryUnfoldBlock
+    /// Initiates the DirectorySaveBlock
     /// </summary>
-    /// <param name="ct">CancellationToken used to cancel this block</param>
+    /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
-    /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    public DirectorySaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController) : base(
-      importJobInformation,
+    /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
+    public DirectorySaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
+      : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
@@ -79,23 +79,30 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Private methods
 
     /// <summary>
-    /// Main method that is called for every <see cref="PendingImportResourceNewGen"/> in this block
+    /// Main process method for the InnerBlock
     /// </summary>
-    /// <param name="importResource">Directory resource to be saved to the MediaLibrary</param>
-    /// <returns></returns>
+    /// <remarks>
+    /// - Sets the ParentDirectoryId of the current <see cref="PendingImportResourceNewGen"/>
+    /// - If the current resource is not a SingleResource (which are saved by the <see cref="MediaItemSaveBlock"/>)
+    ///   - it saves the directory MediaItem to the MediaLibrary
+    ///   - for RereshImports it is only saved if it is not yet in the MediaLibrary.
+    /// - If it has been saved, it sets the MediaItemId of the current <see cref="PendingImportResourceNewGen"/>
+    /// </remarks>
+    /// <param name="importResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
+    /// <returns><see cref="PendingImportResourceNewGen"/> after processing</returns>
     private async Task<PendingImportResourceNewGen> ProcessDirectory(PendingImportResourceNewGen importResource)
     {
       try
       {
         importResource.ParentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
         
-        // Directories that are single resources (such as DVD directories) are not saved in this block
-        // We just pass them to the next block.
+        // Directories that are single resources (such as DVD directories) are not saved in this DataflowBlock
+        // We just pass them to the next DataflowBlock.
         if (!importResource.IsSingleResource)
         {
           // We only save to the MediaLibrary if
-          // (a) this is a first time import (i.e. not a refresh import), or
-          // (b) this is a refresh import and the respective directory MediaItem is not yet in the MediaLibrary
+          // (a) this is a FirstTimeImport (i.e. not a RefreshImport), or
+          // (b) this is a RefreshImport and the respective directory MediaItem is not yet in the MediaLibrary
           if (ImportJobInformation.JobType == ImportJobType.Import || await IsRefreshNeeded(importResource))
           {
             if (importResource.ParentDirectoryId == null)
@@ -125,7 +132,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     }
 
     /// <summary>
-    /// Checks, in case of refresh-imports, whether a refresh of a given directory is necessary
+    /// Checks, in case of RefreshImports, whether a refresh of a given directory is necessary
     /// </summary>
     /// <param name="importResource">PendingImportResource of the directory to be checked</param>
     /// <returns></returns>

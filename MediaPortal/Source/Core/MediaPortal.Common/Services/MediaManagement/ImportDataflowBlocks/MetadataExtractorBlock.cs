@@ -32,7 +32,7 @@ using MediaPortal.Common.MediaManagement;
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
   /// <summary>
-  /// Takes MediaItems and tries to extract Metadata for them
+  /// Takes MediaItems of any kind and tries to extract Metadata for them
   /// </summary>
   class MetadataExtractorBlock : ImporterWorkerDataflowBlockBase
   {
@@ -52,14 +52,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constructor
 
     /// <summary>
-    /// Initiates the DirectoryUnfoldBlock
+    /// Initiates the MetadataExtractorBlock
     /// </summary>
-    /// <param name="ct">CancellationToken used to cancel this block</param>
+    /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
-    /// <param name="parentImportJobController">ImportJobController to which this DirectoryUnfoldBlock belongs</param>
-    /// <param name="forceQuickMode"><c>true</c> if this is the MetadataExtractorBlock used for first pass imports, else <c>false</c></param>
-    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode) : base(
-      importJobInformation,
+    /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
+    /// <param name="forceQuickMode"><c>true</c> if this is the MetadataExtractorBlock used for FirstPassImports, else <c>false</c></param>
+    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode)
+      : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
@@ -73,10 +73,22 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Private methods
 
     /// <summary>
-    /// Main method that is called for every <see cref="PendingImportResourceNewGen"/> in this block
+    /// Main process method for the InnerBlock
     /// </summary>
-    /// <param name="importResource">Directory resource to be saved to the MediaLibrary</param>
-    /// <returns></returns>
+    /// <remarks>
+    /// - It does nothing but drop the current <see cref="PendingImportResourceNewGen"/> if
+    ///   (a) this is a RefreshImport, and
+    ///   (b) the DateOfLastImport is more current than the LastChanged date of the resource;
+    ///       the DateOfLastImport is only set for files because for directories we don't know to what filesystem date we
+    ///       should compare (the LastChanged date of the directory may be unchanged although fils below have changed)
+    /// - For all other resources it calls all the aplicable MDEs
+    /// - It then also drops the respective <see cref="PendingImportResourceNewGen"/> if nothing could be extracted;
+    ///   This is currently in particular the case for
+    ///   - directories that are not SingleResources (as we don't have a MDE that extracts metadata for such directories, yet
+    ///   - file types that non of the applicable MDEs can handle
+    /// </remarks>
+    /// <param name="importResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
+    /// <returns><see cref="PendingImportResourceNewGen"/> after processing</returns>
     private async Task<PendingImportResourceNewGen> ProcessMediaItem(PendingImportResourceNewGen importResource)
     {
       try
