@@ -58,12 +58,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constants
 
     public const String BLOCK_NAME = "DirectoryUnfoldBlock";
-    private static readonly IEnumerable<Guid> DIRECTORY_AND_PROVIDERRESOURCE_MIA_ID_ENUMERATION = new[]
-      {
-        DirectoryAspect.ASPECT_ID,
-        ProviderResourceAspect.ASPECT_ID
-      };
-    private static readonly IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] { };
 
     #endregion
 
@@ -158,7 +152,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var directoryId = mediaItem.MediaItemId;
       
       // Get the subdirectories stored in the MediaLibrary for the currently procesed directory
-      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, DIRECTORY_AND_PROVIDERRESOURCE_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
+      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
       
       // If there are no subdirectories stored in the MediaLibrary, there is no need to delete anything
       if (!subDirectoryResourcePathsInMediaLibrary.Any())

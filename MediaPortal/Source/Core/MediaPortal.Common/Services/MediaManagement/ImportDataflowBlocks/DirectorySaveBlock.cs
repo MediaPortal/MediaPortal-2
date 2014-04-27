@@ -43,11 +43,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Consts
 
     public const String BLOCK_NAME = "DirectorySaveBlock";
-    private static readonly IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new[]
-      {
-        DirectoryAspect.ASPECT_ID
-      };
-    private static readonly IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] { };
 
     #endregion
 

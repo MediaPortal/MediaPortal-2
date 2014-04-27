@@ -46,15 +46,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Constants
 
     public const String BLOCK_NAME = "FileUnfoldBlock";
-    private static readonly IEnumerable<Guid> PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION = new[]
-      {
-        ProviderResourceAspect.ASPECT_ID,
-        ImporterAspect.ASPECT_ID
-      };
-    private static readonly IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new[]
-      {
-        DirectoryAspect.ASPECT_ID
-      };
 
     #endregion
 
@@ -88,7 +79,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     ///   - it finds all the files in the current directory,
     ///   - in case of a RefreshImport
     ///     - it deletes all the files in the MediaLibrary that do not exist anymore in the filesystem,
-    ///     - it stores the DateOfLastImport of all the files in the <see cref="PedingImportResourceNewGen"/>
+    ///     - it stores the DateOfLastImport of all the files in the <see cref="PendingImportResourceNewGen"/>
     /// </remarks>
     /// <param name="importResource"><see cref="PendingImportResourceNewGen"/> to be processed</param>
     /// <returns>

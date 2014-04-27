@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
@@ -92,6 +93,30 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   /// </remarks>
   internal abstract class ImporterWorkerDataflowBlockBase : IPropagatorBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>
   {
+    #region Constants
+
+    protected static readonly IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] { };
+
+    protected static readonly IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new[]
+      {
+        DirectoryAspect.ASPECT_ID
+      };
+
+    protected static readonly IEnumerable<Guid> PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION = new[]
+      {
+        ProviderResourceAspect.ASPECT_ID,
+        DirectoryAspect.ASPECT_ID
+      };
+
+    protected static readonly IEnumerable<Guid> PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION = new[]
+      {
+        ProviderResourceAspect.ASPECT_ID,
+        ImporterAspect.ASPECT_ID
+      };
+
+
+    #endregion
+
     #region Variables
 
     private readonly String _blockName;
