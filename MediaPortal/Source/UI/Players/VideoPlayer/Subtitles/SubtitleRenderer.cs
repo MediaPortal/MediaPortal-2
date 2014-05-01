@@ -182,6 +182,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     #region Constants
 
     private const int MAX_SUBTITLES_IN_QUEUE = 20;
+    public static Guid CLSID_DVBSUB2 = new Guid("{1CF3606B-6F89-4813-9D05-F9CA324CF2EA}");
     public static Guid CLSID_DVBSUB3 = new Guid("{3B4C4F66-739F-452c-AFC4-1C039BED3299}");
 
     #endregion
@@ -475,6 +476,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
       if (_subFilter != null)
       {
+        graphBuilder.AddFilter(_filter, "MediaPortal DVBSub3");
         _subFilter.StatusTest(111);
         _callBack = OnSubtitle;
 
@@ -545,6 +547,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _useBitmap = false;
         _clearOnNextRender = true;
         _subtitleSyncThread = null;
+        SetMatchingSubTitle();
       }
     }
 
@@ -639,10 +642,11 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             Matrix transform = Matrix.Identity;
             transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
 
+            // TODO: Check scaling requirements for SD and HD sources
             // Subtitle could be smaller for 16:9 anamorphic video (subtitle width: 720, video texture: 1024)
             // then we need to scale the subtitle width also.
             if (currentSubtitle.ScreenWidth != desc.Width)
-              transform *= Matrix.Scaling((float) desc.Width / currentSubtitle.ScreenWidth, 1, 1);
+              transform *= Matrix.Scaling((float)desc.Width / currentSubtitle.ScreenWidth, 1, 1);
 
             sprite.Transform = transform;
             sprite.Draw(subTexture, SharpDX.Color.White);

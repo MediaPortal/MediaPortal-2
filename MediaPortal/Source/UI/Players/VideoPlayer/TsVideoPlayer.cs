@@ -255,13 +255,10 @@ namespace MediaPortal.UI.Players.Video
           {
             //FIXME: language should be passed back also as LCID
             SubtitleLanguage language = new SubtitleLanguage();
-            int type = 0;
             subtitleStream.GetSubtitleStreamLanguage(i, ref language);
-            subtitleStream.GetSubtitleStreamType(i, ref type);
             int lcid = LookupLcidFromName(language.lang);
-            string name = type == 0
-                            ? String.Format("{0} (DVB)", language.lang)
-                            : String.Format("{0} (Teletext)", language.lang);
+            // Note: the "type" is no longer considered in MP1 code as well, so I guess DVBSub3 only supports Bitmap subs at all.
+            string name = language.lang;
             StreamInfo subStream = new StreamInfo(null, i, name, lcid);
             _streamInfoSubtitles.AddUnique(subStream);
           }
