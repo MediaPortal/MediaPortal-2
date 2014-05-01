@@ -27,7 +27,7 @@ using MediaPortal.Common.PluginManager.Activation;
 namespace MediaPortal.Common.PluginManager.Builders
 {
   /// <summary>
-  /// Plugin builder registration class. Instances of this class are registered through the 
+  /// Plugin builder registration class. Instances of this class are registered through the
   /// <see cref="IPluginManager"/> interface or directly with the <see cref="PluginBuilderManager"/>
   /// class, which contains the logic to register and manage builders.
   /// </summary>

@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -32,82 +34,88 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.PluginManager.Models;
 using MediaPortal.Common.PluginManager.Validation;
-using MediaPortal.Common.Services.PluginManager;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Common.PluginManager.Discovery
 {
   /// <summary>
-  /// Class responsible for providing plugin metadata. It uses helper classes to perform discovery 
+  /// Class responsible for providing plugin metadata. It uses helper classes to perform discovery
   /// of installed plugins and core components, as well as for validation and dependency checking.
   /// </summary>
   public class PluginRepository
   {
     #region Fields
+
     private readonly ConcurrentDictionary<string, CoreAPIAttribute> _coreComponents = new ConcurrentDictionary<string, CoreAPIAttribute>();
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _models = new ConcurrentDictionary<Guid, PluginMetadata>();
     private readonly ConcurrentHashSet<Guid> _disabledPlugins = new ConcurrentHashSet<Guid>();
     private readonly ConcurrentHashSet<Guid> _validatedPlugins = new ConcurrentHashSet<Guid>();
     private long _initialized;
+
     #endregion
 
     #region Ctor
+
     internal PluginRepository()
     {
     }
+
     #endregion
 
     #region Initialization
+
     public bool IsInitialized
     {
-      get { return Interlocked.Read( ref _initialized ) == 1; }
+      get { return Interlocked.Read(ref _initialized) == 1; }
     }
 
     public void Initialize()
     {
       // only run initialize once
-      if( Interlocked.CompareExchange( ref _initialized, 1, 0 ) == 0 )
+      if (Interlocked.CompareExchange(ref _initialized, 1, 0) == 0)
       {
-        Log.Debug( "PluginRepository: Initializing" );
+        Log.Debug("PluginRepository: Initializing");
         DiscoverCoreComponents();
         DiscoverInstalledPlugins();
         DiscoverDisabledPlugins();
-        Log.Debug( "PluginRepository: Initialized" );
+        Log.Debug("PluginRepository: Initialized");
       }
     }
 
     private void DiscoverCoreComponents()
     {
-      Log.Info( "PluginRepository: Discovering core components" );
+      Log.Info("PluginRepository: Discovering core components");
       var assemblyScanner = new AssemblyScanner();
       var coreComponents = assemblyScanner.PerformDiscovery();
-      foreach( var coreComponent in coreComponents )
+      foreach (var coreComponent in coreComponents)
       {
-        _coreComponents.TryAdd( coreComponent.Key, coreComponent.Value );
+        _coreComponents.TryAdd(coreComponent.Key, coreComponent.Value);
       }
     }
 
     private void DiscoverInstalledPlugins()
     {
-      Log.Debug( "PluginRepository: Discovering plugins" );
-      string pluginsPath = PathManager.GetPath( "<PLUGINS>" );
-      var scanner = new DirectoryScanner( pluginsPath );
+      Log.Debug("PluginRepository: Discovering plugins");
+      string pluginsPath = PathManager.GetPath("<PLUGINS>");
+      var scanner = new DirectoryScanner(pluginsPath);
       var plugins = scanner.PerformDiscovery();
-      foreach( var pm in plugins.Values )
+      foreach (var pm in plugins.Values)
       {
-        if( !_models.TryAdd( pm.PluginId, pm ) )
-          Log.Error( "PluginRepository: Plugin {0} could not be registered because of a duplicate identifier.", pm.LogId );
+        if (!_models.TryAdd(pm.PluginId, pm))
+          Log.Error("PluginRepository: Plugin {0} could not be registered because of a duplicate identifier.", pm.LogId);
       }
     }
 
     private void DiscoverDisabledPlugins()
     {
       var settings = SettingsManager.Load<PluginManagerSettings>();
-      settings.UserDisabledPlugins.ForEach( pid => _disabledPlugins.Add( pid ) );
+      settings.UserDisabledPlugins.ForEach(pid => _disabledPlugins.Add(pid));
     }
+
     #endregion
 
     #region Properties
+
     public IDictionary<string, CoreAPIAttribute> CoreComponents
     {
       get
@@ -125,132 +133,138 @@ namespace MediaPortal.Common.PluginManager.Discovery
         return _models;
       }
     }
+
     #endregion
 
     #region Disabled Plugins Management
-    public bool IsDisabled( Guid pluginId )
+
+    public bool IsDisabled(Guid pluginId)
     {
       ThrowIfNotInitialized();
-      return _disabledPlugins.Contains( pluginId );
+      return _disabledPlugins.Contains(pluginId);
     }
 
-    public void NotifyPluginDisabled( Guid pluginId )
-    {
-      ThrowIfNotInitialized();
-      PluginMetadata plugin;
-      if( !_models.TryGetValue( pluginId, out plugin ) )
-        throw new ArgumentException( string.Format( "Plugin with id '{0}' not found", pluginId ) );
-
-      // update local cache
-      _disabledPlugins.Add( pluginId );
-
-      // update system settings
-      var settings = SettingsManager.Load<PluginManagerSettings>();
-      settings.AddUserDisabledPlugin( pluginId );
-      SettingsManager.Save( settings );
-    }
-
-    public void NotifyPluginEnabled( Guid pluginId )
+    public void NotifyPluginDisabled(Guid pluginId)
     {
       ThrowIfNotInitialized();
       PluginMetadata plugin;
-      if( !_models.TryGetValue( pluginId, out plugin ) )
-        throw new ArgumentException( string.Format( "Plugin with id '{0}' not found", pluginId ) );
+      if (!_models.TryGetValue(pluginId, out plugin))
+        throw new ArgumentException(string.Format("Plugin with id '{0}' not found", pluginId));
 
       // update local cache
-      _disabledPlugins.Remove( pluginId );
+      _disabledPlugins.Add(pluginId);
 
       // update system settings
       var settings = SettingsManager.Load<PluginManagerSettings>();
-      settings.RemoveUserDisabledPlugin( pluginId );
-      SettingsManager.Save( settings );
+      settings.AddUserDisabledPlugin(pluginId);
+      SettingsManager.Save(settings);
     }
+
+    public void NotifyPluginEnabled(Guid pluginId)
+    {
+      ThrowIfNotInitialized();
+      PluginMetadata plugin;
+      if (!_models.TryGetValue(pluginId, out plugin))
+        throw new ArgumentException(string.Format("Plugin with id '{0}' not found", pluginId));
+
+      // update local cache
+      _disabledPlugins.Remove(pluginId);
+
+      // update system settings
+      var settings = SettingsManager.Load<PluginManagerSettings>();
+      settings.RemoveUserDisabledPlugin(pluginId);
+      SettingsManager.Save(settings);
+    }
+
     #endregion
 
     #region Validation
-    public bool IsCompatible( PluginMetadata plugin )
+
+    public bool IsCompatible(PluginMetadata plugin)
     {
       ThrowIfNotInitialized();
-      if( _validatedPlugins.Contains( plugin.PluginId ) )
+      if (_validatedPlugins.Contains(plugin.PluginId))
         return true;
-      var validator = new Validator( _models, _disabledPlugins, _coreComponents );
+      var validator = new Validator(_models, _disabledPlugins, _coreComponents);
       PluginMetadata metadata;
-      if( !_models.TryGetValue( plugin.PluginId, out metadata ) )
+      if (!_models.TryGetValue(plugin.PluginId, out metadata))
         return false;
-      var result = validator.Validate( metadata );
+      var result = validator.Validate(metadata);
 
-      if( !result.IsComplete )
+      if (!result.IsComplete)
       {
-        result.MissingDependencies.Select( id => _models[id] )
-          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is missing dependency {1}", metadata.LogName, d.LogName ) );
+        result.MissingDependencies.Select(id => _models[id])
+          .ForEach(d => Log.Warn("PluginRepository: Plugin {0} is missing dependency {1}", metadata.LogName, d.LogName));
         return false;
       }
-      if( !result.CanEnable )
+      if (!result.CanEnable)
       {
-        result.ConflictsWith.Select( id => _models[id] )
-          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is in conflict with {1}", metadata.LogName, d.LogName ) );
-        result.IncompatibleWith.Select( id => _models[id] )
-          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is incompatible with {1}", metadata.LogInfo, d.LogInfo ) );
+        result.ConflictsWith.Select(id => _models[id])
+          .ForEach(d => Log.Warn("PluginRepository: Plugin {0} is in conflict with {1}", metadata.LogName, d.LogName));
+        result.IncompatibleWith.Select(id => _models[id])
+          .ForEach(d => Log.Warn("PluginRepository: Plugin {0} is incompatible with {1}", metadata.LogInfo, d.LogInfo));
         return false;
       }
-      _validatedPlugins.Add( plugin.PluginId );
+      _validatedPlugins.Add(plugin.PluginId);
       return true;
     }
+
     #endregion
 
     #region Metadata Lookup and Dependency Information
-    public PluginMetadata GetPlugin( Guid pluginId )
+
+    public PluginMetadata GetPlugin(Guid pluginId)
     {
       ThrowIfNotInitialized();
       PluginMetadata result;
-      return _models.TryGetValue( pluginId, out result ) ? result : null;
+      return _models.TryGetValue(pluginId, out result) ? result : null;
     }
 
-    public IList<PluginMetadata> GetPluginAndDependencies( Guid pluginId, PluginSortOrder sortOrder )
+    public IList<PluginMetadata> GetPluginAndDependencies(Guid pluginId, PluginSortOrder sortOrder)
     {
       ThrowIfNotInitialized();
       try
       {
         var models = Models; // use IDictionary to simplify lookup code; causes exceptions for missing lookups, but we don't expect any misses
-        var plugin = models[ pluginId ];
+        var plugin = models[pluginId];
         var result = new List<PluginMetadata>();
         var resultSet = new HashSet<Guid>();
-        var stack = new Stack<PluginMetadata>( new [] { plugin } );
-        while( stack.Count > 0 )
+        var stack = new Stack<PluginMetadata>(new[] { plugin });
+        while (stack.Count > 0)
         {
           plugin = stack.Pop();
-          if( resultSet.Contains( plugin.PluginId ) ) 
+          if (resultSet.Contains(plugin.PluginId))
             continue;
           var insertAtIndex = result.Count;
-          resultSet.Add( plugin.PluginId );
-          if( plugin.DependencyInfo != null && plugin.DependencyInfo.DependsOn.Count > 0 )
+          resultSet.Add(plugin.PluginId);
+          if (plugin.DependencyInfo != null && plugin.DependencyInfo.DependsOn.Count > 0)
           {
             // we check the resultSet to handle cyclic dependencies that would otherwise cause an infinite loop
-            var dependencies = plugin.DependencyInfo.DependsOn.Where( d => !d.IsCoreDependency ).Select( d => models[ d.PluginId ] );
-            foreach( var dependency in dependencies )
+            var dependencies = plugin.DependencyInfo.DependsOn.Where(d => !d.IsCoreDependency).Select(d => models[d.PluginId]);
+            foreach (var dependency in dependencies)
             {
-              if( !resultSet.Contains( dependency.PluginId ) )
+              if (!resultSet.Contains(dependency.PluginId))
               {
-                stack.Push( dependency );
+                stack.Push(dependency);
               }
               else // insert plugin before dependencies in result
               {
-                insertAtIndex = Math.Min( insertAtIndex, result.IndexOf( dependency ) );
+                insertAtIndex = Math.Min(insertAtIndex, result.IndexOf(dependency));
               }
             }
           }
-          result.Insert( insertAtIndex, plugin );
+          result.Insert(insertAtIndex, plugin);
         }
-        if( sortOrder == PluginSortOrder.DependenciesFirst )
+        if (sortOrder == PluginSortOrder.DependenciesFirst)
           result.Reverse();
         return result;
       }
-      catch( KeyNotFoundException knf )
+      catch (KeyNotFoundException knf)
       {
-        var plugin = Models[ pluginId ];
-        var msg = string.Format( "PluginRepository: Plugin {0} or one of its dependencies is not available/installed.", plugin.LogId );
-        Log.Error( msg, knf );
-        throw new PluginMissingDependencyException( msg, knf );
+        var plugin = Models[pluginId];
+        var msg = string.Format("PluginRepository: Plugin {0} or one of its dependencies is not available/installed.", plugin.LogId);
+        Log.Error(msg, knf);
+        throw new PluginMissingDependencyException(msg, knf);
       }
     }
 
@@ -260,22 +274,26 @@ namespace MediaPortal.Common.PluginManager.Discovery
     /// <remarks>This method only returns direct dependencies and does not recurse in any way.</remarks>
     /// <param name="pluginId">The plugin identifier to search for in dependency declarations.</param>
     /// <returns>A list of plugins that depend on the specified plugin.</returns>
-    public IEnumerable<PluginMetadata> GetPluginsDependingOn( Guid pluginId )
+    public IEnumerable<PluginMetadata> GetPluginsDependingOn(Guid pluginId)
     {
       ThrowIfNotInitialized();
-      return _models.Values.Where( pm => pm.DependencyInfo.DependsOn.Any( dep => dep.PluginId == pluginId ) );
+      return _models.Values.Where(pm => pm.DependencyInfo.DependsOn.Any(dep => dep.PluginId == pluginId));
     }
+
     #endregion
 
     #region Private Helpers
+
     private void ThrowIfNotInitialized()
     {
-      if( !IsInitialized )
+      if (!IsInitialized)
         throw new InvalidOperationException("PluginRepository can only be used after initialization is complete.");
     }
+
     #endregion
 
     #region Static Helpers
+
     private static ILogger Log
     {
       get { return ServiceRegistration.Get<ILogger>(); }
@@ -290,6 +308,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
     {
       get { return ServiceRegistration.Get<IPathManager>(); }
     }
+
     #endregion
   }
 }

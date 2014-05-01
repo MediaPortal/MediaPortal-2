@@ -19,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 namespace MediaPortal.Common.PluginManager

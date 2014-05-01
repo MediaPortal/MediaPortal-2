@@ -32,8 +32,13 @@ namespace MediaPortal.Common.PluginManager.Exceptions
   public class PluginIncompatibleException : PluginManagerException
   {
     public PluginIncompatibleException(string msg, params object[] args) :
-      base(msg, args) { }
+      base(msg, args)
+    {
+    }
+
     public PluginIncompatibleException(string msg, Exception ex, params object[] args) :
-      base(msg, ex, args) { }
+      base(msg, ex, args)
+    {
+    }
   }
 }

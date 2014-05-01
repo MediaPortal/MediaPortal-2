@@ -31,9 +31,14 @@ namespace MediaPortal.Common.PluginManager.Exceptions
   /// </summary>
   public class PluginItemBuildException : PluginManagerException
   {
-    public PluginItemBuildException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginItemBuildException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    public PluginItemBuildException(string msg, params object[] args) :
+      base(msg, args)
+    {
+    }
+
+    public PluginItemBuildException(string msg, Exception ex, params object[] args) :
+      base(msg, ex, args)
+    {
+    }
   }
 }

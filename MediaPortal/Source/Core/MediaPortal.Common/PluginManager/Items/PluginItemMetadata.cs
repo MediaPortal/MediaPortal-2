@@ -56,7 +56,7 @@ namespace MediaPortal.Common.PluginManager.Items
     #region Ctor
 
     public PluginItemMetadata(string registrationLocation, string builderName,
-        string id, bool redundant, IDictionary<string, string> attributes)
+      string id, bool redundant, IDictionary<string, string> attributes)
     {
       _registrationLocation = registrationLocation;
       _builderName = builderName;
@@ -75,9 +75,9 @@ namespace MediaPortal.Common.PluginManager.Items
       get { return _registrationLocation; }
     }
 
-    ///<summary>
-    ///Returns the name of builder required to build this item.
-    ///</summary>
+    /// <summary>
+    /// Returns the name of builder required to build this item.
+    /// </summary>
     public string BuilderName
     {
       get { return _builderName; }

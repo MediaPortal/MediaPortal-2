@@ -32,11 +32,11 @@ namespace MediaPortal.Common.General
   /// </summary>
   public static class CollectionExtensions
   {
-    public static void ForEach<T>( this IEnumerable<T> source, Action<T> action )
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {
-      foreach( var item in source )
+      foreach (var item in source)
       {
-        action( item );
+        action(item);
       }
     }
   }

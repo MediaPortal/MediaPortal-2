@@ -83,10 +83,12 @@ namespace MediaPortal.Common.PluginManager
     /// Starts the plugin manager. This will handle the plugin's auto activations, if
     /// the <paramref name="maintenanceMode"/> parameter is set to <c>false</c>.
     /// </summary>
-    /// <param name="maintenanceMode">If set to <c>false</c> (normal case), this method will automatically
+    /// <param name="maintenanceMode">
+    /// If set to <c>false</c> (normal case), this method will automatically
     /// activate those plugins with the <see cref="IPluginMetadata.AutoActivate"/> flag set. If set to
     /// <c>true</c> (maintainance mode), the plugins won't be started. This can be used for management
-    /// application, which need the plugins be enabled but not activated.</param>
+    /// application, which need the plugins be enabled but not activated.
+    /// </param>
     void Startup(bool maintenanceMode);
 
     /// <summary>
@@ -109,8 +111,10 @@ namespace MediaPortal.Common.PluginManager
     /// </summary>
     /// <param name="pluginId">The id of the plugin to be enabled.</param>
     /// <param name="activate">If set to <c>true</c>, the plugin will be activated at once.</param>
-    /// <returns><c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
-    /// is already enabled or activated, the return value will be <c>true</c>.</returns>
+    /// <returns>
+    /// <c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
+    /// is already enabled or activated, the return value will be <c>true</c>.
+    /// </returns>
     bool TryStartPlugin(Guid pluginId, bool activate);
 
     /// <summary>
@@ -119,16 +123,20 @@ namespace MediaPortal.Common.PluginManager
     /// and every plugin which depends on this plugin can be stopped too.
     /// </summary>
     /// <param name="pluginId">The id of the plugin to be stopped.</param>
-    /// <returns><c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
-    /// is already disabled, the return value will be <c>true</c>.</returns>
+    /// <returns>
+    /// <c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
+    /// is already disabled, the return value will be <c>true</c>.
+    /// </returns>
     bool TryStopPlugin(Guid pluginId);
 
     /// <summary>
     /// Adds a new plugin item builder, which is provided by a system component, to the plugin manager.
     /// This method mustn't be called from plugins, it should only be called by system components.
     /// </summary>
-    /// <param name="builderName">The builder name. This is the name of the plugin item element which is handled
-    /// by the builder to register.</param>
+    /// <param name="builderName">
+    /// The builder name. This is the name of the plugin item element which is handled
+    /// by the builder to register.
+    /// </param>
     /// <param name="builderInstance">The plugin item builder to register.</param>
     void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance);
 
@@ -168,8 +176,10 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="location">Registration location of the requested item in the plugin tree.</param>
     /// <param name="id">Id which was used to register the requested item.</param>
     /// <param name="stateTracker">Instance used to track the item's state.</param>
-    /// <returns>The plugin item instance or <c>null</c>, if an item with the specified
-    /// criteria was not registered.</returns>
+    /// <returns>
+    /// The plugin item instance or <c>null</c>, if an item with the specified
+    /// criteria was not registered.
+    /// </returns>
     /// <remarks>
     /// This method will build the item if it was not built yet. If the usage of the item needs
     /// the plugin to be activated, the plugin activation will be triggered automatically by this method.
@@ -187,8 +197,10 @@ namespace MediaPortal.Common.PluginManager
     /// <param name="id">Id which was used to register the requested item.</param>
     /// <param name="type">Class of the requested item.</param>
     /// <param name="stateTracker">Instance used to track the item's state.</param>
-    /// <returns>The plugin item instance or <c>null</c>, if an item with the specified
-    /// criteria was not registered.</returns>
+    /// <returns>
+    /// The plugin item instance or <c>null</c>, if an item with the specified
+    /// criteria was not registered.
+    /// </returns>
     /// <exception cref="PluginInvalidStateException">If the plugin is in an invalid state and cannot be used.</exception>
     object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker);
 
@@ -227,8 +239,10 @@ namespace MediaPortal.Common.PluginManager
     /// </summary>
     /// <param name="location">Registration location of the item to revoke.</param>
     /// <param name="id">Id which was used to register the item to revoke.</param>
-    /// <param name="stateTracker">State tracker instance which was registered by the call to
-    /// <see cref="RequestPluginItem{T}"/> or <see cref="RequestAllPluginItems{T}"/> before.</param>
+    /// <param name="stateTracker">
+    /// State tracker instance which was registered by the call to
+    /// <see cref="RequestPluginItem{T}"/> or <see cref="RequestAllPluginItems{T}"/> before.
+    /// </param>
     void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker);
 
     /// <summary>
@@ -237,8 +251,10 @@ namespace MediaPortal.Common.PluginManager
     /// This is necessary to release the items requested before.
     /// </summary>
     /// <param name="location">Registration location of the items to revoke.</param>
-    /// <param name="stateTracker">State tracker instance which was registered by the call to
-    /// <see cref="RequestAllPluginItems{T}"/> before.</param>
+    /// <param name="stateTracker">
+    /// State tracker instance which was registered by the call to
+    /// <see cref="RequestAllPluginItems{T}"/> before.
+    /// </param>
     void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker);
 
     /// <summary>

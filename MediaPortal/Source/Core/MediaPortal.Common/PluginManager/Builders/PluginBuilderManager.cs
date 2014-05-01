@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -40,24 +42,29 @@ namespace MediaPortal.Common.PluginManager.Builders
   internal class PluginBuilderManager
   {
     #region Fields
+
     private readonly ConcurrentDictionary<string, PluginBuilderRegistration> _builders = new ConcurrentDictionary<string, PluginBuilderRegistration>();
+
     #endregion
 
     #region Ctor
+
     public PluginBuilderManager()
     {
-      foreach( KeyValuePair<string, IPluginItemBuilder> builderRegistration in GetDefaultBuilders() )
+      foreach (KeyValuePair<string, IPluginItemBuilder> builderRegistration in GetDefaultBuilders())
       {
-        RegisterSystemPluginItemBuilder( builderRegistration.Key, builderRegistration.Value );
+        RegisterSystemPluginItemBuilder(builderRegistration.Key, builderRegistration.Value);
       }
     }
+
     #endregion
 
     #region Registration (RegisterSystemPluginItemBuilder, CreateBuilderRegistrations)
-    internal bool RegisterSystemPluginItemBuilder( string builderName, IPluginItemBuilder builderInstance )
+
+    internal bool RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance)
     {
-      var item = CreateSystemBuilderRegistration( builderName, builderInstance );
-      return _builders.TryAdd( item.Key, item.Value );
+      var item = CreateSystemBuilderRegistration(builderName, builderInstance);
+      return _builders.TryAdd(item.Key, item.Value);
     }
 
     /// <summary>
@@ -66,38 +73,40 @@ namespace MediaPortal.Common.PluginManager.Builders
     /// </summary>
     /// <param name="plugin">The plugin to take the builders from.</param>
     /// <returns>True if the builders were successfully registered, false otherwise.</returns>
-    internal bool CreateBuilderRegistrations( PluginRuntime plugin )
+    internal bool CreateBuilderRegistrations(PluginRuntime plugin)
     {
       try
       {
         var pluginMetadata = plugin.Metadata;
-        foreach( var pair in pluginMetadata.ActivationInfo.Builders )
+        foreach (var pair in pluginMetadata.ActivationInfo.Builders)
         {
-          var builder = new PluginBuilderRegistration( pair.Key, pair.Value, plugin );
-          if( !_builders.TryAdd( pair.Key, builder ) )
+          var builder = new PluginBuilderRegistration(pair.Key, pair.Value, plugin);
+          if (!_builders.TryAdd(pair.Key, builder))
           {
-            Log.Error( "PluginBuilderManager: Error registering builder '{0}' for plugin {1}.", pair.Key, plugin.LogName );
+            Log.Error("PluginBuilderManager: Error registering builder '{0}' for plugin {1}.", pair.Key, plugin.LogName);
             return false;
           }
         }
         // check if builder dependencies are explicitly declared (has to be done after dependencies are 
         // loaded, as builders could be added by dependent plugins)
-        return CheckDependencyDeclarations( plugin.Metadata as PluginMetadata );
+        return CheckDependencyDeclarations(plugin.Metadata);
       }
-      catch( Exception ex )
+      catch (Exception ex)
       {
-        Log.Error( "PluginBuilderManager: An unspecified error occurred while registering builders for plugin {0}.", ex, plugin.LogName );
+        Log.Error("PluginBuilderManager: An unspecified error occurred while registering builders for plugin {0}.", ex, plugin.LogName);
         return false;
       }
     }
+
     #endregion
 
     #region Private Helpers (CreateSystemBuilderRegistration, GetDefaultBuilders)
+
     private KeyValuePair<string, PluginBuilderRegistration> CreateSystemBuilderRegistration(
-      string builderName, IPluginItemBuilder builderInstance )
+      string builderName, IPluginItemBuilder builderInstance)
     {
-      var result = new KeyValuePair<string, PluginBuilderRegistration>( builderName,
-        new PluginBuilderRegistration( builderName, builderInstance.GetType().FullName, null ) );
+      var result = new KeyValuePair<string, PluginBuilderRegistration>(builderName,
+        new PluginBuilderRegistration(builderName, builderInstance.GetType().FullName, null));
       result.Value.Builder = builderInstance;
       return result;
     }
@@ -112,100 +121,111 @@ namespace MediaPortal.Common.PluginManager.Builders
       };
       return result;
     }
+
     #endregion
 
     #region Builder Access (GetBuilder, GetOrCreateBuilder)
-    internal IPluginItemBuilder GetBuilder( string builderName )
+
+    internal IPluginItemBuilder GetBuilder(string builderName)
     {
       PluginBuilderRegistration builderRegistration;
-      if( !_builders.TryGetValue( builderName, out builderRegistration ) )
-        throw new FatalException( "Builder '{0}' cannot be found. Something is wrong.", builderName );
+      if (!_builders.TryGetValue(builderName, out builderRegistration))
+        throw new FatalException("Builder '{0}' cannot be found. Something is wrong.", builderName);
       return builderRegistration.IsInstantiated ? builderRegistration.Builder : null;
     }
 
-    internal IPluginItemBuilder GetOrCreateBuilder( string builderName, PluginState currentPluginState )
+    internal IPluginItemBuilder GetOrCreateBuilder(string builderName, PluginState currentPluginState)
     {
       PluginBuilderRegistration builderRegistration;
-      if( !_builders.TryGetValue( builderName, out builderRegistration ) )
-        throw new FatalException( "Builder '{0}' cannot be found. Something is wrong.", builderName );
-      if( builderRegistration.IsInstantiated )
+      if (!_builders.TryGetValue(builderName, out builderRegistration))
+        throw new FatalException("Builder '{0}' cannot be found. Something is wrong.", builderName);
+      if (builderRegistration.IsInstantiated)
         return builderRegistration.Builder;
 
       PluginRuntime runtime = builderRegistration.PluginRuntime;
       object obj = null;
       try
       {
-        obj = runtime.InstantiatePluginObject( builderRegistration.BuilderClassName );
+        obj = runtime.InstantiatePluginObject(builderRegistration.BuilderClassName);
       }
-      catch( Exception e )
+      catch (Exception e)
       {
-        Log.Error( "PluginBuilderManager: Error instanciating plugin item builder '{0}' (id '{1}')", e,
-          runtime.Metadata.Name, runtime.Metadata.PluginId );
+        Log.Error("PluginBuilderManager: Error instanciating plugin item builder '{0}' (id '{1}')", e,
+          runtime.Metadata.Name, runtime.Metadata.PluginId);
       }
-      if( obj == null )
-        throw new PluginBuilderException( "Builder class '{0}' could not be instantiated",
-          builderRegistration.BuilderClassName );
+      if (obj == null)
+        throw new PluginBuilderException("Builder class '{0}' could not be instantiated",
+          builderRegistration.BuilderClassName);
       builderRegistration.Builder = obj as IPluginItemBuilder;
-      if( builderRegistration.Builder != null )
+      if (builderRegistration.Builder != null)
         return builderRegistration.Builder;
       // build creation failed, remove builder registration
-      runtime.RevokePluginObject( builderRegistration.BuilderClassName );
-      throw new PluginBuilderException( "Builder class '{0}' does not implement the plugin item builder interface '{1}'",
-        builderRegistration.BuilderClassName, typeof(IPluginItemBuilder).Name );
+      runtime.RevokePluginObject(builderRegistration.BuilderClassName);
+      throw new PluginBuilderException("Builder class '{0}' does not implement the plugin item builder interface '{1}'",
+        builderRegistration.BuilderClassName, typeof(IPluginItemBuilder).Name);
     }
+
     #endregion
 
     #region Remove (RemoveBuilder)
-    internal void RemoveBuilder( string builderName )
+
+    internal void RemoveBuilder(string builderName)
     {
       PluginBuilderRegistration builderRegistration;
-      if( !_builders.TryRemove( builderName, out builderRegistration ) )
-        Log.Warn( "Builder '{0}' was not found in a request to remove it.", builderName );
+      if (!_builders.TryRemove(builderName, out builderRegistration))
+        Log.Warn("Builder '{0}' was not found in a request to remove it.", builderName);
     }
+
     #endregion
 
     #region Validation
+
     /// <summary>
-    /// Verifies that all builders required by <param name="plugin" /> are available. It also verifies
+    /// Verifies that all builders required by
+    /// <param name="plugin"/>
+    /// are available. It also verifies
     /// that only builders from plugins declared as dependencies are used (without this check it would
     /// be possible for plugins to omit dependency declarations, which could result in errors if a
     /// dependency is later removed or disabled).
     /// </summary>
     /// <param name="plugin">The plugin to verify.</param>
     /// <returns>True if all checks pass and false otherwise.</returns>
-    internal bool CheckDependencyDeclarations( PluginMetadata plugin )
+    internal bool CheckDependencyDeclarations(PluginMetadata plugin)
     {
-      foreach( string builderName in plugin.ActivationInfo.GetNecessaryBuilders() )
+      foreach (string builderName in plugin.ActivationInfo.GetNecessaryBuilders())
       {
-        if( plugin.ActivationInfo.Builders.Keys.Contains( builderName ) ) // builder is provided by the plugin itself
+        if (plugin.ActivationInfo.Builders.Keys.Contains(builderName)) // builder is provided by the plugin itself
           continue;
 
         PluginBuilderRegistration builderRegistration;
-        if( !_builders.TryGetValue( builderName, out builderRegistration ) )
+        if (!_builders.TryGetValue(builderName, out builderRegistration))
         {
-          Log.Warn( "PluginBuilderManager: Plugin {0} requires builder '{1}', which is not available (the plugin cannot be enabled).", plugin.LogName, builderName );
+          Log.Warn("PluginBuilderManager: Plugin {0} requires builder '{1}', which is not available (the plugin cannot be enabled).", plugin.LogName, builderName);
           return false;
         }
 
-        if( builderRegistration.PluginRuntime == null ) // builder is a default builder
+        if (builderRegistration.PluginRuntime == null) // builder is a default builder
           continue;
 
-        if( !plugin.DependencyInfo.DependsOn.Any( d => !d.IsCoreDependency && d.PluginId == builderRegistration.PluginRuntime.Metadata.PluginId ) )
+        if (!plugin.DependencyInfo.DependsOn.Any(d => !d.IsCoreDependency && d.PluginId == builderRegistration.PluginRuntime.Metadata.PluginId))
         {
-          Log.Error( "PluginBuilderManager: Plugin {0} uses builder '{1}' from plugin {2}, but does not declare it as a dependency (this error will prevent the plugin from being enabled).",
-            plugin.LogName, builderName, builderRegistration.PluginRuntime.LogName );
+          Log.Error("PluginBuilderManager: Plugin {0} uses builder '{1}' from plugin {2}, but does not declare it as a dependency (this error will prevent the plugin from being enabled).",
+            plugin.LogName, builderName, builderRegistration.PluginRuntime.LogName);
           return false;
         }
       }
       return true;
     }
+
     #endregion
 
     #region Static Helpers
+
     private static ILogger Log
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }
+
     #endregion
   }
 }

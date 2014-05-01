@@ -33,13 +33,14 @@ namespace MediaPortal.Common.PluginManager.Models
   public class PluginReview
   {
     #region Review Details
+
     /// <summary>
     /// The name of the author of the review.
     /// </summary>
     public string Author { get; private set; }
 
     /// <summary>
-    /// The date and time (in UTC time zone) the review was posted. Use the <see cref="DateTimeOffset"/> 
+    /// The date and time (in UTC time zone) the review was posted. Use the <see cref="DateTimeOffset"/>
     /// class to obtain the date and time in the users local time zone.
     /// </summary>
     public DateTime Created { get; private set; }
@@ -70,10 +71,12 @@ namespace MediaPortal.Common.PluginManager.Models
     /// The rating given to the plugin by the author of the review.
     /// </summary>
     public int Rating { get; private set; }
+
     #endregion
 
     #region Ctor
-		public PluginReview( string author, DateTime created, string languageCulture, string title, string body, string pluginVersion, int rating )
+
+    public PluginReview(string author, DateTime created, string languageCulture, string title, string body, string pluginVersion, int rating)
     {
       Author = author;
       Created = created;
@@ -81,8 +84,9 @@ namespace MediaPortal.Common.PluginManager.Models
       Title = title;
       Body = body;
       PluginVersion = pluginVersion;
-		  Rating = rating;
+      Rating = rating;
     }
+
     #endregion
   }
 }

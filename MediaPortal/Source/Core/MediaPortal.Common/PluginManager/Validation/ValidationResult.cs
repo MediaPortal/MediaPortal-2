@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -32,12 +34,15 @@ namespace MediaPortal.Common.PluginManager.Validation
   internal class ValidationResult
   {
     #region Fields
+
     public HashSet<Guid> MissingDependencies { get; internal set; }
     public HashSet<Guid> ConflictsWith { get; internal set; }
-    public HashSet<Guid> IncompatibleWith { get; internal set; } 
+    public HashSet<Guid> IncompatibleWith { get; internal set; }
+
     #endregion
 
     #region Properies (IsComplete, CanEnable)
+
     /// <summary>
     /// Returns true if the plugin has all of its dependencies available.
     /// </summary>
@@ -47,13 +52,14 @@ namespace MediaPortal.Common.PluginManager.Validation
     }
 
     /// <summary>
-    /// Returns true if the plugin can be enabled. This requires that there were no 
+    /// Returns true if the plugin can be enabled. This requires that there were no
     /// validation errors.
     /// </summary>
     public bool CanEnable
     {
       get { return IsComplete && ConflictsWith.Count == 0 && IncompatibleWith.Count == 0; }
-    } 
+    }
+
     #endregion
   }
 }

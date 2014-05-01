@@ -34,30 +34,36 @@ namespace MediaPortal.Common.PluginManager.Models
   public class PluginSourceInfo
   {
     #region Source Details
+
     /// <summary>
     /// Returns the plugin's directory location (if installed locally).
     /// </summary>
     public string PluginPath { get; internal set; }
+
     #endregion
 
     #region Ctor
-    public PluginSourceInfo( string pluginPath )
+
+    public PluginSourceInfo(string pluginPath)
     {
       PluginPath = pluginPath;
     }
+
     #endregion
 
     #region Path Helpers (GetAbsolutePath)
+
     /// <summary>
     /// Returns an absolute path from the relative path expression which is based on the plugin
     /// directory.
     /// </summary>
     /// <param name="relativePath">File path relative to the plugin directory.</param>
     /// <returns>Absolute file path of the specified relative path.</returns>
-	  public string GetAbsolutePath( string relativePath )
+    public string GetAbsolutePath(string relativePath)
     {
-      return PluginPath == null || relativePath == null ? null : Path.Combine( PluginPath, relativePath );
+      return PluginPath == null || relativePath == null ? null : Path.Combine(PluginPath, relativePath);
     }
+
     #endregion
   }
 }

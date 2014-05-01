@@ -39,7 +39,8 @@ namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
   /// fully qualified name of the registration type in ServiceRegistration and the "RegistrationClassAssembly", which
   /// contains the name of the assembly, where the registration type is defined:
   /// <example>
-  /// &lt;Service Id="FooService" RegistrationClassName="IFoo" RegistrationClassAssembly="System.Foo" ServiceClassName="Foo"/&gt;
+  /// &lt;Service Id="FooService" RegistrationClassName="IFoo" RegistrationClassAssembly="System.Foo" ServiceClassName="Foo"/
+  /// &gt;
   /// </example>
   /// If the "RegistrationClassAssembly" parameter isn't present, the registration class will be searched in the plugin's
   /// assemblies. If the "RegistrationClassName" isn't present, the service will be registered with its own class.
@@ -78,7 +79,7 @@ namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
       if (serviceInstance == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service class '{0}' in plugin '{1}' (id: '{2}')",
-            serviceClassName, itemData.PluginRuntime.Metadata.Name, itemData.PluginRuntime.Metadata.PluginId);
+          serviceClassName, itemData.PluginRuntime.Metadata.Name, itemData.PluginRuntime.Metadata.PluginId);
         return null;
       }
       string registrationClassAssembly;
@@ -92,11 +93,11 @@ namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
         registrationType = serviceInstance.GetType();
       else
         registrationType = string.IsNullOrEmpty(registrationClassAssembly) ? plugin.GetPluginType(registrationClassName) :
-            Type.GetType(registrationClassName + ", " + registrationClassAssembly);
+          Type.GetType(registrationClassName + ", " + registrationClassAssembly);
       if (registrationType == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service registration type '{0}' (Assembly: '{1}') in plugin '{2}' (id: '{3}')",
-            registrationClassName, registrationClassAssembly, itemData.PluginRuntime.Metadata.Name, itemData.PluginRuntime.Metadata.PluginId);
+          registrationClassName, registrationClassAssembly, itemData.PluginRuntime.Metadata.Name, itemData.PluginRuntime.Metadata.PluginId);
         return null;
       }
       return new ServiceItem(registrationType, serviceInstance);
@@ -106,7 +107,7 @@ namespace MediaPortal.Common.PluginManager.Builders.SystemBuilders
     {
       if (item == null)
         return;
-      ServiceItem si = (ServiceItem) item;
+      ServiceItem si = (ServiceItem)item;
       plugin.RevokePluginObject(si.ServiceInstance.GetType().FullName);
     }
 

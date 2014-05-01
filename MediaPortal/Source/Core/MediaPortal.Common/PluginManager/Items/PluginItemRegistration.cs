@@ -40,8 +40,9 @@ namespace MediaPortal.Common.PluginManager.Items
     protected object _itemInstance = null;
     // TODO collections need to be made thread-safe
     protected ICollection<IPluginItemStateTracker> _stateTrackers = new List<IPluginItemStateTracker>();
+
     protected ICollection<PluginItemMetadata> _additionalRedundantItemsMetadata =
-        new List<PluginItemMetadata>();
+      new List<PluginItemMetadata>();
 
     #endregion
 
@@ -51,8 +52,10 @@ namespace MediaPortal.Common.PluginManager.Items
     /// Creates a new plugin item registration data structure for the specified plugin item metadata
     /// instance.
     /// </summary>
-    /// <param name="metaData">The metadata of the plugin item to create this registration
-    /// structure for.</param>
+    /// <param name="metaData">
+    /// The metadata of the plugin item to create this registration
+    /// structure for.
+    /// </param>
     internal PluginItemRegistration(PluginItemMetadata metaData)
     {
       _pluginItemMetadata = metaData;

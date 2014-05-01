@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2015 Team MediaPortal
+
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -35,25 +37,30 @@ namespace MediaPortal.Common.Services.PluginManager
 {
   /// <summary>
   /// Implementation of the <see cref="IPluginManager"/> interface. All exposed functionality is provided
-  /// by helper classes in the <see cref="MediaPortal.Common.PluginManager" /> namespace.
+  /// by helper classes in the <see cref="MediaPortal.Common.PluginManager"/> namespace.
   /// </summary>
   public class PluginManager : IPluginManager, IStatus
   {
     #region Fields
+
     private readonly PluginRepository _repository = new PluginRepository();
     private readonly PluginRegistry _registry = new PluginRegistry();
     private readonly PluginBuilderManager _builderManager = new PluginBuilderManager();
     private readonly PluginActivator _activator;
+
     #endregion
 
     #region Ctor
+
     public PluginManager()
     {
-      _activator = new PluginActivator( _repository, _builderManager );
+      _activator = new PluginActivator(_repository, _builderManager);
     }
+
     #endregion
 
     #region IPluginManager implementation
+
     public PluginManagerState State
     {
       get { return _activator.State; }
@@ -79,9 +86,9 @@ namespace MediaPortal.Common.Services.PluginManager
       _activator.Initialize();
     }
 
-    public void Startup( bool maintenanceMode )
+    public void Startup(bool maintenanceMode)
     {
-      _activator.Startup( maintenanceMode );
+      _activator.Startup(maintenanceMode);
     }
 
     public void Shutdown()
@@ -89,98 +96,103 @@ namespace MediaPortal.Common.Services.PluginManager
       _activator.Shutdown();
     }
 
-    public PluginRuntime AddPlugin( PluginMetadata pluginMetadata )
+    public PluginRuntime AddPlugin(PluginMetadata pluginMetadata)
     {
-      return _activator.AddPlugin( pluginMetadata );
+      return _activator.AddPlugin(pluginMetadata);
     }
 
-    public bool TryStartPlugin( Guid pluginId, bool activate )
+    public bool TryStartPlugin(Guid pluginId, bool activate)
     {
-      return _activator.TryStartPlugin( pluginId, activate );
+      return _activator.TryStartPlugin(pluginId, activate);
     }
 
-    public bool TryStopPlugin( Guid pluginId )
+    public bool TryStopPlugin(Guid pluginId)
     {
-      return _activator.TryStopPlugin( pluginId );
+      return _activator.TryStopPlugin(pluginId);
     }
 
-    public void RegisterSystemPluginItemBuilder( string builderName, IPluginItemBuilder builderInstance )
+    public void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance)
     {
-      _builderManager.RegisterSystemPluginItemBuilder( builderName, builderInstance );
+      _builderManager.RegisterSystemPluginItemBuilder(builderName, builderInstance);
     }
 
-    public PluginItemMetadata GetPluginItemMetadata( string location, string id )
+    public PluginItemMetadata GetPluginItemMetadata(string location, string id)
     {
-      return _registry.GetPluginItemMetadata( location, id );
+      return _registry.GetPluginItemMetadata(location, id);
     }
 
-    public ICollection<PluginItemMetadata> GetAllPluginItemMetadata( string location )
+    public ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location)
     {
-      return _registry.GetAllPluginItemMetadata( location );
+      return _registry.GetAllPluginItemMetadata(location);
     }
 
-    public ICollection<string> GetAvailableChildLocations( string location )
+    public ICollection<string> GetAvailableChildLocations(string location)
     {
-      return _registry.GetAvailableChildLocations( location );
+      return _registry.GetAvailableChildLocations(location);
     }
 
-    public T RequestPluginItem<T>( string location, string id, IPluginItemStateTracker stateTracker ) where T : class
+    public T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class
     {
-      return (T)RequestPluginItem( location, id, typeof(T), stateTracker );
+      return (T)RequestPluginItem(location, id, typeof(T), stateTracker);
     }
 
-    public object RequestPluginItem( string location, string id, Type type, IPluginItemStateTracker stateTracker )
+    public object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker)
     {
-      return _registry.RequestPluginItem( location, id, type, stateTracker );
+      return _registry.RequestPluginItem(location, id, type, stateTracker);
     }
 
-    public ICollection<T> RequestAllPluginItems<T>( string location, IPluginItemStateTracker stateTracker ) where T : class
+    public ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class
     {
-      return _registry.RequestAllPluginItems<T>( location, stateTracker );
+      return _registry.RequestAllPluginItems<T>(location, stateTracker);
     }
 
-    public ICollection RequestAllPluginItems( string location, Type type, IPluginItemStateTracker stateTracker )
+    public ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker)
     {
-      return _registry.RequestAllPluginItems( location, type, stateTracker );
+      return _registry.RequestAllPluginItems(location, type, stateTracker);
     }
 
-    public void RevokePluginItem( string location, string id, IPluginItemStateTracker stateTracker )
+    public void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker)
     {
-      _registry.RevokePluginItem( location, id, stateTracker );
+      _registry.RevokePluginItem(location, id, stateTracker);
     }
 
-    public void RevokeAllPluginItems( string location, IPluginItemStateTracker stateTracker )
+    public void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker)
     {
-      _registry.RevokeAllPluginItems( location, stateTracker );
+      _registry.RevokeAllPluginItems(location, stateTracker);
     }
 
-    public void AddItemRegistrationChangeListener( string location, IItemRegistrationChangeListener listener )
+    public void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
     {
-      _registry.AddItemRegistrationChangeListener( location, listener );
+      _registry.AddItemRegistrationChangeListener(location, listener);
     }
 
-    public void RemoveItemRegistrationChangeListener( string location, IItemRegistrationChangeListener listener )
+    public void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
     {
-      _registry.RemoveItemRegistrationChangeListener( location, listener );
+      _registry.RemoveItemRegistrationChangeListener(location, listener);
     }
+
     #endregion
 
-    // TODO remove these? can't see them being used anywhere
     #region Public methods
+
     /// <summary>
     /// Tries to enable the specified <paramref name="plugin"/>.
     /// If the plugin has the <see cref="IPluginMetadata.AutoActivate"/> property set, the plugin will be
     /// activated in this method as well if it could be enabled.
     /// </summary>
     /// <param name="plugin">Plugin to enable.</param>
-    /// <param name="doAutoActivate">If set to <c>true</c>, this method will automatically activate
+    /// <param name="doAutoActivate">
+    /// If set to <c>true</c>, this method will automatically activate
     /// the plugin if its <see cref="IPluginMetadata.AutoActivate"/> property is set. Else, if set to
-    /// <c>false</c>, the auto activation setting will be ignored.</param>
-    /// <returns><c>true</c>, if the specified <paramref name="plugin"/> and all its dependencies could
-    /// be enabled, else <c>false</c>.</returns>
-    public bool TryEnable( PluginRuntime plugin, bool doAutoActivate )
+    /// <c>false</c>, the auto activation setting will be ignored.
+    /// </param>
+    /// <returns>
+    /// <c>true</c>, if the specified <paramref name="plugin"/> and all its dependencies could
+    /// be enabled, else <c>false</c>.
+    /// </returns>
+    public bool TryEnable(PluginRuntime plugin, bool doAutoActivate)
     {
-      return _activator.TryEnable( plugin, doAutoActivate );
+      return _activator.TryEnable(plugin, doAutoActivate);
     }
 
     /// <summary>
@@ -188,9 +200,9 @@ namespace MediaPortal.Common.Services.PluginManager
     /// </summary>
     /// <param name="plugin">Plugin to activate.</param>
     /// <returns><c>true</c>, if the plugin could be activated or was already active, else <c>false</c>.</returns>
-    public bool TryActivate( PluginRuntime plugin )
+    public bool TryActivate(PluginRuntime plugin)
     {
-      return _activator.TryActivate( plugin );
+      return _activator.TryActivate(plugin);
     }
 
     /// <summary>
@@ -199,24 +211,29 @@ namespace MediaPortal.Common.Services.PluginManager
     /// registered builders and disable the plugin.
     /// </summary>
     /// <param name="plugin">The plugin to disable.</param>
-    /// <returns><c>true</c>, if the plugin and all dependent plugins could be disabled and all
-    /// items usages could be stopped, else <c>false</c>.</returns>
-    public bool TryDisable( PluginRuntime plugin )
+    /// <returns>
+    /// <c>true</c>, if the plugin and all dependent plugins could be disabled and all
+    /// items usages could be stopped, else <c>false</c>.
+    /// </returns>
+    public bool TryDisable(PluginRuntime plugin)
     {
-      return _activator.TryDisable( plugin );
+      return _activator.TryDisable(plugin);
     }
+
     #endregion
 
     #region IStatus Implementation
+
     public IList<string> GetStatus()
     {
       IList<string> result = new List<string> { "=== PlugInManager" };
-      foreach( PluginRuntime plugin in _activator.AvailablePlugins.Values )
+      foreach (PluginRuntime plugin in _activator.AvailablePlugins.Values)
       {
-        result.Add( string.Format( "  Plugin '{0}': {1}", plugin.Metadata.Name, plugin.State ) );
+        result.Add(string.Format("  Plugin '{0}': {1}", plugin.Metadata.Name, plugin.State));
       }
       return result;
     }
+
     #endregion
   }
 }

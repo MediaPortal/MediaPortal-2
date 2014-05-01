@@ -34,30 +34,31 @@ namespace MediaPortal.Common.PluginManager.Models
   public class PluginSocialInfo
   {
     #region Social Details
+
     /// <summary>
     /// Average rating for all versions.
     /// </summary>
     public double AverageRatingTotal { get; private set; }
 
-	  /// <summary>
+    /// <summary>
     /// Average rating for the current version.
     /// </summary>
-	  public double AverageRatingCurrentVersion { get; private set; }
-    
-	  /// <summary>
+    public double AverageRatingCurrentVersion { get; private set; }
+
+    /// <summary>
     /// Total number of rating votes cast for all versions.
     /// </summary>
     public int RatingVotesCastTotal { get; private set; }
 
-	  /// <summary>
+    /// <summary>
     /// Number of rating votes cast for the current version.
     /// </summary>
-	  public int RatingVotesCastCurrentVersion { get; private set; }
+    public int RatingVotesCastCurrentVersion { get; private set; }
 
     /// <summary>
     /// Total number of downloads for all versions.
     /// </summary>
-	  public int DownloadCountTotal { get; private set; }
+    public int DownloadCountTotal { get; private set; }
 
     /// <summary>
     /// Number of downloads for the current version.
@@ -67,22 +68,23 @@ namespace MediaPortal.Common.PluginManager.Models
     /// <summary>
     /// Date when first version was released.
     /// </summary>
- 	  public DateTime FirstVersionReleaseDate { get; private set; }
+    public DateTime FirstVersionReleaseDate { get; private set; }
 
     /// <summary>
     /// Average duration between releases, or <see cref="TimeSpan.Zero"/> if there has been only a single release.
     /// </summary>
-	  public TimeSpan MeanTimeBetweenReleases { get; private set; }
+    public TimeSpan MeanTimeBetweenReleases { get; private set; }
 
     /// <summary>
     /// Dictionary with the number of user compatibility votes (value) for every CompatibleAPI version (key).
     /// </summary>
-	  public IDictionary<int, int> CompatibleApiVotes { get; private set; }
+    public IDictionary<int, int> CompatibleApiVotes { get; private set; }
 
     /// <summary>
     /// List of user reviews.
     /// </summary>
-	  public IList<PluginReview> Reviews { get; private set; }
+    public IList<PluginReview> Reviews { get; private set; }
+
     #endregion
   }
 }

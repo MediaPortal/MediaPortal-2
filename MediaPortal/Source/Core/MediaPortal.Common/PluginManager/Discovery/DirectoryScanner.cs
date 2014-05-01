@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -35,7 +37,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
   {
     private readonly string _pluginsPath;
 
-    public DirectoryScanner( string pluginsPath )
+    public DirectoryScanner(string pluginsPath)
     {
       _pluginsPath = pluginsPath;
     }
@@ -43,39 +45,41 @@ namespace MediaPortal.Common.PluginManager.Discovery
     public IDictionary<Guid, PluginMetadata> PerformDiscovery()
     {
       var result = new Dictionary<Guid, PluginMetadata>();
-      foreach( string pluginDirectoryPath in Directory.GetDirectories( _pluginsPath ) )
+      foreach (string pluginDirectoryPath in Directory.GetDirectories(_pluginsPath))
       {
-        if( (Path.GetFileName( pluginDirectoryPath ) ?? string.Empty).StartsWith( "." ) )
+        if ((Path.GetFileName(pluginDirectoryPath) ?? string.Empty).StartsWith("."))
           continue;
         try
         {
           PluginMetadata pm;
-          if( pluginDirectoryPath.TryParsePluginDefinition( out pm ) )
+          if (pluginDirectoryPath.TryParsePluginDefinition(out pm))
           {
-            if( result.ContainsKey( pm.PluginId ) )
-              throw new ArgumentException( 
-                string.Format( "DirectoryScanner: Duplicate identifier (plugin {0} has the same plugin id as {1}).", 
-                pm.LogName, result[ pm.PluginId ].LogName ) );
-            result.Add( pm.PluginId, pm );
+            if (result.ContainsKey(pm.PluginId))
+              throw new ArgumentException(
+                string.Format("DirectoryScanner: Duplicate identifier (plugin {0} has the same plugin id as {1}).",
+                  pm.LogName, result[pm.PluginId].LogName));
+            result.Add(pm.PluginId, pm);
           }
           else
           {
-            Log.Error( "DirectoryScanner: Error parsing plugin definition file in directory '{0}'", pluginDirectoryPath );
+            Log.Error("DirectoryScanner: Error parsing plugin definition file in directory '{0}'", pluginDirectoryPath);
           }
         }
-        catch( Exception e )
+        catch (Exception e)
         {
-          Log.Error( "DirectoryScanner: Error loading plugin in directory '{0}'", e, pluginDirectoryPath );
+          Log.Error("DirectoryScanner: Error loading plugin in directory '{0}'", e, pluginDirectoryPath);
         }
       }
       return result;
     }
 
     #region Static Helpers
+
     private static ILogger Log
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }
+
     #endregion
   }
 }

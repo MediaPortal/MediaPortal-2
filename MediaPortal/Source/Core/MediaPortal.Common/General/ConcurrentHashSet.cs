@@ -37,41 +37,43 @@ namespace MediaPortal.Common.General
     private int _owner;
 
     #region Lock Helpers
+
     private void AcquireLock()
     {
       int thread = Thread.CurrentThread.ManagedThreadId;
-      while( Interlocked.CompareExchange( ref _owner, thread, 0 ) != 0 )
+      while (Interlocked.CompareExchange(ref _owner, thread, 0) != 0)
       {
-        Thread.Sleep( LOCK_SLEEP_TIME );
+        Thread.Sleep(LOCK_SLEEP_TIME);
       }
     }
 
     private void ReleaseLock()
     {
-      Interlocked.Exchange( ref _owner, 0 );
+      Interlocked.Exchange(ref _owner, 0);
     }
+
     #endregion
 
-    public bool Add( T item )
+    public bool Add(T item)
     {
       AcquireLock();
-      var result = _set.Add( item );      
+      var result = _set.Add(item);
       ReleaseLock();
       return result;
     }
 
-    public bool Remove( T item )
+    public bool Remove(T item)
     {
       AcquireLock();
-      var result = _set.Remove( item );
+      var result = _set.Remove(item);
       ReleaseLock();
       return result;
     }
 
-    public bool Contains( T item )
+    public bool Contains(T item)
     {
       AcquireLock();
-      var result = _set.Contains( item );
+      var result = _set.Contains(item);
       ReleaseLock();
       return result;
     }

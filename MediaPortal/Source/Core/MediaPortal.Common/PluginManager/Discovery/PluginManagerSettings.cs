@@ -34,7 +34,9 @@ namespace MediaPortal.Common.PluginManager.Discovery
   public class PluginManagerSettings
   {
     #region Fields
+
     protected List<Guid> _userDisabledPlugins = new List<Guid>();
+
     #endregion
 
     public void AddUserDisabledPlugin(Guid pluginId)

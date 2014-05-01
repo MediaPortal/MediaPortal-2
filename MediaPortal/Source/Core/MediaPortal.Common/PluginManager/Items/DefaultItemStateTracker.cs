@@ -25,16 +25,18 @@
 namespace MediaPortal.Common.PluginManager.Items
 {
   public delegate bool ItemStateTrackerRequestEndDlgt(PluginItemRegistration itemRegistration);
+
   public delegate void ItemStateTrackerStopDlgt(PluginItemRegistration itemRegistration);
+
   public delegate void ItemStateTrackerContinueDlgt(PluginItemRegistration itemRegistration);
 
   /// <summary>
-  /// Default implementation of a plugin item state tracker which supports callback delegates for the 
-  /// <see cref="IPluginStateTracker.RequestEnd"/>, <see cref="IPluginStateTracker.Stop"/> and 
+  /// Default implementation of a plugin item state tracker which supports callback delegates for the
+  /// <see cref="IPluginStateTracker.RequestEnd"/>, <see cref="IPluginStateTracker.Stop"/> and
   /// <see cref="IPluginStateTracker.Continue"/> methods.
   /// </summary>
   /// <remarks>
-  /// <seealso cref="FixedItemStateTracker"/>
+  ///   <seealso cref="FixedItemStateTracker"/>
   /// </remarks>
   public class DefaultItemStateTracker : IPluginItemStateTracker
   {

@@ -34,6 +34,7 @@ namespace MediaPortal.Common.PluginManager.Models
   public class PluginActivationInfo
   {
     #region Activation Details
+
     /// <summary>
     /// Gets the information if this plugin should be automatically activated when enabled.
     /// </summary>
@@ -60,20 +61,24 @@ namespace MediaPortal.Common.PluginManager.Models
     /// Returns all plugin's item registration metadata, which contain the item's ids, the registration
     /// locations and the additional attributes of the item.
     /// </summary>
-    public ICollection<PluginItemMetadata> Items { get; internal set; }    
+    public ICollection<PluginItemMetadata> Items { get; internal set; }
+
     #endregion
 
     #region Ctor
+
     public PluginActivationInfo()
     {
       Assemblies = new List<string>();
       Builders = new Dictionary<string, string>();
       Items = new List<PluginItemMetadata>();
     }
+
     #endregion
 
     #region Builder Helper Methods (GetNecessaryBuilders)
-		/// <summary>
+
+    /// <summary>
     /// Returns the names of all builders which are necessary to build the items of this
     /// plugin. This is a convenience method for iterating over <see cref="Items"/>
     /// and collecting all builder names.
@@ -81,8 +86,9 @@ namespace MediaPortal.Common.PluginManager.Models
     /// <returns>Collection of builder names.</returns>
     public ICollection<string> GetNecessaryBuilders()
     {
-      return Items.Select( itemMetadata => itemMetadata.BuilderName ).ToList();
+      return Items.Select(itemMetadata => itemMetadata.BuilderName).ToList();
     }
-    #endregion  
+
+    #endregion
   }
 }

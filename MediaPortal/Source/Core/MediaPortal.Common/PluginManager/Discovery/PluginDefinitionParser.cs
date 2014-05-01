@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml.XPath;
 using MediaPortal.Common.General;
@@ -40,37 +41,42 @@ namespace MediaPortal.Common.PluginManager.Discovery
   public static class PluginDefinitionParserExtensions
   {
     #region Constants
+
     public const string PLUGIN_META_FILE = "plugin.xml";
     public const int PLUGIN_DESCRIPTOR_VERSION_MAJOR = 1;
     public const int MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR = 0;
+
     #endregion
 
     #region Path Helpers
-    public static string PluginDefinitionFilePath( this string pluginDirectoryPath )
+
+    public static string PluginDefinitionFilePath(this string pluginDirectoryPath)
     {
-      return Path.Combine( pluginDirectoryPath, PLUGIN_META_FILE );
+      return Path.Combine(pluginDirectoryPath, PLUGIN_META_FILE);
     }
 
-    public static void VerifyIsPluginDirectory( this string path )
+    public static void VerifyIsPluginDirectory(this string path)
     {
-      var pathExists = Directory.Exists( path );
-      if( !pathExists )
+      var pathExists = Directory.Exists(path);
+      if (!pathExists)
         throw new ArgumentException("Directory '" + path + "' does not exist.");
 
-      var definitionFileExists = File.Exists( path.PluginDefinitionFilePath() );
-      if( !definitionFileExists )
+      var definitionFileExists = File.Exists(path.PluginDefinitionFilePath());
+      if (!definitionFileExists)
         throw new ArgumentException("Directory '" + path + "' does not have a plugin descriptor file (plugin.xml).");
     }
+
     #endregion
 
     #region TryParsePluginDefinition
-    public static bool TryParsePluginDefinition( this string pluginDirectoryPath, out PluginMetadata pluginMetadata )
+
+    public static bool TryParsePluginDefinition(this string pluginDirectoryPath, out PluginMetadata pluginMetadata)
     {
       pluginDirectoryPath.VerifyIsPluginDirectory();
-      var data = File.ReadAllBytes( pluginDirectoryPath.PluginDefinitionFilePath() );
-      using( var stream = new MemoryStream( data ) )
+      var data = File.ReadAllBytes(pluginDirectoryPath.PluginDefinitionFilePath());
+      using (var stream = new MemoryStream(data))
       {
-        return stream.TryParsePluginDefinition( pluginDirectoryPath, out pluginMetadata );
+        return stream.TryParsePluginDefinition(pluginDirectoryPath, out pluginMetadata);
       }
     }
 
@@ -78,21 +84,25 @@ namespace MediaPortal.Common.PluginManager.Discovery
     /// Parses the plugin descriptor file (plugin.xml) and returns true if successful and false otherwise.
     /// Metadata collected during a successful parse is returned in the PluginModel output parameter.
     /// </summary>
-    /// <param name="pluginDirectoryPath">The absolute path to the plugin directory containing the plugin 
-    /// definition file.</param>
-    /// <returns><c>true</c>, if the plugin descriptor file was successfully loaded and parsed, else 
-    /// <c>false</c>.</returns>
-    public static bool TryParsePluginDefinition( this Stream pluginDefinition, string pluginDirectoryPath, out PluginMetadata pluginMetadata )
+    /// <param name="pluginDirectoryPath">
+    /// The absolute path to the plugin directory containing the plugin
+    /// definition file.
+    /// </param>
+    /// <returns>
+    /// <c>true</c>, if the plugin descriptor file was successfully loaded and parsed, else
+    /// <c>false</c>.
+    /// </returns>
+    public static bool TryParsePluginDefinition(this Stream pluginDefinition, string pluginDirectoryPath, out PluginMetadata pluginMetadata)
     {
       var model = new PluginMetadata();
-      model.SourceInfo = new PluginSourceInfo( pluginDirectoryPath );
+      model.SourceInfo = new PluginSourceInfo(pluginDirectoryPath);
       try
       {
-        var doc = new XPathDocument( pluginDefinition );
+        var doc = new XPathDocument(pluginDefinition);
         XPathNavigator nav = doc.CreateNavigator();
         nav.MoveToChild(XPathNodeType.Element);
         if (nav.LocalName != "Plugin")
-          throw new ArgumentException( "File is no plugin descriptor file (document element must be 'Plugin')");
+          throw new ArgumentException("File is no plugin descriptor file (document element must be 'Plugin')");
 
         bool versionOk = false;
         bool pluginIdSet = false;
@@ -155,22 +165,22 @@ namespace MediaPortal.Common.PluginManager.Discovery
               case "Builder":
                 if (model.ActivationInfo == null)
                   model.ActivationInfo = new PluginActivationInfo();
-                model.ActivationInfo.Builders.Add( ParseBuilderElement( childNav.Clone() ) );
+                model.ActivationInfo.Builders.Add(ParseBuilderElement(childNav.Clone()));
                 break;
               case "Register":
                 if (model.ActivationInfo == null)
                   model.ActivationInfo = new PluginActivationInfo();
-                ParseRegisterElement(childNav.Clone()).ForEach( model.ActivationInfo.Items.Add );
+                ParseRegisterElement(childNav.Clone()).ForEach(model.ActivationInfo.Items.Add);
                 break;
               case "DependsOn":
                 if (model.DependencyInfo == null)
-                  model.DependencyInfo = new PluginDependencyInfo( model.PluginId );
-                ParsePluginDependencies(childNav.Clone()).ForEach( model.DependencyInfo.DependsOn.Add );
+                  model.DependencyInfo = new PluginDependencyInfo(model.PluginId);
+                ParsePluginDependencies(childNav.Clone()).ForEach(model.DependencyInfo.DependsOn.Add);
                 break;
               case "ConflictsWith":
                 if (model.DependencyInfo == null)
-                  model.DependencyInfo = new PluginDependencyInfo( model.PluginId );
-                ParsePluginIdEnumeration(childNav.Clone()).ForEach( model.DependencyInfo.ConflictsWith.Add );
+                  model.DependencyInfo = new PluginDependencyInfo(model.PluginId);
+                ParsePluginIdEnumeration(childNav.Clone()).ForEach(model.DependencyInfo.ConflictsWith.Add);
                 break;
               default:
                 throw new ArgumentException("'Plugin' element doesn't support a child element '" + childNav.Name + "'");
@@ -187,9 +197,11 @@ namespace MediaPortal.Common.PluginManager.Discovery
       pluginMetadata = model;
       return true;
     }
+
     #endregion
 
     #region Parsing helper methods
+
     /// <summary>
     /// Processes the <i>Runtime</i> sub element of the <i>Plugin</i> element.
     /// </summary>
@@ -199,7 +211,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
     {
       if (runtimeNavigator.HasAttributes)
         throw new ArgumentException("'Runtime' element mustn't contain any attributes");
-      if( metadata.ActivationInfo == null )
+      if (metadata.ActivationInfo == null)
         metadata.ActivationInfo = new PluginActivationInfo();
 
       XPathNavigator childNav = runtimeNavigator.Clone();
@@ -330,15 +342,17 @@ namespace MediaPortal.Common.PluginManager.Discovery
     /// Processes an element containing a collection of <i>&lt;PluginReference PluginId="..."/&gt;</i> sub elements and
     /// returns an enumeration of the referenced ids.
     /// </summary>
-    /// <param name="enumNavigator">XPath navigator pointing to an element containing the &lt;PluginReference PluginId="..."/&gt;
-    /// sub elements.</param>
+    /// <param name="enumNavigator">
+    /// XPath navigator pointing to an element containing the &lt;PluginReference PluginId="..."/&gt;
+    /// sub elements.
+    /// </param>
     /// <returns>Enumeration of parsed plugin ids.</returns>
     private static IEnumerable<Guid> ParsePluginIdEnumeration(XPathNavigator enumNavigator)
     {
       if (enumNavigator.HasAttributes)
         throw new ArgumentException(string.Format("'{0}' element mustn't contain any attributes", enumNavigator.Name));
       XPathNavigator childNav = enumNavigator.Clone();
-      if( !childNav.MoveToChild( XPathNodeType.Element ) ) 
+      if (!childNav.MoveToChild(XPathNodeType.Element))
         yield break;
       do
       {
@@ -373,8 +387,10 @@ namespace MediaPortal.Common.PluginManager.Discovery
     /// Processes an element containing a collection of <i>&lt;PluginReference PluginId="..."/&gt;</i> sub elements and
     /// returns an enumeration of the referenced ids.
     /// </summary>
-    /// <param name="enumNavigator">XPath navigator pointing to an element containing the &lt;PluginReference PluginId="..."/&gt;
-    /// sub elements.</param>
+    /// <param name="enumNavigator">
+    /// XPath navigator pointing to an element containing the &lt;PluginReference PluginId="..."/&gt;
+    /// sub elements.
+    /// </param>
     /// <returns>Enumeration of parsed plugin ids.</returns>
     private static IEnumerable<PluginDependency> ParsePluginDependencies(XPathNavigator enumNavigator)
     {
@@ -460,7 +476,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
               version = attrNav.Value;
               break;
             case "ReleaseDate":
-              releaseDate = DateTime.ParseExact(attrNav.Value, "yyyy-MM-dd HH:mm:ss \"GMT\"zzz", System.Globalization.CultureInfo.InvariantCulture);
+              releaseDate = DateTime.ParseExact(attrNav.Value, "yyyy-MM-dd HH:mm:ss \"GMT\"zzz", CultureInfo.InvariantCulture);
               break;
             case "CurrentAPI":
               currentApi = int.Parse(attrNav.Value);
@@ -487,11 +503,12 @@ namespace MediaPortal.Common.PluginManager.Discovery
       // all good, assign values to model
       metadata.PluginVersion = version;
       metadata.ReleaseDate = releaseDate;
-      if( metadata.DependencyInfo == null )
-        metadata.DependencyInfo = new PluginDependencyInfo( metadata.PluginId );
+      if (metadata.DependencyInfo == null)
+        metadata.DependencyInfo = new PluginDependencyInfo(metadata.PluginId);
       metadata.DependencyInfo.CurrentApi = currentApi;
       metadata.DependencyInfo.MinCompatibleApi = minCompatibleApi;
     }
+
     #endregion
   }
 }

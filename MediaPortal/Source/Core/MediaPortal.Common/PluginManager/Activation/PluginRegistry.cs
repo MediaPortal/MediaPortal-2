@@ -36,17 +36,20 @@ namespace MediaPortal.Common.PluginManager.Activation
 {
   /// <summary>
   /// This class is responsible for all registry operations for plugins. It contains no state
-  /// and is thread-safe only to the extent provided by the accessed registry content. 
-  /// It relies on access to registry, including reading from <see cref="RegistryNode"/> 
+  /// and is thread-safe only to the extent provided by the accessed registry content.
+  /// It relies on access to registry, including reading from <see cref="RegistryNode"/>
   /// properties (such as the Items or SubNodes dictionaries), being thread-safe.
   /// </summary>
   internal class PluginRegistry
   {
     #region Fields
+
     private const string ITEMCHANGELISTENER_ID = "PLUGIN_ITEM_CHANGE_LISTENERS";
+
     #endregion
 
     #region Item Metadata Lookup
+
     public PluginItemMetadata GetPluginItemMetadata(string location, string id)
     {
       PluginItemRegistration registration = GetItemRegistration(location, id);
@@ -55,14 +58,16 @@ namespace MediaPortal.Common.PluginManager.Activation
 
     public ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location)
     {
-      return GetItemRegistrations( location ).Select( registration => registration.Metadata ).ToList();
+      return GetItemRegistrations(location).Select(registration => registration.Metadata).ToList();
     }
+
     #endregion
 
     #region Item Requests
+
     public T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class
     {
-      return (T) RequestPluginItem(location, id, typeof(T), stateTracker);
+      return (T)RequestPluginItem(location, id, typeof(T), stateTracker);
     }
 
     public object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker)
@@ -73,11 +78,11 @@ namespace MediaPortal.Common.PluginManager.Activation
 
     public ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class
     {
-      return GetItemRegistrations(location).Select( itemRegistration =>
+      return GetItemRegistrations(location).Select(itemRegistration =>
       {
         try
         {
-          return (T) RequestItem(itemRegistration, typeof(T), stateTracker);
+          return (T)RequestItem(itemRegistration, typeof(T), stateTracker);
         }
         catch (PluginInvalidStateException e)
         {
@@ -110,11 +115,13 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       PluginRuntime plugin = itemRegistration.Metadata.PluginRuntime;
       // go through plugin when requesting item to obtain lock on PluginRuntime
-      return plugin.RequestItem( itemRegistration, type, stateTracker );
+      return plugin.RequestItem(itemRegistration, type, stateTracker);
     }
+
     #endregion
 
     #region Item Revocation
+
     public void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker)
     {
       PluginItemRegistration itemRegistration = GetItemRegistration(location, id);
@@ -133,10 +140,14 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// Revokes the usage of the item which is identified by the specified item registration instance
     /// for the specified item <paramref name="stateTracker"/>.
     /// </summary>
-    /// <param name="itemRegistration">Item registration instance which specifies the item to be
-    /// revoked.</param>
-    /// <param name="stateTracker">State tracker for which the usage of the item is revoked.
-    /// The state tracker won't be called any more for any plugin state changes.</param>
+    /// <param name="itemRegistration">
+    /// Item registration instance which specifies the item to be
+    /// revoked.
+    /// </param>
+    /// <param name="stateTracker">
+    /// State tracker for which the usage of the item is revoked.
+    /// The state tracker won't be called any more for any plugin state changes.
+    /// </param>
     internal void RevokeItemUsage(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker)
     {
       PluginItemMetadata metadata = itemRegistration.Metadata;
@@ -146,14 +157,16 @@ namespace MediaPortal.Common.PluginManager.Activation
       if (itemRegistration.StateTrackers.Count > 0)
         return;
       // No more state trackers present, revoke item
-      plugin.RevokeItem( itemRegistration );
+      plugin.RevokeItem(itemRegistration);
       itemRegistration.Item = null;
       // If we wanted to automatically unload plugins whose items are not accessed any more, this
       // should be done here
     }
+
     #endregion
 
     #region GetItemRegistration(s) / GetAvailableChildLocations
+
     /// <summary>
     /// Returns the item registration instance for the specified <paramref name="location"/> and the specified
     /// <paramref name="id"/>.
@@ -165,8 +178,8 @@ namespace MediaPortal.Common.PluginManager.Activation
     {
       IRegistryNode node = GetRegistryNode(location, false);
       if (node != null && node.Items != null && node.Items.ContainsKey(id))
-        return (PluginItemRegistration) node.Items[id];
-      return null;        
+        return (PluginItemRegistration)node.Items[id];
+      return null;
     }
 
     /// <summary>
@@ -176,11 +189,11 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <returns>Collection of item registration instances at the specified location.</returns>
     internal ICollection<PluginItemRegistration> GetItemRegistrations(string location)
     {
-      IRegistryNode node = GetRegistryNode( location, false );
+      IRegistryNode node = GetRegistryNode(location, false);
       var result = new List<PluginItemRegistration>();
-      if( node != null && node.Items != null )
-        result.AddRange( node.Items.Values.OfType<PluginItemRegistration>() );
-      return result; 
+      if (node != null && node.Items != null)
+        result.AddRange(node.Items.Values.OfType<PluginItemRegistration>());
+      return result;
     }
 
     /// <summary>
@@ -190,33 +203,39 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <returns>Collection of child locations of the given parent <paramref name="location"/>.</returns>
     internal ICollection<string> GetAvailableChildLocations(string location)
     {
-      IRegistryNode node = GetRegistryNode( location, false );
+      IRegistryNode node = GetRegistryNode(location, false);
       var result = new List<string>();
-      if( node != null && node.SubNodes != null )
-        result.AddRange( node.SubNodes.Keys.Select( childName => RegistryHelper.ConcatenatePaths( location, childName ) ) );
-      return result;        
+      if (node != null && node.SubNodes != null)
+        result.AddRange(node.SubNodes.Keys.Select(childName => RegistryHelper.ConcatenatePaths(location, childName)));
+      return result;
     }
+
     #endregion
 
     #region Register/Unregister Item
+
     /// <summary>
     /// Registers the specified plugin item in the plugin tree.
     /// </summary>
     /// <param name="itemMetadata">Metadata structure of the item to register.</param>
     /// <param name="itemRegistration">The item registratiom for the just registered item.</param>
-    /// <returns><c>true</c>, if the plugin item could be registered, <c>false</c>,
-    /// if the item already existed and <see cref="PluginItemMetadata.IsRedundant"/> is specified.</returns>
-    /// <exception cref="ArgumentException">If there is already an item registered at the registration
-    /// location and the <see cref="PluginItemMetadata.IsRedundant"/> flag is not set.</exception>
+    /// <returns>
+    /// <c>true</c>, if the plugin item could be registered, <c>false</c>,
+    /// if the item already existed and <see cref="PluginItemMetadata.IsRedundant"/> is specified.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// If there is already an item registered at the registration
+    /// location and the <see cref="PluginItemMetadata.IsRedundant"/> flag is not set.
+    /// </exception>
     internal bool RegisterItem(PluginItemMetadata itemMetadata, out PluginItemRegistration itemRegistration)
     {
       IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, true);
       if (node.Items != null && node.Items.ContainsKey(itemMetadata.Id))
       {
-        if( !itemMetadata.IsRedundant )
-          throw new ArgumentException( string.Format( "At location '{0}', a plugin item with id '{1}' is already registered",
-            itemMetadata.RegistrationLocation, itemMetadata.Id ) );
-        itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
+        if (!itemMetadata.IsRedundant)
+          throw new ArgumentException(string.Format("At location '{0}', a plugin item with id '{1}' is already registered",
+            itemMetadata.RegistrationLocation, itemMetadata.Id));
+        itemRegistration = (PluginItemRegistration)node.Items[itemMetadata.Id];
         itemRegistration.AdditionalRedundantItemsMetadata.Add(itemMetadata);
         return false;
       }
@@ -237,7 +256,7 @@ namespace MediaPortal.Common.PluginManager.Activation
         return;
       if (node.Items.ContainsKey(itemMetadata.Id))
       {
-        var itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
+        var itemRegistration = (PluginItemRegistration)node.Items[itemMetadata.Id];
         // Check, if there are additional redundant items registered at this position. If yes, we'll use
         // the first of them instead of the old item to be unregistered.
         PluginItemMetadata newItemMetadata = null;
@@ -248,27 +267,31 @@ namespace MediaPortal.Common.PluginManager.Activation
           itemRegistration.AdditionalRedundantItemsMetadata.Remove(newItemMetadata);
         }
         node.Items.Remove(itemMetadata.Id);
-          
+
         // TODO NOTE FIXME looks like we're calling another PluginRuntime here - since they don't 
         // share locks, this could result in deadlocks. Additional thought required.
         if (newItemMetadata != null)
           newItemMetadata.PluginRuntime.RegisterItem(newItemMetadata);
       }
     }
+
     #endregion
 
     #region ItemRegistrationChangeListener Management
+
     /// <summary>
     /// Adds the specified item registration change <paramref name="listener"/> which will be notified
     /// when items are registered at the specified <paramref name="location"/>.
     /// </summary>
-    /// <param name="location">Location to add the listener to. The added <paramref name="listener"/> will
-    /// be called when items are added to or removed from this location in the plugin tree.</param>
+    /// <param name="location">
+    /// Location to add the listener to. The added <paramref name="listener"/> will
+    /// be called when items are added to or removed from this location in the plugin tree.
+    /// </param>
     /// <param name="listener">The listener to add.</param>
     internal void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
     {
-      ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation( location, true );
-      listeners.Add( listener );        
+      ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(location, true);
+      listeners.Add(listener);
     }
 
     /// <summary>
@@ -279,10 +302,10 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// <param name="listener">The listener to remove.</param>
     internal void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
     {
-      ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation( location, false );
-      if( listeners == null )
+      ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(location, false);
+      if (listeners == null)
         return;
-      listeners.Remove( listener ); 
+      listeners.Remove(listener);
     }
 
     /// <summary>
@@ -297,7 +320,7 @@ namespace MediaPortal.Common.PluginManager.Activation
         return null;
       object resultObj;
       if (node.Items != null && node.Items.TryGetValue(ITEMCHANGELISTENER_ID, out resultObj))
-        return (ICollection<IItemRegistrationChangeListener>) resultObj;
+        return (ICollection<IItemRegistrationChangeListener>)resultObj;
       if (createOnNotExist)
       {
         var result = new List<IItemRegistrationChangeListener>();
@@ -312,25 +335,27 @@ namespace MediaPortal.Common.PluginManager.Activation
     /// </summary>
     /// <param name="changedLocations">The locations that have been modified.</param>
     /// <param name="added"><c>True</c> if items were added and <c>false</c> if items were removed.</param>
-    internal void NotifyItemsChanged( Dictionary<string, ICollection<PluginItemMetadata>> changedLocations, bool added )
+    internal void NotifyItemsChanged(Dictionary<string, ICollection<PluginItemMetadata>> changedLocations, bool added)
     {
       foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
       {
         ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(changedLocation.Key, false);
         if (listeners == null)
           continue;
-        foreach( IItemRegistrationChangeListener listener in listeners )
+        foreach (IItemRegistrationChangeListener listener in listeners)
         {
-          if( added )
-            listener.ItemsWereAdded( changedLocation.Key, changedLocation.Value );
+          if (added)
+            listener.ItemsWereAdded(changedLocation.Key, changedLocation.Value);
           else
-            listener.ItemsWereRemoved( changedLocation.Key, changedLocation.Value );
+            listener.ItemsWereRemoved(changedLocation.Key, changedLocation.Value);
         }
-      }    
+      }
     }
+
     #endregion
 
     #region Static Helpers
+
     private static ILogger Log
     {
       get { return ServiceRegistration.Get<ILogger>(); }
@@ -341,6 +366,7 @@ namespace MediaPortal.Common.PluginManager.Activation
       var registry = ServiceRegistration.Get<IRegistry>();
       return registry.GetRegistryNode(path, createOnNotExist);
     }
+
     #endregion
   }
 }

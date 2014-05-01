@@ -61,7 +61,8 @@ namespace MediaPortal.Common.PluginManager.Items
     /// <see cref="Continue(PluginItemRegistration)"/> is called.
     /// </remarks>
     /// <param name="itemRegistration">The item which should be removed.</param>
-    /// <returns><c>true</c>, if the specified item can be removed from the system at this time,
+    /// <returns>
+    /// <c>true</c>, if the specified item can be removed from the system at this time,
     /// else <c>false</c>.
     /// </returns>
     bool RequestEnd(PluginItemRegistration itemRegistration);

@@ -31,9 +31,14 @@ namespace MediaPortal.Common.PluginManager.Exceptions
   /// </summary>
   public class PluginInvalidMetadataException : PluginManagerException
   {
-    public PluginInvalidMetadataException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginInvalidMetadataException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    public PluginInvalidMetadataException(string msg, params object[] args) :
+      base(msg, args)
+    {
+    }
+
+    public PluginInvalidMetadataException(string msg, Exception ex, params object[] args) :
+      base(msg, ex, args)
+    {
+    }
   }
 }

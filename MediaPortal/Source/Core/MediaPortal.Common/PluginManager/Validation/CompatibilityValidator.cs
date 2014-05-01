@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -35,35 +37,44 @@ namespace MediaPortal.Common.PluginManager.Validation
   public class CompatibilityValidator : IValidator
   {
     #region Fields
+
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _availablePlugins;
     private readonly IDictionary<string, CoreAPIAttribute> _coreComponents;
+
     #endregion
 
     #region Ctor
-    public CompatibilityValidator( ConcurrentDictionary<Guid, PluginMetadata> availablePlugins, IDictionary<string, CoreAPIAttribute> coreComponents )
+
+    public CompatibilityValidator(ConcurrentDictionary<Guid, PluginMetadata> availablePlugins, IDictionary<string, CoreAPIAttribute> coreComponents)
     {
       _availablePlugins = availablePlugins;
       _coreComponents = coreComponents;
     }
+
     #endregion
 
     #region IValidate
+
     /// <summary>
     /// Validates the given <paramref name="plugin"/> by checking for version incompatibilities
-    /// with core components and other installed plugins. 
-    /// Currently disabled plugins are considered during validation, and the fact that they are 
+    /// with core components and other installed plugins.
+    /// Currently disabled plugins are considered during validation, and the fact that they are
     /// disabled does not make them count as being incompatible.
     /// </summary>
     /// <param name="plugin">The plugin to validate.</param>
-    /// <returns>A set of plugin ids found to be incompatible, or an empty set if no 
-    /// incompatible plugins were found.</returns>
-    public HashSet<Guid> Validate( PluginMetadata plugin )
+    /// <returns>
+    /// A set of plugin ids found to be incompatible, or an empty set if no
+    /// incompatible plugins were found.
+    /// </returns>
+    public HashSet<Guid> Validate(PluginMetadata plugin)
     {
-      return FindIncompatible( plugin, new HashSet<Guid>() );
+      return FindIncompatible(plugin, new HashSet<Guid>());
     }
+
     #endregion
 
     #region Validation Implementation (FindIncompatible)
+
     /// <summary>
     /// Conflicts are searched recursive, but plugins might be referenced multiple times in the hierarchy.
     /// So in order to speed up this process and prevent a StackOverflowException we pass a list of already checked plugin Ids.
@@ -71,37 +82,38 @@ namespace MediaPortal.Common.PluginManager.Validation
     /// <param name="plugin"></param>
     /// <param name="alreadyCheckedPlugins"></param>
     /// <returns></returns>
-    private HashSet<Guid> FindIncompatible( PluginMetadata plugin, HashSet<Guid> alreadyCheckedPlugins )
+    private HashSet<Guid> FindIncompatible(PluginMetadata plugin, HashSet<Guid> alreadyCheckedPlugins)
     {
       var result = new HashSet<Guid>();
-      if( alreadyCheckedPlugins.Contains( plugin.PluginId ) )
+      if (alreadyCheckedPlugins.Contains(plugin.PluginId))
         return result;
-      alreadyCheckedPlugins.Add( plugin.PluginId );
+      alreadyCheckedPlugins.Add(plugin.PluginId);
 
-      foreach( PluginDependency dependency in plugin.DependencyInfo.DependsOn )
+      foreach (PluginDependency dependency in plugin.DependencyInfo.DependsOn)
       {
-        if( dependency.IsCoreDependency )
+        if (dependency.IsCoreDependency)
         {
           CoreAPIAttribute api;
-          if( !_coreComponents.TryGetValue( dependency.CoreDependencyName, out api ) )
-            throw new PluginMissingDependencyException( "Plugin dependency '{0}' is not available", dependency.CoreDependencyName );
-          if( api.MinCompatibleAPI > dependency.CompatibleApi || api.CurrentAPI < dependency.CompatibleApi )
-            throw new PluginIncompatibleException( "Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", dependency.CoreDependencyName, dependency.CompatibleApi, api.MinCompatibleAPI, api.CurrentAPI );
+          if (!_coreComponents.TryGetValue(dependency.CoreDependencyName, out api))
+            throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependency.CoreDependencyName);
+          if (api.MinCompatibleAPI > dependency.CompatibleApi || api.CurrentAPI < dependency.CompatibleApi)
+            throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", dependency.CoreDependencyName, dependency.CompatibleApi, api.MinCompatibleAPI, api.CurrentAPI);
         }
         else
         {
           PluginMetadata dependencyMetadata;
-          if( !_availablePlugins.TryGetValue( dependency.PluginId, out dependencyMetadata ) )
-            throw new PluginMissingDependencyException( "Plugin dependency '{0}' is not available", dependency.PluginId );
-          if( dependencyMetadata.DependencyInfo.MinCompatibleApi > dependency.CompatibleApi ||
-              dependencyMetadata.DependencyInfo.CurrentApi < dependency.CompatibleApi )
-            throw new PluginIncompatibleException( "Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]",
-              dependencyMetadata.Name, dependency.CompatibleApi, dependencyMetadata.DependencyInfo.MinCompatibleApi, dependencyMetadata.DependencyInfo.CurrentApi );
-          result.UnionWith( FindIncompatible( dependencyMetadata, alreadyCheckedPlugins ) );
+          if (!_availablePlugins.TryGetValue(dependency.PluginId, out dependencyMetadata))
+            throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependency.PluginId);
+          if (dependencyMetadata.DependencyInfo.MinCompatibleApi > dependency.CompatibleApi ||
+              dependencyMetadata.DependencyInfo.CurrentApi < dependency.CompatibleApi)
+            throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]",
+              dependencyMetadata.Name, dependency.CompatibleApi, dependencyMetadata.DependencyInfo.MinCompatibleApi, dependencyMetadata.DependencyInfo.CurrentApi);
+          result.UnionWith(FindIncompatible(dependencyMetadata, alreadyCheckedPlugins));
         }
       }
       return result;
-    } 
+    }
+
     #endregion
   }
 }
