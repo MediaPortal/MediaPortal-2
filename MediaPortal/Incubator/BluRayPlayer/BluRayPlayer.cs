@@ -143,7 +143,7 @@ namespace MediaPortal.UI.Players.Video
 
       _graphBuilder.AddFilter(_fileSource, BluRayAPI.BDREADER_FILTER_NAME);
 
-      _subtitleRenderer = new SubtitleRendererV3(OnTextureInvalidated);
+      _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
       if (_subtitleFilter != null)
       {

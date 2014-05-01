@@ -46,7 +46,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   #region Structs and helper classes
 
   /// <summary>
-  /// Structure used in communication with subtitle filter.
+  /// Structure used in communication with subtitle v3 filter.
   /// </summary>
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct NativeSubtitle
@@ -71,6 +71,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     // How long to display subtitle
     public UInt64 TimeOut; // in seconds
     public Int32 FirstScanLine;
+    public Int32 HorizontalPosition;
   }
 
   /*
@@ -181,6 +182,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     #region Constants
 
     private const int MAX_SUBTITLES_IN_QUEUE = 20;
+    public static Guid CLSID_DVBSUB3 = new Guid("{3B4C4F66-739F-452c-AFC4-1C039BED3299}");
 
     #endregion
 
@@ -249,14 +251,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         else
           DisableSubtitleHandling();
       }
-    }
-
-    /// <summary>
-    /// Gets the name of the required DirectShow filter.
-    /// </summary>
-    protected virtual string FilterName
-    {
-      get { return "MediaPortal DVBSub2"; }
     }
 
     #endregion
@@ -471,7 +465,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       try
       {
-        _filter = FilterGraphTools.AddFilterByName(graphBuilder, FilterCategory.LegacyAmFilterCategory, FilterName);
+        _filter = FilterLoader.LoadFilterFromDll("DVBSub3.ax", CLSID_DVBSUB3, true);
         _subFilter = _filter as IDVBSubtitleSource;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
       }
@@ -556,16 +550,17 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     protected virtual Subtitle ToSubtitle(IntPtr nativeSubPtr)
     {
-      NativeSubtitle nativeSub = (NativeSubtitle) Marshal.PtrToStructure(nativeSubPtr, typeof(NativeSubtitle));
+      NativeSubtitle nativeSub = (NativeSubtitle)Marshal.PtrToStructure(nativeSubPtr, typeof(NativeSubtitle));
       Subtitle subtitle = new Subtitle
       {
         SubBitmap = new Bitmap(nativeSub.Width, nativeSub.Height, PixelFormat.Format32bppArgb),
         TimeOut = nativeSub.TimeOut,
-        PresentTime = ((double) nativeSub.TimeStamp / 1000.0f) + _startPos,
-        Height = (uint) nativeSub.Height,
-        Width = (uint) nativeSub.Width,
+        PresentTime = ((double)nativeSub.TimeStamp / 1000.0f) + _startPos,
+        Height = (uint)nativeSub.Height,
+        Width = (uint)nativeSub.Width,
         ScreenWidth = nativeSub.ScreenWidth,
         FirstScanLine = nativeSub.FirstScanLine,
+        HorizontalPosition = nativeSub.HorizontalPosition,
         Id = _subCounter++
       };
       CopyBits(nativeSub.Bits, ref subtitle.SubBitmap, nativeSub.Width, nativeSub.Height, nativeSub.WidthBytes);
