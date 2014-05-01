@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Seleziona servizio per lettura dei file ISO</string>
   <string name="IsoResourceProvider.Description">Accesso file e cartelle per immagini ISO</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Musica</string>
   <string name="Media.MyVideos">Video</string>
   <string name="Media.MyPictures">Immagini</string>
-  <string name="Media.InvalidShareName">Share non valida</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Server MP2 disponibile</string>
   <string name="ServerConnection.NotificationServerAvailableText">C\'è almeno un server MediaPortal 2 nella rete. Collegati ad esso per avere tutte le opzioni di MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' al host \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Il Sever home è attualmente scollegato.</string>
   <string name="ServerConnection.DetachMenu">Scollega</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Scollega dal erver Home</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Se ti scolleghi dal server home,tutti i dati delle shares locali e le loro voci saranno rimosse dalla libreria del server home. Vuoi veramente scollegarti dal server home \'{0}\' at host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Ricerca server</string>
   <string name="ServerConnection.DetachFromServer">Scollegati dal server home</string>
   <string name="ServerConnection.AttachToServerHeader">Collegati al server MediaPortal 2</string>
@@ -67,9 +65,7 @@
   <string name="ImporterMessages.ImportStartedText">L\'importazione di  \'{0}\' è iniziata.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importazione completata</string>
   <string name="ImporterMessages.ImportCompletedText">L\'importazione di \'{0}\' è finita.</string>
-  <string name="LocalFsResourceProvider.Name">Provider della risorsa del filesystem locale</string>
   <string name="LocalFsResourceProvider.Description">Accesso al filesystem locale</string>
-  <string name="RemoteResourceProvider.Name">Provider risorsa remota</string>
   <string name="RemoteResourceProvider.Description">Accesso alle risorse localizzate in un altro sistema MediaPortal 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -120,25 +116,13 @@
   <string name="Settings.Regional.Language">Lingua</string>
   <string name="Settings.Regional.Language.Main">Lingua</string>
   <string name="Settings.Regional.Language.Main.Help">Configura la lingua principale usata nell\'applicazione</string>
-  <string name="Settings.Shares">Shares</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Configura shares</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configurazione Shares</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configura tutte le share locali</string>
   <string name="Settings.Shares.Overview">Panoramica</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Veduta generale shares</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Panoramica globale sulle share</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Reimporta tutte le share</string>
   <string name="Settings.Plugins">Plugins</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Veduta generale shares</string>
-  <string name="SharesOverview.Title">Veduta generale shares</string>
-  <string name="SharesOverview.ReImportAllShares">Reimporta tutte le share</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Il server Home non è connesso, le informazioni di sistema delle share non possono essere recuperate</string>
-  <string name="Shares.NoSharesInThisView">- Non ci sono shares in questa vista -</string>
   <string name="Shares.InvalidPath">PERCORSO NON VALIDO: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -146,69 +130,28 @@
   <string name="Shares.ReImport">Reimportare</string>
   <string name="Shares.Importing">Importazione...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configurazione Shares</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Rimuovi shares</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Info shares</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Scegli sistema</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Scegli fornitore risorsa</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Configura percorso</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Scegli percorso</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Configura nome</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Scegli categorie</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Non è possibile aggiungere shares</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Il server home è installato nello stesso computer, in questo modo tutte le shares devono essere registrate nel server.Ma il server al momento non è connesso.Perfare fai partire il server home e prova nuovamente.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Configurazione Shares</string>
-  <string name="SharesConfig.NoSharesAvailable">Non ci sono shares disponibili</string>
-  <string name="SharesConfig.ShareInformationHeader">Informazioni shares</string>
   <string name="SharesConfig.ShareNameInfo">Nome:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Risorsa di base:</string>
   <string name="SharesConfig.ShareSystem">Sistema</string>
   <string name="SharesConfig.SharePathInfo">Percorso:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Percorso Tecnico:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Categorie media:</string>
-  <string name="SharesConfig.ReImportShare">eimporta Share</string>
-  <string name="SharesConfig.SetupDefaultShares">Configura shares di default</string>
-  <string name="SharesConfig.RemoveShares">Rimuovi shares</string>
-  <string name="SharesConfig.EditShare">Edita shares</string>
   <string name="SharesConfig.ChooseSystem">Scegli sistema</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Perfavore selziona le shares da rimuovere</string>
-  <string name="SharesConfig.ChooseSystemForShare">Scegli il sistema per la nuova share</string>
-  <string name="SharesConfig.LocalShare">Share locale</string>
-  <string name="SharesConfig.LocalShares">Share locali</string>
-  <string name="SharesConfig.GlobalShare">Share Globale</string>
-  <string name="SharesConfig.GlobalShares">Share Globali</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Il server home non è al momento connesso, quindi le shares globali non possono essere configurate.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Il server home è installato nella stessa macchina,così possono essere configurate solo le shares globali</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Perfavore seleziona un provider per la share</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Modifica il percorso per la share</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Configura un percorso valido nel provider di risorse scelto.Puoi inserire un semplice percorso che è capibile per il provider di risorsa.Puoi anche inserire un percorso complesso nel formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Scegli il percorso della share</string>
-  <string name="SharesConfig.EditShareName">Configura il nome mostrato dalla share</string>
-  <string name="SharesConfig.ChooseShareCategories">Scegli le categorie del contenuto dei media nella share</string>
-  <string name="SharesConfig.SharePathExists">Una share con quel percorso esiste già</string>
-  <string name="SharesConfig.ShareNameExists">Una Share con quel nome esiste già</string>
-  <string name="SharesConfig.ShareNameEmpty">Cambia il nome per la share</string>
-  <string name="SharesConfig.EditShareProblemHeader">Problema nella configurazione della share</string>
-  <string name="SharesConfig.EditShareProblemText">Errore interno nella configurazione della share</string>
-  <string name="SharesConfig.MenuAddShare">Aggiungi</string>
   <string name="SharesConfig.MenuEditShares">Modifica</string>
-  <string name="SharesConfig.MenuRemoveShares">Rimuovi</string>
-  <string name="SharesConfig.AddServerShare">Aggiungi share globale</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Modifica share globale</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Aggiungi share locale</string>
-  <string name="SharesConfig.EditLocalShare">Modifica share locale</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Aggiorna share</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Il provider della risorsa share e/o il percorso è stato aggiornato.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">L\'informazione della libreria media sulle voci nella sharepuò essere aggiornata(riallocata) o azzerata e reimportata.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Vuoi riallocare o azzerare e reimportare?</string>
   <string name="SharesConfig.Relocate">Riallocare</string>
   <string name="SharesConfig.ReImport">Reimportare</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 t - IL GUI MediaPortal. Riproduce contenuti multimediali, contiene le shares locali e fornisce l\'interfaccia utente.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

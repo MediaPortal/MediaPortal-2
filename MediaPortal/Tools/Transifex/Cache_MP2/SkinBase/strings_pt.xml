@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Copiar</string>
+  <string name="Keys.Paste">Colar</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>
   <string name="Dialogs.InfoHeaderText">Informações</string>
@@ -26,7 +28,7 @@
   <string name="Media.MyMusic">Música</string>
   <string name="Media.MyVideos">Vídeos</string>
   <string name="Media.MyPictures">Fotos</string>
-  <string name="Media.InvalidShareName">Compartilhamento inválido</string>
+  <string name="Media.InvalidShareName">Fonte multimédia inválida</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Servidor MP2 disponível</string>
   <string name="ServerConnection.NotificationServerAvailableText">Há pelo menos um servidor MediaPortal 2 disponível na rede. Conecte-se a ele para ter todos os recursos do MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' em \'{1}\'</string>
@@ -44,7 +46,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">O servidor local está desconectado.</string>
   <string name="ServerConnection.DetachMenu">Desconectar</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Desconectar do servidor local</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Se você desconectar do servidor local, todos os dados sobre os compartilhamentos locais e seus itens de mídia serão removidos da biblioteca de mídia do servidor. Você pode conectar novamente depois. Você quer realmente desconectar do servidor \'{0}\' em \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Procurar por servidores</string>
   <string name="ServerConnection.DetachFromServer">Desconectar do servidor local</string>
   <string name="ServerConnection.AttachToServerHeader">Conectar ao servidor MediaPortal 2</string>
@@ -65,10 +66,9 @@
   <string name="ImporterMessages.ImportStartedText">A importação de \'{0}\' iniciou.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importação completa</string>
   <string name="ImporterMessages.ImportCompletedText">A importação de \'{0}\' foi concluída.</string>
-  <string name="LocalFsResourceProvider.Name">Provedor de recursos de sistema de arquivos local</string>
   <string name="LocalFsResourceProvider.Description">Acessar o sistema de arquivos local</string>
-  <string name="RemoteResourceProvider.Name">Provedor de recursos remotos</string>
   <string name="RemoteResourceProvider.Description">Acessar recursos localizados em outro sistema MediaPortal 2</string>
+  <string name="RawUrlResourceProvider.Description">Aceder às fontes dos URI brutos</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Sem reprodutor</string>
@@ -89,6 +89,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Alternar reprodutores PiP</string>
   <string name="Players.ChooseAudioStream">Escolher fluxo de áudio</string>
+  <string name="Players.PlayerSlotAudioMenu">Menu de áudio para {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Mudo</string>
   <string name="Players.MuteOff">Mudo desligado</string>
@@ -106,6 +107,8 @@
   <string name="Settings.General.System">Systema</string>
   <string name="Settings.General.System.Autostart">Autoiniciar</string>
   <string name="Settings.General.System.Autostart.Help">Iniciar MediaPortal automaticamente ao iniciar o Windows</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Letra da unidade para montar o recurso</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Configura a letra da unidade para montar recursos remotos neste cliente.</string>
   <string name="Settings.General.Connectivity">Conectividade</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor local</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informações do servidor local, conectar e desconectar do servidor local</string>
@@ -117,25 +120,13 @@
   <string name="Settings.Regional.Language">Linguagem</string>
   <string name="Settings.Regional.Language.Main">Linguagem</string>
   <string name="Settings.Regional.Language.Main.Help">Configure a linguagem principal utilizada na aplicação</string>
-  <string name="Settings.Shares">Compartilhamentos</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Configurar compartilhamentos</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configurações de compartilhamento</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configurar todos os compartilhamentos locais</string>
   <string name="Settings.Shares.Overview">Resumo</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Resumo dos compartilhamentos</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Resumo dos compartilhamentos globais</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Reimportar todos os compartilhamentos</string>
   <string name="Settings.Plugins">Plugins</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Resumo dos compartilhamentos</string>
-  <string name="SharesOverview.Title">Resumo dos compartilhamentos</string>
-  <string name="SharesOverview.ReImportAllShares">Reimportar todos os compartilhamentos</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">O servidor local não está conectado, informações de compartilhamento do sistema não puderam ser recuperadas</string>
-  <string name="Shares.NoSharesInThisView">- Nenhum compartilhamento nesta visualização -</string>
   <string name="Shares.InvalidPath">CAMINHO INVÁLIDO: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -143,69 +134,28 @@
   <string name="Shares.ReImport">Reimportar</string>
   <string name="Shares.Importing">Importando...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configurações de compartilhamento</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Remover compartilhamentos</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informações do compartilhamento</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Escolha o sistema</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Escolha o provedor de recursos</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Editar caminho</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Escolher caminho</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Editar nome</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Escolher categorias</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Não foi possível adicionar compartilhamentos</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">O servidor local está localizado no mesmo computador, portanto todos os compartilhamentos devem ser registrados no servidor, mas o servidor não está disponível no momento. Por favor, inicie o servidor local e tente novamente.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Configurações de compartilhamento</string>
-  <string name="SharesConfig.NoSharesAvailable">Não há compartilhamentos disponíveis</string>
-  <string name="SharesConfig.ShareInformationHeader">Informações de compartilhamento</string>
   <string name="SharesConfig.ShareNameInfo">Nome:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Provedor de recursos base:</string>
   <string name="SharesConfig.ShareSystem">Sistema:</string>
   <string name="SharesConfig.SharePathInfo">Caminho:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Caminho técnico:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Categorias de mídia:</string>
-  <string name="SharesConfig.ReImportShare">Reimportar compartilhamento</string>
-  <string name="SharesConfig.SetupDefaultShares">Configurar compartilhamentos padrão</string>
-  <string name="SharesConfig.RemoveShares">Remover compartilhamentos</string>
-  <string name="SharesConfig.EditShare">Editar compartilhamento</string>
   <string name="SharesConfig.ChooseSystem">Escolher sistema</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Por favor, selecione os compartilhamento à serem removidos</string>
-  <string name="SharesConfig.ChooseSystemForShare">Escolha o sistema para o novo compartilhamento</string>
-  <string name="SharesConfig.LocalShare">Compartilhamento local</string>
-  <string name="SharesConfig.LocalShares">Compartilhamentos locais</string>
-  <string name="SharesConfig.GlobalShare">Compartilhamento global</string>
-  <string name="SharesConfig.GlobalShares">Compartilhamentos globais</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">O servidor local não está conectado, então os compartilhamentos globais não poder ser gerenciados no momento.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">O servidor local está localizado na mesma máquina, então apenas servidores globais podem ser configurados.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Por favor, selecione um provedor de recursos para o compartilhamento</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Editar caminho do compartilhamento</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Editar um caminho válido no provedor de recursos escolhido. Você pode editar um simples caminho que seja compreendido pelo provedor de recursos. Você pode tamém editar um caminho complexo no formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Escolha o caminho do compartilhamento</string>
-  <string name="SharesConfig.EditShareName">Editar o nome de exibição do compartilhamento</string>
-  <string name="SharesConfig.ChooseShareCategories">Escolha as categorias de mídia localizadas no compartilhamento</string>
-  <string name="SharesConfig.SharePathExists">A partilha com esta localização já existe</string>
-  <string name="SharesConfig.ShareNameExists">A partilha com este nome já existe</string>
-  <string name="SharesConfig.ShareNameEmpty">Editar o nome da partilha</string>
-  <string name="SharesConfig.EditShareProblemHeader">Problema ao configurar a partilha</string>
-  <string name="SharesConfig.EditShareProblemText">Ocorreu um erro interno ao tentar configurar a partilha</string>
-  <string name="SharesConfig.MenuAddShare">Adicionar</string>
   <string name="SharesConfig.MenuEditShares">Editar</string>
-  <string name="SharesConfig.MenuRemoveShares">Remover</string>
-  <string name="SharesConfig.AddServerShare">Adicionar compartilhamento global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Editar compartilhamento global</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Adicionar compartilhamento local</string>
-  <string name="SharesConfig.EditLocalShare">Editar compartilhamento local</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Atualizar compartilhamento</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">O provedor de recursos local do compartilhamento e/ou o caminho foram atualizados.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">As informações da biblioteca de mídia sobre os itens no compartilhamento  podem ser atualizados (realocados) ou removidos e reimportados.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Você quer realocar ou limpar e reimportar?</string>
   <string name="SharesConfig.Relocate">Realocar</string>
   <string name="SharesConfig.ReImport">Reimportar</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Time Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Cliente MediaPortal 2 - a GUI do MediaPortal. Reproduz conteúdo de mídia, hospeda compartilhamentos locais e provê a interface do usuário.</string>
   <string name="UPnPFrontendServer.ModelName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

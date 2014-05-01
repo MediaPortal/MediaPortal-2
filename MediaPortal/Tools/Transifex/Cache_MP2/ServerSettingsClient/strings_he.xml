@@ -10,7 +10,6 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">שם משתמש וסיסמא</string>
   <string name="Settings.ServerSettings.Username">שם משתמש:</string>
   <string name="Settings.ServerSettings.Password">סיסמא:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">שתף הגדרות יבוא</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">הגדר עדכון אוטומטי של השיתופים</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">אפשר עדכון אוטומטי</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">הרץ בשעה מסויימת (מבוסס שעון 24 שעות)</string>

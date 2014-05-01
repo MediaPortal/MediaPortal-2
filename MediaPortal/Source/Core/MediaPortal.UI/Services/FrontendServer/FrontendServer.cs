@@ -24,13 +24,15 @@
 
 using System;
 using HttpServer;
+using MediaPortal.Common;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.FrontendServer;
-using MediaPortal.Common;
 using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure;
 using UPnP.Infrastructure.Dv;
-using ILogger=MediaPortal.Common.Logging.ILogger;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 using UPnPLogger = UPnP.Infrastructure.ILogger;
 
 namespace MediaPortal.UI.Services.FrontendServer
@@ -131,8 +133,12 @@ namespace MediaPortal.UI.Services.FrontendServer
 
     public FrontendServer()
     {
+      ServerSettings serverSettings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       UPnPConfiguration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
       UPnPConfiguration.LOGGER = new UPnPLoggerDelegate();
+      UPnPConfiguration.USE_IPV4 = serverSettings.UseIPv4;
+      UPnPConfiguration.USE_IPV6 = serverSettings.UseIPv6;
+      UPnPConfiguration.IP_ADDRESS_BINDINGS = serverSettings.IPAddressBindingsList;
       HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();

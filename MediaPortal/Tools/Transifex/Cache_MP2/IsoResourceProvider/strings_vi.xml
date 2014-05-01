@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Nhà cung cấp tập tin ISO</string>
   <string name="IsoResourceProvider.Description">Truy cập tập tin và ứng dụng trong phần tập tin ISO</string>
 </resources>

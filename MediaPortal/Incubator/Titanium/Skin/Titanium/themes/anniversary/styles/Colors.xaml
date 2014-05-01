@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- Master_Bare colors -->
+  <ResourceWrapper x:Key="FooterShapeFillColor" Resource="#FFC6A867"/>
+
+</ResourceDictionary>

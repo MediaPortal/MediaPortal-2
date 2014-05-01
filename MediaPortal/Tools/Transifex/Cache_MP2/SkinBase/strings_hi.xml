@@ -23,7 +23,6 @@
   <string name="Media.MyMusic">संगीत</string>
   <string name="Media.MyVideos">वीडियो</string>
   <string name="Media.MyPictures">तस्वीर</string>
-  <string name="Media.InvalidShareName">अमान्य शेयर</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 सर्वर उपलब्ध</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;अनजान&gt;</string>

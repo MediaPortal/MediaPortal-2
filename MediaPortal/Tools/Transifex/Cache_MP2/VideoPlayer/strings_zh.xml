@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">视频解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2视频解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">设置MPEG2视频(DVD, DVB-SD)的解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4视频解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">设置MPEG2视频(H.264, x264)的解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC视频解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">设置MPEG2视频 (HDTV, BluRay)的解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">音频渲染</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">设置MPEG1/2音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">设置LATM-AAC音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">设置AAC音频解码器</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">音频渲染</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">设置音频渲染</string>
+  <string name="Settings.Players.VideoPlayer">视频播放器</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">首选的多声道流</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">如果启用，6CH流是首选 (i.e. AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVD播放器</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">隐藏字幕</string>
+  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">选择默认启用隐藏字幕</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles">字幕</string>
+  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">选择默认启用字幕</string>
+  <string name="Playback.NotSpecified">未指定</string>
+  <string name="Playback.CaptionNormal">字幕 正常</string>
+  <string name="Playback.CaptionBig">字幕 大</string>
+  <string name="Playback.CaptionChildren">儿童字幕</string>
+  <string name="Playback.CCNormal">隐藏字幕 正常</string>
+  <string name="Playback.CCBig">隐藏字幕 大</string>
+  <string name="Playback.CCChildren">儿童 隐藏字幕</string>
+  <string name="Playback.Forced">强制</string>
+  <string name="Playback.DirectorCommentsNormal">导演评论 正常</string>
+  <string name="Playback.DirectorCommentsBig">导演评论 大</string>
+  <string name="Playback.DirectorCommentsChildren">导演评论 儿童</string>
+  <string name="Playback.VisuallyImpaired">视障</string>
+  <string name="Playback.DirectorComments1">导演评论</string>
+  <string name="Playback.DirectorComments2">导演评论(2)</string>
+  <string name="Playback.Chapter">章节 {0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">标题 {0}</string>
+  <!--For example: "Title 1"-->
+</resources>

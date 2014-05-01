@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Forrit fyrir ISO skrár</string>
   <string name="IsoResourceProvider.Description">Lesa skrár og möppur í ISO skrá</string>
 </resources>

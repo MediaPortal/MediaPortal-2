@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Dostawca zasobów płyt audio CD</string>
   <string name="AudioCDResourceProvider.Description">Udostępnia ścieżki audio płyt CD</string>
 </resources>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Plugins.TV">电视</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MP外部服务器地址</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">输入服务器名称或者IP地址，已 \';\' 分隔(默认本机服务器)。</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername">外部MP服务器用户名</string>
+  <string name="Settings.Plugins.TV.MPExtendedUsername.Help">输入用户名连接。留空会使用匿名连接。</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword">外部MP服务器密码</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">输入密码连接。留空会使用匿名连接。</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorTitle">连接错误</string>
+  <string name="Settings.Plugins.TV.ConnectionErrorText">不能连接Mp外部服务器。服务器地址：{0}</string>
+</resources>

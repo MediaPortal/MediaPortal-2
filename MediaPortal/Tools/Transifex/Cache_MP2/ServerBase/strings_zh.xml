@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title">MediaPortal 2服务器应用</string>
+  <string name="MainForm.AttachedClients">已连接的客户端</string>
+  <string name="MainForm.Client">客户端</string>
+  <string name="MainForm.System">系统</string>
+  <string name="MainForm.ConnectionState">连接状态</string>
+  <string name="MainForm.Connected">已连接</string>
+  <string name="MainForm.Disconnected">未连接</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 服务器</string>
+  <string name="UPnPBackendServer.Manufacturer">MediaPortal 小组</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 服务器 - 提供音频、视频、图片服务，并提供媒体数据库</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 服务器</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;空或杂项。字符&gt;</string>
+</resources>

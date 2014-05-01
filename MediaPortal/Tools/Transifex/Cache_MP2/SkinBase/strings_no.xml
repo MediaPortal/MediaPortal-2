@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Musikk</string>
   <string name="Media.MyVideos">Video</string>
   <string name="Media.MyPictures">Bilder</string>
-  <string name="Media.InvalidShareName">Ugyldig delt ressurs</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2-server tilgjengelig</string>
   <string name="ServerConnection.NotificationServerAvailableText">Det er minst en MediaPortal 2-server tilgjengelig i nettverket. Koble til denne for å få alle funksjonene til MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' ved vert \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Denne hjemmeserveren er frakoblet</string>
   <string name="ServerConnection.DetachMenu">Koble fra</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Koble fra hjemmeserveren</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Hvis du kobler i fra hjemmeserveren, vil alle data om de lokalt delte ressursene og mediaelementene bli fjernet fra hjemmeserverens mediabibliotek. Du kan legge de til igjen senere. Vil du virkelig koble fra hjemmeserver \'{0}\' ved vert \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Søk etter servere</string>
   <string name="ServerConnection.DetachFromServer">Koble fra hjemmeserveren</string>
   <string name="ServerConnection.AttachToServerHeader">Koble til MediaPortal 2-serveren</string>
@@ -67,9 +65,7 @@
   <string name="ImporterMessages.ImportStartedText">Import av \'{0}\' har startet</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import er ferdig</string>
   <string name="ImporterMessages.ImportCompletedText">Import av \'{0}\' er ferdig.</string>
-  <string name="LocalFsResourceProvider.Name">Det lokale filsystemets ressurstilbyder</string>
   <string name="LocalFsResourceProvider.Description">Hent det lokale filsystemet</string>
-  <string name="RemoteResourceProvider.Name">Ekstern ressurstilbyder</string>
   <string name="RemoteResourceProvider.Description">Hente ressurser som er lokalisert på et annet MediaPortal 2-system</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -122,25 +118,13 @@
   <string name="Settings.Regional.Language">Språk</string>
   <string name="Settings.Regional.Language.Main">Språk</string>
   <string name="Settings.Regional.Language.Main.Help">Velg hovedspråk som skal brukes i programmet</string>
-  <string name="Settings.Shares">Delt ressurs</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Konfigurere delt ressurs</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Konfigurasjon av delt ressurs</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Konfigurer alle lokale ressurser</string>
   <string name="Settings.Shares.Overview">Oversikt</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Oversikt over delte ressurser</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">Global oversikt over delte ressurser</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">Importer alle delte ressurser på nytt</string>
   <string name="Settings.Plugins">Tillegg</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Oversikt over delte ressurser</string>
-  <string name="SharesOverview.Title">Oversikt over delte ressurser</string>
-  <string name="SharesOverview.ReImportAllShares">Importer alle delte ressurser på nytt</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Hjemmeserveren er ikke tilkoblet, informasjonen om den delte ressursen kan derfor ikke hentes</string>
-  <string name="Shares.NoSharesInThisView">- Ingen delt ressurs i denne visningen -</string>
   <string name="Shares.InvalidPath">UGYLDIG BANE: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">På nett</string>
@@ -148,69 +132,28 @@
   <string name="Shares.ReImport">Importere på nytt</string>
   <string name="Shares.Importing">Importerer...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Konfigurasjon av delt ressurs</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Fjern delt ressurs</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informasjon om delt ressurs</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Velg system</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Velg ressurstilbyder</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Rediger bane</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Velg bane</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Rediger navn</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Velg kategori</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Kan ikke legge til delt ressurs</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Hjemmeserveren er lokalisert på samme datamaskin, men alle delte ressurser må registreres på serveren. Men serveren er ikke tilkoblet for øyeblikket, vennligst start hjemmeserveren for å prøv igjen.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Konfigurasjon av delt ressurs</string>
-  <string name="SharesConfig.NoSharesAvailable">Det er ingen delt ressurs tigjengelig</string>
-  <string name="SharesConfig.ShareInformationHeader">Informasjon om delt ressurs</string>
   <string name="SharesConfig.ShareNameInfo">Navn:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Basens ressurstilbyder:</string>
   <string name="SharesConfig.ShareSystem">System:</string>
   <string name="SharesConfig.SharePathInfo">Bane:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Teknisk bane:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Mediakategori:</string>
-  <string name="SharesConfig.ReImportShare">Importere delte ressurser på nytt</string>
-  <string name="SharesConfig.SetupDefaultShares">Oppsett for standard delt ressurs</string>
-  <string name="SharesConfig.RemoveShares">Fjern delt ressurs</string>
-  <string name="SharesConfig.EditShare">Rediger delt ressurs</string>
   <string name="SharesConfig.ChooseSystem">Velg system</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Vennligst velg hvilken delt ressurs som skal fjernes</string>
-  <string name="SharesConfig.ChooseSystemForShare">Velg system for den nye delte ressursen</string>
-  <string name="SharesConfig.LocalShare">Lokal delt ressurs</string>
-  <string name="SharesConfig.LocalShares">Lokalt delt ressurs</string>
-  <string name="SharesConfig.GlobalShare">Global delt ressurs</string>
-  <string name="SharesConfig.GlobalShares">Globalt delt ressurs</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Hjemmeserveren er for øyeblikket ikke tilgjengelig, så globalt delt ressurs kan ikke redigeres.</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Hjemmeserveren er lokalisert på samme maskin, så kun global delt ressurs kan konfigureres.</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">Vennligst velg en ressurstilbyder for delt ressurs</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Rediger banen til den delte ressursen</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Rediger en gyldig bane i den valgte ressurstilbyderen. Du kan redigere en enkel bane som ressurstilbyderen forstår. Du kan også redigere en mer kompleks bane i formatet {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Velg banen til den delte ressursen</string>
-  <string name="SharesConfig.EditShareName">Rediger navnet på den delte ressursen</string>
-  <string name="SharesConfig.ChooseShareCategories">Velg kategori for media på delt ressurs</string>
-  <string name="SharesConfig.SharePathExists">En delt enhet med den adressen finnes allerede</string>
-  <string name="SharesConfig.ShareNameExists">En delt enhet med det navnet finnes allerede</string>
-  <string name="SharesConfig.ShareNameEmpty">Rediger navn for delt enhet</string>
-  <string name="SharesConfig.EditShareProblemHeader">Problem ved konfigurering av delt enhet</string>
-  <string name="SharesConfig.EditShareProblemText">Det oppstod en intern feil ved konfigurering av den delte enheten</string>
-  <string name="SharesConfig.MenuAddShare">Legg til</string>
   <string name="SharesConfig.MenuEditShares">Rediger</string>
-  <string name="SharesConfig.MenuRemoveShares">Fjern</string>
-  <string name="SharesConfig.AddServerShare">Legg til globalt delt ressurs</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Rediger global delt ressurs</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Legg til lokal delt ressurs</string>
-  <string name="SharesConfig.EditLocalShare">Rediger delt lokal ressurs</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Oppdater delt ressurs</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Den delte ressursens tilbyder og/eller bane har blitt oppdatert.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Mediabibliotekets informasjon om de mediaelementene i den delte ressursen kan oppdateres (ombyttet) eller fjernes for å importeres på nytt.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Vil du oppdatere eller fjerne og importere på nytt?</string>
   <string name="SharesConfig.Relocate">Oppdater</string>
   <string name="SharesConfig.ReImport">Importere på nytt</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2-klient</string>
   <string name="UPnPFrontendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2-klienten - MediaPortal GUI er et brukergrensensnitt for å spille av ulike typer media, og tilbyr lokalt delte ressurser.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2-klient</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

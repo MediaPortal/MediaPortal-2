@@ -26,7 +26,6 @@
   <string name="Media.MyMusic">Hudba</string>
   <string name="Media.MyVideos">Videa</string>
   <string name="Media.MyPictures">Obrázky</string>
-  <string name="Media.InvalidShareName">Neplatné sdílení</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Dostupný server MP2</string>
   <string name="ServerConnection.NotificationServerAvailableText">V síti je dostupný alespoň jeden server MediaPortalu 2. Připojte se k němu, abyste získali všechny funkce MediaPortalu 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' k hostiteli \'{1}\'</string>
@@ -44,7 +43,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Domovský server je nyní odpojen.</string>
   <string name="ServerConnection.DetachMenu">Odpojit</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Odpojit od domovského serveru</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Pokud se odpojíte od domovského serveru, všechna data v místním sdílení a jejich položky médií budou odebrány z knihovny médií domovského serveru. Opravdu se chcete odpojit od domovského serveru \'{0}\' u hostitele \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Hledat servery</string>
   <string name="ServerConnection.DetachFromServer">Odpojit od domovského serveru</string>
   <string name="ServerConnection.AttachToServerHeader">Připojit k serveru MediaPortalu 2</string>
@@ -65,9 +63,7 @@
   <string name="ImporterMessages.ImportStartedText">Import \'{0}\' byl spuštěn.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import dokončen</string>
   <string name="ImporterMessages.ImportCompletedText">Import \'{0}\' byl dokončen.</string>
-  <string name="LocalFsResourceProvider.Name">Zprostředkovatel zdrojů místního systému souborů</string>
   <string name="LocalFsResourceProvider.Description">Přístup k místnímu systému souborů</string>
-  <string name="RemoteResourceProvider.Name">Zprostředkovat vzdálených zdrojů</string>
   <string name="RemoteResourceProvider.Description">Přístup ke zdrojům umístěných v jiném systému MediaPortalu 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -115,50 +111,26 @@
   <string name="Settings.Regional.Language">Jazyk</string>
   <string name="Settings.Regional.Language.Main">Jazyk</string>
   <string name="Settings.Regional.Language.Main.Help">Nastavte hlavní jazyk použitý v aplikaci</string>
-  <string name="Settings.Shares">Sdílené složky</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Nastavte sdílené složky</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Nastavení sdílených složek</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Nastavte všechny místní sdílené složky</string>
   <!--Group name-->
   <!--Setting-->
   <string name="Settings.Plugins">Doplňky</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Nastavení sdílených složek</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Odebrat sdílené složky</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informace o sdílených složkách</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Vybrat systém</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Vybrat zprostředkovatele prostředků</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Upravit cestu</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Vybrat cestu</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Upravit název</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Vybrat kategorie</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Nelze přidat sdílené složky</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Nastavení sdílených složek</string>
-  <string name="SharesConfig.NoSharesAvailable">Nejsou dostupné žádné sdílené složky</string>
-  <string name="SharesConfig.ShareInformationHeader">Informace o sdílené složce</string>
   <string name="SharesConfig.ShareNameInfo">Název:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Základní zprostředkovatel prostředků:</string>
   <string name="SharesConfig.ShareSystem">Systém:</string>
   <string name="SharesConfig.SharePathInfo">Cesta:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technická cesta:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Kategorie médií:</string>
-  <string name="SharesConfig.ReImportShare">Znovu importovat sdílené složky</string>
-  <string name="SharesConfig.SetupDefaultShares">Nastavit výchozí sdílené složky</string>
-  <string name="SharesConfig.RemoveShares">Odebrat sdílené složky</string>
-  <string name="SharesConfig.EditShare">Upravit sdílenou složku</string>
   <string name="SharesConfig.ChooseSystem">Vybrat systém</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Vyberte sdílené složky k odebrání</string>
-  <string name="SharesConfig.ChooseSystemForShare">Vyberte systém pro novou sdílenou složku</string>
-  <string name="SharesConfig.LocalShare">Místní sdílená složka</string>
-  <string name="SharesConfig.LocalShares">Místní sdílené složky</string>
-  <string name="SharesConfig.GlobalShare">Globální sdílená složka</string>
-  <string name="SharesConfig.GlobalShares">Globální sdílené složky</string>
-  <string name="SharesConfig.MenuAddShare">Přidat sdílenou složku</string>
-  <string name="SharesConfig.MenuRemoveShares">Odebrat sdílené složky</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="UPnPFrontendServer.Manufacturer">Tým MediaPortalu</string>

@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">पतला टीवी ग्राहक</string>
+  <string name="SlimTvClient.Main">टेलीविज़न</string>
+  <string name="SlimTvClient.TvGuide">टीवी गाइड</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">कार्यक्रम की जानकारी</string>
   <string name="SlimTvClient.ChannelLabel">चैनल</string>
   <string name="SlimTvClient.ProgramLabel">कार्यक्रम</string>
@@ -17,4 +19,7 @@
   <string name="SlimTvClient.RecordNow">अब रिकॉर्ड करें </string>
   <string name="SlimTvClient.DeleteSchedule">अनुसूची हटाएँ</string>
   <string name="SlimTvClient.CreateSchedule">अनुसूची रिकॉर्ड हो रहा है</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
 </resources>

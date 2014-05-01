@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Plugins.TV">TV</string>
-  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended adresy server</string>
+  <string name="Settings.Plugins.TV.MPExtendedServerAddress">MPExtended adresy servera</string>
   <string name="Settings.Plugins.TV.MPExtendedServerAddress.Help">Zadajte mená, alebo IP adresy servera, oddelené bodkočiarkou (\";\") (predvolene localhost).</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername">Používateľské meno k službe MPExtended</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Zadajte meno na pripojenie. Prázdne meno znamená anonymné pripojenie.</string>

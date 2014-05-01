@@ -10,7 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nom d\'utilisateur et mot de passe</string>
   <string name="Settings.ServerSettings.Username">Nom d\'utilisateur:</string>
   <string name="Settings.ServerSettings.Password">Mot de passe:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Configuration de l\'action Importer</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Configuration de l\'importation de la source de médias</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurer l\'actualisation automatique des actions</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Activer l\'actualisation automatique</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Heure de démarrage du processus  (base de 24h)</string>

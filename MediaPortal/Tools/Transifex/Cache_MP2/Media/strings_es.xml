@@ -40,6 +40,8 @@
   <string name="Media.ImageFilterBig">Grande</string>
   <string name="Media.SwitchToBrowseMLView">Vista del servidor</string>
   <string name="Media.SwitchToLocalMediaView">Vista local</string>
+  <string name="Media.SwitchToBrowseShareView">A vista de carpeta</string>
+  <string name="Media.SwitchToMediaLibraryView">A vista de biblioteca</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -202,6 +204,8 @@
   <string name="Media.EnqueueVideoImageItem">Elemento de vídeo/sonido en cola</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Reproducir elemento de vídeo/imagen en segundo plano &amp; continuar audio actual</string>
   <string name="Media.PlayVideoImageItemPiP">Reproducir vídeo/imagen en modo PiP</string>
+  <string name="Media.PlaybackResume">Continuar reproducción</string>
+  <string name="Media.PlaybackFromStart">Reproducir desde el inicio</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Vídeo/Imagen</string>
   <string name="Media.AudioContextName">Sonido</string>
@@ -309,6 +313,8 @@
   <string name="Media.SortByDate">Ordenar por fecha de grabado</string>
   <string name="Media.SortByEpisode">Ordenar por episodio</string>
   <string name="Media.SortingBrowseDefault">Orden por defecto</string>
+  <string name="Media.SwitchFilterMenuItem">Filtrar</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtrar</string>
   <string name="Settings.Players">Reproducciones</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Cerrar reproducciones cuando terminen</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activar esta opción para que MediaPortal cierre automáticamente las reproducciones finalizadas</string>

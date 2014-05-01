@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Settings.Players">Players</string>
+
+  <string name="Settings.Players.AudioPlayer">Audio player</string>
+  <string name="Settings.Players.BassPlayer.Setup">Configure output device</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Configures the BassPlayer output device and options</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exclusive mode</string>
+
   <string name="Settings.Players.Rendering">Rendering</string>
   <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
 

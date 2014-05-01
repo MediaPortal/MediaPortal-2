@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Ieškoti bevielių tinklų</string>
+  <string name="Network.NoWirelessNetworksFound">Nerasta bevielių tinklų</string>
+  <string name="Network.Connect">Prisijungti</string>
+  <string name="Network.Disconnect">Atsijungti</string>
+  <string name="Network.EnterWifiPassword">Įvesti WiFi slaptažodį</string>
+  <string name="Network.DeleteProfile">Ištrinti Wifi profilį</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi prisijungimas</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Prisijungti prie bevielio tinklo</string>
+</resources>

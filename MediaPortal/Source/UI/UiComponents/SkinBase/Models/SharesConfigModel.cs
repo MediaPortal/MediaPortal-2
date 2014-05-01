@@ -75,12 +75,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
     protected SharesProxy _shareProxy = null; // Encapsulates state and communication of shares configuration - either for server shares or for client shares
+    protected AbstractProperty _isResourceProviderSelectedProperty;
     protected AbstractProperty _isSharesSelectedProperty;
     protected AbstractProperty _isHomeServerConnectedProperty;
     protected AbstractProperty _isLocalHomeServerProperty;
     protected AbstractProperty _showLocalSharesProperty;
     protected AbstractProperty _isSystemSelectedProperty;
     protected AbstractProperty _anyShareAvailableProperty;
+    protected bool _isAttached = true;
     protected bool _enableLocalShares = true;
     protected bool _enableServerShares = true;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -92,6 +94,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public SharesConfigModel()
     {
       _isSharesSelectedProperty = new WProperty(typeof(bool), false);
+      _isResourceProviderSelectedProperty = new WProperty(typeof(bool), false);
       _isHomeServerConnectedProperty = new WProperty(typeof(bool), false);
       _isLocalHomeServerProperty = new WProperty(typeof(bool), false);
       _showLocalSharesProperty = new WProperty(typeof(bool), false);
@@ -140,7 +143,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
         ServerConnectionMessaging.MessageType messageType =
-            (ServerConnectionMessaging.MessageType) message.MessageType;
+            (ServerConnectionMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
@@ -163,7 +166,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       else if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
       {
-        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType) message.MessageType;
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
@@ -174,7 +177,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       else if (message.ChannelName == SharesMessaging.CHANNEL)
       {
-        SharesMessaging.MessageType messageType = (SharesMessaging.MessageType) message.MessageType;
+        SharesMessaging.MessageType messageType = (SharesMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case SharesMessaging.MessageType.ShareAdded:
@@ -192,13 +195,36 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (systemItem.Selected)
         {
           lock (_syncObj)
-            _shareProxy = (SharesProxy) systemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY];
+            _shareProxy = (SharesProxy)systemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY];
           IsSystemSelected = true;
           return;
         }
       lock (_syncObj)
         _shareProxy = null;
       IsSystemSelected = false;
+    }
+
+
+    void OnResourceProviderSelected(AbstractProperty property, object oldvalue)
+    {
+      UpdateProviderSelected();
+    }
+
+    private void UpdateProviderSelected()
+    {
+      bool anySelected = false;
+      foreach (ListItem systemItem in _systemsList)
+      {
+        SharesProxy sharesProxy = ((SharesProxy)systemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY]);
+        if (sharesProxy.IsResourceProviderSelected)
+        {
+          lock (_syncObj)
+            _shareProxy = sharesProxy;
+          anySelected = true;
+          break;
+        }
+      }
+      IsResourceProviderSelected = anySelected;
     }
 
     #region Public properties (Also accessed from the GUI)
@@ -225,6 +251,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    public AbstractProperty IsResourceProviderSelectedProperty
+    {
+      get { return _isResourceProviderSelectedProperty; }
+    }
+
+    /// <summary>
+    /// <c>true</c> if at least one resource provide  of any system is selected.
+    /// </summary>
+    public bool IsResourceProviderSelected
+    {
+      get { return (bool)_isResourceProviderSelectedProperty.GetValue(); }
+      set { _isResourceProviderSelectedProperty.SetValue(value); }
+    }
+
     public AbstractProperty IsSystemSelectedProperty
     {
       get { return _isSystemSelectedProperty; }
@@ -232,7 +272,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public bool IsSystemSelected
     {
-      get { return (bool) _isSystemSelectedProperty.GetValue(); }
+      get { return (bool)_isSystemSelectedProperty.GetValue(); }
       set { _isSystemSelectedProperty.SetValue(value); }
     }
 
@@ -246,7 +286,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsHomeServerConnected
     {
-      get { return (bool) _isHomeServerConnectedProperty.GetValue(); }
+      get { return (bool)_isHomeServerConnectedProperty.GetValue(); }
       set { _isHomeServerConnectedProperty.SetValue(value); }
     }
 
@@ -260,7 +300,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsLocalHomeServer
     {
-      get { return (bool) _isLocalHomeServerProperty.GetValue(); }
+      get { return (bool)_isLocalHomeServerProperty.GetValue(); }
       set { _isLocalHomeServerProperty.SetValue(value); }
     }
 
@@ -275,7 +315,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool ShowLocalShares
     {
-      get { return (bool) _showLocalSharesProperty.GetValue(); }
+      get { return (bool)_showLocalSharesProperty.GetValue(); }
       set { _showLocalSharesProperty.SetValue(value); }
     }
 
@@ -313,7 +353,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool IsSharesSelected
     {
-      get { return (bool) _isSharesSelectedProperty.GetValue(); }
+      get { return (bool)_isSharesSelectedProperty.GetValue(); }
       set { _isSharesSelectedProperty.SetValue(value); }
     }
 
@@ -327,7 +367,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     /// </summary>
     public bool AnyShareAvailable
     {
-      get { return (bool) _anyShareAvailableProperty.GetValue(); }
+      get { return (bool)_anyShareAvailableProperty.GetValue(); }
       set { _anyShareAvailableProperty.SetValue(value); }
     }
 
@@ -524,7 +564,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         // Fill the result inside this method to make it possible to lock other threads out while looking at the shares list
         return new List<Share>(sharesItemsList.Where(
             shareItem => shareItem.Selected).Select(
-            shareItem => (Share) shareItem.AdditionalProperties[Consts.KEY_SHARE]));
+            shareItem => (Share)shareItem.AdditionalProperties[Consts.KEY_SHARE]));
     }
 
     protected ICollection<Share> GetSelectedLocalShares()
@@ -549,28 +589,85 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       lock (_syncObj)
       {
+        IsResourceProviderSelected = false;
         _systemsList = new ItemsList();
 
+        bool multipleSources = _enableLocalShares && _enableServerShares;
         if (_enableLocalShares)
-        {
-          ListItem localSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_LOCAL_SHARE);
-          localSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = new LocalShares();
-          localSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
-          _systemsList.Add(localSystemItem);
-        }
+          CreateLocalShareRPs(multipleSources);
 
         if (_enableServerShares)
-        {
-          ListItem serverSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_GLOBAL_SHARE);
-          serverSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = new ServerShares();
-          serverSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
-          _systemsList.Add(serverSystemItem);
-        }
+          CreateServerShareRPs(multipleSources);
 
         if (_systemsList.Count > 0)
           _systemsList[0].Selected = true;
       }
+      // Call once after list is initialized, this is required for single options only and to avoid locking issues for callback while filling _systemsList.
+      UpdateProviderSelected();
       _systemsList.FireChange();
+    }
+
+    protected void UpdateSystemsListForEditShare_NoLock()
+    {
+      lock (_syncObj)
+      {
+        IsResourceProviderSelected = false;
+        _systemsList = new ItemsList();
+
+        if (ShareProxy is LocalShares)
+          CreateLocalShareRPs(false, true);
+
+        if (ShareProxy is ServerShares)
+          CreateServerShareRPs(false, true);
+
+        if (_systemsList.Count > 0)
+          _systemsList[0].Selected = true;
+      }
+      // Call once after list is initialized, this is required for single options only and to avoid locking issues for callback while filling _systemsList.
+      UpdateProviderSelected();
+      _systemsList.FireChange();
+    }
+
+    private void CreateServerShareRPs(bool multipleSources, bool useCurrent = false)
+    {
+      ListItem serverSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_GLOBAL_SHARE);
+      ServerShares proxy;
+      if (useCurrent && _shareProxy is ServerShares)
+      {
+        proxy = (ServerShares)_shareProxy;
+        proxy.SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server;
+      }
+      else
+        proxy = new ServerShares { SystemAffinity = ResourceProviderMetadata.SystemAffinity.Server, MultipleSources = multipleSources };
+
+      proxy.UpdateResourceProvidersList();
+      proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
+      serverSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
+      serverSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
+      _systemsList.Add(serverSystemItem);
+    }
+
+    private void CreateLocalShareRPs(bool multipleSources, bool useCurrent = false)
+    {
+      ResourceProviderMetadata.SystemAffinity affinity = ResourceProviderMetadata.SystemAffinity.Client;
+      if (!_isAttached)
+        affinity |= ResourceProviderMetadata.SystemAffinity.DetachedClient;
+
+      ListItem localSystemItem = new ListItem(Consts.KEY_NAME, Consts.RES_SHARES_CONFIG_LOCAL_SHARE);
+      LocalShares proxy;
+      if (useCurrent && _shareProxy is LocalShares)
+      {
+        proxy = (LocalShares)_shareProxy;
+        proxy.SystemAffinity = ResourceProviderMetadata.SystemAffinity.Client;
+      }
+      else
+        proxy = new LocalShares { SystemAffinity = affinity, MultipleSources = multipleSources };
+
+      proxy.UpdateResourceProvidersList();
+      proxy.IsResourceProviderSelectedProperty.Attach(OnResourceProviderSelected);
+      localSystemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY] = proxy;
+      localSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
+      _systemsList.Add(localSystemItem);
     }
 
     protected internal void UpdateSharesLists_NoLock(bool create)
@@ -714,6 +811,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IsLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
         lock (_syncObj)
         {
+          _isAttached = homeServerSystem != null;
           _enableLocalShares = !IsLocalHomeServer;
           _enableServerShares = IsHomeServerConnected;
         }
@@ -755,17 +853,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           UpdateSystemsList_NoLock();
         }
-        else if (workflowState == Consts.WF_STATE_ID_SHARE_ADD_CHOOSE_RESOURCE_PROVIDER)
-        {
-          // This action is a combination of WF_STATE_ID_SHARE_ADD_CHOOSE_SYSTEM and WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER
-          UpdateSystemsList_NoLock();
-          // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
-          _shareProxy.UpdateResourceProvidersList();
-        }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER)
         {
           // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
-          _shareProxy.UpdateResourceProvidersList();
+          UpdateSystemsListForEditShare_NoLock();
         }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_EDIT_EDIT_PATH)
         {

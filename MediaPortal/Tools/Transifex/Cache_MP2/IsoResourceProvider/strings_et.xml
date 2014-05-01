@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">ISO faili avaja</string>
   <string name="IsoResourceProvider.Description">Vaata ISO faili katalooge ja faile</string>
 </resources>

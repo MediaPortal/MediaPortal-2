@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.ServerSettings">Nastavanie servera</string>
+  <string name="Settings.ServerSettings">Nastavenie servera</string>
   <string name="Settings.ServerSettings.ServerDOKANDrive">Jednotka na pripájanie obsahu</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Nastavenie jednotky na pripojenie k vzialenému serveru.</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Nastavenie jednotky na pripojenie k vzdialenému serveru.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Sieťové iniciály</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Nastavenie mena a hesla na prístup k serveru v sieti.</string>
   <string name="Settings.ServerSettings.ImpersonateInteractive">Použiť iniciály na interaktívne prihlásenie k serveru</string>
@@ -10,8 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Meno a heslo</string>
   <string name="Settings.ServerSettings.Username">Meno:</string>
   <string name="Settings.ServerSettings.Password">Heslo:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Zdieľať nastavenie importéra</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Nastavenie automatického obnovovania vzdialených zložiek</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Povoliť automatické obnovovanie</string>
-  <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Spustiť v danú hodinu dňa (24 h)</string>
+  <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Spustiť v danú hodinu dňa (24h)</string>
 </resources>

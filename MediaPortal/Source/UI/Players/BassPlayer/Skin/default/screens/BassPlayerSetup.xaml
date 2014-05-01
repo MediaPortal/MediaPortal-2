@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    <Model x:Key="Model" Id="0EB2A664-5CA1-4B1E-B661-527004D6019B"/>
+
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Players.BassPlayer.Setup]"/>
+
+    <!-- Data template for an entry markable with a radio button -->
+    <Style x:Key="ItemBoundGroupSingleMarkableItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListViewItem}">
+            <RadioButton x:Name="NameMarker" Margin="2,1,0,1"
+              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="{Binding [Group]}"
+              Content="{Binding}">
+              <RadioButton.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemControl" Property="Background">
+                    <Setter.Value>
+                      <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
+                    </Setter.Value>
+                  </Setter>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </RadioButton.Triggers>
+            </RadioButton>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- ListView style to be used for lists where a single item can be marked -->
+    <Style x:Key="GroupedSingleMarkableListViewStyle" BasedOn="{ThemeResource SingleMarkableListViewStyle}">
+      <Setter Property="ItemContainerStyle" Value="{ThemeResource ItemBoundGroupSingleMarkableItemContainerStyle}"/>
+    </Style>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+          <RadioButton x:Name="DirectSoundButton" Content="[Settings.Players.BassPlayer.Setup.DirectSound]" GroupName="OutputButtons"
+              IsChecked="{Binding Path=UseDirectSound,Mode=TwoWay}"
+              SetFocus="{Binding Path=UseDirectSound,Mode=OneTime}">
+          </RadioButton>
+          <RadioButton x:Name="WasapiSoundButton" Content="[Settings.Players.BassPlayer.Setup.WASAPI]" GroupName="OutputButtons"
+              IsChecked="{Binding Path=UseWASAPI,Mode=TwoWay}"
+              SetFocus="{Binding Path=UseWASAPI,Mode=OneTime}">
+          </RadioButton>
+        </StackPanel>
+
+        <GroupBox x:Name="DirectSoundGroup" Header="[Settings.Players.BassPlayer.Setup.DirectSound]" Grid.Row="1" Grid.Column="0" Margin="10"
+             Style="{ThemeResource ContentGroupBoxStyle}"
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseDirectSound}">
+
+          <ListView x:Name="DirectSoundDeviceList"
+              Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
+              ItemsSource="{Binding Path=DirectSoundDevices,Mode=OneTime}"/>
+
+        </GroupBox>
+
+        <GroupBox x:Name="WASAPIGroup" Header="[Settings.Players.BassPlayer.Setup.WASAPI]" Grid.Row="1" Grid.Column="0" Margin="10"
+             Style="{ThemeResource ContentGroupBoxStyle}"
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseWASAPI}">
+
+          <StackPanel>
+            <CheckBox Content="[Settings.Players.BassPlayer.Setup.WASAPI.Exclusive]" Margin="5" IsChecked="{Binding Path=EnableWASAPIExclusive,Mode=TwoWay}"/>
+
+            <ListView x:Name="WASAPIDeviceList"
+              Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
+              ItemsSource="{Binding Path=WASAPIDevices,Mode=OneTime}"/>
+          </StackPanel>
+        </GroupBox>
+
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SaveSettings"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

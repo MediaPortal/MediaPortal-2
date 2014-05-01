@@ -52,19 +52,76 @@ namespace UPnP.Infrastructure.Utils
     /// <summary>
     /// Returns all local ip addresses which are known via DNS.
     /// </summary>
+    /// <param name="filters">Human readable list of IPs (mixed IPv4 or IPv6) used to filter the collection</param>
     /// <returns>Collection of local IP addresses.</returns>
-    public static ICollection<IPAddress> GetExternalIPAddresses()
+    public static ICollection<IPAddress> GetExternalIPAddresses(List<string> filters)
     {
       try
       {
         string hostName = Dns.GetHostName();
-        return new List<IPAddress>(Dns.GetHostAddresses(hostName));
+        ICollection<IPAddress> addresses = new HashSet<IPAddress>(Dns.GetHostAddresses(hostName));
+        FilterNetworkAddresses(ref addresses, filters, false);
+        return addresses;
       }
       catch (SocketException)
       {
         UPnPConfiguration.LOGGER.Error("NetworkHelper: Error retrieving external IP addresses for the UPnP system");
         return new List<IPAddress>();
       }
+    }
+
+    /// <summary>
+    /// Collects a filtered list IP addresses to bind to, or Any if filtering is not required.
+    /// </summary>
+    /// <param name="family">IPv4 or IPv6</param>
+    /// <param name="filters">Human readable list of IPs (mixed IPv4 or IPv6) used to filter the collection</param>
+    /// <returns>Collection of IP addresses.</returns>
+    public static ICollection<IPAddress> GetBindableIPAddresses(AddressFamily family, List<string> filters)
+    {
+      ICollection<IPAddress> result = new HashSet<IPAddress>();
+      if (filters == null || filters.Count == 0)
+      {
+        result.Add((family == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any));
+      }
+      else
+      {
+        NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+        foreach (NetworkInterface inf in interfaces)
+          CollectionUtils.AddAll(result, inf.GetIPProperties().UnicastAddresses.Select(x => x.Address).Where(x => x.AddressFamily == family));
+
+        FilterNetworkAddresses(ref result, filters, true, family);
+        result.Add(family == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Loopback : IPAddress.Loopback);
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Helper method to filter list of <paramref name="availableAddresses"/> using the given <paramref name="addressFilters"/>. If <paramref name="filterByFamily"/> is set to <c>true</c>,
+    /// the lists will be filtered for given <paramref name="family"/>, otherwise all entries are checked.
+    /// If an invalid filter is defined, a warning will be logged.
+    /// </summary>
+    /// <param name="availableAddresses">List of available IPAddresses</param>
+    /// <param name="addressFilters">List of filters to include</param>
+    /// <param name="filterByFamily"><c>true</c> to filter by family</param>
+    /// <param name="family">Address family</param>
+    private static void FilterNetworkAddresses(ref ICollection<IPAddress> availableAddresses, List<string> addressFilters, bool filterByFamily = true, AddressFamily family = AddressFamily.InterNetwork)
+    {
+      // Nothing to filter
+      if (addressFilters == null || addressFilters.Count == 0)
+        return;
+
+      // Check for invalid filter addresses
+      foreach (string filter in addressFilters)
+      {
+        IPAddress tmpAddress;
+        if (!IPAddress.TryParse(filter, out tmpAddress) || filterByFamily && tmpAddress.AddressFamily != family)
+          continue;
+        if (!availableAddresses.Contains(tmpAddress) && !tmpAddress.Equals(IPAddress.Loopback) && !tmpAddress.Equals(IPAddress.IPv6Loopback))
+          UPnPConfiguration.LOGGER.Warn("FilterNetworkAddresses: The defined IP address filter contains the address '{0}' that is not available. Please check your IP configuration for changed addresses to avoid network accessing issues.", tmpAddress);
+      }
+
+      // Ignore case can be required for IPv6 addresses (hexadecimal numbers)
+      availableAddresses = new HashSet<IPAddress>(availableAddresses.Where(x => addressFilters.Contains(x.ToString(), StringComparer.OrdinalIgnoreCase)));
     }
 
     /// <summary>
@@ -78,7 +135,7 @@ namespace UPnP.Infrastructure.Utils
     public static ICollection<IPAddress> GetLocalIPAddresses()
     {
       ICollection<IPAddress> result = new List<IPAddress>();
-      NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();  
+      NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
       foreach (NetworkInterface intf in
           interfaces.Where(intf => !intf.IsReceiveOnly && intf.OperationalStatus == OperationalStatus.Up && intf.SupportsMulticast))
         CollectionUtils.AddAll(result, intf.GetIPProperties().UnicastAddresses.Select(addrInfo => addrInfo.Address).Where(addr => !addr.Equals(IPAddress.IPv6Loopback)));
@@ -88,10 +145,11 @@ namespace UPnP.Infrastructure.Utils
     /// <summary>
     /// Collects all interfaces where the UPnP system should be active.
     /// </summary>
+    /// <param name="filters">Restrict IPs to only this list (plus loopback)</param>
     /// <returns>Collection of IP addresses to bind to receive UPnP messages.</returns>
-    public static ICollection<IPAddress> GetUPnPEnabledIPAddresses()
+    public static ICollection<IPAddress> GetUPnPEnabledIPAddresses(List<string> filters)
     {
-      ICollection<IPAddress> result = new List<IPAddress>(GetExternalIPAddresses());
+      ICollection<IPAddress> result = new List<IPAddress>(GetExternalIPAddresses(filters));
       if (!result.Contains(IPAddress.Loopback))
         result.Add(IPAddress.Loopback);
       return result;
@@ -130,9 +188,11 @@ namespace UPnP.Infrastructure.Utils
       catch (SecurityException) { }
     }
 
-    private static void OnPendingRequestTimeout(object state, bool timedOut) {
-      if (timedOut) {
-        HttpWebRequest request = (HttpWebRequest) state;
+    private static void OnPendingRequestTimeout(object state, bool timedOut)
+    {
+      if (timedOut)
+      {
+        HttpWebRequest request = (HttpWebRequest)state;
         if (request != null)
           request.Abort();
       }
@@ -149,8 +209,7 @@ namespace UPnP.Infrastructure.Utils
     /// <param name="timeoutMsecs">Timeout in milliseconds, after that the request will be aborted.</param>
     public static void AddTimeout(HttpWebRequest request, IAsyncResult result, uint timeoutMsecs)
     {
-      ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnPendingRequestTimeout,
-          request, timeoutMsecs, true);
+      ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnPendingRequestTimeout, request, timeoutMsecs, true);
     }
 
     /// <summary>
@@ -226,9 +285,9 @@ namespace UPnP.Infrastructure.Utils
       AddressFamily family = address.AddressFamily;
       int result = int.MaxValue;
       if (family == AddressFamily.InterNetwork)
-        result = address == IPAddress.Loopback ? ZERO_DISTANCE : GLOBAL_DISTANCE;
+        result = Equals(address, IPAddress.Loopback) ? ZERO_DISTANCE : GLOBAL_DISTANCE;
       else if (family == AddressFamily.InterNetworkV6)
-        if (address == IPAddress.IPv6Loopback)
+        if (Equals(address, IPAddress.IPv6Loopback))
           result = ZERO_DISTANCE;
         else if (address.IsIPv6LinkLocal)
           result = LINK_LOCAL_DISTANCE;
@@ -298,8 +357,7 @@ namespace UPnP.Infrastructure.Utils
       if (family == AddressFamily.InterNetwork)
         try
         {
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-              new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4, address));
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4, address));
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -310,14 +368,10 @@ namespace UPnP.Infrastructure.Utils
         try
         {
           // We only receive in those multicast groups where we joined
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL, address.ScopeId));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL, address.ScopeId));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL, address.ScopeId));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -335,8 +389,7 @@ namespace UPnP.Infrastructure.Utils
       if (family == AddressFamily.InterNetwork)
         try
         {
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-              new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4, address));
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4, address));
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -347,14 +400,10 @@ namespace UPnP.Infrastructure.Utils
         try
         {
           // We only receive in those multicast groups where we joined
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL, address.ScopeId));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL, address.ScopeId));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL, address.ScopeId));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL, address.ScopeId));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -370,8 +419,7 @@ namespace UPnP.Infrastructure.Utils
         if (socket.AddressFamily == AddressFamily.InterNetwork)
           try
           {
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-                new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
           }
           catch (SocketException e)
           {
@@ -380,14 +428,10 @@ namespace UPnP.Infrastructure.Utils
         else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
           try
           {
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
           }
           catch (SocketException e)
           {
@@ -408,8 +452,7 @@ namespace UPnP.Infrastructure.Utils
         if (socket.AddressFamily == AddressFamily.InterNetwork)
           try
           {
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-                new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
           }
           catch (SocketException e)
           {
@@ -418,14 +461,10 @@ namespace UPnP.Infrastructure.Utils
         else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
           try
           {
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
           }
           catch (SocketException e)
           {

@@ -24,6 +24,7 @@
 
 using System.Xml;
 using MediaPortal.Utilities.SystemAPI;
+using System.Collections.Generic;
 
 namespace UPnP.Infrastructure
 {
@@ -47,6 +48,11 @@ namespace UPnP.Infrastructure
     /// Controls if devices and control points use the IPv6 protocol.
     /// </summary>
     public static bool USE_IPV6 = true;
+
+    /// <summary>
+    /// Controls if devices and control points should be bound to specific IPs
+    /// </summary>
+    public static List<string> IP_ADDRESS_BINDINGS = null;
 
     /// <summary>
     /// Controls the UPnP advertisement and event sending scope. If set to <c>true</c>, the biggest scope is the site-local

@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Cliente Slim TV</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">Guia de TV</string>
+  <string name="SlimTvClient.SingleChannelGuide">Guía de Canales</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Información del programa</string>
   <string name="SlimTvClient.ChannelLabel">Canal</string>
   <string name="SlimTvClient.ProgramLabel">Programa</string>
@@ -12,12 +15,48 @@
   <string name="SlimTvClient.Guide">Guia de TV</string>
   <string name="SlimTvClient.NoProgram">No hay datos del programa.</string>
   <string name="SlimTvClient.ChooseProgramAction">Elige una acción para el programa...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Elige grupo de canales...</string>
   <string name="SlimTvClient.ProgramOver">El programa ya ha terminado</string>
   <string name="SlimTvClient.WatchNow">Ver programa ahora</string>
+  <string name="SlimTvClient.WatchFromBeginning">Ver grabación desde el principio</string>
   <string name="SlimTvClient.RecordNow">Grabar ahora</string>
   <string name="SlimTvClient.DeleteSchedule">Borrar agenda</string>
   <string name="SlimTvClient.CreateSchedule">Agenda de grabación</string>
+  <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Opciones de grabación</string>
+  <string name="SlimTvClient.StopCurrentRecording">Parar grabación actual \"{0}\"</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Grabar programa \"{0}\"</string>
+  <string name="SlimTvClient.RecordManual">Grabar hasta Parada manual</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Grabación Manual</string>
+  <string name="SlimTvClient.RecordProgram">Grabar programa</string>
+  <string name="SlimTvClient.DontRecordProgram">No grabar</string>
+  <string name="SlimTvClient.RecordSeries">Grabar serie</string>
+  <string name="SlimTvClient.ChooseScheduleType">Elegir tipo de programación para grabación</string>
+  <string name="SlimTvClient.DeleteScheduleType">¿Cómo borrar programación?</string>
+  <string name="SlimTvClient.DeleteSingle">Borrar un programa</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Borrar programación de toda la serie</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Borrar programación de un programa</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Una vez</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Diariamente</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Semanalmente</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Cada vez que en este canal</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Cada vez que en cualquier canal</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Semanas</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Días trabajando</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Semanalmente cada vez que en este canal</string>
+  <!--Schedule management-->
+  <string name="SlimTvClient.ScheduleDetails">Detalles de programación</string>
+  <string name="SlimTvClient.ScheduleName">Nombre de la programación</string>
+  <string name="SlimTvClient.ScheduleType">Tipo de programación</string>
+  <string name="SlimTvClient.Schedules">Programaciones</string>
+  <string name="SlimTvClient.ExtendedSchedule">Programación extendida</string>
+  <string name="SlimTvClient.ScheduleManagement">Gestionar programaciones</string>
   <string name="SlimTvClient.ErrorNoTvProvider">No hay proveedor de TV disponible (aún)</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Número de filas en EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Define el número de filas (canales) mostrados en EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Número de horas en EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Define el número de horas (programas) mostradas en EPG</string>
   <string name="SlimTvClient.RecordingsMenuItem">Grabaciones</string>
   <string name="SlimTvClient.RecordingsRootViewName">Grabaciones de TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrar por canal</string>

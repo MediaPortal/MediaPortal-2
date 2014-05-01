@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Fournisseur de contenus situé dans le réseau</string>
-  <string name="NetworkNeighborhoodResourceProvider.Description">Accéder aux gestionnaires de partage des ordinateurs inclus dans le réseau</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Voisinage réseau</string>
+  <string name="NetworkNeighborhoodResourceProvider.Description">Accéder aux gestionnaires de partage des ordinateurs du voisinage réseau</string>
 </resources>

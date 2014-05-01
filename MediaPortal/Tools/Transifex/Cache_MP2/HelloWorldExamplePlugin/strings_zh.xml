@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.MenuEntry">Hello world</string>
+  <string name="HelloWorld.StateDisplayLabel">Hello world 状态</string>
+  <string name="HelloWorld.ScreenTitle">Hello world 屏幕</string>
+  <string name="HelloWorld.HelloWorldText">点击按钮改变文字</string>
+  <string name="HelloWorld.SampleText">这是的HelloWorld插件的示例屏幕</string>
+  <string name="HelloWorld.ButtonText">按我</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">恭喜，你刚触发了一个命令！</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">סרוק לרשתות אלחוטיות</string>
+  <string name="Network.NoWirelessNetworksFound">לא נמצאו רשתות אלחוטיות</string>
+  <string name="Network.Connect">התחבר</string>
+  <string name="Network.Disconnect">התנתק</string>
+  <string name="Network.EnterWifiPassword">הכנס את סיסמת הרשת האלחוטית</string>
+  <string name="Network.DeleteProfile">מחק פרופיל רשת אלחוטית</string>
+  <string name="Settings.General.Connectivity.WifiConnection">חיבור רשת אלחוטית</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">התחבר לרשת אלחוטית</string>
+</resources>

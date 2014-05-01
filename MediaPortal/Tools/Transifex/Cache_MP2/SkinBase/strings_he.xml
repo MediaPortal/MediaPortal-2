@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">מוסיקה</string>
   <string name="Media.MyVideos">וידאו</string>
   <string name="Media.MyPictures">תמונות</string>
-  <string name="Media.InvalidShareName">שיתוף לא חוקי</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">שרת MP2 לא זמין</string>
   <string name="ServerConnection.NotificationServerAvailableText">יש לפחות שרת אחד של מדיה פורטל 2 זמין ברשת. התחבר אליו על מנת לקבל את כל התכונות של מדיה פורטל 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' במארח \'{1}\'</string>
@@ -46,7 +45,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">השרת הביתי כרגע מנותק</string>
   <string name="ServerConnection.DetachMenu">התנתק</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">התנתק מהשרת הביתי</string>
-  <string name="ServerConnection.DetachConfirmDialogText">באם תתנתק מהשרת הביתי, כל הנתונים על אזורי השיתוף וקבצי המדיה שלהם יוסרו מספריית השרת הביתי. תוכל להתחבר מאוחר יותר שוב. האם ברצונך להתנתק מהשרת הביתי \'{0}\' ב-host הזה: \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">חפש שרתים</string>
   <string name="ServerConnection.DetachFromServer">התנתק מהשרת הביתי</string>
   <string name="ServerConnection.AttachToServerHeader">התחבר לשרת מדיה פורטל 2</string>
@@ -67,10 +65,9 @@
   <string name="ImporterMessages.ImportStartedText">יבוא של \'{0}\' התחיל</string>
   <string name="ImporterMessages.ImportCompletedTitle">ייבוא הסתיים</string>
   <string name="ImporterMessages.ImportCompletedText">היבוא של \'{0}\' הסתיים.</string>
-  <string name="LocalFsResourceProvider.Name">ספק משאבי מערכת קבצים מקומי</string>
   <string name="LocalFsResourceProvider.Description">גש למערכת הקבצים המקומית</string>
-  <string name="RemoteResourceProvider.Name">ספק שרותים מרוחק</string>
   <string name="RemoteResourceProvider.Description">גש לשרותים הנמצאים במערכת מדיה פורטל 2 אחרת</string>
+  <string name="RawUrlResourceProvider.Description">Access raw Uri sources</string>
   <string name="ScreenSaver.MediaPortal2">מדיה פורטל 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">אין נגן</string>
@@ -122,25 +119,13 @@
   <string name="Settings.Regional.Language">שפה</string>
   <string name="Settings.Regional.Language.Main">שפה</string>
   <string name="Settings.Regional.Language.Main.Help">קבע את השפה הראשית לשימוש בתוכנה</string>
-  <string name="Settings.Shares">שיתופים</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">הגדר שיתופים</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">הגדרות שיתופים</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">הגדר את כל השיתופים המקומיים</string>
   <string name="Settings.Shares.Overview">מבט כללי</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">מבט כללי על שיתופים</string>
   <!--Setting-->
-  <string name="Settings.Shares.Overview.SharesOverview.Help">מבט כללי על שיתופים גלובליים</string>
-  <string name="Settings.Shares.Imports.ReImportAllShares">ייבא מחדש את כל השיתופים</string>
   <string name="Settings.Plugins">תוספים</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">מבט כללי על שיתופים</string>
-  <string name="SharesOverview.Title">מבט כללי על שיתופים</string>
-  <string name="SharesOverview.ReImportAllShares">ייבא מחדש את כל השיתופים</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">השרת לא מחובר, ולכן לא ניתן לקבל מידע על שיתופים</string>
-  <string name="Shares.NoSharesInThisView">- אין שיתופים בתצוגה זו -</string>
   <string name="Shares.InvalidPath">נתיב לא חוקי: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">זמין</string>
@@ -148,69 +133,28 @@
   <string name="Shares.ReImport">יבא מחדש</string>
   <string name="Shares.Importing">מייבא...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">הגדרת שיתופים</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">הסר שיתופים</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">מידע על שיתוף</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">בחר מערכת</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">בחר ספק שרותים</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">ערוך נתיב</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">בחר נתיב</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">ערוך שם</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">ערוך קטגוריות</string>
-  <string name="SharesConfig.CannotAddSharesTitle">לא ניתן להוסיף שיתופים</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">השרת ממוקם באותו מחשב,לפיכך כל השיתופים חייבים להירשם ברשת.\nהשרת לא מחובר כעת, נא אתחל את השרת ונסה שוב.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">הגדרת שיתופים</string>
-  <string name="SharesConfig.NoSharesAvailable">לא קיימים שיתופים</string>
-  <string name="SharesConfig.ShareInformationHeader">מידע שיתוף</string>
   <string name="SharesConfig.ShareNameInfo">שם:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">ספק שרותים בסיסי</string>
   <string name="SharesConfig.ShareSystem">מערכת</string>
   <string name="SharesConfig.SharePathInfo">נתיב:</string>
   <string name="SharesConfig.ShareResourcePathInfo">נתיב טכני:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">קטגוריות מדיה:</string>
-  <string name="SharesConfig.ReImportShare">יבא שיתוף מחדש</string>
-  <string name="SharesConfig.SetupDefaultShares">הגדר שיתופי ברירת מחדל</string>
-  <string name="SharesConfig.RemoveShares">הסר שיתופים</string>
-  <string name="SharesConfig.EditShare">ערוך שיתופים</string>
   <string name="SharesConfig.ChooseSystem">בחר מערכת</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">בחר את השיתופים שברצונך להסיר</string>
-  <string name="SharesConfig.ChooseSystemForShare">בחר מערכת עבור השיתוף החדש</string>
-  <string name="SharesConfig.LocalShare">שיתוף מקומי</string>
-  <string name="SharesConfig.LocalShares">שיתופים מקומיים</string>
-  <string name="SharesConfig.GlobalShare">שיתוף גלובלי</string>
-  <string name="SharesConfig.GlobalShares">שיתופים גלובליים</string>
-  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">השרת לא מחובר ולכן לא ניתן לנהל שיתופים גלובליים כעת</string>
-  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">השרת ממוקם על אותו מחשב, לכן ניתן להגדיר רק שיתופים גלובליים</string>
-  <string name="SharesConfig.ChooseResourceProviderForShare">נא בחר את ספק השרותים עבור השיתוף</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">ערוך נתיב לשיתוף</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">ערוך נתיב חוקי בספק המשאבים שנבחר. הנך יכול לערוך נתיב פשוט, אשר מובן על ידי ספק המשאבים. הנך יכול אף לערוך נתיב מורכב בפורמט: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">בחר נתיב לשיתוף</string>
-  <string name="SharesConfig.EditShareName">ערוך את שם התצוגה של השיתוף</string>
-  <string name="SharesConfig.ChooseShareCategories">בחר את הקטגוריות של תוכן המדיה הנמצא בשיתוף</string>
-  <string name="SharesConfig.SharePathExists">נתיב השיתוף כבר קיים</string>
-  <string name="SharesConfig.ShareNameExists">שיתוף בשם זה קיים כבר</string>
-  <string name="SharesConfig.ShareNameEmpty">ערוך שם לשיתוף</string>
-  <string name="SharesConfig.EditShareProblemHeader">בעיה בהגדרת שיתוף</string>
-  <string name="SharesConfig.EditShareProblemText">בעיה פנימית בהגדרת השיתוף</string>
-  <string name="SharesConfig.MenuAddShare">הוסף שיתוף</string>
   <string name="SharesConfig.MenuEditShares">ערוך</string>
-  <string name="SharesConfig.MenuRemoveShares">הסר שיתופים</string>
-  <string name="SharesConfig.AddServerShare">הוסף שיתוף גלובלי</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">ערוך שיתוף גלובלי</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">הוסף שיתוף מקומי</string>
-  <string name="SharesConfig.EditLocalShare">ערוך שיתוף מקומי</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">עדכן שיתוף</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">ספק המשאבים של השיתוף הנוכחי ו/או הנתיב עודכנו.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">המידע של ספריית המדיה עבור פריטי מדיה בשיתוף ניתן לעדכון (שינוי מיקום) או למחיקה ויבוא מחדש.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">האם ברצונך לשנות מיקום או לנקות ולייבא מחדש?</string>
   <string name="SharesConfig.Relocate">שנה מיקום</string>
   <string name="SharesConfig.ReImport">יבא מחדש</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">לקוח מדיה פורטל 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">לקוח מדיה פורטל 2 - ממשק המשתמש הגרפי. מנגן מדיה, מארח שיתופים מקומיים ומאפשר את ממשק המשתמש.</string>
   <string name="UPnPFrontendServer.ModelName">לקוח מדיה פורטל 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

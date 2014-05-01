@@ -76,7 +76,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
         Stretch="Fill">
       <Path.Fill>
-        <SolidColorBrush Color="#FF00B7FF" Opacity="0.749"/>
+        <SolidColorBrush Color="{ThemeResource FooterShapeFillColor}" Opacity="0.749"/>
       </Path.Fill>
     </Path>
 

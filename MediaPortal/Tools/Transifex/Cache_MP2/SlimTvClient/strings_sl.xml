@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Tanek TV klient</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV Vodič</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informacije o programih</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Oddaja</string>
@@ -12,12 +14,20 @@
   <string name="SlimTvClient.Guide">TV Vodič</string>
   <string name="SlimTvClient.NoProgram">Ni podatkov o oddaji</string>
   <string name="SlimTvClient.ChooseProgramAction">Izberi akcijo za oddajo.</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Izberi skupino kanalov</string>
   <string name="SlimTvClient.ProgramOver">Oddaja je že končana</string>
   <string name="SlimTvClient.WatchNow">Glej oddajo</string>
   <string name="SlimTvClient.RecordNow">Posnemi</string>
   <string name="SlimTvClient.DeleteSchedule">Prekliči snemanje</string>
   <string name="SlimTvClient.CreateSchedule">Razporedi snemanje</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">(Trenutno) ni ponudnika TV</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">Število vrstic v EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Določa število vrstič (programov) v prikazu EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Število ur v EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Določa število ur (oddaj) v prikazu EPG</string>
   <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>

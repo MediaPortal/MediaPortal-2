@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">ISO dosya kaynak sağlayıcı</string>
   <string name="IsoResourceProvider.Description">ISO dosyasındaki dosya ve dizinlere ulaş</string>
 </resources>

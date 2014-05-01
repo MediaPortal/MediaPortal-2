@@ -916,6 +916,52 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableResourceProviderContainerStyle}"/>
   </Style>
 
+
+  <!-- Data template for a system entry including subview for resource providers -->
+  <DataTemplate x:Key="SystemItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ShareName" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+
+      <!-- Subitems of systems: resourceproviders -->
+      <ListView Grid.Row="1" Margin="10,0,0,10" Style="{ThemeResource SingleMarkableResourceProvidersListViewStyle}"
+          ItemsSource="{Binding Path=AdditionalProperties[SharesProxy].AllBaseResourceProviders,Mode=OneTime}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style to be used for the nested systems/shares list -->
+  <Style x:Key="SingleMarkableSubItemListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SystemItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
+    <!--Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableShareContainerStyle}"/-->
+  </Style>
+
   <!-- ListView style to be used for lists where multiple items can be marked -->
   <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>

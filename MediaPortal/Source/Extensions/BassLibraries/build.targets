@@ -19,6 +19,7 @@
     <!-- BASS extensions -->
     <References Include="$(TargetDir)basscd.dll" />
     <References Include="$(TargetDir)bassmix.dll" />
+    <References Include="$(TargetDir)basswasapi.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

@@ -37,7 +37,7 @@ namespace MediaPortal.UI.Players.BassPlayer
   public enum OutputMode
   {
     DirectSound,
-    // TODO: WASAPI
+    WASAPI
   }
 
   public enum PlaybackMode

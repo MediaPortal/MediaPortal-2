@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Audió CD forrás szolgáltató</string>
   <string name="AudioCDResourceProvider.Description">Hozzáférés az audió CD számokhoz</string>
 </resources>

@@ -301,6 +301,8 @@
   <string name="Media.SortByDate">Řadit podle data nahrávky</string>
   <string name="Media.SortByEpisode">Řadit podle epizody</string>
   <string name="Media.SortingBrowseDefault">Výchozí řazení</string>
+  <string name="Media.SwitchFilterMenuItem">Filtr</string>
+  <string name="Media.SwitchFilterDialogTitle">Filtr</string>
   <string name="Settings.Players">Přehrávače</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zavřít přehrávače po dokončení</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Povolte toto nastavení, aby MediaPortal zavíral dokončené přehrávače automaticky</string>

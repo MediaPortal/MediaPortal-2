@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Hálózati szomszédság forrás szolgáltatója</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Hozzáférés a windows megosztásokhoz a helyi hálózat szomszédságának a számítógépein</string>
 </resources>

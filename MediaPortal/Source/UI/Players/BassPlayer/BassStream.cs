@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
@@ -55,6 +56,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     private BASS_CHANNELINFO _info;
     private StreamContentType _streamContentType = StreamContentType.Unknown;
     private TimeSpan _length;
+    private readonly IList<int> _syncProcHandles = new List<int>();
 
     #endregion
 
@@ -123,6 +125,14 @@ namespace MediaPortal.UI.Players.BassPlayer
     {
       get { return GetVolume() * 100; }
       set { SetVolume(value / 100); }
+    }
+
+    /// <summary>
+    /// Gets a list of SyncProcHandles. If a caller creates a sync procedure by <see cref="Bass.BASS_ChannelSetSync"/>, the returned handle must be added to this list.
+    /// </summary>
+    public IList<int> SyncProcHandles
+    {
+      get { return _syncProcHandles; }
     }
 
     /// <summary>
@@ -568,14 +578,27 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Dispose()
     {
-      if (_handle != 0)
+      if (_handle == 0)
+        return;
+
+      try
       {
         // Make sure handle never points to a non-existing handle (multithreading)
         int h = _handle;
         _handle = 0;
 
-        // ignore error
+        // Free sync procs first
+        foreach (int syncProcHandle in _syncProcHandles)
+          Bass.BASS_ChannelRemoveSync(h, syncProcHandle);
+
+        _syncProcHandles.Clear();
+
+        // Ignore error
         Bass.BASS_StreamFree(h);
+      }
+      catch (Exception ex)
+      {
+        Log.Error("Exception disposing stream", ex);
       }
     }
 

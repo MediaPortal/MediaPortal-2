@@ -27,15 +27,16 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
 using MediaPortal.ServiceMonitor.UPNP.Settings;
 using UPnP.Infrastructure.CP;
+using ILogger = MediaPortal.Common.Logging.ILogger;
+using UPnP.Infrastructure;
 
 namespace MediaPortal.ServiceMonitor.UPNP
 {
@@ -50,6 +51,12 @@ namespace MediaPortal.ServiceMonitor.UPNP
     public ServerConnectionManager()
     {
       IsStarted = false;
+
+      ServerSettings serverSettings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      UPnPConfiguration.USE_IPV4 = serverSettings.UseIPv4;
+      UPnPConfiguration.USE_IPV6 = serverSettings.UseIPv6;
+      UPnPConfiguration.IP_ADDRESS_BINDINGS = serverSettings.IPAddressBindingsList;
+
       string homeServerSystemId = HomeServerSystemId;
       if (string.IsNullOrEmpty(homeServerSystemId))
         // Watch for all MP 2 media servers, if we don't have a homeserver yet

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="ServerStatus.NotStarted">服务未启动</string>
+  <string name="ServerStatus.Attached">隶属于服务器</string>
+  <string name="ServerStatus.Connected">已连接服务器</string>
+  <string name="ServerStatus.Detached">从服务器分离</string>
+  <string name="ServerStatus.Disconnected">服务器已断开</string>
+  <string name="ServerStatus.ClientConnected">服务器已连接的客户端(们)</string>
+  <string name="MainWindow.ServerStatus">服务器状态</string>
+  <string name="MainWindow.AttachedClients">附属的客户端</string>
+  <string name="ContextMenu.ShowWin">显示窗口</string>
+  <string name="ContextMenu.HideWin">隐藏窗口</string>
+  <string name="ContextMenu.StartService">启动服务</string>
+  <string name="ContextMenu.StopService">停止服务</string>
+  <string name="ContextMenu.EnableAutostart">启用自动开启</string>
+  <string name="ContextMenu.DisableAutostart">关闭自动开启</string>
+  <string name="ContextMenu.Exit">退出</string>
+  <string name="SysTrayToolTip.Info">右键点击更多选项</string>
+</resources>

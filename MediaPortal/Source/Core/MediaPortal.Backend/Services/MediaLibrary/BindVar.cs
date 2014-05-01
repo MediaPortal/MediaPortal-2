@@ -53,5 +53,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       get { return _type; }
     }
+
+    public override string ToString()
+    {
+      return _name + "=" + _value;
+    }
   }
 }

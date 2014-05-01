@@ -309,6 +309,8 @@
   <string name="Media.SortByDate">Sorter etter dato for innspilling</string>
   <string name="Media.SortByEpisode">Sorter etter episode</string>
   <string name="Media.SortingBrowseDefault">Standard sortering</string>
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
+  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Avspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lukk spilleren når den er ferdig</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Velg denne innstillingen for at MediaPortal skal lukke spilleren automatisk</string>

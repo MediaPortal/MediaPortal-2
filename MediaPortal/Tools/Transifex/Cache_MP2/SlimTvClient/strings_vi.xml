@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.TvGuide">Lịch xem TV</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Thông tin chương trình</string>
   <string name="SlimTvClient.ChannelLabel">Kên</string>
   <string name="SlimTvClient.ProgramLabel">Chương trình</string>
@@ -17,7 +18,10 @@
   <string name="SlimTvClient.RecordNow">Ghi hình ngay bây giờ</string>
   <string name="SlimTvClient.DeleteSchedule">Xóa lịch</string>
   <string name="SlimTvClient.CreateSchedule">Ghi hình lịch xem</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">HIện không có nhà cung cấp TV (vẫn chưa)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Ghi hình</string>
   <string name="SlimTvClient.RecordingsRootViewName">Ghi hình TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Lọc theo kênh</string>

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Dostawca zasobów pliku ISO</string>
   <string name="IsoResourceProvider.Description">Udostępnia pliku i foldery zawarte w obrazie ISO</string>
 </resources>

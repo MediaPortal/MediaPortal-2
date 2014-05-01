@@ -28,7 +28,6 @@
   <string name="Media.MyMusic">Tónlist</string>
   <string name="Media.MyVideos">Myndbönd</string>
   <string name="Media.MyPictures">Ljósmyndir</string>
-  <string name="Media.InvalidShareName">Ógild deiling</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 þjónn tiltækur</string>
   <string name="ServerConnection.NotificationServerAvailableText">Það er allavega einn MediaPortal miðlari á netkerfinu.  Tengist honum til að alla þá möguleika sem MediaPortal 2 býður uppá.</string>
   <!--{0} = server name, {1} = host name-->
@@ -109,23 +108,13 @@
   <string name="Settings.Regional.Language">Tungumál</string>
   <string name="Settings.Regional.Language.Main">Tungumál</string>
   <string name="Settings.Regional.Language.Main.Help">Tungumálið sem nota skal í forritinu</string>
-  <string name="Settings.Shares">Deilingar</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Uppsetning deilingar</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Uppsetning deilingar</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Stillið allar staðbundnar deilingar</string>
   <string name="Settings.Shares.Overview">Yfirlit</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Yfirlit deilinga</string>
   <!--Setting-->
-  <string name="Settings.Shares.Imports.ReImportAllShares">Endurinnflutningur á öllum deilingum</string>
   <string name="Settings.Plugins">Viðbætur</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Yfirlit deilinga</string>
-  <string name="SharesOverview.Title">Yfirlit deilinga</string>
-  <string name="SharesOverview.ReImportAllShares">Endurinnflutningur á öllum deilingum</string>
-  <string name="Shares.NoSharesInThisView">- Engin deiling í þessu útliti -</string>
   <string name="Shares.InvalidPath">Ógild slóð: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Tengdur</string>
@@ -133,45 +122,18 @@
   <string name="Shares.ReImport">Endurinnflutningur</string>
   <string name="Shares.Importing">Innflutningur...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Uppsetning deilingar</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Eyða deilingu</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Upplýsingar um deilingu</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Veljið kerfi</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Breyta slóð</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Veldu slóð</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Breyta nafni</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Veljið flokka</string>
-  <string name="SharesConfig.CannotAddSharesTitle">Get ekki bætt við deilingu</string>
-  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Miðlarinn er staðsettur á sömu tölvu, þannig að allar hlutir verða að vera skráðir á miðlaranum.  En miðlarinn er ekki tengdur í augnablikinu.  Vinsamlegast ræsir miðlarann og reynið aftur.</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Uppsetning deilingar</string>
-  <string name="SharesConfig.NoSharesAvailable">Það eru engar deilingar tiltækar</string>
-  <string name="SharesConfig.ShareInformationHeader">Upplýsingar um deilingu</string>
   <string name="SharesConfig.ShareNameInfo">Nafn:</string>
   <string name="SharesConfig.ShareSystem">Kerfi:</string>
   <string name="SharesConfig.SharePathInfo">Slóð:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Flokkar miðlaskráa:</string>
-  <string name="SharesConfig.SetupDefaultShares">Skilgreining á sjálfgefinni deilingu</string>
-  <string name="SharesConfig.RemoveShares">Fjarlægja deilingu</string>
-  <string name="SharesConfig.EditShare">Breya deilingu</string>
   <string name="SharesConfig.ChooseSystem">Veljið kerfi</string>
-  <string name="SharesConfig.ChooseSharesToBeRemoved">Vinsamlegast veljið deilingu sem á að fjarlægja</string>
-  <string name="SharesConfig.ChooseSystemForShare">Veljið kerfið fyrir nýja deilingu</string>
-  <string name="SharesConfig.LocalShare">Staðbundin deiling</string>
-  <string name="SharesConfig.LocalShares">Staðbundnar deilingar</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Breytið möppunni sem á að deila</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Veljið möppu fyrir deilingu</string>
-  <string name="SharesConfig.EditShareName">Breytið heiti deilingar</string>
-  <string name="SharesConfig.SharePathExists">Deiling með þessari möppu er til</string>
-  <string name="SharesConfig.ShareNameExists">Deiling með þessu heiti er til</string>
-  <string name="SharesConfig.ShareNameEmpty">Breytið heiti á deilingu</string>
-  <string name="SharesConfig.MenuAddShare">Bæta við deilingu</string>
   <string name="SharesConfig.MenuEditShares">Breyta</string>
-  <string name="SharesConfig.MenuRemoveShares">Eyða deilingum</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Bæta við staðbundinni deilingu</string>
-  <string name="SharesConfig.EditLocalShare">Breyta staðbundinni deilingu</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Uppfæra deilingu</string>
   <string name="SharesConfig.Relocate">Endurstaðsetja</string>
   <string name="SharesConfig.ReImport">Endurinnflutningur</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 biðlari</string>

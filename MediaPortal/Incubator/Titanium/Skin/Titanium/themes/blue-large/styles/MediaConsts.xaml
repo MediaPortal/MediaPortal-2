@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_S" Resource="100"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_M" Resource="150"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_L" Resource="220"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_CP" Resource="200"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="600"/>
+  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="180"/>
+  <ResourceWrapper x:Key="MEDIA_POSTER_CONTAINER_WIDTH" Resource="230"/>
+  
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_S" Resource="60"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_M" Resource="90"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_L" Resource="154"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_CP" Resource="200"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="110"/>
+  <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="210"/>
+
+  <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="240"/>
+  <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="122"/>
+
+  <ResourceWrapper x:Key="REFLEXION_WIDTH" Resource="130"/>
+  <ResourceWrapper x:Key="REFLEXION_HEIGHT" Resource="300"/>
+  <ResourceWrapper x:Key="COVERVIEW_FILTER_WIDTH" Resource="190"/>
+  <ResourceWrapper x:Key="COVERVIEW_FILTER_HEIGHT" Resource="440"/>
+</ResourceDictionary>

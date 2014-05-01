@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">后台播放视频</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">启用后台播放视频和选择视频</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">启用后台播放视频</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">后台播放视频配置</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">视频文件</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">选择</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">选择后台播放的视频</string>
+</resources>

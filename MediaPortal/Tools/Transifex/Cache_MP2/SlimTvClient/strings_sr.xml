@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Слим ТВ клијент</string>
+  <string name="SlimTvClient.Main">ТВ</string>
+  <string name="SlimTvClient.TvGuide">ТВ водич</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Информације о програму</string>
   <string name="SlimTvClient.ChannelLabel">Канал</string>
   <string name="SlimTvClient.ProgramLabel">Програм</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Сними</string>
   <string name="SlimTvClient.DeleteSchedule">Обриши распоред</string>
   <string name="SlimTvClient.CreateSchedule">Направи распоред за снимање</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">ТВ сигнал није доступан</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Снимљено</string>
   <string name="SlimTvClient.RecordingsRootViewName">ТВ снимци</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Филтрирај по каналима</string>

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Dostawca zasobów sieci lokalnej</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Udostępnia udziały systemu Windows komputerów w lokalnej sieci</string>
 </resources>

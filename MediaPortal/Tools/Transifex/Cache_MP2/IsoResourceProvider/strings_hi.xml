@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">आईएसओ फ़ाइल संसाधन प्रदाता</string>
   <string name="IsoResourceProvider.Description">आईएसओ छवियों में फ़ाइलों और निर्देशिकाओं को एक्सेस करें</string>
 </resources>

@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">клиент Slim TV</string>
+  <string name="SlimTvClient.Main">ТВ</string>
+  <string name="SlimTvClient.TvGuide">Программа передач</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Информация о передаче</string>
   <string name="SlimTvClient.ChannelLabel">Канал</string>
   <string name="SlimTvClient.ProgramLabel">Передача</string>
@@ -17,5 +19,8 @@
   <string name="SlimTvClient.RecordNow">Записать сейчас</string>
   <string name="SlimTvClient.DeleteSchedule">Удалить запланированную запись</string>
   <string name="SlimTvClient.CreateSchedule">Запланировать запись</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

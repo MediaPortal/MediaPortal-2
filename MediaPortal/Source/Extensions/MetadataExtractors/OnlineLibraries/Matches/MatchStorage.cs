@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       lock (_syncObj)
       {
         List<TMatch> matches = LoadMatches();
-        if (matches.Any(m => m.ItemName == itemName))
+        if (matches.Any(m => string.Equals(m.ItemName, itemName, StringComparison.OrdinalIgnoreCase)))
           return;
         matches.Add(onlineMatch);
         SaveMatches(matches);

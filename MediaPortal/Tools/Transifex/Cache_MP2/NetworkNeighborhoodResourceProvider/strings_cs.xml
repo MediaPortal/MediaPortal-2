@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Poskytovatel zdroje Okolní počítače</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Přístup ke sdílení na počítačích v místní síti</string>
 </resources>

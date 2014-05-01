@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Vsebine iz omrežne soseščine</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Dostopaj do vsebin na omrežnih povezavah Windows omrežja</string>
 </resources>

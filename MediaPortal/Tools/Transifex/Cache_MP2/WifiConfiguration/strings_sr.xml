@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Претражи WiFi мреже</string>
+  <string name="Network.NoWirelessNetworksFound">WiFi мрежа није пронађена</string>
+  <string name="Network.Connect">Прикачи се</string>
+  <string name="Network.Disconnect">Раскачи се</string>
+  <string name="Network.EnterWifiPassword">Унеси WiFi лозинку</string>
+  <string name="Network.DeleteProfile">Обриши WiFi профил</string>
+  <string name="Settings.General.Connectivity.WifiConnection">WiFi повезивање</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Прикачи се на WiFi мрежу</string>
+</resources>

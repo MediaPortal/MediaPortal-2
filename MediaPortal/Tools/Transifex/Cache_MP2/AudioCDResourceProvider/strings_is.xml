@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Name">Spilar CD diska</string>
   <string name="AudioCDResourceProvider.Description">Aðgangur að hljóðskrám á CD</string>
 </resources>

@@ -249,8 +249,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         // Create an additional COUNT expression for the MEDIA_ITEMS.MEDIA_ITEM_ID in the GROUP BY-statement
         result.Append("COUNT(V.C) ");
         result.Append(mediaItemIdOrGroupSizeAlias);
-        result.Append(", ");
-        result.Append(groupClause);
+        if (!string.IsNullOrWhiteSpace(groupClause))
+        {
+          result.Append(", ");
+          result.Append(groupClause);
+        }
         result.Append(" FROM (");
         result.Append("SELECT DISTINCT ");
         result.Append(miaIdAttribute.GetQualifiedName(ns));

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">ISO-fil ressourceudbyder</string>
   <string name="IsoResourceProvider.Description">Få adgang til filer og mapper i ISO-filer</string>
 </resources>

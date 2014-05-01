@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Network neighborhood resource provider</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Network neighborhood</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Access windows shares on computers in the local network neighborhood</string>
 </resources>

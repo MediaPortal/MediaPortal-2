@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">图片播放器</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">幻灯片时间间隔</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">设置每个图片在幻灯片模式的显示时长(秒)。</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">使用Ken Burns效果</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">显示图像时使用平移和缩放动画</string>
+</resources>

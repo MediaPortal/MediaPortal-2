@@ -40,6 +40,42 @@ namespace MediaPortal.Common.MediaManagement
   /// </remarks>
   public class ResourceProviderMetadata
   {
+    #region Enum and consts
+
+    /// <summary>
+    /// Defines the default system affinity for resource providers.
+    /// </summary>
+    public static SystemAffinity DEFAULT_SYSTEM_AFFINITY = SystemAffinity.Client | SystemAffinity.Server;
+
+    /// <summary>
+    /// <see cref="SystemAffinity"/> describes the usage types of a ResourceProvider. The values can be combined.
+    /// <example>The LocalFsResourceProvider can work on both client and server, providing access to the system filesystem. It should use both <see cref="Client"/> and <see cref="Server"/>.</example>
+    /// <example>The NetworkNeighborhoodResourceProvider can in principle work on any system, but should be handled only by server (network resources must be accessible by any system).
+    /// Only in case, that a client works without server, it should be available on client as well. So the provider should set both <see cref="Server"/> and <see cref="DetachedClient"/>.</example>
+    /// </summary>
+    [Flags]
+    public enum SystemAffinity
+    {
+      /// <summary>
+      /// Not defined.
+      /// </summary>
+      Undefined = 0,
+      /// <summary>
+      /// The provider can be used on a client system.
+      /// </summary>
+      Client = 1,
+      /// <summary>
+      /// The provider can be used on a server system.
+      /// </summary>
+      Server = 2,
+      /// <summary>
+      /// The provider can be used on a client that runs standalone (not attached to server).
+      /// </summary>
+      DetachedClient = 4
+    }
+
+    #endregion
+
     #region Protected fields
 
     protected Guid _resourceProviderId;
@@ -47,6 +83,7 @@ namespace MediaPortal.Common.MediaManagement
     protected string _description;
     protected bool _transientMedia;
     protected bool _networkResource;
+    protected SystemAffinity _systemAffinity;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
@@ -54,12 +91,18 @@ namespace MediaPortal.Common.MediaManagement
     #endregion
 
     public ResourceProviderMetadata(Guid resourceProviderId, string name, string description, bool transientMedia, bool networkResource)
+      : this(resourceProviderId, name, description, transientMedia, networkResource, DEFAULT_SYSTEM_AFFINITY)
+    {
+    }
+
+    public ResourceProviderMetadata(Guid resourceProviderId, string name, string description, bool transientMedia, bool networkResource, SystemAffinity systemAffinity)
     {
       _resourceProviderId = resourceProviderId;
       _name = name;
       _description = description;
       _transientMedia = transientMedia;
       _networkResource = networkResource;
+      _systemAffinity = systemAffinity;
     }
 
     /// <summary>
@@ -107,6 +150,15 @@ namespace MediaPortal.Common.MediaManagement
     public bool NetworkResource
     {
       get { return _networkResource; }
+    }
+
+    /// <summary>
+    /// Returns the <see cref="SystemAffinity"/> of the provider.
+    /// </summary>
+    [XmlIgnore]
+    public SystemAffinity ProviderSystemAffinity
+    {
+      get { return _systemAffinity; }
     }
 
     public void Serialize(XmlWriter writer)
@@ -180,6 +232,16 @@ namespace MediaPortal.Common.MediaManagement
       set { _networkResource = value; }
     }
 
-   #endregion
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("ProviderSystemAffinity")]
+    public SystemAffinity XML_ProviderSystemAffinity
+    {
+      get { return _systemAffinity; }
+      set { _systemAffinity = value; }
+    }
+
+    #endregion
   }
 }

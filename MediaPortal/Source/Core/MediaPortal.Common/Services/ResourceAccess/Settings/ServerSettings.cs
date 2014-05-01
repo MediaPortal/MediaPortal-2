@@ -22,7 +22,10 @@
 
 #endregion
 
+using System.Linq;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using System.Collections.Generic;
 
 namespace MediaPortal.Common.Services.ResourceAccess.Settings
 {
@@ -31,6 +34,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     protected int _httpServerPort = 0;
     protected bool _useIPv4 = true;
     protected bool _useIPv6 = true;
+    protected string _ipAddressBindings = null;
 
     /// <summary>
     /// Port where the local HTTP server is started. Use a value of <c>0</c> to let the system choose
@@ -55,6 +59,27 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     {
       get { return _useIPv6; }
       set { _useIPv6 = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public string IPAddressBindings
+    {
+      get { return _ipAddressBindings; }
+      set { _ipAddressBindings = value; }
+    }
+
+    /// <summary>
+    /// Gets a list of <see cref="IPAddressBindings"/> that are already splitted by <c>,</c>.
+    /// </summary>
+    public List<string> IPAddressBindingsList
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(IPAddressBindings))
+          return null;
+        ServiceRegistration.Get<ILogger>().Debug("ServerSettings: Allow connections only for IP address bindings {0}", IPAddressBindings);
+        return new List<string>(IPAddressBindings.Split(new[] { ',' }).Select(a => a.Trim()));
+      }
     }
   }
 }

@@ -37,7 +37,6 @@
   <string name="Weather.Showers">Ulewa</string>
   <string name="Weather.Few">Niewielkie</string>
   <string name="Weather.Scattered">Rozproszone</string>
-  <string name="Weather.Wind">Wiatr</string>
   <string name="Weather.Strong">Silny</string>
   <string name="Weather.Clear">Czysto</string>
   <string name="Weather.Early">Wcześnie</string>
@@ -51,6 +50,7 @@
   <string name="Weather.Low">niskie</string>
   <string name="Weather.High">wysokie</string>
   <string name="Weather.Thunder">Piorun</string>
+  <string name="Weather.Late">Późny</string>
   <string name="Weather.N">N</string>
   <string name="Weather.E">E</string>
   <string name="Weather.S">S</string>
@@ -67,10 +67,12 @@
   <string name="Weather.WSW">WSW</string>
   <string name="Weather.WNW">WNW</string>
   <string name="Weather.NNW">NNW</string>
+  <string name="Weather.From">z {0} przy {1} {2}</string>
   <string name="Weather.Various">zmienne</string>
   <string name="Weather.Calm">spokojne</string>
   <string name="Weather.NoWind">Bezwietrznie</string>
   <string name="Weather.InTheVicinity">w okolicy</string>
+  <string name="Weather.Clearing">Przejaśnienia</string>
   <string name="Settings.Plugins.Weather">Pogoda</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Ustawienia lokalizacji</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Konfiguruje miasta dostępne do wyboru na ekranie pogody</string>

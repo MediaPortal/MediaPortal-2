@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Vyhľadať bezdrôtové siete</string>
+  <string name="Network.NoWirelessNetworksFound">Žiadna bezdrôtová sieť sa nenašla</string>
+  <string name="Network.Connect">Spojiť</string>
+  <string name="Network.Disconnect">Odpojiť</string>
+  <string name="Network.EnterWifiPassword">Zadajte WIFI heslo</string>
+  <string name="Network.DeleteProfile">Vymazať WIFI profil</string>
+  <string name="Settings.General.Connectivity.WifiConnection">WIFI spojenie</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Pripojiť sa k bezdrôtovej sieti</string>
+</resources>

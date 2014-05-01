@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Δίκτυο παροχής πόρων γειτονιάς</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Πρόσβαση παραθύρων μεριδίων σε υπολογιστές στη γειτονιά του δικτύου</string>
 </resources>

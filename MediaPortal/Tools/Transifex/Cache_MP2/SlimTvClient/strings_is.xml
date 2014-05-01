@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Sjónvarpsbiðlari</string>
+  <string name="SlimTvClient.Main">Sjónvarp</string>
+  <string name="SlimTvClient.TvGuide">Dagskrá</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Dagskrárupplýsingar</string>
   <string name="SlimTvClient.ChannelLabel">Rás</string>
   <string name="SlimTvClient.ProgramLabel">Dagskrá</string>
@@ -17,5 +19,8 @@
   <string name="SlimTvClient.RecordNow">Taka upp núna</string>
   <string name="SlimTvClient.DeleteSchedule">Eyða áætlun</string>
   <string name="SlimTvClient.CreateSchedule">Upptökuáætlun</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <!--Settings-->
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

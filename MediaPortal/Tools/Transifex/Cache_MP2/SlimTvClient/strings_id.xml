@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Klien Slim TV</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">Panduan TV</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informasi program</string>
   <string name="SlimTvClient.ChannelLabel">Saluran</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Rekam sekarang</string>
   <string name="SlimTvClient.DeleteSchedule">Hapus jadwal</string>
   <string name="SlimTvClient.CreateSchedule">Jadwal perekaman</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Tidak ada penyedia TV tersedia (belum)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Rekaman</string>
   <string name="SlimTvClient.RecordingsRootViewName">Rekaman TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Saring berdasarkan saluran</string>

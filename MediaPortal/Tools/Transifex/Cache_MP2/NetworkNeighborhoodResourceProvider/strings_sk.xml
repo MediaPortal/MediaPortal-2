@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Obsluha lokálnej siete</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Pristupuje k zdieľaným zložkám windows v lokálnej sieti</string>
 </resources>

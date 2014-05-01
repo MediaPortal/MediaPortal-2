@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Provider Risorse di Rete</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Accesso di windows condiviso su computers nelle risorse di rete locale</string>
 </resources>

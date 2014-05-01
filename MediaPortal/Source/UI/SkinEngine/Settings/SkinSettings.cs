@@ -31,13 +31,13 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected string _skin;
     protected string _theme;
 
-    [Setting(SettingScope.User, "default")]
+    [Setting(SettingScope.User, "Titanium")]
     public string Skin
     {
       get { return _skin; }
       set { _skin = value; }
     }
-    [Setting(SettingScope.User, "default")]
+    [Setting(SettingScope.User, "anniversary")]
     public string Theme
     {
       get { return _theme; }

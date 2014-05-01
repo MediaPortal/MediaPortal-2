@@ -361,7 +361,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool IsValidSource(string uriSource)
     {
       string lower = uriSource.ToLower();
-      if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".gif"))
+      // Web URIs often doesn't contain a image based extensions. For absolute uri we expect them to point to a valid image source.
+      // TODO: the list of image extensions should be extensible, i.e. the FreeImage library support much more image types to be loaded!
+      Uri uri;
+      if (Uri.TryCreate(uriSource, UriKind.Absolute, out uri) || lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".gif"))
         return true;
 
       if (Thumbnail && (lower.EndsWith(".avi") || lower.EndsWith(".ts") || lower.EndsWith(".mkv")))

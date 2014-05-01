@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">关机菜单</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">配置关机菜单条目的可见和位置</string>
+  <string name="SystemState.Configuration.Dialog.Title">配置关机菜单条目</string>
+  <string name="SystemState.Title">关机菜单</string>
+  <string name="SystemState.Hibernate">休眠</string>
+  <string name="SystemState.Shutdown">关机</string>
+  <string name="SystemState.Suspend">挂起</string>
+  <string name="SystemState.Restart">重启</string>
+  <string name="SystemState.Logoff">注销</string>
+  <string name="SystemState.MinimizeMP">最小化MediaPortal</string>
+  <string name="SystemState.ShutdownMP">关闭MediaPortal</string>
+</resources>

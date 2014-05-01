@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV klient</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV guide</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programoversigt</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">Optag nu</string>
   <string name="SlimTvClient.DeleteSchedule">Slet planlagt optagelse</string>
   <string name="SlimTvClient.CreateSchedule">Planlæg optagelse</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV udbyder tilgængelig (p.t.)</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Optagelser</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV optagelser</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer pr. kanal</string>

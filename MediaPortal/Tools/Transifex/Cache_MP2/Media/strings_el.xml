@@ -63,5 +63,7 @@
   <string name="Media.RepeatMode.All">Όλα</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SwitchFilterMenuItem">Φίλτρο</string>
+  <string name="Media.SwitchFilterDialogTitle">Φίλτρο</string>
   <string name="Settings.Players">Παίκτες</string>
 </resources>

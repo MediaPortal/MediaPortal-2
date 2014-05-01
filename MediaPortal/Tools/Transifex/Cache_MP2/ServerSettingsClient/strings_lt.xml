@@ -10,7 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Vartotojo vardas ir slaptažodis</string>
   <string name="Settings.ServerSettings.Username">Vartotojo vardas:</string>
   <string name="Settings.ServerSettings.Password">Slaptažodis:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Bendrinių importavimo konfigūracija</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Media šaltinio importo konfigūracija</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Konfigūruoti auomatinius bendrinių atnaujinimus</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Įjungti automatinį atnaujinimą</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Paleisti šią dienos valandą (24h pagrindu)</string>

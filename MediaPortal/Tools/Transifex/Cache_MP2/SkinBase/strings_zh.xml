@@ -1,22 +1,199 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="System.Yes">确认</string>
+  <string name="System.No">否定</string>
+  <string name="System.Done">完成</string>
+  <string name="System.Finish">结束</string>
+  <string name="System.Ok">OK</string>
+  <string name="System.Cancel">取消</string>
+  <string name="System.Discard">丢弃</string>
+  <string name="System.Back">后退</string>
+  <string name="System.Continue">继续</string>
+  <string name="System.Add">增加</string>
+  <string name="System.Remove">移除</string>
+  <string name="System.Hint">提示</string>
+  <string name="System.Information">信息</string>
+  <string name="System.Warning">警告</string>
+  <string name="System.Error">错误</string>
+  <string name="Keys.Shift">转移</string>
+  <string name="Keys.CapsLock">大写锁定</string>
+  <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">拷贝</string>
+  <string name="Keys.Paste">粘贴</string>
+  <string name="Home.Title">MediaPortal 2</string>
+  <string name="Home.HomeStateDisplayLabel">主界面</string>
+  <string name="Dialogs.InfoHeaderText">信息</string>
+  <string name="Dialogs.WarningHeaderText">警告</string>
+  <string name="Dialogs.ErrorHeaderText">错误</string>
+  <string name="Media.MyMusic">音乐</string>
+  <string name="Media.MyVideos">视频</string>
+  <string name="Media.MyPictures">图片</string>
+  <string name="ServerConnection.NotificationServerAvailableTitle">MP2服务器可用</string>
+  <string name="ServerConnection.NotificationServerAvailableText">至少有一个MediaPortal 2服务器在网络上。连接它来得到所有MediaPortal 2功能。</string>
+  <string name="ServerConnection.ServerFormatText">\'{0}\' 在主机 \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.UnknownServerName">&lt;未知&gt;</string>
+  <string name="ServerConnection.UnknownServerSystem">&lt;未知&gt;</string>
+  <string name="ServerConnection.HomeServer">家庭服务器</string>
+  <string name="ServerConnection.AttachToServerWorkflowStateLabel">连接到服务器</string>
+  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">脱离服务器</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">家庭服务器</string>
+  <string name="ServerConnection.AttachedText.Before">此MediaPortal 2客户端当前已连接到家庭服务器</string>
   <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.NoHomeServerAttached">此MediaPortal 2客户端当前未连接到家庭服务器</string>
+  <string name="ServerConnection.HomeServerIsConnected">家庭服务器已连接</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">家庭服务器已断开</string>
+  <string name="ServerConnection.DetachMenu">脱离</string>
+  <string name="ServerConnection.DetachConfirmDialogHeader">脱离家庭服务器</string>
+  <string name="ServerConnection.SearchForServers">搜索服务器</string>
+  <string name="ServerConnection.DetachFromServer">脱离家庭服务器</string>
+  <string name="ServerConnection.AttachToServerHeader">连接到MediaPortal 2 服务器</string>
+  <string name="ServerConnection.AttachToMultipleText">在网络中有多个MP2服务器可用，你想在他们中选择一个作为家庭服务器么？</string>
+  <string name="ServerConnection.AttachToSingleText.Before">MP2服务器</string>
+  <string name="ServerConnection.AttachToSingleText.After">在网络中可用，想要连接它么？</string>
+  <string name="ServerConnection.AttachToServerNoServerText">当前网络中没有可用的MediaPortal 2服务器。</string>
+  <string name="ServerConnection.AttachButton">连接</string>
+  <string name="ServerConnection.AttachInfoDialogHeader">服务器已连接</string>
+  <string name="ServerConnection.AttachInfoDialogText">此MediaPortal 2客户端已经连接到他的新家庭服务器 \'{0}\' 在主机 \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="Notifications.Title">提示信息</string>
+  <string name="Notifications.OneMoreNotification">(1 more)</string>
+  <string name="Notifications.NMoreNotifications">({0} more)</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">提示信息</string>
+  <string name="Notifications.Handle">处理</string>
+  <string name="ImporterMessages.ImportStartedTitle">导入已开始</string>
+  <string name="ImporterMessages.ImportStartedText">\'{0}\'的导入已经开始</string>
+  <string name="ImporterMessages.ImportCompletedTitle">导入完成</string>
+  <string name="ImporterMessages.ImportCompletedText">\'{0}\'的导入完成</string>
+  <string name="LocalFsResourceProvider.Description">访问本地文件系统</string>
+  <string name="RemoteResourceProvider.Description">访问在另外一台MediaPortal 2系统的资源</string>
+  <string name="RawUrlResourceProvider.Description">访问原始URI</string>
+  <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.NoPlayerAvailableNotificationTitle">没有播放器</string>
+  <string name="Players.NoPlayerAvailableNotificationText">没有播放器注册为可播放 \'{0}\'</string>
+  <string name="Players.ErrorPlayingMediaItemTitle">播放媒体条目错误</string>
+  <string name="Players.UnableToPlayMediaItemText">不能播放媒体 \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">资源 \'{0}\'未找到</string>
+  <string name="Players.PlayerConfiguration">播放器配置</string>
+  <string name="Players.CurrentMediaInfo">当前媒体信息</string>
+  <string name="Players.FullscreenVideo">全屏 {0}</string>
   <!--for example "Fullscreen TV"-->
+  <string name="Players.FullscreenImage">全屏图片</string>
+  <string name="Players.AudioVisualization">音频可视化效果</string>
+  <string name="Players.PlayerOfType"> {0}播放器</string>
   <!--for example "Video player"-->
+  <string name="Players.SlotNo">插槽 #{0}</string>
+  <string name="Players.FocusPlayer">关注{0}</string>
   <!--for example "Focus video player"-->
+  <string name="Players.SwitchPipPlayers">切换画中画播放器</string>
+  <string name="Players.ChooseAudioStream">选择音频流</string>
+  <string name="Players.PlayerSlotAudioMenu">{0}的音频菜单</string>
   <!--for example "Audio menu for Lammbock"-->
+  <string name="Players.Mute">静音</string>
+  <string name="Players.MuteOff">静音关闭</string>
+  <string name="Players.ClosePlayerContext">关闭{0}</string>
   <!--for example "Close video player"-->
+  <string name="Players.ChoosePlayerGeometry">缩放模式</string>
+  <string name="Players.ChoosePlayerEffect">效果</string>
+  <string name="Settings.Appearance">外观</string>
+  <string name="Settings.Appearance.Skin">皮肤</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">数据格式</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">皮肤用到的数据格式，使用 .net DateTime class的格式规格</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">时间格式</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">皮肤用的时间格式，使用 .net DateTime class的格式规格</string>
+  <string name="Settings.General">常规</string>
+  <string name="Settings.General.System">系统</string>
+  <string name="Settings.General.System.Autostart">自动启动</string>
+  <string name="Settings.General.System.Autostart.Help">Windows开机时自动启动MediaPortal </string>
+  <string name="Settings.General.System.ClientDOKANDrive">资源安装的盘符</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">在此客户端上配置挂载远程资源的驱动盘符。</string>
+  <string name="Settings.General.Connectivity">连接</string>
+  <string name="Settings.General.Connectivity.HomeServer">家庭服务器</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">家庭服务器信息，连接和脱离家庭服务器</string>
+  <string name="Settings.General.Connectivity.ServerListener">服务器监听器</string>
+  <string name="Settings.General.Connectivity.ServerListener.Help">当一个MediaPortal 2服务器在网络中可用时，启用脱离状态提醒。</string>
+  <string name="Settings.General.Connectivity.ClientName">客户端名称</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">设置此MediaPortal 2客户端的名字</string>
+  <string name="Settings.Regional">区域</string>
+  <string name="Settings.Regional.Language">语言</string>
+  <string name="Settings.Regional.Language.Main">语言</string>
+  <string name="Settings.Regional.Language.Main.Help">设置程序使用的主要语言</string>
   <!--Section name-->
   <!--Group name-->
   <!--Setting-->
+  <string name="Settings.Shares.Overview">概览</string>
   <!--Group name-->
   <!--Setting-->
+  <string name="Settings.Plugins">插件</string>
+  <string name="Shares.InvalidPath">路径不存在:  \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <string name="Shares.Online">在线</string>
+  <string name="Shares.Offline">离线</string>
+  <string name="Shares.ReImport">重新导入</string>
+  <string name="Shares.Importing">导入中...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">选择资源提供者</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">编辑路径</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">选择路径</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">编辑名称</string>
+  <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">选择类别</string>
+  <string name="SharesConfig.ShareNameInfo">名称：</string>
+  <string name="SharesConfig.ShareResourceProviderInfo">基础资源提供者：</string>
+  <string name="SharesConfig.ShareSystem">系统：</string>
+  <string name="SharesConfig.SharePathInfo">路径：</string>
+  <string name="SharesConfig.ShareResourcePathInfo">技术路径：</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">媒体类别：</string>
+  <string name="SharesConfig.ChooseSystem">选择系统</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">请在选定的资源提供者里编辑一个有效的路径。你可以编辑资源提供者能够读懂的简单路径，也可以编辑复杂路径格式如下：{[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.MenuEditShares">编辑</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">你想要重新定位或者清除，并且重新导入么？</string>
+  <string name="SharesConfig.Relocate">重定位</string>
+  <string name="SharesConfig.ReImport">重新导入</string>
+  <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 客户端</string>
+  <string name="UPnPFrontendServer.Manufacturer">MediaPortal 小组</string>
+  <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelName">MediaPortal 2 客户端</string>
+  <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
+  <string name="DaysOfWeek.1">星期一</string>
+  <string name="DaysOfWeek.2">星期二</string>
+  <string name="DaysOfWeek.3">星期三</string>
+  <string name="DaysOfWeek.4">星期四</string>
+  <string name="DaysOfWeek.5">星期五</string>
+  <string name="DaysOfWeek.6">星期六</string>
+  <string name="DaysOfWeek.7">星期日</string>
+  <string name="DaysOfWeek.Monday">星期一</string>
+  <string name="DaysOfWeek.Tuesday">星期二</string>
+  <string name="DaysOfWeek.Wednesday">星期三</string>
+  <string name="DaysOfWeek.Thursday">星期四</string>
+  <string name="DaysOfWeek.Friday">星期五</string>
+  <string name="DaysOfWeek.Saturday">星期六</string>
+  <string name="DaysOfWeek.Sunday">星期日</string>
+  <string name="Months.1">一月</string>
+  <string name="Months.2">二月</string>
+  <string name="Months.3">三月</string>
+  <string name="Months.4">四月</string>
+  <string name="Months.5">五月</string>
+  <string name="Months.6">六月</string>
+  <string name="Months.7">七月</string>
+  <string name="Months.8">八月</string>
+  <string name="Months.9">九月</string>
+  <string name="Months.10">十月</string>
+  <string name="Months.11">十一月</string>
+  <string name="Months.12">十二月</string>
+  <string name="Months.January">一月</string>
+  <string name="Months.February">二月</string>
+  <string name="Months.March">三月</string>
+  <string name="Months.April">四月</string>
+  <string name="Months.May">五月</string>
+  <string name="Months.June">六月</string>
+  <string name="Months.July">七月</string>
+  <string name="Months.August">八月</string>
+  <string name="Months.September">九月</string>
+  <string name="Months.October">十月</string>
+  <string name="Months.November">十一月</string>
+  <string name="Months.December">十二月</string>
 </resources>

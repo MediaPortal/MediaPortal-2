@@ -1,2 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Procurar redes sem fios</string>
+  <string name="Network.NoWirelessNetworksFound">Não foram encontradas redes sem fios</string>
+  <string name="Network.Connect">Conectar</string>
+  <string name="Network.Disconnect">Desconectar</string>
+  <string name="Network.EnterWifiPassword">Introduza a password do Wifi</string>
+  <string name="Network.DeleteProfile">Apagar o perfil do Wifi</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Conexão do Wifi</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Conectar a uma rede sem fios</string>
+</resources>

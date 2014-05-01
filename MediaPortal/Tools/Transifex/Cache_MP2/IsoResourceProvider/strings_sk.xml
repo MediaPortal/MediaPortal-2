@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Obsluha ISO súborov</string>
   <string name="IsoResourceProvider.Description">Pristupuje k súborom a zložkám v ISO súboroch</string>
 </resources>

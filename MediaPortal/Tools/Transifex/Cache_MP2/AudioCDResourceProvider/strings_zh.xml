@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="AudioCDResourceProvider.Description">访问音频CD曲目</string>
+</resources>

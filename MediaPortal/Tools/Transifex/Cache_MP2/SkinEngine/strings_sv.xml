@@ -22,8 +22,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Byt nyanser och färgschema på aktuellt skinn</string>
   <string name="Settings.Players">Spelare</string>
   <string name="Settings.Players.Rendering">Uppspelning</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry">Standardzoomläge</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Välj zoomläget som ska användas som standard vid videouppspelning.</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry">Förvalt zoomläge</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Välj förvalt zoomläget vid videouppspelning.</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Konfigurera energisparfunktioner</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.Help">Avaktivera automatiskt viloläge/avstängning eller skärmavstängning när MediaPortal 2 är aktivt</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Tillåt alla nivåer av energisparande.</string>

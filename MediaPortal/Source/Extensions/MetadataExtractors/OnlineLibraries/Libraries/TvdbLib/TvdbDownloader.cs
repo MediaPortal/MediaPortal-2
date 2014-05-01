@@ -58,13 +58,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
     protected string DownloadString(string url)
     {
-      using (WebClient webClient = new WebClient { Encoding = Encoding.UTF8 })
+      using (WebClient webClient = new CompressionWebClient { Encoding = Encoding.UTF8 })
         return webClient.DownloadString(url);
     }
 
     protected byte[] DownloadData(string url)
     {
-      using (WebClient webClient = new WebClient { Encoding = Encoding.UTF8 })
+      using (WebClient webClient = new CompressionWebClient { Encoding = Encoding.UTF8 })
         return webClient.DownloadData(url);
     }
 

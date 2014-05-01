@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           foreach (BindVar bindVar in bindVars)
             database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
-          return (int) command.ExecuteScalar();
+          return Convert.ToInt32(command.ExecuteScalar());
         }
       }
       finally

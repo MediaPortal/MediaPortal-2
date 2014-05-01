@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">ИСО фајл провајдер</string>
   <string name="IsoResourceProvider.Description">Приступи фајловима и директоријумима на ИСО медијумима</string>
 </resources>

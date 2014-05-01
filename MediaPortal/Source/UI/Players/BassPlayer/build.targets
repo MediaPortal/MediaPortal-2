@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- BASS extensions -->
     <PlayerPlugins Include="$(TargetDir)bassmix.dll" />
     <PlayerPlugins Include="$(TargetDir)bass_fx.dll" />
@@ -43,6 +47,7 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
+    <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(PlayerPlugins)" DestinationFolder="$(PluginDestination)Plugins\" />
   </Target>
 

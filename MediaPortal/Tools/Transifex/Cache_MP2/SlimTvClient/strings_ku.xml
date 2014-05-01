@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">خزمەتگوزاری سەیرکردنی تەلەڤزیۆن</string>
+  <string name="SlimTvClient.Main">تەلەڤزیۆن</string>
+  <string name="SlimTvClient.TvGuide">ڕێنمایی تەلەڤزیۆن</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">زانیاری بەرنامە</string>
   <string name="SlimTvClient.ChannelLabel">کەناڵ</string>
   <string name="SlimTvClient.ProgramLabel">بەرنامە</string>
@@ -17,7 +19,10 @@
   <string name="SlimTvClient.RecordNow">تۆمارکردن ئێستا</string>
   <string name="SlimTvClient.DeleteSchedule">سڕینەوەی خشتە</string>
   <string name="SlimTvClient.CreateSchedule">خشتەی تۆمارکردن</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">(هێشتا) هیچ وەرگرێکی تەلەڤزیۆن نیە</string>
+  <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">تۆمارکراوەکان</string>
   <string name="SlimTvClient.RecordingsRootViewName">تۆمارکراوەکانی تەلەڤزیۆن</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">ڕێگریکردن بەپێی کەناڵ</string>

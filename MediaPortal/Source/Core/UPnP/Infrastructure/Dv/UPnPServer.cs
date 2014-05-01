@@ -39,7 +39,7 @@ using UPnP.Infrastructure.Dv.GENA;
 using UPnP.Infrastructure.Dv.SOAP;
 using UPnP.Infrastructure.Dv.SSDP;
 using UPnP.Infrastructure.Utils;
-using HttpListener=HttpServer.HttpListener;
+using HttpListener = HttpServer.HttpListener;
 
 namespace UPnP.Infrastructure.Dv
 {
@@ -104,7 +104,7 @@ namespace UPnP.Infrastructure.Dv
 
     private void OnHttpListenerRequestReceived(object sender, RequestEventArgs e)
     {
-      IHttpClientContext context = (IHttpClientContext) sender;
+      IHttpClientContext context = (IHttpClientContext)sender;
       lock (_serverData.SyncObj)
         if (!_serverData.IsActive)
           return;
@@ -169,57 +169,59 @@ namespace UPnP.Infrastructure.Dv
         if (_serverData.IsActive)
           throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
 
+        _serverData.HTTP_PORTv4 = 0;
         if (UPnPConfiguration.USE_IPV4)
         {
-          _serverData.HTTPListenerV4 = HttpListener.Create(IPAddress.Any, 0);
-          _serverData.HTTPListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-          try
+          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, UPnPConfiguration.IP_ADDRESS_BINDINGS))
           {
-            _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-            _serverData.HTTP_PORTv4 = _serverData.HTTPListenerV4.LocalEndpoint.Port;
-            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
-          }
-          catch (SocketException e)
-          {
-            _serverData.HTTPListenerV4 = null;
-            _serverData.HTTP_PORTv4 = 0;
-            UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv4)", e);
+            HttpListener httpListenerV4 = HttpListener.Create(address, _serverData.HTTP_PORTv4);
+            httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
+            try
+            {
+              httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
+              _serverData.HTTP_PORTv4 = httpListenerV4.LocalEndpoint.Port;
+              UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started on port {0}", _serverData.HTTP_PORTv4);
+              _serverData.HTTPListeners.Add(httpListenerV4);
+            }
+            catch (SocketException e)
+            {
+              UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv4)", e);
+            }
           }
         }
         else
         {
-          _serverData.HTTPListenerV4 = null;
-          _serverData.HTTP_PORTv4 = 0;
           UPnPConfiguration.LOGGER.Info("UPnP server: IPv4 protocol disabled, so no HTTP listener started for IPv4");
         }
 
+        _serverData.HTTP_PORTv6 = 0;
         if (UPnPConfiguration.USE_IPV6)
         {
-          _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0); // Might fail if IPv6 isn't installed
-          _serverData.HTTPListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-          try
+          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, UPnPConfiguration.IP_ADDRESS_BINDINGS))
           {
-            _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-            _serverData.HTTP_PORTv6 = _serverData.HTTPListenerV6.LocalEndpoint.Port;
-            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
-          }
-          catch (SocketException e)
-          {
-            _serverData.HTTPListenerV6 = null;
-            _serverData.HTTP_PORTv6 = 0;
-            UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv6)", e);
+            HttpListener httpListenerV6 = HttpListener.Create(address, _serverData.HTTP_PORTv6); // Might fail if IPv6 isn't installed
+            httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
+            try
+            {
+              httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+              _serverData.HTTP_PORTv6 = httpListenerV6.LocalEndpoint.Port;
+              UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
+              _serverData.HTTPListeners.Add(httpListenerV6);
+            }
+            catch (SocketException e)
+            {
+              UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv6)", e);
+            }
           }
         }
         else
         {
-          _serverData.HTTPListenerV6 = null;
-          _serverData.HTTP_PORTv6 = 0;
           UPnPConfiguration.LOGGER.Info("UPnP server: IPv6 protocol disabled, so no HTTP listener started for IPv6");
         }
 
         _serverData.SSDPController = new SSDPServerController(_serverData)
           {
-              AdvertisementExpirationTime = advertisementInterval
+            AdvertisementExpirationTime = advertisementInterval
           };
         _serverData.GENAController = new GENAServerController(_serverData);
 
@@ -270,10 +272,7 @@ namespace UPnP.Infrastructure.Dv
       }
       _serverData.GENAController.Close();
       _serverData.SSDPController.Close();
-      if (_serverData.HTTPListenerV4 != null)
-        _serverData.HTTPListenerV4.Stop();
-      if (_serverData.HTTPListenerV6 != null)
-        _serverData.HTTPListenerV6.Stop();
+      _serverData.HTTPListeners.ForEach(x => x.Stop());
       lock (_serverData.SyncObj)
         _serverData.UPnPEndPoints.Clear();
     }
@@ -447,7 +446,7 @@ namespace UPnP.Infrastructure.Dv
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       result += config.HTTPServerPort;
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
-      return (int) result;
+      return (int)result;
     }
 
     protected void UpdateInterfaceConfiguration()
@@ -462,7 +461,7 @@ namespace UPnP.Infrastructure.Dv
       IDictionary<IPAddress, EndpointConfiguration> oldEndpoints = new Dictionary<IPAddress, EndpointConfiguration>();
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
         oldEndpoints.Add(config.EndPointIPAddress, config);
-      IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses());
+      IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses(UPnPConfiguration.IP_ADDRESS_BINDINGS));
 
       // Add new endpoints
       foreach (IPAddress address in addresses)
@@ -478,11 +477,11 @@ namespace UPnP.Infrastructure.Dv
         UPnPConfiguration.LOGGER.Debug("UPnPServer: Initializing IP endpoint '{0}'", NetworkHelper.IPAddrToString(address));
         EndpointConfiguration config = new EndpointConfiguration
           {
-              EndPointIPAddress = address,
-              DescriptionPathBase = DEFAULT_DESCRIPTION_URL_PREFIX,
-              ControlPathBase = DEFAULT_CONTROL_URL_PREFIX,
-              EventSubPathBase = DEFAULT_EVENT_SUB_URL_PREFIX,
-              HTTPServerPort = family == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6
+            EndPointIPAddress = address,
+            DescriptionPathBase = DEFAULT_DESCRIPTION_URL_PREFIX,
+            ControlPathBase = DEFAULT_CONTROL_URL_PREFIX,
+            EventSubPathBase = DEFAULT_EVENT_SUB_URL_PREFIX,
+            HTTPServerPort = family == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6
           };
         GenerateObjectURLs(config);
         config.ConfigId = GenerateConfigId(config);

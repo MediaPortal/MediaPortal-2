@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV klientas</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV programa</string>
+  <string name="SlimTvClient.SingleChannelGuide">Kanalų gidas</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programos informacija</string>
   <string name="SlimTvClient.ChannelLabel">Kanalas</string>
   <string name="SlimTvClient.ProgramLabel">Programa</string>
@@ -15,10 +18,45 @@
   <string name="SlimTvClient.ChooseChannelGroup">Pasirinkti kanalų grupę...</string>
   <string name="SlimTvClient.ProgramOver">Programa jau pasibaigusi</string>
   <string name="SlimTvClient.WatchNow">Žiūrėti programą dabar</string>
+  <string name="SlimTvClient.WatchFromBeginning">Žiūrėti įrašą nuo pradžių</string>
   <string name="SlimTvClient.RecordNow">Įrašyti dabar</string>
   <string name="SlimTvClient.DeleteSchedule">Trinti tvarkaraštį</string>
   <string name="SlimTvClient.CreateSchedule">Nustatyti įrašymo tvarkaraštį</string>
+  <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Įrašymo veiksmai</string>
+  <string name="SlimTvClient.StopCurrentRecording">Stabdyti einamąjį įrašą \'{0}\'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Įrašyti programą \'{0}\'</string>
+  <string name="SlimTvClient.RecordManual">Įrašyti iki rankinio sustabdymo</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Rankinis įrašymas</string>
+  <string name="SlimTvClient.RecordProgram">Įrašyti programą</string>
+  <string name="SlimTvClient.DontRecordProgram">Neįrašyti</string>
+  <string name="SlimTvClient.RecordSeries">Įrašyti serijas</string>
+  <string name="SlimTvClient.ChooseScheduleType">Pasirinkti įrašymo tvarkaraščio tipą</string>
+  <string name="SlimTvClient.DeleteScheduleType">Kaip ištinti tvarkaraštį?</string>
+  <string name="SlimTvClient.DeleteSingle">Ištrinti vieną programą</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Ištrinti visą serijų tvarkaraštį</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Ištrinti pavienes tvarkaraščio programas</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Vieną kartą</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Kasdien</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Kas savaitę</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Kaskart šiam kanalui, šiuo laiku</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Kaskart visiems kanalams šiuio laiku</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Savaitgaliais</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Darbo dienomis</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Kartą savaitėje šiuo laiku, šiam kanalui</string>
+  <!--Schedule management-->
+  <string name="SlimTvClient.ScheduleDetails">Tvarkaraščio detalės</string>
+  <string name="SlimTvClient.ScheduleName">Tvarkaraščio pavadinimas</string>
+  <string name="SlimTvClient.ScheduleType">Tvarkaraščio tipas</string>
+  <string name="SlimTvClient.Schedules">Tvarkaraščiai</string>
+  <string name="SlimTvClient.ExtendedSchedule">Išplėstinis tvarkraščio sudarymas</string>
+  <string name="SlimTvClient.ScheduleManagement">Tvarkyti tvarkaraščius</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Nėra pasiekiamo TV tiekėjo</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">EPG eilučių skaičius</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Numato kiek EPG eilučių (kanalų) bus rodoma</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Valandų kiekis EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Numato kiek valandų (programų) bus rodoma EPG</string>
   <string name="SlimTvClient.RecordingsMenuItem">Įrašai</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV įrašai</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtruoti pagal kanalą</string>

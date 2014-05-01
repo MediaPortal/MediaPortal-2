@@ -756,6 +756,16 @@ namespace HttpServer
       get { return _httpListener.Port; }
     }
 
+    public bool IsIPv4
+    {
+      get { return _httpListener.Address.AddressFamily == AddressFamily.InterNetwork; }
+    }
+
+    public bool IsIPv6
+    {
+      get { return _httpListener.Address.AddressFamily == AddressFamily.InterNetworkV6; }
+    }
+
     /// <summary>
     /// Accept secure connections.
     /// </summary>

@@ -79,6 +79,7 @@
   <string name="Media.AudioTitleLabel">Naslov:</string>
   <string name="Media.AudioYearLabel">Godina: </string>
   <string name="Media.AudioDurationLabel">Trajanje: </string>
+  <string name="Media.SavePLAtServer">Spremi na server</string>
   <string name="Media.SavePLLocally">Spremi lokalno</string>
   <string name="Media.PlayMode">Način izvođenja</string>
   <!--VideoPlayerUIContributor-->

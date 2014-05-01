@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
@@ -65,6 +66,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
       _tvdbHandler.InitCache();
       if (!_tvdbHandler.IsLanguagesCached)
         _tvdbHandler.ReloadLanguages();
+      _tvdbHandler.UpdateFinished += TvdbHandlerOnUpdateFinished;
+      _tvdbHandler.UpdateProgressed += TvdbHandlerOnUpdateProgressed;
       return true;
     }
 
@@ -102,7 +105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
         // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
         if (!TestMatch(seriesName, ref series) && seriesName.Contains("-"))
         {
-          string namePart = seriesName.Split(new [] { '-' })[0].Trim();
+          string namePart = seriesName.Split(new[] { '-' })[0].Trim();
           return SearchSeriesUnique(namePart, out series);
         }
         return series.Count == 1;
@@ -194,6 +197,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     {
       series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, false, false, true);
       return series != null;
+    }
+
+    /// <summary>
+    /// Updates the local available information with updated ones from online source.
+    /// </summary>
+    /// <returns></returns>
+    public bool UpdateCache()
+    {
+      try
+      {
+        return _tvdbHandler.UpdateAllSeries(true);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("TvDbWrapper: Error updating cache", ex);
+        return false;
+      }
+    }
+
+    private void TvdbHandlerOnUpdateFinished(TvdbHandler.UpdateFinishedEventArgs args)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Finished updating cache from {0} to {1}", args.UpdateStarted, args.UpdateFinished);
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Updated {0} Series, {1} Episodes, {2} Banners.", args.UpdatedSeries.Count, args.UpdatedEpisodes.Count, args.UpdatedBanners.Count);
+    }
+
+    private void TvdbHandlerOnUpdateProgressed(TvdbHandler.UpdateProgressEventArgs args)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: ... {0} {2}. Total: {3}", args.CurrentUpdateStage, args.CurrentStageProgress, args.CurrentUpdateDescription, args.OverallProgress);
     }
   }
 }

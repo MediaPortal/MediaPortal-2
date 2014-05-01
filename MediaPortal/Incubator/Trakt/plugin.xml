@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Trakt.tv"
+    PluginId="{3E72718F-9B12-45FD-900A-68E11E8E4559}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Trakt.tv"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="Trakt.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="65E4F7CA-3C9C-4538-966D-2A896BFEF4D3" Name="TraktSetupModel" ClassName="MediaPortal.UiComponents.Trakt.Models.TraktSetupModel"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="TraktHandler" RegistrationClassName="MediaPortal.UiComponents.Trakt.Service.TraktHandler" ServiceClassName="MediaPortal.UiComponents.Trakt.Service.TraktHandler"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="3DB8C6DB-F4E4-4A87-80CE-53339AECF494" Name="TraktSetup" DialogScreen="dialogTraktSetup"
+        DisplayLabel="[Settings.Plugins.Trakt.TraktSetup]" WorkflowModel="65E4F7CA-3C9C-4538-966D-2A896BFEF4D3"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="TraktLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id="TraktSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
+  </Register>
+
+  <!-- Contents of '/Plugins' section -->
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="Trakt"
+        Redundant="true"
+        Text="[Settings.Plugins.Trakt]"/>
+  </Register>
+
+  <!-- Contents of '/Plugins/News' section -->
+  <Register Location="/Configuration/Settings/Plugins/Trakt">
+    <CustomConfigSetting
+        Id="TraktSetup"
+        Text="[Settings.Plugins.Trakt.TraktSetup]"
+        HelpText="[Settings.Plugins.Trakt.TraktSetup.Help]"
+        ClassName="MediaPortal.UiComponents.Trakt.Settings.Configuration.TraktSettingConfiguration"
+        AdditionalData="WorkflowState=3DB8C6DB-F4E4-4A87-80CE-53339AECF494,ConfAppPanel=..."/>
+
+  </Register>
+
+</Plugin>

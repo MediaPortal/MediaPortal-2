@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Etsi langattomia verkkoja</string>
+  <string name="Network.NoWirelessNetworksFound">Langattomia verkkoja ei löytynyt</string>
+  <string name="Network.Connect">Yhdistä</string>
+  <string name="Network.Disconnect">Katkaise yhteys</string>
+  <string name="Network.EnterWifiPassword">Syötä Wifi-salasana</string>
+  <string name="Network.DeleteProfile">Poista Wifi-profiili</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi yhteys</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Yhdistä langattomaan verkkoon</string>
+</resources>

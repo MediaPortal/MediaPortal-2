@@ -26,7 +26,6 @@
   <string name="Media.MyMusic">Μουσική</string>
   <string name="Media.MyVideos">Βίντεο</string>
   <string name="Media.MyPictures">Εικόνες</string>
-  <string name="Media.InvalidShareName">Άκυρη τοποθεσία</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Διακομιστής MP2 διαθέσιμος</string>
   <string name="ServerConnection.NotificationServerAvailableText">Υπάρχει τουλάχιστο ένας διακομιστής MediaPortal 2 στο δίκτυο. </string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' στο σύστημα \'{1}\'</string>
@@ -42,7 +41,6 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Ο αρχικός διακομιστής δεν είναι ενωμένος</string>
   <string name="ServerConnection.DetachMenu">Αποσύνδεση</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Αποσύνδεση απο αρχικό διακομιστή</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Εαν αποσυνδεθείτε απο τον αρχικό διακομιστή, όλες η πληροφορίες για τις τοπικές τοποθεσίες και αρχεία θα αφαιρεθούν απο τη βάση δεδομένων του διακομιστή. Μπορείτε να συνδεθείτε ξανά αργότερα. Σίγουρα θέλετε να αποσυνδεθείτε απο τον διακομιστή \'{0}\' που βρίσκετε στο σύστημα \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Αναζήτηση διακομιστών</string>
   <string name="ServerConnection.DetachFromServer">Αποσύνδεση απο αρχικό διακομιστή</string>
   <string name="ServerConnection.AttachToServerHeader">Σύνδεση σε διακομιστή MP2</string>
@@ -84,23 +82,13 @@
   <string name="Settings.Regional.Language">Γλώσσα</string>
   <string name="Settings.Regional.Language.Main">Γλώσσα</string>
   <string name="Settings.Regional.Language.Main.Help">Ρυθμίστε την κύρια γλώσσα που χρησιμοποιείται στην εφαρμογή</string>
-  <string name="Settings.Shares">Τοποθεσίες</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Ρύθμιση τοποθεσιών</string>
   <!--Group name-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Ρυθμίσεις τοποθεσιών</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Ρύθμιση όλων των τοπικών τοποθεσιών</string>
   <string name="Settings.Shares.Overview">Επισκόπηση</string>
   <!--Group name-->
-  <string name="Settings.Shares.Overview.SharesOverview">Επισκόπηση τοποθεσιών</string>
   <!--Setting-->
-  <string name="Settings.Shares.Imports.ReImportAllShares">Επαναεισαγωγή όλων των τοποθεσιών</string>
   <string name="Settings.Plugins">Πρόσθετα</string>
-  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Επισκόπηση τοποθεσιών</string>
-  <string name="SharesOverview.Title">Επισκόπηση τοποθεσιών</string>
-  <string name="SharesOverview.ReImportAllShares">Επαναεισαγωγή όλων των τοποθεσιών</string>
-  <string name="SharesOverview.NotConnectedToHomeServer">Ο αρχικός διακομιστής δεν είναι συνδεδεμένος, </string>
   <string name="Shares.InvalidPath">Άκυρο μονοπάτι: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Συνδεδεμένος</string>
@@ -108,44 +96,26 @@
   <string name="Shares.ReImport">Επαναεισαγωγή</string>
   <string name="Shares.Importing">Εισαγωγή...</string>
   <!--Shares configuration workflow-->
-  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Ρυθμίσεις τοποθεσιών</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Αφαίρεση τοποθεσιών</string>
-  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Πληροφορίες τοποθεσίας</string>
-  <string name="SharesConfig.SharesAddChooseSystemWorkflowNavigationContextDisplayLabel">Επιλογή συστήματος</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Επιλογή πηγής</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Επεξεργασία μονοπατιού</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Επιλογή μονοπατιού</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Επεξεργασία ονόματος</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Επίλεξε κατηγορίες</string>
-  <string name="SharesConfig.SharesConfiguration.Title">Ρυθμίσεις τοποθεσιών</string>
   <string name="SharesConfig.ShareNameInfo">Όνομα:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Παροχέας βάσης:</string>
   <string name="SharesConfig.ShareSystem">Σύστημα:</string>
   <string name="SharesConfig.SharePathInfo">Μονοπάτι:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Κατηγορίες μέσων:</string>
-  <string name="SharesConfig.RemoveShares">Αφαίρεση τοποθεσιών</string>
-  <string name="SharesConfig.EditShare">Επεξεργασία τοποθεσιών</string>
   <string name="SharesConfig.ChooseSystem">Επιλογή συστήματος</string>
-  <string name="SharesConfig.LocalShare">Τοπική τοποθεσία</string>
-  <string name="SharesConfig.LocalShares">Τοπικές τοποθεσίες</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Επεξεργασία μονοπατιού προς τοποθεσία</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Επιλέξτε το μονοπάτι για την τοποθεσία</string>
-  <string name="SharesConfig.EditShareName">Επεξεργασία ονόματος τοποθεσίας</string>
-  <string name="SharesConfig.MenuAddShare">Πρόσθεση τοποθεσίας</string>
   <string name="SharesConfig.MenuEditShares">Επεξεργασία</string>
-  <string name="SharesConfig.MenuRemoveShares">Αφαίρεση τοποθεσιών</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.AddLocalShare">Πρόσθεση τοπικής τοποθεσίας</string>
-  <string name="SharesConfig.EditLocalShare">Επεξεργασία τοπικής τοποθεσίας</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Ενημέρωση τοποθεσίας</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Θέλετε να μεταφέρετε ή να καθαρίσετε και να επαναεισαγάγετε;</string>
   <string name="SharesConfig.Relocate">Μεταφορά</string>
   <string name="SharesConfig.ReImport">Επαναεισαγωγή</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Πελάτης MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Ομάδα Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPFrontendServer.ModelDescription">Πελάτης MediaPortal 2 - το γραφικό περιβάλλον. Αναπαραγωγή μέσων, εξυπηρέτηση τοπικών τοποθεσιών και παρέχει το γραφικό περιβάλλον για χρήστες. </string>
   <string name="UPnPFrontendServer.ModelName">Πελάτης MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

@@ -3,11 +3,14 @@
   <string name="Settings.ServerSettings">Ustawienia serwera</string>
   <string name="Settings.ServerSettings.ServerDOKANDrive">Litera dysku do podłączenia zasobów</string>
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Konfiguruje literę dysku używaną do podłączenia zasobów na serwerze.</string>
+  <string name="Settings.ServerSettings.NetworkCredentials">Poświadczenia sieciowe</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Konfiguruje użytkownika i hasło dla dostępu do zasobów na serwerze.</string>
+  <string name="Settings.ServerSettings.ImpersonateInteractive">Użyj poświadczeń interaktywnej sesji na serwerze</string>
   <string name="Settings.ServerSettings.UseCredentials">Używaj nazwy użytkownika i hasła dla dostępu do sieci</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nazwa użytkownika i hasło</string>
   <string name="Settings.ServerSettings.Username">Użytkownik:</string>
   <string name="Settings.ServerSettings.Password">Hasło:</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Ustawienia automatycznego odświeżania udziałów</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Włącz automatyczne odświeżanie</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Uruchom o określonej godzinie dnia (notacja 24-ro godzinna)</string>
 </resources>

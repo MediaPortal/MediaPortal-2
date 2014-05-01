@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Name">Kaimyninis tinklo šaltinio tiekėjas</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Tinklo kaimynystė</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Pasiekti bendrinimus esančius lokalaus tinklo kaimyniniuose kompiuteriuose</string>
 </resources>

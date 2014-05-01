@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Name">Παροχέας αρχείων ISO</string>
   <string name="IsoResourceProvider.Description">Πρόσβαση σε αρχεία και καταλόγους σε εικόνες ISO</string>
 </resources>

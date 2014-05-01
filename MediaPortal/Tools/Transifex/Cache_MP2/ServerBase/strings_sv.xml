@@ -4,8 +4,8 @@
   <string name="MainForm.AttachedClients">Anslutna klienter</string>
   <string name="MainForm.Client">Klient</string>
   <string name="MainForm.System">System</string>
-  <string name="MainForm.ConnectionState">Anslutningsstillstånd</string>
-  <string name="MainForm.Connected">Inkopplad</string>
+  <string name="MainForm.ConnectionState">Uppkopplingsstillstånd</string>
+  <string name="MainForm.Connected">Uppkopplad</string>
   <string name="MainForm.Disconnected">Frånkopplad</string>
   <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2-server</string>
   <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
