@@ -31,9 +31,14 @@ namespace MediaPortal.Common.PluginManager.Exceptions
   /// </summary>
   public abstract class PluginManagerException : ApplicationException
   {
-    protected PluginManagerException(string msg, params object[] args):
-        base(string.Format(msg, args)) { }
-    protected PluginManagerException(string msg, Exception ex, params object[] args):
-        base(string.Format(msg, args), ex) { }
+    protected PluginManagerException(string msg, params object[] args) :
+      base(string.Format(msg, args))
+    {
+    }
+
+    protected PluginManagerException(string msg, Exception ex, params object[] args) :
+      base(string.Format(msg, args), ex)
+    {
+    }
   }
 }

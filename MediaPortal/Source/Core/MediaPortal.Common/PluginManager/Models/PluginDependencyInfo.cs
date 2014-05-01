@@ -33,6 +33,7 @@ namespace MediaPortal.Common.PluginManager.Models
   public class PluginDependencyInfo
   {
     #region Compatibility Details and Dependency/Conflict Collections
+
     /// <summary>
     /// Returns the identifier of the plugin to which this information belongs.
     /// </summary>
@@ -42,7 +43,7 @@ namespace MediaPortal.Common.PluginManager.Models
     /// Returns the current API level of this version of the plugin.
     /// </summary>
     public int CurrentApi { get; internal set; }
-		
+
     /// <summary>
     /// Returns the minimum API level of this plugin that is compatible with the current API level of this plugin's version.
     /// </summary>
@@ -56,16 +57,19 @@ namespace MediaPortal.Common.PluginManager.Models
     /// <summary>
     /// Returns a collection of plugin identifiers that this plugin is in conflict with.
     /// </summary>
-    public ICollection<Guid> ConflictsWith { get; internal set; }    
+    public ICollection<Guid> ConflictsWith { get; internal set; }
+
     #endregion
 
     #region Ctor
-	  public PluginDependencyInfo( Guid pluginId )
+
+    public PluginDependencyInfo(Guid pluginId)
     {
       PluginId = pluginId;
       DependsOn = new List<PluginDependency>();
       ConflictsWith = new HashSet<Guid>();
     }
-  	#endregion  
+
+    #endregion
   }
 }

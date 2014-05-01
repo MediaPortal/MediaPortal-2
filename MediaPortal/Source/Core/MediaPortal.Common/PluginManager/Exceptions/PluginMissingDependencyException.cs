@@ -31,9 +31,14 @@ namespace MediaPortal.Common.PluginManager.Exceptions
   /// </summary>
   public class PluginMissingDependencyException : PluginManagerException
   {
-    public PluginMissingDependencyException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginMissingDependencyException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    public PluginMissingDependencyException(string msg, params object[] args) :
+      base(msg, args)
+    {
+    }
+
+    public PluginMissingDependencyException(string msg, Exception ex, params object[] args) :
+      base(msg, ex, args)
+    {
+    }
   }
 }

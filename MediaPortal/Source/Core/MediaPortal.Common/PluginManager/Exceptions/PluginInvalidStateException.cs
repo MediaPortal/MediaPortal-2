@@ -31,9 +31,14 @@ namespace MediaPortal.Common.PluginManager.Exceptions
   /// </summary>
   public class PluginInvalidStateException : PluginManagerException
   {
-    public PluginInvalidStateException(string msg, params object[] args):
-      base(msg, args) { }
-    public PluginInvalidStateException(string msg, Exception ex, params object[] args):
-      base(msg, ex, args) { }
+    public PluginInvalidStateException(string msg, params object[] args) :
+      base(msg, args)
+    {
+    }
+
+    public PluginInvalidStateException(string msg, Exception ex, params object[] args) :
+      base(msg, ex, args)
+    {
+    }
   }
 }

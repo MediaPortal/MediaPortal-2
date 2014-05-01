@@ -36,6 +36,7 @@ namespace MediaPortal.Common.PluginManager.Builders.AdditionalBuilders
   public class MIATypeRegistrationBuilder : IPluginItemBuilder
   {
     #region IPluginItemBuilder Member
+
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       itemData.CheckParameter("MediaItemAspectTypeId");
@@ -51,6 +52,7 @@ namespace MediaPortal.Common.PluginManager.Builders.AdditionalBuilders
     {
       return true;
     }
+
     #endregion
   }
 }

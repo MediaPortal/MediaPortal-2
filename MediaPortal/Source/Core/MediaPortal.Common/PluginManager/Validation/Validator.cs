@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -37,42 +39,50 @@ namespace MediaPortal.Common.PluginManager.Validation
   internal class Validator
   {
     #region Fields
+
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _models;
     private readonly ConcurrentHashSet<Guid> _disabledPlugins;
-    private readonly IDictionary<string, CoreAPIAttribute> _coreComponents; 
+    private readonly IDictionary<string, CoreAPIAttribute> _coreComponents;
+
     #endregion
 
     #region Ctor
-    public Validator( ConcurrentDictionary<Guid, PluginMetadata> models, ConcurrentHashSet<Guid> disabledPlugins, IDictionary<string, CoreAPIAttribute> coreComponents )
+
+    public Validator(ConcurrentDictionary<Guid, PluginMetadata> models, ConcurrentHashSet<Guid> disabledPlugins, IDictionary<string, CoreAPIAttribute> coreComponents)
     {
       _models = models;
       _disabledPlugins = disabledPlugins;
       _coreComponents = coreComponents;
     }
+
     #endregion
 
     #region Validate
+
     /// <summary>
     /// Executes all known validators for a single plugin and returns information with
     /// all errors found.
     /// </summary>
     /// <param name="plugin">The plugin to validate</param>
-    /// <returns>A custom <see cref="ValidationResult"/> with all errors found by the
-    /// individual validators.</returns>
-    public ValidationResult Validate( PluginMetadata plugin )
+    /// <returns>
+    /// A custom <see cref="ValidationResult"/> with all errors found by the
+    /// individual validators.
+    /// </returns>
+    public ValidationResult Validate(PluginMetadata plugin)
     {
-      var conflictValidator = new ConflictValidator( _models, _disabledPlugins );
-      var dependencyValidator = new DependencyPresenceValidator( _models );
-      var compatibilityValidator = new CompatibilityValidator( _models, _coreComponents );
+      var conflictValidator = new ConflictValidator(_models, _disabledPlugins);
+      var dependencyValidator = new DependencyPresenceValidator(_models);
+      var compatibilityValidator = new CompatibilityValidator(_models, _coreComponents);
 
       var result = new ValidationResult
       {
-        MissingDependencies = dependencyValidator.Validate( plugin ),
-        ConflictsWith = conflictValidator.Validate( plugin ),
-        IncompatibleWith = compatibilityValidator.Validate( plugin )
+        MissingDependencies = dependencyValidator.Validate(plugin),
+        ConflictsWith = conflictValidator.Validate(plugin),
+        IncompatibleWith = compatibilityValidator.Validate(plugin)
       };
       return result;
-    } 
+    }
+
     #endregion
   }
 }

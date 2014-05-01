@@ -30,7 +30,8 @@ namespace MediaPortal.Common.PluginManager.Items
 
   /// <summary>
   /// General implementation of an <see cref="IItemRegistrationChangeListener"/> which provides delegates for methods
-  /// <see cref="IItemRegistrationChangeListener.ItemsWereAdded"/> and <see cref="IItemRegistrationChangeListener.ItemsWereRemoved"/>.
+  /// <see cref="IItemRegistrationChangeListener.ItemsWereAdded"/> and
+  /// <see cref="IItemRegistrationChangeListener.ItemsWereRemoved"/>.
   /// </summary>
   public class DefaultItemRegistrationChangeListener : IItemRegistrationChangeListener
   {
