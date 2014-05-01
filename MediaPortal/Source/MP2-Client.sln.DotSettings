@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BD/@EntryIndexedValue">BD</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=WASAPI/@EntryIndexedValue">WASAPI</s:String>
 	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=7A7246CE40AA044185EEAEA04B072FA9/AbsolutePath/@EntryValue">D:\MediaPortal\Sources\MediaPortal-2-dev\MediaPortal\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
 	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=7A7246CE40AA044185EEAEA04B072FA9/RelativePath/@EntryValue">..\..\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>

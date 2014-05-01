@@ -1,0 +1,61 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="BluRay Player"
+    PluginId="{BBF26BEE-70B4-4E6F-B279-4C1BD5F48DD4}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="BluRayPlayer"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"/> <!-- VideoPlayers -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="BluRayPlayer.dll"/>
+  </Runtime>
+
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="12FBC6B9-C4C2-4361-8572-BA841CCA7CBB" ClassName="MediaPortal.UI.Players.Video.BluRayPlayerBuilder"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="BluRayPlayerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+        Id="Codecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs]"/>
+  </Register>
+
+  <!-- Contents of '/Players/Codecs' section -->
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="VideoCodecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.VideoCodecs]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+    <ConfigSetting
+        Id="VideoVC1Codec"
+        Text="[Settings.Players.Codecs.VideoCodecs.VC1]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.VC1.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoVC1Codec"/>
+  </Register>
+</Plugin>
