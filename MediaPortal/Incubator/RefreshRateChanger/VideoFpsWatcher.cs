@@ -25,6 +25,7 @@
 using System;
 using System.Timers;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginManager;
@@ -57,26 +58,33 @@ namespace MediaPortal.Plugins.RefreshRateChanger
         return;
 
       int intFps;
-      double fps;
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_FPS, out intFps))
       {
         _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum());
-        fps = intFps;
-        // TODO: mappings into settings?
+        double fps = intFps;
         if (intFps == 23)
           fps = 23.976;
+        if (intFps == 29)
+          fps = 29.970;
         if (intFps == 59)
           fps = 59.940;
-        if (intFps == 25)
-          fps = 50;
-        if (!IsMultipleOf(_refreshRateChanger.GetRefreshRate(), fps))
+
+        var currentRefreshRate = _refreshRateChanger.GetRefreshRate();
+        if (!IsMultipleOf(currentRefreshRate, fps))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger: Video fps: {0}; Screen refresh rate {1}, trying to change it.", fps, currentRefreshRate);
           _refreshRateChanger.SetRefreshRate(fps);
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger: Video fps: {0}; Screen refresh rate {1}, no change required.", fps, currentRefreshRate);
+        }
       }
     }
 
     private bool IsMultipleOf(double screenRefreshRate, double videoFps)
     {
-      return ((int)screenRefreshRate * 1000) % (int)(videoFps * 1000) == 0;
+      return (int)(screenRefreshRate * 1000) % (int)(videoFps * 1000) == 0;
     }
 
     private MediaItem GetCurrentMediaItem(IVideoPlayer player)

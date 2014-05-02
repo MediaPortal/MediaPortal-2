@@ -41,13 +41,15 @@ namespace MediaPortal.Plugins.RefreshRateChanger
 
     public override void Dispose()
     {
-      SetRefreshRate(_originalRate);
+      if (_rateChanged)
+        SetRefreshRate(_originalRate);
       base.Dispose();
     }
   }
 
   public class RefreshRateChanger : IDisposable
   {
+    protected bool _rateChanged;
     private readonly uint _displayIndex;
     private bool _initialized;
     private int _offset;
@@ -139,6 +141,11 @@ namespace MediaPortal.Plugins.RefreshRateChanger
           denominator = 1000;
           scanLineOrdering = DISPLAYCONFIG_SCANLINE_ORDERING_PROGRESSIVE;
           break;
+        case 29970:
+          numerator = 30000;
+          denominator = 1001;
+          scanLineOrdering = DISPLAYCONFIG_SCANLINE_ORDERING_PROGRESSIVE;
+          break;
         case 30000:
           numerator = 30000;
           denominator = 1000;
@@ -191,9 +198,11 @@ namespace MediaPortal.Plugins.RefreshRateChanger
 
       if (result != 0)
       {
-        ServiceRegistration.Get<ILogger>().Error("RefreshRateChanger.SetDisplayConfig(...): SDC_APPLY returned {0}", result);
+        ServiceRegistration.Get<ILogger>().Warn("RefreshRateChanger.SetDisplayConfig(...): SDC_APPLY returned {0}", result);
         return false;
       }
+      ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger.SetDisplayConfig(...): Successfully switched to {0}/{1}", numerator, denominator);
+      _rateChanged = true;
       return true;
     }
 
