@@ -133,8 +133,9 @@ namespace MediaPortal.UI.Players.Video
       if (!IsLocalFilesystemResource)
         throw new IllegalCallException("The BluRayPlayer can only play resources of type IFileSystemResourceAccessor");
 
-      // Render the file
-      _fileSource = (IBaseFilter)new BDReader();
+      // Load source filter, assembly location must be determined here, otherwise LoadFilterFromDll would try to lookup the file relative to VideoPlayer!
+      string filterPath = FilterLoader.BuildAssemblyRelativePath("BDReader.ax");
+      _fileSource = FilterLoader.LoadFilterFromDll(filterPath, typeof(BDReader).GUID);
 
       // Init BD Reader
       _bdReader = (IBDReader)_fileSource;
@@ -380,7 +381,7 @@ namespace MediaPortal.UI.Players.Video
       if (requireRebuild)
         _graphRebuilder.DoAsynchRebuild();
 
-      return _changedChangedMediaType != BluRayAPI.ChangedMediaType.None && requireRebuild ? 1 : 0;
+      return _changedChangedMediaType != BluRayAPI.ChangedMediaType.None && requireRebuild ? 0 : 1;
     }
 
 

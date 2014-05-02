@@ -135,6 +135,9 @@ namespace MediaPortal.UI.Players.Video
       public IntPtr /*BDStreamInfo* */ SecAudioStreams;
       public IntPtr /*BDStreamInfo* */ SecVideoStreams;
       public IntPtr /*BDStreamInfo* */ RawStreams;
+      public UInt64 StartTime;
+      public UInt64 InTime;
+      public UInt64 OutTime;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -165,7 +168,8 @@ namespace MediaPortal.UI.Players.Video
       public VideoFormat Format;
       public VideoRate Rate;
       public CharCodeType CharCode;
-      public byte Lang;
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 4)]
+      public string Lang;
       public UInt16 Pid;
       public AspectRatio Aspect;
     }

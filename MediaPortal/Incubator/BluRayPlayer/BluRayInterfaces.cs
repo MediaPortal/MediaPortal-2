@@ -30,6 +30,7 @@ namespace MediaPortal.UI.Players.Video
   [ComVisible(true), ComImport, Guid("324FAA1F-4DA6-47B8-832B-3993D8FF4151"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IBDReaderCallback
   {
+    // FIXME: incosistent type formats, here integer, inside BDStreamInfo byte!!!
     [PreserveSig]
     int OnMediaTypeChanged(BluRayAPI.VideoRate videoRate, BluRayAPI.BluRayStreamFormats videoFormat, BluRayAPI.BluRayStreamFormats audioFormat);
 
@@ -99,6 +100,9 @@ namespace MediaPortal.UI.Players.Video
 
     [PreserveSig]
     int SetVC1Override(ref Guid decoder);
+
+    [PreserveSig]
+    int GetAudioChannelCount(long index);
   }
 
   [ComImport, Guid(BluRayAPI.BDREADER_GUID)]

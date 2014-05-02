@@ -27,32 +27,17 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Players.Video
 {
   public class BluRayPlayerBuilder : IPlayerBuilder
   {
-    #region Constructor
-
-    public BluRayPlayerBuilder()
-    {
-      Enabled = FilterGraphTools.IsThisComObjectInstalled(new Guid(BluRayAPI.BDREADER_GUID));
-      if (Enabled)
-        LogInfo("Detected source filer '{0}' on the system.", BluRayAPI.BDREADER_FILTER_NAME);
-      else
-        LogWarn("'{0}' was not detected on the system.", BluRayAPI.BDREADER_FILTER_NAME);
-    }
-
-    #endregion
-
     #region Protected fields
 
     private const string LOG_PREFIX = "BluRayPlayer:";
 
     protected string _pluginDirectory = null;
-    protected bool Enabled { get; set; }
 
     #endregion
 
@@ -65,7 +50,7 @@ namespace MediaPortal.UI.Players.Video
       if (!mediaItem.GetPlayData(out mimeType, out title))
         return null;
       IResourceLocator locator = mediaItem.GetResourceLocator();
-      if (Enabled && mimeType == "video/bluray")
+      if (mimeType == "video/bluray")
       {
         BluRayPlayer player = new BluRayPlayer();
         try
