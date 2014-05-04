@@ -46,6 +46,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
       base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
     {
+      SortedSubViews = true; // Stacking view has special sorting included.
     }
 
     #endregion

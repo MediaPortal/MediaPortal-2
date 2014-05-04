@@ -122,6 +122,11 @@ namespace MediaPortal.UiComponents.Media.Views
     }
 
     /// <summary>
+    /// Indicates if the list of subviews uses an own sorting. If set to <c>true</c>, the list will not be sorted later.
+    /// </summary>
+    public bool SortedSubViews { get; set; }
+
+    /// <summary>
     /// Loads or reloads the items and sub view specifications for a view to this specification.
     /// This will re-request the media database or datastore.
     /// </summary>
