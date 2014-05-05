@@ -108,9 +108,13 @@
     <Compile Include="Actions\VisibilityDependsOnServerConnectStateAction.cs" />
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
+    <Compile Include="Extensions\IMediaItemAction.cs" />
+    <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
+    <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\RemoveFromML.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
@@ -141,6 +145,7 @@
     <Compile Include="Models\Navigation\MovieItem.cs" />
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesItem.cs" />
+    <Compile Include="Models\MediaItemsActionModel.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
@@ -369,6 +374,12 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogMediaItemActionMenu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

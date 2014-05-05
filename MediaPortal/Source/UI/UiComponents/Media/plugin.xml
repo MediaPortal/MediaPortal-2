@@ -24,6 +24,7 @@
   <Register Location="/Models">
     <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" Name="MediaNavigationModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaNavigationModel"/>
     <Model Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084" Name="PlayItemsModel" ClassName="MediaPortal.UiComponents.Media.Models.PlayItemsModel"/>
+    <Model Id="970649B2-CAE8-4830-A985-E5E78F3CB24F" Name="MediaItemsActionModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaItemsActionModel"/>
     <Model Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256" Name="VideoPlayerModel" ClassName="MediaPortal.UiComponents.Media.Models.VideoPlayerModel"/>
     <Model Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC" Name="AudioPlayerModel" ClassName="MediaPortal.UiComponents.Media.Models.AudioPlayerModel"/>
     <Model Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C" Name="ShowPlaylistModel" ClassName="MediaPortal.UiComponents.Media.Models.ShowPlaylistModel"/>
@@ -91,6 +92,13 @@
         Name="ImagesNavigation-Root"
         DisplayLabel="[Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
+    <!-- MediaItemActions -->
+
+    <DialogState Id="EEBCCAE6-59F8-4AF3-95FF-FC14A5B3CD62"
+        Name="MediaItemActions"
+        DisplayLabel="[Media.MediaItemsActionDialogHeader]"
+        WorkflowModel="970649B2-CAE8-4830-A985-E5E78F3CB24F"/> <!-- Workflow model = MediaItemActions model -->
 
     <!-- Play items -->
 
@@ -201,6 +209,12 @@
     <Resource Id="MediaSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
+  <!-- MediaItemActions -->
+  <Builder Name="MediaItemActionBuilder" ClassName="MediaPortal.UiComponents.Media.Extensions.MediaItemActionBuilder"/>
+  <Register Location="/Media/Extensions">
+    <MediaItemActionBuilder Id="{A8EF2180-FBD4-4D01-AB21-E7A98C0464AA}" Caption="[Media.RemoveFromML]" Sort="D.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.RemoveFromML"/>
+  </Register>
+  
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection

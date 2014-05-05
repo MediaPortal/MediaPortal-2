@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.MediaItemsActionDialogHeader]"/>
+
+    <Model x:Key="MediaItemsActionModel" Id="970649B2-CAE8-4830-A985-E5E78F3CB24F"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource MediaItemsActionModel},Path=MediaItemActionItems,Mode=OneTime}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource MediaItemsActionModel}" Path="Select"/>
+  </Include.Resources>
+</Include>

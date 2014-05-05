@@ -60,6 +60,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_PLAYLIST_SAVE_FAILED = "9588B122-D697-4f9e-B8ED-887E83843C8E";
 
     public const string STR_WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS = "D93C8FA5-130F-4b5e-BE0B-79D6200CE8D2";
+    public const string STR_WF_STATE_ID_CHECK_MEDIA_ITEM_ACTION = "EEBCCAE6-59F8-4AF3-95FF-FC14A5B3CD62";
     public const string STR_WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM = "B79E395B-2276-4cde-B4CC-BB4F3E201EFF";
     public const string STR_WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = "895C4853-6D52-4c0f-9B16-B7DA789CBF6A";
     public const string STR_WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = "9F73CA87-732F-4017-9B1D-11DAFEED7FEC";
@@ -94,6 +95,7 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_FAILED = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_FAILED);
 
     public static readonly Guid WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS = new Guid(STR_WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS);
+    public static readonly Guid WF_STATE_ID_CHECK_MEDIA_ITEM_ACTION = new Guid(STR_WF_STATE_ID_CHECK_MEDIA_ITEM_ACTION);
     public static readonly Guid WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM = new Guid(STR_WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM);
     public static readonly Guid WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = new Guid(STR_WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS);
     public static readonly Guid WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = new Guid(STR_WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS);
@@ -365,6 +367,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_CURRENTLY_PLAYING_DVD = "CurrentlyPlayingDVD";
 
     public const string DIALOG_PLAY_MENU = "DialogPlayMenu";
+
+    public const string DIALOG_MEDIAITEM_ACTION_MENU = "DialogMediaItemActionMenu";
+
     public const string DIALOG_CHOOSE_AV_TYPE = "DialogChooseAVType";
 
     public const string DIALOG_VIDEOCONTEXTMENU = "DialogVideoContextMenu";
@@ -408,6 +413,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_PLAYCOUNT = "PlayCount";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
+    public const string KEY_MEDIA_ITEM_ACTION = "MediaItemAction";
     public const string KEY_NUM_ITEMS = "NumItems";
     public const string KEY_DURATION = "Duration";
     public const string KEY_AUDIO_ENCODING = "AudioEncoding";

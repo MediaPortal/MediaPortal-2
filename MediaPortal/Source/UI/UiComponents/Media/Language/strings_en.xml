@@ -195,6 +195,10 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Default</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Preserve PiP video</string>
 
+  <!-- MediaItemAction dialog-->
+  <string name="Media.MediaItemsActionDialogHeader">Media item actions</string>
+  <string name="Media.RemoveFromML">Remove from library</string>
+
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
 
