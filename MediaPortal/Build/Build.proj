@@ -54,8 +54,8 @@
     <DependsOnTargets Include="ClearBinDirectory" />
     <DependsOnTargets Include="RestoreAllPackages" />
     <DependsOnTargets Include="DownloadTranslations" Condition="$(DownloadTranslations) == 'true'" />
-    <DependsOnTargets Include="CopyTranslations" Condition="$(CopyTranslations) == 'true'"  />
-    <DependsOnTargets Include="WriteAssemblyInfo" />
+    <DependsOnTargets Include="CopyTranslations" Condition="$(CopyTranslations) == 'true'" />
+    <DependsOnTargets Include="WriteAssemblyInfo" Condition="$(WriteAssemblyInfo) == 'true'" />
   </ItemGroup>
 
   <!-- This item group holds the MP2 solutions that should acutally being built. -->
