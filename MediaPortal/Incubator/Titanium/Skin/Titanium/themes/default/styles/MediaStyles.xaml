@@ -1631,6 +1631,31 @@
     </Setter>
   </Style>
 
+  <Model x:Key="MediaItemsActionModel" Id="970649B2-CAE8-4830-A985-E5E78F3CB24F"/>
+
+  <!-- An item list container used for MediaItems. Additionally to the standard "Button", it adds a context menu command  -->
+  <Style x:Key="MediaItemWithContextMenuContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="CoverMediaItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1644,6 +1669,9 @@
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
               </Trigger>
             </Button.Triggers>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -1662,7 +1690,7 @@
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource CoverMediaItemContainerStyle}"/>
-              <Binding Source="{ThemeResource MediaItemContainerStyle}"/>
+              <Binding Source="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
             </MultiBinding>
           </BindingWrapper.Binding>
         </BindingWrapper>

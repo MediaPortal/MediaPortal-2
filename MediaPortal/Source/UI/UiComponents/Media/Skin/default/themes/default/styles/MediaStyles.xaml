@@ -1455,7 +1455,6 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <!--<Command Source="{Service WorkflowManager}" Path="NavigatePush" Parameters="EEBCCAE6-59F8-4AF3-95FF-FC14A5B3CD62"/>-->
               <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
             </Button.ContextMenuCommand>
           </Button>
