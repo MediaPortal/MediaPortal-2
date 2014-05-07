@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
@@ -112,15 +113,31 @@ namespace MediaPortal.UI.Services.Players
     {
       if (mediaItem == null)
         return false;
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      IContentDirectory cd = scm.ContentDirectory;
-      if (cd != null)
-        cd.NotifyPlayback(mediaItem.MediaItemId);
+
+      NotifyPlayback(mediaItem);
+
       _currentMediaItem = mediaItem;
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
       return !psc.IsClosed && psc.Play(mediaItem, startTime);
+    }
+
+    private static void NotifyPlayback(MediaItem mediaItem)
+    {
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
+      if (cd != null)
+        cd.NotifyPlayback(mediaItem.MediaItemId);
+
+      // Update loaded item also, so changes will be visible in GUI without reloading
+      int currentPlayCount;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, out currentPlayCount))
+      {
+        MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, ++currentPlayCount);
+        ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+      }
     }
 
     internal bool RequestNextItem_NoLock()
@@ -145,10 +162,10 @@ namespace MediaPortal.UI.Services.Players
         if (Math.Sign(currentRate) != Math.Sign(startValue))
           newRate = -currentRate;
         else
-          newRate = currentRate*2;
+          newRate = currentRate * 2;
       }
-      if (!player.SetPlaybackRate(newRate) && !player.SetPlaybackRate(2*newRate))
-        player.SetPlaybackRate(4*newRate);
+      if (!player.SetPlaybackRate(newRate) && !player.SetPlaybackRate(2 * newRate))
+        player.SetPlaybackRate(4 * newRate);
     }
 
     public static PlayerContext GetPlayerContext(IPlayerSlotController psc)
@@ -176,7 +193,7 @@ namespace MediaPortal.UI.Services.Players
 
     public Guid MediaModuleId
     {
-       get { return _mediaModuleId; }
+      get { return _mediaModuleId; }
     }
 
     public AVType AVType
