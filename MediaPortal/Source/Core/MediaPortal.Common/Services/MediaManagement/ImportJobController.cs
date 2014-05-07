@@ -80,7 +80,8 @@ namespace MediaPortal.Common.Services.MediaManagement
 
       _dataflowBlocks = new List<ImporterWorkerDataflowBlockBase>();
       SetupDataflowBlocks(importJob.PendingImportResources);
-      _dataflowBlocks[_dataflowBlocks.Count - 1].Completion.ContinueWith(OnFinished);
+      _dataflowBlocks.ForEach(block => block.Completion.ContinueWith(OnAnyBlockFaulted, TaskContinuationOptions.OnlyOnFaulted));
+      Task.WhenAll(_dataflowBlocks.Select(block => block.Completion)).ContinueWith(OnFinished);
     }
 
     #endregion
@@ -192,6 +193,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     #endregion
 
     #region Private methods
+
+    private void OnAnyBlockFaulted(Task faultedTask)
+    {
+      // When any of the DataflowBlocks faults, the faulted state is propagated to the following
+      // DataflowBlocks, but not to the preceding DataflowBlocks. In this case we therefore cancel all DataflowBlocks
+      // to ensure that all DataflowBlocks are completed and release their resources.
+      _cts.Cancel();
+    }
 
     private void OnFinished(Task previousTask)
     {

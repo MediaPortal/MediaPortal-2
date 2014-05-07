@@ -174,8 +174,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       InnerBlock = CreateInnerBlock();
 
       InnerBlock.LinkTo(OutputBlock, new DataflowLinkOptions { PropagateCompletion = true });
-      InnerBlock.Completion.ContinueWith(OnInnerBlockFinishedSuccessfully, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
-      OutputBlock.Completion.ContinueWith(OnOutputBlockFinished);
+      InputBlock.Completion.ContinueWith(OnAnyBlockFaulted, TaskContinuationOptions.OnlyOnFaulted);
+      InnerBlock.Completion.ContinueWith(OnAnyBlockFaulted, TaskContinuationOptions.OnlyOnFaulted);
+      OutputBlock.Completion.ContinueWith(OnAnyBlockFaulted, TaskContinuationOptions.OnlyOnFaulted);
+      Task.WhenAll(InputBlock.Completion, InnerBlock.Completion, OutputBlock.Completion).ContinueWith(OnAllBlocksFinished);
     }
 
     #endregion
@@ -238,34 +240,36 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     }
     
     /// <summary>
-    /// Runs when the <see cref="InnerBlock"/> finished successfully
+    /// Runs when any of <see cref="InputBlock"/>, <see cref="InnerBlock"/> or <see cref="OutputBlock"/> faults
     /// </summary>
-    /// <param name="previousTask">InnerBlock.Completion</param>
-    private void OnInnerBlockFinishedSuccessfully(Task previousTask)
+    /// <param name="faultedTask">Completion property of the faulted DataflowBlock</param>
+    private void OnAnyBlockFaulted(Task faultedTask)
     {
-      // Only log if the OutputBlock hasn't finished, yet. If this is the case, logging is
-      // already done in OnOutputBlockFinished. Logging here makes only sense and gives
-      // additional information if the InnerBlock has processed all the MediaItems, but there
-      // are still MediaItems in the OutputBlock, which is e.g. the case if the following
-      // DataflowBlock has a bounded capacity.
-      if (!OutputBlock.Completion.IsCompleted)
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: InnerBlock finished; time elapsed: {2}; MaxDegreeOfParallelism(InnerBlock) = {3}", ParentImportJobController, _blockName, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);      
+      // When one of the three DataflowBlocks faults, the faulted state is propagated to the following
+      // DataflowBlocks, but not to the preceding DataflowBlocks. In this case we therefore fault all DataflowBlocks
+      // that are not yet in a faulted state to ensure that all DataflowBlocks are completed and release their resources.
+      if (!InputBlock.Completion.IsFaulted)
+        InputBlock.Fault(faultedTask.Exception);
+      if (!InnerBlock.Completion.IsFaulted)
+        InnerBlock.Fault(faultedTask.Exception);
+      if (!OutputBlock.Completion.IsFaulted)
+        OutputBlock.Fault(faultedTask.Exception);
     }
-    
+
     /// <summary>
-    /// Runs when the <see cref="OutputBlock"/> is finished
+    /// Runs when all DataflowBlocks are finished
     /// </summary>
-    /// <param name="previousTask">OutputBlock.Completion</param>
-    private void OnOutputBlockFinished(Task previousTask)
+    /// <param name="finishedTask">Task representing the state of all DataflowBlocks</param>
+    private void OnAllBlocksFinished(Task finishedTask)
     {
       _stopWatch.Stop();
-      if (previousTask.IsFaulted)
+      if (finishedTask.IsFaulted)
       {
         ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}.{1}: Error after processing {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism(InnerBlock) = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);
         // ReSharper disable once AssignNullToNotNullAttribute
-        _tcs.SetException(previousTask.Exception);
+        _tcs.SetException(finishedTask.Exception);
       }
-      else if (previousTask.IsCanceled)
+      else if (finishedTask.IsCanceled)
       {
         ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Canceled after processing {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism(InnerBlock) = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);
         _tcs.SetCanceled();
