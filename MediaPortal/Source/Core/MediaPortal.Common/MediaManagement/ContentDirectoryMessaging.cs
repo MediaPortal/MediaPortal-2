@@ -35,6 +35,17 @@ namespace MediaPortal.Common.MediaManagement
   /// </summary>
   public class ContentDirectoryMessaging
   {
+    /// <summary>
+    /// Indicates what kind of change happend to MediaItems.
+    /// </summary>
+    public enum MediaItemChangeType
+    {
+      None,
+      Created,
+      Updated,
+      Deleted
+    }
+
     // Message channel name
     public const string CHANNEL = "ContentDirectory";
 
@@ -75,9 +86,17 @@ namespace MediaPortal.Common.MediaManagement
       /// This message has a parameter <see cref="SHARE_ID"/>.
       /// </summary>
       ShareImportCompleted,
+
+      /// <summary>
+      /// This message will be sent when a loaded MediaItem was create, changed or deleted. The affected MediaItem is contained in message parameters.
+      /// </summary>
+      /// This message has parameters <see cref="MEDIA_ITEM"/> and <see cref="MEDIA_ITEM_CHANGE_TYPE"/>.
+      MediaItemChanged
     }
 
     public const string SHARE_ID = "ShareId"; // Parameter type: Guid
+    public const string MEDIA_ITEM = "MediaItem"; // Parameter type: MediaItem
+    public const string MEDIA_ITEM_CHANGE_TYPE = "MediaItemChangeType"; // Parameter type: MediaItemChangeType
 
     public static void SendPlaylistsChangedMessage()
     {
@@ -94,6 +113,14 @@ namespace MediaPortal.Common.MediaManagement
     public static void SendRegisteredSharesChangedMessage()
     {
       SystemMessage msg = new SystemMessage(MessageType.RegisteredSharesChanged);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    public static void SendMediaItemChangedMessage(MediaItem mediaItem, MediaItemChangeType changeType)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.MediaItemChanged);
+      msg.MessageData[MEDIA_ITEM] = mediaItem;
+      msg.MessageData[MEDIA_ITEM_CHANGE_TYPE] = changeType;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
