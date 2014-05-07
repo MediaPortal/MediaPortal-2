@@ -31,14 +31,20 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   public class ImageItem : PlayableMediaItem
   {
-    public ImageItem(MediaItem mediaItem) : base(mediaItem)
+    public ImageItem(MediaItem mediaItem)
+      : base(mediaItem)
     {
+    }
+
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
       MediaItemAspect imageAspect;
       if (mediaItem.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
       {
         SimpleTitle = Title;
-        int? width = (int?) imageAspect[ImageAspect.ATTR_WIDTH];
-        int? height = (int?) imageAspect[ImageAspect.ATTR_HEIGHT];
+        int? width = (int?)imageAspect[ImageAspect.ATTR_WIDTH];
+        int? height = (int?)imageAspect[ImageAspect.ATTR_HEIGHT];
         if (width.HasValue && width.Value > 0 && height.HasValue && height.Value > 0)
         {
           Width = width;
@@ -49,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       MediaItemAspect resourceAspect;
       if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out resourceAspect))
       {
-        ResourcePath rp = ResourcePath.Deserialize((string) resourceAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
+        ResourcePath rp = ResourcePath.Deserialize((string)resourceAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
         string ext = ProviderPathHelper.GetExtension(rp.FileName);
         if (ext.Length > 1)
           // remove leading '.'
@@ -59,19 +65,20 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       MediaItemAspect mediaAspect;
       if (mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
       {
-        MimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
+        MimeType = (string)mediaAspect[MediaAspect.ATTR_MIME_TYPE];
       }
+      FireChange();
     }
 
     public int? Width
     {
-      get { return (int?) _additionalProperties[Consts.KEY_WIDTH]; }
+      get { return (int?)_additionalProperties[Consts.KEY_WIDTH]; }
       set { _additionalProperties[Consts.KEY_WIDTH] = value; }
     }
 
     public int? Height
     {
-      get { return (int?) _additionalProperties[Consts.KEY_HEIGHT]; }
+      get { return (int?)_additionalProperties[Consts.KEY_HEIGHT]; }
       set { _additionalProperties[Consts.KEY_HEIGHT] = value; }
     }
 

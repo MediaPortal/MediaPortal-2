@@ -32,16 +32,22 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   public class SeriesItem : VideoItem
   {
-    public SeriesItem(MediaItem mediaItem) : base(mediaItem)
+    public SeriesItem(MediaItem mediaItem) :
+      base(mediaItem)
     {
+    }
+
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
       SeriesInfo seriesInfo = new SeriesInfo();
       MediaItemAspect seriesAspect;
-      if (!mediaItem.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect)) 
+      if (!mediaItem.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect))
         return;
 
-      Series = seriesInfo.Series = (string) seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
-      EpisodeName = seriesInfo.Episode = (string) seriesAspect[SeriesAspect.ATTR_EPISODENAME] ?? string.Empty;
-      seriesInfo.SeasonNumber = (int) (seriesAspect[SeriesAspect.ATTR_SEASON] ?? 0);
+      Series = seriesInfo.Series = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
+      EpisodeName = seriesInfo.Episode = (string)seriesAspect[SeriesAspect.ATTR_EPISODENAME] ?? string.Empty;
+      seriesInfo.SeasonNumber = (int)(seriesAspect[SeriesAspect.ATTR_SEASON] ?? 0);
       Season = seriesInfo.SeasonNumber.ToString();
 
       IList<int> episodes = seriesAspect[SeriesAspect.ATTR_EPISODE] as IList<int>;
@@ -53,6 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       }
       // Use the short string without series name here
       SimpleTitle = seriesInfo.ToShortString();
+      FireChange();
     }
 
     public string Series

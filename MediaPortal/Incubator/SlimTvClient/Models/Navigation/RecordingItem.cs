@@ -35,6 +35,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models.Navigation
     public RecordingItem(MediaItem mediaItem)
       : base(mediaItem)
     {
+    }
+
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
       MediaItemAspect recordingAspect;
       if (mediaItem.Aspects.TryGetValue(RecordingAspect.ASPECT_ID, out recordingAspect))
       {
@@ -42,6 +47,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models.Navigation
         StartTime = (DateTime?)recordingAspect[RecordingAspect.ATTR_STARTTIME];
         EndTime = (DateTime?)recordingAspect[RecordingAspect.ATTR_ENDTIME];
       }
+      FireChange();
     }
 
     public string Channel

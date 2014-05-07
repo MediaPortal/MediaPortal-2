@@ -31,15 +31,22 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   public class MovieItem : VideoItem
   {
-    public MovieItem(MediaItem mediaItem) : base(mediaItem)
+    public MovieItem(MediaItem mediaItem)
+      : base(mediaItem)
     {
+    }
+
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
       MovieInfo movieInfo = new MovieInfo();
       MediaItemAspect movieAspect;
-      if (!mediaItem.Aspects.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect)) 
+      if (!mediaItem.Aspects.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect))
         return;
 
       MovieName = (string)movieAspect[MovieAspect.ATTR_MOVIE_NAME] ?? string.Empty;
       CollectionName = movieInfo.CollectionName = (string)movieAspect[MovieAspect.ATTR_COLLECTION_NAME] ?? string.Empty;
+      FireChange();
     }
 
     public string MovieName

@@ -220,6 +220,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             changed = true;
           }
         }
+        if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
+        {
+          PlayableMediaItem existingItem = _items.OfType<PlayableMediaItem>().FirstOrDefault(pmi => pmi.MediaItem.Equals(mediaItem));
+          if (existingItem != null)
+          {
+            existingItem.Update(mediaItem);
+          }
+        }
       }
       if (changed)
       {

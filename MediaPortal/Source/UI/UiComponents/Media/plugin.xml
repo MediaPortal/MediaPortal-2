@@ -212,6 +212,7 @@
   <!-- MediaItemActions -->
   <Builder Name="MediaItemActionBuilder" ClassName="MediaPortal.UiComponents.Media.Extensions.MediaItemActionBuilder"/>
   <Register Location="/Media/Extensions">
+    <MediaItemActionBuilder Id="{A6DC6A3C-3F90-493A-84C5-0E4400E7A949}" Caption="[Media.ResetPlayCount]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.ResetPlayCount"/>
     <MediaItemActionBuilder Id="{A8EF2180-FBD4-4D01-AB21-E7A98C0464AA}" Caption="[Media.RemoveFromML]" Sort="D.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.RemoveFromML"/>
   </Register>
   

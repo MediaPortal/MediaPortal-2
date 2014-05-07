@@ -198,6 +198,7 @@
   <!-- MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Media item actions</string>
   <string name="Media.RemoveFromML">Remove from library</string>
+  <string name="Media.ResetPlayCount">Reset play count</string>
 
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>

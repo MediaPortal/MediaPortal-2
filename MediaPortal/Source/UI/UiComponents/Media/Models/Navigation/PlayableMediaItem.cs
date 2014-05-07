@@ -48,13 +48,22 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     protected PlayableMediaItem(MediaItem mediaItem)
     {
       _mediaItem = mediaItem;
+      Update(mediaItem);
+    }
+
+    public virtual void Update(MediaItem mediaItem)
+    {
+      if (!_mediaItem.Equals(mediaItem))
+        throw new ArgumentException("Update can only be done for the same MediaItem!", "mediaItem");
+
       MediaItemAspect mediaAspect;
       if (mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
       {
-        Title = (string) mediaAspect[MediaAspect.ATTR_TITLE];
-        Rating = (int?) mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
-        PlayCount = (int?) mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
+        Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+        Rating = (int?)mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
+        PlayCount = (int?)mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
       }
+      FireChange();
     }
 
     public static PlayableMediaItem CreateItem(MediaItem mediaItem)

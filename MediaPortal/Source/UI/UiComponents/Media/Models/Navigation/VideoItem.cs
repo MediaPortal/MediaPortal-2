@@ -32,18 +32,25 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   public class VideoItem : PlayableMediaItem
   {
-    public VideoItem(MediaItem mediaItem) : base(mediaItem)
+    public VideoItem(MediaItem mediaItem)
+      : base(mediaItem)
     {
+    }
+
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
       MediaItemAspect videoAspect;
       if (mediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
       {
-        long? duration = (long?) videoAspect[VideoAspect.ATTR_DURATION];
+        long? duration = (long?)videoAspect[VideoAspect.ATTR_DURATION];
         SimpleTitle = Title;
-        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) duration.Value)) : string.Empty;
-        AudioEncoding = (string) videoAspect[VideoAspect.ATTR_AUDIOENCODING];
-        VideoEncoding = (string) videoAspect[VideoAspect.ATTR_VIDEOENCODING];
-        StoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
+        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int)duration.Value)) : string.Empty;
+        AudioEncoding = (string)videoAspect[VideoAspect.ATTR_AUDIOENCODING];
+        VideoEncoding = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
+        StoryPlot = (string)videoAspect[VideoAspect.ATTR_STORYPLOT];
       }
+      FireChange();
     }
 
     public string Duration

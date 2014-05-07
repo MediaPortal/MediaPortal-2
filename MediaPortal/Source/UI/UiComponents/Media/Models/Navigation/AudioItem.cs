@@ -34,17 +34,24 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   public class AudioItem : PlayableMediaItem
   {
-    public AudioItem(MediaItem mediaItem) : base(mediaItem)
+    public AudioItem(MediaItem mediaItem)
+      : base(mediaItem)
     {
+    }
+
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
       MediaItemAspect audioAspect;
       if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
       {
-        IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
+        IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>)audioAspect[AudioAspect.ATTR_ARTISTS];
         string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
         SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-        long? duration = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
+        long? duration = audioAspect == null ? null : (long?)audioAspect[AudioAspect.ATTR_DURATION];
         Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
       }
+      FireChange();
     }
 
     public string Duration
