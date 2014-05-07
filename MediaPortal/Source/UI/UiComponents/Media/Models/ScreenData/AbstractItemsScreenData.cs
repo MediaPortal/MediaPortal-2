@@ -30,6 +30,7 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
@@ -52,6 +53,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected bool _listDirty = false;
     protected IViewChangeNotificator _viewChangeNotificator = null;
 
+    // Change tracking of MediaItems
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int? _currentTotalNumItems;
+
     /// <summary>
     /// Creates a new instance of <see cref="AbstractItemsScreenData"/>.
     /// </summary>
@@ -64,11 +69,46 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// the <see cref="NavigationData.BaseViewSpecification"/>) and automatically creates the items. If set to
     /// <c>false</c>, the items have to be created by a sub class in method <see cref="CreateScreenData"/>.</param>
     protected AbstractItemsScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
-        PlayableItemCreatorDelegate playableItemCreator, bool presentsBaseView) : base(screen, menuItemLabel)
+        PlayableItemCreatorDelegate playableItemCreator, bool presentsBaseView)
+      : base(screen, menuItemLabel)
     {
       _navbarSubViewNavigationDisplayLabel = navbarSubViewNavigationDisplayLabel;
       _playableItemCreator = playableItemCreator;
       _presentsBaseView = presentsBaseView;
+    }
+
+    private void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ContentDirectoryMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.MediaItemChanged:
+            MediaItem mediaItem = (MediaItem)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM];
+            ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
+            UpdateLoadedMediaItems(mediaItem, changeType);
+            break;
+        }
+      }
     }
 
     public override void CreateScreenData(NavigationData navigationData)
@@ -77,12 +117,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (!_presentsBaseView)
         return;
       ReloadMediaItems(navigationData.BaseViewSpecification.BuildView(), true);
+      SubscribeToMessages();
     }
 
     public override void ReleaseScreenData()
     {
       base.ReleaseScreenData();
       UninstallViewChangeNotificator();
+      UnsubscribeFromMessages();
     }
 
     public View CurrentView
@@ -158,6 +200,32 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _viewChangeNotificator.Changed -= ViewChanged;
       _viewChangeNotificator.Dispose();
       _viewChangeNotificator = null;
+    }
+
+    protected void UpdateLoadedMediaItems(MediaItem mediaItem, ContentDirectoryMessaging.MediaItemChangeType changeType)
+    {
+      if (changeType == ContentDirectoryMessaging.MediaItemChangeType.None)
+        return;
+
+      bool changed = false;
+      lock (_syncObj)
+      {
+        if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Deleted)
+        {
+          PlayableMediaItem existingItem = _items.OfType<PlayableMediaItem>().FirstOrDefault(pmi => pmi.MediaItem.Equals(mediaItem));
+          if (existingItem != null)
+          {
+            _items.Remove(existingItem);
+            _currentTotalNumItems--;
+            changed = true;
+          }
+        }
+      }
+      if (changed)
+      {
+        _items.FireChange();
+        Display_Normal(_items.Count, _currentTotalNumItems);
+      }
     }
 
     /// <summary>
@@ -247,7 +315,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
                 CollectionUtils.AddAll(items, itemsList);
 
-                Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
+                _currentTotalNumItems = totalNumItems == 0 ? new int?() : totalNumItems;
+                Display_Normal(items.Count, _currentTotalNumItems);
               }
             }
           }
@@ -259,7 +328,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           ServiceRegistration.Get<ILogger>().Warn("AbstractItemsScreenData: Error creating items list", e);
           Display_ItemsInvalid();
         }
-        RebuildView:
+      RebuildView:
         bool dirty;
         lock (_syncObj)
           if (_listDirty)

@@ -98,10 +98,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
       try
       {
-        bool needsReload;
-        if (action.Process(mediaItem, out needsReload) && needsReload)
+        ContentDirectoryMessaging.MediaItemChangeType changeType;
+        if (action.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
         {
-          // TODO: handle refresh of views
+          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
         }
       }
       catch (Exception ex)

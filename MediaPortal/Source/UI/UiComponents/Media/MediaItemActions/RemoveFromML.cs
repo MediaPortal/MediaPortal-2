@@ -44,16 +44,17 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return cd != null;
     }
 
-    public override bool Process(MediaItem mediaItem, out bool needsReload)
+    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
     {
-      needsReload = false;
+      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return false;
 
       var rl = mediaItem.GetResourceLocator();
       cd.DeleteMediaItemOrPath(rl.NativeSystemId, rl.NativeResourcePath, true);
-      
+
+      changeType = ContentDirectoryMessaging.MediaItemChangeType.Deleted;
       return true;
     }
   }

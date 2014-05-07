@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   public abstract class AbstractMediaItemAction : IMediaItemAction
   {
     public abstract bool IsAvailable(MediaItem mediaItem);
-    public abstract bool Process(MediaItem mediaItem, out bool needsReload);
+    public abstract bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
     public string Caption { get; protected set; }
     public string Sort { get; protected set; }
 

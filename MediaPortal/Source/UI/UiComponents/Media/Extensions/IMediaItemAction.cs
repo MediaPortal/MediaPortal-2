@@ -43,9 +43,9 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// Executes the action for the given MediaItem.
     /// </summary>
     /// <param name="mediaItem">MediaItem</param>
-    /// <param name="needsReload">Outputs if the current list of MediaItems should be reloaded.</param>
+    /// <param name="changeType">Outputs what kind of changed was done on MediaItem.</param>
     /// <returns><c>true</c> if successful</returns>
-    bool Process(MediaItem mediaItem, out bool needsReload);
+    bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
 
     /// <summary>
     /// Gets the caption for display in GUI (usually a resource string).
