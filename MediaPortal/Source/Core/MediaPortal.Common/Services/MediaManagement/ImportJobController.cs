@@ -175,7 +175,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     public void RegisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
       if (!_pendingImportResources.TryAdd(pendingImportResource.PendingResourcePath, pendingImportResource))
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Could not register {1}", this, pendingImportResource);
+      {
+        // Due to the BoundedCapacity of the of FileUnfoldBlock.OutputBlock and MetadataExtractorBlock.InputBlock
+        // it may be the case that a directory resource has already been processed by the FileUnfoldBlock but is
+        // not immediately passed to the MetadataExtractorBlock.InputBlock, where its CurrentBlock property is set.
+        // If in this situation we suspend the ImportJob to disk and later on resume from disk, the directory resource
+        // is processed again by the FileUnfoldBlock although the contained file resources have already been unfolded.
+        // As a result, the PendingImportResource object for this file resource is created twice, which, at the creation
+        // of the second object, returns false when calling TryAdd above. We can safely set the IsValid property of the
+        // second one to false to filter it out (i.e. it will be disposed in the respective OutputBlock).
+        pendingImportResource.IsValid = false;
+      }
     }
 
     public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
