@@ -209,6 +209,7 @@ namespace MediaPortal.UI.Players.Video
         // Check for new audio/subtitle streams.
         EnumerateStreams(true);
       }
+      SetPreferredSubtitle();
       _oldVideoFormat = newFormat;
       return 0;
     }
