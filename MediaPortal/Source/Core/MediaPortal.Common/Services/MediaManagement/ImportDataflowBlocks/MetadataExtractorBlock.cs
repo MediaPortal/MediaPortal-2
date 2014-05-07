@@ -54,15 +54,22 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Initiates the MetadataExtractorBlock
     /// </summary>
+    /// <remarks>
+    /// The preceding FileUnfoldBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
+    /// because all the items are immediately passed to an unbounded InputBlock of this MetadataExtractorBlock, we
+    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 100,
+    /// which is a good trade-off between speed and memory usage. For the reason mentioned before, we also have to
+    /// set the BoundedCapacity of the OutputBlock to 1.
+    /// </remarks>
     /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
     /// <param name="forceQuickMode"><c>true</c> if this is the MetadataExtractorBlock used for FirstPassImports, else <c>false</c></param>
     public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode)
       : base(importJobInformation,
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 100 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       forceQuickMode ? BLOCK_NAME_QUICK : BLOCK_NAME_FULL, true, parentImportJobController)
     {
       _forceQuickMode = forceQuickMode;

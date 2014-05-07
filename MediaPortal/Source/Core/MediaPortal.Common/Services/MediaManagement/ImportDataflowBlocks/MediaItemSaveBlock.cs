@@ -53,13 +53,20 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Initiates the MediaItemSaveBlock
     /// </summary>
+    /// <remarks>
+    /// The preceding MetadataExtractorBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
+    /// because all the items are immediately passed to an unbounded InputBlock of this MediaItemSaveBlock, we
+    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 500,
+    /// which is a good trade-off between speed and memory usage. The OutputBlock disposes the PendingImportResources and 
+    /// therefore does not need a BoundedCapacity.
+    /// </remarks>
     /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
     public MediaItemSaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
       : base(importJobInformation,
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 500 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, false, parentImportJobController)
     {

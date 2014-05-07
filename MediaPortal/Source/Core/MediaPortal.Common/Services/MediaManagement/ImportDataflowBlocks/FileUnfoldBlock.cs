@@ -54,14 +54,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <summary>
     /// Initiates the FileUnfoldBlock
     /// </summary>
+    /// <remarks>
+    /// The BoundedCapacity of the InnerBlock is limited to 500 items, which has proven to be a good trade-off
+    /// between speed and memory usage. To avoid that this limitation does not have any effect because all the items
+    /// are immediately passed to an unbounded OutputBlock, we have to set the BoundedCapacity of the OutputBlock to 1.
+    /// </remarks>
     /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
     public FileUnfoldBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 500 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, true, parentImportJobController)
     {
     }
