@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -54,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     // Action menu
     protected ItemsList _mediaItemActionItems = new ItemsList();
-    private readonly List<IMediaItemAction> _actions = new List<IMediaItemAction>();
+    private readonly List<MediaItemActionExtension> _actions = new List<MediaItemActionExtension>();
     private IPluginItemStateTracker _mediaActionPluginItemStateTracker; // Lazy initialized
 
     #endregion
@@ -106,7 +107,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error executing MediaItemAction '{0}':", ex, action.Caption);
+        ServiceRegistration.Get<ILogger>().Error("Error executing MediaItemAction '{0}':", ex, action.GetType());
       }
     }
 
@@ -139,7 +140,8 @@ namespace MediaPortal.UiComponents.Media.Models
             if (action == null)
               throw new PluginInvalidStateException("Could not create IMediaItemAction instance of class {0}", extensionClass);
 
-            _actions.Add(action);
+            mediaExtension.Action = action;
+            _actions.Add(mediaExtension);
           }
         }
         catch (PluginInvalidStateException e)
@@ -152,15 +154,14 @@ namespace MediaPortal.UiComponents.Media.Models
     protected bool FillItemsList(MediaItem mediaItem)
     {
       _mediaItemActionItems.Clear();
-      foreach (IMediaItemAction action in _actions)
+      foreach (MediaItemActionExtension action in _actions.OrderBy(a => a.Sort))
       {
-        if (!action.IsAvailable(mediaItem))
+        if (!action.Action.IsAvailable(mediaItem))
           continue;
 
-        IMediaItemAction localAction = action;
         ListItem item = new ListItem(Consts.KEY_NAME, action.Caption);
         item.AdditionalProperties[Consts.KEY_MEDIA_ITEM] = mediaItem;
-        item.AdditionalProperties[Consts.KEY_MEDIA_ITEM_ACTION] = localAction;
+        item.AdditionalProperties[Consts.KEY_MEDIA_ITEM_ACTION] = action.Action;
         _mediaItemActionItems.Add(item);
       }
       _mediaItemActionItems.FireChange();

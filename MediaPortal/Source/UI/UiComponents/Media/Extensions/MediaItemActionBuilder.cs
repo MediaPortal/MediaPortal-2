@@ -83,6 +83,11 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// </summary>
     public Guid Id { get; private set; }
 
+    /// <summary>
+    /// Gets the instance of the action.
+    /// </summary>
+    public IMediaItemAction Action { get; set; }
+
     public MediaItemActionExtension(Type type, string caption, string sort, string id)
     {
       ExtensionClass = type;

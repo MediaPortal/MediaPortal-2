@@ -46,15 +46,5 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// <param name="changeType">Outputs what kind of changed was done on MediaItem.</param>
     /// <returns><c>true</c> if successful</returns>
     bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
-
-    /// <summary>
-    /// Gets the caption for display in GUI (usually a resource string).
-    /// </summary>
-    string Caption { get; }
-
-    /// <summary>
-    /// Gets a sort string.
-    /// </summary>
-    string Sort { get; }
   }
 }

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.Extensions;
 
@@ -32,10 +33,17 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   /// </summary>
   public abstract class AbstractMediaItemAction : IMediaItemAction
   {
+    /// <summary>
+    /// Indicates if the given <paramref name="mediaItem"/> is managed by the MediaLibrary. That's the case if it has a <see cref="MediaItem.MediaItemId"/> other than <see cref="Guid.Empty"/>.
+    /// </summary>
+    /// <param name="mediaItem">MediaItem.</param>
+    /// <returns><c>true</c> if known by MediaLibrary.</returns>
+    public virtual bool IsManagedByMediaLibrary(MediaItem mediaItem)
+    {
+      return mediaItem != null && mediaItem.MediaItemId != Guid.Empty;
+    }
+
     public abstract bool IsAvailable(MediaItem mediaItem);
     public abstract bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
-    public string Caption { get; protected set; }
-    public string Sort { get; protected set; }
-
   }
 }
