@@ -271,6 +271,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected readonly Action _onTextureInvalidated;
     protected Thread _subtitleSyncThread;
 
+    // Morpheus, 2014-05-08: TODO: this is a special workaround for a strange DVBSub3 behavior: the very first subtitle is a black rectangle that covers nearly full screen.
+    // Remove this when the DirectShow filter has been fixed!
+    protected bool _firstCallback = true;
+
     #endregion
 
     #region Properties
@@ -397,6 +401,12 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// <returns>The return value is always <c>0</c>.</returns>
     public int OnSubtitle(IntPtr sub)
     {
+      if (_firstCallback)
+      {
+        // See field comment for reason
+        _firstCallback = false;
+        return 0;
+      }
       if (!_useBitmap)
         return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
 
