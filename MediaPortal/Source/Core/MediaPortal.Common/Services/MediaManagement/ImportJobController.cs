@@ -53,7 +53,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly int _importJobNumber;
     private readonly ImportJobInformation _importJobInformation;
     private readonly ImporterWorkerNewGen _parentImporterWorker;
-    private readonly TaskCompletionSource<object> _tcs;
+    private readonly TaskCompletionSource<object> _importJobControllerCompletion;
+    private readonly TaskCompletionSource<object> _firstBlockHasFinished;
     private readonly CancellationTokenSource _cts;
     private readonly List<ImporterWorkerDataflowBlockBase> _dataflowBlocks;
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
@@ -74,7 +75,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       _numberOfDisposedPendingImportResources = 0;
       _notifyProgress = true;
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
-      _tcs = new TaskCompletionSource<object>();
+      _importJobControllerCompletion = new TaskCompletionSource<object>();
+      _firstBlockHasFinished = new TaskCompletionSource<object>();
       _cts = new CancellationTokenSource();
       _parentImporterWorker.NotifyProgress(true);
 
@@ -93,7 +95,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     public Task Completion
     {
-      get { return _tcs.Task; }      
+      get { return _importJobControllerCompletion.Task; }      
     }
 
     /// <summary>
@@ -200,6 +202,11 @@ namespace MediaPortal.Common.Services.MediaManagement
         _parentImporterWorker.NotifyProgress(false);
     }
 
+    internal void FirstBlockHasFinished()
+    {
+      _firstBlockHasFinished.TrySetResult(new object());
+    }
+
     #endregion
 
     #region Private methods
@@ -246,7 +253,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       // If this ImportJob faulted or was cancelled we can't do anything but log it (which we do above).
       // Therefore the Completion Task of this ImportJobController always returns 'RunToCompletion' to
       // avoid exceptions being thrown when this Task is awaited.
-      _tcs.SetResult(null);
+      _importJobControllerCompletion.SetResult(null);
     }
 
     /// <summary>
@@ -274,6 +281,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       _dataflowBlocks[_dataflowBlocks.Count - 1].LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
 
       // Fill the blocks
+      var completeFirstBlockAfterTheseTasks = new HashSet<Task>();
+      bool firstBlockNeedsCompletion = true;
       if (pendingImportResources == null)
       {
         // This ImportJob was freshly created and not persisted to disk before
@@ -283,6 +292,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         var fsra = ra as IFileSystemResourceAccessor;
         var rootImportResource = new PendingImportResourceNewGen(null, fsra, DirectoryUnfoldBlock.BLOCK_NAME, this);
         _dataflowBlocks[0].Post(rootImportResource);
+        firstBlockNeedsCompletion = false;
       }
       else
       {
@@ -292,7 +302,11 @@ namespace MediaPortal.Common.Services.MediaManagement
           pendingImportResource.InitializeAfterDeserialization(this);
           ImporterWorkerDataflowBlockBase block = _dataflowBlocks.Find(b => b.ToString() == pendingImportResource.CurrentBlock);
           if (block != null)
-            block.SendAsync(pendingImportResource, _cts.Token);
+          {
+            completeFirstBlockAfterTheseTasks.Add(block.SendAsync(pendingImportResource, _cts.Token));
+            if (block == _dataflowBlocks[0])
+              firstBlockNeedsCompletion = false;
+          }
           else
           {
             ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Could not add {1} after deserialization. DataflowBlock with name {2} does not exist.", this, pendingImportResource, pendingImportResource.CurrentBlock);
@@ -300,6 +314,15 @@ namespace MediaPortal.Common.Services.MediaManagement
           }
         }
       }
+      completeFirstBlockAfterTheseTasks.Add(_firstBlockHasFinished.Task);
+      if (firstBlockNeedsCompletion)
+        FirstBlockHasFinished();
+
+      // The first DataflowBlock in the network (DirectoryUnfoldBlock) must be set to completed when
+      // (a) The DirectoryUnfoldBlock has signaled that it is finished (by calling FirstBlockHasFinished()) and
+      // (b) in case of an ImportJob that has been restored from disk, all restored PendingImportResources
+      //     have been put into the Dataflow network
+      Task.WhenAll(completeFirstBlockAfterTheseTasks).ContinueWith(previoudTask => _dataflowBlocks[0].Complete());
     }
 
     #endregion

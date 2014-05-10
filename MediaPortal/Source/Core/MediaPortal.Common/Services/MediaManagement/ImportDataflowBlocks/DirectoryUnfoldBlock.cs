@@ -106,20 +106,16 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (!importResource.IsSingleResource)
         {
           var subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
-          
+
           // This may throw an exception in case of cancellation and therefore needs to be done before
           // posting the subdirectories to the InputBufferBlock to avoid duplicate ImportResources when
           // reactivating this block after it has been deserialized from disk.
           if (ImportJobInformation.JobType == ImportJobType.Refresh)
             await DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(importResource, subDirectories);
-          
+
           foreach (var subDirectory in subDirectories)
             this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
         }
-
-        var inputBlock = (TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>)InputBlock;
-        if (inputBlock.InputCount == 0 && inputBlock.OutputCount == 0)
-          InputBlock.Complete();
 
         return importResource;
       }
@@ -132,6 +128,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
         importResource.IsValid = false;
         return importResource;
+      }
+      finally
+      {
+        var inputBlock = (TransformBlock<PendingImportResourceNewGen, PendingImportResourceNewGen>)InputBlock;
+        if (inputBlock.InputCount == 0 && inputBlock.OutputCount == 0)
+          ParentImportJobController.FirstBlockHasFinished();        
       }
     }
 
