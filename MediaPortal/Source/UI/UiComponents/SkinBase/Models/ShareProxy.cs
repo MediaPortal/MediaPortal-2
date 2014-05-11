@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -39,7 +40,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// 1) Collecting all share data during the share add or edit workflow and at the same time,
   /// 2) handling the communication with the local or server shares management.
   /// </summary>
-  public abstract class SharesProxy
+  public abstract class SharesProxy : IDisposable
   {
     #region Enums
 
@@ -70,6 +71,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected ItemsList _allMediaCategoriesTree;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Share _origShare = null;
+    protected Timer _inputTimer;
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -105,7 +108,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     void OnChoosenResourcePathStrChanged(AbstractProperty resourceProviderURL, object oldValue)
     {
-      ChoosenResourcePath = ExpandResourcePathFromString(ChoosenResourcePathStr);
+      ExpandResourcePath_Async();
     }
 
     void OnChoosenResourcePathChanged(AbstractProperty resourceProviderURL, object oldValue)
@@ -414,6 +417,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       ShareName = string.Empty;
       UpdateMediaCategories(null);
       NativeSystem = null;
+      ClearTimer();
     }
 
     protected bool InitializePropertiesWithShare(Share share, string nativeSystem)
@@ -476,13 +480,53 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public ResourceProviderMetadata GetSelectedBaseResourceProvider()
     {
       return _allBaseResourceProvidersList.Where(resourceProviderItem => resourceProviderItem.Selected).Select(
-          resourceProviderItem => resourceProviderItem.AdditionalProperties[
-              Consts.KEY_RESOURCE_PROVIDER_METADATA] as ResourceProviderMetadata).FirstOrDefault();
+          resourceProviderItem => resourceProviderItem.AdditionalProperties[Consts.KEY_RESOURCE_PROVIDER_METADATA] as ResourceProviderMetadata).FirstOrDefault();
     }
 
     public void UpdateIsResourceProviderSelected()
     {
       IsResourceProviderSelected = _allBaseResourceProvidersList.Any(resourceProviderItem => resourceProviderItem.Selected);
+    }
+
+    private void ExpandResourcePath_Async()
+    {
+      lock (_syncObj)
+      {
+        if (_inputTimer == null)
+        {
+          _inputTimer = new Timer(1000) { Enabled = true, AutoReset = false };
+          _inputTimer.Elapsed += EndExpandResourcePath;
+        }
+        else
+        {
+          // In case of new user action, reset the timer.
+          _inputTimer.Stop();
+          _inputTimer.Start();
+        }
+      }
+    }
+
+    private void ClearTimer()
+    {
+      lock (_syncObj)
+      {
+        if (_inputTimer == null)
+          return;
+        _inputTimer.Close();
+        _inputTimer = null;
+      }
+    }
+
+    private void EndExpandResourcePath(object sender, ElapsedEventArgs e)
+    {
+      ResourcePath expandedPath = null;
+      try
+      {
+        // Expansion of partial or wrong path strings will fail
+        expandedPath = ExpandResourcePathFromString(ChoosenResourcePathStr);
+      }
+      catch{}
+      ChoosenResourcePath = expandedPath;
     }
 
     public void RefreshOrClearSubPathItems(TreeItem pathItem, bool clearSubItems)
@@ -778,6 +822,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     public abstract void ReImportShare();
+
+    public void Dispose()
+    {
+      ClearTimer();
+    }
 
     #endregion
   }

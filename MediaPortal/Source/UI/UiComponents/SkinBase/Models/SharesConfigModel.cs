@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public void Dispose()
     {
-      _shareProxy = null;
+      ShareProxy = null;
       _serverSharesList = null;
       _localSharesList = null;
     }
@@ -194,13 +194,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       foreach (ListItem systemItem in _systemsList)
         if (systemItem.Selected)
         {
-          lock (_syncObj)
-            _shareProxy = (SharesProxy)systemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY];
+          ShareProxy = (SharesProxy)systemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY];
           IsSystemSelected = true;
           return;
         }
-      lock (_syncObj)
-        _shareProxy = null;
+      ShareProxy = null;
       IsSystemSelected = false;
     }
 
@@ -218,8 +216,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         SharesProxy sharesProxy = ((SharesProxy)systemItem.AdditionalProperties[Consts.KEY_SHARES_PROXY]);
         if (sharesProxy.IsResourceProviderSelected)
         {
-          lock (_syncObj)
-            _shareProxy = sharesProxy;
+          ShareProxy = sharesProxy;
           anySelected = true;
           break;
         }
@@ -232,6 +229,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public SharesProxy ShareProxy
     {
       get { return _shareProxy; }
+      private set
+      {
+        lock (_syncObj)
+        {
+          if (_shareProxy != null)
+            _shareProxy.Dispose();
+          _shareProxy = value;
+        }
+      }
     }
 
     public ItemsList SystemsList
@@ -501,16 +507,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         Share share = GetSelectedLocalShares().FirstOrDefault();
         if (share != null)
-          lock (_syncObj)
-            _shareProxy = new LocalShares(share);
+          ShareProxy = new LocalShares(share);
         else
         {
           share = GetSelectedServerShares().FirstOrDefault();
           if (share == null)
             // Should never happen
             return;
-          lock (_syncObj)
-            _shareProxy = new ServerShares(share);
+          ShareProxy = new ServerShares(share);
         }
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER);
@@ -543,8 +547,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public void NavigateBackToOverview()
     {
-      lock (_syncObj)
-        _shareProxy = null;
+      ShareProxy = null;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_SHARES_OVERVIEW, false);
     }
@@ -769,11 +772,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (share == null)
         return;
       if (origin == ShareOrigin.Local)
-        lock (_syncObj)
-          _shareProxy = new LocalShares(share);
+        ShareProxy = new LocalShares(share);
       else if (origin == ShareOrigin.Server)
-        lock (_syncObj)
-          _shareProxy = new ServerShares(share);
+        ShareProxy = new ServerShares(share);
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_INFO, new NavigationContextConfig { NavigationContextDisplayLabel = share.Name });
     }
@@ -889,7 +890,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       lock (_syncObj)
       {
-        _shareProxy = null;
+        ShareProxy = null;
         _localSharesList = null;
         _serverSharesList = null;
         _systemsList = null;
