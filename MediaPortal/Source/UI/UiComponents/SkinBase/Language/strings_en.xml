@@ -220,6 +220,7 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Do you want to relocate or clear and reimport?</string>
   <string name="SharesConfig.Relocate">Relocate</string>
   <string name="SharesConfig.ReImport">ReImport</string>
+  <string name="SharesConfig.ManualPathInput">Manual input</string>
 
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
