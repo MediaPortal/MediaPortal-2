@@ -55,16 +55,20 @@
         <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="ManualInputButton" Grid.Column="0" Grid.Row="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[SharesConfig.ManualPathInput]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=652C5A9F-EA50-4076-886B-B28FD167AD66}"/>
+          <Button x:Name="BackButton" Grid.Column="0" Grid.Row="1" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="ContinueButton" Grid.Column="2" Grid.Row="1" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsChoosenPathValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
