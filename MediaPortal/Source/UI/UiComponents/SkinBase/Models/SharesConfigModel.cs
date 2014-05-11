@@ -841,7 +841,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           UpdateSharesLists_NoLock(true);
         }
         else if (!push)
+        {
+          if (_shareProxy != null)
+            _shareProxy.InvalidShareHint = null;
           return;
+        }
         if (workflowState == Consts.WF_STATE_ID_SHARES_REMOVE)
         {
           UpdateSharesLists_NoLock(push);
