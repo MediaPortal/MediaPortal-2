@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Concurrent;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
@@ -62,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Private variables
 
-    private readonly Dictionary<GeoCoordinate, CivicAddress> _locationCache = new Dictionary<GeoCoordinate, CivicAddress>();
+    private readonly IDictionary<GeoCoordinate, CivicAddress> _locationCache = new ConcurrentDictionary<GeoCoordinate, CivicAddress>();
     private IList<IAddressResolver> _addressResolvers;
     private IList<ICoordinateResolver> _coordinateResolvers;
 
@@ -173,7 +174,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
               foreach (IAddressResolver civicResolverService in GetCivicResolverServices())
                 if (civicResolverService.TryResolveCivicAddress(coordinates, out address))
                 {
-                  _locationCache.Add(coordinates, address);
+                  _locationCache[coordinates] = address;
                   return true;
                 }
             }
@@ -204,7 +205,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         foreach (IAddressResolver civicResolverService in GetCivicResolverServices())
           if (civicResolverService.TryResolveCivicAddress(coordinates, out address))
           {
-            _locationCache.Add(coordinates, address);
+            _locationCache[coordinates] = address;
             return true;
           }
       }
