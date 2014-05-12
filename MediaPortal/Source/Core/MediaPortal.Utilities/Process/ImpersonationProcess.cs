@@ -38,6 +38,8 @@ namespace MediaPortal.Utilities.Process
     private const int STD_OUTPUT_HANDLE = -11;
     private const int STD_ERROR_HANDLE = -12;
 
+    private const int STILL_ACTIVE = 259;
+
     private const int SW_HIDE = 0;
     private const int SW_MAXIMIZE = 3;
     private const int SW_MINIMIZE = 6;
@@ -106,6 +108,15 @@ namespace MediaPortal.Utilities.Process
         if (NativeMethods.GetExitCodeProcess(_processInformation.hProcess, out exitCode))
           return (int) exitCode;
         return -1;
+      }
+    }
+
+    public new bool HasExited
+    {
+      get
+      {
+        uint exitCode;
+        return NativeMethods.GetExitCodeProcess(_processInformation.hProcess, out exitCode) && exitCode != STILL_ACTIVE;
       }
     }
 
