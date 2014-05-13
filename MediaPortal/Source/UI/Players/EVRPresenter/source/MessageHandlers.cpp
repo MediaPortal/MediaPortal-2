@@ -34,11 +34,11 @@ HRESULT EVRCustomPresenter::Flush()
 
   if (m_RenderState == RENDER_STATE_STOPPED)
   {
-      // Repaint with black.
-      (void)m_pD3DPresentEngine->PresentSample(NULL, 0);
+    // Repaint with black.
+    (void)m_pD3DPresentEngine->PresentSample(NULL, 0);
   }
 
-  return S_OK; 
+  return S_OK;
 }
 
 
@@ -62,7 +62,7 @@ HRESULT EVRCustomPresenter::EndStreaming()
   Log("EVRCustomPresenter::EndStreaming");
 
   HRESULT hr = S_OK;
-    
+
   // Stop the scheduler thread.
   hr = m_scheduler.StopScheduler();
 
@@ -88,7 +88,7 @@ HRESULT EVRCustomPresenter::ProcessInputNotify()
     // Try to process an output sample.
     ProcessOutputLoop();
   }
- 
+
   return hr;
 }
 
@@ -99,7 +99,7 @@ HRESULT EVRCustomPresenter::CheckEndOfStream()
   if (!m_bEndStreaming)
   {
     // The EVR did not send the MFVP_MESSAGE_ENDOFSTREAM message.
-    return S_OK; 
+    return S_OK;
   }
 
   if (m_bSampleNotify)

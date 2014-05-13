@@ -36,8 +36,8 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetService(REFGUID guidService, RE
   hr = m_pD3DPresentEngine->GetService(guidService, riid, ppvObject);
   if (FAILED(hr))
   {
-     // Next, query interface to check if this object supports the interface.
-     hr = QueryInterface(riid, ppvObject);
+    // Next, query interface to check if this object supports the interface.
+    hr = QueryInterface(riid, ppvObject);
   }
 
   return hr;

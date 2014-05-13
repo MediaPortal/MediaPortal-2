@@ -83,7 +83,7 @@ bool AreComObjectsEqual(T1 *p1, T2 *p2)
     // One is NULL and one is not
     bResult = false;
   }
-  else 
+  else
   {
     // Both are not NULL. Compare IUnknowns.
     IUnknown *pUnk1 = NULL;
@@ -98,7 +98,7 @@ bool AreComObjectsEqual(T1 *p1, T2 *p2)
       pUnk1->Release();
     }
   }
- 
+
   return bResult;
 }
 
@@ -113,13 +113,13 @@ inline float MFOffsetToFloat(const MFOffset& offset)
 //
 // Version number for the video samples. When the presenter increments the version number, 
 // all samples with the previous version number are stale and should be discarded.
-static const GUID MFSamplePresenter_SampleCounter = {0xb0bb83cc, 0xf10f, 0x4e2e, {0xaa, 0x2b, 0x29, 0xea, 0x5e, 0x92, 0xef, 0x85}};
+static const GUID MFSamplePresenter_SampleCounter = { 0xb0bb83cc, 0xf10f, 0x4e2e, { 0xaa, 0x2b, 0x29, 0xea, 0x5e, 0x92, 0xef, 0x85 } };
 
 // MFSamplePresenter_SampleSwapChain
 // Data type: IUNKNOWN
 // 
 // Pointer to a Direct3D swap chain.
-static const GUID MFSamplePresenter_SampleSwapChain = {0xad885bd1, 0x7def, 0x414a, {0xb5, 0xb0, 0xd3, 0xd2, 0x63, 0xd6, 0xe9, 0x6d}};
+static const GUID MFSamplePresenter_SampleSwapChain = { 0xad885bd1, 0x7def, 0x414a, { 0xb5, 0xb0, 0xd3, 0xd2, 0x63, 0xd6, 0xe9, 0x6d } };
 
 #pragma warning(disable: 4995)
 // write message to EVR Log.

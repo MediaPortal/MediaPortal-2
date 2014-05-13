@@ -37,7 +37,7 @@ HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
   HRESULT hr = S_OK;
   MFRatio fps = { 0, 0 };
   VideoSampleList sampleQueue;
-  
+
   IMFSample *pSample = NULL;
 
   // Cannot set the media type after shutdown.
@@ -50,7 +50,7 @@ HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
 
   // Check if the new type is actually different.
   // Note: This function safely handles NULL input parameters.
-  if (AreMediaTypesEqual(m_pMediaType, pMediaType))  
+  if (AreMediaTypesEqual(m_pMediaType, pMediaType))
   {
     return S_OK; // Nothing more to do.
   }
@@ -125,7 +125,7 @@ HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
 HRESULT EVRCustomPresenter::IsMediaTypeSupported(IMFMediaType *pMediaType)
 {
   Log("EVRCustomPresenter::IsMediaTypeSupported");
-  
+
   HRESULT                 hr = S_OK;
   D3DFORMAT               d3dFormat = D3DFMT_UNKNOWN;
   BOOL                    bCompressed = FALSE;
@@ -192,7 +192,7 @@ HRESULT EVRCustomPresenter::CreateOptimalVideoType(IMFMediaType* pProposedType, 
   Log("EVRCustomPresenter::CreateOptimalVideoType");
 
   HRESULT hr = S_OK;
-    
+
   RECT rcOutput;
   ZeroMemory(&rcOutput, sizeof(rcOutput));
 
@@ -277,7 +277,7 @@ HRESULT EVRCustomPresenter::CalculateOutputRectangle(IMFMediaType *pProposedType
 
   MFRatio inputPAR = { 0, 0 };
   MFRatio outputPAR = { 0, 0 };
-  RECT    rcOutput = { 0, 0, 0, 0};
+  RECT    rcOutput = { 0, 0, 0, 0 };
 
   MFVideoArea displayArea;
   ZeroMemory(&displayArea, sizeof(displayArea));
@@ -303,9 +303,9 @@ HRESULT EVRCustomPresenter::CalculateOutputRectangle(IMFMediaType *pProposedType
     offsetX + displayArea.Area.cx <= (LONG)(srcWidth) &&
     offsetY + displayArea.Area.cy <= (LONG)(srcHeight))
   {
-    rcOutput.left   = offsetX;
-    rcOutput.right  = offsetX + displayArea.Area.cx;
-    rcOutput.top    = offsetY;
+    rcOutput.left = offsetX;
+    rcOutput.right = offsetX + displayArea.Area.cx;
+    rcOutput.top = offsetY;
     rcOutput.bottom = offsetY + displayArea.Area.cy;
   }
   else

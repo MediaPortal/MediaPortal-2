@@ -18,19 +18,19 @@
 
 // Constructor
 EVRCustomPresenter::EVRCustomPresenter(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr) :
-  m_RenderState(RENDER_STATE_SHUTDOWN),
-  m_pD3DPresentEngine(NULL),
-  m_pClock(NULL),
-  m_pMixer(NULL),
-  m_pMediaEventSink(NULL),
-  m_pMediaType(NULL),
-  m_bSampleNotify(FALSE),
-  m_bRepaint(FALSE),
-  m_bEndStreaming(FALSE),
-  m_bPrerolled(FALSE),
-  m_fRate(1.0f),
-  m_TokenCounter(0),
-  m_SampleFreeCB(this, &EVRCustomPresenter::OnSampleFree)
+m_RenderState(RENDER_STATE_SHUTDOWN),
+m_pD3DPresentEngine(NULL),
+m_pClock(NULL),
+m_pMixer(NULL),
+m_pMediaEventSink(NULL),
+m_pMediaType(NULL),
+m_bSampleNotify(FALSE),
+m_bRepaint(FALSE),
+m_bEndStreaming(FALSE),
+m_bPrerolled(FALSE),
+m_fRate(1.0f),
+m_TokenCounter(0),
+m_SampleFreeCB(this, &EVRCustomPresenter::OnSampleFree)
 {
   hr = S_OK;
 
@@ -53,7 +53,7 @@ EVRCustomPresenter::EVRCustomPresenter(IEVRCallback* callback, IDirect3DDevice9E
   }
 }
 
-  
+
 // Destructor
 EVRCustomPresenter::~EVRCustomPresenter()
 {
@@ -64,17 +64,17 @@ EVRCustomPresenter::~EVRCustomPresenter()
 // Init EVR Presenter (called by VideoPlayer.cs)
 __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
 {
-	HRESULT hr;
+  HRESULT hr;
   *ppPresenterInstance = NULL;
 
   // Set IMFVideoRenderer Interface
-	CComQIPtr<IMFVideoRenderer> pVideoRenderer = evrFilter;
-	if (!pVideoRenderer) 
+  CComQIPtr<IMFVideoRenderer> pVideoRenderer = evrFilter;
+  if (!pVideoRenderer)
   {
-		Log("EvrInit could not set IMFVideoRenderer interface");
-	  hr = E_FAIL;
+    Log("EvrInit could not set IMFVideoRenderer interface");
+    hr = E_FAIL;
     return hr;
-	}
+  }
 
   EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (IDirect3DDevice9Ex*)dwD3DDevice, hwnd, hr);
   if (FAILED(hr))
@@ -82,7 +82,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
     Log("EvrInit EVRCustomPresenter() failed");
     presenter->Release();
     pVideoRenderer.Release();
-	  return hr;
+    return hr;
   }
 
   hr = pVideoRenderer->InitializeRenderer(NULL, presenter);
@@ -91,13 +91,13 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
     Log("EvrInit IMFVIdeoRenderer::InitializeRenderer failed");
     presenter->Release();
     pVideoRenderer.Release();
-	  return hr;
+    return hr;
   }
 
   *ppPresenterInstance = presenter;
   Log("EvrInit: successfully created presenter 0x%x", *ppPresenterInstance);
   pVideoRenderer.Release();
-	return hr;
+  return hr;
 }
 
 

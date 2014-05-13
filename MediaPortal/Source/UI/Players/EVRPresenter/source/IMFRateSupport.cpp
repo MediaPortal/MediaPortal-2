@@ -64,7 +64,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetSlowestRate(MFRATE_DIRECTION eD
   CheckPointer(pfRate, E_POINTER);
 
   // There is no minimum playback rate, so the minimum is zero.
-  *pfRate = 0; 
+  *pfRate = 0;
 
   return S_OK;
 }

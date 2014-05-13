@@ -40,7 +40,7 @@ HRESULT EVRCustomPresenter::ConfigureMixer(IMFTransform *pMixer)
 
   // Set the zoom rectangle (ie, the source clipping rectangle).
   hr = SetMixerSourceRect(pMixer, m_nrcSource);
- 
+
   SAFE_RELEASE(pDeviceID);
   return hr;
 }
@@ -66,7 +66,7 @@ HRESULT EVRCustomPresenter::SetMixerSourceRect(IMFTransform *pMixer, const MFVid
     SAFE_RELEASE(pAttributes);
     return hr;
   }
-  
+
   SAFE_RELEASE(pAttributes);
   return hr;
 }

@@ -27,11 +27,11 @@
 #include "IEVRCallback.h"
 #include "D3DPresentEngine.h"
 
-class EVRCustomPresenter : 
-  BaseObject,  
-  RefCountedObject, 
+class EVRCustomPresenter :
+  BaseObject,
+  RefCountedObject,
   // COM interfaces:
-	public IMFVideoPresenter,   // inherits IMFClockStateSink
+  public IMFVideoPresenter,   // inherits IMFClockStateSink
   public IMFGetService,
   public IMFTopologyServiceLookupClient,
   public IMFVideoDeviceID,
@@ -124,12 +124,12 @@ protected:
 
   // Scrubbing occurs when the frame rate is 0.
   inline BOOL IsScrubbing() const
-  { 
+  {
     return m_fRate == 0.0f;
   }
 
   // Returns MF_E_SHUTDOWN if the presenter is shutdown.
-  inline HRESULT CheckShutdown() const 
+  inline HRESULT CheckShutdown() const
   {
     if (m_RenderState == RENDER_STATE_SHUTDOWN)
     {
@@ -174,7 +174,7 @@ protected:
   HRESULT EVRCustomPresenter::DeliverFrameStepSample(IMFSample *pSample);
 
   // Sample Management
-  void    ProcessOutputLoop();   
+  void    ProcessOutputLoop();
   HRESULT ProcessOutput();
   HRESULT DeliverSample(IMFSample *pSample, BOOL bRepaint);
   HRESULT TrackSample(IMFSample *pSample);

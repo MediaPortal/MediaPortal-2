@@ -48,17 +48,17 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::InitServicePointers(IMFTopologySer
 
   // Ask for the clock. Optional, because the EVR might not have a clock.
   dwObjectCount = 1;
-  hr = pLookup->LookupService(      
+  hr = pLookup->LookupService(
     MF_SERVICE_LOOKUP_GLOBAL,   // Not used.
     0,                          // Reserved.
     MR_VIDEO_RENDER_SERVICE,    // Service to look up.
     __uuidof(IMFClock),         // Interface to look up.
     (void**)&m_pClock,          // Interface to retrieve.
     &dwObjectCount              // Number of elements retrieved.
-  );
+    );
 
   // Ask for the mixer. (Required.)
-  dwObjectCount = 1; 
+  dwObjectCount = 1;
   hr = pLookup->LookupService(
     MF_SERVICE_LOOKUP_GLOBAL,   // Not used.
     0,                          // Reserved.
@@ -66,7 +66,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::InitServicePointers(IMFTopologySer
     __uuidof(IMFTransform),     // Interface to look up.
     (void**)&m_pMixer,          // Interface to retrieve.
     &dwObjectCount              // Number of elements retrieved.
-  );
+    );
   CHECK_HR(hr, "EVRCustomPresenter::InitServicePointers could not get mixer.");
 
   // Make sure that we can work with this mixer.
@@ -82,7 +82,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::InitServicePointers(IMFTopologySer
     __uuidof(IMediaEventSink),    // Interface to look up.
     (void**)&m_pMediaEventSink,   // Interface to retrieve.
     &dwObjectCount                // Number of elements retrieved.
-  );
+    );
   CHECK_HR(hr, "EVRCustomPresenter::InitServicePointers could not get event sink.");
 
   // Successfully initialized. Set the state to "stopped."

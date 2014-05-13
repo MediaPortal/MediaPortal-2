@@ -60,8 +60,8 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockRestart(MFTIME hnsSystemTim
   hr = StartFrameStep();
   CHECK_HR(hr, "EVRCustomPresenter::OnClockRestart EVRCustomPresenter::StartFrameStep() failed")
 
-  // Now resume the presentation loop.
-  ProcessOutputLoop();
+    // Now resume the presentation loop.
+    ProcessOutputLoop();
 
   return hr;
 }
@@ -75,7 +75,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockSetRate(MFTIME hnsSystemTim
   HRESULT hr = S_OK;
 
   CAutoLock lock(this);
-  
+
   // We cannot set the rate after shutdown.
   hr = CheckShutdown();
   CHECK_HR(hr, "EVRCustomPresenter::OnClockRestart cannot set rate after shutdown");
@@ -113,7 +113,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockStart(MFTIME hnsSystemTime,
   if (IsActive())
   {
     m_RenderState = RENDER_STATE_STARTED;
-    
+
     // If the clock position changes while the clock is active, it is a seek request. We need to flush all pending samples.
     if (llClockStartOffset != PRESENTATION_CURRENT_POSITION)
     {

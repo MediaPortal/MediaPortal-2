@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // Function pointer for creating COM objects. (Used by the class factory.)
-typedef HRESULT (*CreateInstanceFn)(IUnknown *pUnkOuter, REFIID iid, void **ppv);
+typedef HRESULT(*CreateInstanceFn)(IUnknown *pUnkOuter, REFIID iid, void **ppv);
 
 // Structure to associate CLSID with object creation function.
 struct ClassFactoryData
@@ -20,8 +20,8 @@ struct ClassFactoryData
 };
 
 
-  // ClassFactory:
-  // Implements a class factory for COM objects.
+// ClassFactory:
+// Implements a class factory for COM objects.
 
 class ClassFactory : public IClassFactory
 {
@@ -60,7 +60,7 @@ public:
     // variable, for thread safety.
     return uCount;
   }
-  
+
   // IUnknown methods
   STDMETHODIMP QueryInterface(REFIID riid, void **ppv)
   {
@@ -76,7 +76,7 @@ public:
     {
       *ppv = static_cast<IClassFactory*>(this);
     }
-    else 
+    else
     {
       *ppv = NULL;
       return E_NOINTERFACE;
@@ -97,11 +97,11 @@ public:
       }
     }
 
-   return m_pfnCreation(pUnkOuter, riid, ppv);
+    return m_pfnCreation(pUnkOuter, riid, ppv);
   }
 
   STDMETHODIMP LockServer(BOOL lock)
-  {   
+  {
     if (lock)
     {
       LockServer();
@@ -127,24 +127,24 @@ public:
 
 };
 
-  // BaseObjects
-  // All COM objects that are implemented in the server (DLL) must derive from BaseObject
-  // so that the server is not unlocked while objects are still active.
-  class BaseObject
+// BaseObjects
+// All COM objects that are implemented in the server (DLL) must derive from BaseObject
+// so that the server is not unlocked while objects are still active.
+class BaseObject
+{
+public:
+  BaseObject()
   {
-  public:
-    BaseObject() 
-    {
-      ClassFactory::LockServer();
-    }
-    virtual ~BaseObject()
-    {
-      ClassFactory::UnlockServer();
-    }
-  };
+    ClassFactory::LockServer();
+  }
+  virtual ~BaseObject()
+  {
+    ClassFactory::UnlockServer();
+  }
+};
 
-  // RefCountedObject
-  // You can use this when implementing IUnknown or any object that uses reference counting.
+// RefCountedObject
+// You can use this when implementing IUnknown or any object that uses reference counting.
 class RefCountedObject
 {
 protected:

@@ -13,7 +13,7 @@
 #include <mfapi.h>
 
 // MediaType is a wrapper around an IMFMediaType.
-class MediaType 
+class MediaType
 {
 protected:
   IMFMediaType* m_pType;
@@ -37,7 +37,7 @@ public:
     if (pType)
     {
       m_pType = pType;
-      m_pType->AddRef();  
+      m_pType->AddRef();
     }
   }
 
@@ -139,14 +139,14 @@ public:
 
 
   // Retrieves an alternative representation of the media type.
-  HRESULT GetRepresentation( GUID guidRepresentation, LPVOID *ppvRepresentation)
+  HRESULT GetRepresentation(GUID guidRepresentation, LPVOID *ppvRepresentation)
   {
     return GetMediaType()->GetRepresentation(guidRepresentation, ppvRepresentation);
   }
 
 
   // Frees memory that was allocated by the GetRepresentation method.
-  HRESULT FreeRepresentation( GUID guidRepresentation, LPVOID pvRepresentation) 
+  HRESULT FreeRepresentation(GUID guidRepresentation, LPVOID pvRepresentation)
   {
     return GetMediaType()->FreeRepresentation(guidRepresentation, pvRepresentation);
   }
@@ -231,7 +231,7 @@ public:
       *pFourCC = guidSubType.Data1;
     }
     return hr;
-  }     
+  }
 
 
   //  Queries whether each sample is independent of the other samples in the stream.
@@ -241,14 +241,14 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, (UINT32*)pbIndependent);
   }
 
-  
+
   //  Specifies whether each sample is independent of the other samples in the stream.
   HRESULT SetAllSamplesIndependent(BOOL bIndependent)
   {
     return GetMediaType()->SetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, (UINT32)bIndependent);
   }
 
-  
+
   // Queries whether the samples have a fixed size.
   HRESULT GetFixedSizeSamples(BOOL *pbFixed)
   {
@@ -256,29 +256,29 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_FIXED_SIZE_SAMPLES, (UINT32*)pbFixed);
   }
 
-  
+
   // Specifies whether the samples have a fixed size.
   HRESULT SetFixedSizeSamples(BOOL bFixed)
   {
     return GetMediaType()->SetUINT32(MF_MT_FIXED_SIZE_SAMPLES, (UINT32)bFixed);
   }
 
-  
+
   // Retrieves the size of each sample, in bytes. 
   HRESULT GetSampleSize(UINT32 *pnSize)
-  {   
+  {
     CheckPointer(pnSize, E_POINTER);
     return GetMediaType()->GetUINT32(MF_MT_SAMPLE_SIZE, pnSize);
   }
 
-  
+
   // Sets the size of each sample, in bytes. 
   HRESULT SetSampleSize(UINT32 nSize)
-  {   
+  {
     return GetMediaType()->SetUINT32(MF_MT_SAMPLE_SIZE, nSize);
   }
 
-  
+
   // Retrieves a media type that was wrapped by the MFWrapMediaType function.
   HRESULT Unwrap(IMFMediaType **ppOriginal)
   {
@@ -294,15 +294,15 @@ public:
     return (BOOL)MFGetAttributeUINT32(GetMediaType(), MF_MT_ALL_SAMPLES_INDEPENDENT, FALSE);
   }
 
-  
+
   BOOL FixedSizeSamples()
   {
     return (BOOL)MFGetAttributeUINT32(GetMediaType(), MF_MT_FIXED_SIZE_SAMPLES, FALSE);
   }
 
-  
+
   UINT32 SampleSize()
-  {   
+  {
     return MFGetAttributeUINT32(GetMediaType(), MF_MT_SAMPLE_SIZE, 0);
   }
 };
@@ -311,7 +311,7 @@ public:
 // VideoType provides access to video-specific attributes.
 class VideoType : public MediaType
 {
-  friend class MediaType; 
+  friend class MediaType;
 
 public:
   VideoType(IMFMediaType* pType = NULL) : MediaType(pType)
@@ -347,35 +347,35 @@ public:
     return GetMediaType()->SetUINT32(MF_MT_INTERLACE_MODE, (UINT32)mode);
   }
 
-  
+
   // This returns the default or attempts to compute it, in its absence.
   HRESULT GetDefaultStride(LONG *plStride)
   {
     return GetDefaultStride(GetMediaType(), plStride);
   }
 
-  
+
   // Sets the default stride. Only appropriate for uncompressed data formats.
   HRESULT SetDefaultStride(LONG nStride)
   {
     return GetMediaType()->SetUINT32(MF_MT_DEFAULT_STRIDE, (UINT32)nStride);
   }
 
-  
+
   // Retrieves the width and height of the video frame.
   HRESULT GetFrameDimensions(UINT32 *pdwWidthInPixels, UINT32 *pdwHeightInPixels)
   {
     return MFGetAttributeSize(GetMediaType(), MF_MT_FRAME_SIZE, pdwWidthInPixels, pdwHeightInPixels);
   }
 
-  
+
   // Sets the width and height of the video frame.
   HRESULT SetFrameDimensions(UINT32 dwWidthInPixels, UINT32 dwHeightInPixels)
   {
     return MFSetAttributeSize(GetMediaType(), MF_MT_FRAME_SIZE, dwWidthInPixels, dwHeightInPixels);
   }
 
-  
+
   // Retrieves the data error rate in bit errors per second
   HRESULT GetDataBitErrorRate(UINT32 *pRate)
   {
@@ -383,14 +383,14 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_AVG_BIT_ERROR_RATE, pRate);
   }
 
-  
+
   // Sets the data error rate in bit errors per second
   HRESULT SetDataBitErrorRate(UINT32 rate)
   {
     return GetMediaType()->SetUINT32(MF_MT_AVG_BIT_ERROR_RATE, rate);
   }
 
-  
+
   // Retrieves the approximate data rate of the video stream.
   HRESULT GetAverageBitRate(UINT32 *pRate)
   {
@@ -398,14 +398,14 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_AVG_BITRATE, pRate);
   }
 
-  
+
   // Sets the approximate data rate of the video stream.
   HRESULT SetAvgerageBitRate(UINT32 rate)
   {
     return GetMediaType()->SetUINT32(MF_MT_AVG_BITRATE, rate);
   }
 
-  
+
   // Retrieves custom color primaries.
   HRESULT GetCustomVideoPrimaries(MT_CUSTOM_VIDEO_PRIMARIES *pPrimaries)
   {
@@ -413,14 +413,14 @@ public:
     return GetMediaType()->GetBlob(MF_MT_CUSTOM_VIDEO_PRIMARIES, (UINT8*)pPrimaries, sizeof(MT_CUSTOM_VIDEO_PRIMARIES), NULL);
   }
 
-  
+
   // Sets custom color primaries.
   HRESULT SetCustomVideoPrimaries(const MT_CUSTOM_VIDEO_PRIMARIES& primary)
   {
     return GetMediaType()->SetBlob(MF_MT_CUSTOM_VIDEO_PRIMARIES, (const UINT8*)&primary, sizeof(MT_CUSTOM_VIDEO_PRIMARIES));
   }
 
-  
+
   // Gets the number of frames per second.
   HRESULT GetFrameRate(UINT32 *pnNumerator, UINT32 *pnDenominator)
   {
@@ -429,44 +429,44 @@ public:
     return MFGetAttributeRatio(GetMediaType(), MF_MT_FRAME_RATE, pnNumerator, pnDenominator);
   }
 
-  
+
   // Gets the frames per second as a ratio.
   HRESULT GetFrameRate(MFRatio *pRatio)
   {
     CheckPointer(pRatio, E_POINTER);
     return GetFrameRate((UINT32*)&pRatio->Numerator, (UINT32*)&pRatio->Denominator);
   }
-  
-  
+
+
   // Sets the number of frames per second.
   HRESULT SetFrameRate(UINT32 nNumerator, UINT32 nDenominator)
   {
     return MFSetAttributeRatio(GetMediaType(), MF_MT_FRAME_RATE, nNumerator, nDenominator);
   }
 
-  
+
   // Sets the number of frames per second, as a ratio.
   HRESULT SetFrameRate(const MFRatio& ratio)
   {
     return MFSetAttributeRatio(GetMediaType(), MF_MT_FRAME_RATE, ratio.Numerator, ratio.Denominator);
   }
 
-  
+
   // Queries the geometric aperture.
   HRESULT GetGeometricAperture(MFVideoArea *pArea)
   {
     CheckPointer(pArea, E_POINTER);
     return GetMediaType()->GetBlob(MF_MT_GEOMETRIC_APERTURE, (UINT8*)pArea, sizeof(MFVideoArea), NULL);
   }
-  
-  
+
+
   // Sets the geometric aperture.
   HRESULT SetGeometricAperture(const MFVideoArea& area)
   {
     return GetMediaType()->SetBlob(MF_MT_GEOMETRIC_APERTURE, (UINT8*)&area, sizeof(MFVideoArea));
   }
-  
-  
+
+
   // Retrieves the maximum number of frames from one key frame to the next.
   HRESULT GetMaxKeyframeSpacing(UINT32 *pnSpacing)
   {
@@ -474,14 +474,14 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_MAX_KEYFRAME_SPACING, pnSpacing);
   }
 
-  
+
   // Sets the maximum number of frames from one key frame to the next.
   HRESULT SetMaxKeyframeSpacing(UINT32 nSpacing)
   {
     return GetMediaType()->SetUINT32(MF_MT_MAX_KEYFRAME_SPACING, nSpacing);
   }
 
-  
+
   // Retrieves the region that contains the valid portion of the signal.
   HRESULT GetMinDisplayAperture(MFVideoArea *pArea)
   {
@@ -489,7 +489,7 @@ public:
     return GetMediaType()->GetBlob(MF_MT_MINIMUM_DISPLAY_APERTURE, (UINT8*)pArea, sizeof(MFVideoArea), NULL);
   }
 
-  
+
   // Sets the the region that contains the valid portion of the signal.
   HRESULT SetMinDisplayAperture(const MFVideoArea& area)
   {
@@ -504,30 +504,30 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_PAD_CONTROL_FLAGS, (UINT32*)pFlags);
   }
 
-  
+
   // Sets the aspect ratio of the output rectangle for a video media type. 
   HRESULT SetPadControlFlags(MFVideoPadFlags flags)
   {
     return GetMediaType()->SetUINT32(MF_MT_PAD_CONTROL_FLAGS, flags);
   }
 
-  
+
   // Retrieves an array of palette entries for a video media type. 
   HRESULT GetPaletteEntries(MFPaletteEntry *paEntries, UINT32 nEntries)
   {
     CheckPointer(paEntries, E_POINTER);
-    return GetMediaType()->GetBlob(MF_MT_PALETTE, (UINT8*)paEntries, sizeof(MFPaletteEntry) * nEntries, NULL);
+    return GetMediaType()->GetBlob(MF_MT_PALETTE, (UINT8*)paEntries, sizeof(MFPaletteEntry)* nEntries, NULL);
   }
 
-  
+
   // Sets an array of palette entries for a video media type. 
   HRESULT SetPaletteEntries(MFPaletteEntry *paEntries, UINT32 nEntries)
   {
     CheckPointer(paEntries, E_POINTER);
-    return GetMediaType()->SetBlob(MF_MT_PALETTE, (UINT8*)paEntries, sizeof(MFPaletteEntry) * nEntries);
+    return GetMediaType()->SetBlob(MF_MT_PALETTE, (UINT8*)paEntries, sizeof(MFPaletteEntry)* nEntries);
   }
 
-  
+
   // Retrieves the number of palette entries.
   HRESULT GetNumPaletteEntries(UINT32 *pnEntries)
   {
@@ -549,22 +549,22 @@ public:
     return hr;
   }
 
-  
+
   // Queries the 4×3 region of video that should be displayed in pan/scan mode.
   HRESULT GetPanScanAperture(MFVideoArea *pArea)
   {
     CheckPointer(pArea, E_POINTER);
     return GetMediaType()->GetBlob(MF_MT_PAN_SCAN_APERTURE, (UINT8*)pArea, sizeof(MFVideoArea), NULL);
   }
-  
-  
+
+
   // Sets the 4×3 region of video that should be displayed in pan/scan mode.
   HRESULT SetPanScanAperture(const MFVideoArea& area)
   {
     return GetMediaType()->SetBlob(MF_MT_PAN_SCAN_APERTURE, (UINT8*)&area, sizeof(MFVideoArea));
   }
-  
-  
+
+
   // Queries whether pan/scan mode is enabled.
   HRESULT IsPanScanEnabled(BOOL *pBool)
   {
@@ -572,23 +572,23 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_PAN_SCAN_ENABLED, (UINT32*)pBool);
   }
 
-  
+
   // Sets whether pan/scan mode is enabled.
   HRESULT SetPanScanEnabled(BOOL bEnabled)
   {
     return GetMediaType()->SetUINT32(MF_MT_PAN_SCAN_ENABLED, (UINT32)bEnabled);
   }
 
-  
+
   // Queries the pixel aspect ratio
   HRESULT GetPixelAspectRatio(UINT32 *pnNumerator, UINT32 *pnDenominator)
   {
     CheckPointer(pnNumerator, E_POINTER);
     CheckPointer(pnDenominator, E_POINTER);
     return MFGetAttributeRatio(GetMediaType(), MF_MT_PIXEL_ASPECT_RATIO, pnNumerator, pnDenominator);
-  }     
+  }
 
-  
+
   // Sets the pixel aspect ratio
   HRESULT SetPixelAspectRatio(UINT32 nNumerator, UINT32 nDenominator)
   {
@@ -600,7 +600,7 @@ public:
     return MFSetAttributeRatio(GetMediaType(), MF_MT_PIXEL_ASPECT_RATIO, ratio.Numerator, ratio.Denominator);
   }
 
-  
+
   // Queries the intended aspect ratio.
   HRESULT GetSourceContentHint(MFVideoSrcContentHintFlags *pFlags)
   {
@@ -608,14 +608,14 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_SOURCE_CONTENT_HINT, (UINT32*)pFlags);
   }
 
-  
+
   // Sets the intended aspect ratio.
   HRESULT SetSourceContentHint(MFVideoSrcContentHintFlags nFlags)
   {
     return GetMediaType()->SetUINT32(MF_MT_SOURCE_CONTENT_HINT, (UINT32)nFlags);
   }
 
-  
+
   // Queries an enumeration which represents the conversion function from RGB to R'G'B'.
   HRESULT GetTransferFunction(MFVideoTransferFunction *pnFxn)
   {
@@ -623,44 +623,44 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_TRANSFER_FUNCTION, (UINT32*)pnFxn);
   }
 
-  
+
   // Set an enumeration which represents the conversion function from RGB to R'G'B'.
   HRESULT SetTransferFunction(MFVideoTransferFunction nFxn)
   {
     return GetMediaType()->SetUINT32(MF_MT_TRANSFER_FUNCTION, (UINT32)nFxn);
   }
 
-  
+
   // Queries how chroma was sampled for a Y'Cb'Cr' video media type.
   HRESULT GetChromaSiting(MFVideoChromaSubsampling *pSampling)
   {
     CheckPointer(pSampling, E_POINTER);
     return GetMediaType()->GetUINT32(MF_MT_VIDEO_CHROMA_SITING, (UINT32*)pSampling);
   }
-  
-  
+
+
   // Sets how chroma was sampled for a Y'Cb'Cr' video media type.
   HRESULT SetChromaSiting(MFVideoChromaSubsampling nSampling)
   {
     return GetMediaType()->SetUINT32(MF_MT_VIDEO_CHROMA_SITING, (UINT32)nSampling);
   }
-  
-  
+
+
   // Queries the optimal lighting conditions for viewing.
   HRESULT GetVideoLighting(MFVideoLighting *pLighting)
   {
     CheckPointer(pLighting, E_POINTER);
     return GetMediaType()->GetUINT32(MF_MT_VIDEO_LIGHTING, (UINT32*)pLighting);
   }
-  
-  
+
+
   // Sets the optimal lighting conditions for viewing.
   HRESULT SetVideoLighting(MFVideoLighting nLighting)
   {
     return GetMediaType()->SetUINT32(MF_MT_VIDEO_LIGHTING, (UINT32)nLighting);
   }
-  
-  
+
+
   // Queries the nominal range of the color information in a video media type. 
   HRESULT GetVideoNominalRange(MFNominalRange *pRange)
   {
@@ -668,14 +668,14 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_VIDEO_NOMINAL_RANGE, (UINT32*)pRange);
   }
 
-  
+
   // Sets the nominal range of the color information in a video media type. 
   HRESULT SetVideoNominalRange(MFNominalRange nRange)
   {
     return GetMediaType()->SetUINT32(MF_MT_VIDEO_NOMINAL_RANGE, (UINT32)nRange);
   }
 
-  
+
   // Queries the color primaries for a video media type.
   HRESULT GetVideoPrimaries(MFVideoPrimaries *pPrimaries)
   {
@@ -683,29 +683,29 @@ public:
     return GetMediaType()->GetUINT32(MF_MT_VIDEO_PRIMARIES, (UINT32*)pPrimaries);
   }
 
-  
+
   // Sets the color primaries for a video media type.
   HRESULT SetVideoPrimaries(MFVideoPrimaries nPrimaries)
   {
     return GetMediaType()->SetUINT32(MF_MT_VIDEO_PRIMARIES, (UINT32)nPrimaries);
   }
 
-  
+
   // Gets a enumeration representing the conversion matrix from the 
   // Y'Cb'Cr' color space to the R'G'B' color space.
   HRESULT GetYUVMatrix(MFVideoTransferMatrix *pMatrix)
   {
     CheckPointer(pMatrix, E_POINTER);
     return GetMediaType()->GetUINT32(MF_MT_YUV_MATRIX, (UINT32*)pMatrix);
-  } 
+  }
 
-  
+
   // Sets an enumeration representing the conversion matrix from the 
   // Y'Cb'Cr' color space to the R'G'B' color space.
   HRESULT SetYUVMatrix(MFVideoTransferMatrix nMatrix)
   {
     return GetMediaType()->SetUINT32(MF_MT_YUV_MATRIX, (UINT32)nMatrix);
-  } 
+  }
 
   // 
   // The following versions return reasonable defaults if the relevant attribute is not present (zero/FALSE).
@@ -724,15 +724,15 @@ public:
       PAR.Denominator = 1;
     }
     return PAR;
-  }     
+  }
 
-  
+
   BOOL IsPanScanEnabled() // Defaults to FALSE
   {
     return (BOOL)MFGetAttributeUINT32(GetMediaType(), MF_MT_PAN_SCAN_ENABLED, FALSE);
   }
 
-  
+
   // Returns (in this order) 
   // 1. The pan/scan region, only if pan/scan mode is enabled.
   // 2. The geometric aperture.
@@ -743,7 +743,7 @@ public:
 
     return GetVideoDisplayArea(GetMediaType(), pArea);
   }
- 
+
 
   // Helper functions for manipulating media types.
 
@@ -751,7 +751,7 @@ public:
   {
     MFOffset offset;
     offset.value = short(v);
-    offset.fract = WORD(65536 * (v-offset.value));
+    offset.fract = WORD(65536 * (v - offset.value));
     return offset;
   }
 
@@ -819,8 +819,8 @@ public:
   }
 
 
-inline HRESULT GetDefaultStride(IMFMediaType *pType, LONG *plStride)
-{
+  inline HRESULT GetDefaultStride(IMFMediaType *pType, LONG *plStride)
+  {
     LONG lStride = 0;
 
     // Try to get the default stride from the media type.
@@ -857,5 +857,5 @@ inline HRESULT GetDefaultStride(IMFMediaType *pType, LONG *plStride)
     }
     return hr;
   }
-}; 
+};
 

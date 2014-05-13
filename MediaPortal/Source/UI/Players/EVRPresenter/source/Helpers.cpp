@@ -35,7 +35,7 @@ float EVRCustomPresenter::GetMaxRate(BOOL bThin)
   // Thinned: The maximum rate is unbounded.
   float   fMaxRate = FLT_MAX;
   MFRatio fps = { 0, 0 };
-  UINT    MonitorRateHz = 0; 
+  UINT    MonitorRateHz = 0;
 
   // Non-Thinned: maximum playback rate is equal to the refresh rate
   if (!bThin && (m_pMediaType != NULL))
@@ -95,7 +95,7 @@ HRESULT EVRCustomPresenter::ValidateVideoArea(const MFVideoArea& area, UINT32 wi
 RECT EVRCustomPresenter::CorrectAspectRatio(const RECT& src, const MFRatio& srcPAR, const MFRatio& destPAR)
 {
   // Start with a rectangle the same size as src, but offset to the origin (0,0).
-  RECT rc = {0, 0, src.right - src.left, src.bottom - src.top};
+  RECT rc = { 0, 0, src.right - src.left, src.bottom - src.top };
 
   // If the source and destination have the same PAR, there is nothing to do.
   // Otherwise, adjust the image size, in two steps:

@@ -13,8 +13,8 @@
 template<class T>
 class AsyncCallback : public IMFAsyncCallback
 {
-public: 
-  typedef HRESULT (T::*InvokeFn)(IMFAsyncResult *pAsyncResult);
+public:
+  typedef HRESULT(T::*InvokeFn)(IMFAsyncResult *pAsyncResult);
 
   AsyncCallback(T *pParent, InvokeFn fn) : m_pParent(pParent), m_pInvokeFn(fn)
   {
@@ -45,15 +45,15 @@ public:
   }
 
 
-  STDMETHODIMP_(ULONG) AddRef() { 
+  STDMETHODIMP_(ULONG) AddRef() {
     // Delegate to parent class.
-    return m_pParent->AddRef(); 
+    return m_pParent->AddRef();
   }
 
 
-  STDMETHODIMP_(ULONG) Release() { 
+  STDMETHODIMP_(ULONG) Release() {
     // Delegate to parent class.
-    return m_pParent->Release(); 
+    return m_pParent->Release();
   }
 
 

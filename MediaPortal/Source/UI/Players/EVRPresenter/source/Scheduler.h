@@ -52,7 +52,7 @@ public:
     return (LONG)(time / (ONE_SECOND / ONE_MSEC));
   }
 
-private: 
+private:
   // non-static version of SchedulerThreadProc.
   DWORD SchedulerThreadProcPrivate();
 

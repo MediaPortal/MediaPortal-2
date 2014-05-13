@@ -30,7 +30,7 @@ HRESULT EVRCustomPresenter::PrepareFrameStep(DWORD cSteps)
   // If the clock is are already running, we can start frame-stepping now. Otherwise, we will start when the clock starts.
   if (m_RenderState == RENDER_STATE_STARTED)
   {
-    hr = StartFrameStep();       
+    hr = StartFrameStep();
   }
 
   return hr;
@@ -58,14 +58,14 @@ HRESULT EVRCustomPresenter::StartFrameStep()
       hr = m_FrameStep.samples.RemoveFront(&pSample);
       if (FAILED(hr))
       {
-        SAFE_RELEASE(pSample)
+        SAFE_RELEASE(pSample);
         CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep VideoSampleList::RemoveFront() failed");
       }
 
       hr = DeliverFrameStepSample(pSample);
       if (FAILED(hr))
       {
-        SAFE_RELEASE(pSample)
+        SAFE_RELEASE(pSample);
         CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep EVRCustomPresenter::DeliverFrameStepSample() failed");
       }
 
@@ -88,7 +88,7 @@ HRESULT EVRCustomPresenter::StartFrameStep()
       if (FAILED(hr))
       {
         SAFE_RELEASE(pSample)
-        CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep EVRCustomPresenter::DeliverSample() failed");
+          CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep EVRCustomPresenter::DeliverSample() failed");
       }
 
       SAFE_RELEASE(pSample);

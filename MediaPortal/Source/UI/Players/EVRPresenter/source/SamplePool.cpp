@@ -66,7 +66,7 @@ HRESULT SamplePool::GetSample(IMFSample **ppSample)
 
 
 // Returns a sample to the pool.
-HRESULT SamplePool::ReturnSample(IMFSample *pSample) 
+HRESULT SamplePool::ReturnSample(IMFSample *pSample)
 {
   AutoLock lock(m_lock);
 
