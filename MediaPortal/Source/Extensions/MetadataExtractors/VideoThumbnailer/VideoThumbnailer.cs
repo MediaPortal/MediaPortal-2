@@ -56,7 +56,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     /// <summary>
     /// Maximum duration for creating a single video thumbnail.
     /// </summary>
-    protected const int PROCESS_TIMEOUT_MS = 10000;
+    protected const int PROCESS_TIMEOUT_MS = 30000;
 
     #endregion
 
