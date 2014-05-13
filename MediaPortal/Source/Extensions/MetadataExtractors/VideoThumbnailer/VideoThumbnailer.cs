@@ -135,7 +135,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           defaultVideoOffset = videoDuration * 1 / 3;
       }
 
-      string tempFileName = Path.ChangeExtension(Path.GetTempFileName(), ".jpg");
+      // ToDo: Move creation of temp file names to FileUtils class
+      string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
       string arguments = string.Format("-ss {0} -i \"{1}\" -vframes 1 -an -dn -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1/1,scale=iw/2:-1\" -y \"{2}\"",
         defaultVideoOffset,
