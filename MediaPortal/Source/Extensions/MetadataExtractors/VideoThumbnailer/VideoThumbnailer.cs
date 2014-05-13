@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     #region Protected fields and classes
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-
+    protected static readonly object FFMPEG_THROTTLE_LOCK = new object();
     protected MetadataExtractorMetadata _metadata;
 
     #endregion
@@ -145,7 +145,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
       try
       {
-        if (ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS) && File.Exists(tempFileName))
+        bool success;
+        lock (FFMPEG_THROTTLE_LOCK)
+          success = ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS);
+        if (success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
