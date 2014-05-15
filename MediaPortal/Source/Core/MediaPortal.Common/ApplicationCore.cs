@@ -153,7 +153,7 @@ namespace MediaPortal.Common
     {
       ServiceRegistration.Get<ILocalization>().Startup();
       ServiceRegistration.Get<ITaskScheduler>().Startup();
-      ServiceRegistration.Get<IImporterWorker>().Startup();
+      ServiceRegistration.Get<IImporterWorker>().Startup(); // shutdown in ApplicationLaunchers
       ServiceRegistration.Get<IResourceServer>().Startup();
       ServiceRegistration.Get<IResourceMountingService>().Startup();
       ServiceRegistration.Get<IRemoteResourceInformationService>().Startup();
@@ -165,7 +165,6 @@ namespace MediaPortal.Common
       ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
       ServiceRegistration.Get<IResourceMountingService>().Shutdown();
       ServiceRegistration.Get<IResourceServer>().Shutdown();
-      ServiceRegistration.Get<IImporterWorker>().Shutdown();
       ServiceRegistration.Get<ITaskScheduler>().Shutdown();
       ServiceRegistration.Get<IThreadPool>().Shutdown();
     }

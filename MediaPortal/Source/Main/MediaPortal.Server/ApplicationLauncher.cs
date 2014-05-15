@@ -28,6 +28,7 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Backend;
 using MediaPortal.Common.Exceptions;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 #if !DEBUG
@@ -167,6 +168,7 @@ namespace MediaPortal.Server
         _systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
         ServiceRegistration.IsShuttingDown = true; // Block ServiceRegistration from trying to load new services in shutdown phase
 
+        ServiceRegistration.Get<IImporterWorker>().Shutdown(); // needs to be shut down before MediaAccessor and plugins
         ServiceRegistration.Get<IMediaAccessor>().Shutdown();
         ServiceRegistration.Get<IPluginManager>().Shutdown();
         BackendExtension.ShutdownBackendServices();

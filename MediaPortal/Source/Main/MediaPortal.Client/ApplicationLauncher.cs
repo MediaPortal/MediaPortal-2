@@ -26,6 +26,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common.Exceptions;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
@@ -202,11 +203,13 @@ namespace MediaPortal.Client
           // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
           // 2) Shutdown SkinEngine (Closes all screens, uninstalls background manager, stops render thread)
           // 3) Shutdown WorkflowManager (Disposes all models)
-          // 4) Shutdown PluginManager (Shuts down all plugins)
-          // 5) Remove all services
+          // 4) Shutdown ImporterWorker
+          // 5) Shutdown PluginManager (Shuts down all plugins)
+          // 6) Remove all services
           UiExtension.StopUiServices();
           skinEngine.Shutdown();
           workflowManager.Shutdown();
+          ServiceRegistration.Get<IImporterWorker>().Shutdown();
           pluginManager.Shutdown();
           mediaAccessor.Shutdown();
           localSharesManagement.Shutdown();
