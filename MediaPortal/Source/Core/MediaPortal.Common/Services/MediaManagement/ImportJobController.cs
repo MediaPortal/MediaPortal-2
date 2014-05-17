@@ -193,8 +193,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
       PendingImportResourceNewGen removedPendingImportResource;
-      if(!_pendingImportResources.TryRemove(pendingImportResource.PendingResourcePath, out removedPendingImportResource))
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Could not unregister {1}", this, pendingImportResource);
+      _pendingImportResources.TryRemove(pendingImportResource.PendingResourcePath, out removedPendingImportResource);
       
       // If this ImportJobController is not completed, notify the ImporterWorker
       // every 25 disposed (i.e. completed) PendingImportResources
