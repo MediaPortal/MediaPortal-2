@@ -229,14 +229,14 @@ namespace MediaPortal.UI.Players.Video
       // Release stream selectors
       ReleaseStreamSelectors();
 
-      // Free all filters from graph
-      if (_graphBuilder != null)
-        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
-
       // Free EVR
       EvrDeinit(_presenterInstance);
       FreeEvrCallback();
       FilterGraphTools.TryRelease(ref _evr);
+
+      // Free all filters from graph
+      if (_graphBuilder != null)
+        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
 
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
