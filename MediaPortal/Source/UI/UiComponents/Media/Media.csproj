@@ -114,6 +114,7 @@
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\ResetPlayCount.cs" />
     <Compile Include="MediaItemActions\RemoveFromML.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />

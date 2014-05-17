@@ -214,6 +214,7 @@
   <Register Location="/Media/Extensions">
     <MediaItemActionBuilder Id="{A6DC6A3C-3F90-493A-84C5-0E4400E7A949}" Caption="[Media.ResetPlayCount]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.ResetPlayCount"/>
     <MediaItemActionBuilder Id="{A8EF2180-FBD4-4D01-AB21-E7A98C0464AA}" Caption="[Media.RemoveFromML]" Sort="D.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.RemoveFromML"/>
+    <MediaItemActionBuilder Id="{37417344-B43E-486F-A2C5-DFF9E8C1C8E1}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.DeleteFromStorage"/>
   </Register>
   
   <!-- Root Sections -->
