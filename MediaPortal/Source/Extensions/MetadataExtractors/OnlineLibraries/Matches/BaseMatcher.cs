@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected UniqueEventedQueue<TId> _downloadQueue = new UniqueEventedQueue<TId>();
     protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
     protected bool _downloadFanart = true;
-    protected bool _downloadAllowed = true;
+    protected volatile bool _downloadAllowed = true;
     protected Predicate<TMatch> _matchPredicate;
     protected MatchStorage<TMatch, TId> _storage;
 
@@ -128,7 +128,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         _downloadAllowed = false;
       }
       foreach (Thread downloadThread in _downloadThreads)
-        if (!downloadThread.Join(2000))
+        if (!downloadThread.Join(5000))
           downloadThread.Abort();
 
       _downloadThreads.Clear();
