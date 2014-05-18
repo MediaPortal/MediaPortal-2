@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.Settings;
@@ -37,7 +39,7 @@ using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
-  public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor
+  public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor, IResourceDeletor
   {
     #region Protected fields
 
@@ -61,7 +63,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
       IResourceAccessor ra;
       if (LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
-        _underlayingResource = (ILocalFsResourceAccessor) ra;
+        _underlayingResource = (ILocalFsResourceAccessor)ra;
     }
 
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
@@ -148,6 +150,16 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         using (ImpersonateUser(_impersonationContext))
           return _underlayingResource == null ? IsServerPath(_path) : _underlayingResource.Exists;
+      }
+    }
+
+    public bool IsDirectory
+    {
+      get
+      {
+        string dosPath = NetworkPath;
+        using (ImpersonateUser(_impersonationContext))
+          return !string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath);
       }
     }
 
@@ -240,7 +252,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       IResourceAccessor ra;
       if (_parent.TryCreateResourceAccessor(ProviderPathHelper.Combine(_path, path), out ra))
-        return (IFileSystemResourceAccessor) ra;
+        return (IFileSystemResourceAccessor)ra;
       return null;
     }
 
@@ -280,6 +292,46 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public string LocalFileSystemPath
     {
       get { return _path.Replace('/', '\\'); }
+    }
+
+    /// <summary>
+    /// Returns a UNC representation of the resource.
+    /// </summary>
+    public string NetworkPath
+    {
+      // Note: the ToDosPath method returns only one leading backslash
+      get { return @"\" + LocalFsResourceProviderBase.ToDosPath(_path); }
+    }
+
+    #endregion
+
+    #region IResourceDeletor members
+
+    public bool Delete()
+    {
+      using (ImpersonateUser(_impersonationContext))
+      {
+        string dosPath = NetworkPath;
+        try
+        {
+          if (IsDirectory)
+          {
+            Directory.Delete(dosPath);
+            return true;
+          }
+          if (IsFile)
+          {
+            File.Delete(dosPath);
+            return true;
+          }
+        }
+        catch (Exception ex)
+        {
+          // There can be a wide range of exceptions because of read-only filesystems, access denied, file in use etc...
+          ServiceRegistration.Get<ILogger>().Error("Error deleting resource '{0}'", ex, dosPath);
+        }
+        return false; // Non existing or exception
+      }
     }
 
     #endregion

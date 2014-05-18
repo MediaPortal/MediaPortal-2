@@ -279,10 +279,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
         // There can be a wide range of exceptions because of read-only filesystems, access denied, file in use etc...
         ServiceRegistration.Get<ILogger>().Error("Error deleting resource '{0}'", ex, dosPath);
       }
-      return false; // Non existing
+      return false; // Non existing or exception
     }
 
     #endregion
+
     #region Base overrides
 
     public override string ToString()
