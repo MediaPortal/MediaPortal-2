@@ -90,7 +90,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       try
       {
         Type type = Type.GetTypeFromCLSID(clsid);
-        filter = (IBaseFilter) Activator.CreateInstance(type);
+        filter = (IBaseFilter)Activator.CreateInstance(type);
 
         int hr = graphBuilder.AddFilter(filter, name);
         new HRESULT(hr).Throw();
@@ -183,7 +183,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         hr = NativeMethods.MkParseDisplayName(bindCtx, devicePath, out eaten, out moniker);
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IFilterGraph2) graphBuilder).AddSourceFilterForMoniker(moniker, bindCtx, name, out filter);
+        hr = ((IFilterGraph2)graphBuilder).AddSourceFilterForMoniker(moniker, bindCtx, name, out filter);
         new HRESULT(hr).Throw();
       }
       catch
@@ -341,7 +341,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
       }
-      return (TE) filter;
+      return (TE)filter;
     }
 
     /// <summary>
@@ -411,14 +411,17 @@ namespace MediaPortal.UI.Players.Video.Tools
         throw new ArgumentNullException("source");
       }
 
-      var pin = new DSFilter(source).GetPin(pinName);
-
-      if (pin != null)
+      using (DSFilter dsFilter = new DSFilter(source))
       {
-        int hr = graphBuilder.Render(pin.Value);
-        pin.Dispose();
+        var pin = dsFilter.GetPin(pinName);
 
-        return (hr >= 0);
+        if (pin != null)
+        {
+          int hr = graphBuilder.Render(pin.Value);
+          pin.Dispose();
+
+          return (hr >= 0);
+        }
       }
 
       return false;
@@ -829,7 +832,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IPersistStream) graphBuilder).Save(Marshal.GetIUnknownForObject(stream), true);
+        hr = ((IPersistStream)graphBuilder).Save(Marshal.GetIUnknownForObject(stream), true);
         Marshal.ThrowExceptionForHR(hr);
 
         hr = storage.Commit(STGC.Default);
@@ -900,7 +903,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         Marshal.ThrowExceptionForHR(hr);
 
-        hr = ((IPersistStream) graphBuilder).Load(Marshal.GetIUnknownForObject(stream));
+        hr = ((IPersistStream)graphBuilder).Load(Marshal.GetIUnknownForObject(stream));
         Marshal.ThrowExceptionForHR(hr);
       }
       finally
@@ -977,7 +980,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           Marshal.ReleaseComObject(filterInfo.pGraph);
         }
 
-        hr = ((ISpecifyPropertyPages) filter).GetPages(out caGuid);
+        hr = ((ISpecifyPropertyPages)filter).GetPages(out caGuid);
         new HRESULT(hr).Throw();
 
         try
@@ -1065,26 +1068,29 @@ namespace MediaPortal.UI.Players.Video.Tools
         throw new ArgumentNullException("downFilter");
       }
 
-      var sourcePin = new DSFilter(upFilter).GetPin(sourcePinName);
-      if (sourcePin == null)
+      DSPin sourcePin = null;
+      DSPin destPin = null;
+      using (DSFilter dsUpFilter = new DSFilter(upFilter))
+      using (DSFilter dsDownFilter = new DSFilter(downFilter))
       {
-        throw new ArgumentException(@"The source filter has no pin called : " + sourcePinName, sourcePinName);
-      }
+        try
+        {
+          destPin = dsDownFilter.GetPin(destPinName);
+          sourcePin = dsUpFilter.GetPin(sourcePinName);
 
-      var destPin = new DSFilter(downFilter).GetPin(destPinName);
-      if (destPin == null)
-      {
-        throw new ArgumentException(@"The downstream filter has no pin called : " + destPinName, destPinName);
-      }
+          if (sourcePin == null)
+            throw new ArgumentException(@"The source filter has no pin called : " + sourcePinName, sourcePinName);
 
-      try
-      {
-        ConnectFilters(graphBuilder, sourcePin.Value, destPin.Value, useIntelligentConnect);
-      }
-      finally
-      {
-        sourcePin.Dispose();
-        destPin.Dispose();
+          if (destPin == null)
+            throw new ArgumentException(@"The downstream filter has no pin called : " + destPinName, destPinName);
+
+          ConnectFilters(graphBuilder, sourcePin.Value, destPin.Value, useIntelligentConnect);
+        }
+        finally
+        {
+          TryDispose(ref sourcePin);
+          TryDispose(ref destPin);
+        }
       }
     }
 
@@ -1102,8 +1108,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// If useIntelligentConnect is false, this method works only if the two media types are compatible.
     /// </remarks>
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-    public static void ConnectFilters(IGraphBuilder graphBuilder, IPin sourcePin, IPin destPin,
-        bool useIntelligentConnect)
+    public static void ConnectFilters(IGraphBuilder graphBuilder, IPin sourcePin, IPin destPin, bool useIntelligentConnect)
     {
       int hr;
 
@@ -1157,8 +1162,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         {
           remainingReferences = Marshal.ReleaseComObject(filterToRelease);
           if (remainingReferences > 0)
-            ServiceRegistration.Get<ILogger>().Info("Releasing filter {0}, remaining references: {1}", filterToRelease,
-                remainingReferences);
+            ServiceRegistration.Get<ILogger>().Info("Releasing filter {0}, remaining references: {1}", filterToRelease, remainingReferences);
 
         } while (remainingReferences > 0 && releaseAllReferences);
         filterToRelease = default(TE);
@@ -1221,7 +1225,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         IErrorLog errorLog = null;
         Guid bagId = typeof(IPropertyBag).GUID;
         mon.BindToStorage(null, null, ref bagId, out bagObj);
-        bag = (IPropertyBag) bagObj;
+        bag = (IPropertyBag)bagObj;
         object val;
         int hr = bag.Read(propertyName, out val, errorLog);
         Marshal.ThrowExceptionForHR(hr);
