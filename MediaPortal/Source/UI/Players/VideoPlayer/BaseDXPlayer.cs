@@ -24,6 +24,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -99,6 +100,7 @@ namespace MediaPortal.UI.Players.Video
     protected bool _initialized = false;
     protected IResourceLocator _resourceLocator;
     protected IResourceAccessor _resourceAccessor;
+    protected Stream _resourceStream; // Will be opened for Stream based access
     protected string _mediaItemTitle = null;
     protected AsynchronousMessageQueue _messageQueue = null;
 
@@ -424,11 +426,12 @@ namespace MediaPortal.UI.Players.Video
 
         // use the DotNetStreamSourceFilter as source filter
         var sourceFilter = new DotNetStreamSourceFilter();
-        sourceFilter.SetSourceStream(fileSystemResourceAccessor.OpenRead(), fileSystemResourceAccessor.ResourcePathName);
+        _resourceStream = fileSystemResourceAccessor.OpenRead();
+        sourceFilter.SetSourceStream(_resourceStream, fileSystemResourceAccessor.ResourcePathName);
         int hr = _graphBuilder.AddFilter(sourceFilter, sourceFilter.Name);
         new HRESULT(hr).Throw();
-        DSFilter source2 = new DSFilter(sourceFilter);
-        hr = source2.OutputPin.Render();
+        using(DSFilter source2 = new DSFilter(sourceFilter))
+          hr = source2.OutputPin.Render();
         new HRESULT(hr).Throw();
 
         return;
@@ -505,7 +508,11 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Frees the audio/video codecs.
     /// </summary>
-    protected abstract void FreeCodecs ();
+    protected virtual void FreeCodecs()
+    {
+      // If we opened an own Stream, dispose it here
+      FilterGraphTools.TryDispose(ref _resourceStream);
+    }
 
     protected void Shutdown(bool keepResourceAccessor = false)
     {

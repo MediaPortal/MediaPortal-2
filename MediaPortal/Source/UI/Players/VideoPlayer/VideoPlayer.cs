@@ -234,12 +234,14 @@ namespace MediaPortal.UI.Players.Video
       FreeEvrCallback();
       FilterGraphTools.TryRelease(ref _evr);
 
+      base.FreeCodecs();
+
       // Free all filters from graph
       if (_graphBuilder != null)
         FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
 
       FilterGraphTools.TryDispose(ref _rot);
-      FilterGraphTools.TryRelease(ref _graphBuilder);
+      FilterGraphTools.TryRelease(ref _graphBuilder, true);
     }
 
     #endregion

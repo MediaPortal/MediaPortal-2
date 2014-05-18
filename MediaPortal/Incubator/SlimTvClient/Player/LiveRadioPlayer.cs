@@ -128,15 +128,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     protected override void FreeCodecs ()
     {
+      // Free file source
+      FilterGraphTools.TryRelease(ref _sourceFilter);
+
+      base.FreeCodecs();
+
       // Free all filters from graph
       if (_graphBuilder != null)
         FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
 
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
-
-      // Free file source
-      FilterGraphTools.TryRelease(ref _sourceFilter); 
     }
 
     public int OnMediaTypeChanged(ChangedMediaType mediaType)
