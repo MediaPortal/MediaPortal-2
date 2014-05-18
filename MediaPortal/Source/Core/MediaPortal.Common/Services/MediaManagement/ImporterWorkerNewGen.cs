@@ -298,18 +298,20 @@ namespace MediaPortal.Common.Services.MediaManagement
       // if the ImportJob to be scheduled is the same as or contains an
       // already running ImportJob, cancel the already running ImportJob
       // and schedule this one
-      var jobsToBeCancelled = new HashSet<Task>();
+      var jobsToBeCancelled = new HashSet<ImportJobController>();
       foreach (var kvp in _importJobControllers)
         if (importJobInformation >= kvp.Key)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: {0} is contained in or the same as the ImportJob which is currently being scheduled. Canceling {1}", kvp.Value, kvp.Value);
           kvp.Value.Cancel();
-          jobsToBeCancelled.Add(kvp.Value.Completion);
+          jobsToBeCancelled.Add(kvp.Value);
         }
       // We need to wait here until the canceled ImportJobs are removed from _importJobControllers
       // otherwise we run into trouble when the ImportJobs equal each other because then they
       // have the same key in _importJobControllers.
-      Task.WhenAll(jobsToBeCancelled).Wait();
+      Task.WhenAll(jobsToBeCancelled.Select(controller => controller.Completion)).Wait();
+      foreach (var controller in jobsToBeCancelled)
+        controller.Dispose();
 
       var importJobController = new ImportJobController(new ImportJobNewGen(importJobInformation, null), Interlocked.Increment(ref _numberOfLastImportJob), this);
       _importJobControllers[importJobInformation] = importJobController;
@@ -335,18 +337,22 @@ namespace MediaPortal.Common.Services.MediaManagement
         foreach (var kvp in _importJobControllers)
           kvp.Value.Cancel();
         Task.WhenAll(_importJobControllers.Values.Select(i => i.Completion)).Wait();
+        foreach (var kvp in _importJobControllers)
+          kvp.Value.Dispose();
       }
       else
       {
         // Cancel only the ImportJobs for the specified path and all its child paths
-        var jobsToBeCanceled = new HashSet<Task>();
+        var jobsToBeCanceled = new HashSet<ImportJobController>();
         foreach (var kvp in _importJobControllers)
           if (importJobInformation.Value.BasePath.IsSameOrParentOf(kvp.Key.BasePath))
           {
             kvp.Value.Cancel();
-            jobsToBeCanceled.Add(kvp.Value.Completion);
+            jobsToBeCanceled.Add(kvp.Value);
           }
-        Task.WhenAll(jobsToBeCanceled).Wait();
+        Task.WhenAll(jobsToBeCanceled.Select(controller => controller.Completion)).Wait();
+        foreach (var controller in jobsToBeCanceled)
+          controller.Dispose();
       }
     }
 
@@ -385,14 +391,18 @@ namespace MediaPortal.Common.Services.MediaManagement
 
       _messageQueue.Shutdown();
 
+      // Cancel all ImportJobs but do not dispose them, yet to be able to save them to disk
+      foreach (var kvp in _importJobControllers)
+        kvp.Value.Cancel();
+      Task.WhenAll(_importJobControllers.Values.Select(i => i.Completion)).Wait();
+      
       int numberOfPendingImportJobs = _importJobControllers.Count();
       PersistPendingImportJobs();
       if (numberOfPendingImportJobs > 0)
-      {
-        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Persisted {0} pending ImportJobs to disk. Canceling them now...", numberOfPendingImportJobs);
-        DoCancelImport(null);
-      }
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Persisted {0} pending ImportJobs to disk.", numberOfPendingImportJobs);
 
+      foreach (var kvp in _importJobControllers)
+        kvp.Value.Dispose();
       _settings.Dispose();
 
       _actionBlock.Complete();

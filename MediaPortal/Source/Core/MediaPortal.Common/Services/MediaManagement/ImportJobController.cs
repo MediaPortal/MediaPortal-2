@@ -46,7 +46,7 @@ namespace MediaPortal.Common.Services.MediaManagement
   /// <see cref="ImporterWorkerNewGen"/> (_parentImporterWorker) which will then make sure that
   /// all <see cref="ImportJobController"/>s are suspended.
   /// </remarks>
-  public class ImportJobController
+  public class ImportJobController : IDisposable
   {
     #region Variables
 
@@ -142,6 +142,11 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Public methods
 
+    /// <summary>
+    /// Activates the ImportJob
+    /// </summary>
+    /// <param name="mediaBrowsingCallback"></param>
+    /// <param name="importResultHandler"></param>
     public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
     {
       // To avoid peaks on system startup we start one Block every 100ms.
@@ -157,6 +162,14 @@ namespace MediaPortal.Common.Services.MediaManagement
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
     }
 
+    /// <summary>
+    /// Suspends the ImportJob
+    /// </summary>
+    /// <remarks>
+    /// Calling this method does not mean that no processing is going on anymore. it only means
+    /// that no PendingImportResource objects are passed from the InputBlocks to the InnerBlocks
+    /// of the DataflowBlocks anymore.
+    /// </remarks>
     public void Suspend()
     {
       foreach (var block in _dataflowBlocks)
@@ -164,6 +177,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}: Suspended", this);
     }
 
+    /// <summary>
+    /// Cancels the ImportJob
+    /// </summary>
+    /// <remarks>
+    /// Be careful, when an ImportJob is canceled via this method, it does not dispose itself.
+    /// The code that calls this method must also call <see cref="Dispose"/>
+    /// </remarks>
     public void Cancel()
     {
       _cts.Cancel();
@@ -230,10 +250,6 @@ namespace MediaPortal.Common.Services.MediaManagement
         // ran to completion, the DataflowBlocks should have disposed all the PendingImportResources.
         if(!previousTask.IsCanceled && !previousTask.IsFaulted)
           ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: The ImportJob ran to completion but there are {1} undisposed PendingImportResources left. Disposing them now...", this, _pendingImportResources.Count);
-        
-        var pendingImportReouces = new List<PendingImportResourceNewGen>(_pendingImportResources.Values);
-        foreach (var pendingImportResource in pendingImportReouces)
-          pendingImportResource.Dispose();
       }
 
       if (previousTask.IsFaulted)
@@ -243,8 +259,9 @@ namespace MediaPortal.Common.Services.MediaManagement
       else
         ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}: Completed", this);
 
-      if (!_parentImporterWorker.TryUnregisterImportJobController(_importJobInformation))
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Could not remove myself from the ImporterWorker's dictionaly of running ImportJobs", this);
+      // When this ImportJob was cancelled it needs to be disposed manually.
+      if (!previousTask.IsCanceled)
+        Dispose();
 
       ImporterWorkerMessaging.SendImportMessage(previousTask.IsCanceled ? ImporterWorkerMessaging.MessageType.ImportScheduleCanceled : ImporterWorkerMessaging.MessageType.ImportCompleted, _importJobInformation.BasePath);
       _parentImporterWorker.NotifyProgress(true);
@@ -322,6 +339,24 @@ namespace MediaPortal.Common.Services.MediaManagement
       // (b) in case of an ImportJob that has been restored from disk, all restored PendingImportResources
       //     have been put into the Dataflow network
       Task.WhenAll(completeFirstBlockAfterTheseTasks).ContinueWith(previoudTask => _dataflowBlocks[0].Complete());
+    }
+
+    #endregion
+
+    #region Interface implementations
+
+    public void Dispose()
+    {
+      // dispose all undisposed PendingImportResource objects
+      var pendingImportReouces = new List<PendingImportResourceNewGen>(_pendingImportResources.Values);
+      foreach (var pendingImportResource in pendingImportReouces)
+        pendingImportResource.Dispose();
+
+      // Remove this ImportJobController from the ImporterWorker's dictionary of existing ImportJobs
+      if (!_parentImporterWorker.TryUnregisterImportJobController(_importJobInformation))
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Could not remove myself from the ImporterWorker's dictionary of running ImportJobs", this);
+
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}: Disposed", this);
     }
 
     #endregion
