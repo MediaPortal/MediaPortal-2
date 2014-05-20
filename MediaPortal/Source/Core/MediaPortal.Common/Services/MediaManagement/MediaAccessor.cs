@@ -303,6 +303,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     public virtual void Initialize()
     {
       RegisterPluginItemListeners();
+      
+      // This is a workaround that defeats lazy initialization of the ResourceProviders and MetadataExtractors,
+      // but it is necessary because this class (in particular the following methods) is currently not entirely threadsafe.
+      // ToDo: Make this class threadsafe
+      CheckProvidersLoaded();
+      CheckMetadataExtractorsLoaded();
     }
 
     public virtual void Shutdown()
