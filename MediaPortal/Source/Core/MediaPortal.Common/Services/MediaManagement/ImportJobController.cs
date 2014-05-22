@@ -212,8 +212,18 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
-      PendingImportResourceNewGen removedPendingImportResource;
-      _pendingImportResources.TryRemove(pendingImportResource.PendingResourcePath, out removedPendingImportResource);
+      // We need to make sure that only the PendingImportResource object that is registered can unregister itself, hence
+      // the ReferenceEquals condition. If we don't do that and have two different PendingImportResource objects pointing
+      // to the same ResourcePath (which are therefore "equal"), the registration fails as described above, but the 
+      // deregistration succeeds. As a result, the ImportJob will not be saved to disk completely on shutdown.
+      PendingImportResourceNewGen registeredPendingImportResourceNewGen;
+      if (_pendingImportResources.TryGetValue(pendingImportResource.PendingResourcePath, out registeredPendingImportResourceNewGen))
+        if (ReferenceEquals(pendingImportResource, registeredPendingImportResourceNewGen))
+        {
+          PendingImportResourceNewGen removedPendingImportResource;
+          if (!_pendingImportResources.TryRemove(pendingImportResource.PendingResourcePath, out removedPendingImportResource))
+            ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Could not unregister {1}", this, pendingImportResource);          
+        }      
       
       // If this ImportJobController is not completed, notify the ImporterWorker
       // every 25 disposed (i.e. completed) PendingImportResources
@@ -313,6 +323,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       else
       {
         // This ImportJob was persisted to disk before
+        int numberOfRestoredPendingResources = 0;
         foreach (var pendingImportResource in pendingImportResources)
         {
           pendingImportResource.InitializeAfterDeserialization(this);
@@ -320,6 +331,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           if (block != null)
           {
             completeFirstBlockAfterTheseTasks.Add(block.SendAsync(pendingImportResource, _cts.Token));
+            numberOfRestoredPendingResources++;
             if (block == _dataflowBlocks[0])
               firstBlockNeedsCompletion = false;
           }
@@ -329,6 +341,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             pendingImportResource.Dispose();
           }
         }
+        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}: {1} PendingImportResources restored.", this, numberOfRestoredPendingResources);
       }
       completeFirstBlockAfterTheseTasks.Add(_firstBlockHasFinished.Task);
       if (firstBlockNeedsCompletion)
@@ -338,7 +351,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       // (a) The DirectoryUnfoldBlock has signaled that it is finished (by calling FirstBlockHasFinished()) and
       // (b) in case of an ImportJob that has been restored from disk, all restored PendingImportResources
       //     have been put into the Dataflow network
-      Task.WhenAll(completeFirstBlockAfterTheseTasks).ContinueWith(previoudTask => _dataflowBlocks[0].Complete());
+      Task.WhenAll(completeFirstBlockAfterTheseTasks).ContinueWith(previousTask => _dataflowBlocks[0].Complete());
     }
 
     #endregion
