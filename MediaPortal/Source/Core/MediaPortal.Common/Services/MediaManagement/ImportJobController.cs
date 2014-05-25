@@ -286,72 +286,131 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// Instantiates all the necessary DataflowBlocks for the given ImportJob
     /// </summary>
     /// <remarks>
-    /// ToDo: We need to handle three cases here:
-    /// - BasePath points to a single resource
-    /// - BasePath points to a directory which is not a single resource and the ImportJob does not include subdirectories
-    /// - BasePath points to a directory which is not a single resource and the ImportJob does include subdirectories
+    /// We first have to distinguish between two cases here:
+    ///  - BasePath points to a resource for which we can only create an IResourceAccessor - not an IFilesystemResourceAccessor
+    ///    For this case we only import that single resource and don't have to take care of directories and subdirectories
+    ///    ToDo: This still needs to be implemented
+    /// - BasePath points to a resource for which we can create an IFilesystemResourceAccessor
+    ///   Here we first check whether the resource on the given BasePath exists. If not, we do nothing.
+    ///   If it does exist, we distinguish two cases:
+    ///   - The ImportJob was restored from disk, in which case we push the existing PendingImportResources to the respective DataflowBlocks.
+    ///   - The ImportJob was freshly created, in which case we push the BasePath to the first DataFlowBlock.
+    ///     In this case there are three subcases:
+    ///     - BasePath points to a single resource ToDo: Check code whether this works
+    ///     - BasePath points to a directory which is not a single resource and the ImportJob does not include subdirectories ToDo: Check code whether this works
+    ///     - BasePath points to a directory which is not a single resource and the ImportJob does include subdirectories
+    ///     These subcases, however, are taken care of by the DataflowBlocks - not by the ImportJobController
     /// </remarks>
     private void SetupDataflowBlocks(IEnumerable<PendingImportResourceNewGen> pendingImportResources)
     {
-      // ToDo: Add additional blocks here
-      // Create the blocks
-      _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
-      _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
-      _dataflowBlocks.Add(new FileUnfoldBlock(_cts.Token, _importJobInformation, this));
-      _dataflowBlocks.Add(new MetadataExtractorBlock(_cts.Token, _importJobInformation, this, false));
-      _dataflowBlocks.Add(new MediaItemSaveBlock(_cts.Token, _importJobInformation, this));
-
-      // Link the blocks
-      for (int i = 0; i < _dataflowBlocks.Count -1; i++)
-        _dataflowBlocks[i].LinkTo(_dataflowBlocks[i + 1], new DataflowLinkOptions { PropagateCompletion = true });
-      _dataflowBlocks[_dataflowBlocks.Count - 1].LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
-
-      // Fill the blocks
-      var completeFirstBlockAfterTheseTasks = new HashSet<Task>();
-      bool firstBlockNeedsCompletion = true;
-      if (pendingImportResources == null)
+      // If we cannot access the BasePath at all, we just log and return
+      IResourceAccessor ra = null;
+      try
       {
-        // This ImportJob was freshly created and not persisted to disk before
-        // Just post the BasePath as new PendingImportResource
-        IResourceAccessor ra;
-        _importJobInformation.BasePath.TryCreateLocalResourceAccessor(out ra);
-        var fsra = ra as IFileSystemResourceAccessor;
-        var rootImportResource = new PendingImportResourceNewGen(null, fsra, DirectoryUnfoldBlock.BLOCK_NAME, this);
-        _dataflowBlocks[0].Post(rootImportResource);
-        firstBlockNeedsCompletion = false;
-      }
-      else
-      {
-        // This ImportJob was persisted to disk before
-        int numberOfRestoredPendingResources = 0;
-        foreach (var pendingImportResource in pendingImportResources)
+        if (!_importJobInformation.BasePath.TryCreateLocalResourceAccessor(out ra))
         {
-          pendingImportResource.InitializeAfterDeserialization(this);
-          ImporterWorkerDataflowBlockBase block = _dataflowBlocks.Find(b => b.ToString() == pendingImportResource.CurrentBlock);
-          if (block != null)
+          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Unable to access resource path '{1}'.", this, _importJobInformation.BasePath);
+          return;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Error while creating ResourceAccessor for resource path '{1}'.", e, this, _importJobInformation.BasePath);
+        if (ra != null)
+          ra.Dispose();
+        return;
+      }
+
+      try
+      {
+        // As of now we have a ResourceAccessor that needs to be disposed
+        using (ra)
+        {
+          // If we have a ResourceAccessor which is not an IFileSystemResourceAccessor, just import that single resource
+          if (!(ra is IFileSystemResourceAccessor))
           {
-            completeFirstBlockAfterTheseTasks.Add(block.SendAsync(pendingImportResource, _cts.Token));
-            numberOfRestoredPendingResources++;
-            if (block == _dataflowBlocks[0])
-              firstBlockNeedsCompletion = false;
+            // ToDo: Implement import of Non-IFilesSystemResourceAccessors
+            return;
+          }
+
+          // Now we are sure it is an IFileSystemResourceAccessor
+          var fsra = ra as IFileSystemResourceAccessor;
+
+          // If the BasePath does not exist, we do nothing. This is necessary to avoid whole shares being removed from
+          // the MediaLibrary when a RefreshImport is scheduled while e.g. network resources are unavailable.
+          // If fsra is a NetworkNeighborhoddResourceAccessor and its IsServerPath() method returns true, fsra.Exists()
+          // will always return true. If therefore the BasePath of this Import points to a whole server and this server
+          // is not available during a RefreshImport, the whole share will be deleted from the MediaLibrary.
+          // ToDo: Rework this in NetworkNeighborhoodResourceAccessor
+          if (!fsra.Exists)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}: Resource '{1}' does not exists or is not available.", this, _importJobInformation.BasePath);
+            return;
+          }
+        
+          // Now we are sure that we need a DataflowBlock network
+
+          // Create the blocks
+          _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new FileUnfoldBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new MetadataExtractorBlock(_cts.Token, _importJobInformation, this, false));
+          _dataflowBlocks.Add(new MediaItemSaveBlock(_cts.Token, _importJobInformation, this));
+
+          // Link the blocks
+          for (int i = 0; i < _dataflowBlocks.Count - 1; i++)
+            _dataflowBlocks[i].LinkTo(_dataflowBlocks[i + 1], new DataflowLinkOptions { PropagateCompletion = true });
+          _dataflowBlocks[_dataflowBlocks.Count - 1].LinkTo(DataflowBlock.NullTarget<PendingImportResourceNewGen>());
+
+          // Fill the blocks
+          var completeFirstBlockAfterTheseTasks = new HashSet<Task>();
+          bool firstBlockNeedsCompletion = true;
+          if (pendingImportResources == null)
+          {
+            // This ImportJob was freshly created and not persisted to disk before
+            // Just post the BasePath as new PendingImportResource
+            var rootImportResource = new PendingImportResourceNewGen(null, fsra.Clone() as IFileSystemResourceAccessor, DirectoryUnfoldBlock.BLOCK_NAME, this);
+            _dataflowBlocks[0].Post(rootImportResource);
+            firstBlockNeedsCompletion = false;
           }
           else
           {
-            ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Could not add {1} after deserialization. DataflowBlock with name {2} does not exist.", this, pendingImportResource, pendingImportResource.CurrentBlock);
-            pendingImportResource.Dispose();
+            // This ImportJob was persisted to disk before
+            int numberOfRestoredPendingResources = 0;
+            foreach (var pendingImportResource in pendingImportResources)
+            {
+              pendingImportResource.InitializeAfterDeserialization(this);
+              ImporterWorkerDataflowBlockBase block = _dataflowBlocks.Find(b => b.ToString() == pendingImportResource.CurrentBlock);
+              if (block != null)
+              {
+                completeFirstBlockAfterTheseTasks.Add(block.SendAsync(pendingImportResource, _cts.Token));
+                numberOfRestoredPendingResources++;
+                if (block == _dataflowBlocks[0])
+                  firstBlockNeedsCompletion = false;
+              }
+              else
+              {
+                ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Could not add {1} after deserialization. DataflowBlock with name {2} does not exist.", this, pendingImportResource, pendingImportResource.CurrentBlock);
+                pendingImportResource.Dispose();
+              }
+            }
+            ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}: {1} PendingImportResources restored.", this, numberOfRestoredPendingResources);
           }
-        }
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}: {1} PendingImportResources restored.", this, numberOfRestoredPendingResources);
-      }
-      completeFirstBlockAfterTheseTasks.Add(_firstBlockHasFinished.Task);
-      if (firstBlockNeedsCompletion)
-        FirstBlockHasFinished();
+          completeFirstBlockAfterTheseTasks.Add(_firstBlockHasFinished.Task);
+          if (firstBlockNeedsCompletion)
+            FirstBlockHasFinished();
 
-      // The first DataflowBlock in the network (DirectoryUnfoldBlock) must be set to completed when
-      // (a) The DirectoryUnfoldBlock has signaled that it is finished (by calling FirstBlockHasFinished()) and
-      // (b) in case of an ImportJob that has been restored from disk, all restored PendingImportResources
-      //     have been put into the Dataflow network
-      Task.WhenAll(completeFirstBlockAfterTheseTasks).ContinueWith(previousTask => _dataflowBlocks[0].Complete());
+          // The first DataflowBlock in the network (DirectoryUnfoldBlock) must be set to completed when
+          // (a) The DirectoryUnfoldBlock has signaled that it is finished (by calling FirstBlockHasFinished()) and
+          // (b) in case of an ImportJob that has been restored from disk, all restored PendingImportResources
+          //     have been put into the Dataflow network
+          Task.WhenAll(completeFirstBlockAfterTheseTasks).ContinueWith(previousTask => _dataflowBlocks[0].Complete());
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}: Error while setting up DataflowBlocks for resource path '{1}.", e, this, _importJobInformation.BasePath);
+      }
     }
 
     #endregion
