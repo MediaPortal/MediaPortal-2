@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -72,7 +73,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
-    protected Dictionary<string, TvdbSeries> _memoryCache = new Dictionary<string, TvdbSeries>(StringComparer.OrdinalIgnoreCase);
+    protected ConcurrentDictionary<string, TvdbSeries> _memoryCache = new ConcurrentDictionary<string, TvdbSeries>(StringComparer.OrdinalIgnoreCase);
     protected bool _useUniversalLanguage = false; // Universal language often leads to unwanted cover languages (i.e. russian)
 
     /// <summary>
@@ -269,13 +270,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 };
 
             // Save cache
-            _storage.SaveNewMatch(seriesNameOrImdbId, onlineMatch);
+            _storage.TryAddMatch(onlineMatch);
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesNameOrImdbId);
         // Also save "non matches" to avoid retrying
-        _storage.SaveNewMatch(seriesNameOrImdbId, new SeriesMatch { ItemName = seriesNameOrImdbId });
+        _storage.TryAddMatch(new SeriesMatch { ItemName = seriesNameOrImdbId });
         return false;
       }
       catch (Exception ex)
@@ -285,8 +286,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       finally
       {
-        if (seriesDetail != null && !_memoryCache.ContainsKey(seriesNameOrImdbId))
-          _memoryCache.Add(seriesNameOrImdbId, seriesDetail);
+        if (seriesDetail != null)
+          _memoryCache.TryAdd(seriesNameOrImdbId, seriesDetail);
       }
     }
 

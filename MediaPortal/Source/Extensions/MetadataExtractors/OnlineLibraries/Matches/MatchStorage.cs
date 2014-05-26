@@ -23,8 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
@@ -38,36 +42,47 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <typeparam name="TId">Type of match's ID</typeparam>
   public class MatchStorage<TMatch, TId> where TMatch : BaseMatch<TId>
   {
-    protected Predicate<TMatch> _matchPredicate;
     protected readonly string _matchesSettingsFile;
+    protected readonly ConcurrentDictionary<String, TMatch> _storage;
+
     protected readonly object _syncObj = new object();
 
     public MatchStorage(string matchesSettingsFile)
     {
       _matchesSettingsFile = matchesSettingsFile;
+      _storage = new ConcurrentDictionary<string, TMatch>(StringComparer.OrdinalIgnoreCase);
+
+      var matches = Settings.Load<List<TMatch>>(_matchesSettingsFile) ?? new List<TMatch>();
+      foreach (var match in matches)
+        _storage[match.ItemName] = match;
     }
 
-    public List<TMatch> LoadMatches()
+    public bool TryAddMatch(TMatch match)
     {
-      lock (_syncObj)
-        return Settings.Load<List<TMatch>>(_matchesSettingsFile) ?? new List<TMatch>();
-    }
-
-    public void SaveMatches(List<TMatch> matches)
-    {
-      Settings.Save(_matchesSettingsFile, matches);
-    }
-
-    public void SaveNewMatch(string itemName, TMatch onlineMatch)
-    {
-      lock (_syncObj)
+      if (_storage.TryAdd(match.ItemName, match))
       {
-        List<TMatch> matches = LoadMatches();
-        if (matches.Any(m => string.Equals(m.ItemName, itemName, StringComparison.OrdinalIgnoreCase)))
-          return;
-        matches.Add(onlineMatch);
-        SaveMatches(matches);
+        SaveMatchesAsync();
+        return true;
       }
+      return false;
     }
+
+    public List<TMatch> GetMatches()
+    {
+      return _storage.Values.ToList();
+    }
+
+    public Task SaveMatchesAsync()
+    {
+      var saveTask = Task.Run(() =>
+      {
+        var matchList = _storage.Values.ToList();
+        lock (_syncObj)
+          Settings.Save(_matchesSettingsFile, matchList);
+      });
+      saveTask.ContinueWith(previousTask => ServiceRegistration.Get<ILogger>().Error("MatchStorage: Error writing storage file {0}", _matchesSettingsFile), TaskContinuationOptions.OnlyOnFaulted);
+      return saveTask;
+    }
+
   }
 }
