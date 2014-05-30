@@ -100,10 +100,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-        if (await ExtractMetadata(importResource.ResourceAccessor, true) == null)
+        if (!importResource.ResourceAccessor.IsFile && await ExtractMetadata(importResource.ResourceAccessor, true) == null)
           importResource.IsSingleResource = false;
 
-        if (!importResource.IsSingleResource)
+        if (!importResource.IsSingleResource && ImportJobInformation.IncludeSubDirectories)
         {
           var subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
 

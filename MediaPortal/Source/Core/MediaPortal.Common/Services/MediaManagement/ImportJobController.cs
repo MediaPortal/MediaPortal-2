@@ -296,8 +296,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     ///   - The ImportJob was restored from disk, in which case we push the existing PendingImportResources to the respective DataflowBlocks.
     ///   - The ImportJob was freshly created, in which case we push the BasePath to the first DataFlowBlock.
     ///     In this case there are three subcases:
-    ///     - BasePath points to a single resource ToDo: Check code whether this works
-    ///     - BasePath points to a directory which is not a single resource and the ImportJob does not include subdirectories ToDo: Check code whether this works
+    ///     - BasePath points to a single resource
+    ///     - BasePath points to a directory which is not a single resource and the ImportJob does not include subdirectories
     ///     - BasePath points to a directory which is not a single resource and the ImportJob does include subdirectories
     ///     These subcases, however, are taken care of by the DataflowBlocks - not by the ImportJobController
     /// </remarks>
