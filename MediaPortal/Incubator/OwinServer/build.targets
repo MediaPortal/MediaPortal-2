@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <References Include="$(TargetDir)Microsoft.Owin.dll" />
+    <References Include="$(TargetDir)Microsoft.Owin.Diagnostics.dll" />
+    <References Include="$(TargetDir)Microsoft.Owin.FileSystems.dll" />
+    <References Include="$(TargetDir)Microsoft.Owin.Host.HttpListener.dll" />
+    <References Include="$(TargetDir)Microsoft.Owin.Hosting.dll" />
+    <References Include="$(TargetDir)Microsoft.Owin.StaticFiles.dll" />
+    <References Include="$(TargetDir)Owin.dll" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+  </Target>
+
+</Project>

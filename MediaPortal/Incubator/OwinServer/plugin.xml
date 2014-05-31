@@ -1,0 +1,23 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="OwinServer"
+    PluginId="{440ACCDD-0F0B-4D1C-B707-61CA0F10822B}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Provides the possibility to start Owin WebApps"
+    AutoActivate="true"
+    PluginVersion="0.01">
+
+  <Runtime>
+    <Assembly FileName="Microsoft.Owin.dll"/>
+    <Assembly FileName="Microsoft.Owin.Diagnostics.dll"/>
+    <Assembly FileName="Microsoft.Owin.FileSystems.dll"/>
+    <Assembly FileName="Microsoft.Owin.Host.HttpListener.dll"/>
+    <Assembly FileName="Microsoft.Owin.Hosting.dll"/>
+    <Assembly FileName="Microsoft.Owin.StaticFiles.dll"/>
+    <Assembly FileName="Owin.dll"/>
+    <Assembly FileName="OwinServer.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.WebServices.OwinServer.OwinServerPlugin"/>
+  </Runtime>
+</Plugin>
+
