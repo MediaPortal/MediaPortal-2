@@ -114,6 +114,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebServices", "WebServices"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinServer", "..\Incubator\OwinServer\OwinServer.csproj", "{B0EB6C78-437F-4C56-BB0A-8959F77B7641}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinResourceServer", "..\Incubator\OwinResourceServer\OwinResourceServer.csproj", "{9E7822D8-875F-45D8-9A9A-875961A77307}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -272,6 +274,10 @@ Global
 		{B0EB6C78-437F-4C56-BB0A-8959F77B7641}.Debug|x86.Build.0 = Debug|x86
 		{B0EB6C78-437F-4C56-BB0A-8959F77B7641}.Release|x86.ActiveCfg = Release|x86
 		{B0EB6C78-437F-4C56-BB0A-8959F77B7641}.Release|x86.Build.0 = Release|x86
+		{9E7822D8-875F-45D8-9A9A-875961A77307}.Debug|x86.ActiveCfg = Debug|x86
+		{9E7822D8-875F-45D8-9A9A-875961A77307}.Debug|x86.Build.0 = Debug|x86
+		{9E7822D8-875F-45D8-9A9A-875961A77307}.Release|x86.ActiveCfg = Release|x86
+		{9E7822D8-875F-45D8-9A9A-875961A77307}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -328,5 +334,6 @@ Global
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852} = {5086CCE5-ECFD-4C02-95CA-7CC79526E231}
 		{8E15FBE3-F6C8-4B76-A560-F391B4124E9C} = {5086CCE5-ECFD-4C02-95CA-7CC79526E231}
 		{B0EB6C78-437F-4C56-BB0A-8959F77B7641} = {4918E625-75B8-4E05-BD61-A53C2CDF262E}
+		{9E7822D8-875F-45D8-9A9A-875961A77307} = {4918E625-75B8-4E05-BD61-A53C2CDF262E}
 	EndGlobalSection
 EndGlobal

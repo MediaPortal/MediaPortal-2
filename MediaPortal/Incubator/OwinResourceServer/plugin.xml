@@ -1,0 +1,20 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="OwinResourceServer"
+    PluginId="{2DA2F76A-B44F-48F1-9C66-298D99028388}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Serves MP2 resources using the OwinServer"
+    AutoActivate="true"
+    PluginVersion="0.01">
+
+  <DependsOn>
+    <PluginReference PluginId="{440ACCDD-0F0B-4D1C-B707-61CA0F10822B}"/> <!-- OwinServer -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="OwinResourceServer.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.WebServices.OwinResourceServer.OwinResourceServerPlugin"/>
+  </Runtime>
+</Plugin>
+
