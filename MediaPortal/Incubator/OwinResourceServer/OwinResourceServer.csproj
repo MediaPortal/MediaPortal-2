@@ -87,6 +87,9 @@
     <Compile Include="OwinResourceServer.cs" />
     <Compile Include="OwinResourceServerPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceQueryToPathMiddleware.cs" />
+    <Compile Include="ResourceServerFileInfo.cs" />
+    <Compile Include="ResourceServerFileSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">

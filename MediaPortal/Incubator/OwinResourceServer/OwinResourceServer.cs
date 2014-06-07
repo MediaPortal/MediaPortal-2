@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Plugins.WebServices.OwinServer;
+using Microsoft.Owin.StaticFiles;
 using Owin;
 
 namespace MediaPortal.Plugins.WebServices.OwinResourceServer
@@ -36,35 +37,68 @@ namespace MediaPortal.Plugins.WebServices.OwinResourceServer
   /// </summary>
   public class OwinResourceServer : IResourceServer
   {
+    #region Public methods
+
+    /// <summary>
+    /// Configures the ResourceServer WebApp
+    /// </summary>
+    /// <remarks>
+    /// It is important to first start the <see cref="ResourceQueryToPathMiddleware"/>, which translates the query string
+    /// received by the client into a path string and then the <see cref="StaticFileMiddleware"/>. The latter is configured with the
+    /// <see cref="ResourceServerFileSystem"/>, which can only understand the path string because the StaticFilesMiddleware
+    /// only passes the path string as parameter to the methods of <see cref="ResourceServerFileSystem"/>.
+    /// </remarks>
+    /// <param name="app"></param>
     public void Startup(IAppBuilder app)
     {
-    }    
-    
+      app.Use<ResourceQueryToPathMiddleware>();
+      var options = new StaticFileOptions { FileSystem = new ResourceServerFileSystem(), ServeUnknownFileTypes = true };
+      app.UseStaticFiles(options);
+    }
+
+    #endregion
+
+    #region IResourceServer Implementation
+
     public int PortIPv4 { get; private set; }
 
     public int PortIPv6 { get; private set; }
 
     public void Startup()
     {
+      // ToDo: Make the port (a) configurable and (b) detect whether the port is already in use
       PortIPv4 = 50000;
       PortIPv6 = 50000;
+      
+      // Startup happens asynchronously
       ServiceRegistration.Get<IOwinServer>().TryStartWebAppAsync(Startup, PortIPv4, ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH);
     }
 
     public void Shutdown()
     {
+      // Handled by OwinServer
     }
 
     public void RestartHttpServers()
     {
+      // We need to wait until TryStopWebAppAsync has completed
+      // ToDo: Let the OwinServer coordinate this
+      ServiceRegistration.Get<IOwinServer>().TryStopWebAppAsync(PortIPv4, ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH).Wait();
+      
+      // Restart happens asynchronously
+      ServiceRegistration.Get<IOwinServer>().TryStartWebAppAsync(Startup, PortIPv4, ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH);
     }
 
     public void RemoveHttpModule(HttpModule module)
     {
+      // ToDo: Remove this medthod from the IResourceServer interface
     }
 
     public void AddHttpModule(HttpModule module)
     {
+      // ToDo: Remove this medthod from the IResourceServer interface
     }
+
+    #endregion
   }
 }

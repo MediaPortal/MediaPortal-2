@@ -42,6 +42,11 @@ namespace MediaPortal.Plugins.WebServices.OwinResourceServer
 
     public void Activated(PluginRuntime pluginRuntime)
     {
+      // The sequence in ApplicationCore is
+      // (1) Register the default ResourceServer
+      // (2) Activate the plugins (which calls this method)
+      // (3) Call Startup on the IResourceServer in the ServiceRegistration
+      // In step (2) we just remove and dispose the default ResourceServer and register this one
       ServiceRegistration.RemoveAndDispose<IResourceServer>();
       ServiceRegistration.Set<IResourceServer>(new OwinResourceServer());
     }
