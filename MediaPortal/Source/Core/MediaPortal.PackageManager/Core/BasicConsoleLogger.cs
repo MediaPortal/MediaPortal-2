@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -25,100 +27,100 @@ using MediaPortal.Common.Logging;
 
 namespace MediaPortal.PackageManager.Core
 {
-	public class BasicConsoleLogger : ILogger
-	{
+  public class BasicConsoleLogger : ILogger
+  {
     private readonly int _logLevel;
 
-	  public BasicConsoleLogger( LogLevel logLevel )
-	  {
-	    _logLevel = (int) logLevel;
-	  }
+    public BasicConsoleLogger(LogLevel logLevel)
+    {
+      _logLevel = (int)logLevel;
+    }
 
-	  public void Debug( string format, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Debug )
-	      Console.WriteLine( format, args );
-	  }
+    public void Debug(string format, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Debug)
+        Console.WriteLine(format, args);
+    }
 
-	  public void Debug( string format, Exception ex, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Debug )
-	    {
-	      Console.WriteLine( format, args );
-        Console.WriteLine( ex );
-	    }      
-	  }
+    public void Debug(string format, Exception ex, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Debug)
+      {
+        Console.WriteLine(format, args);
+        Console.WriteLine(ex);
+      }
+    }
 
-	  public void Info( string format, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Information )
-  	    Console.WriteLine( format, args );
-	  }
+    public void Info(string format, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Information)
+        Console.WriteLine(format, args);
+    }
 
-	  public void Info( string format, Exception ex, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Information )
-	    {
-	      Console.WriteLine( format, args );
-        Console.WriteLine( ex );
-	    }      
-	  }
+    public void Info(string format, Exception ex, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Information)
+      {
+        Console.WriteLine(format, args);
+        Console.WriteLine(ex);
+      }
+    }
 
-	  public void Warn( string format, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Warning )
-  	    Console.WriteLine( format, args );
-	  }
+    public void Warn(string format, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Warning)
+        Console.WriteLine(format, args);
+    }
 
-	  public void Warn( string format, Exception ex, params object[] args )
-	  {
-	    if( _logLevel >= (int)LogLevel.Warning )
-	    {
-	      Console.WriteLine( format, args );
-        Console.WriteLine( ex );
-	    }      
-	  }
+    public void Warn(string format, Exception ex, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Warning)
+      {
+        Console.WriteLine(format, args);
+        Console.WriteLine(ex);
+      }
+    }
 
-	  public void Error( string format, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Error )
-  	    Console.WriteLine( format, args );
-	  }
+    public void Error(string format, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Error)
+        Console.WriteLine(format, args);
+    }
 
-	  public void Error( string format, Exception ex, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Error )
-	    {
-	      Console.WriteLine( format, args );
-        Console.WriteLine( ex );
-	    }      
-	  }
+    public void Error(string format, Exception ex, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Error)
+      {
+        Console.WriteLine(format, args);
+        Console.WriteLine(ex);
+      }
+    }
 
-	  public void Error( Exception ex )
-	  {
-      if( _logLevel >= (int) LogLevel.Error )
-  	    Console.WriteLine( ex );
-	  }
+    public void Error(Exception ex)
+    {
+      if (_logLevel >= (int)LogLevel.Error)
+        Console.WriteLine(ex);
+    }
 
-	  public void Critical( string format, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Critical )
-  	    Console.WriteLine( format, args );
-	  }
+    public void Critical(string format, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Critical)
+        Console.WriteLine(format, args);
+    }
 
-	  public void Critical( string format, Exception ex, params object[] args )
-	  {
-      if( _logLevel >= (int) LogLevel.Critical )
-	    {
-	      Console.WriteLine( format, args );
-        Console.WriteLine( ex );
-	    }      
-	  }
+    public void Critical(string format, Exception ex, params object[] args)
+    {
+      if (_logLevel >= (int)LogLevel.Critical)
+      {
+        Console.WriteLine(format, args);
+        Console.WriteLine(ex);
+      }
+    }
 
-	  public void Critical( Exception ex )
-	  {
-      if( _logLevel >= (int) LogLevel.Critical )
-  	    Console.WriteLine( ex );
-	  }
-	}
+    public void Critical(Exception ex)
+    {
+      if (_logLevel >= (int)LogLevel.Critical)
+        Console.WriteLine(ex);
+    }
+  }
 }

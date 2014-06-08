@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -30,50 +32,50 @@ using MediaPortal.PackageManager.Options.Users;
 
 namespace MediaPortal.PackageManager
 {
-	public class Program
-	{
-		private static readonly ILogger LOG = new BasicConsoleLogger(LogLevel.All);
+  public class Program
+  {
+    private static readonly ILogger LOG = new BasicConsoleLogger(LogLevel.All);
 
-		public static void Main( string[] args )
-		{
-			try
-			{
- 				var options = new CommandLineOptions();
-				var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-			  parser.ParseArgumentsStrict( args, options, Dispatcher );
-			}
-			catch( Exception ex )
-			{
-				LOG.Error( ex.Message );
-			}
-		}
-
-    private static void Dispatcher( string verb, object options )
+    public static void Main(string[] args)
     {
-      if( string.IsNullOrEmpty( verb ) || options == null )
+      try
+      {
+        var options = new CommandLineOptions();
+        var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+        parser.ParseArgumentsStrict(args, options, Dispatcher);
+      }
+      catch (Exception ex)
+      {
+        LOG.Error(ex.Message);
+      }
+    }
+
+    private static void Dispatcher(string verb, object options)
+    {
+      if (string.IsNullOrEmpty(verb) || options == null)
         return; // invalid verb or no options
 
       Operation operation;
-      if( !Enum.TryParse( verb.Replace( "-", "" ), true, out operation ) )
+      if (!Enum.TryParse(verb.Replace("-", ""), true, out operation))
         return; // unknown operation
 
-      switch( operation )
+      switch (operation)
       {
         case Operation.CreateUser:
         case Operation.RevokeUser:
-          PackageAdmin.Dispatch( LOG, operation, options );
+          PackageAdmin.Dispatch(LOG, operation, options);
           return;
         case Operation.Create:
-          PackageBuilder.Dispatch( LOG, operation, options );          
+          PackageBuilder.Dispatch(LOG, operation, options);
           return;
         case Operation.Publish:
         case Operation.Recall:
-          PackagePublisher.Dispatch( LOG, operation, options );
+          PackagePublisher.Dispatch(LOG, operation, options);
           return;
         default:
-          PackageInstaller.Dispatch( LOG, operation, options );
+          PackageInstaller.Dispatch(LOG, operation, options);
           return;
       }
     }
-	}
+  }
 }

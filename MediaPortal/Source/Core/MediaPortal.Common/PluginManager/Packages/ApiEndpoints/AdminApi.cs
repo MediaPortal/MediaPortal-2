@@ -39,12 +39,12 @@ namespace MediaPortal.Common.PluginManager.Packages.ApiEndpoints
     {
     }
 
-    public static ApiEndpoint CreateUser
+    public ApiEndpoint CreateUser
     {
       get { return CREATE_USER_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint RevokeUser
+    public ApiEndpoint RevokeUser
     {
       get { return REVOKE_USER_API_ENDPOINT; }
     }

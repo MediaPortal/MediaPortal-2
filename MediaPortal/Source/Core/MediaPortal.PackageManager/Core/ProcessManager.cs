@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System.Collections.Generic;
@@ -28,46 +30,46 @@ using MediaPortal.Common.Logging;
 
 namespace MediaPortal.PackageManager.Core
 {
-	internal class ProcessManager
-	{
-	  private readonly ILogger _log;
-	  private readonly List<string> _sharedProcessNames = new List<string> { "TvSetup.exe" };
-	  private readonly List<string> _clientProcessNames = new List<string> { "MP2-Client.exe" };
-	  private readonly List<string> _serverProcessNames = new List<string> { "MP2-Server.exe" };
-    
-    public ProcessManager( ILogger log )
+  internal class ProcessManager
+  {
+    private readonly ILogger _log;
+    private readonly List<string> _sharedProcessNames = new List<string> { "TvSetup.exe" };
+    private readonly List<string> _clientProcessNames = new List<string> { "MP2-Client.exe" };
+    private readonly List<string> _serverProcessNames = new List<string> { "MP2-Server.exe" };
+
+    public ProcessManager(ILogger log)
     {
       _log = log;
     }
 
-	  public bool Stop(bool clientOnly)
-	  {
-	    var processNames = _sharedProcessNames.Concat(clientOnly ? _clientProcessNames : _serverProcessNames);
-	    foreach (var processName in processNames)
-	    {
-	      var processes = Process.GetProcessesByName(processName);
-	      foreach (var process in processes)
-	      {
-	        process.Close();
-	        if (!process.WaitForExit(5000))
-            process.Kill();	        
-	      }
-	    }
-	    return true;
-		}
+    public bool Stop(bool clientOnly)
+    {
+      var processNames = _sharedProcessNames.Concat(clientOnly ? _clientProcessNames : _serverProcessNames);
+      foreach (var processName in processNames)
+      {
+        var processes = Process.GetProcessesByName(processName);
+        foreach (var process in processes)
+        {
+          process.Close();
+          if (!process.WaitForExit(5000))
+            process.Kill();
+        }
+      }
+      return true;
+    }
 
-	  public bool Start(bool clientOnly)
-		{
-	    var processNames = clientOnly ? _clientProcessNames : _serverProcessNames;
-	    foreach (var processName in processNames)
-	    {
-	      var basePath = ""; // TODO we need the base path to the executables here
-	      var processPath = Path.Combine(basePath, processName);
-	      var process = Process.Start(processPath);
+    public bool Start(bool clientOnly)
+    {
+      var processNames = clientOnly ? _clientProcessNames : _serverProcessNames;
+      foreach (var processName in processNames)
+      {
+        var basePath = ""; // TODO we need the base path to the executables here
+        var processPath = Path.Combine(basePath, processName);
+        var process = Process.Start(processPath);
         if (process == null || process.HasExited)
-	        return false;
-	    }
-	    return true;
-	  }
-	}
+          return false;
+      }
+      return true;
+    }
+  }
 }

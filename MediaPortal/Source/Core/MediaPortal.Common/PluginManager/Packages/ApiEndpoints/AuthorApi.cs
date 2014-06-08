@@ -39,12 +39,12 @@ namespace MediaPortal.Common.PluginManager.Packages.ApiEndpoints
     {
     }
 
-    public static ApiEndpoint PublishPackage
+    public ApiEndpoint PublishPackage
     {
       get { return PUBLISH_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint RecallPackage
+    public ApiEndpoint RecallPackage
     {
       get { return RECALL_API_ENDPOINT; }
     }

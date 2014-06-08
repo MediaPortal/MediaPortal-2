@@ -38,6 +38,7 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.Runtime;
 
 [assembly: CLSCompliant(true)]
+
 namespace MediaPortal.Package.UpdateService
 {
   public class ApplicationLauncher

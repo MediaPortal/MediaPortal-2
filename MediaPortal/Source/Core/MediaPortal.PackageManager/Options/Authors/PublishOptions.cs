@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using CommandLine;
@@ -27,13 +29,13 @@ namespace MediaPortal.PackageManager.Options.Authors
 {
   internal class PublishOptions : AuthOptions
   {
-    [Option('s', "source", HelpText="Path to the package file that should be published.", Required = true)]
+    [Option('s', "source", HelpText = "Path to the package file that should be published.", Required = true)]
     public string PackageFilePath { get; set; }
-    
-    [Option('t', "type", HelpText="The target product for the package (either 'client' or 'server').", Required = false)]
+
+    [Option('t', "type", HelpText = "The target product for the package (either 'client' or 'server').", Required = false)]
     public string PackageType { get; set; }
-    
-    [OptionArray('x', "tags", HelpText="Tags associated with the package (see the wiki for a list of recognized tags).", Required = false)]
+
+    [OptionArray('x', "tags", HelpText = "Tags associated with the package (see the wiki for a list of recognized tags).", Required = false)]
     public string[] CategoryTags { get; set; }
 
     //[OptionList('t', "tags", HelpText="Package tags (separate tags with colons; no spaces allowed)")]

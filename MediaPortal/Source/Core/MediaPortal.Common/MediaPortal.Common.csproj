@@ -101,7 +101,7 @@
     <Compile Include="PluginManager\Packages\DataContracts\Authors\PublishPackageModel.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageReleaseQuery.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageUpdateQuery.cs" />
-    <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageQuery.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageListQuery.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\Authors\RecallPackageModel.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\ReleaseInfo.cs" />
     <Compile Include="PluginManager\Models\PluginSourceInfo.cs" />

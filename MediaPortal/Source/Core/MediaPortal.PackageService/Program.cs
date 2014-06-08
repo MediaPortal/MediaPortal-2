@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -31,32 +33,32 @@ using MediaPortal.Common.Services.Logging;
 
 namespace MediaPortal.Package.UpdateService
 {
-	static class Program
-	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		static void Main( string[] args )
-		{
-			try
-			{
-				var options = new CommandLineOptions();
-				var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-				parser.ParseArgumentsStrict(args, options, () => Environment.Exit(1));
+  internal static class Program
+  {
+    /// <summary>
+    /// The main entry point for the application.
+    /// </summary>
+    private static void Main(string[] args)
+    {
+      try
+      {
+        var options = new CommandLineOptions();
+        var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
+        parser.ParseArgumentsStrict(args, options, () => Environment.Exit(1));
 
-				//if (options.RunAsConsoleApp)
-				//	new ApplicationLauncher(options.DataDirectory).RunAsConsole();
-				//else
-				//{
-				//	ServiceBase[] servicesToRun = new ServiceBase[] { new WindowsService() };
-				//	ServiceBase.Run(servicesToRun);
-				//}				
-			}
-			catch( Exception ex )
-			{
-				var log = new ConsoleLogger(LogLevel.All, false);
-				log.Error(ex);
-			}
-		}
-	}
+        //if (options.RunAsConsoleApp)
+        //	new ApplicationLauncher(options.DataDirectory).RunAsConsole();
+        //else
+        //{
+        //	ServiceBase[] servicesToRun = new ServiceBase[] { new WindowsService() };
+        //	ServiceBase.Run(servicesToRun);
+        //}				
+      }
+      catch (Exception ex)
+      {
+        var log = new ConsoleLogger(LogLevel.All, false);
+        log.Error(ex);
+      }
+    }
+  }
 }

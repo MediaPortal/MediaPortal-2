@@ -47,22 +47,18 @@ namespace MediaPortal.PackageServer.Controllers
   {
     [AllowAnonymous]
     [Route("list")]
-    public virtual ActionResult List(PackageQuery model)
+    public virtual ActionResult List(PackageListQuery model)
     {
-      // verify model
-      PackageType packageType;
-      if (model == null || model.PackageType == null || !Enum.TryParse(model.PackageType, out packageType))
-        return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Unable to list available packages (query is incomplete or invalid).");
-
       using (var db = new DataContext())
       {
         // filter available packages according to query
         var query = db.Packages.Include(e => e.CurrentRelease).Include(e => e.Tags).Include(e => e.Releases).Include(e => e.Reviews)
-          .Where(p => p.PackageType == packageType);
+          .Where(p => p.PackageType == model.PackageType);
         if (model.PartialAuthor != null)
           query = query.Where(e => e.Authors.Contains(model.PartialAuthor));
         if (model.PartialPackageName != null)
           query = query.Where(e => e.Name.Contains(model.PartialPackageName));
+        
         var packages = query.ToList();
 
         // filter by tags in memory as we don't trust EF to generate a good query for this

@@ -1,63 +1,68 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using MediaPortal.Common.PluginManager.Packages.ApiEndpoints;
 using Newtonsoft.Json;
 
 namespace MediaPortal.PackageManager.Core
 {
-  class RequestExecutionHelper
+  internal class RequestExecutionHelper
   {
     private readonly Uri _packageServerUri;
     private readonly string _credentials;
 
-    public RequestExecutionHelper( string userName = null, string password = null, string packageServerHostAddress = null )
+    public RequestExecutionHelper(string userName = null, string password = null, string packageServerHostAddress = null)
     {
-      _packageServerUri = new Uri( packageServerHostAddress ?? "http://localhost:57235" );
+      _packageServerUri = new Uri(packageServerHostAddress ?? "http://localhost:57235");
       var hasCredentials = userName != null && password != null;
-      _credentials = hasCredentials ? Convert.ToBase64String( Encoding.ASCII.GetBytes( userName + ":" + password ) ) : null;
+      _credentials = hasCredentials ? Convert.ToBase64String(Encoding.ASCII.GetBytes(userName + ":" + password)) : null;
     }
 
     // TODO use multi-part for file uploads
     // see http://stackoverflow.com/questions/16906711/httpclient-how-to-upload-multiple-files-at-once
     // and http://stackoverflow.com/questions/15638622/how-to-upload-files-to-asp-net-mvc-4-0-action-running-in-iis-express-with-httpcl/15638623#15638623
 
-    public async Task<HttpResponseMessage> ExecuteRequestAsync( HttpMethod method, string path, object model = null )
+    public async Task<HttpResponseMessage> ExecuteRequestAsync(HttpMethod method, string path, object model = null)
     {
-      using( var client = new HttpClient() )
+      using (var client = new HttpClient())
       {
-        var request = new HttpRequestMessage( method, new Uri( _packageServerUri, path ) );
-        if( _credentials != null )
+        var request = new HttpRequestMessage(method, new Uri(_packageServerUri, path));
+        if (_credentials != null)
         {
-          request.Headers.Authorization = new AuthenticationHeaderValue( "Basic", _credentials );
+          request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _credentials);
         }
-        if( model != null )
+        if (model != null)
         {
-          string json = JsonConvert.SerializeObject( model, Formatting.None );
-          request.Content = new ByteArrayContent( Encoding.UTF8.GetBytes( json ) );
-          request.Content.Headers.Add( "Content-Type", "application/json" );
+          string json = JsonConvert.SerializeObject(model, Formatting.None);
+          request.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(json));
+          request.Content.Headers.Add("Content-Type", "application/json");
         }
-        return await client.SendAsync( request, HttpCompletionOption.ResponseContentRead );
+        return await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
       }
     }
 
-    public HttpResponseMessage ExecuteRequest( HttpMethod method, string path, object model = null )
+    public HttpResponseMessage ExecuteRequest(HttpMethod method, string path, object model = null)
     {
-      return ExecuteRequestAsync( method, path, model ).Result;
+      return ExecuteRequestAsync(method, path, model).Result;
     }
 
-    public async Task<T> GetResponseContentAsync<T>( HttpResponseMessage response )
+    public HttpResponseMessage ExecuteRequest(ApiEndpoint apiEndpoint, object model, object urlParameterValues = null)
     {
-      return JsonConvert.DeserializeObject<T>( await response.Content.ReadAsStringAsync() );
+      return ExecuteRequestAsync(apiEndpoint.HttpMethod, apiEndpoint.GetUrl(urlParameterValues), model).Result;
     }
 
-    public T GetResponseContent<T>( HttpResponseMessage response )
+    public async Task<T> GetResponseContentAsync<T>(HttpResponseMessage response)
     {
-      return GetResponseContentAsync<T>( response ).Result;
+      return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
+    }
+
+    public T GetResponseContent<T>(HttpResponseMessage response)
+    {
+      return GetResponseContentAsync<T>(response).Result;
     }
   }
 }

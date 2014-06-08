@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System.Linq;
@@ -27,30 +29,30 @@ using MediaPortal.Common.Logging;
 
 namespace MediaPortal.PackageManager.Core
 {
-	internal class Requestor
-	{
-	  protected readonly ILogger _log;
+  internal class Requestor
+  {
+    protected readonly ILogger _log;
 
-	  public Requestor( ILogger log )
-	  {
-	    _log = log ?? new BasicConsoleLogger( LogLevel.All );
-	  }
-
-    private bool IsSuccess( HttpResponseMessage response, HttpStatusCode[] successCodes )
+    public Requestor(ILogger log)
     {
-      return successCodes.Any( sc => sc == response.StatusCode );
-		}
+      _log = log ?? new BasicConsoleLogger(LogLevel.All);
+    }
 
-    public virtual bool IsSuccess( HttpResponseMessage response, string successMessage, params HttpStatusCode[] successCodes )
+    private bool IsSuccess(HttpResponseMessage response, HttpStatusCode[] successCodes)
     {
-      if( !IsSuccess( response, successCodes ) )
+      return successCodes.Any(sc => sc == response.StatusCode);
+    }
+
+    public virtual bool IsSuccess(HttpResponseMessage response, string successMessage, params HttpStatusCode[] successCodes)
+    {
+      if (!IsSuccess(response, successCodes))
       {
-        _log.Error( "{0} ({1}): {2}", (int) response.StatusCode, response.StatusCode, response.ReasonPhrase );
+        _log.Error("{0} ({1}): {2}", (int)response.StatusCode, response.StatusCode, response.ReasonPhrase);
         return false;
       }
-      if( successMessage != null )
-        _log.Info( successMessage );
+      if (successMessage != null)
+        _log.Info(successMessage);
       return true;
     }
-	}
+  }
 }

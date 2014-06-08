@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts
@@ -66,7 +67,8 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
 
     public PackageInfo(long id, Guid guid, PackageType packageType, string name, string authors, string license, string description,
       DateTime created, DateTime modified, int totalDownloadCount, int reviewCount, int ratingCount, double averateRating,
-      ReleaseInfo currentRelease, IEnumerable<int> apiVersionsAvailable, IEnumerable<string> categoryTags, IEnumerable<long> releases, IEnumerable<ReviewInfo> reviews) : this()
+      ReleaseInfo currentRelease, IEnumerable<int> apiVersionsAvailable, IEnumerable<string> categoryTags, IEnumerable<long> releases, 
+      IEnumerable<ReviewInfo> reviews) : this()
     {
       ID = id;
       Guid = guid;
@@ -86,6 +88,19 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
       CategoryTags = categoryTags.ToList();
       Releases = releases.ToList();
       Reviews = reviews.ToList();
+    }
+
+    public override string ToString()
+    {
+      var sb = new StringBuilder();
+      sb.AppendFormat("{0} Package '{1}' (ID: {2:D}, Guid: '{3}', Authors:'{4}'){5}", PackageType, Name, ID, Guid, Authors, Environment.NewLine);
+      sb.AppendFormat("  -- Created '{0:g}', Modified '{1:g}' {2}", Created, Modified, Environment.NewLine);
+      sb.AppendFormat("  -- Downloads: {0:N0}, Average Rating: {1:F1} (Votes: {2}), Reviews: {3}{4}", 
+        TotalDownloadCount, AverateRating, RatingCount, ReviewCount, Environment.NewLine);
+      var cr = CurrentRelease;
+      sb.AppendFormat("  -- Current Release: '{0}' (ID: {1:D}, Api: {2:D}), Size: {3:N0}, Release Date: '{4:g}'){5}", 
+        cr.Version, cr.ApiVersion, cr.ID, cr.PackageSize, cr.Released, Environment.NewLine);
+      return base.ToString();
     }
   }
 }

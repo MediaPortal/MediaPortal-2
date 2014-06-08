@@ -24,13 +24,17 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.PluginManager.Models;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Packages
 {
-  public class PackageQuery
+  public class PackageListQuery
   {
-    public string PackageType { get; set; }
+    public PackageType PackageType { get; set; }
+    
     public string PartialPackageName { get; set; }
+    public bool SearchDescriptions { get; set; }
+
     public string PartialAuthor { get; set; }
     public ICollection<string> CategoryTags { get; set; }
     public ICollection<CoreComponent> CoreComponents { get; set; }

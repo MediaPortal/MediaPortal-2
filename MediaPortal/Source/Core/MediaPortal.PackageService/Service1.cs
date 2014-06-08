@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -32,19 +34,19 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Package.UpdateService
 {
-	public partial class Service1 : ServiceBase
-	{
-		public Service1()
-		{
-			InitializeComponent();
-		}
+  public partial class Service1 : ServiceBase
+  {
+    public Service1()
+    {
+      InitializeComponent();
+    }
 
-		protected override void OnStart( string[] args )
-		{
-		}
+    protected override void OnStart(string[] args)
+    {
+    }
 
-		protected override void OnStop()
-		{
-		}
-	}
+    protected override void OnStop()
+    {
+    }
+  }
 }

@@ -33,36 +33,42 @@ namespace MediaPortal.PackageManager.Options
   internal class CommandLineOptions
   {
     #region Admin Actions
-    [VerbOption( "create-user", HelpText = "Create a user account for a package author." )]
+
+    [VerbOption("create-user", HelpText = "Create a user account for a package author.")]
     public CreateUserOptions CreateUserVerb { get; set; }
 
-    [VerbOption( "revoke-user", HelpText = "Revoke an existing user account (e.g. in case of abuse or malware)." )]
+    [VerbOption("revoke-user", HelpText = "Revoke an existing user account (e.g. in case of abuse or malware).")]
     public RevokeUserOptions RevokeUserVerb { get; set; }
+
     #endregion
 
     #region Author Actions
-    [VerbOption( "create", HelpText = "Create a package from a source folder." )]
+
+    [VerbOption("create", HelpText = "Create a package from a source folder.")]
     public CreateOptions CreateVerb { get; set; }
 
-    [VerbOption( "publish", HelpText = "Publish a package to the MediaPortal package server." )]
+    [VerbOption("publish", HelpText = "Publish a package to the MediaPortal package server.")]
     public PublishOptions PublishVerb { get; set; }
 
-    [VerbOption( "recall", HelpText = "Recall a previously published package." )]
-    public RecallOptions RecallVerb { get; set; }    
+    [VerbOption("recall", HelpText = "Recall a previously published package.")]
+    public RecallOptions RecallVerb { get; set; }
+
     #endregion
 
     #region User Actions
-		[VerbOption("install", HelpText = "Install a package.")]
-		public InstallOptions InstallVerb { get; set; }
 
-		[VerbOption("update", HelpText = "Update one or more packages.")]
-		public UpdateOptions UpdateVerb { get; set; }
+    [VerbOption("install", HelpText = "Install a package.")]
+    public InstallOptions InstallVerb { get; set; }
 
-		[VerbOption("remove", HelpText = "Remove a package.")]
-		public RemoveOptions RemoveVerb { get; set; }
+    [VerbOption("update", HelpText = "Update one or more packages.")]
+    public UpdateOptions UpdateVerb { get; set; }
 
-		[VerbOption("list", HelpText = "List packages.")]
-		public ListOptions ListVerb { get; set; }
+    [VerbOption("remove", HelpText = "Remove a package.")]
+    public RemoveOptions RemoveVerb { get; set; }
+
+    [VerbOption("list", HelpText = "List packages.")]
+    public ListOptions ListVerb { get; set; }
+
     #endregion
 
     [HelpVerbOption]

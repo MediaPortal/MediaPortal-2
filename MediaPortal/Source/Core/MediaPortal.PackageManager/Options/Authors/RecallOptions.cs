@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using CommandLine;
@@ -27,16 +29,16 @@ namespace MediaPortal.PackageManager.Options.Authors
 {
   internal class RecallOptions : AuthOptions
   {
-    [Option('n', "name", HelpText="Name of the plugin (as defined in the plugin descriptor file) for the package to recall.", Required = true, MutuallyExclusiveSet = "ident")]
+    [Option('n', "name", HelpText = "Name of the plugin (as defined in the plugin descriptor file) for the package to recall.", Required = true, MutuallyExclusiveSet = "ident")]
     public string Name { get; set; }
 
     //[Option('g', "guid", HelpText="GUID of the plugin (as defined in the plugin descriptor file) for the package to recall.", Required = true, MutuallyExclusiveSet = "ident")]
     //public string Guid { get; set; }
 
-    [Option('v', "version", HelpText="Exact version of the package release to recall.", Required = true, MutuallyExclusiveSet = "release")]
+    [Option('v', "version", HelpText = "Exact version of the package release to recall.", Required = true, MutuallyExclusiveSet = "release")]
     public string Version { get; set; }
 
-    [Option('r', "release", HelpText="ID of the package release to recall.", Required = true, MutuallyExclusiveSet = "release")]
+    [Option('r', "release", HelpText = "ID of the package release to recall.", Required = true, MutuallyExclusiveSet = "release")]
     public long? ReleaseID { get; set; }
   }
 }

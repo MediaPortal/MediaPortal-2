@@ -1,4 +1,5 @@
 #region Copyright (C) 2007-2014 Team MediaPortal
+
 /*
     Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using CommandLine;
@@ -26,13 +28,13 @@ namespace MediaPortal.PackageManager.Options.Shared
 {
   internal class AuthOptions
   {
-    [Option('h', "host", HelpText="URI to the MediaPortal package server.", Required = true)]
+    [Option('h', "host", HelpText = "URI to the MediaPortal package server.", Required = true)]
     public string Host { get; set; }
 
-    [Option('u', "user", HelpText="User name for authentication with the MediaPortal package server.", Required = true)]
+    [Option('u', "user", HelpText = "User name for authentication with the MediaPortal package server.", Required = true)]
     public string UserName { get; set; }
 
-    [Option('p', "password", HelpText="Password used to authenticate with the MediaPortal package server (if not specified, you will be prompted).", Required = false)]
+    [Option('p', "password", HelpText = "Password used to authenticate with the MediaPortal package server (if not specified, you will be prompted).", Required = false)]
     public string Password { get; set; }
   }
 }

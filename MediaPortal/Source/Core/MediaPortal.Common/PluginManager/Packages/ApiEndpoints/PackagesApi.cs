@@ -34,7 +34,7 @@ namespace MediaPortal.Common.PluginManager.Packages.ApiEndpoints
   public class PackagesApi : ApiBase
   {
     private const string BASE_PATH = "packages";
-    private static readonly ApiEndpoint LIST_PACKAGES_API_ENDPOINT = ApiEndpoint.Post<PackageQuery>(BASE_PATH, "list");
+    private static readonly ApiEndpoint LIST_PACKAGES_API_ENDPOINT = ApiEndpoint.Post<PackageListQuery, IList<PackageInfo>>(BASE_PATH, "list");
 
     private static readonly ApiEndpoint PACKAGE_DETAILS_API_ENDPOINT = ApiEndpoint.Get<PackageInfo>(BASE_PATH, "{id:long:min(1)}/details");
     private static readonly ApiEndpoint PACKAGE_RELEASES_API_ENDPOINT = ApiEndpoint.Get<IList<ReleaseInfo>>(BASE_PATH, "{id:long:min(1)}/releases");
@@ -49,37 +49,37 @@ namespace MediaPortal.Common.PluginManager.Packages.ApiEndpoints
     {
     }
 
-    public static ApiEndpoint List
+    public ApiEndpoint List
     {
       get { return LIST_PACKAGES_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint Details
+    public ApiEndpoint Details
     {
       get { return PACKAGE_DETAILS_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint Releases
+    public ApiEndpoint Releases
     {
       get { return PACKAGE_RELEASES_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint Reviews
+    public ApiEndpoint Reviews
     {
       get { return PACKAGE_REVIEWS_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint AddReview
+    public ApiEndpoint AddReview
     {
       get { return ADD_REVIEW_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint FindRelease
+    public ApiEndpoint FindRelease
     {
       get { return FIND_RELEASE_API_ENDPOINT; }
     }
 
-    public static ApiEndpoint UpdateCheck
+    public ApiEndpoint UpdateCheck
     {
       get { return UPDATE_CHECK_API_ENDPOINT; }
     }

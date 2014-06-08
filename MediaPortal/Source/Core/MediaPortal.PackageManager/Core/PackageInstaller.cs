@@ -23,15 +23,20 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Configuration;
 using System.Net.Http;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Discovery;
+using MediaPortal.Common.PluginManager.Models;
+using MediaPortal.Common.PluginManager.Packages.ApiEndpoints;
 using MediaPortal.Common.PluginManager.Packages.DataContracts;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Packages;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.UserAdmin;
 using MediaPortal.Common.Services.SystemResolver;
@@ -43,8 +48,6 @@ namespace MediaPortal.PackageManager.Core
   internal class PackageInstaller : Requestor
   {
     private readonly ProcessManager _processManager;
-    private const string LIST_PATH = "/packages";
-    private const string GET_PACKAGE_RELEASE_PATH = "/packages/find-release";
 
     public PackageInstaller(ILogger log, ProcessManager processManager) : base(log)
     {
@@ -69,115 +72,146 @@ namespace MediaPortal.PackageManager.Core
       }
     }
 
-    public bool List(ListOptions options)
-    {
-      return true;
-    }
-
-    #region Install
-    public bool Install( InstallOptions options )
+    #region List
+    
+    public bool List( ListOptions options )
     {
       VerifyOptions( options );
 
       var proxy = new RequestExecutionHelper();
-      var model = new PackageReleaseQuery( options.PackageName, options.PackageVersion );
-      var response = proxy.ExecuteRequest( HttpMethod.Post, GET_PACKAGE_RELEASE_PATH, model );
+      ICollection<CoreComponent> localSystemCoreComponents = null; // TODO
+      var model = new PackageListQuery
+      {
+        PackageType = options.PackageType,
+        PartialAuthor = options.AuthorText,
+        PartialPackageName = options.PackageName,
+        SearchDescriptions = options.SearchDescriptions,
+        CategoryTags = options.CategoryTags,
+        CoreComponents = options.All ? null : localSystemCoreComponents
+      };
+      var response = proxy.ExecuteRequest( PackageServerApi.Packages.List, model );
 
       if( !IsSuccess( response, null, HttpStatusCode.OK ) )
         return false;
 
-      var releaseInfo = proxy.GetResponseContent<ReleaseInfo>( response );
-      return TryInstall( options.PackageName, releaseInfo, options.PluginRootPath, startStopProcesses: true );
+      var packages = proxy.GetResponseContent<IList<PackageInfo>>( response );
+      _log.Info( "{0,80}", "-" );
+      packages.ForEach( p => _log.Info( p.ToString() ) );
+      _log.Info( "{0,80}", "-" );
+      return true;
+    } 
+
+    #endregion
+
+    #region Install
+
+    public bool Install(InstallOptions options)
+    {
+      VerifyOptions(options);
+
+      var proxy = new RequestExecutionHelper();
+      var model = new PackageReleaseQuery(options.PackageName, options.PackageVersion);
+      var response = proxy.ExecuteRequest(PackageServerApi.Packages.FindRelease, model);
+
+      if (!IsSuccess(response, null, HttpStatusCode.OK))
+        return false;
+
+      var releaseInfo = proxy.GetResponseContent<ReleaseInfo>(response);
+      return TryInstall(options.PackageName, releaseInfo, options.PluginRootPath, startStopProcesses: true);
     }
 
-    private bool TryInstall( string packageName, ReleaseInfo releaseInfo, string packageRootPath, bool startStopProcesses )
+    private bool TryInstall(string packageName, ReleaseInfo releaseInfo, string packageRootPath, bool startStopProcesses)
     {
       var proxy = new RequestExecutionHelper();
 
       // get the file
-      var response = proxy.ExecuteRequest( HttpMethod.Get, releaseInfo.DownloadUrl );
-      if( !IsSuccess( response, null, HttpStatusCode.OK ) )
+      var response = proxy.ExecuteRequest(HttpMethod.Get, releaseInfo.DownloadUrl);
+      if (!IsSuccess(response, null, HttpStatusCode.OK))
         return false;
 
       // got the file, save it
-      var tempFile = Path.Combine( Path.GetTempPath(), Path.GetTempFileName() );
-      File.WriteAllBytes( tempFile, response.Content.ReadAsByteArrayAsync().Result );
+      var tempFile = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+      File.WriteAllBytes(tempFile, response.Content.ReadAsByteArrayAsync().Result);
       try
       {
         // sanity checks
-        var fs = new FileInfo( tempFile );
-        if( fs.Length != releaseInfo.PackageSize )
+        var fs = new FileInfo(tempFile);
+        if (fs.Length != releaseInfo.PackageSize)
         {
-          _log.Error( "Downloaded release package had size of '{0}' bytes (expected '{1}' bytes).", fs.Length, releaseInfo.PackageSize );
+          _log.Error("Downloaded release package had size of '{0}' bytes (expected '{1}' bytes).", fs.Length, releaseInfo.PackageSize);
           return false;
         }
 
         var isClientPackage = releaseInfo.PackageType == "Client";
         // ensure target folder does not exist
-        var targetRootPath = packageRootPath ?? AutoDetectInstallationTarget( isClientPackage );
-        if( targetRootPath == null || !Directory.Exists( targetRootPath ) )
+        var targetRootPath = packageRootPath ?? AutoDetectInstallationTarget(isClientPackage);
+        if (targetRootPath == null || !Directory.Exists(targetRootPath))
         {
-          _log.Error( "The installation target directory '{0}' does not exist (if you specified it manually, try omitting the option to use auto-detection).", targetRootPath );
+          _log.Error("The installation target directory '{0}' does not exist (if you specified it manually, try omitting the option to use auto-detection).", targetRootPath);
           return false;
         }
 
-        var targetFolder = Path.Combine( targetRootPath, packageName );
-        if( Directory.Exists( targetFolder ) && targetFolder.IsPluginDirectory() )
+        var targetFolder = Path.Combine(targetRootPath, packageName);
+        if (Directory.Exists(targetFolder) && targetFolder.IsPluginDirectory())
         {
-          if( startStopProcesses )
-            _processManager.Stop( isClientPackage );
-          Directory.Delete( targetFolder, recursive: true );
+          if (startStopProcesses)
+            _processManager.Stop(isClientPackage);
+          Directory.Delete(targetFolder, recursive: true);
         }
         // all good, time to extract to target folder
-        ZipFile.ExtractToDirectory( tempFile, targetRootPath );
-        if( startStopProcesses )
-          _processManager.Start( isClientPackage );
+        ZipFile.ExtractToDirectory(tempFile, targetRootPath);
+        if (startStopProcesses)
+          _processManager.Start(isClientPackage);
       }
       finally
       {
-        File.Delete( tempFile );
+        File.Delete(tempFile);
       }
       return true;
     }
-    
+
     #endregion
 
     #region Update
-    public bool Update( UpdateOptions options )
+
+    public bool Update(UpdateOptions options)
     {
-      VerifyOptions( options );
+      VerifyOptions(options);
 
       var isClientPackage = options.PackageType == "Client";
 
       // build list of packages to operate on
-      var packages = FindPackagesWithNewerCompatibleVersionAvailable( isClientPackage, options.PackageName );
+      var packages = FindPackagesWithNewerCompatibleVersionAvailable(isClientPackage, options.PackageName);
 
-      _processManager.Stop( isClientPackage );
+      _processManager.Stop(isClientPackage);
       var result = true;
-      foreach( var package in packages )
+      foreach (var package in packages)
       {
-        result &= TryRemove( package.Name, isClientPackage ) && TryInstall( package.Name, package.CurrentRelease, options.PluginRootPath, startStopProcesses: false );
+        result &= TryRemove(package.Name, isClientPackage) && TryInstall(package.Name, package.CurrentRelease, options.PluginRootPath, startStopProcesses: false);
       }
-      _processManager.Start( isClientPackage );
+      _processManager.Start(isClientPackage);
       return result;
     }
 
-    private List<PackageInfo> FindPackagesWithNewerCompatibleVersionAvailable( bool isClient, string packageName )
+    private List<PackageInfo> FindPackagesWithNewerCompatibleVersionAvailable(bool isClient, string packageName)
     {
       // determine whether to operate on single or multiple packages
-      var singlePackage = !string.IsNullOrEmpty( packageName );
+      var singlePackage = !string.IsNullOrEmpty(packageName);
 
       // TODO get list of installed packages
 
       // TODO if singlePackage, make sure specified package is already installed
 
       // TODO query server for compatible updates
+      //PackageServerApi.Packages.UpdateCheck
 
       return new List<PackageInfo>();
     }
+
     #endregion
 
     #region Remove
+
     public bool Remove(RemoveOptions options)
     {
       VerifyOptions(options);
@@ -206,6 +240,7 @@ namespace MediaPortal.PackageManager.Core
         return false;
       }
     }
+
     #endregion
 
     #region Verify Options
@@ -217,6 +252,14 @@ namespace MediaPortal.PackageManager.Core
       if (!Directory.Exists(targetRootPath))
       {
         throw new ArgumentException("The installation target directory does not exist (note: specify the plugin root directory, not a directory below this).");
+      }
+    }
+
+    private void VerifyOptions(ListOptions options)
+    {
+      if (!Enum.IsDefined(typeof(PackageType), options.PackageType))
+      {
+        throw new ArgumentException("Invalid package type (must be either Client or Server).");
       }
     }
 
@@ -250,7 +293,8 @@ namespace MediaPortal.PackageManager.Core
     #endregion
 
     #region Path Helpers
-    private string AutoDetectInstallationTarget( bool isClientPackage )
+
+    private string AutoDetectInstallationTarget(bool isClientPackage)
     {
       const string defaultBasePath = @"c:\Program Files (x86)\Team MediaPortal\";
       const string defaultClientDirectory = defaultBasePath + @"MP2-Client";
@@ -260,7 +304,8 @@ namespace MediaPortal.PackageManager.Core
 
       var targetRoot = isClientPackage ? defaultClientDirectory : defaultServerDirectory;
       return targetRoot + @"\Plugins";
-    } 
+    }
+
     #endregion
   }
 }

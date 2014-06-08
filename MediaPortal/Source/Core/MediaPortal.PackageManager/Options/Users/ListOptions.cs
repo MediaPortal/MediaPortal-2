@@ -22,17 +22,30 @@
 
 #endregion
 
+using System.Collections.Generic;
 using CommandLine;
-using CommandLine.Text;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
 namespace MediaPortal.PackageManager.Options.Users
 {
   internal class ListOptions : SharedOptions
-	{
-	  [Option('a', "all", HelpText="Show all packages, regardless of compatibility.")]
-	  public bool All { get; set; }
+  {
+    [Option('t', "type", HelpText = "Filters the package list to the given package type (Client or Server).")]
+    public PackageType PackageType { get; set; }
 
-	  [Option('n', "name", HelpText="Filters the package list using the given partial package name.")]
-	  public string SearchText { get; set; }
-	}
+    [Option('n', "name", HelpText = "Filters the package list using the given partial package name.", Required = false)]
+    public string PackageName { get; set; }
+
+    [Option("author", HelpText = "Filters the package list using the given partial author name.", Required = false)]
+    public string AuthorText { get; set; }
+
+    [Option("desc", HelpText = "Expands the search using package name to also search descriptions.", Required = false)]
+    public bool SearchDescriptions { get; set; }
+
+    [Option("all", HelpText = "Show all packages, regardless of compatibility.", Required = false)]
+    public bool All { get; set; }
+
+    [Option("tags", HelpText = "Filters the package list to contain only packages with matching tags.", Required = false)]
+    public ICollection<string> CategoryTags { get; set; }
+  }
 }
