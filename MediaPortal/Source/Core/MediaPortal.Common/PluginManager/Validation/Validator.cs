@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using MediaPortal.Attributes;
 using MediaPortal.Common.General;
 using MediaPortal.Common.PluginManager.Models;
 
@@ -42,13 +41,13 @@ namespace MediaPortal.Common.PluginManager.Validation
 
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _models;
     private readonly ConcurrentHashSet<Guid> _disabledPlugins;
-    private readonly IDictionary<string, CoreAPIAttribute> _coreComponents;
+    private readonly IDictionary<string, CoreComponent> _coreComponents; 
 
     #endregion
 
     #region Ctor
 
-    public Validator(ConcurrentDictionary<Guid, PluginMetadata> models, ConcurrentHashSet<Guid> disabledPlugins, IDictionary<string, CoreAPIAttribute> coreComponents)
+    public Validator( ConcurrentDictionary<Guid, PluginMetadata> models, ConcurrentHashSet<Guid> disabledPlugins, IDictionary<string, CoreComponent> coreComponents )
     {
       _models = models;
       _disabledPlugins = disabledPlugins;

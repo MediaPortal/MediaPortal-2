@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.PluginManager.Models;
 
@@ -39,13 +38,13 @@ namespace MediaPortal.Common.PluginManager.Validation
     #region Fields
 
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _availablePlugins;
-    private readonly IDictionary<string, CoreAPIAttribute> _coreComponents;
+    private readonly IDictionary<string, CoreComponent> _coreComponents;
 
     #endregion
 
     #region Ctor
 
-    public CompatibilityValidator(ConcurrentDictionary<Guid, PluginMetadata> availablePlugins, IDictionary<string, CoreAPIAttribute> coreComponents)
+    public CompatibilityValidator( ConcurrentDictionary<Guid, PluginMetadata> availablePlugins, IDictionary<string, CoreComponent> coreComponents )
     {
       _availablePlugins = availablePlugins;
       _coreComponents = coreComponents;
@@ -93,11 +92,11 @@ namespace MediaPortal.Common.PluginManager.Validation
       {
         if (dependency.IsCoreDependency)
         {
-          CoreAPIAttribute api;
+          CoreComponent api;
           if (!_coreComponents.TryGetValue(dependency.CoreDependencyName, out api))
             throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependency.CoreDependencyName);
-          if (api.MinCompatibleAPI > dependency.CompatibleApi || api.CurrentAPI < dependency.CompatibleApi)
-            throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", dependency.CoreDependencyName, dependency.CompatibleApi, api.MinCompatibleAPI, api.CurrentAPI);
+          if( api.MinCompatibleApi > dependency.CompatibleApi || api.CurrentApi < dependency.CompatibleApi )
+            throw new PluginIncompatibleException( "Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", dependency.CoreDependencyName, dependency.CompatibleApi, api.MinCompatibleApi, api.CurrentApi );
         }
         else
         {

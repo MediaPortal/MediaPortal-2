@@ -54,10 +54,11 @@ namespace MediaPortal.Common.PluginManager.Discovery
           PluginMetadata pm;
           if (pluginDirectoryPath.TryParsePluginDefinition(out pm))
           {
-            if (result.ContainsKey(pm.PluginId))
+            PluginMetadata value;
+            if (result.TryGetValue(pm.PluginId, out value))
               throw new ArgumentException(
                 string.Format("DirectoryScanner: Duplicate identifier (plugin {0} has the same plugin id as {1}).",
-                  pm.LogName, result[pm.PluginId].LogName));
+                pm.LogName, value.LogName));
             result.Add(pm.PluginId, pm);
           }
           else

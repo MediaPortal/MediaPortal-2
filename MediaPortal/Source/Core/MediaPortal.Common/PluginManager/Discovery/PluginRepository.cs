@@ -27,7 +27,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using MediaPortal.Attributes;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
@@ -46,7 +45,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
   {
     #region Fields
 
-    private readonly ConcurrentDictionary<string, CoreAPIAttribute> _coreComponents = new ConcurrentDictionary<string, CoreAPIAttribute>();
+    private readonly ConcurrentDictionary<string, CoreComponent> _coreComponents = new ConcurrentDictionary<string, CoreComponent>();
     private readonly ConcurrentDictionary<Guid, PluginMetadata> _models = new ConcurrentDictionary<Guid, PluginMetadata>();
     private readonly ConcurrentHashSet<Guid> _disabledPlugins = new ConcurrentHashSet<Guid>();
     private readonly ConcurrentHashSet<Guid> _validatedPlugins = new ConcurrentHashSet<Guid>();
@@ -55,9 +54,33 @@ namespace MediaPortal.Common.PluginManager.Discovery
     #endregion
 
     #region Ctor
-
-    internal PluginRepository()
+    /// <summary>
+    /// Create a new PluginRepository initialized with data from the currently running MP2 system.
+    /// Core components are discovered from loaded assemblies and plugins are discovered by
+    /// scanning the plugin directory of the MP2 instance.
+    /// </summary>
+    public PluginRepository()
     {
+    }
+
+    /// <summary>
+    /// Create a new PluginRepository using the given set of core components and plugins. This can
+    /// be used to create a virtual repository for compatibility checks against a given set of 
+    /// existing core components and plugins.
+    /// </summary>
+    /// <param name="coreComponents">The core components available to plugins in this repository.</param>
+    /// <param name="plugins">The plugins available to this repository.</param>
+    public PluginRepository( IEnumerable<CoreComponent> coreComponents, IEnumerable<PluginMetadata> plugins )
+    {
+      Interlocked.Exchange( ref _initialized, 1 );
+      foreach( var core in coreComponents )
+      {
+        _coreComponents[ core.Name ] = core;
+      }
+      foreach( var plugin in plugins )
+      {
+        _models[ plugin.PluginId ] = plugin;
+      }
     }
 
     #endregion
@@ -116,7 +139,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
 
     #region Properties
 
-    public IDictionary<string, CoreAPIAttribute> CoreComponents
+    public IDictionary<string, CoreComponent> CoreComponents
     {
       get
       {
@@ -180,7 +203,7 @@ namespace MediaPortal.Common.PluginManager.Discovery
 
     #region Validation
 
-    public bool IsCompatible(PluginMetadata plugin)
+    public bool IsCompatible( PluginMetadata plugin, bool ignoreConflicts = false )
     {
       ThrowIfNotInitialized();
       if (_validatedPlugins.Contains(plugin.PluginId))
@@ -197,12 +220,16 @@ namespace MediaPortal.Common.PluginManager.Discovery
           .ForEach(d => Log.Warn("PluginRepository: Plugin {0} is missing dependency {1}", metadata.LogName, d.LogName));
         return false;
       }
-      if (!result.CanEnable)
+      if( result.IncompatibleWith.Count > 0 )
       {
-        result.ConflictsWith.Select(id => _models[id])
-          .ForEach(d => Log.Warn("PluginRepository: Plugin {0} is in conflict with {1}", metadata.LogName, d.LogName));
         result.IncompatibleWith.Select(id => _models[id])
           .ForEach(d => Log.Warn("PluginRepository: Plugin {0} is incompatible with {1}", metadata.LogInfo, d.LogInfo));
+        return false;
+      }
+      if( result.ConflictsWith.Count > 0 && !ignoreConflicts )
+      {
+        result.ConflictsWith.Select( id => _models[id] )
+          .ForEach( d => Log.Warn( "PluginRepository: Plugin {0} is in conflict with {1}", metadata.LogName, d.LogName ) );
         return false;
       }
       _validatedPlugins.Add(plugin.PluginId);

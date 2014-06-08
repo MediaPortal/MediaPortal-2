@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml.XPath;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -55,6 +56,11 @@ namespace MediaPortal.Common.PluginManager.Discovery
       return Path.Combine(pluginDirectoryPath, PLUGIN_META_FILE);
     }
 
+    public static bool IsPluginDirectory( this string path )
+    {
+      return Directory.Exists( path ) && File.Exists( path.PluginDefinitionFilePath() );
+    }
+
     public static void VerifyIsPluginDirectory(this string path)
     {
       var pathExists = Directory.Exists(path);
@@ -69,7 +75,33 @@ namespace MediaPortal.Common.PluginManager.Discovery
     #endregion
 
     #region TryParsePluginDefinition
+    /// <summary>
+    /// Parses the plugin descriptor file (plugin.xml) content supplied in <paramref name="pluginDefinition"/>
+    /// and returns the metadata collected if the parse operation was successful.
+    /// </summary>
+    /// <param name="pluginDefinition">A string with the contents of the plugin definition file.</param>
+    /// <returns>Metadata collected from the plugin descriptor file or null if the parse operation did
+    /// not succeed.</returns>
+    public static PluginMetadata ParsePluginDefinition( this string pluginDefinition )
+    {
+      var data = Encoding.UTF8.GetBytes( pluginDefinition );
+      using( var stream = new MemoryStream( data ) )
+      {
+        PluginMetadata pluginMetadata;
+        return stream.TryParsePluginDefinition( string.Empty, out pluginMetadata ) ? pluginMetadata : null;
+      }
+    }
 
+    /// <summary>
+    /// Parses the plugin descriptor file (plugin.xml) and returns true if successful and false otherwise.
+    /// Metadata collected during a successful parse is returned in the <paramref name="pluginMetadata"/> 
+    /// output parameter.
+    /// </summary>
+    /// <param name="pluginDirectoryPath">The absolute path to the plugin directory containing the plugin 
+    /// definition file.</param>
+    /// <param name="pluginMetadata">Metadata collected from the plugin descriptor file.</param>
+    /// <returns><c>true</c>, if the plugin descriptor file was successfully loaded and parsed, else 
+    /// <c>false</c>.</returns>
     public static bool TryParsePluginDefinition(this string pluginDirectoryPath, out PluginMetadata pluginMetadata)
     {
       pluginDirectoryPath.VerifyIsPluginDirectory();
@@ -84,21 +116,19 @@ namespace MediaPortal.Common.PluginManager.Discovery
     /// Parses the plugin descriptor file (plugin.xml) and returns true if successful and false otherwise.
     /// Metadata collected during a successful parse is returned in the PluginModel output parameter.
     /// </summary>
-    /// <param name="pluginDirectoryPath">
-    /// The absolute path to the plugin directory containing the plugin
-    /// definition file.
-    /// </param>
-    /// <returns>
-    /// <c>true</c>, if the plugin descriptor file was successfully loaded and parsed, else
-    /// <c>false</c>.
-    /// </returns>
-    public static bool TryParsePluginDefinition(this Stream pluginDefinition, string pluginDirectoryPath, out PluginMetadata pluginMetadata)
+    /// <param name="definitionStream">An open stream to the plugin definition file content.</param>
+    /// <param name="pluginDirectoryPath">The absolute path to the plugin directory containing the plugin 
+    /// definition file.</param>
+    /// <param name="pluginMetadata">Metadata collected from the plugin descriptor file.</param>
+    /// <returns><c>true</c>, if the plugin descriptor file was successfully loaded and parsed, else 
+    /// <c>false</c>.</returns>
+    public static bool TryParsePluginDefinition(this Stream definitionStream, string pluginDirectoryPath, out PluginMetadata pluginMetadata)
     {
       var model = new PluginMetadata();
       model.SourceInfo = new PluginSourceInfo(pluginDirectoryPath);
       try
       {
-        var doc = new XPathDocument(pluginDefinition);
+        var doc = new XPathDocument(definitionStream);
         XPathNavigator nav = doc.CreateNavigator();
         nav.MoveToChild(XPathNodeType.Element);
         if (nav.LocalName != "Plugin")

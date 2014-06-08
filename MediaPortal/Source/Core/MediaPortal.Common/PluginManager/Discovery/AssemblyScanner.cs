@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Attributes;
+using MediaPortal.Common.PluginManager.Models;
 
 namespace MediaPortal.Common.PluginManager.Discovery
 {
@@ -33,17 +35,16 @@ namespace MediaPortal.Common.PluginManager.Discovery
   /// </summary>
   internal class AssemblyScanner
   {
-    public IDictionary<string, CoreAPIAttribute> PerformDiscovery()
+    public IDictionary<string, CoreComponent> PerformDiscovery()
     {
-      var coreComponents = new Dictionary<string, CoreAPIAttribute>();
+      var coreComponents = new Dictionary<string, CoreComponent>();
       foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
       {
-        var attributes = assembly.GetCustomAttributes(typeof(CoreAPIAttribute), false);
-        if (attributes.Length > 0)
+        var coreApi = assembly.GetCustomAttributes( typeof(CoreAPIAttribute), false ).FirstOrDefault() as CoreAPIAttribute;
+        if( coreApi != null )
         {
-          var coreApi = attributes[0] as CoreAPIAttribute;
           var componentName = assembly.GetName().Name;
-          coreComponents.Add(componentName, coreApi);
+          coreComponents.Add( componentName, new CoreComponent( componentName, coreApi.CurrentAPI, coreApi.MinCompatibleAPI ) );
         }
       }
       return coreComponents;

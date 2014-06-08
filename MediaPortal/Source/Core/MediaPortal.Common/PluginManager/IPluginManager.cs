@@ -25,7 +25,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.PluginManager.Builders;
 using MediaPortal.Common.PluginManager.Exceptions;
@@ -57,7 +56,7 @@ namespace MediaPortal.Common.PluginManager
     /// Returns a dictionary containing the names of all core components known by the plugin manager,
     /// mapped to their API information.
     /// </summary>
-    IDictionary<string, CoreAPIAttribute> CoreComponents { get; }
+    IDictionary<string, CoreComponent> CoreComponents { get; }
 
     /// <summary>
     /// Returns a dictionary containing the guids of all plugins known by the plugin manager,

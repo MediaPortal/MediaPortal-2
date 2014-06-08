@@ -1,0 +1,13 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TV/@EntryIndexedValue">TV</s:String>
+	
+	
+	
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=45B900A97C1D9742BA8F1C6599D044FC/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=45B900A97C1D9742BA8F1C6599D044FC/AbsolutePath/@EntryValue">C:\Users\Morten Mertner\CloudStation\Code\OpenSource\MP2-PM-packages\MediaPortal\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=45B900A97C1D9742BA8F1C6599D044FC/RelativePath/@EntryValue">..\..\Resources\Settings\ReSharper\TeamMediaPortal.DotSettings</s:String>
+	
+	
+	
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File45B900A97C1D9742BA8F1C6599D044FC/@KeyIndexDefined">True</s:Boolean>
+	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File45B900A97C1D9742BA8F1C6599D044FC/RelativePriority/@EntryValue">2</s:Double></wpf:ResourceDictionary>

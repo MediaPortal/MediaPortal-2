@@ -25,7 +25,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Activation;
 using MediaPortal.Common.PluginManager.Builders;
@@ -66,7 +65,7 @@ namespace MediaPortal.Common.Services.PluginManager
       get { return _activator.State; }
     }
 
-    public IDictionary<string, CoreAPIAttribute> CoreComponents
+    public IDictionary<string, CoreComponent> CoreComponents
     {
       get { return _repository.CoreComponents; }
     }

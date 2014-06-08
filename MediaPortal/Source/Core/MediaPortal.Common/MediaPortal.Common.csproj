@@ -47,6 +47,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\..\Packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
@@ -64,6 +65,8 @@
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="General\ConcurrentHashSet.cs" />
+    <Compile Include="General\CryptoExtensions.cs" />
+    <Compile Include="General\ReflectionExtensions.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
@@ -83,9 +86,30 @@
     <Compile Include="PluginManager\Exceptions\PluginItemBuildException.cs" />
     <Compile Include="PluginManager\Exceptions\PluginMissingDependencyException.cs" />
     <Compile Include="General\CollectionExtensions.cs" />
+    <Compile Include="PluginManager\Models\CoreComponent.cs" />
+    <Compile Include="PluginManager\Packages\ApiEndpoints\ApiBase.cs" />
+    <Compile Include="PluginManager\Packages\ApiEndpoints\AdminApi.cs" />
+    <Compile Include="PluginManager\Packages\ApiEndpoints\AuthorApi.cs" />
+    <Compile Include="PluginManager\Packages\ApiEndpoints\PackagesApi.cs" />
+    <Compile Include="PluginManager\Packages\ApiEndpoints\ApiEndpoint.cs" />
+    <Compile Include="PluginManager\Packages\ApiEndpoints\PackageServerApi.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\DependencyInfo.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Enumerations\PackageType.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Packages\AddPackageReviewModel.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\ReviewInfo.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\PackageInfo.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Authors\PublishPackageModel.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageReleaseQuery.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageUpdateQuery.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Packages\PackageQuery.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\Authors\RecallPackageModel.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\ReleaseInfo.cs" />
     <Compile Include="PluginManager\Models\PluginSourceInfo.cs" />
     <Compile Include="PluginManager\Models\PluginActivationInfo.cs" />
     <Compile Include="PluginManager\Models\PluginDependency.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\UserAdmin\CreateUserModel.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\UserAdmin\RevokeUserModel.cs" />
+    <Compile Include="PluginManager\Packages\PackageVerifier.cs" />
     <Compile Include="PluginManager\Builders\PluginBuilderManager.cs" />
     <Compile Include="PluginManager\Activation\PluginActivator.cs" />
     <Compile Include="PluginManager\Discovery\PluginRepository.cs" />
@@ -107,6 +131,11 @@
     <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
+    <Compile Include="PluginManager\Packages\Interfaces\IPackageRepository.cs" />
+    <Compile Include="PluginManager\Packages\Repository\FilterFactory.cs" />
+    <Compile Include="PluginManager\Packages\Repository\PackageRepository.cs" />
+    <Compile Include="PluginManager\Packages\Repository\LocalCacheProvider.cs" />
+    <Compile Include="PluginManager\Packages\Repository\OnlineRepositoryProvider.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectoryUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerAction.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerNewGen.cs" />
