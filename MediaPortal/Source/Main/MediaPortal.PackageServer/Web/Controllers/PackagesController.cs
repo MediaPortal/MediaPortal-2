@@ -88,6 +88,8 @@ namespace MediaPortal.PackageServer.Controllers
       using (var db = new DataContext())
       {
         var package = db.Packages.Include(e => e.CurrentRelease).Include(e => e.Tags).FirstOrDefault(p => p.ID == id);
+        if (package == null)
+          return new HttpStatusCodeResult(HttpStatusCode.NotFound, "No package with the given id could be found.");
         return Json(package.ToPackageInfoFull());
       }
     }
