@@ -69,16 +69,20 @@ namespace MediaPortal.PackageServer.Controllers
 
         // extract plugin.xml descriptor file from package
         string descriptor;
+        PluginMetadata metadata;
         try
         {
           using (var archive = ZipFile.Open(tempFilePath, ZipArchiveMode.Read))
           {
-            var entry = archive.GetEntry("plugin.xml");
+            // plugin.xml is stored inside subfolder (plugin name), get it via name without care of path.
+            var entry = archive.Entries.First(e => e.Name == "plugin.xml");
             using (var stream = entry.Open())
             {
               using (var reader = new StreamReader(stream))
               {
                 descriptor = reader.ReadToEnd();
+                // verify descriptor file and extract metadata 
+                metadata = descriptor.ParsePluginDefinition();
               }
             }
           }
@@ -88,9 +92,7 @@ namespace MediaPortal.PackageServer.Controllers
           return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "The uploaded package is not a valid MP2 package.");
         }
 
-        // verify descriptor file and extract metadata 
-        PluginMetadata metadata;
-        if (!descriptor.TryParsePluginDefinition(out metadata))
+        if (metadata == null)
           return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "The plugin descriptor file in the uploaded package could not be parsed.");
 
         // verify that we can use plugin name as folder path
