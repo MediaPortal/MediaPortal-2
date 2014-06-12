@@ -26,6 +26,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using MediaPortal.Common.General;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.UserAdmin;
 using MediaPortal.PackageServer.Domain.Entities;
 using MediaPortal.PackageServer.Domain.Entities.Enumerations;
@@ -65,6 +66,7 @@ namespace MediaPortal.PackageServer.Controllers
         {
           Alias = model.Alias,
           Name = model.Name,
+          PasswordHash = model.Password.Hash(),
           AuthType = AuthType.Integral,
           Created = DateTime.UtcNow,
           Modified = DateTime.UtcNow,

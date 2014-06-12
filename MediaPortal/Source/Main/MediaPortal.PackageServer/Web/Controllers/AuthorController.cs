@@ -39,6 +39,7 @@ using MediaPortal.PackageServer.Utility.Security;
 
 namespace MediaPortal.PackageServer.Controllers
 {
+  [Authenticate]
   [Authorize(Roles = "Author")]
   [RoutePrefix("package")]
   public class AuthorController : Controller
