@@ -42,6 +42,7 @@ namespace MediaPortal.PackageServer.Domain.Infrastructure.ContentProviders
       context.Database.AddIndex<User>(false, u => u.Alias);
       context.Database.AddIndex<User>(false, u => u.Email);
       context.Database.AddIndex<User>(false, u => u.PasswordHash);
+      context.Database.AddIndex<Package>(true, e => e.Name);
     }
   }
 }

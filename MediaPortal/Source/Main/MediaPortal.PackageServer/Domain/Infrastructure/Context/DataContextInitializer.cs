@@ -23,8 +23,6 @@
 #endregion
 
 using System.Data.Entity;
-using MediaPortal.PackageServer.Domain.Entities;
-using MediaPortal.PackageServer.Domain.Extensions;
 
 namespace MediaPortal.PackageServer.Domain.Infrastructure.Context
 {
@@ -34,8 +32,6 @@ namespace MediaPortal.PackageServer.Domain.Infrastructure.Context
 
     public void InitializeDatabase(DataContext context)
     {
-      context.Database.AddIndex<User>(true, e => e.Alias);
-      context.Database.AddIndex<Package>(true, e => e.Name);
     }
 
     #endregion
