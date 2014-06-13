@@ -113,7 +113,7 @@ namespace MediaPortal.PackageServer.Controllers
             if (!Enum.TryParse(model.PackageType, true, out packageType))
               return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "The package type ('client' or 'server') must be specified for new packages.");
 
-            package = new Package(principal.UserID, metadata.PluginId, metadata.Name, packageType, metadata.Author, metadata.Copyright, metadata.Description);
+            package = new Package(principal.UserID, metadata.PluginId, metadata.Name, packageType, metadata.Author, metadata.Copyright, metadata.Description) { Created = DateTime.UtcNow, Modified = DateTime.UtcNow };
 
             // add package tags
             if (model.CategoryTags.Any())
