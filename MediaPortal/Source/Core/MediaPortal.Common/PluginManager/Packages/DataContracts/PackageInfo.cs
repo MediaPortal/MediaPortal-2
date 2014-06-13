@@ -100,7 +100,7 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
       var cr = CurrentRelease;
       sb.AppendFormat("  -- Current Release: '{0}' (ID: {1:D}, Api: {2:D}), Size: {3:N0}, Release Date: '{4:g}'){5}", 
         cr.Version, cr.ApiVersion, cr.ID, cr.PackageSize, cr.Released, Environment.NewLine);
-      return base.ToString();
+      return sb.ToString();
     }
   }
 }

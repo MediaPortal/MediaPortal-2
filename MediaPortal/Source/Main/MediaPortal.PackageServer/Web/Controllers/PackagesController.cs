@@ -104,6 +104,8 @@ namespace MediaPortal.PackageServer.Controllers
       using (var db = new DataContext())
       {
         var result = db.Releases.Include(e => e.Package).FirstOrDefault(r => r.Version == model.PackageVersion && r.Package.Name == model.PackageName);
+        if (result == null)
+          return new HttpStatusCodeResult(HttpStatusCode.NotFound, "No package with the given name and version could be found.");
         return Json(result.ToReleaseInfo());
       }
     }
