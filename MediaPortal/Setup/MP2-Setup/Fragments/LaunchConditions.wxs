@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Fragment>
 
     <Property Id="LaunchConditionsFile">1</Property>
+
+	<Property Id="DX9RUNTIME1">
+      <DirectorySearch Id="SystemFolderDx9_41" Path="[SystemFolder]">
+        <!-- Note: Version number needs to be 1 less then the actual file version !-->
+		<FileSearch Name="D3DX9_41.DLL" MinVersion="9.26.952.2843"/>
+      </DirectorySearch>
+    </Property>
+	
+	<Property Id="DX9RUNTIME2">
+      <DirectorySearch Id="SystemFolderDx9_43" Path="[SystemFolder]">
+        <!-- Note: Version number needs to be 1 less then the actual file version !-->
+        <FileSearch Name="D3DX9_43.DLL" MinVersion="9.29.952.3110"/>
+      </DirectorySearch>
+    </Property>
 
     <Condition Message="!(loc.LC_OS)">
       <![CDATA[Installed OR VersionNT >= 601]]>
@@ -14,6 +29,10 @@
     </Condition>
     <Condition Message="!(loc.LC_ADMIN)">
       Privileged
+    </Condition>
+
+    <Condition Message="!(loc.LC_DX9)">
+      <![CDATA[Installed OR DX9RUNTIME1 AND DX9RUNTIME2]]>
     </Condition>
 
     <!--
