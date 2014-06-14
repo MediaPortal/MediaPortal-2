@@ -53,7 +53,7 @@ namespace MediaPortal.PackageServer.Controllers
       {
         // filter available packages according to query
         var query = db.Packages.Include(e => e.CurrentRelease).Include(e => e.Tags).Include(e => e.Releases).Include(e => e.Reviews)
-          .Where(p => p.PackageType == model.PackageType);
+          .Where(p => p.PackageType.HasFlag(model.PackageType));
         if (model.PartialAuthor != null)
           query = query.Where(e => e.Authors.Contains(model.PartialAuthor));
         if (model.PartialPackageName != null)
@@ -179,7 +179,7 @@ namespace MediaPortal.PackageServer.Controllers
     [Route("update-check")]
     public virtual ActionResult UpdateCheck(PackageUpdateQuery query)
     {
-      if (query == null || query.PackageType == null
+      if (query == null || (int)query.PackageType == 0
           || query.PluginVersions == null || query.PluginVersions.Count == 0
           || query.CoreComponents == null || query.CoreComponents.Count == 0)
         return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Unable to check for updates (query is incomplete).");
@@ -188,7 +188,7 @@ namespace MediaPortal.PackageServer.Controllers
       using (var db = new DataContext())
       {
         var installedReleases = (from r in db.Releases.Include(e => e.Package)
-          where r.Version == query.PluginVersions[r.Package.Guid]
+          where r.Version == query.PluginVersions[r.Package.Guid] && r.Package.PackageType.HasFlag(query.PackageType)
           select new { r.Package, Release = r, Metadata = r.Metadata.ParsePluginDefinition() }).ToList();
         //if( installedReleases.Count != query.PluginVersions.Count )
         // log.Warning( "User has unknown package release installed (assuming anything we have is newer)." );

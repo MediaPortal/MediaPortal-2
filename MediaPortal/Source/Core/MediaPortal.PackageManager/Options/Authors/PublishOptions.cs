@@ -23,6 +23,7 @@
 #endregion
 
 using CommandLine;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.PackageManager.Options.Shared;
 
 namespace MediaPortal.PackageManager.Options.Authors
@@ -32,8 +33,8 @@ namespace MediaPortal.PackageManager.Options.Authors
     [Option('s', "source", HelpText = "Path to the package file that should be published.", Required = true)]
     public string PackageFilePath { get; set; }
 
-    [Option('t', "type", HelpText = "The target product for the package (either 'client' or 'server').", Required = false)]
-    public string PackageType { get; set; }
+    [Option('t', "type", HelpText = "The target product for the package (either 'Client', 'Server' or 'Shared').", Required = true)]
+    public PackageType PackageType { get; set; }
 
     [OptionArray('x', "tags", HelpText = "Tags associated with the package (see the wiki for a list of recognized tags).", Required = false)]
     public string[] CategoryTags { get; set; }

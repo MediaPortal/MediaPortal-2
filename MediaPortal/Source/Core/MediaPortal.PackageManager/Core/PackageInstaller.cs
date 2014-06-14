@@ -142,7 +142,7 @@ namespace MediaPortal.PackageManager.Core
           return false;
         }
 
-        var isClientPackage = releaseInfo.PackageType == "Client";
+        var isClientPackage = releaseInfo.PackageType.HasFlag(PackageType.Client);
         // ensure target folder does not exist
         var targetRootPath = packageRootPath ?? AutoDetectInstallationTarget(isClientPackage);
         if (targetRootPath == null || !Directory.Exists(targetRootPath))
@@ -178,7 +178,7 @@ namespace MediaPortal.PackageManager.Core
     {
       VerifyOptions(options);
 
-      var isClientPackage = options.PackageType == "Client";
+      var isClientPackage = options.PackageType.HasFlag(PackageType.Client);
 
       // build list of packages to operate on
       var packages = FindPackagesWithNewerCompatibleVersionAvailable(isClientPackage, options.PackageName);
@@ -216,7 +216,7 @@ namespace MediaPortal.PackageManager.Core
     {
       VerifyOptions(options);
 
-      var isClientPackage = options.PackageType == "Client";
+      var isClientPackage = options.PackageType.HasFlag(PackageType.Client);
       _processManager.Stop(isClientPackage);
       var result = TryRemove(options.PackageName, isClientPackage, options.PluginRootPath);
       _processManager.Start(isClientPackage);
@@ -265,8 +265,9 @@ namespace MediaPortal.PackageManager.Core
 
     private void VerifyOptions(RemoveOptions options)
     {
+      // TODO: Add support for shared plugins, consider client only, server only and combined installations!
       // ensure target folder does not exist
-      var targetRootPath = options.PluginRootPath ?? AutoDetectInstallationTarget(options.PackageType == "Client");
+      var targetRootPath = options.PluginRootPath ?? AutoDetectInstallationTarget(options.PackageType.HasFlag(PackageType.Client));
       if (targetRootPath == null || !Directory.Exists(targetRootPath))
       {
         throw new ArgumentException("The plugin root path '{0}' does not exist (if you specified it manually, try omitting the option to use auto-detection).", targetRootPath);

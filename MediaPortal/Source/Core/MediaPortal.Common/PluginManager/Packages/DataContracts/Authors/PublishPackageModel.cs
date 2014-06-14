@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Authors
 {
@@ -33,14 +34,14 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Authors
   {
     public string FileName { get; set; }
     public string Content { get; set; }
-    public string PackageType { get; set; }
+    public PackageType PackageType { get; set; }
     public ICollection<string> CategoryTags { get; set; }
 
     public PublishPackageModel()
     {
     }
 
-    public PublishPackageModel(string fileName, string content, string packageType, IEnumerable<string> categoryTags)
+    public PublishPackageModel(string fileName, string content, PackageType packageType, IEnumerable<string> categoryTags)
     {
       FileName = fileName;
       Content = content;
@@ -48,7 +49,7 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Authors
       CategoryTags = categoryTags != null ? categoryTags.ToList() : null;
     }
 
-    public PublishPackageModel(string packageFilePath, string packageType, IEnumerable<string> categoryTags)
+    public PublishPackageModel(string packageFilePath, PackageType packageType, IEnumerable<string> categoryTags)
     {
       FileName = Path.GetFileName(packageFilePath);
       Content = Convert.ToBase64String(File.ReadAllBytes(packageFilePath), Base64FormattingOptions.InsertLineBreaks);

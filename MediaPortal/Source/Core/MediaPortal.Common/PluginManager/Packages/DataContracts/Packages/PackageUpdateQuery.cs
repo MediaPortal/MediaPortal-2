@@ -25,12 +25,13 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.PluginManager.Models;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Packages
 {
   public class PackageUpdateQuery
   {
-    public string PackageType { get; set; }
+    public PackageType PackageType { get; set; }
     public IDictionary<Guid, string> PluginVersions { get; set; }
     public ICollection<CoreComponent> CoreComponents { get; set; }
   }

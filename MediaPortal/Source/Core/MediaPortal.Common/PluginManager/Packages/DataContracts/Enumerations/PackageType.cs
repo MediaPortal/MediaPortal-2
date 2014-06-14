@@ -22,11 +22,24 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations
 {
+  [Flags]
   public enum PackageType
   {
+    /// <summary>
+    /// Package for MP2-Client only. This typically applies to skins and GUI plugins.
+    /// </summary>
     Client = 1,
-    Server = 2
+    /// <summary>
+    /// Package for MP2-Server only. This typically applies to service plugins, resources etc.
+    /// </summary>
+    Server = 2,
+    /// <summary>
+    /// Package for both Client and Server use. This typically applies to resource accessors, metadata extractors, shared libraries etc.
+    /// </summary>
+    Shared = Client | Server
   }
 }

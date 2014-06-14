@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
     public string Version { get; set; }
     public int ApiVersion { get; set; } // CurrentAPI in the plugin descriptor file
 
-    public string PackageType { get; set; }
+    public PackageType PackageType { get; set; }
     public int PackageSize { get; set; }
     public string DownloadUrl { get; set; }
     public int DownloadCount { get; set; }
@@ -47,7 +48,7 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
       Dependencies = new List<DependencyInfo>();
     }
 
-    public ReleaseInfo(long id, DateTime released, string version, int apiVersion, string packageType, int packageSize, string downloadUrl, int downloadCount) : this()
+    public ReleaseInfo(long id, DateTime released, string version, int apiVersion, PackageType packageType, int packageSize, string downloadUrl, int downloadCount) : this()
     {
       ID = id;
       Released = released;
