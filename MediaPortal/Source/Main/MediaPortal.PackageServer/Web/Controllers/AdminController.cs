@@ -31,6 +31,7 @@ using MediaPortal.Common.PluginManager.Packages.DataContracts.UserAdmin;
 using MediaPortal.PackageServer.Domain.Entities;
 using MediaPortal.PackageServer.Domain.Entities.Enumerations;
 using MediaPortal.PackageServer.Domain.Infrastructure.Context;
+using MediaPortal.PackageServer.Utility.Hooks;
 using MediaPortal.PackageServer.Utility.Security;
 
 namespace MediaPortal.PackageServer.Controllers
@@ -38,7 +39,7 @@ namespace MediaPortal.PackageServer.Controllers
   [Authenticate]
   [Authorize(Roles = "Admin")]
   [RoutePrefix("admin")]
-  public class AdminController : Controller
+  public class AdminController : BaseController
   {
     [HttpPost]
     [Route("create-user")]

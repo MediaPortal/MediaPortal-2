@@ -30,12 +30,12 @@ using System.Net;
 using System.Web.Mvc;
 using MediaPortal.Common.PluginManager.Discovery;
 using MediaPortal.Common.PluginManager.Packages.DataContracts;
-using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Packages;
 using MediaPortal.PackageServer.Domain.Entities;
 using MediaPortal.PackageServer.Domain.Entities.Enumerations;
 using MediaPortal.PackageServer.Domain.Infrastructure.Context;
 using MediaPortal.PackageServer.Domain.Services.Extensions;
+using MediaPortal.PackageServer.Utility.Hooks;
 using MediaPortal.PackageServer.Utility.Security;
 
 namespace MediaPortal.PackageServer.Controllers
@@ -43,7 +43,7 @@ namespace MediaPortal.PackageServer.Controllers
   [Authenticate]
   [AuthorizePartial]
   [RoutePrefix("packages")]
-  public class PackagesController : Controller
+  public class PackagesController : BaseController
   {
     [AllowAnonymous]
     [Route("list")]

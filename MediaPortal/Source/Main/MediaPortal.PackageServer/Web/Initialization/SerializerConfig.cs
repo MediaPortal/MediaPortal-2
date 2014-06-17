@@ -22,21 +22,21 @@
 
 #endregion
 
-using System.Web.Mvc;
-using MediaPortal.PackageServer.Utility.Hooks;
-using MediaPortal.PackageServer.Utility.Security;
+using Newtonsoft.Json;
+using MediaPortal.PackageServer.Initialization.Core;
+using Newtonsoft.Json.Serialization;
 
-namespace MediaPortal.PackageServer.Controllers
+namespace MediaPortal.PackageServer.Initialization
 {
-  [AuthorizePartial]
-  public class HomeController : BaseController
+  public class SerializerConfig : IConfigurationTask
   {
-    [AllowAnonymous]
-    public virtual ActionResult Index()
+    public void Configure()
     {
-      ViewBag.Title = "MediaPortal 2 Package Server";
-
-      return View();
+      JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+      {
+          DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+          ContractResolver = new CamelCasePropertyNamesContractResolver()
+      };
     }
   }
 }

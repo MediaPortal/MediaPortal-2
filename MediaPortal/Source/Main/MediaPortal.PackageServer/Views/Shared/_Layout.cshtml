@@ -7,35 +7,37 @@
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
     </head>
-    <body>
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    @Html.ActionLink("Application name", "Index", "Home", null, new { @class = "navbar-brand" })
-                </div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-                        <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="container body-content">
-            @RenderBody()
-            <hr />
-            <footer>
-                <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-            </footer>
-        </div>
 
-        @Scripts.Render("~/bundles/jquery")
-        @Scripts.Render("~/bundles/bootstrap")
-        @RenderSection("scripts", required: false)
+    <body>
+        <header class="site">
+            <div class="logobar">
+                <a href="http://www.team-mediaportal.com/">
+                    <div class="logobar-bg">
+                        <img src="http://forum.team-mediaportal.com/templates/yoo_nano2/MediaPortal-HTPC-Media-Center.png" alt="MediaPortal Windows Media Center">
+                    </div>
+                    <div class="logobar-text">Packages</div>
+                </a>
+            </div>
+            
+            <nav>
+                <div class="link"><a href="">Home</a></div>
+            </nav>            
+        </header>
+
+        @RenderBody()
+
+        <foote class="site">
+            <article class="package-stats">
+                package count, release count, total downloads, last package modification, ..
+            </article>
+            <hr />
+            <article class="copyright">
+                <p>&copy; @DateTime.Now.Year Team Media-Portal</p>
+            </article>
+        </footer>
+
+        @Scripts.Render( "~/bundles/core" )
+        @Scripts.Render( "~/bundles/site" )
+        @RenderSection( "scripts", required: false )
     </body>
 </html>

@@ -1,0 +1,37 @@
+﻿
+<ul id="package-list">
+  {#packages}
+  <li>
+    <article class="package flex-container horizontal">
+      <div class="flex-item icon"></div>
+      <div class="flex-item info">
+        <div class="flex-container horizontal top">
+          <div class="flex-item name">{name}</div>
+          {?ratingCount}
+          <div class="flex-item rating">
+            <span>{averageRating} stars</span>
+            <label>({ratingCount} votes)</label>
+          </div>
+          {/ratingCount}
+        </div>
+        <div class="flex-container horizontal bottom">
+          <div class="flex-item downloads">
+            <label>Downloads</label>
+            <span>{totalDownloadCount}</span>
+          </div>
+          <div class="flex-item version">
+            <label>Latest Version</label>
+            <span>{currentRelease.version}</span>
+          </div>
+          <div class="flex-item released">
+            <label>Release Date</label>
+            <span>{currentRelease.released}</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </li>{~n}
+  {:else}
+  <p>No packages match the selected filter criteria!</p>{~n}
+  {/packages}
+</ul>

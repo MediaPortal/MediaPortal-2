@@ -1,0 +1,146 @@
+﻿/*** GLOBALS *****************************************************************/
+body {
+  font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+  color: #141414;
+  word-wrap: break-word;
+  line-height: 1.27;
+  font: 13px/1.231 arial, helvetica, clean, sans-serif;
+  padding: 10px;
+}
+ul {
+  list-style: none;
+}
+a:link,
+a:visited {
+  color: #063b5e;
+  text-decoration: none;
+}
+header.site {
+  width: 100%;
+  height: 200px;
+}
+header.site .logobar {
+  position: relative;
+  background-color: #000;
+  margin: 2px 1px;
+}
+header.site .logobar .logobar-bg {
+  background: url(http://forum.team-mediaportal.com/templates/yoo_nano2/images/bg/logobar_middle.png) 100% no-repeat;
+  height: 155px;
+  overflow: hidden;
+}
+header.site .logobar .logobar-text {
+  position: absolute;
+  top: 45px;
+  right: 110px;
+  font-size: 50px;
+  font-weight: 100;
+  color: #fff;
+}
+footer.site {
+  width: 100%;
+  height: 60px;
+}
+/*** LAYOUT ******************************************************************/
+.flex-container {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: stretch;
+}
+.flex-container.horizontal {
+  flex-direction: row;
+}
+.flex-container.vertical {
+  flex-direction: column;
+}
+.flex-item {
+  order: 0;
+  flex: 0 1 auto;
+  align-self: auto;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+.flex-item:last-child {
+  margin-right: 0;
+}
+/*** PACKAGE LIST ************************************************************/
+.package-filter {
+  flex: 0 0 300px;
+  background-color: #ccc;
+}
+.package-filter.collapsed {
+  width: 50px;
+}
+.package-list {
+  flex: 2 1 200px;
+}
+.package-list #package-list .package {
+  background: #eee;
+  padding: 10px;
+  position: relative;
+  font-size: 12px;
+  /*<div class="name">{name}</div>
+      <div class="downloads">{totalDownloadCount}</div>
+      <div class="rating">{averageRating}</div>
+      <div class="version">{currentRelease.version}</div>
+      <div class="released">{currentRelease.released}</div>
+      <div class="compatibility">{apiVersionsAvailable}</div>*/
+}
+.package-list #package-list .package:hover,
+.package-list #package-list .package.selected {
+  background: #ccc;
+}
+.package-list #package-list .package .flex-container {
+  margin-left: 10px;
+}
+.package-list #package-list .package .flex-container.top {
+  margin-bottom: 10px;
+}
+.package-list #package-list .package .flex-item {
+  margin: 0;
+}
+.package-list #package-list .package label {
+  display: block;
+  color: #666;
+}
+.package-list #package-list .package span {
+  display: block;
+  font-size: 18px;
+}
+.package-list #package-list .package .flex-item {
+  flex: 1 1 auto;
+}
+.package-list #package-list .package .icon {
+  flex: 0 0 80px;
+  height: 80px;
+  width: 80px;
+  background: #999;
+  display: inline-block;
+}
+.package-list #package-list .package .name {
+  font-size: 28px;
+  min-width: 200px;
+}
+.package-list #package-list .package .rating {
+  flex: 0 0 100px;
+  min-width: 100px;
+  text-align: right;
+}
+.package-list #package-list .package .downloads {
+  min-width: 80px;
+}
+.package-list #package-list .package .version {
+  min-width: 80px;
+}
+.package-list #package-list .package .released {
+  min-width: 120px;
+}
+.package-details {
+  flex: 1 1 200px;
+  background-color: #eee;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*# sourceMappingURL=proto.css.map */

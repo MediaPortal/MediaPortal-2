@@ -22,21 +22,29 @@
 
 #endregion
 
+using System.Text;
 using System.Web.Mvc;
-using MediaPortal.PackageServer.Utility.Hooks;
-using MediaPortal.PackageServer.Utility.Security;
+using Newtonsoft.Json;
 
-namespace MediaPortal.PackageServer.Controllers
+namespace MediaPortal.PackageServer.Utility.Hooks
 {
-  [AuthorizePartial]
-  public class HomeController : BaseController
+  public class BaseController : Controller
   {
-    [AllowAnonymous]
-    public virtual ActionResult Index()
+    protected JsonResult Json(object data, JsonSerializerSettings serializerSettings)
     {
-      ViewBag.Title = "MediaPortal 2 Package Server";
-
-      return View();
+      var result = Json(data) as JsonNetResult;
+      result.SerializerSettings = serializerSettings;
+      return result;
     }
+
+    protected override JsonResult Json(object data, string contentType, Encoding contentEncoding, JsonRequestBehavior behavior)
+    {
+      return new JsonNetResult(data)
+      {
+        ContentType = contentType,
+        ContentEncoding = contentEncoding,
+        JsonRequestBehavior = behavior
+      };
+    }  
   }
 }

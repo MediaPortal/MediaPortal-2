@@ -1,0 +1,41 @@
+﻿
+<article id="package-details" class="flex-container vertical">
+  <div class="flex-item top">
+    <div class="flex-container horizontal">
+      <div class="flex-item compatibility">
+        <label>Compatibility</label>
+        <span>{apiVersionsAvailable}</span>
+      </div>
+      <div class="flex-item type">
+        <label>Package Type</label>
+        <span>{packageType}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-item description">
+    <label>Description</label>
+    <span>{description}</span>
+  </div>
+  
+  <div class="flex-item reviews">
+    <label>Reviews</label>
+    {#reviews}
+    <article class="review">
+      <header class="title">
+        <p>
+          <span class="title">{title}</span> by <span class="author">{author}</span>
+        </p>
+      </header>
+      <p class="body">{body}</p>
+      <footer>
+        <p>
+          <span class="when">{created}</span>
+        </p>
+      </footer>
+    </article>
+    {:else}
+    <p>No reviews have been submitted for this package.</p>{~n}
+    {/reviews}
+  </div>
+</article>

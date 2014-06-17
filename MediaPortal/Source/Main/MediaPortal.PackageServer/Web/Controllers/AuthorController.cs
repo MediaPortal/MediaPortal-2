@@ -35,6 +35,7 @@ using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.PackageServer.Domain.Entities;
 using MediaPortal.PackageServer.Domain.Entities.Enumerations;
 using MediaPortal.PackageServer.Domain.Infrastructure.Context;
+using MediaPortal.PackageServer.Utility.Hooks;
 using MediaPortal.PackageServer.Utility.Security;
 
 namespace MediaPortal.PackageServer.Controllers
@@ -42,7 +43,7 @@ namespace MediaPortal.PackageServer.Controllers
   [Authenticate]
   [Authorize(Roles = "Author")]
   [RoutePrefix("package")]
-  public class AuthorController : Controller
+  public class AuthorController : BaseController
   {
     private const string UPLOAD_PATH = "/uploads";
     private const string WORK_PATH = "/work";
