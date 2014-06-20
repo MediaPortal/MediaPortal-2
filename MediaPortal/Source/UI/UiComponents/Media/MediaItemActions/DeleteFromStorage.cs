@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -34,9 +35,16 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   {
     public override bool IsAvailable(MediaItem mediaItem)
     {
-      var rl = mediaItem.GetResourceLocator();
-      using (var ra = rl.CreateAccessor())
-        return ra is IResourceDeletor;
+      try
+      {
+        var rl = mediaItem.GetResourceLocator();
+        using (var ra = rl.CreateAccessor())
+          return ra is IResourceDeletor;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
     }
 
     public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)

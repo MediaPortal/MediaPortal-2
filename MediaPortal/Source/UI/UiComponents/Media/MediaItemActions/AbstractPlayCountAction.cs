@@ -31,11 +31,17 @@ using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class ResetPlayCount : AbstractMediaItemAction
+  public abstract class AbstractPlayCountAction : AbstractMediaItemAction
   {
+    protected abstract bool AppliesForPlayCount(int playCount);
+    protected abstract int GetNewPlayCount();
+
     public override bool IsAvailable(MediaItem mediaItem)
     {
-      if (!IsManagedByMediaLibrary(mediaItem))
+      int playCount;
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, out playCount))
+        return false;
+      if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
         return false;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       return cd != null;
@@ -54,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, out parentDirectoryId))
         return false;
 
-      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0);
+      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
 
       cd.AddOrUpdateMediaItem(parentDirectoryId, rl.NativeSystemId, rl.NativeResourcePath, mediaItem.Aspects.Values);
 
