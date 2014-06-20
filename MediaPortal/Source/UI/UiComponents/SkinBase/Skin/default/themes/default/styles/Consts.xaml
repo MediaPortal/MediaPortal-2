@@ -18,6 +18,7 @@
 
   <!-- Scroll bar -->  
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+  <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="12"/>
   
   <!-- Progress bar -->
   <ResourceWrapper x:Key="ProgressBarIndicatorMargin" Resource="0"/>

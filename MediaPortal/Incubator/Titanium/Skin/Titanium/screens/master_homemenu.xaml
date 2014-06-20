@@ -40,7 +40,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,220,-40,0">
+      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10,220,-25,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>

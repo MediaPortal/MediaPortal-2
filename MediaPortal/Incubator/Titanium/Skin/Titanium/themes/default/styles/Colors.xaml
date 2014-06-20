@@ -175,15 +175,31 @@
   <!-- Light blue with some green -->
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
 
-  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FFA0A0A0"/>
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource=""/>
 
-  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10909090"/>
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor">
+    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+      <GradientStop Color="#FF404040" Offset="0"/>
+      <GradientStop Color="{ThemeResource FooterShapeFillColor}" Offset="0.15"/>
+      <GradientStop Color="{ThemeResource FooterShapeFillColor}" Offset="0.85"/>
+      <GradientStop Color="#FF404040" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FFA0A0A0"/>
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
 
-  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20A0A0A0"/>
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor">
+    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+      <GradientStop Color="#E0A0A0A0" Offset="0"/>
+      <GradientStop Color="#FFF6F6F6" Offset="0.33"/>
+      <GradientStop Color="#FFF6F6F6" Offset="0.66"/>
+      <GradientStop Color="#E0A0A0A0" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="4"/>
+
+  <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="9"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>
