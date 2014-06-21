@@ -24,6 +24,7 @@
 
 using Newtonsoft.Json;
 using MediaPortal.PackageServer.Initialization.Core;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.PackageServer.Initialization
@@ -35,7 +36,8 @@ namespace MediaPortal.PackageServer.Initialization
       JsonConvert.DefaultSettings = () => new JsonSerializerSettings
       {
           DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-          ContractResolver = new CamelCasePropertyNamesContractResolver()
+          ContractResolver = new CamelCasePropertyNamesContractResolver(),
+          Converters = new JsonConverter[] { new IsoDateTimeConverter(), new StringEnumConverter() }
       };
     }
   }

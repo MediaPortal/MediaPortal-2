@@ -1,4 +1,5 @@
 ﻿/// <reference path="typings/jquery/jquery.d.ts"/>
+/// <reference path="typings/moment/moment.d.ts"/>
 declare var $: JQueryStatic;
 declare var dust: any;
 
@@ -134,6 +135,25 @@ module MP2 {
         self.renderer.render(templateName, {packages: data}).done((html) => {
           console.log("html: " + html);
           $(domTargetElement).html(html);
+          // parse and render dates
+          $('.package .released').each((index, domElement) => {
+            var jqElement = $(domElement);
+            var date = moment.utc(jqElement.data('value'));
+            jqElement.find('.value').html(date.format('L'));
+          });
+          // click handler
+          $(".package").click(event => {
+            var jqElement = $(event.currentTarget);
+            // make sure only the clicked item is selected
+            $('.package').removeClass('selected');
+            jqElement.addClass('selected');
+            // update details panel
+            var packageId = jqElement.data('package-id');
+            self.updateDetails(packageId);
+            // disable any other handling
+            event.preventDefault();
+            return false;
+          });
         });
         // preselect first item to render details panel
         if (data != null && data.length > 0) {

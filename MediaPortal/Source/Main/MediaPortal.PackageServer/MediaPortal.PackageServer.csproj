@@ -205,6 +205,7 @@
     <Compile Include="Domain\Infrastructure\ContentProviders\AbstractContentProvider.cs" />
     <Compile Include="Domain\Infrastructure\ContentProviders\CategoryContentProvider.cs" />
     <Compile Include="Domain\Infrastructure\ContentProviders\ConstraintsAndIndexes.cs" />
+    <Compile Include="Domain\Infrastructure\ContentProviders\PackageContentProvider.cs" />
     <Compile Include="Domain\Infrastructure\ContentProviders\TagContentProvider.cs" />
     <Compile Include="Domain\Infrastructure\ContentProviders\UserContentProvider.cs" />
     <Compile Include="Domain\Infrastructure\Context\DataContext.cs" />
@@ -291,6 +292,16 @@
     <Content Include="Scripts\dust-full.min.js">
       <DependentUpon>dust-full.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\moment-with-langs.js">
+      <DependentUpon>moment.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\moment-with-langs.min.js">
+      <DependentUpon>moment.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\moment.js" />
+    <Content Include="Scripts\moment.min.js">
+      <DependentUpon>moment.js</DependentUpon>
+    </Content>
     <Content Include="Uploads\readme.txt" />
     <Content Include="Work\readme.txt" />
     <Content Include="Content\css\proto.less" />
@@ -361,6 +372,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\proto.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

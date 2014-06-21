@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using MediaPortal.Common.PluginManager.Packages.DataContracts;
 using MediaPortal.PackageServer.Domain.Entities;
@@ -53,7 +54,7 @@ namespace MediaPortal.PackageServer.Domain.Services.Extensions
       info.TotalDownloadCount = package.Releases.Sum(r => r.DownloadCount);
       info.ReviewCount = package.Reviews.Count(r => !string.IsNullOrEmpty(r.Body));
       info.RatingCount = package.Reviews.Count();
-      info.AverageRating = package.Reviews.Any() ? package.Reviews.Average(r => r.Rating) : 0.0;
+      info.AverageRating = package.Reviews.Any() ? Math.Round(package.Reviews.Average(r => r.Rating),1) : 0.0;
       info.CurrentRelease = package.CurrentRelease.ToReleaseInfo();
       info.ApiVersionsAvailable = package.Releases.Select(r => r.ApiVersion).Distinct().OrderByDescending(v => v).ToList();
       info.CategoryTags = package.Tags.Where(t => t.Type == TagType.Category).Select(t => t.Name).ToList();
