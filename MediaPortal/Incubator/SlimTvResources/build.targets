@@ -12,17 +12,18 @@
 
   <ItemGroup>
     <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
+    <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resources Include="$(ProjectDir)Resources\**\*.*" />
+    <Resources Include="$(ProjectDir)Designs\**\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(Resources)"
-          DestinationFiles="@(Resources->'$(PluginDestination)Resources\%(RecursiveDir)%(Filename)%(Extension)')" />
+          DestinationFiles="@(Resources->'$(PluginDestination)Designs\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

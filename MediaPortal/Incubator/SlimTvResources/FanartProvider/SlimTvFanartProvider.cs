@@ -25,16 +25,29 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.LogoManager;
+using MediaPortal.LogoManager.Design;
+using MediaPortal.Plugins.SlimTv.SlimTvResources.Settings;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 {
   public class SlimTvFanartProvider : IFanArtProvider
   {
+    protected readonly SlimTvLogoSettings _settings;
+    protected string _dataFolder;
+
+    public SlimTvFanartProvider()
+    {
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvLogoSettings>();
+      _dataFolder = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\Logos\\");
+    }
+
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.
@@ -50,51 +63,47 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<string> result)
     {
       result = null;
-      string baseFolder = GetBaseFolder(mediaType, name);
-      if (baseFolder == null || !Directory.Exists(baseFolder))
-      {
-        if (baseFolder != null)
-          ServiceRegistration.Get<ILogger>().Error("SlimTvFanartProvider: Directory '{0}' not found", baseFolder);
-        return false;
-      }
-
-      string pattern = GetPattern(mediaType, fanArtType, name);
-      if (string.IsNullOrEmpty(pattern))
+      if (mediaType != FanArtConstants.FanArtMediaType.Channel)
         return false;
 
       try
       {
-        DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
-        if (directoryInfo.Exists)
+        string designsFolder = FileUtils.BuildAssemblyRelativePath("Designs");
+
+        ThemeHandler themeHandler = new ThemeHandler();
+        Theme theme = themeHandler.Load(Path.Combine(designsFolder, _settings.LogoTheme));
+
+        string logoFolder = Path.Combine(_dataFolder, string.Format("{0}-{1}", theme.DesignName, theme.ThemeName));
+        string logoFileName = Path.Combine(logoFolder, FileUtils.GetSafeFilename(string.Format("{0}.png", name)));
+
+        if (!Directory.Exists(logoFolder))
+          Directory.CreateDirectory(logoFolder);
+
+        if (File.Exists(logoFileName))
         {
-          result = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
-          int count = result.Count;
-          if (count == 0)
-            ServiceRegistration.Get<ILogger>().Info("SlimTvFanartProvider: No result for '{0}'", pattern);
-          return count > 0;
+          result = new[] { logoFileName };
+          return true;
+        }
+
+        LogoProcessor processor = new LogoProcessor { DesignsFolder = designsFolder };
+
+        // From repository
+        using (var repo = new LogoRepository { RepositoryUrl = _settings.RepositoryUrl })
+        {
+          var stream = repo.Download(name);
+          using (stream)
+            if (processor.CreateLogo(theme, stream, logoFileName))
+            {
+              result = new[] { logoFileName };
+              return true;
+            }
         }
       }
-      catch (Exception) { }
-      return false;
-    }
-
-    protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name)
-    {
-      if (mediaType != FanArtConstants.FanArtMediaType.Channel)
-        return null;
-
-      return FileUtils.GetSafeFilename(string.Format("{0}.png", name));
-    }
-
-    protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name)
-    {
-      switch (mediaType)
+      catch (Exception ex)
       {
-        case FanArtConstants.FanArtMediaType.Channel:
-          return FileUtils.BuildAssemblyRelativePath(@"Resources\ChannelLogos");
-        default:
-          return null;
+        ServiceRegistration.Get<ILogger>().Error("SlimTv Logos: Error processing logo image.", ex);
       }
+      return false;
     }
   }
 }
