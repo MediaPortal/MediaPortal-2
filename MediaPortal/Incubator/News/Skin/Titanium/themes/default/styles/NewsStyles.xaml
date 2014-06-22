@@ -13,4 +13,8 @@
   <ResourceWrapper x:Key="NewsItemDateWidth" Resource="118"/>
   <ResourceWrapper x:Key="NewsItemTitleMargin" Resource="5,7,5,7"/>
 
+  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+    <TranslateTransform X="44" />
+  </ResourceWrapper>
+
 </ResourceDictionary>

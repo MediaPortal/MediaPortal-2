@@ -30,7 +30,10 @@
             <Image Grid.Column="1" MaxHeight="{ThemeResource NewsItemDetailsImageMaxHeight}" Width="{ThemeResource NewsItemDetailsImageMaxHeight}" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Margin="5"/>
           </Grid>
         </StackPanel>
-        <ScrollViewer CanContentScroll="False" Margin="5" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+        <ScrollViewer CanContentScroll="False" Margin="10" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+          <ScrollViewer.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+          </ScrollViewer.Resources>
           <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="true"/>
         </ScrollViewer>
       </DockPanel>

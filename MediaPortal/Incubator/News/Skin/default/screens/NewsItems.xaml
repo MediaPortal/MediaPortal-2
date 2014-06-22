@@ -15,11 +15,12 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
-		    <!-- Items -->
+        <!-- Items -->
         <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsItemsContainerStyle}"
               ItemsSource="{Binding Path=SelectedFeed.Items}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
             <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
           </ListView.Resources>

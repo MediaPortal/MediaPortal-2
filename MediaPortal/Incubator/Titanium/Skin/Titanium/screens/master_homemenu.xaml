@@ -57,6 +57,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
               HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="DefaultHigh"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="-22" />
+            </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>

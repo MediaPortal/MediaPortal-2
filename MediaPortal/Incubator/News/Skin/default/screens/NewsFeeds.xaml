@@ -27,6 +27,7 @@
               Style="{ThemeResource NewsFeedsContainerStyle}"
               ItemsSource="{Binding Path=Feeds}" >
             <ListView.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>

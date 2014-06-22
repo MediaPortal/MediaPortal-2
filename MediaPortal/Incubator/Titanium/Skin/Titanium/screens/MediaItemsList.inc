@@ -24,6 +24,9 @@
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}">
       <ListView.Resources>
+        <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+          <TranslateTransform X="40" />
+        </ResourceWrapper>
         <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
       </ListView.Resources>

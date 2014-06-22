@@ -107,7 +107,9 @@
             <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2,10,2,2">
+                Grid.ZIndex="0" Margin="2,10,2,2"
+                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -131,7 +133,9 @@
               </StackPanel>
             </Grid>
             <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
-                Grid.ZIndex="0" Margin="10,2,2,2">
+                Grid.ZIndex="0" Margin="10,2,2,2"
+                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
