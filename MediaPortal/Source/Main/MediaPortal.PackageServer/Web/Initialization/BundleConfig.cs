@@ -40,6 +40,7 @@ namespace MediaPortal.PackageServer.Initialization
       bundles.Add(new ScriptBundle("~/bundles/core").Include(
         "~/Scripts/jquery-{version}.js",
         "~/Scripts/dust-full.js",
+        "~/Scripts/dust-helpers.js",
         "~/Scripts/moment.js"
       ));
 

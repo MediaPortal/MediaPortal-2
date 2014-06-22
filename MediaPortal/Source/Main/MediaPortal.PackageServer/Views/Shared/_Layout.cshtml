@@ -28,8 +28,12 @@
         @RenderBody()
 
         <footer class="site">
-            <article class="package-stats">
-                package count, release count, total downloads, last package modification, ..
+            <article class="package-stats flex-container horizontal">
+                <div class="flex-item">@ViewBag.PackageCount packages</div>
+                <span>|</span>
+                <div class="flex-item">@ViewBag.ReleaseCount releases</div>
+                <span>|</span>
+                <div class="flex-item">@ViewBag.DownloadCount downloads</div>
             </article>
             <hr />
             <article class="copyright">

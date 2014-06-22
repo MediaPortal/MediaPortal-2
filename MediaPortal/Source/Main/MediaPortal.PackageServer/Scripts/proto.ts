@@ -8,6 +8,10 @@ module MP2 {
 
   export class PackageFilter {
     packageType: string;
+    categoryTags: string[] = [];
+    partialPackageName: string;
+    searchDescriptions: boolean;
+    partialAuthor: string;
   }
 
   export class Template {
@@ -44,6 +48,20 @@ module MP2 {
       }).promise();
       return htmlReadyPromise;
     }
+
+    static registerHelpers() {
+      //dust.debugLevel = 'DEBUG';
+
+      // date formatting helper
+      dust.helpers.moment = (chunk, ctx, bodies, params) => {
+        // get parameter values (the date to format and an optional format string)
+        var date = dust.helpers.tap(params.date, chunk, ctx),
+          format = dust.helpers.tap(params.format, chunk, ctx) || "L";
+        // use moment.js to emit a formatted date string
+        var utcMoment = moment.utc(date);
+        return chunk.write(utcMoment.format(format));
+      }      
+    }
   }
 
   export class NetworkManager {
@@ -68,6 +86,7 @@ module MP2 {
 
   export class Renderer {
     templates: Template[] = [
+      new Template('package-filter', '/content/dust/package-filter.dust'),
       new Template('package-list', '/content/dust/package-list.dust'),
       new Template('package-details', '/content/dust/package-details.dust')
     ];
@@ -81,6 +100,7 @@ module MP2 {
           prepareTemplatePromises.push(template.prepare());
         }
         $.when(prepareTemplatePromises).then(() => {
+          Template.registerHelpers();
           //console.log("templates ready");
           d.resolve(true);
         });
@@ -110,57 +130,122 @@ module MP2 {
       return this.renderer.initialize();
     }
 
-    updateDetails(packageId: number): void {
-      var url = '/packages/' + packageId + '/details';
-      var templateName = 'package-details';
-      var domTargetElement = '#package-details';
+    show(): void {
+      // loading filter causes list to refresh which causes first item to be selected for details view
+      this.updateFilter();
+    }
+
+    updateFilter(): void {
+      var url = '/home/filterOptions';
+      var templateName = 'package-filter';
+      var domTargetElement = '#package-filter-container';
 
       var self = this;
-      this.net.get(url).done((data: any) => {
+      this.net.get(url).done((data: PackageFilter) => {
+        //self.filter = data;
         self.renderer.render(templateName, data).done((html) => {
           $(domTargetElement).html(html);
-        });                  
+          // update list using filter
+          self.updateList();
+          // click handler wirings
+          $("#package-filter .packageType").click(event => self.uiFilterTypeClick(event));
+          $("#package-filter .tag").click(event => self.uiFilterTagClick(event));
+          $("#package-filter .searchText").change(event => self.uiFilterSearchTextChange(event));
+          $("#package-filter .authorText").change(event => self.uiFilterAuthorTextChange(event));
+        });
       });
     }
 
     updateList(): void {
       var url = '/packages/list';
       var templateName = 'package-list';
-      var domTargetElement = '#package-list';
+      var domTargetElement = '#package-list-container';
 
       var self = this;
       this.net.post(url, this.filter).done((data: any) => {
         self.feed = data;
         // render list
-        self.renderer.render(templateName, {packages: data}).done((html) => {
-          console.log("html: " + html);
+        self.renderer.render(templateName, { packages: data }).done((html) => {
+          //console.log("html: " + html);
           $(domTargetElement).html(html);
-          // parse and render dates
-          $('.package .released').each((index, domElement) => {
-            var jqElement = $(domElement);
-            var date = moment.utc(jqElement.data('value'));
-            jqElement.find('.value').html(date.format('L'));
-          });
-          // click handler
-          $(".package").click(event => {
-            var jqElement = $(event.currentTarget);
-            // make sure only the clicked item is selected
-            $('.package').removeClass('selected');
-            jqElement.addClass('selected');
-            // update details panel
-            var packageId = jqElement.data('package-id');
-            self.updateDetails(packageId);
-            // disable any other handling
-            event.preventDefault();
-            return false;
-          });
+          // pre-select first item
+          self.updateDetails();
+          // click handler wiring
+          $(".package").click(event => self.uiPackageListClick(event));
         });
-        // preselect first item to render details panel
-        if (data != null && data.length > 0) {
-          var id = data[0].id;
-          self.updateDetails(id);
-        }
       });
+    }
+
+    updateDetails(packageId?: number): void {
+      // pre-select first item in package feed if no id was supplied
+      if (packageId === undefined || packageId <= 0) {
+        // exit if we have no packages in feed to choose from
+        if (this.feed == null || this.feed.length == 0)
+          return;
+        packageId = this.feed[0].id;
+      }
+
+      var url = '/packages/' + packageId + '/details';
+      var templateName = 'package-details';
+      var domTargetElement = '#package-details-container';
+
+      var self = this;
+      this.net.get(url).done((data: any) => {
+        self.renderer.render(templateName, data).done((html) => {
+          $(domTargetElement).html(html);
+        });
+      });
+    }
+
+    uiPackageListClick(event: JQueryEventObject): boolean {
+      var jqElement = $(event.currentTarget);
+      // make sure only the clicked item is selected
+      $('.package').removeClass('selected');
+      jqElement.addClass('selected');
+      // update details panel
+      var packageId = jqElement.data('package-id');
+      this.updateDetails(packageId);
+      // disable any other handling
+      event.preventDefault();
+      return false;
+    }
+
+    uiFilterTypeClick(event: JQueryEventObject): boolean {
+      var jqElement = $(event.currentTarget);
+      // make sure only the clicked item is selected
+      this.filter.packageType = jqElement.find('input').val();
+      this.updateList();
+      return true;
+    }
+
+    uiFilterTagClick(event: JQueryEventObject): boolean {
+      var jqElement = $(event.currentTarget);
+      // make sure only the clicked item is selected
+      var tag = jqElement.find('span').html();
+      this.filter.categoryTags.push(tag);
+      this.updateList();
+      // disable any other handling
+      event.preventDefault();
+      return false;
+    }
+
+    uiFilterSearchTextChange(event: JQueryEventObject): boolean {
+      var jqElement = $(event.currentTarget);
+      this.filter.partialPackageName = jqElement.find('input[type=text]').val();
+      this.filter.searchDescriptions = jqElement.find('input[type=checkbox]').val();
+      this.updateList();
+      // disable any other handling
+      event.preventDefault();
+      return false;
+    }
+
+    uiFilterAuthorTextChange(event: JQueryEventObject): boolean {
+      var jqElement = $(event.currentTarget);
+      this.filter.partialAuthor = jqElement.find('input').val();
+      this.updateList();
+      // disable any other handling
+      event.preventDefault();
+      return false;
     }
   }
 
@@ -173,7 +258,7 @@ module MP2 {
           console.log('App initialization failed, aborting.');
           return;
         }
-        this.ui.updateList();
+        this.ui.show();
       });
     }
   }

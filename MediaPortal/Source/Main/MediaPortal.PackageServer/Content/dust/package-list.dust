@@ -1,8 +1,7 @@
-﻿
-<ul id="package-list">
+﻿<ul id="package-list">
   {#packages}
   <li>
-    <article class="package flex-container horizontal" data-package-id="{id}">
+    <article class='package flex-container horizontal{@eq key="{$idx}" value="0"} selected{/eq}' data-package-id="{id}">
       <div class="flex-item icon"></div>
       <div class="flex-item info">
         <div class="flex-container horizontal top">
@@ -23,9 +22,9 @@
             <label>Latest Version</label>
             <span>{currentRelease.version}</span>
           </div>
-          <div class="flex-item released" data-value="{currentRelease.released}">
+          <div class="flex-item released">
             <label>Release Date</label>
-            <span class="value"></span>
+            <span>{@moment date="{currentRelease.released}" format="L"}{/moment}</span>
           </div>
         </div>
       </div>

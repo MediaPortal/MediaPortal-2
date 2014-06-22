@@ -22,7 +22,13 @@
 
 #endregion
 
+using System;
+using System.Linq;
 using System.Web.Mvc;
+using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
+using MediaPortal.PackageServer.Domain.Entities.Enumerations;
+using MediaPortal.PackageServer.Domain.Infrastructure.Context;
+using MediaPortal.PackageServer.Models;
 using MediaPortal.PackageServer.Utility.Hooks;
 using MediaPortal.PackageServer.Utility.Security;
 
@@ -35,8 +41,28 @@ namespace MediaPortal.PackageServer.Controllers
     public virtual ActionResult Index()
     {
       ViewBag.Title = "MediaPortal 2 Package Server";
-
+      using (var db = new DataContext())
+      {
+        ViewBag.PackageCount = db.Packages.Count();
+        ViewBag.ReleaseCount = db.Releases.Count(x => x.IsAvailable);
+        ViewBag.DownloadCount = db.Releases.Sum(x => x.DownloadCount);
+      }
       return View();
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public virtual JsonResult FilterOptions()
+    {
+      using (var db = new DataContext())
+      {
+        var model = new PackageFilterOptionsModel
+        {
+          PackageTypes = Enum.GetNames(typeof(PackageType)).ToList(),
+          Tags = db.Tags.Where(t => t.Type == TagType.Category).Select(t => t.Name).ToList()
+        };
+        return Json(model);
+      }
     }
   }
 }

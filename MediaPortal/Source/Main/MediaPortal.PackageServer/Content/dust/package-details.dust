@@ -4,7 +4,7 @@
     <div class="flex-container horizontal">
       <div class="flex-item compatibility">
         <label>Compatibility</label>
-        <span>{apiVersionsAvailable}</span>
+        <span>{#apiVersionsAvailable}{apiVersionsAvailable}{@sep}, {/sep}{/apiVersionsAvailable}</span>
       </div>
       <div class="flex-item type">
         <label>Package Type</label>

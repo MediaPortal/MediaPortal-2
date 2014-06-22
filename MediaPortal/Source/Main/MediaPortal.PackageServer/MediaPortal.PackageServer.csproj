@@ -250,6 +250,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Web\Models\AccountBindingModels.cs" />
+    <Compile Include="Web\Models\PackageFilterOptionsModel.cs" />
     <Compile Include="Web\Models\AccountViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\Utility\Hooks\BaseController.cs" />
@@ -292,6 +293,12 @@
     <Content Include="Scripts\dust-full.min.js">
       <DependentUpon>dust-full.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\dust-helpers.js">
+      <DependentUpon>dust-full.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\dust-helpers.min.js">
+      <DependentUpon>dust-full.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\moment-with-langs.js">
       <DependentUpon>moment.js</DependentUpon>
     </Content>
@@ -310,6 +317,9 @@
     </Content>
     <Content Include="Content\css\proto.css.map">
       <DependentUpon>proto.css</DependentUpon>
+    </Content>
+    <Content Include="Content\dust\package-filter.dust">
+      <SubType>Designer</SubType>
     </Content>
     <None Include="Content\dust\package-list.dust">
       <SubType>Designer</SubType>
