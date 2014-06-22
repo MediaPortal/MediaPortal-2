@@ -24,8 +24,9 @@
       <![CDATA[Installed OR VersionNT >= 601]]>
     </Condition>
 
+    <PropertyRef Id="NETFRAMEWORK45" />
     <Condition Message="!(loc.LC_NET)">
-      <![CDATA[Installed OR NETFRAMEWORK45]]>
+      <![CDATA[Installed OR (NETFRAMEWORK45 >= "#378675")]]>
     </Condition>
     <Condition Message="!(loc.LC_ADMIN)">
       Privileged
