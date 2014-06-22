@@ -31,8 +31,8 @@
       <li class="flex-item searchText">
         <label for="packageName">Package name:</label>
         <input type="text" name="packageName" value="" />
-        <div>
-          <input type="checkbox" name="searchDescriptions" checked="checked" />
+        <div class="searchDesc">
+          <input type="checkbox" name="searchDesc" checked="checked" />
           <label for="packageName">also search descriptions</label>
         </div>
       </li>
@@ -48,7 +48,7 @@
     <ul class="flex-container vertical">
       {#tags}
       <li class="flex-item tag">
-        <div class="tag">
+        <div class="tag-container">
           <span>{.}</span>
         </div>
       </li>

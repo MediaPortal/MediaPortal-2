@@ -1,13 +1,23 @@
 ﻿/// <reference path="typings/jquery/jquery.d.ts"/>
 /// <reference path="typings/moment/moment.d.ts"/>
+/// <reference path="collections.ts" />
 
 var MP2;
 (function (MP2) {
     //"use strict";
     var PackageFilter = (function () {
         function PackageFilter() {
-            this.categoryTags = [];
+            this.categoryTags = new collections.Set();
         }
+        PackageFilter.prototype.toJson = function () {
+            return JSON.stringify({
+                packageType: this.packageType,
+                categoryTags: this.categoryTags.toArray(),
+                partialPackageName: this.partialPackageName,
+                searchDescriptions: this.searchDescriptions,
+                partialAuthor: this.partialAuthor
+            });
+        };
         return PackageFilter;
     })();
     MP2.PackageFilter = PackageFilter;
@@ -166,6 +176,9 @@ var MP2;
                     $("#package-filter .searchText").change(function (event) {
                         return self.uiFilterSearchTextChange(event);
                     });
+                    $("#package-filter .searchDesc").click(function (event) {
+                        return self.uiFilterSearchDescClick(event);
+                    });
                     $("#package-filter .authorText").change(function (event) {
                         return self.uiFilterAuthorTextChange(event);
                     });
@@ -179,7 +192,7 @@ var MP2;
             var domTargetElement = '#package-list-container';
 
             var self = this;
-            this.net.post(url, this.filter).done(function (data) {
+            this.net.post(url, this.filter.toJson()).done(function (data) {
                 self.feed = data;
 
                 // render list
@@ -249,7 +262,11 @@ var MP2;
 
             // make sure only the clicked item is selected
             var tag = jqElement.find('span').html();
-            this.filter.categoryTags.push(tag);
+            if (tag && tag.length > 0)
+                if (!this.filter.categoryTags.remove(tag)) {
+                    this.filter.categoryTags.add(tag);
+                }
+            jqElement.toggleClass("selected");
             this.updateList();
 
             // disable any other handling
@@ -257,10 +274,18 @@ var MP2;
             return false;
         };
 
+        ViewManager.prototype.uiFilterSearchDescClick = function (event) {
+            var jqElement = $(event.currentTarget);
+
+            // make sure only the clicked item is selected
+            this.filter.searchDescriptions = jqElement.find('input[type=checkbox]').val();
+            this.updateList();
+            return true;
+        };
+
         ViewManager.prototype.uiFilterSearchTextChange = function (event) {
             var jqElement = $(event.currentTarget);
             this.filter.partialPackageName = jqElement.find('input[type=text]').val();
-            this.filter.searchDescriptions = jqElement.find('input[type=checkbox]').val();
             this.updateList();
 
             // disable any other handling

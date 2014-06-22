@@ -73,6 +73,17 @@ footer.site {
 .package-filter.collapsed {
   width: 50px;
 }
+.package-filter .package-tags .flex-container {
+  align-items: flex-start;
+  align-content: space-between;
+}
+.package-filter .package-tags .tag {
+  flex-wrap: wrap;
+}
+.package-filter .package-tags .tag.selected {
+  color: #fff;
+  background-color: #248;
+}
 .package-list {
   flex: 2 1 200px;
 }

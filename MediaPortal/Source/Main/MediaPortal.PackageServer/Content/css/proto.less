@@ -79,6 +79,7 @@ footer.site {
     margin-right:0;
   }
 }
+
 /*** PACKAGE LIST ************************************************************/
 
 .package-filter {
@@ -87,6 +88,28 @@ footer.site {
 
   &.collapsed {
     width:50px;
+  }
+
+  .package-type {
+
+  }
+
+  .package-name {
+
+  }
+
+  .package-tags {
+    .flex-container {
+      align-items:flex-start;
+      align-content:space-between;
+    }
+    .tag {
+      flex-wrap:wrap;
+      &.selected {
+        color:#fff;
+        background-color:#248;
+      }
+    }
   }
 }
 

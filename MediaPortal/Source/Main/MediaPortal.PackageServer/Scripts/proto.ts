@@ -1,5 +1,6 @@
 ﻿/// <reference path="typings/jquery/jquery.d.ts"/>
 /// <reference path="typings/moment/moment.d.ts"/>
+/// <reference path="collections.ts" />
 declare var $: JQueryStatic;
 declare var dust: any;
 
@@ -8,10 +9,20 @@ module MP2 {
 
   export class PackageFilter {
     packageType: string;
-    categoryTags: string[] = [];
+    categoryTags: collections.Set<string> = new collections.Set<string>();
     partialPackageName: string;
     searchDescriptions: boolean;
     partialAuthor: string;
+
+    toJson(): string {
+      return JSON.stringify({
+        packageType: this.packageType,
+        categoryTags: this.categoryTags.toArray(),
+        partialPackageName: this.partialPackageName,
+        searchDescriptions: this.searchDescriptions,
+        partialAuthor: this.partialAuthor
+      });
+    }
   }
 
   export class Template {
@@ -151,6 +162,7 @@ module MP2 {
           $("#package-filter .packageType").click(event => self.uiFilterTypeClick(event));
           $("#package-filter .tag").click(event => self.uiFilterTagClick(event));
           $("#package-filter .searchText").change(event => self.uiFilterSearchTextChange(event));
+          $("#package-filter .searchDesc").click(event => self.uiFilterSearchDescClick(event));
           $("#package-filter .authorText").change(event => self.uiFilterAuthorTextChange(event));
         });
       });
@@ -162,7 +174,7 @@ module MP2 {
       var domTargetElement = '#package-list-container';
 
       var self = this;
-      this.net.post(url, this.filter).done((data: any) => {
+      this.net.post(url, this.filter.toJson()).done((data: any) => {
         self.feed = data;
         // render list
         self.renderer.render(templateName, { packages: data }).done((html) => {
@@ -222,17 +234,28 @@ module MP2 {
       var jqElement = $(event.currentTarget);
       // make sure only the clicked item is selected
       var tag = jqElement.find('span').html();
-      this.filter.categoryTags.push(tag);
+      if (tag && tag.length > 0)
+        if (!this.filter.categoryTags.remove(tag)) {
+          this.filter.categoryTags.add(tag);
+        }     
+      jqElement.toggleClass("selected");
       this.updateList();
       // disable any other handling
       event.preventDefault();
       return false;
     }
 
+    uiFilterSearchDescClick(event: JQueryEventObject): boolean {
+      var jqElement = $(event.currentTarget);
+      // make sure only the clicked item is selected
+      this.filter.searchDescriptions = jqElement.find('input[type=checkbox]').val();
+      this.updateList();
+      return true;
+    }
+
     uiFilterSearchTextChange(event: JQueryEventObject): boolean {
       var jqElement = $(event.currentTarget);
       this.filter.partialPackageName = jqElement.find('input[type=text]').val();
-      this.filter.searchDescriptions = jqElement.find('input[type=checkbox]').val();
       this.updateList();
       // disable any other handling
       event.preventDefault();

@@ -283,6 +283,9 @@
     <Content Include="Content\css\reset.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\collections.js">
+      <DependentUpon>collections.ts</DependentUpon>
+    </Content>
     <Content Include="Scripts\dust-core.js">
       <DependentUpon>dust-full.js</DependentUpon>
     </Content>
@@ -324,6 +327,9 @@
     <None Include="Content\dust\package-list.dust">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\collections.js.map">
+      <DependentUpon>collections.ts</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-2.1.0.intellisense.js">
       <DependentUpon>jquery-2.1.0.js</DependentUpon>
     </None>
@@ -380,6 +386,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\collections.ts" />
     <TypeScriptCompile Include="Scripts\proto.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />

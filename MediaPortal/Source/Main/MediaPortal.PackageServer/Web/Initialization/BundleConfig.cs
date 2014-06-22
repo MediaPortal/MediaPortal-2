@@ -41,7 +41,8 @@ namespace MediaPortal.PackageServer.Initialization
         "~/Scripts/jquery-{version}.js",
         "~/Scripts/dust-full.js",
         "~/Scripts/dust-helpers.js",
-        "~/Scripts/moment.js"
+        "~/Scripts/moment.js",
+        "~/Scripts/collections.js"
       ));
 
       bundles.Add(new ScriptBundle("~/bundles/site").Include(
