@@ -75,6 +75,7 @@ var MP2;
 
     var NetworkManager = (function () {
         function NetworkManager() {
+            $.ajaxSettings.contentType = "application/json";
         }
         NetworkManager.prototype.get = function (url) {
             var dataReadyPromise = $.Deferred(function (d) {
@@ -262,10 +263,11 @@ var MP2;
 
             // make sure only the clicked item is selected
             var tag = jqElement.find('span').html();
-            if (tag && tag.length > 0)
+            if (tag && tag.length > 0) {
                 if (!this.filter.categoryTags.remove(tag)) {
                     this.filter.categoryTags.add(tag);
                 }
+            }
             jqElement.toggleClass("selected");
             this.updateList();
 

@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width" />
         <meta name="description" content="MediaPortal 2 Package Gallery" />
         <title>@ViewBag.Title</title>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600' rel='stylesheet' type='text/css'>
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
     </head>
@@ -30,9 +31,9 @@
         <footer class="site">
             <article class="package-stats flex-container horizontal">
                 <div class="flex-item">@ViewBag.PackageCount packages</div>
-                <span>|</span>
+                <div class="flex-item separator">|</div>
                 <div class="flex-item">@ViewBag.ReleaseCount releases</div>
-                <span>|</span>
+                <div class="flex-item separator">|</div>
                 <div class="flex-item">@ViewBag.DownloadCount downloads</div>
             </article>
             <hr />

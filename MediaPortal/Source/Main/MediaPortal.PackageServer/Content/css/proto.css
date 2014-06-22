@@ -1,10 +1,12 @@
-﻿/*** GLOBALS *****************************************************************/
+﻿/*** COLORS ******************************************************************/
+/*** FONTS *******************************************************************/
+/*** ELEMENTS ****************************************************************/
 body {
-  font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+  font-family: 'Open Sans', Helvetica, sans-serif;
   color: #141414;
   word-wrap: break-word;
   line-height: 1.27;
-  font: 13px/1.231 arial, helvetica, clean, sans-serif;
+  font: 13px/1.231 'Open Sans', Helvetica, sans-serif;
   padding: 10px;
 }
 ul {
@@ -12,9 +14,15 @@ ul {
 }
 a:link,
 a:visited {
-  color: #063b5e;
+  color: #33608f;
   text-decoration: none;
 }
+hr {
+  margin: 4px 0 2px;
+  background-color: #c8dbe5;
+  border: 0;
+}
+/*** SITE ********************************************************************/
 header.site {
   width: 100%;
   height: 200px;
@@ -39,7 +47,20 @@ header.site .logobar .logobar-text {
 }
 footer.site {
   width: 100%;
-  height: 60px;
+  height: 40px;
+}
+footer.site .package-stats {
+  color: #205082;
+  justify-content: center;
+  align-content: center;
+  align-items: stretch;
+}
+footer.site .separator {
+  padding: 0 10px;
+  color: #b8d0de;
+}
+footer.site .copyright {
+  color: #205082;
 }
 /*** LAYOUT ******************************************************************/
 .flex-container {
@@ -59,39 +80,67 @@ footer.site {
   order: 0;
   flex: 0 1 auto;
   align-self: auto;
+}
+.main > .flex-item {
   margin-right: 10px;
   margin-bottom: 10px;
 }
-.flex-item:last-child {
+.main > .flex-item:last-child {
   margin-right: 0;
 }
 /*** PACKAGE LIST ************************************************************/
 .package-filter {
   flex: 0 0 300px;
-  background-color: #ccc;
+  background-color: #e8f0f5;
 }
 .package-filter.collapsed {
   width: 50px;
 }
+.package-filter section {
+  padding: 10px;
+}
+.package-filter section > h1 {
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  background-color: #c8dbe5;
+  padding: 8px;
+  position: relative;
+  left: 0;
+  right: 0;
+  margin-bottom: 8px;
+}
 .package-filter .package-tags .flex-container {
+  flex-wrap: wrap;
   align-items: flex-start;
   align-content: space-between;
+  justify-content: flex-start;
 }
-.package-filter .package-tags .tag {
-  flex-wrap: wrap;
+.package-filter .package-tags .flex-item {
+  flex-grow: 0;
+  padding: 2px 4px;
+  margin: 4px;
+  border: 1px solid #51779e;
+  background-color: #9fc2d6;
+}
+.package-filter .package-tags .tag:hover {
+  color: #ffffff;
+  background-color: #51779e;
 }
 .package-filter .package-tags .tag.selected {
-  color: #fff;
-  background-color: #248;
+  color: #ffffff;
+  background-color: #6792ab;
 }
 .package-list {
   flex: 2 1 200px;
 }
 .package-list #package-list .package {
-  background: #eee;
+  background: #e8f0f5;
   padding: 10px;
   position: relative;
   font-size: 12px;
+  max-height: 80px;
+  margin-bottom: 10px;
   /*<div class="name">{name}</div>
       <div class="downloads">{totalDownloadCount}</div>
       <div class="rating">{averageRating}</div>
@@ -99,9 +148,11 @@ footer.site {
       <div class="released">{currentRelease.released}</div>
       <div class="compatibility">{apiVersionsAvailable}</div>*/
 }
-.package-list #package-list .package:hover,
 .package-list #package-list .package.selected {
-  background: #ccc;
+  background: #b8d0de;
+}
+.package-list #package-list .package:hover {
+  background: #c8dbe5;
 }
 .package-list #package-list .package .flex-container {
   margin-left: 10px;
@@ -127,12 +178,15 @@ footer.site {
   flex: 0 0 80px;
   height: 80px;
   width: 80px;
-  background: #999;
+  background: #ddd;
   display: inline-block;
 }
 .package-list #package-list .package .name {
   font-size: 28px;
   min-width: 200px;
+  overflow: hidden;
+  text-wrap: avoid;
+  word-wrap: normal;
 }
 .package-list #package-list .package .rating {
   flex: 0 0 100px;
@@ -150,7 +204,8 @@ footer.site {
 }
 .package-details {
   flex: 1 1 200px;
-  background-color: #eee;
+  background-color: #e8f0f5;
+  padding: 10px;
 }
 /*****************************************************************************/
 /*****************************************************************************/

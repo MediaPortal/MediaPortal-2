@@ -22,6 +22,9 @@
 
 #endregion
 
+using System.Linq;
+using System.Web.Mvc;
+using MediaPortal.PackageServer.Utility.Hooks;
 using Newtonsoft.Json;
 using MediaPortal.PackageServer.Initialization.Core;
 using Newtonsoft.Json.Converters;
@@ -33,12 +36,18 @@ namespace MediaPortal.PackageServer.Initialization
   {
     public void Configure()
     {
+      // configure Json.Net serialization
       JsonConvert.DefaultSettings = () => new JsonSerializerSettings
       {
           DateTimeZoneHandling = DateTimeZoneHandling.Utc,
           ContractResolver = new CamelCasePropertyNamesContractResolver(),
           Converters = new JsonConverter[] { new IsoDateTimeConverter(), new StringEnumConverter() }
       };
+
+      // register Json.Net as value factory (so we use also when receiving json)
+      var factories = ValueProviderFactories.Factories;
+      factories.Remove(factories.OfType<JsonValueProviderFactory>().FirstOrDefault());
+      factories.Add(new JsonNetValueProviderFactory());
     }
   }
 }

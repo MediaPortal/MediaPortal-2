@@ -76,6 +76,10 @@ module MP2 {
   }
 
   export class NetworkManager {
+    constructor() {
+      $.ajaxSettings.contentType = "application/json";
+    }
+
     get<T>(url): JQueryPromise<T> {
       var dataReadyPromise = $.Deferred((d) => {
         $.get(url, (data, status, jqxhr) => {
@@ -234,10 +238,11 @@ module MP2 {
       var jqElement = $(event.currentTarget);
       // make sure only the clicked item is selected
       var tag = jqElement.find('span').html();
-      if (tag && tag.length > 0)
+      if (tag && tag.length > 0) {
         if (!this.filter.categoryTags.remove(tag)) {
           this.filter.categoryTags.add(tag);
-        }     
+        }
+      }     
       jqElement.toggleClass("selected");
       this.updateList();
       // disable any other handling

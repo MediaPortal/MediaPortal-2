@@ -45,7 +45,7 @@
 
   <section class="package-tags">
     <h1>Tags</h1>
-    <ul class="flex-container vertical">
+    <ul class="flex-container horizontal">
       {#tags}
       <li class="flex-item tag">
         <div class="tag-container">

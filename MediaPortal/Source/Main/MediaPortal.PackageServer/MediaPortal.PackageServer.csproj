@@ -255,6 +255,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\Utility\Hooks\BaseController.cs" />
     <Compile Include="Web\Utility\Hooks\JsonNetResult.cs" />
+    <Compile Include="Web\Utility\Hooks\JsonNetValueFactory.cs" />
     <Compile Include="Web\Utility\Security\ApplicationOAuthProvider.cs" />
     <Compile Include="Web\Utility\Security\AuthenticateAttribute.cs" />
     <Compile Include="Web\Utility\Security\ChallengeResult.cs" />

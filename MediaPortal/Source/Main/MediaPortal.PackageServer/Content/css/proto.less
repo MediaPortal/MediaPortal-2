@@ -1,12 +1,46 @@
 ﻿
-/*** GLOBALS *****************************************************************/
+/*** COLORS ******************************************************************/
+@bg-a1: #e8f0f5;
+@bg-a2: #c8dbe5;
+@bg-a3: #b8d0de;
+@bg-a4: #9fc2d6;
+@bg-a5: #86b4cf;
+@bg-a6: #73a2bd;
+@bg-a7: #6792ab;
+@bg-a8: #51779e;
+@bg-a9: #33608f;
+@bg-a10: #205082;
+@bg-a11: #1b4775;
+@bg-a12: #0c3663;
+
+@fg-1: #000;
+@fg-2: #fff;
+@fg-3: #cc2a41;
+@fg-4: #e8caa4;
+
+/*** FONTS *******************************************************************/
+
+.font(@size, @weight, @style) {
+  font-family:'Open Sans',Helvetica,sans-serif;
+  font-size: @size;
+  font-weight:@weight;
+}  
+.font(@size, @weightOrstyle) when (isnumber(@weightOrstyle)) {
+  .font(@size, @weightOrstyle, 'normal');
+}  
+.font(@size, @weightOrstyle) when (istext(@weightOrstyle)) {
+  .font(@size, 400, @weightOrstyle);
+}  
+
+
+/*** ELEMENTS ****************************************************************/
 
 body {
-  font-family: 'Trebuchet MS',Helvetica,Arial,sans-serif;
+  font-family:'Open Sans',Helvetica,sans-serif;
   color: rgb(20,20,20);
   word-wrap: break-word;
   line-height: 1.27;
-  font: 13px/1.231 arial,helvetica,clean,sans-serif;
+  font: 13px/1.231 'Open Sans',Helvetica,sans-serif;
   padding:10px;
 }
 ul {
@@ -15,9 +49,16 @@ ul {
   }
 }
 a:link, a:visited {
-  color: rgb(6,59,94);
+  color:@bg-a9;
   text-decoration: none;
 }
+hr {
+  margin:4px 0 2px;
+  background-color:@bg-a2;
+  border:0;
+}
+
+/*** SITE ********************************************************************/
 
 header.site {
   width:100%;
@@ -46,9 +87,25 @@ header.site {
     }
   }
 }
+
 footer.site {
   width:100%;
-  height:60px;
+  height:40px;
+
+  .package-stats {
+    color:@bg-a10;
+    justify-content:center;
+    align-content:center;
+    align-items:stretch;
+  }
+
+  .separator {
+    padding:0 10px;
+    color:@bg-a3;
+  }
+  .copyright {
+    color:@bg-a10;
+  }
 }
 
 /*** LAYOUT ******************************************************************/
@@ -72,6 +129,9 @@ footer.site {
   order: 0;
   flex: 0 1 auto;
   align-self: auto;
+}
+
+.main > .flex-item {
   margin-right:10px;
   margin-bottom:10px;
 
@@ -84,10 +144,23 @@ footer.site {
 
 .package-filter {
   flex:0 0 300px;
-  background-color:#ccc;
+  background-color:@bg-a1;
 
   &.collapsed {
     width:50px;
+  }
+
+  section {
+    padding:10px;
+    > h1 {
+      .font(20px, 400);
+      background-color:@bg-a2;
+      padding:8px;
+      position:relative;
+      left:0;
+      right:0;
+      margin-bottom:8px;
+    }
   }
 
   .package-type {
@@ -100,14 +173,26 @@ footer.site {
 
   .package-tags {
     .flex-container {
+      flex-wrap:wrap;
       align-items:flex-start;
       align-content:space-between;
+      justify-content:flex-start;
+    }
+    .flex-item {
+      flex-grow:0;
+      padding:2px 4px;
+      margin:4px;
+      border:1px solid @bg-a8;
+      background-color:@bg-a4;
     }
     .tag {
-      flex-wrap:wrap;
+      &:hover {
+        color:@fg-2;
+        background-color:@bg-a8;
+      }
       &.selected {
-        color:#fff;
-        background-color:#248;
+        color:@fg-2;
+        background-color:@bg-a7;
       }
     }
   }
@@ -118,13 +203,18 @@ footer.site {
   
   #package-list {
     .package {
-      background:#eee;
+      background:@bg-a1;
       padding:10px;
       position:relative;
       font-size:12px;
+      max-height:80px;
+      margin-bottom:10px;
 
-      &:hover, &.selected {
-        background:#ccc;
+      &.selected {
+        background:@bg-a3;
+      }
+      &:hover {
+        background:@bg-a2;
       }
 
       .flex-container {
@@ -153,13 +243,16 @@ footer.site {
         flex:0 0 80px;
         height:80px;
         width:80px;
-        background:#999;
+        background:#ddd;
         display:inline-block;
       }
 
       .name {
         font-size:28px;
         min-width:200px;
+        overflow:hidden;
+        text-wrap:avoid;
+        word-wrap:normal;
       }
       .rating {
         flex:0 0 100px;
@@ -188,8 +281,8 @@ footer.site {
 
 .package-details {
   flex:1 1 200px;
-  background-color:#eee;
-
+  background-color:@bg-a1;
+  padding:10px;
 }
 
 /*****************************************************************************/
