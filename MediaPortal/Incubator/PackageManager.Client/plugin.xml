@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Plugin
+    DescriptorVersion="1.0"
+    Name="PackageManager.Client"
+    PluginId="{2C7F8516-907F-4423-99E0-6577A630F672}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Client GUI for browsing and installing plugins and skins for MediaPortal 2.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2014-06-23 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="PackageManager.Client.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.News.NewsProvider"/>
+  </Runtime>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="0D8A053D-CF5A-4A9E-B2D4-A1B5D79CB993" Name="PackageBrowserModel" ClassName="MediaPortal.UiComponents.PackageManager.Models.PackageBrowserModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="4C0E204C-37DE-4E74-BC4D-A15069F3DE66" Name="BrowsePackages" MainScreen="BrowsePackages"
+        DisplayLabel="[PackageManager.BrowsePackages]" WorkflowModel="0D8A053D-CF5A-4A9E-B2D4-A1B5D79CB993"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="PMCLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id="PMCSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+</Plugin>

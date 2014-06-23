@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[PackageManager.Title]"/>
+
+    <!-- News model -->
+    <Model x:Key="Model" Id="0D8A053D-CF5A-4A9E-B2D4-A1B5D79CB993"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <!-- Packages -->
+          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource PackageItemListViewStyle}"
+              ItemsSource="{Binding Path=Packages}" >
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </ListView.Resources>
+          </ListView>
+          <!-- Updating Overlay -->
+          <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
+                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

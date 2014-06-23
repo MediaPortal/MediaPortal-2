@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plugin manager workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="F6C6F802-F1C1-4BF1-A3DE-9466040B2B02"
+        Name="Home->PluginManager"
+        DisplayCategory="z-PluginManager"
+        SortOrder="z"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="4C0E204C-37DE-4E74-BC4D-A15069F3DE66"
+        DisplayTitle="[PackageManager.Title]"/>
+  </MenuActions>
+</Workflow>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- General GUI titles-->
+  <string name="PackageManager.Title">Package Manager</string>
+  <string name="PackageManager.BrowsePackages">Browse packages</string>
+
+  <!-- Package infos-->
+  <string name="PackageManager.Downloads">Downloads</string>
+  <string name="PackageManager.Version">Version</string>
+  <string name="PackageManager.ReleaseDate">Released</string>
+</resources>

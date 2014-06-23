@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    >
+
+  <ResourceWrapper x:Key="PackageLogoWidth" Resource="56"/>
+  <ResourceWrapper x:Key="PackageItemHeight" Resource="100"/>
+
+</ResourceDictionary>
