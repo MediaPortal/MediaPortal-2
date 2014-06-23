@@ -56,10 +56,33 @@ namespace MediaPortal.PackageServer.Domain.Services.Extensions
       info.RatingCount = package.Reviews.Count();
       info.AverageRating = package.Reviews.Any() ? Math.Round(package.Reviews.Average(r => r.Rating),1) : 0.0;
       info.CurrentRelease = package.CurrentRelease.ToReleaseInfo();
-      info.ApiVersionsAvailable = package.Releases.Select(r => r.ApiVersion).Distinct().OrderByDescending(v => v).ToList();
       info.CategoryTags = package.Tags.Where(t => t.Type == TagType.Category).Select(t => t.Name).ToList();
-      info.Releases = package.Releases.Select(r => r.ID).ToList();
+      info.Releases = package.Releases.Where(r => r.IsAvailable).OrderByDescending(r => r.Released)
+        // TODO we don't currently have min-max system versions in the db.. returning dummy strings for now
+        .Select(r => new ReleaseSummary(r.ID, r.Released, r.Version, r.ApiVersion, "2.0.0.0-alpha5", "2.0.0.0", 
+                                        r.Dependencies.Select(d => d.ToDependencySummary()))).ToList();
+      info.Reviews = package.Reviews.Where(x => x.Title != null).Select(x => x.ToReviewInfo()).ToList();
       return info;
+    }
+
+    public static DependencySummary ToDependencySummary(this Dependency dependency)
+    {
+      return new DependencySummary
+      {
+        IsCoreDependency = dependency.IsCoreComponentDependency,
+        Name = dependency.IsCoreComponentDependency ? dependency.CoreComponent : dependency.Package.Name
+      };
+    }
+
+    public static ReleaseSummary ToReleaseSummary(this Release release)
+    {
+      return new ReleaseSummary
+      {
+        ID = release.ID,
+        Released = release.Released,
+        Version = release.Version,
+        ApiVersion = release.ApiVersion
+      };
     }
 
     public static ReleaseInfo ToReleaseInfo(this Release release)

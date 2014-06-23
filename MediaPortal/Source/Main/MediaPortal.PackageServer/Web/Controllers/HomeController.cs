@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
@@ -59,7 +60,9 @@ namespace MediaPortal.PackageServer.Controllers
         var model = new PackageFilterOptionsModel
         {
           PackageTypes = Enum.GetNames(typeof(PackageType)).ToList(),
-          Tags = db.Tags.Where(t => t.Type == TagType.Category).Select(t => t.Name).ToList()
+          Tags = db.Tags.Where(t => t.Type == TagType.Category).Select(t => t.Name).ToList(),
+          // TODO we need a system versions repository.. probably needs to be in db.
+          SystemVersions = new List<string> { "2.0.0.0-alpha5", "2.0.0.0-beta1", "2.0.0.0" }
         };
         return Json(model);
       }

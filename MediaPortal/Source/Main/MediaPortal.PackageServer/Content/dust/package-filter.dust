@@ -1,21 +1,8 @@
 ﻿
 <aside id="package-filter">
-
-  <!--
-  public PackageType PackageType { get; set; }
-
-  public string PartialPackageName { get; set; }
-  public bool SearchDescriptions { get; set; }
-
-  public string PartialAuthor { get; set; }
-  public ICollection<string>
-  CategoryTags { get; set; }
-  public ICollection<CoreComponent> CoreComponents { get; set; }
-  -->
-  
   <section class="package-type">
     <h1>Package Type</h1>
-    <ul class="flex-container vertical">
+    <ul class="flex-container stack">
       {#packageTypes}
       <li class="flex-item packageType">
         <input type="radio" name="packageType" value="{.}"{@eq key="{$idx}" value="0"} selected="true"{/eq} />
@@ -25,9 +12,25 @@
     </ul>
   </section>
 
+  <section class="compatibility">
+    <h1>System Compatibility</h1>
+    <ul class="flex-container stack">
+      <li class="flex-item version">
+        <input type="radio" name="version" value="" selected="true" />
+        <span>Any version</span>
+      </li>
+      {#systemVersions}
+      <li class="flex-item version">
+        <input type="radio" name="version" value="{.}" />
+        <span>{.}</span>
+      </li>
+      {/systemVersions}
+    </ul>
+  </section>
+
   <section class="package-name">
     <h1>Text Filters</h1>
-    <ul class="flex-container vertical">
+    <ul class="flex-container stack">
       <li class="flex-item searchText">
         <label for="packageName">Package name:</label>
         <input type="text" name="packageName" value="" />
@@ -45,7 +48,7 @@
 
   <section class="package-tags">
     <h1>Tags</h1>
-    <ul class="flex-container horizontal">
+    <ul class="flex-container shelf">
       {#tags}
       <li class="flex-item tag">
         <div class="tag-container">

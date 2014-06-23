@@ -31,5 +31,6 @@ namespace MediaPortal.PackageServer.Models
   {
     public IList<string> PackageTypes { get; set; }
     public IList<string> Tags { get; set; }
+    public IList<string> SystemVersions { get; set; }
   }
 }

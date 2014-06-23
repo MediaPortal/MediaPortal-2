@@ -51,23 +51,21 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
     public double AverageRating { get; set; }
 
     public ReleaseInfo CurrentRelease { get; set; }
-    public ICollection<int> ApiVersionsAvailable { get; set; }
 
     public ICollection<string> CategoryTags { get; set; }
-    public ICollection<long> Releases { get; set; }
+    public ICollection<ReleaseSummary> Releases { get; set; }
     public ICollection<ReviewInfo> Reviews { get; set; }
 
     public PackageInfo()
     {
-      ApiVersionsAvailable = new List<int>();
       CategoryTags = new List<string>();
-      Releases = new List<long>();
+      Releases = new List<ReleaseSummary>();
       Reviews = new List<ReviewInfo>();
     }
 
     public PackageInfo(long id, Guid guid, PackageType packageType, string name, string authors, string license, string description,
       DateTime created, DateTime modified, int totalDownloadCount, int reviewCount, int ratingCount, double averageRating,
-      ReleaseInfo currentRelease, IEnumerable<int> apiVersionsAvailable, IEnumerable<string> categoryTags, IEnumerable<long> releases, 
+      ReleaseInfo currentRelease, IEnumerable<string> categoryTags, IEnumerable<ReleaseSummary> releases, 
       IEnumerable<ReviewInfo> reviews) : this()
     {
       ID = id;
@@ -84,7 +82,6 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
       RatingCount = ratingCount;
       AverageRating = averageRating;
       CurrentRelease = currentRelease;
-      ApiVersionsAvailable = apiVersionsAvailable.ToList();
       CategoryTags = categoryTags.ToList();
       Releases = releases.ToList();
       Reviews = reviews.ToList();
@@ -98,7 +95,7 @@ namespace MediaPortal.Common.PluginManager.Packages.DataContracts
       sb.AppendFormat("  -- Downloads: {0:N0}, Average Rating: {1:F1} (Votes: {2}), Reviews: {3}{4}", 
         TotalDownloadCount, AverageRating, RatingCount, ReviewCount, Environment.NewLine);
       var cr = CurrentRelease;
-      sb.AppendFormat("  -- Current Release: '{0}' (ID: {1:D}, Api: {2:D}), Size: {3:N0}, Release Date: '{4:g}'){5}", 
+      sb.AppendFormat("  -- Current Release: '{0}' (ID: {1:D}, Api: {2:D}), Size: {3:N0}, Release Date: '{4:g}'{5}", 
         cr.Version, cr.ApiVersion, cr.ID, cr.PackageSize, cr.Released, Environment.NewLine);
       return sb.ToString();
     }

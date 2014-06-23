@@ -24,31 +24,34 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
+using System.Linq;
 
 namespace MediaPortal.Common.PluginManager.Packages.DataContracts
 {
-  public class ReleaseInfo : ReleaseSummary
+  public class ReleaseSummary
   {
-    public PackageType PackageType { get; set; }
-    public int PackageSize { get; set; }
-    public string DownloadUrl { get; set; }
-    public int DownloadCount { get; set; }
-    public virtual ICollection<DependencyInfo> DependencyInfo { get; set; }
+    public long ID { get; set; }
+    public DateTime Released { get; set; }
+    public string Version { get; set; }
+    public int ApiVersion { get; set; } // CurrentAPI in the plugin descriptor file
+    public string MinSystemVersion { get; set; }
+    public string MaxSystemVersion { get; set; }
+    public ICollection<DependencySummary> Dependencies { get; set; }
 
-    public ReleaseInfo()
+    public ReleaseSummary()
     {
-      DependencyInfo = new List<DependencyInfo>();
     }
 
-    public ReleaseInfo(long id, DateTime released, string version, int apiVersion, string minSystemVersion, string maxSystemVersion, IEnumerable<DependencySummary> dependencies, PackageType packageType, int packageSize, string downloadUrl, int downloadCount)
-      : base(id, released, version, apiVersion, minSystemVersion, maxSystemVersion, dependencies)
+    public ReleaseSummary(long id, DateTime released, string version, int apiVersion, 
+      string minSystemVersion, string maxSystemVersion, IEnumerable<DependencySummary> dependencies)
     {
-      PackageType = packageType;
-      PackageSize = packageSize;
-      DownloadUrl = downloadUrl;
-      DownloadCount = downloadCount;
-      DependencyInfo = new List<DependencyInfo>();
+      ID = id;
+      Released = released;
+      Version = version;
+      ApiVersion = apiVersion;
+      MinSystemVersion = minSystemVersion;
+      MaxSystemVersion = maxSystemVersion;
+      Dependencies = dependencies != null ? dependencies.ToList() : new List<DependencySummary>();
     }
   }
 }

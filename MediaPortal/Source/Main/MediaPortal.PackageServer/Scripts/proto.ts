@@ -13,6 +13,7 @@ module MP2 {
     partialPackageName: string;
     searchDescriptions: boolean;
     partialAuthor: string;
+    systemVersion: string;
 
     toJson(): string {
       return JSON.stringify({
@@ -156,8 +157,7 @@ module MP2 {
       var domTargetElement = '#package-filter-container';
 
       var self = this;
-      this.net.get(url).done((data: PackageFilter) => {
-        //self.filter = data;
+      this.net.get(url).done((data) => {
         self.renderer.render(templateName, data).done((html) => {
           $(domTargetElement).html(html);
           // update list using filter

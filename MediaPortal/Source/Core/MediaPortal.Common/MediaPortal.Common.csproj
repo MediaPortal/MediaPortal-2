@@ -93,8 +93,12 @@
     <Compile Include="PluginManager\Packages\ApiEndpoints\PackagesApi.cs" />
     <Compile Include="PluginManager\Packages\ApiEndpoints\ApiEndpoint.cs" />
     <Compile Include="PluginManager\Packages\ApiEndpoints\PackageServerApi.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\DependencySummary.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\DependencyInfo.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\Enumerations\PackageType.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\CompatibilityInfo.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\ReleaseSummary.cs" />
+    <Compile Include="PluginManager\Packages\DataContracts\VersionInfo.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\Packages\AddPackageReviewModel.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\ReviewInfo.cs" />
     <Compile Include="PluginManager\Packages\DataContracts\PackageInfo.cs" />

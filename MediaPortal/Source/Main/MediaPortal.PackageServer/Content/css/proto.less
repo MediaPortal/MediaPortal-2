@@ -117,16 +117,16 @@ footer.site {
   align-content: stretch;
   align-items: stretch;
 
-  &.horizontal {
+  &.shelf {
     flex-direction: row;
   }
-  &.vertical {
+  &.stack {
     flex-direction: column;
   }
 }
 
 .flex-item {
-  order: 0;
+  //order: 0;
   flex: 0 1 auto;
   align-self: auto;
 }
@@ -138,18 +138,31 @@ footer.site {
   &:last-child {
     margin-right:0;
   }
-}
+  
+  &.left {
+    flex:0 0 300px;
+    background-color:@bg-a1;
 
-/*** PACKAGE LIST ************************************************************/
-
-.package-filter {
-  flex:0 0 300px;
-  background-color:@bg-a1;
-
-  &.collapsed {
-    width:50px;
+    &.collapsed {
+      flex:0 0 40px;
+      //width:40px;
+    }
+  }
+    
+  &.center {
+    flex:2 1 200px;
   }
 
+  &.right {
+    flex:1 1 200px;
+    background-color:@bg-a3;
+    padding:10px;
+  }
+}
+
+/*** PACKAGE FILTER **********************************************************/
+
+#package-filter {
   section {
     padding:10px;
     > h1 {
@@ -164,11 +177,9 @@ footer.site {
   }
 
   .package-type {
-
   }
 
   .package-name {
-
   }
 
   .package-tags {
@@ -198,91 +209,187 @@ footer.site {
   }
 }
 
-.package-list {
-  flex:2 1 200px;
-  
-  #package-list {
-    .package {
-      background:@bg-a1;
-      padding:10px;
-      position:relative;
-      font-size:12px;
-      max-height:80px;
-      margin-bottom:10px;
+/*** PACKAGE LIST ************************************************************/
 
-      &.selected {
-        background:@bg-a3;
-      }
-      &:hover {
-        background:@bg-a2;
-      }
+#package-list {
+  .package {
+    background:@bg-a1;
+    padding:10px;
+    position:relative;
+    font-size:12px;
+    max-height:80px;
+    margin-bottom:10px;
 
-      .flex-container {
-        margin-left:10px;
-        &.top {
-          margin-bottom:10px;
-        }
-      }
-      .flex-item {
-        margin:0;
-      }
-      label {
-        display:block;
-        color:#666;
-      }
-      span {
-        display:block;
-        font-size:18px;
-      }
+    &.selected {
+      background:@bg-a3;
+    }
+    &:hover {
+      background:@bg-a2;
+    }
 
-      .flex-item {
-        flex:1 1 auto;
+    .flex-container {
+      margin-left:10px;
+      &.top {
+        margin-bottom:10px;
       }
-      
-      .icon {
-        flex:0 0 80px;
-        height:80px;
-        width:80px;
-        background:#ddd;
-        display:inline-block;
-      }
+    }
+    .flex-item {
+      margin:0;
+      flex:1 1 auto;
+    }
+    label {
+      display:block;
+      color:#666;
+    }
+    span {
+      display:block;
+      font-size:18px;
+    }
 
-      .name {
-        font-size:28px;
-        min-width:200px;
-        overflow:hidden;
-        text-wrap:avoid;
-        word-wrap:normal;
-      }
-      .rating {
-        flex:0 0 100px;
-        min-width:100px;
-        text-align:right;
-      }
+    .icon {
+      flex:0 0 80px;
+      height:80px;
+      width:80px;
+      background:#ddd;
+      display:inline-block;
+    }
+    .name {
+      font-size:28px;
+      min-width:200px;
+      overflow:hidden;
+      text-wrap:avoid;
+      word-wrap:normal;
+    }
+    .rating {
+      flex:0 0 100px;
+      min-width:100px;
+      text-align:right;
+    }
 
-      .downloads {
-        min-width:80px;
-      }
-      .version {
-        min-width:80px;
-      }
-      .released {
-        min-width:120px;
-      }
-      /*<div class="name">{name}</div>
-      <div class="downloads">{totalDownloadCount}</div>
-      <div class="rating">{averageRating}</div>
-      <div class="version">{currentRelease.version}</div>
-      <div class="released">{currentRelease.released}</div>
-      <div class="compatibility">{apiVersionsAvailable}</div>*/
+    .downloads {
+      min-width:80px;
+    }
+    .version {
+      min-width:80px;
+    }
+    .released {
+      min-width:120px;
     }
   }
 }
 
-.package-details {
-  flex:1 1 200px;
-  background-color:@bg-a1;
-  padding:10px;
+/*** PACKAGE DETAILS *********************************************************/
+
+#package-details {
+  section {
+    margin-top:10px;
+    &:first-child {
+      margin-top:0;
+    }
+    > header {
+      padding:0 4px 4px;
+      border-bottom:2px solid @bg-a1;
+      position:relative;
+      left:0;
+      right:0;
+      margin-bottom:8px;
+      h1 {
+        .font(20px, 400);
+      }
+      span {
+        position:absolute;
+        top:4px;
+        right:20px;
+        font-size:20px;
+      }
+    }
+    > .flex-container {
+      padding:0 4px;
+      /*flex-wrap:wrap;
+      align-items:flex-start;
+      align-content:space-between;
+      justify-content:flex-start;*/
+      > .flex-item {
+        /*flex-grow:0;*/
+        /*padding:2px 4px;
+        margin:4px;
+        border:1px solid @bg-a8;*/
+        /*background-color:@bg-a4;*/
+      }
+    }
+  }
+
+  .compatibility {
+    .api-version {
+      display:block;
+      .package-version {
+        .font(14px, 400);
+        display:inline-block;
+        width:40%;
+        color:@bg-a9;
+      }
+      .system-version {
+        .font(14px, 400);
+        display:inline-block;
+        color:@bg-a7;
+        :nth-child(2) {
+          color:@bg-a5;
+          padding:0 4px;
+        }
+      }
+    }
+  }
+
+  .history {
+    .history-graph {
+      height:30px;
+    }
+  }
+
+  .about {
+    .description {
+      padding-bottom:8px;
+      border-bottom:1px solid @bg-a3;
+    }
+    .authors {
+      margin-top:4px;
+    }
+  }
+
+  .reviews {
+    .review {
+      padding-top:4px;
+      border-bottom:1px solid @bg-a4;
+
+      span { margin-right:4px; }
+      header {
+        margin:0 0 2px;
+        .rating {
+          float:right;
+        }
+        .title {
+          .font(14px, 700);
+          //color:@fg-2;
+        }
+      }
+      .body {
+        .font(13px, 400);
+        font-style:italic;
+        padding-left:10px;
+      }
+      footer {
+        margin:0 0 4px;
+        text-align:right;
+        margin-top:4px;
+        .font(11px, 400);
+        //color:@fg-2;
+      }
+    }
+    span.fa {
+      padding-right:4px;
+      font-size:16px;
+    }
+  }
 }
 
 /*****************************************************************************/

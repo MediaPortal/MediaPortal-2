@@ -282,6 +282,12 @@
       <DependentUpon>proto.less</DependentUpon>
     </Content>
     <Content Include="Content\css\reset.css" />
+    <Content Include="Content\fontAwesome\css\font-awesome.css" />
+    <Content Include="Content\fontAwesome\css\font-awesome.min.css" />
+    <Content Include="Content\fontAwesome\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\fontAwesome\less\font-awesome.css">
+      <DependentUpon>font-awesome.less</DependentUpon>
+    </Content>
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\collections.js">
@@ -330,6 +336,26 @@
     </None>
     <Content Include="Scripts\collections.js.map">
       <DependentUpon>collections.ts</DependentUpon>
+    </Content>
+    <Content Include="Content\fontAwesome\less\bordered-pulled.less" />
+    <Content Include="Content\fontAwesome\less\core.less" />
+    <Content Include="Content\fontAwesome\less\fixed-width.less" />
+    <Content Include="Content\fontAwesome\less\font-awesome.less" />
+    <Content Include="Content\fontAwesome\less\icons.less" />
+    <Content Include="Content\fontAwesome\less\larger.less" />
+    <Content Include="Content\fontAwesome\less\list.less" />
+    <Content Include="Content\fontAwesome\less\mixins.less" />
+    <Content Include="Content\fontAwesome\less\path.less" />
+    <Content Include="Content\fontAwesome\less\rotated-flipped.less" />
+    <Content Include="Content\fontAwesome\less\spinning.less" />
+    <Content Include="Content\fontAwesome\less\stacked.less" />
+    <Content Include="Content\fontAwesome\less\variables.less" />
+    <Content Include="Content\fontAwesome\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\fontAwesome\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\fontAwesome\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\fontAwesome\fonts\FontAwesome.otf" />
+    <Content Include="Content\fontAwesome\less\font-awesome.css.map">
+      <DependentUpon>font-awesome.css</DependentUpon>
     </Content>
     <None Include="Scripts\jquery-2.1.0.intellisense.js">
       <DependentUpon>jquery-2.1.0.js</DependentUpon>

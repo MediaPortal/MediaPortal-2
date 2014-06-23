@@ -160,7 +160,6 @@ var MP2;
 
             var self = this;
             this.net.get(url).done(function (data) {
-                //self.filter = data;
                 self.renderer.render(templateName, data).done(function (html) {
                     $(domTargetElement).html(html);
 

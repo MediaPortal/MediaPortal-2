@@ -1,10 +1,10 @@
 ﻿<ul id="package-list">
   {#packages}
   <li>
-    <article class='package flex-container horizontal{@eq key="{$idx}" value="0"} selected{/eq}' data-package-id="{id}">
+    <article class='package flex-container shelf{@eq key="{$idx}" value="0"} selected{/eq}' data-package-id="{id}">
       <div class="flex-item icon"></div>
       <div class="flex-item info">
-        <div class="flex-container horizontal top">
+        <div class="flex-container shelf top">
           <div class="flex-item name">{name}</div>
           {?ratingCount}
           <div class="flex-item rating">
@@ -13,7 +13,7 @@
           </div>
           {/ratingCount}
         </div>
-        <div class="flex-container horizontal bottom">
+        <div class="flex-container shelf bottom">
           <div class="flex-item downloads">
             <label>Downloads</label>
             <span>{totalDownloadCount}</span>

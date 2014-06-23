@@ -23,22 +23,16 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.PluginManager.Models;
-using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 
-namespace MediaPortal.Common.PluginManager.Packages.DataContracts.Packages
+namespace MediaPortal.Common.PluginManager.Packages.DataContracts
 {
-  public class PackageListQuery
+  public class CompatibilityInfo
   {
-    public PackageType PackageType { get; set; }
-    
-    public string PartialPackageName { get; set; }
-    public bool SearchDescriptions { get; set; }
+    public IDictionary<int, List<VersionInfo>> ApiVersions { get; set; }
 
-    public string PartialAuthor { get; set; }
-    public ICollection<string> CategoryTags { get; set; }
-
-    public string SystemVersion { get; set; }
-    public ICollection<CoreComponent> CoreComponents { get; set; }
+    public CompatibilityInfo()
+    {
+      ApiVersions = new Dictionary<int, List<VersionInfo>>();
+    }
   }
 }

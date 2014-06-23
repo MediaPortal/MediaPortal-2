@@ -1,41 +1,100 @@
 ﻿
-<article id="package-details" class="flex-container vertical">
-  <div class="flex-item top">
-    <div class="flex-container horizontal">
-      <div class="flex-item compatibility">
-        <label>Compatibility</label>
-        <span>{#apiVersionsAvailable}{apiVersionsAvailable}{@sep}, {/sep}{/apiVersionsAvailable}</span>
-      </div>
-      <div class="flex-item type">
-        <label>Package Type</label>
-        <span>{packageType}</span>
-      </div>
-    </div>
-  </div>
+<article id="package-details" class="flex-container stack">
+  <section class="flex-item about">
+    <header>
+      <h1>Description</h1>
+      <span class="fa fa-var-angle-down"></span>
+    </header>
+    <ul class="flex-container stack">
+      <li class="flex-item description">
+        <div>{description}</div>
+      </li>
+      <li class="flex-item authors">
+        <div>
+          Authors: <span>{authors}</span>
+        </div>
+      </li>
+    </ul>
+  </section>
 
-  <div class="flex-item description">
-    <label>Description</label>
-    <span>{description}</span>
-  </div>
+  <section class="flex-item compatibility">
+    <header>
+      <h1>Compatibility</h1>
+      <span class="fa fa-var-angle-down"></span>      
+    </header>
+    <ul class="flex-container stack">
+      {#releases}
+      <li class="flex-item api-version">
+        <div class="package-version">{version}</div>
+        <div class="system-version">
+          <span>{minSystemVersion}</span>
+          {?maxSystemVersion}
+          <span>-</span>
+          <span>{maxSystemVersion}</span>
+          {/maxSystemVersion}
+        </div>
+        <ul class="dependencies">
+          {#dependencies}
+          <li>
+            {?isCoreDependency}
+            <span class="fa fa-bullseye"></span>
+            {:else}
+            <span class="fa fa-cubes"></span>
+            {/isCoreDependency}
+            <span>{name}</span>
+          </li>
+          {/dependencies}
+        </ul>
+      </li>
+      {/releases}
+    </ul>
+  </section>
   
-  <div class="flex-item reviews">
-    <label>Reviews</label>
-    {#reviews}
-    <article class="review">
-      <header class="title">
-        <p>
-          <span class="title">{title}</span> by <span class="author">{author}</span>
-        </p>
-      </header>
-      <p class="body">{body}</p>
-      <footer>
-        <p>
-          <span class="when">{created}</span>
-        </p>
-      </footer>
-    </article>
-    {:else}
-    <p>No reviews have been submitted for this package.</p>{~n}
-    {/reviews}
-  </div>
+  <!--
+  <section class="flex-item history">
+    <header>
+      <h1>Release History</h1>
+      <span class="fa fa-var-angle-down"></span>
+    </header>
+    <ul class="flex-container shelf">
+      <li class="flex-item history-graph">
+        combined graph with downloads and releases over time
+      </li>
+    </ul>
+  </section>
+  -->
+  
+  <section class="flex-item reviews">
+    <header>
+      <h1>Reviews</h1>
+      <span class="fa fa-var-angle-down"></span>      
+    </header>
+    <ul class="flex-container stack">
+      {#reviews}
+      <li class="flex-item">
+        <article class="review">
+          <header>
+            <span class="rating">{rating} stars</span>
+            <p>
+              <span class="title">{title}</span>
+            </p>
+          </header>
+          <p class="body">{body}</p>
+          <footer>
+            <p>
+              <span>Posted</span>
+              <span class="when">{@moment date="{created}" format="L"}{/moment}</span>
+              <span>by</span>
+              <span class="author">{author}</span>
+            </p>
+          </footer>
+        </article>
+      </li>
+      {:else}
+      <li class="flex-item">
+        <p><span class="fa fa-frown-o"></span>No reviews have been submitted for this package.</p>
+      </li>
+      {/reviews}
+    </ul>
+  </section>
 </article>

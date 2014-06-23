@@ -59,6 +59,7 @@ namespace MediaPortal.PackageServer.Initialization
 
       bundles.Add(new StyleBundle("~/Content/css").Include(
         "~/Content/css/reset.css",
+        "~/Content/fontAwesome/css/font-awesome.css",
         "~/Content/css/proto.css"));
     }
   }

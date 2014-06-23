@@ -70,14 +70,13 @@ footer.site .copyright {
   align-content: stretch;
   align-items: stretch;
 }
-.flex-container.horizontal {
+.flex-container.shelf {
   flex-direction: row;
 }
-.flex-container.vertical {
+.flex-container.stack {
   flex-direction: column;
 }
 .flex-item {
-  order: 0;
   flex: 0 1 auto;
   align-self: auto;
 }
@@ -88,18 +87,26 @@ footer.site .copyright {
 .main > .flex-item:last-child {
   margin-right: 0;
 }
-/*** PACKAGE LIST ************************************************************/
-.package-filter {
+.main > .flex-item.left {
   flex: 0 0 300px;
   background-color: #e8f0f5;
 }
-.package-filter.collapsed {
-  width: 50px;
+.main > .flex-item.left.collapsed {
+  flex: 0 0 40px;
 }
-.package-filter section {
+.main > .flex-item.center {
+  flex: 2 1 200px;
+}
+.main > .flex-item.right {
+  flex: 1 1 200px;
+  background-color: #b8d0de;
   padding: 10px;
 }
-.package-filter section > h1 {
+/*** PACKAGE FILTER **********************************************************/
+#package-filter section {
+  padding: 10px;
+}
+#package-filter section > h1 {
   font-family: 'Open Sans', Helvetica, sans-serif;
   font-size: 20px;
   font-weight: 400;
@@ -110,102 +117,196 @@ footer.site .copyright {
   right: 0;
   margin-bottom: 8px;
 }
-.package-filter .package-tags .flex-container {
+#package-filter .package-tags .flex-container {
   flex-wrap: wrap;
   align-items: flex-start;
   align-content: space-between;
   justify-content: flex-start;
 }
-.package-filter .package-tags .flex-item {
+#package-filter .package-tags .flex-item {
   flex-grow: 0;
   padding: 2px 4px;
   margin: 4px;
   border: 1px solid #51779e;
   background-color: #9fc2d6;
 }
-.package-filter .package-tags .tag:hover {
+#package-filter .package-tags .tag:hover {
   color: #ffffff;
   background-color: #51779e;
 }
-.package-filter .package-tags .tag.selected {
+#package-filter .package-tags .tag.selected {
   color: #ffffff;
   background-color: #6792ab;
 }
-.package-list {
-  flex: 2 1 200px;
-}
-.package-list #package-list .package {
+/*** PACKAGE LIST ************************************************************/
+#package-list .package {
   background: #e8f0f5;
   padding: 10px;
   position: relative;
   font-size: 12px;
   max-height: 80px;
   margin-bottom: 10px;
-  /*<div class="name">{name}</div>
-      <div class="downloads">{totalDownloadCount}</div>
-      <div class="rating">{averageRating}</div>
-      <div class="version">{currentRelease.version}</div>
-      <div class="released">{currentRelease.released}</div>
-      <div class="compatibility">{apiVersionsAvailable}</div>*/
 }
-.package-list #package-list .package.selected {
+#package-list .package.selected {
   background: #b8d0de;
 }
-.package-list #package-list .package:hover {
+#package-list .package:hover {
   background: #c8dbe5;
 }
-.package-list #package-list .package .flex-container {
+#package-list .package .flex-container {
   margin-left: 10px;
 }
-.package-list #package-list .package .flex-container.top {
+#package-list .package .flex-container.top {
   margin-bottom: 10px;
 }
-.package-list #package-list .package .flex-item {
+#package-list .package .flex-item {
   margin: 0;
+  flex: 1 1 auto;
 }
-.package-list #package-list .package label {
+#package-list .package label {
   display: block;
   color: #666;
 }
-.package-list #package-list .package span {
+#package-list .package span {
   display: block;
   font-size: 18px;
 }
-.package-list #package-list .package .flex-item {
-  flex: 1 1 auto;
-}
-.package-list #package-list .package .icon {
+#package-list .package .icon {
   flex: 0 0 80px;
   height: 80px;
   width: 80px;
   background: #ddd;
   display: inline-block;
 }
-.package-list #package-list .package .name {
+#package-list .package .name {
   font-size: 28px;
   min-width: 200px;
   overflow: hidden;
   text-wrap: avoid;
   word-wrap: normal;
 }
-.package-list #package-list .package .rating {
+#package-list .package .rating {
   flex: 0 0 100px;
   min-width: 100px;
   text-align: right;
 }
-.package-list #package-list .package .downloads {
+#package-list .package .downloads {
   min-width: 80px;
 }
-.package-list #package-list .package .version {
+#package-list .package .version {
   min-width: 80px;
 }
-.package-list #package-list .package .released {
+#package-list .package .released {
   min-width: 120px;
 }
-.package-details {
-  flex: 1 1 200px;
-  background-color: #e8f0f5;
-  padding: 10px;
+/*** PACKAGE DETAILS *********************************************************/
+#package-details section {
+  margin-top: 10px;
+}
+#package-details section:first-child {
+  margin-top: 0;
+}
+#package-details section > header {
+  padding: 0 4px 4px;
+  border-bottom: 2px solid #e8f0f5;
+  position: relative;
+  left: 0;
+  right: 0;
+  margin-bottom: 8px;
+}
+#package-details section > header h1 {
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+#package-details section > header span {
+  position: absolute;
+  top: 4px;
+  right: 20px;
+  font-size: 20px;
+}
+#package-details section > .flex-container {
+  padding: 0 4px;
+  /*flex-wrap:wrap;
+      align-items:flex-start;
+      align-content:space-between;
+      justify-content:flex-start;*/
+}
+#package-details section > .flex-container > .flex-item {
+  /*flex-grow:0;*/
+  /*padding:2px 4px;
+        margin:4px;
+        border:1px solid @bg-a8;*/
+  /*background-color:@bg-a4;*/
+}
+#package-details .compatibility .api-version {
+  display: block;
+}
+#package-details .compatibility .api-version .package-version {
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  display: inline-block;
+  width: 40%;
+  color: #33608f;
+}
+#package-details .compatibility .api-version .system-version {
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  display: inline-block;
+  color: #6792ab;
+}
+#package-details .compatibility .api-version .system-version :nth-child(2) {
+  color: #86b4cf;
+  padding: 0 4px;
+}
+#package-details .history .history-graph {
+  height: 30px;
+}
+#package-details .about .description {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #b8d0de;
+}
+#package-details .about .authors {
+  margin-top: 4px;
+}
+#package-details .reviews .review {
+  padding-top: 4px;
+  border-bottom: 1px solid #9fc2d6;
+}
+#package-details .reviews .review span {
+  margin-right: 4px;
+}
+#package-details .reviews .review header {
+  margin: 0 0 2px;
+}
+#package-details .reviews .review header .rating {
+  float: right;
+}
+#package-details .reviews .review header .title {
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+#package-details .reviews .review .body {
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  font-style: italic;
+  padding-left: 10px;
+}
+#package-details .reviews .review footer {
+  margin: 0 0 4px;
+  text-align: right;
+  margin-top: 4px;
+  font-family: 'Open Sans', Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+}
+#package-details .reviews span.fa {
+  padding-right: 4px;
+  font-size: 16px;
 }
 /*****************************************************************************/
 /*****************************************************************************/
