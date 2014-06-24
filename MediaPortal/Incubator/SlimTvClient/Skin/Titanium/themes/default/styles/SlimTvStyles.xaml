@@ -40,8 +40,7 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="80" Height="80" Grid.RowSpan="2"
-                          Stretch="Uniform" FallbackSource="channellogos\no_channel_logo.png">
+                    <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Stretch="Uniform" Width="180" Margin="5,5,15,5">
                       <Image.Source>
                         <fanart:FanArtImageSource fanart:FanArtMediaType="Channel" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
