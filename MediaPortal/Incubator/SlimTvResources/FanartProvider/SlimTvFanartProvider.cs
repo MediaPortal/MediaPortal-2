@@ -91,6 +91,8 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         using (var repo = new LogoRepository { RepositoryUrl = _settings.RepositoryUrl })
         {
           var stream = repo.Download(name);
+          if (stream == null)
+            return false;
           using (stream)
             if (processor.CreateLogo(theme, stream, logoFileName))
             {

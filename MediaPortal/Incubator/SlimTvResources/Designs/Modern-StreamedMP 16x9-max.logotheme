@@ -1,1 +1,49 @@
-<Theme xmlns="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Design" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><DesignName>Modern-StreamedMP 16x9</DesignName><Effects xmlns:a="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Effects"><a:AbstractEffect i:type="a:EffectResize"><a:ActivePart>Undefined</a:ActivePart><a:MaxSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"><b:height>160</b:height><b:width>160</b:width></a:MaxSize><a:MinSize i:nil="true" xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"/><a:TargetSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"><b:height>160</b:height><b:width>160</b:width></a:TargetSize></a:AbstractEffect><a:AbstractEffect i:type="a:EffectShadow"><a:ActivePart>Undefined</a:ActivePart><a:Color xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"><b:knownColor>0</b:knownColor><b:name i:nil="true"/><b:state>2</b:state><b:value>3355443200</b:value></a:Color><a:Radius>5</a:Radius><a:Threshold>1</a:Threshold><a:UseThreshold>false</a:UseThreshold><a:ShadowXOffset>10</a:ShadowXOffset><a:ShadowYOffset>10</a:ShadowYOffset></a:AbstractEffect><a:AbstractEffect i:type="a:EffectOuterGlow"><a:ActivePart>Undefined</a:ActivePart><a:Color xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"><b:knownColor>35</b:knownColor><b:name i:nil="true"/><b:state>1</b:state><b:value>0</b:value></a:Color><a:Radius>0</a:Radius><a:Threshold>1</a:Threshold><a:UseThreshold>false</a:UseThreshold><a:Transparency>0.8</a:Transparency><a:Width>1</a:Width></a:AbstractEffect></Effects><ThemeName>max</ThemeName></Theme>
+<Theme xmlns="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Design" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+  <DesignName>Modern-StreamedMP 16x9</DesignName>
+  <Effects xmlns:a="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Effects">
+    <a:AbstractEffect i:type="a:EffectAutoCrop">
+      <a:ActivePart>Undefined</a:ActivePart>
+    </a:AbstractEffect>
+    <a:AbstractEffect i:type="a:EffectResize">
+      <a:ActivePart>Undefined</a:ActivePart>
+      <a:MaxSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:height>110</b:height>
+        <b:width>200</b:width>
+      </a:MaxSize>
+      <a:MinSize i:nil="true" xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"/>
+      <a:TargetSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:height>110</b:height>
+        <b:width>200</b:width>
+      </a:TargetSize>
+    </a:AbstractEffect>
+    <a:AbstractEffect i:type="a:EffectShadow">
+      <a:ActivePart>Undefined</a:ActivePart>
+      <a:Color xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:knownColor>0</b:knownColor>
+        <b:name i:nil="true"/>
+        <b:state>2</b:state>
+        <b:value>3355443200</b:value>
+      </a:Color>
+      <a:Radius>5</a:Radius>
+      <a:Threshold>1</a:Threshold>
+      <a:UseThreshold>false</a:UseThreshold>
+      <a:ShadowXOffset>5</a:ShadowXOffset>
+      <a:ShadowYOffset>5</a:ShadowYOffset>
+    </a:AbstractEffect>
+    <a:AbstractEffect i:type="a:EffectOuterGlow">
+      <a:ActivePart>Undefined</a:ActivePart>
+      <a:Color xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:knownColor>35</b:knownColor>
+        <b:name i:nil="true"/>
+        <b:state>1</b:state>
+        <b:value>0</b:value>
+      </a:Color>
+      <a:Radius>0</a:Radius>
+      <a:Threshold>1</a:Threshold>
+      <a:UseThreshold>false</a:UseThreshold>
+      <a:Transparency>0.8</a:Transparency>
+      <a:Width>1</a:Width>
+    </a:AbstractEffect>
+  </Effects>
+  <ThemeName>max</ThemeName>
+</Theme>
