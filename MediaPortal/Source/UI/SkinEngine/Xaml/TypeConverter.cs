@@ -43,8 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// the returned <paramref name="result"/> has the specified <paramref name="targetType"/>.
   /// It returns <c>false</c>, if the converter was not able to convert the specified
   /// value. In this case, result has an undefined value.</returns>
-  public delegate bool ConvertTypeDlgt(object val, Type targetType,
-      out object result);
+  public delegate bool ConvertTypeDlgt(object val, Type targetType, out object result);
 
   /// <summary>
   /// Static registration class for a type converter.
@@ -54,11 +53,18 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected static readonly NumberFormatInfo NUMBERFORMATINFO = CultureInfo.InvariantCulture.NumberFormat;
 
     protected static ConvertTypeDlgt _customTypeConverter;
+    protected static ConvertTypeDlgt _customCollectionTypeConverter;
 
     public static ConvertTypeDlgt CustomTypeConverter
     {
       get { return _customTypeConverter; }
       set { _customTypeConverter = value; }
+    }
+
+    public static ConvertTypeDlgt CustomCollectionTypeConverter
+    {
+      get { return _customCollectionTypeConverter; }
+      set { _customCollectionTypeConverter = value; }
     }
 
     public static bool ConvertEntryType(ICollection col, Type entryType, out ICollection result)

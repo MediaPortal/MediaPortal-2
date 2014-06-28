@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
@@ -37,7 +36,6 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct3D9;
 using FillMode=System.Drawing.Drawing2D.FillMode;
-using Matrix = System.Drawing.Drawing2D.Matrix;
 using RectangleF = System.Drawing.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
@@ -47,7 +45,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     #region Protected fields
 
     protected AbstractProperty _dataProperty;
-    protected bool _fillDisabled;
 
     #endregion
 
@@ -90,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
-        using (GraphicsPath path = CalculateTransformedPath(_innerRect))
+        using (GraphicsPath path = CalculateTransformedPath(ParsePath(), _innerRect))
         {
           if (Fill != null && !_fillDisabled)
           {
@@ -154,7 +151,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      using (GraphicsPath p = CalculateTransformedPath(new SharpDX.RectangleF(0, 0, 0, 0)))
+      using (GraphicsPath p = CalculateTransformedPath(ParsePath(), new SharpDX.RectangleF(0, 0, 0, 0)))
       {
         RectangleF bounds = p.GetBounds();
         return new Size2F(bounds.Width, bounds.Height);
@@ -308,53 +305,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             result.CloseFigure();
             break;
         }
-      }
-      return result;
-    }
-
-    protected GraphicsPath CalculateTransformedPath(SharpDX.RectangleF baseRect)
-    {
-      GraphicsPath result = ParsePath();
-      using (Matrix m = new Matrix())
-      {
-        RectangleF bounds = result.GetBounds();
-        _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
-        if (Width > 0) baseRect.Width = (float) Width;
-        if (Height > 0) baseRect.Height = (float) Height;
-        float scaleW;
-        float scaleH;
-        if (Stretch == Stretch.Fill)
-        {
-          scaleW = baseRect.Width/bounds.Width;
-          scaleH = baseRect.Height/bounds.Height;
-          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-        }
-        else if (Stretch == Stretch.Uniform)
-        {
-          scaleW = Math.Min(baseRect.Width/bounds.Width, baseRect.Height/bounds.Height);
-          scaleH = scaleW;
-          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-        }
-        else if (Stretch == Stretch.UniformToFill)
-        {
-          scaleW = Math.Max(baseRect.Width/bounds.Width, baseRect.Height/bounds.Height);
-          scaleH = scaleW;
-          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-        }
-        else
-        {
-          // Stretch == Stretch.None
-          scaleW = 1;
-          scaleH = 1;
-        }
-        // In case bounds.Width or bounds.Height or baseRect.Width or baseRect.Height were 0
-        if (scaleW == 0 || float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
-        if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
-        m.Scale(scaleW, scaleH, MatrixOrder.Append);
-
-        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-        result.Transform(m);
-        result.Flatten();
       }
       return result;
     }

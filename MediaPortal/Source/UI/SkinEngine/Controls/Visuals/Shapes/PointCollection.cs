@@ -22,11 +22,21 @@
 
 #endregion
 
-using System.Collections;
+using System.Collections.Generic;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   // Need to be a dedicated type because of special type conversion
-  public class PointCollection : ArrayList
-  { }
+  public class PointCollection : List<Point>
+  {
+    public PointCollection()
+    {
+    }
+
+    public PointCollection(IEnumerable<Point> points )
+    {
+     AddRange(points); 
+    }
+  }
 }

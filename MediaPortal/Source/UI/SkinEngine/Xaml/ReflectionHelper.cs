@@ -481,8 +481,16 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (resultType != null)
       {
         method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] { entryType });
+
         // Have to cast to ICollection, because the type converter cannot cope with the situation corretcly if we cast to IEnumerable
-        ICollection col = (ICollection) TypeConverter.Convert(value, typeof(ICollection));
+        ICollection col;
+        object converted;
+        var collectionTypeConverter = TypeConverter.CustomCollectionTypeConverter;
+        if (collectionTypeConverter != null && collectionTypeConverter(value, targetType, out converted))
+          col = (ICollection)converted;
+        else
+          col = (ICollection)TypeConverter.Convert(value, typeof(ICollection));
+
         if (col == null)
           // The type converter converts null to null rather than to an empty collection, so we have to handle this case explicitly
           method.Invoke(maybeCollectionTarget, new object[] { null });

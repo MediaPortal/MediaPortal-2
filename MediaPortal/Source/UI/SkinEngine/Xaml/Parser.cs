@@ -253,6 +253,14 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     }
 
     /// <summary>
+    /// Registers the specified converter for non-standard custom collection types.
+    /// </summary>
+    public void SetCustomCollectionTypeConverter(ConvertTypeDlgt customTypeConverter)
+    {
+      TypeConverter.CustomCollectionTypeConverter = customTypeConverter;
+    }
+
+    /// <summary>
     /// Parses the XAML file associated with this parser.
     /// </summary>
     /// <returns>The visual corresponding to the root XAML element.</returns>

@@ -22,6 +22,9 @@
 
 #endregion
 
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -62,6 +65,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected volatile bool _performLayout;
     protected PrimitiveBuffer _fillContext;
     protected PrimitiveBuffer _strokeContext;
+
+    protected bool _fillDisabled;
 
     #endregion
 
@@ -284,5 +289,53 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         Stroke.Allocate();
       _performLayout = true;
     }
+
+    protected GraphicsPath CalculateTransformedPath(GraphicsPath path, SharpDX.RectangleF baseRect)
+    {
+      GraphicsPath result = path;
+      using (Matrix m = new Matrix())
+      {
+        RectangleF bounds = result.GetBounds();
+        _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
+        if (Width > 0) baseRect.Width = (float)Width;
+        if (Height > 0) baseRect.Height = (float)Height;
+        float scaleW;
+        float scaleH;
+        if (Stretch == Stretch.Fill)
+        {
+          scaleW = baseRect.Width / bounds.Width;
+          scaleH = baseRect.Height / bounds.Height;
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        }
+        else if (Stretch == Stretch.Uniform)
+        {
+          scaleW = Math.Min(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
+          scaleH = scaleW;
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        }
+        else if (Stretch == Stretch.UniformToFill)
+        {
+          scaleW = Math.Max(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
+          scaleH = scaleW;
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        }
+        else
+        {
+          // Stretch == Stretch.None
+          scaleW = 1;
+          scaleH = 1;
+        }
+        // In case bounds.Width or bounds.Height or baseRect.Width or baseRect.Height were 0
+        if (scaleW == 0 || float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
+        if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
+        m.Scale(scaleW, scaleH, MatrixOrder.Append);
+
+        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        result.Transform(m);
+        result.Flatten();
+      }
+      return result;
+    }
+
   }
 }

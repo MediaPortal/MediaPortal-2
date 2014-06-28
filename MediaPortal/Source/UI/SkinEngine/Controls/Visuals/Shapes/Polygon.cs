@@ -24,13 +24,15 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
+using SharpDX;
 using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
+using Point = System.Drawing.Point;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -51,14 +53,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _pointsProperty = new SProperty(typeof(IList<Point>), new List<Point>());
+      _pointsProperty = new SProperty(typeof(PointCollection), new PointCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       Polygon p = (Polygon) source;
-      Points = new List<Point>(p.Points);
+      Points = new PointCollection(p.Points);
     }
 
     #endregion
@@ -70,9 +72,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       get { return _pointsProperty; }
     }
 
-    public IList<Point> Points
+    public PointCollection Points
     {
-      get { return (IList<Point>) _pointsProperty.GetValue(); }
+      get { return (PointCollection)_pointsProperty.GetValue(); }
       set { _pointsProperty.SetValue(value); }
     }
 
@@ -87,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = GetPolygon())
+        using (GraphicsPath path = CalculateTransformedPath(GetPolygon(), _innerRect))
         {
           float centerX;
           float centerY;
@@ -115,6 +117,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
+    {
+      using (GraphicsPath p = CalculateTransformedPath(GetPolygon(), new SharpDX.RectangleF(0, 0, 0, 0)))
+      {
+        RectangleF bounds = p.GetBounds();
+        return new Size2F(bounds.Width, bounds.Height);
+      }
+    }
+
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
@@ -122,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       Point[] points = new Point[Points.Count];
       for (int i = 0; i < Points.Count; ++i)
-        points[i] = Points[i];
+        points[i] = Points[i].ToDrawingPoint();
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddPolygon(points);
       mPath.CloseFigure();

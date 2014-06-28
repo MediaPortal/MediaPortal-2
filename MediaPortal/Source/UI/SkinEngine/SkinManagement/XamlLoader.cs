@@ -79,6 +79,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       try
       {
         Parser parser = new Parser(reader, parser_ImportNamespace, parser_GetEventHandler);
+        parser.SetCustomCollectionTypeConverter(MPF.ConvertCollectionType);
         parser.SetCustomTypeConverter(MPF.ConvertType);
         parser.SetContextVariable(typeof(IModelLoader), loader);
         parser.SetContextVariable(typeof(ISkinResourceBundle), actualResourceBundle);

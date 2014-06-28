@@ -40,6 +40,10 @@ namespace MediaPortal.UI.SkinEngine
     {
       return new System.Drawing.Size(sizeF.Width, sizeF.Height);
     }
+    public static System.Drawing.Point ToDrawingPoint(this Point point)
+    {
+      return new System.Drawing.Point(point.X, point.Y);
+    }
     public static Rectangle ToRect(this System.Drawing.Rectangle rectangleF)
     {
       return new Rectangle(rectangleF.X, rectangleF.Y, rectangleF.Width, rectangleF.Height);
