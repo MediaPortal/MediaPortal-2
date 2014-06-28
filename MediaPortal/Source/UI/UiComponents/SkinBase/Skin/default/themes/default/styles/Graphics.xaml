@@ -142,4 +142,13 @@
     </Grid>
   </ControlTemplate>
 
+  <!-- Star shape for rating control -->
+  <ControlTemplate x:Key="StarPolygonTemplate">
+    <Polygon x:Name="Star" Points="9,2 11,7 17,7 12,10 14,15 9,12 4,15 6,10 1,7 7,7" Fill="{ThemeResource StarRatingDefaultColor}" StrokeThickness="0.5" />
+  </ControlTemplate>
+  
+  <ControlTemplate x:Key="StarPolygonSelectedTemplate">
+    <Polygon x:Name="Star" Points="9,2 11,7 17,7 12,10 14,15 9,12 4,15 6,10 1,7 7,7" Fill="{ThemeResource StarRatingSelectedColor}" StrokeThickness="0.5" />
+  </ControlTemplate>
+
 </ResourceDictionary>

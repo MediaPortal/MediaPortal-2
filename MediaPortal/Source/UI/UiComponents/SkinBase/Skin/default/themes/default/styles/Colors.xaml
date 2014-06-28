@@ -314,5 +314,10 @@
 
   <ResourceWrapper x:Key="BusyCursorColor2Nuance1" Resource="#F2D1D6E4"/>
   <ResourceWrapper x:Key="BusyCursorColor2Nuance1Transparent" Resource="#7FD2D7E6"/>
-  
+
+  <!-- Colors for rating control -->
+  <ResourceWrapper x:Key="StarRatingDefaultColor" Resource="White"/>
+  <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="Orange"/>
+  <ResourceWrapper x:Key="StarRatingFocusedColor" Resource="Red"/>
+
 </ResourceDictionary>

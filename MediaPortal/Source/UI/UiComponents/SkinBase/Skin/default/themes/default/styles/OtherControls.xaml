@@ -1653,4 +1653,55 @@
     </DockPanel>
   </ControlTemplate>
 
+  <!-- ********************************** Star rating control template ************************************** -->
+
+  <ControlTemplate x:Key="StarTemplate">
+    <DockPanel LastChildFill="True">
+      <Grid RenderTransformOrigin="0.5,0.5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Focusable="True">
+        <!-- Star shape -->
+        <Control Template="{ThemeResource StarPolygonTemplate}" Width="18" Height="18" />
+      </Grid>
+    </DockPanel>
+    <ControlTemplate.Triggers>
+      <Trigger Property="IsChecked" Value="True">
+        <Setter TargetName="Star" Property="Fill" Value="{ThemeResource StarRatingSelectedColor}" />
+      </Trigger>
+      <Trigger Property="HasFocus" Value="True">
+        <Setter TargetName="Star" Property="Stroke" Value="{ThemeResource StarRatingFocusedColor}" />
+      </Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+
+  <!-- Checkbox style for star rating -->
+  <Style x:Key="StarCheckBoxStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
+          <Control Template="{StaticResource StarTemplate}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <ControlTemplate x:Key="StarReadOnlyTemplate">
+    <DockPanel LastChildFill="True" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+      <Grid RenderTransformOrigin="0.5,0.5">
+        <!-- Star shape for background -->
+        <Control Template="{ThemeResource StarPolygonTemplate}" Width="18" Height="18"/>
+
+        <!-- Star shape for (partial) foreground -->
+        <Control Template="{ThemeResource StarPolygonSelectedTemplate}" Width="18" Height="18">
+          <Control.OpacityMask>
+            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <GradientStop Color="#FF000000" Offset="0"/>
+              <GradientStop Color="#FF000000" Offset="{Binding Value}"/>
+              <GradientStop Color="#00000000" Offset="{Binding Value}"/>
+              <GradientStop Color="#00000000" Offset="1"/>
+            </LinearGradientBrush>
+          </Control.OpacityMask>
+        </Control>
+      </Grid>
+    </DockPanel>
+  </ControlTemplate>
+
 </ResourceDictionary>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:drawing="clr-namespace:System.Drawing;assembly=System.Drawing">
+  <StackPanel>
+
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="StarRatingControl Test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows the StarRatingPanel in two different behavios: The first one is clickable and allows rating. The values are integers only. The first textbox sets the number of stars for both StarRatingPanels, the 2nd the actual value for the editable control. The 3rd textbox sets the value for the 2nd readonly control and allows fractional numbers."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}" />
+
+    <StackPanel DockPanel.Dock="Center" Margin="50">
+      <TextBox x:Name="MaxStars" Text="5"/>
+
+      <TextBox x:Name="ValueForStars" Text="2" />
+
+      <StarRatingPanel x:Name="Rating"  StarTemplate="{StaticResource StarTemplate}"
+                       Maximum="{Binding ElementName=MaxStars,Path=Text}"
+                       Value="{Binding ElementName=ValueForStars,Path=Text,Mode=TwoWay}">
+        <StarRatingPanel.LayoutTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="2" ScaleY="2"/>
+          </TransformGroup>
+        </StarRatingPanel.LayoutTransform>
+      </StarRatingPanel>
+
+      <TextBox x:Name="ValueForStarsReadonly" Text="2.5" />
+
+      <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True"  StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                       Maximum="{Binding ElementName=MaxStars,Path=Text}"
+                       Value="{Binding ElementName=ValueForStarsReadonly,Path=Text}">
+        <StarRatingPanel.LayoutTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="2" ScaleY="2"/>
+          </TransformGroup>
+        </StarRatingPanel.LayoutTransform>
+      </StarRatingPanel>
+    </StackPanel>
+  </StackPanel>
+
+</Screen>

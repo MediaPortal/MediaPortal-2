@@ -58,6 +58,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="Opacity mask test (ImageBrush)"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-opacitymask-image}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="StarRating test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-starrating}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>

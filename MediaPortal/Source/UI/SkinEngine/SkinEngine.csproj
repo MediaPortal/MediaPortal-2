@@ -137,6 +137,8 @@
     <Compile Include="Controls\Visuals\Effects\ZoomBlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
+    <Compile Include="Controls\Panels\StarRatingPanel.cs" />
+    <Compile Include="Controls\Visuals\Star.cs" />
     <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
     <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />
     <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
