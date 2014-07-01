@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
@@ -41,11 +43,14 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
   {
     protected readonly SlimTvLogoSettings _settings;
     protected string _dataFolder;
+    protected RegionInfo _country;
 
     public SlimTvFanartProvider()
     {
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvLogoSettings>();
       _dataFolder = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\Logos\\");
+      var currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      _country = new RegionInfo(currentCulture.LCID);
     }
 
     /// <summary>
@@ -90,7 +95,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         // From repository
         using (var repo = new LogoRepository { RepositoryUrl = _settings.RepositoryUrl })
         {
-          var stream = repo.Download(name);
+          var stream = repo.Download(name, _country.TwoLetterISORegionName);
           if (stream == null)
             return false;
           using (stream)
