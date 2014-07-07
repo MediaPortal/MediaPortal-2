@@ -192,8 +192,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               byte[] thumbData;
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
-                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
               if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }

@@ -171,7 +171,6 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailSmallAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
     }
 

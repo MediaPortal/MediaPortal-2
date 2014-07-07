@@ -140,7 +140,6 @@
     <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailSmallAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
