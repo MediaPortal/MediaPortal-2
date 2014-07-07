@@ -319,7 +319,7 @@
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
     <Compile Include="SharpDX\SharpDXExtensions.cs" />
-    <Compile Include="Utils\MediaItemsHelper.cs" />
+    <Compile Include="Utils\ImageSourceFactory.cs" />
     <Compile Include="Utils\UIResourcesHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverEnabled.cs" />

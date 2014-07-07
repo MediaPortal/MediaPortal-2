@@ -37,8 +37,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       Episode,
       Actor,
       Artist,
-      Channel,
+      ChannelTv,
+      ChannelRadio,
       Album,
+      Audio,
+      Image
     }
 
     public enum FanArtType
@@ -47,6 +50,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       Poster,
       Banner,
       FanArt,
+      Thumbnail,
+      ClearArt,
+      DiscArt,
     }
   }
 }

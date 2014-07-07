@@ -67,6 +67,7 @@
     <Compile Include="MediaItemAspectToBoolConverter.cs" />
     <Compile Include="Models\FanArtBackgroundModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FanArtPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />

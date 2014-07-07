@@ -13,6 +13,7 @@
 
   <Runtime>
     <Assembly FileName="FanArtService.Client.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.FanArtPlugin"/>
   </Runtime>
 
   <Register Location="/Models">

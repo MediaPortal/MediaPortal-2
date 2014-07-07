@@ -1,0 +1,25 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Movies FanArt Provider"
+    PluginId="{43B51DC0-4CA0-4E55-9C0D-D25B06638909}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides fanart images downloaded by MovieMetadataExtractor"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}"/> <!-- FanArtService -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="FanArtService.TMDB.dll"/>
+    <Assembly FileName="FanArtService.Interfaces.dll"/>
+  </Runtime>
+
+  <!-- We use our own local name here to avoid circular references to FanArtService -->
+  <Builder Name="MovieFanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
+  <Register Location="/Fanart/Providers">
+    <MovieFanartProviderBuilder Id="{EFFB4535-C275-446D-AD60-0080D83470F5}" MediaTypes="Movies" ClassName="MediaPortal.Extensions.UserServices.FanArtService.TMDB.MovieFanartProvider"/>
+  </Register>
+</Plugin>

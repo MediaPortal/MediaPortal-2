@@ -30,6 +30,7 @@ using HttpServer;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Network;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
@@ -74,7 +75,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       IList<FanArtImage> files = fanart.GetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, true);
       if (files == null || files.Count == 0)
+      {
+#if DEBUG
+        ServiceRegistration.Get<ILogger>().Debug("No FanArt for {0} '{1}' of type '{2}'", name, fanArtType, mediaType);
+#endif
         return false;
+      }
 
       using (MemoryStream memoryStream = new MemoryStream(files[0].BinaryData))
         SendWholeStream(response, memoryStream, false);

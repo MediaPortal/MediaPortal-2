@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
@@ -45,7 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<string> result)
+    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       if (string.IsNullOrWhiteSpace(name))
@@ -70,6 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
       if (patterns == null)
         return false;
 
+      List<IResourceLocator> files = new List<IResourceLocator>();
       try
       {
         DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
@@ -78,7 +81,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
           // Try each name pattern first.
           foreach (string pattern in patterns)
           {
-            result = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
+            files.AddRange(directoryInfo.GetFiles(pattern)
+              .Select(f => f.FullName)
+              .Select(fileName => new ResourceLocator(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, fileName)))
+              );
+            result = files;
             if (result.Count > 0)
               return true;
           }

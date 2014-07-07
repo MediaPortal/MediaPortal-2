@@ -193,15 +193,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (movie != null)
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
-        FanArtName = movie.MovieName;
+        // Fanart loading now depends on the MediaItemId to support local fanart
+        FanArtName = movie.MediaItem.MediaItemId.ToString();
         ItemDescription = movie.StoryPlot;
         return;
       }
       VideoItem video = SelectedItem as VideoItem;
       if (video != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
-        FanArtName = string.Empty;
+        FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
+        // Fanart loading now depends on the MediaItemId to support local fanart
+        FanArtName = video.MediaItem.MediaItemId.ToString();
         ItemDescription = video.StoryPlot;
         return;
       }

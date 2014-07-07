@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers;
 
@@ -88,21 +89,20 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       InitProviders();
       foreach (IFanArtProvider fanArtProvider in _providerList)
       {
-        IBinaryFanArtProvider binaryProvider = fanArtProvider as IBinaryFanArtProvider;
+        IList<IResourceLocator> fanArtImages;
+        if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
+        {
+          IList<IResourceLocator> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
+          return result.Select(f => FanArtImage.FromResource(f, maxWidth, maxHeight, mediaType, fanArtType, name)).Where(fanArtImage => fanArtImage != null).ToList();
+        }
+      }
+      foreach (IBinaryFanArtProvider binaryProvider in _providerList.OfType<IBinaryFanArtProvider>())
+      {
         if (binaryProvider != null)
         {
-          IList<FanArtImage> fanArtImages;
-          if (binaryProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
-            return singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
-        }
-        else
-        {
-          IList<string> fanArtImages;
-          if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
-          {
-            IList<string> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
-            return result.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
-          }
+          IList<FanArtImage> binaryImages;
+          if (binaryProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out binaryImages))
+            return singleRandom ? GetSingleRandom(binaryImages) : binaryImages;
         }
       }
       return null;

@@ -220,7 +220,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected bool CheckValidArgs()
     {
-      return FanArtMediaType != FanArtConstants.FanArtMediaType.Undefined && FanArtType != FanArtConstants.FanArtType.Undefined && !string.IsNullOrWhiteSpace(FanArtName);
+      return (
+        FanArtMediaType != FanArtConstants.FanArtMediaType.Undefined && FanArtType != FanArtConstants.FanArtType.Undefined ||
+        FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined && FanArtType == FanArtConstants.FanArtType.Thumbnail /* Special case for all MediaItem thumbs */
+        )
+        && !string.IsNullOrWhiteSpace(FanArtName);
     }
   }
 }

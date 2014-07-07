@@ -180,7 +180,7 @@
   </Register>
 
   <!-- Registrations for MIA types which need to be loaded by the Media navigation model for this skin -->
-  <Register Location="/Media/SkinSettings/default/default/Audio/OptionalMIATypes">
+  <!--<Register Location="/Media/SkinSettings/default/default/Audio/OptionalMIATypes">
     <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
     <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
   </Register>
@@ -213,7 +213,7 @@
   <Register Location="/Media/SkinSettings/default/default/BrowseLocalMedia/OptionalMIATypes">
     <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
     <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
+  </Register>-->
 
   <!-- Root configuration sections -->
   <Register Location="/Configuration/Settings">

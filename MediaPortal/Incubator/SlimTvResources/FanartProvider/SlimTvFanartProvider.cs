@@ -31,6 +31,8 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.LogoManager;
 using MediaPortal.LogoManager.Design;
@@ -65,12 +67,13 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<string> result)
+    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
-      if (mediaType != FanArtConstants.FanArtMediaType.Channel)
+      if (mediaType != FanArtConstants.FanArtMediaType.ChannelTv && mediaType != FanArtConstants.FanArtMediaType.ChannelRadio)
         return false;
 
+      List<IResourceLocator> files = new List<IResourceLocator>();
       try
       {
         string designsFolder = FileUtils.BuildAssemblyRelativePath("Designs");
@@ -86,7 +89,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 
         if (File.Exists(logoFileName))
         {
-          result = new[] { logoFileName };
+          result = new List<IResourceLocator>{new ResourceLocator(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, logoFileName))};
           return true;
         }
 
@@ -101,7 +104,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
           using (stream)
             if (processor.CreateLogo(theme, stream, logoFileName))
             {
-              result = new[] { logoFileName };
+              result = new List<IResourceLocator> { new ResourceLocator(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, logoFileName)) };
               return true;
             }
         }

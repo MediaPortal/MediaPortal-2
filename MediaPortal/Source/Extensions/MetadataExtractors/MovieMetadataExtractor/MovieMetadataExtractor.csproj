@@ -58,7 +58,6 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="FanartProvider\MovieFanartProvider.cs" />
     <Compile Include="Matchers\MatroskaMatcher.cs" />
     <Compile Include="Matchers\NfoReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

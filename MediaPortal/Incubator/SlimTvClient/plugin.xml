@@ -69,10 +69,12 @@
   </Register>
 
   <!-- MediaAspects for recordings views -->
+  <!-- Morpheus_xx, 2014-07-07: Thumbnails are now loaded via FanArtImageSource on demand
   <Register Location="/Media/SkinSettings/default/default/Recordings/OptionalMIATypes">
     <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
     <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
   </Register>
+  -->
 
   <!-- Registration of the SlimTv extension builder for SlimTvProgramExtension items -->
   <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.Extensions.SlimTvExtensionBuilder"/>

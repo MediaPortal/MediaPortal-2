@@ -30,6 +30,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Graphics;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
@@ -127,58 +128,79 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <summary>
     /// Loads an image from filesystem an returns a new <see cref="FanArtImage"/>.
     /// </summary>
-    /// <param name="fileName">File name to load</param>
+    /// <param name="resourceLocator">Resource to load</param>
     /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
     /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
+    /// <param name="mediaType">MediaType</param>
+    /// <param name="fanArtType">FanArtType</param>
+    /// <param name="fanArtName">Fanart name</param>
     /// <returns>FanArtImage or <c>null</c>.</returns>
-    public static FanArtImage FromFile(string fileName, int maxWidth, int maxHeight)
+    public static FanArtImage FromResource(IResourceLocator resourceLocator, int maxWidth, int maxHeight, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string fanArtName)
     {
-      if (string.IsNullOrEmpty(fileName))
-        return null;
-
-      fileName = ResizeImage(fileName, maxWidth, maxHeight);
-      FileInfo fileInfo = new FileInfo(fileName);
-      if (!fileInfo.Exists)
-        return null;
-
       try
       {
-        byte[] binary = new byte[fileInfo.Length];
-        using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-        using (BinaryReader binaryReader = new BinaryReader(fileStream))
-          binaryReader.Read(binary, 0, binary.Length);
-
-        return new FanArtImage(fileInfo.Name, binary);
+        using (var ra = resourceLocator.CreateAccessor())
+        {
+          ILocalFsResourceAccessor fsra = ra as ILocalFsResourceAccessor;
+          if (fsra != null)
+          {
+            fsra.PrepareStreamAccess();
+            using (var fileStream = fsra.OpenRead())
+              return FromStream(fileStream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fsra.LocalFileSystemPath);
+          }
+        }
       }
       catch
       {
-        return null;
+      }
+      return null;
+    }
+
+    public static FanArtImage FromStream(Stream stream, int maxWidth, int maxHeight, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string fanArtName, string fileName = null)
+    {
+      using (Stream resized = ResizeImage(stream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fileName))
+        return new FanArtImage(fileName, ReadAll(resized));
+    }
+
+    public static byte[] ReadAll(Stream stream)
+    {
+      stream.Position = 0;
+      using (BinaryReader binaryReader = new BinaryReader(stream))
+      {
+        byte[] binary = new byte[stream.Length];
+        binaryReader.Read(binary, 0, binary.Length);
+        return binary;
       }
     }
 
     /// <summary>
-    /// Resizes an image to given size. The resized image will be saved to cache, so it can be reused later. Images that
+    /// Resizes an image to given size. The resized image will be saved to the given stream. Images that
     /// are smaller than the requested target size will not be scaled up, but returned in original size.
     /// </summary>
-    /// <param name="originalFile">Image to resize</param>
+    /// <param name="originalStream">Image to resize</param>
     /// <param name="maxWidth">Maximum image width</param>
     /// <param name="maxHeight">Maximum image height</param>
+    /// <param name="mediaType">MediaType</param>
+    /// <param name="fanArtType">FanArtType</param>
+    /// <param name="fanArtName">Fanart name</param>
+    /// <param name="originalFile">Original Filename</param>
     /// <returns></returns>
-    protected static string ResizeImage(string originalFile, int maxWidth, int maxHeight)
+    protected static Stream ResizeImage(Stream originalStream, int maxWidth, int maxHeight, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string fanArtName, string originalFile)
     {
       if (maxWidth == 0 || maxHeight == 0)
-        return originalFile;
-
-      if (!Directory.Exists(CACHE_PATH))
-        Directory.CreateDirectory(CACHE_PATH);
-
-      string thumbFileName = Path.Combine(CACHE_PATH, string.Format("th_{0}x{1}_{2}", maxWidth, maxHeight, Path.GetFileName(originalFile)));
-      if (File.Exists(thumbFileName))
-        return thumbFileName;
+        return originalStream;
 
       try
       {
-        Image fullsizeImage = Image.FromFile(originalFile);
+        if (!Directory.Exists(CACHE_PATH))
+          Directory.CreateDirectory(CACHE_PATH);
+
+        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}_{1}_{2}x{3}_{4}", fanArtType, fanArtName, maxWidth, maxHeight, Path.GetFileName(originalFile)));
+        if (File.Exists(thumbFileName))
+          using (originalStream)
+            return new FileStream(thumbFileName, FileMode.Open, FileAccess.Read);
+
+        Image fullsizeImage = Image.FromStream(originalStream);
         if (fullsizeImage.Width <= maxWidth)
           maxWidth = fullsizeImage.Width;
 
@@ -190,15 +212,20 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           newHeight = maxHeight;
         }
 
+        MemoryStream resizedStream = new MemoryStream();
         using (fullsizeImage)
         using (Image newImage = ImageUtilities.ResizeImage(fullsizeImage, maxWidth, newHeight))
+        {
           ImageUtilities.SaveJpeg(thumbFileName, newImage, 95);
+          ImageUtilities.SaveJpeg(resizedStream, newImage, 95);
+        }
 
-        return thumbFileName;
+        resizedStream.Position = 0;
+        return resizedStream;
       }
       catch (Exception)
       {
-        return originalFile;
+        return originalStream;
       }
     }
   }

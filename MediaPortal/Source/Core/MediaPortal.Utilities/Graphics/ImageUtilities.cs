@@ -137,6 +137,34 @@ namespace MediaPortal.Utilities.Graphics
     }
 
     /// <summary> 
+    /// Saves an image as a jpeg image into the given <paramref name="stream"/>, with the given quality.
+    /// </summary> 
+    /// <param name="stream">Stream to save the image into.</param>
+    /// <param name="image">Image to save.</param>
+    /// <param name="quality">An integer from <c>0</c> to <c>100</c>, with <c>100</c> being the highest quality</param> 
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// An invalid value was entered for image quality.
+    /// </exception>
+    public static void SaveJpeg(Stream stream, Image image, int quality)
+    {
+      // Ensure the quality is within the correct range
+      if ((quality < 0) || (quality > 100))
+      {
+        string error = string.Format("Jpeg image quality must be between 0 and 100, with 100 being the highest quality.  A value of {0} was specified.", quality);
+        throw new ArgumentOutOfRangeException(error);
+      }
+
+      // Create an encoder parameter for the image quality
+      EncoderParameter qualityParam = new EncoderParameter(Encoder.Quality, quality);
+      ImageCodecInfo jpegCodec = GetEncoderInfo("image/jpeg");
+
+      // Create a collection of all parameters that we will pass to the encoder
+      EncoderParameters encoderParams = new EncoderParameters(1);
+      encoderParams.Param[0] = qualityParam;
+      image.Save(stream, jpegCodec, encoderParams);
+    }
+
+    /// <summary> 
     /// Returns the image codec with the given mime type 
     /// </summary> 
     public static ImageCodecInfo GetEncoderInfo(string mimeType)
