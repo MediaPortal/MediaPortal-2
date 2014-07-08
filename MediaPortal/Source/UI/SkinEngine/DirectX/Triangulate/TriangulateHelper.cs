@@ -417,11 +417,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       else
       {
         //Take endpoints based on the end segments' normals alone
-        outPoints[0] = Vector2.Modulate(innerDistance, GetNormal(vPoints[1] - vPoints[0]));
+        outPoints[0] = Vector2.Multiply(innerDistance, GetNormal(vPoints[1] - vPoints[0]));
         outPoints[0] = vPoints[0] + outPoints[0];
 
         //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
-        Vector2 norm = Vector2.Modulate(innerDistance, GetNormal(vPoints[vPoints.Length - 1] - vPoints[vPoints.Length - 2])); //DEBUG
+        Vector2 norm = Vector2.Multiply(innerDistance, GetNormal(vPoints[vPoints.Length - 1] - vPoints[vPoints.Length - 2])); //DEBUG
 
         outPoints[outPoints.Length - 2] = vPoints[vPoints.Length - 1] + norm;
 
@@ -571,8 +571,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     {
       Vector2 lastDifference = point - lastPoint;
       slope = VectorSlope(lastDifference);
-      intercept = LineIntercept(lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), slope);
-      return InnerPoint(distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), point, nextPoint);
+      intercept = LineIntercept(lastPoint + Vector2.Multiply(distance, GetNormal(lastDifference)), slope);
+      return InnerPoint(distance, ref slope, ref intercept, lastPoint + Vector2.Multiply(distance, GetNormal(lastDifference)), point, nextPoint);
     }
 
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
@@ -590,7 +590,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     {
       Vector2 edgeVector = nextPoint - point;
       //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
-      Vector2 innerPoint = Vector2.Modulate(distance, GetNormal(edgeVector));
+      Vector2 innerPoint = Vector2.Multiply(distance, GetNormal(edgeVector));
 
       innerPoint = nextPoint + innerPoint;
 
