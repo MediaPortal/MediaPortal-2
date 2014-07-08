@@ -343,7 +343,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="0,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="tvguide_recordserie_button.png" IsVisible="False"
                    Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
           </Grid>
