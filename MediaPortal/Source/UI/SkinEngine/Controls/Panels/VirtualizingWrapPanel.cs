@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   /// and works under the assumption that all items use the same template - therefore are equally sized.
   /// </summary>
   public class VirtualizingWrapPanel : WrapPanel, IVirtualizingPanel
-	{
+  {
     #region Protected fields
 
     protected IItemProvider _itemProvider = null;
@@ -357,7 +357,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             int maxLineIndex = (int)Math.Ceiling((float)numItems / itemsPerLine);
             if (_actualFirstVisibleLineIndex > maxLineIndex - linesPerPage)
             {
-              _actualFirstVisibleLineIndex = maxLineIndex - linesPerPage;
+              _actualFirstVisibleLineIndex = Math.Max(maxLineIndex - linesPerPage, 0);
             }
           }
 
@@ -390,7 +390,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                 currentLineIndex--;
                 itemIndex = line.StartIndex - itemsPerLine;
-                
+
                 spaceLeft -= line.TotalExtendsInNonOrientationDirection;
                 if (spaceLeft + DELTA_DOUBLE < 0)
                   additionalLinesBefore++;
@@ -415,14 +415,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               _firstArrangedLineIndex = Math.Max(_actualFirstVisibleLineIndex - NUM_ADD_MORE_FOCUS_LINES, 0);
               int currentLineIndex = _firstArrangedLineIndex;
               // add "unarranges lines" up until where we start
-              while (_arrangedLines.Count < currentLineIndex) _arrangedLines.Add(new LineMeasurement()); 
+              while (_arrangedLines.Count < currentLineIndex) _arrangedLines.Add(new LineMeasurement());
               int itemIndex = currentLineIndex * itemsPerLine;
               int additionalLinesAfterwards = 0;
               while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES)
               {
-                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);                
+                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
                 _arrangedLines.Add(line);
-                
+
                 _lastArrangedLineIndex = currentLineIndex;
 
                 currentLineIndex++;
@@ -448,7 +448,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // now we know items per line for sure so just calculate it
           itemsPerLine = _arrangedLines[_firstArrangedLineIndex].EndIndex - _arrangedLines[_firstArrangedLineIndex].StartIndex + 1;
           _assumedLineExtendsInNonOrientationDirection = _arrangedLines[_firstArrangedLineIndex].TotalExtendsInNonOrientationDirection;
-          
+
           // 2) Calculate start position (so the first visible line starts at 0)
           startPosition -= (_actualFirstVisibleLineIndex - _firstArrangedLineIndex) * _assumedLineExtendsInNonOrientationDirection;
 
