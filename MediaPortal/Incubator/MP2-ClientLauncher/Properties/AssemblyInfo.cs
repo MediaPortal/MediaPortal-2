@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MediaPortal 2")]
+[assembly: AssemblyTitle("MediaPortal 2 Client Launcher")]
 [assembly: AssemblyDescription("MediaPortal 2 Client Launcher")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
