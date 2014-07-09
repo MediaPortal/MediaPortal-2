@@ -35,6 +35,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.LogoManager;
+using MediaPortal.LogoManager.ChannelManagerService;
 using MediaPortal.LogoManager.Design;
 using MediaPortal.Plugins.SlimTv.SlimTvResources.Settings;
 using MediaPortal.Utilities.FileSystem;
@@ -73,15 +74,15 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       if (mediaType != FanArtConstants.FanArtMediaType.ChannelTv && mediaType != FanArtConstants.FanArtMediaType.ChannelRadio)
         return false;
 
-      List<IResourceLocator> files = new List<IResourceLocator>();
       try
       {
         string designsFolder = FileUtils.BuildAssemblyRelativePath("Designs");
 
+        ChannelType logoChannelType = mediaType == FanArtConstants.FanArtMediaType.ChannelTv ? ChannelType.Tv : ChannelType.Radio;
         ThemeHandler themeHandler = new ThemeHandler();
         Theme theme = themeHandler.Load(Path.Combine(designsFolder, _settings.LogoTheme));
 
-        string logoFolder = Path.Combine(_dataFolder, string.Format("{0}-{1}", theme.DesignName, theme.ThemeName));
+        string logoFolder = Path.Combine(_dataFolder, string.Format("{0}-{1}-{2}", logoChannelType, theme.DesignName, theme.ThemeName));
         string logoFileName = Path.Combine(logoFolder, FileUtils.GetSafeFilename(string.Format("{0}.png", name)));
 
         if (!Directory.Exists(logoFolder))
@@ -98,7 +99,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         // From repository
         using (var repo = new LogoRepository { RepositoryUrl = _settings.RepositoryUrl })
         {
-          var stream = repo.Download(name, _country.TwoLetterISORegionName);
+          var stream = repo.Download(name, logoChannelType, _country.TwoLetterISORegionName);
           if (stream == null)
             return false;
           using (stream)
