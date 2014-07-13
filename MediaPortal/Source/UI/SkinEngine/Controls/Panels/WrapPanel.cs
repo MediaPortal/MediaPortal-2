@@ -113,6 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected IList<LineMeasurement> _arrangedLines = new List<LineMeasurement>();
     protected int _actualFirstVisibleLineIndex = 0;
     protected int _actualLastVisibleLineIndex = -1;
+    protected int _originalFirstVisibleChildIndex = 0;
 
     #endregion
 
@@ -929,6 +930,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return true;
       }
       return false;
+    }
+
+    public bool Scroll(float deltaX, float deltaY)
+    {
+      int visibleLines = NumberOfVisibleLines;
+
+      if (visibleLines == 0)
+        return false;
+
+      int numLines = Orientation == Orientation.Horizontal ?
+        (int)(deltaY / (ActualHeight / visibleLines)) :
+        0 /*TODO: we don't have a "visbile columns" yet... (int)(deltaX / (ActualWidth / visibleLines))*/;
+
+      SetScrollIndex(_originalFirstVisibleChildIndex - numLines, true);
+      return false;
+    }
+
+    public bool BeginScroll()
+    {
+      _originalFirstVisibleChildIndex = _actualFirstVisibleLineIndex;
+      return true;
+    }
+
+    public bool EndScroll()
+    {
+      _originalFirstVisibleChildIndex = 0;
+      return true;
     }
 
     #endregion

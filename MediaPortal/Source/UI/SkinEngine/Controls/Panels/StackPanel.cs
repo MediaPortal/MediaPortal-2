@@ -67,7 +67,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     // Index of the first visible item which will be drawn at our ActualPosition - updated by method Arrange.
     protected int _actualFirstVisibleChildIndex = 0;
-    
+    // Index before scrolling started
+    protected int _originalFirstVisibleChildIndex = 0;
+
     // Index of the last visible child item. When scrolling, this index denotes the "opposite children" to the
     // child denoted by the _actualFirstVisibleChildIndex.
     protected int _actualLastVisibleChildIndex = -1;
@@ -757,6 +759,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return false;
     }
 
+    public bool Scroll(float deltaX, float deltaY)
+    {
+      SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
+
+      // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
+      float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
+      int visibleLines = NumberOfVisibleLines;
+
+      if (visibleLines == 0)
+        return false;
+
+      int numLines = Orientation == Orientation.Vertical ?
+        (int)(deltaY / (actualExtendsInOrientationDirection / visibleLines)) :
+        (int)(deltaX / (actualExtendsInOrientationDirection / visibleLines));
+
+      SetScrollIndex(_originalFirstVisibleChildIndex - numLines, true);
+      return false;
+    }
+
+    public bool BeginScroll()
+    {
+      _originalFirstVisibleChildIndex = _actualFirstVisibleChildIndex;
+      return true;
+    }
+
+    public bool EndScroll()
+    {
+      _originalFirstVisibleChildIndex = 0;
+      return true;
+    }
+
     #endregion
 
     #region IScrollInfo implementation
@@ -831,8 +864,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
-        int numLines = 0;
-        CalcHelper.Bound(ref numLines, 0, _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex);
+        int numLines = _actualLastVisibleChildIndex - _actualFirstVisibleChildIndex + 1;
         return numLines > 0 ? numLines : 0;
       }
     }

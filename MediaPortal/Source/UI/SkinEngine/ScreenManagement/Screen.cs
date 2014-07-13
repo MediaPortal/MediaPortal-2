@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       protected FrameworkElement _focusElement = null;
       protected int _age = 0;
-      
+
       public ScheduledFocus(FrameworkElement focusElement)
       {
         _focusElement = focusElement;
@@ -260,9 +260,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         else if (value == State.Running)
           _root.SetElementState(ElementState.Running);
         else if (value == State.Closing)
-          { } // Nothing to do
+        { } // Nothing to do
         else if (value == State.Closed)
-          { } // Nothing to do
+        { } // Nothing to do
         else
           throw new IllegalCallException("Invalid screen state transition from {0} to {1}", _state, value);
         _state = value;
@@ -281,7 +281,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool HasInputFocus
     {
-      get { return (bool) _hasInputFocusProperty.GetValue(); }
+      get { return (bool)_hasInputFocusProperty.GetValue(); }
       set { _hasInputFocusProperty.SetValue(value); }
     }
 
@@ -388,7 +388,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Render()
     {
-      uint time = (uint) Environment.TickCount;
+      uint time = (uint)Environment.TickCount;
       SkinContext.SystemTickCount = time;
 
       var pass = GraphicsDevice.RenderPass;
@@ -423,9 +423,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseMoved += HandleMouseMove;
         inputManager.MouseClicked += HandleMouseClick;
         inputManager.MouseWheeled += HandleMouseWheel;
+        inputManager.TouchDown += HandleTouchDown;
+        inputManager.TouchUp += HandleTouchUp;
+        inputManager.TouchMove += HandleTouchMove;
         HasInputFocus = true;
       }
-      FrameworkElement lastFocusElement = (FrameworkElement) _lastFocusedElement.Target;
+      FrameworkElement lastFocusElement = (FrameworkElement)_lastFocusedElement.Target;
       if (!PretendMouseMove() && lastFocusElement != null)
         lastFocusElement.SetFocusPrio = SetFocusPriority.DefaultHigh;
     }
@@ -440,6 +443,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseMoved -= HandleMouseMove;
         inputManager.MouseClicked -= HandleMouseClick;
         inputManager.MouseWheeled -= HandleMouseWheel;
+        inputManager.TouchDown -= HandleTouchDown;
+        inputManager.TouchUp -= HandleTouchUp;
+        inputManager.TouchMove -= HandleTouchMove;
         HasInputFocus = false;
         RemoveCurrentFocus();
       }
@@ -660,6 +666,60 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    private void HandleTouchMove(object sender, TouchMoveEvent touchEvent)
+    {
+      if (!HasInputFocus)
+        return;
+      try
+      {
+        lock (_syncObj)
+          if (_root.CanHandleMouseMove() && GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass)
+          {
+            _root.OnTouchMove(touchEvent);
+          }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing touch move event", e, _resourceName);
+      }
+    }
+
+    private void HandleTouchUp(object sender, TouchUpEvent touchEvent)
+    {
+      if (!HasInputFocus)
+        return;
+      try
+      {
+        lock (_syncObj)
+          if (_root.CanHandleMouseMove() && GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass)
+          {
+            _root.OnTouchUp(touchEvent);
+          }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing touch up event", e, _resourceName);
+      }
+    }
+
+    private void HandleTouchDown(object sender, TouchDownEvent touchEvent)
+    {
+      if (!HasInputFocus)
+        return;
+      try
+      {
+        lock (_syncObj)
+          if (_root.CanHandleMouseMove() && GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass)
+          {
+            _root.OnTouchDown(touchEvent);
+          }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing touch down event", e, _resourceName);
+      }
+    }
+
     public override bool IsInArea(float x, float y)
     {
       return true; // Screens always cover the whole physical area
@@ -672,7 +732,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public RenderContext CreateInitialRenderContext()
     {
-      Matrix transform = Matrix.Scaling((float) SkinContext.WindowSize.Width / _skinWidth, (float) SkinContext.WindowSize.Height / _skinHeight, 1);
+      Matrix transform = Matrix.Scaling((float)SkinContext.WindowSize.Width / _skinWidth, (float)SkinContext.WindowSize.Height / _skinHeight, 1);
       return new RenderContext(transform, new RectangleF(0, 0, _skinWidth, _skinHeight));
     }
 
@@ -877,7 +937,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public override void FinishInitialization(IParserContext context)
     {
       base.FinishInitialization(context);
-      ISkinResourceBundle resourceBundle = (ISkinResourceBundle) context.GetContextVariable(typeof(ISkinResourceBundle));
+      ISkinResourceBundle resourceBundle = (ISkinResourceBundle)context.GetContextVariable(typeof(ISkinResourceBundle));
       // This resourceBundle is the resource bundle where the screen itself is located. It is necessary to use the resource bundle
       // of the skin where the screen file which contains the <Screen> element is located and NOT the resource bundle of the
       // screen which is being loaded by the ScreenManager, because the skin file with the <Screen> element might be included

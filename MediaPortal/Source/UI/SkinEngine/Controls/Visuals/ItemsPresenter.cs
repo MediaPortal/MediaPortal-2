@@ -304,6 +304,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return svfs != null && svfs.ScrollUp(numLines);
     }
 
+    public bool Scroll(float deltaX, float deltaY)
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.Scroll(deltaX, deltaY);
+    }
+
+    public bool BeginScroll()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.BeginScroll();
+    }
+
+    public bool EndScroll()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.EndScroll();
+    }
+
     #endregion
 
     #region IScrollInfo implementation

@@ -31,6 +31,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects;
+using MediaPortal.UI.SkinEngine.GUI;
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -1054,6 +1056,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (!child.IsVisible) continue;
         child.OnMouseWheel(numDetents);
+      }
+    }
+
+    public virtual void OnTouchDown(TouchDownEvent touchEventArgs)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnTouchDown(touchEventArgs);
+      }
+    }
+
+    public virtual void OnTouchUp(TouchUpEvent touchEventArgs)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnTouchUp(touchEventArgs);
+      }
+    }
+
+    public virtual void OnTouchMove(TouchMoveEvent touchEventArgs)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnTouchMove(touchEventArgs);
+      }
+    }
+
+    public virtual void OnTouchEnter(TouchEvent touchEventArgs)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnTouchEnter(touchEventArgs);
+      }
+    }
+
+    public virtual void OnTouchLeave(TouchEvent touchEventArgs)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnTouchLeave(touchEventArgs);
       }
     }
 
