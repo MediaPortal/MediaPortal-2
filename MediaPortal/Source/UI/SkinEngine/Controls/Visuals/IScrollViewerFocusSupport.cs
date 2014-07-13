@@ -116,5 +116,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="numLines">Number of detents the mousewheel was moved.</param>
     /// <returns><c>true</c>, if scrolling could be performed, else <c>false</c>.</returns>
     bool ScrollUp(int numLines);
+
+    /// <summary>
+    /// Begins a relative scrolling progress. This method is usually invoked when a TouchDown event happens.
+    /// </summary>
+    /// <returns></returns>
+    bool BeginScroll();
+
+    /// <summary>
+    /// Scrolls by the given number of pixels. This method is usually invoked when a TouchMove event happens.
+    /// </summary>
+    /// <param name="deltaX">Relative difference in x direction.</param>
+    /// <param name="deltaY">Relative difference in y direction.</param>
+    /// <returns></returns>
+    bool Scroll(float deltaX, float deltaY);
+
+    /// <summary>
+    /// Ends a relative scrolling progress. This method is usually invoked when a TouchUp event happens.
+    /// </summary>
+    /// <returns></returns>
+    bool EndScroll();
   }
 }

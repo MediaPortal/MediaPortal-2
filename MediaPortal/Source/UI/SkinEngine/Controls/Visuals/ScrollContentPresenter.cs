@@ -58,6 +58,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected float _scrollOffsetY = 0;
     protected float _actualScrollOffsetX = 0;
     protected float _actualScrollOffsetY = 0;
+    protected float _originalOffsetX = 0;
+    protected float _originalOffsetY = 0;
     protected bool _forcedOpacityMask = false;
     protected AbstractProperty _autoCenteringProperty;
     protected AbstractProperty _horizontalFitToSpaceProperty;
@@ -581,6 +583,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (IsViewPortAtTop)
         return false;
       SetScrollOffset(_scrollOffsetX, _scrollOffsetY + numLines * NUM_SCROLL_PIXEL);
+      return true;
+    }
+
+    public bool BeginScroll()
+    {
+      _originalOffsetX = _scrollOffsetX;
+      _originalOffsetY = _scrollOffsetY;
+      return true;
+    }
+
+    public bool Scroll(float deltaX, float deltaY)
+    {
+      SetScrollOffset(_originalOffsetX + deltaX, _originalOffsetY + deltaY);
+      return true;
+    }
+
+    public bool EndScroll()
+    {
+      _originalOffsetX = 0;
+      _originalOffsetY = 0;
       return true;
     }
 

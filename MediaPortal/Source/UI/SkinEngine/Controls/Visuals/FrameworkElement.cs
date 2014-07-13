@@ -127,6 +127,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public const string LOSTFOCUS_EVENT = "FrameworkElement.LostFocus";
     public const string MOUSEENTER_EVENT = "FrameworkElement.MouseEnter";
     public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseLeave";
+    public const string TOUCHENTER_EVENT = "FrameworkElement.TouchEnter";
+    public const string TOUCHLEAVE_EVENT = "FrameworkElement.TouchLeave";
 
     protected const string GLOBAL_RENDER_TEXTURE_ASSET_KEY = "SkinEngine::GlobalRenderTexture";
     protected const string GLOBAL_RENDER_SURFACE_ASSET_KEY = "SkinEngine::GlobalRenderSurface";

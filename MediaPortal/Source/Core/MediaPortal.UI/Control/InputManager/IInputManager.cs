@@ -75,7 +75,7 @@ namespace MediaPortal.UI.Control.InputManager
     /// <summary>
     /// Called to handle a mouse move event.
     /// </summary>
-    /// <param name="x">The x corrdinate.</param>
+    /// <param name="x">The x coordinate.</param>
     /// <param name="y">The y coordinate.</param>
     void MouseMove(float x, float y);
 
@@ -97,6 +97,24 @@ namespace MediaPortal.UI.Control.InputManager
     /// </summary>
     /// <param name="key">The key which was pressed or generated.</param>
     void KeyPress(Key key);
+
+    /// <summary>
+    /// Called to handle touch down events. The arguments contain the position where the event was raised.
+    /// </summary>
+    /// <param name="touchDownEvent">The touch event.</param>
+    void TouchDown(TouchDownEvent touchDownEvent);
+
+    /// <summary>
+    /// Called to handle touch up events. The arguments contain the position where the event was raised.
+    /// </summary>
+    /// <param name="touchUpEvent">The touch event.</param>
+    void TouchUp(TouchUpEvent touchUpEvent);
+
+    /// <summary>
+    /// Called to handle touch move events. The arguments contain the position where the event was raised.
+    /// </summary>
+    /// <param name="touchMoveEvent">The touch event.</param>
+    void TouchMove(TouchMoveEvent touchMoveEvent);
 
     /// <summary>
     /// Called to execute the given command in the input manager thread.

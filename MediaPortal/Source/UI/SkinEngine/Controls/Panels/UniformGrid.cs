@@ -509,6 +509,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return true;
     }
 
+    public bool Scroll(float deltaX, float deltaY)
+    {
+      return false;
+    }
+
+    public bool BeginScroll()
+    {
+      return true;
+    }
+
+    public bool EndScroll()
+    {
+      return true;
+    }
+
     #endregion
 
     #region IScrollInfo implementation

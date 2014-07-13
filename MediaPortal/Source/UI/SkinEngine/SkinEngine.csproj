@@ -245,6 +245,9 @@
     <Compile Include="Geometry\GeometryStretch.cs" />
     <Compile Include="Geometry\GeometryZoom.cs" />
     <Compile Include="Geometry\GeometryZoom149.cs" />
+    <Compile Include="GUI\WMTouchForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="InputManagement\ClipboardManager.cs" />
     <Compile Include="InputManagement\InputMapper.cs" />
     <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
