@@ -32,6 +32,7 @@ using MediaPortal.Common.General;
 #if DEBUG_LAYOUT
 using MediaPortal.Common.Logging;
 #endif
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
@@ -69,6 +70,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected AbstractProperty _timeIndicatorTemplateProperty;
     protected bool _childrenCreated = false;
     protected int _channelViewOffset;
+    protected int _originalViewOffset;
     protected double _actualWidth = 0.0d;
     protected double _actualHeight = 0.0d;
     protected int _groupIndex = -1;
@@ -76,6 +78,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected Control _timeIndicatorControl;
     protected Timer _timer = null;
     protected long _updateInterval = 10000; // Update every 10 seconds
+    protected TouchDownEvent _lastTouchEvent;
 
     #endregion
 
@@ -720,27 +723,35 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       if (!MoveFocus1(MoveFocusDirection.Down))
       {
-        if (IsViewPortAtBottom)
-          return false;
-
-        _channelViewOffset++;
-        UpdateViewportVertical(-1);
-        return MoveFocus1(MoveFocusDirection.Down); // After we created a new row, try to set focus again
+        return ScrollUp() && MoveFocus1(MoveFocusDirection.Down); // After we created a new row, try to set focus again
       }
       return true;
     }
 
+    private bool ScrollUp()
+    {
+      if (IsViewPortAtBottom)
+        return false;
+      _channelViewOffset++;
+      UpdateViewportVertical(-1);
+      return true;
+    }
+    
     private bool OnUp()
     {
       if (!MoveFocus1(MoveFocusDirection.Up))
       {
-        if (IsViewPortAtTop)
-          return false;
-
-        _channelViewOffset--;
-        UpdateViewportVertical(+1);
-        return MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
+        return ScrollDown() && MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
       }
+      return true;
+    }
+
+    private bool ScrollDown()
+    {
+      if (IsViewPortAtTop)
+        return false;
+      _channelViewOffset--;
+      UpdateViewportVertical(+1);
       return true;
     }
 
@@ -809,6 +820,71 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       return true;
     }
 
+    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    {
+      // No focus handling when using touch move
+      if (_lastTouchEvent == null)
+        base.OnMouseMove(x, y, focusCandidates);
+    }
+
+    public override void OnTouchDown(TouchDownEvent touchEventArgs)
+    {
+      var isInArea = IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY);
+      base.OnTouchDown(touchEventArgs);
+      // Only start handling touch if it happened inside control's area
+      if (!touchEventArgs.IsPrimaryContact || !isInArea)
+        return;
+      _lastTouchEvent = touchEventArgs;
+      _originalViewOffset = _channelViewOffset;
+    }
+
+    public override void OnTouchUp(TouchUpEvent touchEventArgs)
+    {
+      base.OnTouchUp(touchEventArgs);
+      _lastTouchEvent = null;
+      _originalViewOffset = 0;
+    }
+
+    public override void OnTouchMove(TouchMoveEvent touchEventArgs)
+    {
+      base.OnTouchMove(touchEventArgs);
+
+      if (!touchEventArgs.IsPrimaryContact)
+        return;
+
+      if (_lastTouchEvent != null)
+      {
+        // Transform screen (i.e. 720p) to skin coordinates (i.e. 1080p)
+        float lastX = _lastTouchEvent.LocationX;
+        float lastY = _lastTouchEvent.LocationY;
+        float currX = touchEventArgs.LocationX;
+        float currY = touchEventArgs.LocationY;
+        if (!TransformMouseCoordinates(ref lastX, ref lastY) || !TransformMouseCoordinates(ref currX, ref currY))
+          return;
+
+        var scrollX = currX - lastX;
+        var scrollY = currY - lastY;
+        int scrollByLines = (int)Math.Round(scrollY / (ActualHeight / _numberOfRows));
+
+        // As we are scrolling relative we need to compensate the steps we already made
+        scrollByLines += _channelViewOffset - _originalViewOffset;
+        if (scrollByLines == 0)
+          return;
+
+        ServiceRegistration.Get<ILogger>().Debug("Epg: Scroll: {0} Y:{1} Height:{2} Rows:{3} O:{4} C:{5}", scrollByLines, scrollY, ActualHeight, _numberOfRows, _originalViewOffset , _channelViewOffset);
+        while (scrollByLines++ < 0)
+        {
+          if (!ScrollUp())
+            break;
+        }
+        while (scrollByLines-- > 0)
+        {
+          if (!ScrollDown())
+            break;
+        }
+      }
+    }
+
     private void UpdateViewportHorizontal()
     {
       CreateVisibleChildren(true);
@@ -839,6 +915,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         CreateOrUpdateRow(false, ref channelIndex, rowIndex);
       }
       ArrangeOverride();
+      //RecreateAndArrangeChildren(true);
     }
 
     #endregion
