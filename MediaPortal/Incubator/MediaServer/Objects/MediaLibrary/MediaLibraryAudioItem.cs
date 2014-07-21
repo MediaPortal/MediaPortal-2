@@ -22,10 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
@@ -33,7 +30,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAudioItem : MediaLibraryItem, IDirectoryAudioItem
   {
-    public MediaLibraryAudioItem(string baseKey, MediaItem item) : base(baseKey, item)
+    public MediaLibraryAudioItem(string baseKey, MediaItem item)
+      : base(baseKey, item)
     {
       Genre = new List<string>();
       Publisher = new List<string>();
@@ -48,12 +46,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       resource.Initialise();
       Resources.Add(resource);
 
-      if (item.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
+      if (item.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))
       {
         var albumArt = new MediaLibraryAlbumArt(item);
         albumArt.Initialise();
-        AlbumArtUrls.Add(albumArt);        
-      }      
+        AlbumArtUrls.Add(albumArt);
+      }
     }
 
     public override string Class

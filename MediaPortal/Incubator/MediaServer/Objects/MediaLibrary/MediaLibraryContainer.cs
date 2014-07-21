@@ -59,6 +59,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   {
                                     ProviderResourceAspect.ASPECT_ID,
                                     MediaAspect.ASPECT_ID,
+                                    DlnaItemAspect.ASPECT_ID,
                                   };
       var optionalMIATypeIDs = new Guid[]
                                  {
@@ -66,8 +67,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                    VideoAspect.ASPECT_ID,
                                    AudioAspect.ASPECT_ID,
                                    ImageAspect.ASPECT_ID,
-                                   DlnaItemAspect.ASPECT_ID,
-                                   ThumbnailSmallAspect.ASPECT_ID,
                                    ThumbnailLargeAspect.ASPECT_ID
                                  };
 

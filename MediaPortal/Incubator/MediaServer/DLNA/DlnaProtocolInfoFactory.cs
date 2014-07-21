@@ -22,12 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.DLNA
@@ -36,8 +31,10 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
   {
     public DlnaProtocolInfo GetProtocolInfo(MediaItem item)
     {
-      var dlnaAspect = item.Aspects[DlnaItemAspect.ASPECT_ID];
-      var dlnaMediaType = dlnaAspect.GetAttributeValue(DlnaItemAspect.ATTR_MIME_TYPE).ToString();
+      string dlnaMediaType;
+      if (!MediaItemAspect.TryGetAttribute(item.Aspects, DlnaItemAspect.ATTR_MIME_TYPE, out dlnaMediaType))
+        return null;
+
       var info = new DlnaProtocolInfo
                    {
                      Protocol = "http-get",
@@ -52,7 +49,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
 
     private static string ConfigureProfile(DlnaForthField dlnaField, MediaItem item, string mediaType)
     {
-      //TODO: much better type resolution        
+      //TODO: much better type resolution
       switch (mediaType)
       {
         case "audio/mpeg":

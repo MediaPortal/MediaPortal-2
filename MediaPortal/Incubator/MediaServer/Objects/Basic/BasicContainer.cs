@@ -22,12 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.Basic

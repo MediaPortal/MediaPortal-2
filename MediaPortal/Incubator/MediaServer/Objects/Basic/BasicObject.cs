@@ -22,11 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MediaPortal.Extensions.MediaServer.DIDL;
 using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Utilities.Exceptions;
 
@@ -34,7 +31,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 {
   public abstract class BasicObject : TreeNode<object>, IDirectoryObject
   {
-    protected BasicObject(string key) : base(key, null)
+    protected BasicObject(string key)
+      : base(key, null)
     {
       Resources = new List<IDirectoryResource>();
     }
@@ -78,7 +76,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 
     public BasicObject FindObject(string objectId)
     {
-      return (BasicObject) FindNode(objectId);
+      return (BasicObject)FindNode(objectId);
     }
   }
 }

@@ -22,11 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -54,8 +50,7 @@ namespace MediaPortal.Extensions.MediaServer.Database
       }
     }
 
-    public static IDbCommand SelectDlnaMediaInfoCommand(ITransaction transaction, out int systemIdIndex,
-                                                        out int lastHostNameIndex, out int lastClientNameIndex)
+    public static IDbCommand SelectDlnaMediaInfoCommand(ITransaction transaction, out int systemIdIndex, out int lastHostNameIndex, out int lastClientNameIndex)
     {
       var result = transaction.CreateCommand();
 
@@ -67,12 +62,10 @@ namespace MediaPortal.Extensions.MediaServer.Database
       return result;
     }
 
-    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName,
-                                                         string clientName)
+    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName, string clientName)
     {
       var result = transaction.CreateCommand();
-      result.CommandText =
-        "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (@SYSTEM_ID, @LAST_HOSTNAME, @LAST_CLIENT_NAME)";
+      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (@SYSTEM_ID, @LAST_HOSTNAME, @LAST_CLIENT_NAME)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "SYSTEM_ID", systemId, typeof (string));
       database.AddParameter(result, "LAST_HOSTNAME", hostName, typeof (string));
@@ -85,8 +78,7 @@ namespace MediaPortal.Extensions.MediaServer.Database
                                                              string clientName)
     {
       var result = transaction.CreateCommand();
-      result.CommandText =
-        "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = @LAST_HOSTNAME, LAST_CLIENT_NAME = @LAST_CLIENT_NAME WHERE SYSTEM_ID = @SYSTEM_ID";
+      result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = @LAST_HOSTNAME, LAST_CLIENT_NAME = @LAST_CLIENT_NAME WHERE SYSTEM_ID = @SYSTEM_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "LAST_HOSTNAME", system == null ? null : system.HostName, typeof (string));
       database.AddParameter(result, "LAST_CLIENT_NAME", clientName, typeof (string));

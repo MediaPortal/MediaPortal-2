@@ -23,19 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -73,7 +67,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
       var url = GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId);
 
-      ProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(Item).ToString();
+      var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(Item);
+      if (dlnaProtocolInfo == null)
+        return;
+      ProtocolInfo = dlnaProtocolInfo.ToString();
 
       if (Item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {

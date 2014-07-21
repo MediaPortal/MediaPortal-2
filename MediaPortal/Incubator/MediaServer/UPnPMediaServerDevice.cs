@@ -55,8 +55,8 @@ namespace MediaPortal.Extensions.MediaServer
              new LocalizedUPnPDeviceInformation())
     {
       DescriptionGenerateHook += GenerateDescriptionFunc;
-      AddService(new UPnPContentDirectoryServiceImpl());
       AddService(new UPnPConnectionManagerServiceImpl());
+      AddService(new UPnPContentDirectoryServiceImpl());
     }
 
     private static void GenerateDescriptionFunc(XmlWriter writer, DvDevice device, GenerationPosition pos,

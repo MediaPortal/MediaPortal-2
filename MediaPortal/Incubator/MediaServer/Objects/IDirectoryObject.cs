@@ -24,8 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MediaPortal.Extensions.MediaServer.Objects
 {
@@ -83,8 +81,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects
     string WriteStatus { get; set; }
   }
 
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false,
-    Inherited = false)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public class DirectoryPropertyAttribute : Attribute
   {
     public string XmlPart { get; set; }

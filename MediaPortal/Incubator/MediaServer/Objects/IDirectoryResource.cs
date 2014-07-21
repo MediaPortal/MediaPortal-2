@@ -22,11 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace MediaPortal.Extensions.MediaServer.Objects
 {
   public interface IDirectoryResource

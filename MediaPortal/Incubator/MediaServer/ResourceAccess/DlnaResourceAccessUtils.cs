@@ -23,9 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -50,7 +47,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     public static string GetResourceUrl(Guid mediaItem)
     {
-      return RESOURCE_ACCESS_PATH + "/" + mediaItem.ToString();
+      return RESOURCE_ACCESS_PATH + "/" + mediaItem;
     }
 
     public static bool ParseMediaItem(Uri resourceUri, out Guid mediaItemGuid)
@@ -63,8 +60,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ParseMediaItem: Failed with input url {0}", e,
-                                                resourceUri.OriginalString);
+        ServiceRegistration.Get<ILogger>().Warn("ParseMediaItem: Failed with input url {0}", e, resourceUri.OriginalString);
         mediaItemGuid = Guid.Empty;
         return false;
       }

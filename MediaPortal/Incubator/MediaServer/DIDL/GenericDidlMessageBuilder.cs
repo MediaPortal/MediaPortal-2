@@ -47,9 +47,8 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
 
     protected void StartMessage()
     {
-      _xml = XmlWriter.Create(new StringWriterWithEncoding(_message, Encoding.UTF8),
-                              DEFAULT_XML_WRITER_SETTINGS);
-      _xml.WriteStartDocument();
+      _xml = XmlWriter.Create(new StringWriterWithEncoding(_message, Encoding.UTF8), DEFAULT_XML_WRITER_SETTINGS);
+      //_xml.WriteStartDocument();
       _xml.WriteStartElement(string.Empty, "DIDL-Lite", "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/");
       _xml.WriteAttributeString("xmlns", "dc", null, "http://purl.org/dc/elements/1.1/");
       _xml.WriteAttributeString("xmlns", "dlna", null, "urn:schemas-dlna-org:metadata-1-0/");
@@ -114,7 +113,8 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
                                                                     {
                                                                       CheckCharacters = false,
                                                                       Encoding = Encoding.UTF8,
-                                                                      Indent = false
+                                                                      Indent = false,
+                                                                      OmitXmlDeclaration = true
                                                                     };
   }
 

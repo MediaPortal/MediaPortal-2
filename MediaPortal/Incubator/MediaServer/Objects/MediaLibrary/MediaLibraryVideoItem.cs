@@ -22,12 +22,10 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -42,8 +40,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Publisher = new List<string>();
 
       var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
-      var genreObj = videoAspect.GetAttributeValue(VideoAspect.ATTR_GENRES);
-      if (genreObj != null) Genre.Add(genreObj.ToString());
+      var genreObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_GENRES);
+      if (genreObj != null)
+        CollectionUtils.AddAll(Genre, genreObj);
 
       var resource = new MediaLibraryResource(item);
       resource.Initialise();

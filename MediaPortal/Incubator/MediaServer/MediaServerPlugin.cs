@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -43,7 +39,7 @@ namespace MediaPortal.Extensions.MediaServer
 {
   public class MediaServerPlugin : IPluginStateTracker, IMessageReceiver
   {
-    private UPnPMediaServerDevice _device;
+    private readonly UPnPMediaServerDevice _device;
 
     public const string DEVICE_UUID = "45F2C54D-8C0A-4736-AA04-E6F91CD45457";
 
@@ -57,15 +53,15 @@ namespace MediaPortal.Extensions.MediaServer
 
     private static void InitialiseContainerTree()
     {
-      RootContainer = new BasicContainer("0") {Title = "MediaPortal Media Library"};
-      var audioContainer = new BasicContainer("A") {Title = "Audio"};
+      RootContainer = new BasicContainer("0") { Title = "MediaPortal Media Library" };
+      var audioContainer = new BasicContainer("A") { Title = "Audio" };
       RootContainer.Add(audioContainer);
-      var pictureContainer = new BasicContainer("P") {Title = "Picture"};
+      var pictureContainer = new BasicContainer("P") { Title = "Picture" };
       RootContainer.Add(pictureContainer);
-      var videoContainer = new BasicContainer("V") {Title = "Video"};
+      var videoContainer = new BasicContainer("V") { Title = "Video" };
       RootContainer.Add(videoContainer);
-      videoContainer.Add(new MediaLibraryGenreContainer("VG") {Title = "Genres"});
-      RootContainer.Add(new MediaLibraryShareContainer("S") {Title = "Shares"});
+      videoContainer.Add(new MediaLibraryGenreContainer("VG") { Title = "Genres" });
+      RootContainer.Add(new MediaLibraryShareContainer("S") { Title = "Shares" });
     }
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -74,29 +70,26 @@ namespace MediaPortal.Extensions.MediaServer
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
-      
+
       Logger.Debug("MediaServerPlugin: Adding UPNP device as a root device");
       ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.AddRootDevice(_device);
     }
 
     public bool RequestEnd()
     {
-      throw new NotImplementedException();
+      return true;
     }
 
     public void Stop()
     {
-      throw new NotImplementedException();
     }
 
     public void Continue()
     {
-      throw new NotImplementedException();
     }
 
     public void Shutdown()
     {
-      throw new NotImplementedException();
     }
 
     internal static ILogger Logger
@@ -110,8 +103,8 @@ namespace MediaPortal.Extensions.MediaServer
       {
         if (((SystemMessaging.MessageType)message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
         {
-          var newState = message.MessageData["NewState"];
-          if (newState != null && newState.ToString() == "Running")
+          SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+          if (newState == SystemState.Running)
           {
             RegisterWithServices();
           }
@@ -123,13 +116,10 @@ namespace MediaPortal.Extensions.MediaServer
     {
       // All non-default media item aspects must be registered
       ServiceRegistration.Get<ILogger>().Info("MediaServerPlugin: Registering Media Aspects");
-      ServiceRegistration.Get<IMediaItemAspectTypeRegistration>()
-        .RegisterLocallyKnownMediaItemAspectType(DlnaItemAspect.Metadata);
+      ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().RegisterLocallyKnownMediaItemAspectType(DlnaItemAspect.Metadata);
 
-      Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");       
+      Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");
       ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
-      
-      
     }
   }
 }

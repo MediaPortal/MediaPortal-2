@@ -322,6 +322,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       if (dgh != null)
         dgh(writer, this, GenerationPosition.DeviceStart, config, culture);
       writer.WriteElementString("deviceType", DeviceTypeVersion_URN);
+      writer.WriteElementString("UDN", UDN);
       writer.WriteElementString("friendlyName", deviceInformation.GetFriendlyName(culture));
       writer.WriteElementString("manufacturer", deviceInformation.GetManufacturer(culture));
       string manufacturerURL = deviceInformation.GetManufacturerURL(culture);
@@ -340,7 +341,6 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       string serialNumber = deviceInformation.GetSerialNumber(culture);
       if (!string.IsNullOrEmpty(serialNumber))
         writer.WriteElementString("serialNumber", serialNumber);
-      writer.WriteElementString("UDN", UDN);
       string upc = deviceInformation.GetUPC();
       if (!string.IsNullOrEmpty(upc))
         writer.WriteElementString("UPC", upc);

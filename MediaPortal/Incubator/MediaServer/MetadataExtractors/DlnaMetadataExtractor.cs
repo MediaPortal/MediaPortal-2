@@ -51,15 +51,14 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     /// </summary>
     protected const int PROCESS_TIMEOUT_MS = 2500;
 
-    protected static List<MediaCategory> MediaCategories = new List<MediaCategory>
-      { DefaultMediaCategories.Audio, DefaultMediaCategories.Image, DefaultMediaCategories.Video };
+    protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Audio, DefaultMediaCategories.Image, DefaultMediaCategories.Video };
 
     static DlnaMetadataExtractor()
     {
       //ImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImageMetadataExtractorSettings>();
       //InitializeExtensions(settings);
 
-      
+
     }
 
     public DlnaMetadataExtractor()
@@ -97,7 +96,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
             var info = ExtractFFMpegInfo(lfsra);
             ConvertFFMPEGInfoToAspectData(extractedAspectData, info);
           }
-        }       
+        }
         return true;
       }
       catch (Exception e)
@@ -118,7 +117,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
       string result;
       if (TryExecuteReadString(executable, arguments, out result, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS))
-      {        
+      {
         ServiceRegistration.Get<ILogger>().Info("DlnaMediaServer: Successfully ran ffmpeg:\n {0}", result);
         return ParseFFMpegOutput(result);
       }
@@ -150,19 +149,19 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       var input = ffmpeg.Split('\n');
       if (!input[0].StartsWith("ffmpeg version"))
         return null;
-      for(var i = 0; i < input.Length; i++)
+      for (var i = 0; i < input.Length; i++)
       {
         if (input[i].StartsWith("Input"))
         {
           return ParseFFMpegInputBlock(input, i);
         }
       }
-      return null;            
+      return null;
     }
 
     private FFMPEGInfo ParseFFMpegInputBlock(string[] input, int i)
     {
-      var result = new FFMPEGInfo();     
+      var result = new FFMPEGInfo();
       var match = Regex.Match(input[i++], @"Input #(\d), (\w*), from");
       if (!match.Success)
         return null;
