@@ -22,18 +22,19 @@
 
 #endregion
 
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAudioItem : MediaLibraryItem, IDirectoryAudioItem
   {
-    public MediaLibraryAudioItem(string baseKey, MediaItem item) : base(baseKey, item)
+    public MediaLibraryAudioItem(string baseKey, MediaItem item)
+      : base(baseKey, item)
     {
       Genre = new List<string>();
       Publisher = new List<string>();
@@ -41,19 +42,21 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       AlbumArtUrls = new List<IDirectoryAlbumArt>();
 
       var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
-      var genreObj = audioAspect.GetCollectionAttribute(AudioAspect.ATTR_GENRES);
-      if (genreObj != null) Genre.Add(genreObj.ToString());
+      // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
+      var genreObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_GENRES);
+      if (genreObj != null)
+        CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
 
       var resource = new MediaLibraryResource(item);
       resource.Initialise();
       Resources.Add(resource);
 
-      if (item.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
+      if (item.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))
       {
         var albumArt = new MediaLibraryAlbumArt(item);
         albumArt.Initialise();
-        AlbumArtUrls.Add(albumArt);        
-      }      
+        AlbumArtUrls.Add(albumArt);
+      }
     }
 
     public override string Class

@@ -41,9 +41,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     protected Guid ObjectId { get; set; }
     protected string BaseKey { get; set; }
 
-    public MediaLibraryShareContainer(string id) : base(id)
+    public MediaLibraryShareContainer(string id)
+      : base(id)
     {
-      var split = id.IndexOf(':');
       BaseKey = MediaLibraryHelper.GetBaseKey(id);
       ObjectId = MediaLibraryHelper.GetObjectId(id);
     }
@@ -74,12 +74,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       }
       else
       {
-        parent = new BasicContainer(MediaLibraryHelper.GetBaseKey(key) + ":" + parentId.ToString());
+        parent = new BasicContainer(MediaLibraryHelper.GetBaseKey(key) + ":" + parentId);
       }
 
-      return
-        (TreeNode<object>)
-        MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(key), parent);
+      return (TreeNode<object>)MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(key), parent);
     }
 
     private IDictionary<Guid, Share> MediaLibraryShares()

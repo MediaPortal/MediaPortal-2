@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Extensions.MediaServer.Aspects;
+using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 
@@ -51,15 +52,14 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     /// </summary>
     protected const int PROCESS_TIMEOUT_MS = 2500;
 
-    protected static List<MediaCategory> MediaCategories = new List<MediaCategory>
-      { DefaultMediaCategories.Audio, DefaultMediaCategories.Image, DefaultMediaCategories.Video };
+    protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Audio, DefaultMediaCategories.Image, DefaultMediaCategories.Video };
 
     static DlnaMetadataExtractor()
     {
       //ImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImageMetadataExtractorSettings>();
       //InitializeExtensions(settings);
 
-      
+
     }
 
     public DlnaMetadataExtractor()
@@ -95,9 +95,11 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
           {
             var info = ExtractFFMpegInfo(lfsra);
+            if (info == null)
+              return false;
             ConvertFFMPEGInfoToAspectData(extractedAspectData, info);
           }
-        }       
+        }
         return true;
       }
       catch (Exception e)
@@ -118,7 +120,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
       string result;
       if (TryExecuteReadString(executable, arguments, out result, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS))
-      {        
+      {
         ServiceRegistration.Get<ILogger>().Info("DlnaMediaServer: Successfully ran ffmpeg:\n {0}", result);
         return ParseFFMpegOutput(result);
       }
@@ -149,20 +151,20 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       var input = ffmpeg.Split('\n');
       if (!input[0].StartsWith("ffmpeg version"))
         return null;
-      for(var i = 0; i < input.Length; i++)
+      for (var i = 0; i < input.Length; i++)
       {
         if (input[i].StartsWith("Input"))
         {
           return ParseFFMpegInputBlock(input, i);
         }
       }
-      return null;            
+      return null;
     }
 
     private FFMPEGInfo ParseFFMpegInputBlock(string[] input, int i)
     {
-      var result = new FFMPEGInfo();     
-      var match = Regex.Match(input[i++], @"Input #(\d), (\w*), from");
+      var result = new FFMPEGInfo();
+      var match = Regex.Match(input[i++], @"Input #(\d), (\w*)\S+ from");
       if (!match.Success)
         return null;
 
@@ -177,7 +179,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           return result;
         }
       }
-      return null;
+      return result;
     }
 
     private static bool ConvertFFMPEGInfoToAspectData(IDictionary<Guid, MediaItemAspect> extractedAspectData, FFMPEGInfo info)
@@ -189,8 +191,14 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "MP3");
           break;
         case "jpg":
+        case "image2":
           MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "image/jpeg");
           MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "JPEG_LRG");
+          break;
+          // TODO: this combination is not valid and is used only for temporary tests
+        case "matroska":
+          MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "video/mpeg");
+          MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, DlnaProfiles.MpegPsPal);
           break;
         default:
           return false;

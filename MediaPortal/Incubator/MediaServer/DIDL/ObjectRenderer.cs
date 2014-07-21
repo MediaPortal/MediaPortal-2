@@ -61,11 +61,10 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
                          DirObject.GetType().GetInterfaces()
                          .SelectMany(i => i.GetProperties()).Distinct()
                        let attrs = p.GetCustomAttributes(typeof (DirectoryPropertyAttribute), false)
-                       where attrs.Count() > 0
+                       where attrs.Any()
                        select new {Attribute = ((DirectoryPropertyAttribute) attrs[0]), Property = p};
       properties = properties.OrderBy(x => x.Attribute.XmlPart, new DirectoryPropertyComparer());
 
-      var curElement = string.Empty;
       foreach (var p in properties)
       {
         if (!(p.Attribute.Required || filter.IsAllowed(p.Attribute.XmlPart))) continue;

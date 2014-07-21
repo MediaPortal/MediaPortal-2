@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Common.MediaManagement;
+﻿using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
@@ -20,15 +16,15 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
       var url = MediaLibraryResource.GetBaseResourceURL()
                 + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId)
-                + "?aspect=THUMBNAILSMALL";
+                + "?aspect=THUMBNAIL";
 
       Uri = url;
       ProfileId = "JPEG_TN";
-    }    
+    }
 
     public string Uri { get; set; }
 
     public string ProfileId { get; set; }
-    
+
   }
 }

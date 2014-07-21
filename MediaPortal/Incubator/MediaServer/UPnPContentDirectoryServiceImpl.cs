@@ -24,18 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Xml;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.DIDL;
-//using MediaPortal.Extensions.MediaServer.Parser;
-using MediaPortal.Utilities.UPnP;
-//using Peg.Base;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -51,90 +42,74 @@ namespace MediaPortal.Extensions.MediaServer
         UPnPMediaServerDevice.CONTENT_DIRECTORY_SERVICE_ID)
     {
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_BrowseFlag = new DvStateVariable("A_ARG_TYPE_BrowseFlag",
-                                                                  new DvStandardDataType(
-                                                                    UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_BrowseFlag = new DvStateVariable("A_ARG_TYPE_BrowseFlag", new DvStandardDataType(UPnPStandardDataType.String))
                                                 {
                                                   SendEvents = false,
-                                                  AllowedValueList =
-                                                    new List<string>() {"BrowseMetadata", "BrowseDirectChildren"}
+                                                  AllowedValueList = new List<string> { "BrowseMetadata", "BrowseDirectChildren" }
                                                 };
       AddStateVariable(A_ARG_TYPE_BrowseFlag);
 
-      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count",
-                                                             new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Ui4))
                                            {
                                              SendEvents = false
                                            };
       AddStateVariable(A_ARG_TYPE_Count);
 
-      DvStateVariable A_ARG_TYPE_Filter = new DvStateVariable("A_ARG_TYPE_Filter",
-                                                              new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_Filter = new DvStateVariable("A_ARG_TYPE_Filter", new DvStandardDataType(UPnPStandardDataType.String))
                                             {
                                               SendEvents = false
                                             };
       AddStateVariable(A_ARG_TYPE_Filter);
 
-      DvStateVariable A_ARG_TYPE_Index = new DvStateVariable("A_ARG_TYPE_Index",
-                                                             new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable A_ARG_TYPE_Index = new DvStateVariable("A_ARG_TYPE_Index", new DvStandardDataType(UPnPStandardDataType.Ui4))
                                            {
                                              SendEvents = false
                                            };
       AddStateVariable(A_ARG_TYPE_Index);
 
-      DvStateVariable A_ARG_TYPE_ObjectID = new DvStateVariable("A_ARG_TYPE_ObjectID",
-                                                                new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_ObjectID = new DvStateVariable("A_ARG_TYPE_ObjectID", new DvStandardDataType(UPnPStandardDataType.String))
                                               {
                                                 SendEvents = false
                                               };
       AddStateVariable(A_ARG_TYPE_ObjectID);
 
-      DvStateVariable A_ARG_TYPE_Result = new DvStateVariable("A_ARG_TYPE_Result",
-                                                              new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_Result = new DvStateVariable("A_ARG_TYPE_Result", new DvStandardDataType(UPnPStandardDataType.String))
                                             {
                                               SendEvents = false
                                             };
       AddStateVariable(A_ARG_TYPE_Result);
 
-      DvStateVariable A_ARG_TYPE_SearchCriteria = new DvStateVariable("A_ARG_TYPE_SearchCriteria",
-                                                                      new DvStandardDataType(
-                                                                        UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_SearchCriteria = new DvStateVariable("A_ARG_TYPE_SearchCriteria", new DvStandardDataType(UPnPStandardDataType.String))
                                                     {
                                                       SendEvents = false
                                                     };
       AddStateVariable(A_ARG_TYPE_SearchCriteria);
 
-      DvStateVariable A_ARG_TYPE_SortCriteria = new DvStateVariable("A_ARG_TYPE_SortCriteria",
-                                                                    new DvStandardDataType(
-                                                                      UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_SortCriteria = new DvStateVariable("A_ARG_TYPE_SortCriteria", new DvStandardDataType(UPnPStandardDataType.String))
                                                   {
                                                     SendEvents = false
                                                   };
       AddStateVariable(A_ARG_TYPE_SortCriteria);
 
-      DvStateVariable A_ARG_TYPE_UpdateID = new DvStateVariable("A_ARG_TYPE_UpdateID",
-                                                                new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable A_ARG_TYPE_UpdateID = new DvStateVariable("A_ARG_TYPE_UpdateID", new DvStandardDataType(UPnPStandardDataType.Ui4))
                                               {
                                                 SendEvents = false
                                               };
       AddStateVariable(A_ARG_TYPE_UpdateID);
 
-      DvStateVariable SearchCapabilities = new DvStateVariable("SearchCapabilities",
-                                                               new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable SearchCapabilities = new DvStateVariable("SearchCapabilities", new DvStandardDataType(UPnPStandardDataType.String))
                                              {
                                                SendEvents = false
                                              };
       AddStateVariable(SearchCapabilities);
 
-      DvStateVariable SortCapabilities = new DvStateVariable("SortCapabilities",
-                                                             new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable SortCapabilities = new DvStateVariable("SortCapabilities", new DvStandardDataType(UPnPStandardDataType.String))
                                            {
                                              SendEvents = false
                                            };
       AddStateVariable(SortCapabilities);
 
-      DvStateVariable SystemUpdateID = new DvStateVariable("SystemUpdateID",
-                                                           new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable SystemUpdateID = new DvStateVariable("SystemUpdateID", new DvStandardDataType(UPnPStandardDataType.Ui4))
                                          {
                                            SendEvents = true
                                          };
@@ -253,12 +228,12 @@ namespace MediaPortal.Extensions.MediaServer
                                       CallContext context)
     {
       // In parameters
-      var objectId = (string) inParams[0];
+      var objectId = (string)inParams[0];
       var browseFlag = inParams[1].ToString();
       var filter = inParams[2].ToString();
       var startingIndex = Convert.ToInt32(inParams[3]);
       var requestedCount = Convert.ToInt32(inParams[4]);
-      var sortCriteria = (string) inParams[5];
+      var sortCriteria = (string)inParams[5];
 
       // Out parameters
       int numberReturned = 0;
@@ -327,7 +302,7 @@ namespace MediaPortal.Extensions.MediaServer
 
       // Construct the return arguments.
       var xml = msgBuilder.ToString();
-      outParams = new List<object>(4) {xml, numberReturned, totalMatches, containterUpdateId};
+      outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
 
       Logger.Debug(
         "MediaServer - OnBrowse(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
@@ -337,39 +312,35 @@ namespace MediaPortal.Extensions.MediaServer
       return null;
     }
 
-    private static UPnPError OnGetSearchCapabilities(DvAction action, IList<object> inParams,
-                                                     out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetSearchCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       // Current implementation doesn't support searching
-      outParams = new List<object> {""};
+      outParams = new List<object> { "" };
       return null;
     }
 
-    private static UPnPError OnGetSortCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams,
-                                                   CallContext context)
+    private static UPnPError OnGetSortCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       // Current implementation doesn't support sorting
-      outParams = new List<object> {""};
+      outParams = new List<object> { "" };
       return null;
     }
 
-    private static UPnPError OnGetSystemUpdateID(DvAction action, IList<object> inParams, out IList<object> outParams,
-                                                 CallContext context)
+    private static UPnPError OnGetSystemUpdateID(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      outParams = new List<object> {0};
+      outParams = new List<object> { 0 };
       return null;
     }
 
-    private static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
-                                      CallContext context)
+    private static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       // In parameters
-      var containerId = (string) inParams[0];
+      var containerId = (string)inParams[0];
       var searchCriteria = inParams[1].ToString();
       var filter = inParams[2].ToString();
       var startingIndex = Convert.ToInt32(inParams[3]);
       var requestedCount = Convert.ToInt32(inParams[4]);
-      var sortCriteria = (string) inParams[5];
+      var sortCriteria = (string)inParams[5];
 
       // Out parameters
       int numberReturned = 0;
@@ -398,7 +369,7 @@ namespace MediaPortal.Extensions.MediaServer
 
             }
             */
-      outParams = new List<object>(3) {numberReturned, totalMatches, containterUpdateId};
+      outParams = new List<object>(3) { numberReturned, totalMatches, containterUpdateId };
       return null;
     }
 

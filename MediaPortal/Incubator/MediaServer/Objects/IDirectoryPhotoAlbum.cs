@@ -22,11 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Extensions.MediaServer.Objects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects
 {

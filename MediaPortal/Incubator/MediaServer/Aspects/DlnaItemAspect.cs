@@ -53,8 +53,8 @@ namespace MediaPortal.Extensions.MediaServer.Aspects
         MediaItemAspectMetadata.CreateAttributeSpecification("Size", typeof(Int64), Cardinality.Inline, false);
 
 
- public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
-        ASPECT_ID, "DlnaItem", new[] {
+    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+           ASPECT_ID, "DlnaItem", new[] {
             ATTR_MIME_TYPE,
             ATTR_PROFILE,
             ATTR_SIZE

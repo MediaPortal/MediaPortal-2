@@ -25,15 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
@@ -45,18 +44,13 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
   public class DlnaResourceAccessModule : HttpModule, IDisposable
   {
-    protected readonly IDictionary<string, CachedResource> _resourceAccessorCache =
-      new Dictionary<string, CachedResource>(10);
+    protected readonly IDictionary<string, CachedResource> _resourceAccessorCache = new Dictionary<string, CachedResource>(10);
 
     protected IntervalWork _tidyUpCacheWork;
     protected readonly object _syncObj = new object();
 
     public static TimeSpan RESOURCE_CACHE_TIME = TimeSpan.FromMinutes(5);
     public static TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
-
-    public DlnaResourceAccessModule()
-    {
-    }
 
     protected class CachedResource : IDisposable
     {
@@ -130,8 +124,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Error disposing resource accessor '{0}'", e,
-                                                    entry.Key);
+            ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Error disposing resource accessor '{0}'", e, entry.Key);
           }
           removedResources.Add(entry.Key);
         }
@@ -153,8 +146,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Error disposing resource accessor '{0}'", e,
-                                                    entry.Key);
+            ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Error disposing resource accessor '{0}'", e, entry.Key);
           }
         }
         _resourceAccessorCache.Clear();
@@ -187,13 +179,13 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       IList<Range> result = new List<Range>();
       try
       {
-        string[] tokens = byteRangesSpecifier.Split(new char[] {'='});
+        string[] tokens = byteRangesSpecifier.Split(new char[] { '=' });
         if (tokens.Length == 2 && tokens[0].Trim() == "bytes")
-          foreach (string rangeSpec in tokens[1].Split(new char[] {','}))
+          foreach (string rangeSpec in tokens[1].Split(new char[] { ',' }))
           {
-            tokens = rangeSpec.Split(new char[] {'-'});
+            tokens = rangeSpec.Split(new char[] { '-' });
             if (tokens.Length != 2)
-              return new Range[] {};
+              return new Range[] { };
             if (!string.IsNullOrEmpty(tokens[0]))
               if (!string.IsNullOrEmpty(tokens[1]))
                 result.Add(new Range(long.Parse(tokens[0]), long.Parse(tokens[1])));
@@ -222,8 +214,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       // Grab the media item given in the request.
       Guid mediaItemGuid;
       if (!DlnaResourceAccessUtils.ParseMediaItem(uri, out mediaItemGuid))
-        throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'",
-                                                    DlnaResourceAccessUtils.SYNTAX));
+        throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
 
       try
       {
@@ -233,12 +224,15 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         if (item == null)
           throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
-        if (request.QueryString.Contains("aspect") && request.QueryString["aspect"].Value == "THUMBNAILSMALL")
+        if (request.QueryString.Contains("aspect") && request.QueryString["aspect"].Value == "THUMBNAIL")
         {
-          var thumb = item.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
-          response.ContentType = "image/jpeg";
-          MemoryStream ms = new MemoryStream((byte[])thumb);
-          SendWholeFile(response, ms, false);
+          byte[] thumb;
+          if (MediaItemAspect.TryGetAttribute(item.Aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb))
+          {
+            response.ContentType = "image/jpeg";
+            MemoryStream ms = new MemoryStream(thumb);
+            SendWholeFile(response, ms, false);
+          }
         }
         else
         {
@@ -249,13 +243,13 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           response.ContentType = mimeType.ToString();
 
           // Grab the resource path for the media item.
-          var resourcePathStr =
-            item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
-              ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
           var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
           var ra = GetResourceAccessor(resourcePath);
           IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+          if (fsra == null)
+            return false;
           using (var resourceStream = fsra.OpenRead())
           {
             // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
@@ -279,10 +273,13 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
                 throw new BadRequestException("Illegal value for getcontentFeatures.dlna.org");
               }
             }
-            var dlnaString = DlnaProtocolInfoFactory.GetProfileInfo(item).ToString();
-            response.AddHeader("contentFeatures.dlna.org", dlnaString);
-
-            Logger.Debug("DlnaResourceAccessModule: returning contentFeatures {0}", dlnaString);
+            var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(item);
+            if (dlnaProtocolInfo != null)
+            {
+              var dlnaString = dlnaProtocolInfo.ToString();
+              response.AddHeader("contentFeatures.dlna.org", dlnaString);
+              Logger.Debug("DlnaResourceAccessModule: returning contentFeatures {0}", dlnaString);
+            }
 
             // DLNA Requirement: [7.4.55-57]
             // TODO: Bad implementation of requirement
@@ -333,8 +330,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       }
       response.Status = HttpStatusCode.PartialContent;
       response.ContentLength = range.Length;
-      response.AddHeader("Content-Range",
-                         string.Format("bytes {0}-{1}/{2}", range.From, range.To, resourceStream.Length));
+      response.AddHeader("Content-Range", string.Format("bytes {0}-{1}/{2}", range.From, range.To, resourceStream.Length));
       response.SendHeaders();
 
       if (onlyHeaders)
@@ -361,8 +357,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       const int BUF_LEN = 8192;
       byte[] buffer = new byte[BUF_LEN];
       int bytesRead;
-      while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int) length)) > 0)
-        // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
+      while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int)length)) > 0)
+      // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
       {
         length -= bytesRead;
         response.SendBody(buffer, 0, bytesRead);

@@ -23,9 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -58,14 +55,13 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var necessaryMIATypeIDs = new Guid[]
                                   {
                                     ProviderResourceAspect.ASPECT_ID,
-                                    MediaAspect.ASPECT_ID                                    
+                                    MediaAspect.ASPECT_ID,
                                   };
       var optionalMIATypeIDs = new Guid[]
                                  {
+                                    DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
-                                   DlnaItemAspect.ASPECT_ID,
-                                   ThumbnailSmallAspect.ASPECT_ID,
                                    ThumbnailLargeAspect.ASPECT_ID
                                  };
 
@@ -77,8 +73,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       return InstansiateMediaLibraryObject(item, baseKey, parent, null);
     }
 
-    public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, string baseKey, BasicContainer parent,
-                                                                 string title)
+    public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, string baseKey, BasicContainer parent, string title)
     {
       IDirectoryObject obj;
       // Choose the appropiate MediaLibrary* object for the media item
@@ -106,28 +101,26 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       // Assign the parent
       if (parent != null)
       {
-        parent.Add((TreeNode<object>) obj);
+        parent.Add((TreeNode<object>)obj);
       }
 
       // Initialise the object
       if (obj is MediaLibraryContainer)
       {
-        ((MediaLibraryContainer) obj).Initialise();
+        ((MediaLibraryContainer)obj).Initialise();
       }
       else if (obj is MediaLibraryItem)
       {
-        ((MediaLibraryItem) obj).Initialise();
+        ((MediaLibraryItem)obj).Initialise();
       }
       if (obj != null)
       {
-        ServiceRegistration.Get<ILogger>().Info("Created object of type {0} for MediaItem {1}", obj.GetType().Name,
-                                                item.MediaItemId);
+        ServiceRegistration.Get<ILogger>().Info("Created object of type {0} for MediaItem {1}", obj.GetType().Name, item.MediaItemId);
         if (title != null)
         {
           obj.Title = title;
         }
       }
-
       return obj;
     }
   }
