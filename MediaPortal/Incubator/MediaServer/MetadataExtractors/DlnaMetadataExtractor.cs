@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Extensions.MediaServer.Aspects;
+using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 
@@ -94,6 +95,8 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
           {
             var info = ExtractFFMpegInfo(lfsra);
+            if (info == null)
+              return false;
             ConvertFFMPEGInfoToAspectData(extractedAspectData, info);
           }
         }
@@ -162,7 +165,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     private FFMPEGInfo ParseFFMpegInputBlock(string[] input, int i)
     {
       var result = new FFMPEGInfo();
-      var match = Regex.Match(input[i++], @"Input #(\d), (\w*), from");
+      var match = Regex.Match(input[i++], @"Input #(\d), (\w*)\S+ from");
       if (!match.Success)
         return null;
 
@@ -177,7 +180,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           return result;
         }
       }
-      return null;
+      return result;
     }
 
     private static bool ConvertFFMPEGInfoToAspectData(IDictionary<Guid, MediaItemAspect> extractedAspectData, FFMPEGInfo info)
@@ -189,8 +192,14 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "MP3");
           break;
         case "jpg":
+        case "image2":
           MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "image/jpeg");
           MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, "JPEG_LRG");
+          break;
+          // TODO: this combination is not valid and is used only for temporary tests
+        case "matroska":
+          MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_MIME_TYPE, "video/mpeg");
+          MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAspect.ATTR_PROFILE, DlnaProfiles.MpegPsPal);
           break;
         default:
           return false;
