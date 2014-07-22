@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -59,10 +58,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   {
                                     ProviderResourceAspect.ASPECT_ID,
                                     MediaAspect.ASPECT_ID,
-                                    DlnaItemAspect.ASPECT_ID,
                                   };
       var optionalMIATypeIDs = new Guid[]
                                  {
+                                   DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
                                    AudioAspect.ASPECT_ID,
@@ -87,7 +86,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         {
           ServiceRegistration.Get<ILogger>().Error(e);
         }
-      }      
+      }
       return result;
     }
   }

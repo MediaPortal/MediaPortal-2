@@ -94,10 +94,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   {
                                     ProviderResourceAspect.ASPECT_ID,
                                     MediaAspect.ASPECT_ID,
-                                    DlnaItemAspect.ASPECT_ID,
                                   };
       var optionalMiaTypeIDs = new Guid[]
                                  {
+                                   DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                  };
 
