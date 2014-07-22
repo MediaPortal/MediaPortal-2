@@ -43,11 +43,11 @@ namespace MediaPortal.Extensions.MediaServer
 
     public const string CONTENT_DIRECTORY_SERVICE_TYPE = "schemas-upnp-org:service:ContentDirectory";
     public const int CONTENT_DIRECTORY_SERVICE_TYPE_VERSION = 1;
-    public const string CONTENT_DIRECTORY_SERVICE_ID = "upnp-org:serviceId:ContentDirectory";
+    public const string CONTENT_DIRECTORY_SERVICE_ID = "urn:upnp-org:serviceId:ContentDirectory";
 
     public const string CONNECTION_MANAGER_SERVICE_TYPE = "schemas-upnp-org:service:ConnectionManager";
     public const int CONNECTION_MANAGER_SERVICE_TYPE_VERSION = 1;
-    public const string CONNECTION_MANAGER_SERVICE_ID = "upnp-org:serviceId:ConnectionManager";
+    public const string CONNECTION_MANAGER_SERVICE_ID = "urn:upnp-org:serviceId:ConnectionManager";
 
 
     public UPnPMediaServerDevice(string deviceUuid)
