@@ -161,7 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="References\ffmpeg.exe" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

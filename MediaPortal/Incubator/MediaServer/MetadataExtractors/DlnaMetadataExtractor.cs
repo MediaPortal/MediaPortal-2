@@ -114,7 +114,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
     private FFMPEGInfo ExtractFFMpegInfo(ILocalFsResourceAccessor lfsra)
     {
-      var executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
+      var executable = FileUtils.BuildAssemblyRelativePath("..\\VideoThumbnailer\\ffmpeg.exe");
       var arguments = string.Format("-i \"{0}\"",
         lfsra.LocalFileSystemPath);
 
@@ -124,8 +124,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         ServiceRegistration.Get<ILogger>().Info("DlnaMediaServer: Successfully ran ffmpeg:\n {0}", result);
         return ParseFFMpegOutput(result);
       }
-      else
-        ServiceRegistration.Get<ILogger>().Warn("DlnaMediaServer: Failed to extract media type information for resource '{0}'", lfsra.LocalFileSystemPath);
+      ServiceRegistration.Get<ILogger>().Warn("DlnaMediaServer: Failed to extract media type information for resource '{0}'", lfsra.LocalFileSystemPath);
       return null;
     }
 
