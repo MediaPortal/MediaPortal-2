@@ -22,9 +22,12 @@
 
 #endregion
 
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -39,8 +42,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       AlbumArtUrls = new List<IDirectoryAlbumArt>();
 
       var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
-      var genreObj = audioAspect.GetCollectionAttribute(AudioAspect.ATTR_GENRES);
-      if (genreObj != null) Genre.Add(genreObj.ToString());
+      // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
+      var genreObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_GENRES);
+      if (genreObj != null)
+        CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
 
       var resource = new MediaLibraryResource(item);
       resource.Initialise();
