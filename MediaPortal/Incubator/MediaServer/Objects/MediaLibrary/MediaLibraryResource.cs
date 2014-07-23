@@ -68,9 +68,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var url = GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId);
 
       var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(Item);
-      if (dlnaProtocolInfo == null)
-        return;
-      ProtocolInfo = dlnaProtocolInfo.ToString();
+      if (dlnaProtocolInfo != null)
+        ProtocolInfo = dlnaProtocolInfo.ToString();
 
       if (Item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {

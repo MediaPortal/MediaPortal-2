@@ -273,10 +273,13 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
                 throw new BadRequestException("Illegal value for getcontentFeatures.dlna.org");
               }
             }
-            var dlnaString = DlnaProtocolInfoFactory.GetProfileInfo(item).ToString();
-            response.AddHeader("contentFeatures.dlna.org", dlnaString);
-
-            Logger.Debug("DlnaResourceAccessModule: returning contentFeatures {0}", dlnaString);
+            var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(item);
+            if (dlnaProtocolInfo != null)
+            {
+              var dlnaString = dlnaProtocolInfo.ToString();
+              response.AddHeader("contentFeatures.dlna.org", dlnaString);
+              Logger.Debug("DlnaResourceAccessModule: returning contentFeatures {0}", dlnaString);
+            }
 
             // DLNA Requirement: [7.4.55-57]
             // TODO: Bad implementation of requirement
