@@ -71,19 +71,31 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       if (dlnaProtocolInfo != null)
         ProtocolInfo = dlnaProtocolInfo.ToString();
 
-      if (Item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+      MediaItemAspect videoAspect;
+      if (Item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
       {
-        // Load Video Specific items
-        var videoAspect = Item.Aspects[VideoAspect.ASPECT_ID];
-
         Resolution = videoAspect.GetAttributeValue(VideoAspect.ATTR_WIDTH)
                      + "x"
                      + videoAspect.GetAttributeValue(VideoAspect.ATTR_HEIGHT);
 
         var vidBitRate = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE));
         var audBitRate = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_AUDIOBITRATE));
-        BitRate = (uint) (vidBitRate + audBitRate);
-
+        // TODO: normalize bitrates (video: bit, audio: kbit)
+        SetBitrate(vidBitRate + audBitRate, 1);
+        SetDuration(Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION)));
+      }
+      MediaItemAspect audioAspect;
+      if (Item.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+      {
+        SetDuration(Convert.ToInt32(audioAspect.GetAttributeValue(AudioAspect.ATTR_DURATION)));
+        SetBitrate(Convert.ToInt32(audioAspect.GetAttributeValue(AudioAspect.ATTR_BITRATE)));
+      }
+      MediaItemAspect imageAspect;
+      if (Item.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+      {
+        Resolution = imageAspect.GetAttributeValue(ImageAspect.ATTR_WIDTH)
+                     + "x"
+                     + imageAspect.GetAttributeValue(ImageAspect.ATTR_HEIGHT);
       }
 
       Uri = url;
@@ -114,5 +126,15 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public string ImportUri { get; set; }
 
     public string DlnaIfoFileUrl { get; set; }
+
+    protected void SetDuration(int durationInSeconds)
+    {
+      Duration = TimeSpan.FromSeconds(durationInSeconds).ToString();
+    }
+    protected void SetBitrate(int kbitPerSecond, int factor = 1000)
+    {
+      // TODO: it seems like kbits are only treated by factor 1000
+      BitRate = (uint)((uint)kbitPerSecond * factor / 8);
+    }
   }
 }

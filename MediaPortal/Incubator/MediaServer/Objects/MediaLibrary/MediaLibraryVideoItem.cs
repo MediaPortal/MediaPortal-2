@@ -39,11 +39,19 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Director = new List<string>();
       Publisher = new List<string>();
 
-      var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
-      var genreObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_GENRES);
-      if (genreObj != null)
-        CollectionUtils.AddAll(Genre, genreObj);
-
+      MediaItemAspect videoAspect;
+      if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+      {
+        var genreObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_GENRES);
+        if (genreObj != null)
+          CollectionUtils.AddAll(Genre, genreObj);
+        var actorObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
+        if (genreObj != null)
+          CollectionUtils.AddAll(Actor, actorObj);
+        var directorsObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
+        if (genreObj != null)
+          CollectionUtils.AddAll(Director, directorsObj);
+      }
       var resource = new MediaLibraryResource(item);
       resource.Initialise();
       Resources.Add(resource);
