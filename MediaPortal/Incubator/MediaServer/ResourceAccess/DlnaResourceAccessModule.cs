@@ -224,17 +224,18 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         if (item == null)
           throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
-        if (request.QueryString.Contains("aspect") && request.QueryString["aspect"].Value == "THUMBNAIL")
-        {
-          byte[] thumb;
-          if (MediaItemAspect.TryGetAttribute(item.Aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb))
-          {
-            response.ContentType = "image/jpeg";
-            MemoryStream ms = new MemoryStream(thumb);
-            SendWholeFile(response, ms, false);
-          }
-        }
-        else
+        // NOTE: replaced by Fanart service
+        //if (request.QueryString.Contains("aspect") && request.QueryString["aspect"].Value == "THUMBNAIL")
+        //{
+        //  byte[] thumb;
+        //  if (MediaItemAspect.TryGetAttribute(item.Aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb))
+        //  {
+        //    response.ContentType = "image/jpeg";
+        //    MemoryStream ms = new MemoryStream(thumb);
+        //    SendWholeFile(response, ms, false);
+        //  }
+        //}
+        //else
         {
           // Grab the mimetype from the media item and set the Content Type header.
           var mimeType = item.Aspects[DlnaItemAspect.ASPECT_ID].GetAttributeValue(DlnaItemAspect.ATTR_MIME_TYPE);

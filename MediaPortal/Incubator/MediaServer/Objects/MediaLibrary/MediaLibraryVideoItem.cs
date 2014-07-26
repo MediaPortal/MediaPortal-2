@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities;
@@ -31,7 +32,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryVideoItem : MediaLibraryItem, IDirectoryVideoItem
   {
-    public MediaLibraryVideoItem(string baseKey, MediaItem item) : base(baseKey, item)
+    public MediaLibraryVideoItem(string baseKey, MediaItem item)
+      : base(baseKey, item)
     {
       Genre = new List<string>();
       Producer = new List<string>();
@@ -42,15 +44,16 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       MediaItemAspect videoAspect;
       if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
       {
-        var genreObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_GENRES);
+        // TODO: type issue again :-/
+        var genreObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_GENRES);
         if (genreObj != null)
-          CollectionUtils.AddAll(Genre, genreObj);
-        var actorObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
+          CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
+        var actorObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
         if (genreObj != null)
-          CollectionUtils.AddAll(Actor, actorObj);
-        var directorsObj = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
+          CollectionUtils.AddAll(Actor, actorObj.Cast<string>());
+        var directorsObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
         if (genreObj != null)
-          CollectionUtils.AddAll(Director, directorsObj);
+          CollectionUtils.AddAll(Director, directorsObj.Cast<string>());
       }
       var resource = new MediaLibraryResource(item);
       resource.Initialise();

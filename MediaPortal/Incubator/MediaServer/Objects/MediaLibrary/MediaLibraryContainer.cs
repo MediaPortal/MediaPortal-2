@@ -66,7 +66,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                    VideoAspect.ASPECT_ID,
                                    AudioAspect.ASPECT_ID,
                                    ImageAspect.ASPECT_ID,
-                                   ThumbnailLargeAspect.ASPECT_ID
                                  };
 
       var library = ServiceRegistration.Get<IMediaLibrary>();

@@ -59,10 +59,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   };
       var optionalMIATypeIDs = new Guid[]
                                  {
-                                    DlnaItemAspect.ASPECT_ID,
+                                   DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
-                                   ThumbnailLargeAspect.ASPECT_ID
                                  };
 
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);

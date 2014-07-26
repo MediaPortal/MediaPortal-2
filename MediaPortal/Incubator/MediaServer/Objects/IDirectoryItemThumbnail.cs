@@ -23,31 +23,18 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects
 {
-  public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
+  /// <summary>
+  /// Exposes thumbnail urls to UPnP clients.
+  /// </summary>
+  public interface IDirectoryItemThumbnail
   {
-    public MediaItem Item { get; protected set; }
-
-    public MediaLibraryItem(string baseKey, MediaItem item)
-      : base(baseKey + ":" + item.MediaItemId)
-    {
-      Item = item;
-      AlbumArtUrls = new List<IDirectoryAlbumArt>();
-      var albumArt = new MediaLibraryAlbumArt(item);
-      albumArt.Initialise();
-      AlbumArtUrls.Add(albumArt);
-    }
-
-    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
- 
-    public override void Initialise()
-    {
-      Title = Item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
-    }
+    /// <summary>
+    /// Reference to album art. Values must be properly escaped URIs as described in [RFC 2396].
+    /// </summary>
+    [DirectoryProperty("upnp:albumArtURI", Required = false)]
+    IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
   }
 }

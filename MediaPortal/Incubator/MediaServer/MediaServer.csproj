@@ -90,6 +90,7 @@
     <Compile Include="Objects\IDirectoryAudioItem.cs" />
     <Compile Include="Objects\IDirectoryGenre.cs" />
     <Compile Include="Objects\IDirectoryImageItem.cs" />
+    <Compile Include="Objects\IDirectoryItemThumbnail.cs" />
     <Compile Include="Objects\IDirectoryMovie.cs" />
     <Compile Include="Objects\IDirectoryMusicAlbum.cs" />
     <Compile Include="Objects\IDirectoryMusicTrack.cs" />
