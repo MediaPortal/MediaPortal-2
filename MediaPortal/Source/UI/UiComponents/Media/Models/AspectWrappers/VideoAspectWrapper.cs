@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
 
-    #endregion Constants
+    #endregion
 
     #region Fields
 
@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _storyPlotProperty;
     protected AbstractProperty _mediaItemProperty;
 
-    #endregion Fields
+    #endregion
 
     #region Properties
 
@@ -74,7 +74,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Genres
     {
-      get { return (IEnumerable<string>) _genresProperty.GetValue(); }
+      get { return (IEnumerable<string>)_genresProperty.GetValue(); }
       set { _genresProperty.SetValue(value); }
     }
 
@@ -85,7 +85,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public long? Duration
     {
-      get { return (long?) _durationProperty.GetValue(); }
+      get { return (long?)_durationProperty.GetValue(); }
       set { _durationProperty.SetValue(value); }
     }
 
@@ -96,7 +96,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? AudioStreamCount
     {
-      get { return (int?) _audioStreamCountProperty.GetValue(); }
+      get { return (int?)_audioStreamCountProperty.GetValue(); }
       set { _audioStreamCountProperty.SetValue(value); }
     }
 
@@ -107,7 +107,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string AudioEncoding
     {
-      get { return (string) _audioEncodingProperty.GetValue(); }
+      get { return (string)_audioEncodingProperty.GetValue(); }
       set { _audioEncodingProperty.SetValue(value); }
     }
 
@@ -118,7 +118,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public long? AudioBitRate
     {
-      get { return (long?) _audioBitRateProperty.GetValue(); }
+      get { return (long?)_audioBitRateProperty.GetValue(); }
       set { _audioBitRateProperty.SetValue(value); }
     }
 
@@ -129,7 +129,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> AudioLanguages
     {
-      get { return (IEnumerable<string>) _audioLanguagesProperty.GetValue(); }
+      get { return (IEnumerable<string>)_audioLanguagesProperty.GetValue(); }
       set { _audioLanguagesProperty.SetValue(value); }
     }
 
@@ -140,7 +140,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string VideoEncoding
     {
-      get { return (string) _videoEncodingProperty.GetValue(); }
+      get { return (string)_videoEncodingProperty.GetValue(); }
       set { _videoEncodingProperty.SetValue(value); }
     }
 
@@ -151,7 +151,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public long? VideoBitRate
     {
-      get { return (long?) _videoBitRateProperty.GetValue(); }
+      get { return (long?)_videoBitRateProperty.GetValue(); }
       set { _videoBitRateProperty.SetValue(value); }
     }
 
@@ -162,7 +162,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? AspectWidth
     {
-      get { return (int?) _aspectWidthProperty.GetValue(); }
+      get { return (int?)_aspectWidthProperty.GetValue(); }
       set { _aspectWidthProperty.SetValue(value); }
     }
 
@@ -173,7 +173,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? AspectHeight
     {
-      get { return (int?) _aspectHeightProperty.GetValue(); }
+      get { return (int?)_aspectHeightProperty.GetValue(); }
       set { _aspectHeightProperty.SetValue(value); }
     }
 
@@ -184,7 +184,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public float? AspectRatio
     {
-      get { return (float?) _aspectRatioProperty.GetValue(); }
+      get { return (float?)_aspectRatioProperty.GetValue(); }
       set { _aspectRatioProperty.SetValue(value); }
     }
 
@@ -195,7 +195,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? FPS
     {
-      get { return (int?) _fPSProperty.GetValue(); }
+      get { return (int?)_fPSProperty.GetValue(); }
       set { _fPSProperty.SetValue(value); }
     }
 
@@ -206,7 +206,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Actors
     {
-      get { return (IEnumerable<string>) _actorsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_actorsProperty.GetValue(); }
       set { _actorsProperty.SetValue(value); }
     }
 
@@ -217,7 +217,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Directors
     {
-      get { return (IEnumerable<string>) _directorsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_directorsProperty.GetValue(); }
       set { _directorsProperty.SetValue(value); }
     }
 
@@ -228,7 +228,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Writers
     {
-      get { return (IEnumerable<string>) _writersProperty.GetValue(); }
+      get { return (IEnumerable<string>)_writersProperty.GetValue(); }
       set { _writersProperty.SetValue(value); }
     }
 
@@ -239,7 +239,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public bool? IsDVD
     {
-      get { return (bool?) _isDVDProperty.GetValue(); }
+      get { return (bool?)_isDVDProperty.GetValue(); }
       set { _isDVDProperty.SetValue(value); }
     }
 
@@ -250,7 +250,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string StoryPlot
     {
-      get { return (string) _storyPlotProperty.GetValue(); }
+      get { return (string)_storyPlotProperty.GetValue(); }
       set { _storyPlotProperty.SetValue(value); }
     }
 
@@ -261,11 +261,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
-    #endregion Properties
+    #endregion
 
     #region Constructor
 
@@ -292,7 +292,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _mediaItemProperty.Attach(MediaItemChanged);
     }
 
-    #endregion Constructor
+    #endregion
 
     #region Members
 
@@ -310,23 +310,23 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-      Duration = (long?) aspect[VideoAspect.ATTR_DURATION];
-      AudioStreamCount = (int?) aspect[VideoAspect.ATTR_AUDIOSTREAMCOUNT];
-      AudioEncoding = (string) aspect[VideoAspect.ATTR_AUDIOENCODING];
-      AudioBitRate = (long?) aspect[VideoAspect.ATTR_AUDIOBITRATE];
-      AudioLanguages = (IEnumerable<string>) aspect[VideoAspect.ATTR_AUDIOLANGUAGES] ?? EMPTY_STRING_COLLECTION;
-      VideoEncoding = (string) aspect[VideoAspect.ATTR_VIDEOENCODING];
-      VideoBitRate = (long?) aspect[VideoAspect.ATTR_VIDEOBITRATE];
-      AspectWidth = (int?) aspect[VideoAspect.ATTR_WIDTH];
-      AspectHeight = (int?) aspect[VideoAspect.ATTR_HEIGHT];
-      AspectRatio = (float?) aspect[VideoAspect.ATTR_ASPECTRATIO];
-      FPS = (int?) aspect[VideoAspect.ATTR_FPS];
-      Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
-      Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
-      Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
-      IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
-      StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
+      Genres = (IEnumerable<string>)aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+      Duration = (long?)aspect[VideoAspect.ATTR_DURATION];
+      AudioStreamCount = (int?)aspect[VideoAspect.ATTR_AUDIOSTREAMCOUNT];
+      AudioEncoding = (string)aspect[VideoAspect.ATTR_AUDIOENCODING];
+      AudioBitRate = (long?)aspect[VideoAspect.ATTR_AUDIOBITRATE];
+      AudioLanguages = (IEnumerable<string>)aspect[VideoAspect.ATTR_AUDIOLANGUAGES] ?? EMPTY_STRING_COLLECTION;
+      VideoEncoding = (string)aspect[VideoAspect.ATTR_VIDEOENCODING];
+      VideoBitRate = (long?)aspect[VideoAspect.ATTR_VIDEOBITRATE];
+      AspectWidth = (int?)aspect[VideoAspect.ATTR_WIDTH];
+      AspectHeight = (int?)aspect[VideoAspect.ATTR_HEIGHT];
+      AspectRatio = (float?)aspect[VideoAspect.ATTR_ASPECTRATIO];
+      FPS = (int?)aspect[VideoAspect.ATTR_FPS];
+      Actors = (IEnumerable<string>)aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
+      Directors = (IEnumerable<string>)aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
+      Writers = (IEnumerable<string>)aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
+      IsDVD = (bool?)aspect[VideoAspect.ATTR_ISDVD];
+      StoryPlot = (string)aspect[VideoAspect.ATTR_STORYPLOT];
     }
 
     public void SetEmpty()
@@ -351,7 +351,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     }
 
 
-    #endregion Members
+    #endregion
 
   }
 

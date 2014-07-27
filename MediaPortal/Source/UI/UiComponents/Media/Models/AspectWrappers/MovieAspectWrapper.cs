@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
 
-    #endregion Constants
+    #endregion
 
     #region Fields
 
@@ -57,9 +57,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _budgetProperty;
     protected AbstractProperty _revenueProperty;
     protected AbstractProperty _scoreProperty;
+    protected AbstractProperty _totalRatingProperty;
+    protected AbstractProperty _ratingCountProperty;
     protected AbstractProperty _mediaItemProperty;
 
-    #endregion Fields
+    #endregion
 
     #region Properties
 
@@ -70,7 +72,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string MovieName
     {
-      get { return (string) _movieNameProperty.GetValue(); }
+      get { return (string)_movieNameProperty.GetValue(); }
       set { _movieNameProperty.SetValue(value); }
     }
 
@@ -81,7 +83,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string OrigName
     {
-      get { return (string) _origNameProperty.GetValue(); }
+      get { return (string)_origNameProperty.GetValue(); }
       set { _origNameProperty.SetValue(value); }
     }
 
@@ -92,7 +94,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string IMDBID
     {
-      get { return (string) _iMDBIDProperty.GetValue(); }
+      get { return (string)_iMDBIDProperty.GetValue(); }
       set { _iMDBIDProperty.SetValue(value); }
     }
 
@@ -103,7 +105,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? TMDBID
     {
-      get { return (int?) _tMDBIDProperty.GetValue(); }
+      get { return (int?)_tMDBIDProperty.GetValue(); }
       set { _tMDBIDProperty.SetValue(value); }
     }
 
@@ -114,7 +116,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string CollectionName
     {
-      get { return (string) _collectionNameProperty.GetValue(); }
+      get { return (string)_collectionNameProperty.GetValue(); }
       set { _collectionNameProperty.SetValue(value); }
     }
 
@@ -125,7 +127,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? CollectionID
     {
-      get { return (int?) _collectionIDProperty.GetValue(); }
+      get { return (int?)_collectionIDProperty.GetValue(); }
       set { _collectionIDProperty.SetValue(value); }
     }
 
@@ -136,7 +138,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? Runtime
     {
-      get { return (int?) _runtimeProperty.GetValue(); }
+      get { return (int?)_runtimeProperty.GetValue(); }
       set { _runtimeProperty.SetValue(value); }
     }
 
@@ -147,7 +149,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Certification
     {
-      get { return (string) _certificationProperty.GetValue(); }
+      get { return (string)_certificationProperty.GetValue(); }
       set { _certificationProperty.SetValue(value); }
     }
 
@@ -158,7 +160,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Tagline
     {
-      get { return (string) _taglineProperty.GetValue(); }
+      get { return (string)_taglineProperty.GetValue(); }
       set { _taglineProperty.SetValue(value); }
     }
 
@@ -169,7 +171,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public float? Popularity
     {
-      get { return (float?) _popularityProperty.GetValue(); }
+      get { return (float?)_popularityProperty.GetValue(); }
       set { _popularityProperty.SetValue(value); }
     }
 
@@ -180,7 +182,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public long? Budget
     {
-      get { return (long?) _budgetProperty.GetValue(); }
+      get { return (long?)_budgetProperty.GetValue(); }
       set { _budgetProperty.SetValue(value); }
     }
 
@@ -191,7 +193,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public long? Revenue
     {
-      get { return (long?) _revenueProperty.GetValue(); }
+      get { return (long?)_revenueProperty.GetValue(); }
       set { _revenueProperty.SetValue(value); }
     }
 
@@ -202,8 +204,30 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public float? Score
     {
-      get { return (float?) _scoreProperty.GetValue(); }
+      get { return (float?)_scoreProperty.GetValue(); }
       set { _scoreProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TotalRatingProperty
+    {
+      get { return _totalRatingProperty; }
+    }
+
+    public double? TotalRating
+    {
+      get { return (double?)_totalRatingProperty.GetValue(); }
+      set { _totalRatingProperty.SetValue(value); }
+    }
+
+    public AbstractProperty RatingCountProperty
+    {
+      get { return _ratingCountProperty; }
+    }
+
+    public int? RatingCount
+    {
+      get { return (int?)_ratingCountProperty.GetValue(); }
+      set { _ratingCountProperty.SetValue(value); }
     }
 
     public AbstractProperty MediaItemProperty
@@ -213,11 +237,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
-    #endregion Properties
+    #endregion
 
     #region Constructor
 
@@ -236,11 +260,13 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _budgetProperty = new SProperty(typeof(long?));
       _revenueProperty = new SProperty(typeof(long?));
       _scoreProperty = new SProperty(typeof(float?));
+      _totalRatingProperty = new SProperty(typeof(double?));
+      _ratingCountProperty = new SProperty(typeof(int?));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
       _mediaItemProperty.Attach(MediaItemChanged);
     }
 
-    #endregion Constructor
+    #endregion
 
     #region Members
 
@@ -258,19 +284,21 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      MovieName = (string) aspect[MovieAspect.ATTR_MOVIE_NAME];
-      OrigName = (string) aspect[MovieAspect.ATTR_ORIG_MOVIE_NAME];
-      TMDBID = (int?) aspect[MovieAspect.ATTR_TMDB_ID];
-      IMDBID = (string) aspect[MovieAspect.ATTR_IMDB_ID];
-      CollectionName = (string) aspect[MovieAspect.ATTR_COLLECTION_NAME];
-      CollectionID = (int?) aspect[MovieAspect.ATTR_COLLECTION_ID];
-      Runtime = (int?) aspect[MovieAspect.ATTR_RUNTIME_M];
-      Certification = (string) aspect[MovieAspect.ATTR_CERTIFICATION];
-      Tagline = (string) aspect[MovieAspect.ATTR_TAGLINE];
-      Popularity = (float?) aspect[MovieAspect.ATTR_POPULARITY];
-      Budget = (long?) aspect[MovieAspect.ATTR_BUDGET];
-      Revenue = (long?) aspect[MovieAspect.ATTR_REVENUE];
-      Score = (float?) aspect[MovieAspect.ATTR_SCORE];
+      MovieName = (string)aspect[MovieAspect.ATTR_MOVIE_NAME];
+      OrigName = (string)aspect[MovieAspect.ATTR_ORIG_MOVIE_NAME];
+      TMDBID = (int?)aspect[MovieAspect.ATTR_TMDB_ID];
+      IMDBID = (string)aspect[MovieAspect.ATTR_IMDB_ID];
+      CollectionName = (string)aspect[MovieAspect.ATTR_COLLECTION_NAME];
+      CollectionID = (int?)aspect[MovieAspect.ATTR_COLLECTION_ID];
+      Runtime = (int?)aspect[MovieAspect.ATTR_RUNTIME_M];
+      Certification = (string)aspect[MovieAspect.ATTR_CERTIFICATION];
+      Tagline = (string)aspect[MovieAspect.ATTR_TAGLINE];
+      Popularity = (float?)aspect[MovieAspect.ATTR_POPULARITY];
+      Budget = (long?)aspect[MovieAspect.ATTR_BUDGET];
+      Revenue = (long?)aspect[MovieAspect.ATTR_REVENUE];
+      Score = (float?)aspect[MovieAspect.ATTR_SCORE];
+      TotalRating = (double?)aspect[MovieAspect.ATTR_TOTAL_RATING];
+      RatingCount = (int?)aspect[MovieAspect.ATTR_RATING_COUNT];
     }
 
     public void SetEmpty()
@@ -288,9 +316,13 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       Budget = null;
       Revenue = null;
       Score = null;
+      TotalRating = null;
+      RatingCount = null;
     }
 
 
-    #endregion Members
+    #endregion
+
   }
+
 }

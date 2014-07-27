@@ -140,6 +140,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (episodes.Count == 1)
       {
         episode = episodes[0];
+        seriesInfo.ImdbId = seriesDetail.ImdbId;
+        seriesInfo.TvdbId = seriesDetail.Id;
         seriesInfo.SeasonNumber = episode.SeasonNumber;
         seriesInfo.EpisodeNumbers.Clear();
         seriesInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
@@ -162,6 +164,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     private static void SetEpisodeDetails(SeriesInfo seriesInfo, TvdbEpisode episode)
     {
+      seriesInfo.TotalRating = episode.Rating;
       seriesInfo.Summary = episode.Overview;
       // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
       if (episode.GuestStars.Count > 0)

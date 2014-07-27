@@ -34,7 +34,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the series aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("88CFE0A8-DF0B-4E2F-AE26-17C9478AF703");
+    public static readonly Guid ASPECT_ID = new Guid("287A2809-D38D-4F98-B613-E9C09904392D");
+
+    /// <summary>
+    /// Contains the TMDB ID of the series.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TVDB_ID =
+        MediaItemAspectMetadata.CreateAttributeSpecification("TVDBID", typeof(int), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the IMDB ID of the series.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_IMDB_ID =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
 
     /// <summary>
     /// Series name.
@@ -81,15 +93,31 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FIRSTAIRED =
         MediaItemAspectMetadata.CreateAttributeSpecification("FirstAired", typeof (DateTime), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the overall rating of the episode. Value ranges from 0 (very bad) to 10 (very good).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the overall number ratings of the episode.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {
+            ATTR_IMDB_ID,
+            ATTR_TVDB_ID,
             ATTR_SERIESNAME,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
             ATTR_EPISODE,
             ATTR_DVDEPISODE,
             ATTR_EPISODENAME,
-            ATTR_FIRSTAIRED
+            ATTR_FIRSTAIRED,
+            ATTR_TOTAL_RATING,
+            ATTR_RATING_COUNT
         });
   }
 }

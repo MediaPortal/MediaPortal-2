@@ -109,6 +109,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string ImdbId { get; set; }
 
     /// <summary>
+    /// Gets or sets the series TheTvDB id.
+    /// </summary>
+    public int TvdbId { get; set; }
+
+    /// <summary>
     /// Gets or sets the episode title.
     /// </summary>
     public string Episode
@@ -162,6 +167,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public ICollection<string> Genres { get; internal set; }
 
+    public double TotalRating { get; set; }
+
+    public int RatingCount { get; set; }
+
     #region Constructor
 
     public SeriesInfo()
@@ -202,6 +211,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_FIRSTAIRED, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
       MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_IMDB_ID, ImdbId);
+      if (TvdbId > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_TVDB_ID, TvdbId);
+      if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_TOTAL_RATING, TotalRating);
+      if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, RatingCount);
 
       // Construct a "Series Season" string, which will be used for filtering and season banner retrieval.
       int season = SeasonNumber ?? 0;

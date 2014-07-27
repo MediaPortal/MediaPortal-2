@@ -45,6 +45,8 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     #region Fields
 
+    protected AbstractProperty _iMDBIDProperty;
+    protected AbstractProperty _tVDBIDProperty;
     protected AbstractProperty _seriesNameProperty;
     protected AbstractProperty _seasonProperty;
     protected AbstractProperty _seriesSeasonNameProperty;
@@ -52,11 +54,35 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _dvdEpisodeProperty;
     protected AbstractProperty _episodeNameProperty;
     protected AbstractProperty _firstAiredProperty;
+    protected AbstractProperty _totalRatingProperty;
+    protected AbstractProperty _ratingCountProperty;
     protected AbstractProperty _mediaItemProperty;
 
     #endregion
 
     #region Properties
+
+    public AbstractProperty IMDBIDProperty
+    {
+      get { return _iMDBIDProperty; }
+    }
+
+    public string IMDBID
+    {
+      get { return (string)_iMDBIDProperty.GetValue(); }
+      set { _iMDBIDProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TVDBIDProperty
+    {
+      get { return _tVDBIDProperty; }
+    }
+
+    public int? TVDBID
+    {
+      get { return (int?)_tVDBIDProperty.GetValue(); }
+      set { _tVDBIDProperty.SetValue(value); }
+    }
 
     public AbstractProperty SeriesNameProperty
     {
@@ -65,7 +91,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string SeriesName
     {
-      get { return (string) _seriesNameProperty.GetValue(); }
+      get { return (string)_seriesNameProperty.GetValue(); }
       set { _seriesNameProperty.SetValue(value); }
     }
 
@@ -76,7 +102,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? Season
     {
-      get { return (int?) _seasonProperty.GetValue(); }
+      get { return (int?)_seasonProperty.GetValue(); }
       set { _seasonProperty.SetValue(value); }
     }
 
@@ -87,7 +113,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string SeriesSeasonName
     {
-      get { return (string) _seriesSeasonNameProperty.GetValue(); }
+      get { return (string)_seriesSeasonNameProperty.GetValue(); }
       set { _seriesSeasonNameProperty.SetValue(value); }
     }
 
@@ -98,7 +124,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<int> Episode
     {
-      get { return (IEnumerable<int>) _episodeProperty.GetValue(); }
+      get { return (IEnumerable<int>)_episodeProperty.GetValue(); }
       set { _episodeProperty.SetValue(value); }
     }
 
@@ -109,7 +135,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<double> DvdEpisode
     {
-      get { return (IEnumerable<double>) _dvdEpisodeProperty.GetValue(); }
+      get { return (IEnumerable<double>)_dvdEpisodeProperty.GetValue(); }
       set { _dvdEpisodeProperty.SetValue(value); }
     }
 
@@ -120,7 +146,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string EpisodeName
     {
-      get { return (string) _episodeNameProperty.GetValue(); }
+      get { return (string)_episodeNameProperty.GetValue(); }
       set { _episodeNameProperty.SetValue(value); }
     }
 
@@ -131,8 +157,30 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public DateTime? FirstAired
     {
-      get { return (DateTime?) _firstAiredProperty.GetValue(); }
+      get { return (DateTime?)_firstAiredProperty.GetValue(); }
       set { _firstAiredProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TotalRatingProperty
+    {
+      get { return _totalRatingProperty; }
+    }
+
+    public double? TotalRating
+    {
+      get { return (double?)_totalRatingProperty.GetValue(); }
+      set { _totalRatingProperty.SetValue(value); }
+    }
+
+    public AbstractProperty RatingCountProperty
+    {
+      get { return _ratingCountProperty; }
+    }
+
+    public int? RatingCount
+    {
+      get { return (int?)_ratingCountProperty.GetValue(); }
+      set { _ratingCountProperty.SetValue(value); }
     }
 
     public AbstractProperty MediaItemProperty
@@ -142,7 +190,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
@@ -152,6 +200,8 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public SeriesAspectWrapper()
     {
+      _iMDBIDProperty = new SProperty(typeof(string));
+      _tVDBIDProperty = new SProperty(typeof(int?));
       _seriesNameProperty = new SProperty(typeof(string));
       _seasonProperty = new SProperty(typeof(int?));
       _seriesSeasonNameProperty = new SProperty(typeof(string));
@@ -159,6 +209,8 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _dvdEpisodeProperty = new SProperty(typeof(IEnumerable<double>));
       _episodeNameProperty = new SProperty(typeof(string));
       _firstAiredProperty = new SProperty(typeof(DateTime?));
+      _totalRatingProperty = new SProperty(typeof(double?));
+      _ratingCountProperty = new SProperty(typeof(int?));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
       _mediaItemProperty.Attach(MediaItemChanged);
     }
@@ -181,17 +233,23 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      SeriesName = (string) aspect[SeriesAspect.ATTR_SERIESNAME];
-      Season = (int?) aspect[SeriesAspect.ATTR_SEASON];
-      SeriesSeasonName = (string) aspect[SeriesAspect.ATTR_SERIES_SEASON];
-      Episode = (IEnumerable<int>) aspect[SeriesAspect.ATTR_EPISODE];
-      DvdEpisode = (IEnumerable<double>) aspect[SeriesAspect.ATTR_DVDEPISODE];
-      EpisodeName = (string) aspect[SeriesAspect.ATTR_EPISODENAME];
-      FirstAired = (DateTime?) aspect[SeriesAspect.ATTR_FIRSTAIRED];
+      TVDBID = (int?)aspect[SeriesAspect.ATTR_TVDB_ID];
+      IMDBID = (string)aspect[SeriesAspect.ATTR_IMDB_ID];
+      SeriesName = (string)aspect[SeriesAspect.ATTR_SERIESNAME];
+      Season = (int?)aspect[SeriesAspect.ATTR_SEASON];
+      SeriesSeasonName = (string)aspect[SeriesAspect.ATTR_SERIES_SEASON];
+      Episode = (IEnumerable<int>)aspect[SeriesAspect.ATTR_EPISODE];
+      DvdEpisode = (IEnumerable<double>)aspect[SeriesAspect.ATTR_DVDEPISODE];
+      EpisodeName = (string)aspect[SeriesAspect.ATTR_EPISODENAME];
+      FirstAired = (DateTime?)aspect[SeriesAspect.ATTR_FIRSTAIRED];
+      TotalRating = (double?)aspect[SeriesAspect.ATTR_TOTAL_RATING];
+      RatingCount = (int?)aspect[SeriesAspect.ATTR_RATING_COUNT];
     }
 
     public void SetEmpty()
     {
+      TVDBID = null;
+      IMDBID = null;
       SeriesName = null;
       Season = null;
       SeriesSeasonName = null;
@@ -199,8 +257,13 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       DvdEpisode = new List<Double>();
       EpisodeName = null;
       FirstAired = null;
+      TotalRating = null;
+      RatingCount = null;
     }
 
+
     #endregion
+
   }
+
 }

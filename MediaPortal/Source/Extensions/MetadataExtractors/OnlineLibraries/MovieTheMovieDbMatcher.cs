@@ -109,6 +109,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
           if (movieDetails.Revenue.HasValue) movieInfo.Revenue = movieDetails.Revenue.Value;
           if (movieDetails.Runtime.HasValue) movieInfo.Runtime = movieDetails.Runtime.Value;
           if (movieDetails.Popularity.HasValue) movieInfo.Popularity = movieDetails.Popularity.Value;
+          if (movieDetails.Rating.HasValue) movieInfo.TotalRating = movieDetails.Rating.Value;
+          if (movieDetails.RatingCount.HasValue) movieInfo.RatingCount = movieDetails.RatingCount.Value;
           movieInfo.ImdbId = movieDetails.ImdbId;
           movieInfo.MovieDbId = movieDetails.Id;
           if (movieDetails.Genres.Count > 0)

@@ -5,6 +5,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
   [DataContract]
   public abstract class AbstractScrobble : TraktAuthentication
   {
+    [DataMember(Name = "imdb_id")]
+    public string IMDBID { get; set; }
+
     [DataMember(Name = "title")]
     public string Title { get; set; }
 

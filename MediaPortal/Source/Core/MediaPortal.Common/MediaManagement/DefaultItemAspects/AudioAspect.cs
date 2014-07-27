@@ -91,7 +91,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Encoding", 50, Cardinality.Inline, false);
 
     /// <summary>
-    /// Bitrate in bits/second.
+    /// Bitrate in kbits/second.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_BITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("BitRate", typeof(int), Cardinality.Inline, false);

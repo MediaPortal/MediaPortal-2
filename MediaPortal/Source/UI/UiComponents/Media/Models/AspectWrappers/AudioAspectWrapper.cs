@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
 
-    #endregion Constants
+    #endregion
 
     #region Fields
 
@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _numDiscsProperty;
     protected AbstractProperty _mediaItemProperty;
 
-    #endregion Fields
+    #endregion
 
     #region Properties
 
@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Artists
     {
-      get { return (IEnumerable<string>) _artistsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_artistsProperty.GetValue(); }
       set { _artistsProperty.SetValue(value); }
     }
 
@@ -80,7 +80,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Album
     {
-      get { return (string) _albumProperty.GetValue(); }
+      get { return (string)_albumProperty.GetValue(); }
       set { _albumProperty.SetValue(value); }
     }
 
@@ -91,7 +91,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Genres
     {
-      get { return (IEnumerable<string>) _genresProperty.GetValue(); }
+      get { return (IEnumerable<string>)_genresProperty.GetValue(); }
       set { _genresProperty.SetValue(value); }
     }
 
@@ -102,7 +102,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public long? Duration
     {
-      get { return (long?) _durationProperty.GetValue(); }
+      get { return (long?)_durationProperty.GetValue(); }
       set { _durationProperty.SetValue(value); }
     }
 
@@ -113,7 +113,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? Track
     {
-      get { return (int?) _trackProperty.GetValue(); }
+      get { return (int?)_trackProperty.GetValue(); }
       set { _trackProperty.SetValue(value); }
     }
 
@@ -124,7 +124,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? NumTracks
     {
-      get { return (int?) _numTracksProperty.GetValue(); }
+      get { return (int?)_numTracksProperty.GetValue(); }
       set { _numTracksProperty.SetValue(value); }
     }
 
@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> AlbumArtists
     {
-      get { return (IEnumerable<string>) _albumArtistsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_albumArtistsProperty.GetValue(); }
       set { _albumArtistsProperty.SetValue(value); }
     }
 
@@ -146,7 +146,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public IEnumerable<string> Composers
     {
-      get { return (IEnumerable<string>) _composersProperty.GetValue(); }
+      get { return (IEnumerable<string>)_composersProperty.GetValue(); }
       set { _composersProperty.SetValue(value); }
     }
 
@@ -157,7 +157,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Encoding
     {
-      get { return (string) _encodingProperty.GetValue(); }
+      get { return (string)_encodingProperty.GetValue(); }
       set { _encodingProperty.SetValue(value); }
     }
 
@@ -168,7 +168,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? BitRate
     {
-      get { return (int?) _bitRateProperty.GetValue(); }
+      get { return (int?)_bitRateProperty.GetValue(); }
       set { _bitRateProperty.SetValue(value); }
     }
 
@@ -179,7 +179,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? DiscId
     {
-      get { return (int?) _discIdProperty.GetValue(); }
+      get { return (int?)_discIdProperty.GetValue(); }
       set { _discIdProperty.SetValue(value); }
     }
 
@@ -190,7 +190,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? NumDiscs
     {
-      get { return (int?) _numDiscsProperty.GetValue(); }
+      get { return (int?)_numDiscsProperty.GetValue(); }
       set { _numDiscsProperty.SetValue(value); }
     }
 
@@ -201,11 +201,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
-    #endregion Properties
+    #endregion
 
     #region Constructor
 
@@ -227,7 +227,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _mediaItemProperty.Attach(MediaItemChanged);
     }
 
-    #endregion Constructor
+    #endregion
 
     #region Members
 
@@ -245,18 +245,18 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      Artists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
-      Album = (string) aspect[AudioAspect.ATTR_ALBUM];
-      Genres = (IEnumerable<string>) aspect[AudioAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-      Duration = (long?) aspect[AudioAspect.ATTR_DURATION];
-      Track = (int?) aspect[AudioAspect.ATTR_TRACK];
-      NumTracks = (int?) aspect[AudioAspect.ATTR_NUMTRACKS];
-      AlbumArtists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ALBUMARTISTS] ?? EMPTY_STRING_COLLECTION;
-      Composers = (IEnumerable<string>) aspect[AudioAspect.ATTR_COMPOSERS] ?? EMPTY_STRING_COLLECTION;
-      Encoding = (string) aspect[AudioAspect.ATTR_ENCODING];
-      BitRate = (int?) aspect[AudioAspect.ATTR_BITRATE];
-      DiscId = (int?) aspect[AudioAspect.ATTR_DISCID];
-      NumDiscs = (int?) aspect[AudioAspect.ATTR_NUMDISCS];
+      Artists = (IEnumerable<string>)aspect[AudioAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
+      Album = (string)aspect[AudioAspect.ATTR_ALBUM];
+      Genres = (IEnumerable<string>)aspect[AudioAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+      Duration = (long?)aspect[AudioAspect.ATTR_DURATION];
+      Track = (int?)aspect[AudioAspect.ATTR_TRACK];
+      NumTracks = (int?)aspect[AudioAspect.ATTR_NUMTRACKS];
+      AlbumArtists = (IEnumerable<string>)aspect[AudioAspect.ATTR_ALBUMARTISTS] ?? EMPTY_STRING_COLLECTION;
+      Composers = (IEnumerable<string>)aspect[AudioAspect.ATTR_COMPOSERS] ?? EMPTY_STRING_COLLECTION;
+      Encoding = (string)aspect[AudioAspect.ATTR_ENCODING];
+      BitRate = (int?)aspect[AudioAspect.ATTR_BITRATE];
+      DiscId = (int?)aspect[AudioAspect.ATTR_DISCID];
+      NumDiscs = (int?)aspect[AudioAspect.ATTR_NUMDISCS];
     }
 
     public void SetEmpty()
@@ -276,8 +276,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     }
 
 
-    #endregion Members
+    #endregion
 
   }
-
 }

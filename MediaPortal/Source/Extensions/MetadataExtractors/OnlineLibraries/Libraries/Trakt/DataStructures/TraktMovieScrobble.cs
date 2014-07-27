@@ -8,9 +8,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
   [DataContract]
   public class TraktMovieScrobble : AbstractScrobble
   {
-    [DataMember(Name = "imdb_id")]
-    public string IMDBID { get; set; }
-
     [DataMember(Name = "tmdb_id")]
     public string TMDBID { get; set; }
   }

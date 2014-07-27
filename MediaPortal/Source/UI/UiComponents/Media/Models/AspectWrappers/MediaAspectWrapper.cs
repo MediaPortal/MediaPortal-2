@@ -41,12 +41,13 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
 
-    #endregion Constants
+    #endregion
 
     #region Fields
 
     protected AbstractProperty _titleProperty;
     protected AbstractProperty _mimeTypeProperty;
+    protected AbstractProperty _sizeProperty;
     protected AbstractProperty _recordingTimeProperty;
     protected AbstractProperty _ratingProperty;
     protected AbstractProperty _commentProperty;
@@ -54,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _lastPlayedProperty;
     protected AbstractProperty _mediaItemProperty;
 
-    #endregion Fields
+    #endregion
 
     #region Properties
 
@@ -65,7 +66,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Title
     {
-      get { return (string) _titleProperty.GetValue(); }
+      get { return (string)_titleProperty.GetValue(); }
       set { _titleProperty.SetValue(value); }
     }
 
@@ -76,8 +77,19 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string MimeType
     {
-      get { return (string) _mimeTypeProperty.GetValue(); }
+      get { return (string)_mimeTypeProperty.GetValue(); }
       set { _mimeTypeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SizeProperty
+    {
+      get { return _sizeProperty; }
+    }
+
+    public long? Size
+    {
+      get { return (long?)_sizeProperty.GetValue(); }
+      set { _sizeProperty.SetValue(value); }
     }
 
     public AbstractProperty RecordingTimeProperty
@@ -87,7 +99,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public DateTime? RecordingTime
     {
-      get { return (DateTime?) _recordingTimeProperty.GetValue(); }
+      get { return (DateTime?)_recordingTimeProperty.GetValue(); }
       set { _recordingTimeProperty.SetValue(value); }
     }
 
@@ -98,7 +110,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? Rating
     {
-      get { return (int?) _ratingProperty.GetValue(); }
+      get { return (int?)_ratingProperty.GetValue(); }
       set { _ratingProperty.SetValue(value); }
     }
 
@@ -109,7 +121,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Comment
     {
-      get { return (string) _commentProperty.GetValue(); }
+      get { return (string)_commentProperty.GetValue(); }
       set { _commentProperty.SetValue(value); }
     }
 
@@ -120,7 +132,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? PlayCount
     {
-      get { return (int?) _playCountProperty.GetValue(); }
+      get { return (int?)_playCountProperty.GetValue(); }
       set { _playCountProperty.SetValue(value); }
     }
 
@@ -131,7 +143,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public DateTime? LastPlayed
     {
-      get { return (DateTime?) _lastPlayedProperty.GetValue(); }
+      get { return (DateTime?)_lastPlayedProperty.GetValue(); }
       set { _lastPlayedProperty.SetValue(value); }
     }
 
@@ -142,11 +154,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
-    #endregion Properties
+    #endregion
 
     #region Constructor
 
@@ -154,6 +166,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       _titleProperty = new SProperty(typeof(string));
       _mimeTypeProperty = new SProperty(typeof(string));
+      _sizeProperty = new SProperty(typeof(long?));
       _recordingTimeProperty = new SProperty(typeof(DateTime?));
       _ratingProperty = new SProperty(typeof(int?));
       _commentProperty = new SProperty(typeof(string));
@@ -163,7 +176,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _mediaItemProperty.Attach(MediaItemChanged);
     }
 
-    #endregion Constructor
+    #endregion
 
     #region Members
 
@@ -181,19 +194,21 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      Title = (string) aspect[MediaAspect.ATTR_TITLE];
-      MimeType = (string) aspect[MediaAspect.ATTR_MIME_TYPE];
-      RecordingTime = (DateTime?) aspect[MediaAspect.ATTR_RECORDINGTIME];
-      Rating = (int?) aspect[MediaAspect.ATTR_RATING];
-      Comment = (string) aspect[MediaAspect.ATTR_COMMENT];
-      PlayCount = (int?) aspect[MediaAspect.ATTR_PLAYCOUNT];
-      LastPlayed = (DateTime?) aspect[MediaAspect.ATTR_LASTPLAYED];
+      Title = (string)aspect[MediaAspect.ATTR_TITLE];
+      MimeType = (string)aspect[MediaAspect.ATTR_MIME_TYPE];
+      Size = (long?)aspect[MediaAspect.ATTR_SIZE];
+      RecordingTime = (DateTime?)aspect[MediaAspect.ATTR_RECORDINGTIME];
+      Rating = (int?)aspect[MediaAspect.ATTR_RATING];
+      Comment = (string)aspect[MediaAspect.ATTR_COMMENT];
+      PlayCount = (int?)aspect[MediaAspect.ATTR_PLAYCOUNT];
+      LastPlayed = (DateTime?)aspect[MediaAspect.ATTR_LASTPLAYED];
     }
 
     public void SetEmpty()
     {
       Title = null;
       MimeType = null;
+      Size = null;
       RecordingTime = null;
       Rating = null;
       Comment = null;
@@ -202,6 +217,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     }
 
 
-    #endregion Members
+    #endregion
+
   }
 }

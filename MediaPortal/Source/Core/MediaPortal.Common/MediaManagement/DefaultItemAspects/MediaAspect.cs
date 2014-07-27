@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the media aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("17AF940C-66CE-4D23-9D06-BF7F21C04201");
+    public static readonly Guid ASPECT_ID = new Guid("29146287-00C3-417B-AC10-BED1A84DB1A9");
 
     /// <summary>
     /// Contains a human readable title of the media item.
@@ -49,6 +49,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
 
     /// <summary>
+    /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
+    /// Online resources like streams might have <c>0</c> as size.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SIZE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
+
+    /// <summary>
     /// Contains the recording time and date of the media item. Can be used for an exact recording time
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
@@ -56,7 +63,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a rating of the media item. Value ranges from -100 (very bad) to 100 (very good).
+    /// Contains the user's rating of the media item. Value ranges from 0 (very bad) to 10 (very good).
+    /// TODO: once we have user dependent aspects, move this attribute there.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
         MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline, true);
@@ -84,6 +92,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
             ATTR_MIME_TYPE,
+            ATTR_SIZE,
             ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,

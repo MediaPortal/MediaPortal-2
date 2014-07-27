@@ -36,7 +36,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the series aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("07067796-3398-4D9C-9012-12070EAE350A");
+    public static readonly Guid ASPECT_ID = new Guid("2AD64410-5BA3-4163-AF03-F8CBBD0EC252");
 
     /// <summary>
     /// Contains the localized name of the movie.
@@ -117,6 +117,18 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SCORE =
         MediaItemAspectMetadata.CreateAttributeSpecification("Score", typeof(float), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the overall rating of the movie. Value ranges from 0 (very bad) to 10 (very good).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the overall number ratings of the movie.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         ASPECT_ID, "MovieItem", new[] {
             ATTR_MOVIE_NAME,
@@ -131,7 +143,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_POPULARITY,
             ATTR_BUDGET,
             ATTR_REVENUE,
-            ATTR_SCORE
+            ATTR_SCORE,
+            ATTR_TOTAL_RATING,
+            ATTR_RATING_COUNT
         });
   }
 }

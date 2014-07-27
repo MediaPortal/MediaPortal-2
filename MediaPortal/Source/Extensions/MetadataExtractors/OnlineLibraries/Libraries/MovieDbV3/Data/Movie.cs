@@ -110,7 +110,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 
     [DataMember(Name = "popularity")]
     public float? Popularity { get; set; }
-    
+
+    [DataMember(Name = "vote_average")]
+    public float? Rating { get; set; }
+
+    [DataMember(Name = "vote_count")]
+    public int? RatingCount { get; set; }
+
     [DataMember(Name = "homepage")]
     public string Homepage { get; set; }
 

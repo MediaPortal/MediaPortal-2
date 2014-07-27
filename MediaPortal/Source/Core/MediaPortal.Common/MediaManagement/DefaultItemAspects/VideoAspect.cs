@@ -62,7 +62,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioEncoding", 50, Cardinality.Inline, false);
 
     /// <summary>
-    /// Bitrate of the first audio stream in bits/second.
+    /// Bitrate of the first audio stream in kbits/second.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOBITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline, false);
@@ -80,7 +80,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("VideoEncoding", 50, Cardinality.Inline, false);
 
     /// <summary>
-    /// Bitrate of the video in bits/second.
+    /// Bitrate of the video in kbits/second.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_VIDEOBITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("VideoBitRate", typeof(long), Cardinality.Inline, false);

@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
 
-    #endregion Constants
+    #endregion
 
     #region Fields
 
@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     protected AbstractProperty _countryProperty;
     protected AbstractProperty _mediaItemProperty;
 
-    #endregion Fields
+    #endregion
 
     #region Properties
 
@@ -73,7 +73,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? AspectWidth
     {
-      get { return (int?) _aspectWidthProperty.GetValue(); }
+      get { return (int?)_aspectWidthProperty.GetValue(); }
       set { _aspectWidthProperty.SetValue(value); }
     }
 
@@ -84,7 +84,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? AspectHeight
     {
-      get { return (int?) _aspectHeightProperty.GetValue(); }
+      get { return (int?)_aspectHeightProperty.GetValue(); }
       set { _aspectHeightProperty.SetValue(value); }
     }
 
@@ -95,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string EquipmentMake
     {
-      get { return (string) _equipmentMakeProperty.GetValue(); }
+      get { return (string)_equipmentMakeProperty.GetValue(); }
       set { _equipmentMakeProperty.SetValue(value); }
     }
 
@@ -106,7 +106,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string EquipmentModel
     {
-      get { return (string) _equipmentModelProperty.GetValue(); }
+      get { return (string)_equipmentModelProperty.GetValue(); }
       set { _equipmentModelProperty.SetValue(value); }
     }
 
@@ -117,7 +117,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string ExposureBias
     {
-      get { return (string) _exposureBiasProperty.GetValue(); }
+      get { return (string)_exposureBiasProperty.GetValue(); }
       set { _exposureBiasProperty.SetValue(value); }
     }
 
@@ -128,7 +128,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string ExposureTime
     {
-      get { return (string) _exposureTimeProperty.GetValue(); }
+      get { return (string)_exposureTimeProperty.GetValue(); }
       set { _exposureTimeProperty.SetValue(value); }
     }
 
@@ -139,7 +139,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string FlashMode
     {
-      get { return (string) _flashModeProperty.GetValue(); }
+      get { return (string)_flashModeProperty.GetValue(); }
       set { _flashModeProperty.SetValue(value); }
     }
 
@@ -150,7 +150,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string FNumber
     {
-      get { return (string) _fNumberProperty.GetValue(); }
+      get { return (string)_fNumberProperty.GetValue(); }
       set { _fNumberProperty.SetValue(value); }
     }
 
@@ -161,7 +161,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string ISOSpeedRating
     {
-      get { return (string) _iSOSpeedRatingProperty.GetValue(); }
+      get { return (string)_iSOSpeedRatingProperty.GetValue(); }
       set { _iSOSpeedRatingProperty.SetValue(value); }
     }
 
@@ -172,7 +172,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public int? Orientation
     {
-      get { return (int?) _orientationProperty.GetValue(); }
+      get { return (int?)_orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
     }
 
@@ -183,7 +183,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string MeteringMode
     {
-      get { return (string) _meteringModeProperty.GetValue(); }
+      get { return (string)_meteringModeProperty.GetValue(); }
       set { _meteringModeProperty.SetValue(value); }
     }
 
@@ -194,7 +194,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public double? Latitude
     {
-      get { return (double?) _latitudeProperty.GetValue(); }
+      get { return (double?)_latitudeProperty.GetValue(); }
       set { _latitudeProperty.SetValue(value); }
     }
 
@@ -205,7 +205,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public double? Longitude
     {
-      get { return (double?) _longitudeProperty.GetValue(); }
+      get { return (double?)_longitudeProperty.GetValue(); }
       set { _longitudeProperty.SetValue(value); }
     }
 
@@ -216,7 +216,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string City
     {
-      get { return (string) _cityProperty.GetValue(); }
+      get { return (string)_cityProperty.GetValue(); }
       set { _cityProperty.SetValue(value); }
     }
 
@@ -227,7 +227,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string State
     {
-      get { return (string) _stateProperty.GetValue(); }
+      get { return (string)_stateProperty.GetValue(); }
       set { _stateProperty.SetValue(value); }
     }
 
@@ -238,7 +238,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public string Country
     {
-      get { return (string) _countryProperty.GetValue(); }
+      get { return (string)_countryProperty.GetValue(); }
       set { _countryProperty.SetValue(value); }
     }
 
@@ -249,11 +249,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
-    #endregion Properties
+    #endregion
 
     #region Constructor
 
@@ -279,7 +279,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       _mediaItemProperty.Attach(MediaItemChanged);
     }
 
-    #endregion Constructor
+    #endregion
 
     #region Members
 
@@ -297,22 +297,22 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      AspectWidth = (int?) aspect[ImageAspect.ATTR_WIDTH];
-      AspectHeight = (int?) aspect[ImageAspect.ATTR_HEIGHT];
-      EquipmentMake = (string) aspect[ImageAspect.ATTR_MAKE];
-      EquipmentModel = (string) aspect[ImageAspect.ATTR_MODEL];
-      ExposureBias = (string) aspect[ImageAspect.ATTR_EXPOSURE_BIAS];
-      ExposureTime = (string) aspect[ImageAspect.ATTR_EXPOSURE_TIME];
-      FlashMode = (string) aspect[ImageAspect.ATTR_FLASH_MODE];
-      FNumber = (string) aspect[ImageAspect.ATTR_FNUMBER];
-      ISOSpeedRating = (string) aspect[ImageAspect.ATTR_ISO_SPEED];
-      Orientation = (int?) aspect[ImageAspect.ATTR_ORIENTATION];
-      MeteringMode = (string) aspect[ImageAspect.ATTR_METERING_MODE];
-      Latitude = (double?) aspect[ImageAspect.ATTR_LATITUDE];
-      Longitude = (double?) aspect[ImageAspect.ATTR_LONGITUDE];
-      City = (string) aspect[ImageAspect.ATTR_CITY];
-      State = (string) aspect[ImageAspect.ATTR_STATE];
-      Country = (string) aspect[ImageAspect.ATTR_COUNTRY];
+      AspectWidth = (int?)aspect[ImageAspect.ATTR_WIDTH];
+      AspectHeight = (int?)aspect[ImageAspect.ATTR_HEIGHT];
+      EquipmentMake = (string)aspect[ImageAspect.ATTR_MAKE];
+      EquipmentModel = (string)aspect[ImageAspect.ATTR_MODEL];
+      ExposureBias = (string)aspect[ImageAspect.ATTR_EXPOSURE_BIAS];
+      ExposureTime = (string)aspect[ImageAspect.ATTR_EXPOSURE_TIME];
+      FlashMode = (string)aspect[ImageAspect.ATTR_FLASH_MODE];
+      FNumber = (string)aspect[ImageAspect.ATTR_FNUMBER];
+      ISOSpeedRating = (string)aspect[ImageAspect.ATTR_ISO_SPEED];
+      Orientation = (int?)aspect[ImageAspect.ATTR_ORIENTATION];
+      MeteringMode = (string)aspect[ImageAspect.ATTR_METERING_MODE];
+      Latitude = (double?)aspect[ImageAspect.ATTR_LATITUDE];
+      Longitude = (double?)aspect[ImageAspect.ATTR_LONGITUDE];
+      City = (string)aspect[ImageAspect.ATTR_CITY];
+      State = (string)aspect[ImageAspect.ATTR_STATE];
+      Country = (string)aspect[ImageAspect.ATTR_COUNTRY];
     }
 
     public void SetEmpty()
@@ -336,6 +336,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     }
 
 
-    #endregion Members
+    #endregion
+
   }
 }

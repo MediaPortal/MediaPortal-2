@@ -56,6 +56,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public long Budget { get; set; }
     public long Revenue { get; set; }
     public double Score { get; set; }
+    public double TotalRating { get; set; }
+    public int RatingCount { get; set; }
 
     /// <summary>
     /// Contains a list of <see cref="CultureInfo.TwoLetterISOLanguageName"/> of the medium. This can be used
@@ -97,6 +99,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Budget > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_BUDGET, Budget);
       if (Revenue > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_REVENUE, Revenue);
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_SCORE, Score);
+      if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, TotalRating);
+      if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, RatingCount);
 
       if (!string.IsNullOrEmpty(CollectionName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, CollectionName);
       if (CollectionMovieDbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_ID, CollectionMovieDbId);

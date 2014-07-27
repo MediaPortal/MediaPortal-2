@@ -286,6 +286,12 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (isSeries)
       {
         TraktEpisodeScrobble series = new TraktEpisodeScrobble();
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
+          series.IMDBID = value;
+
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out iValue))
+          series.TVDBID = iValue.ToString();
+
         if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
           series.Title = value;
 
