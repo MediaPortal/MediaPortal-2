@@ -39,6 +39,7 @@ using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
@@ -218,25 +219,20 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
       try
       {
-        Logger.Debug("DlnaResourceAccessModule: Attempting to load mediaitem {0}", mediaItemGuid.ToString());
-        // Attempt to grab the media item from the database.
-        var item = MediaLibraryHelper.GetMediaItem(mediaItemGuid);
-        if (item == null)
-          throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
-
-        // NOTE: replaced by Fanart service
-        //if (request.QueryString.Contains("aspect") && request.QueryString["aspect"].Value == "THUMBNAIL")
-        //{
-        //  byte[] thumb;
-        //  if (MediaItemAspect.TryGetAttribute(item.Aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb))
-        //  {
-        //    response.ContentType = "image/jpeg";
-        //    MemoryStream ms = new MemoryStream(thumb);
-        //    SendWholeFile(response, ms, false);
-        //  }
-        //}
-        //else
+        if (request.QueryString["aspect"].Value == "ICON")
         {
+          using (var fs = new FileStream(FileUtils.BuildAssemblyRelativePath("MP2_DLNA_Server_256.png"), FileMode.Open, FileAccess.Read))
+           SendWholeFile(response, fs, false);
+        }
+        else
+        {
+          Logger.Debug("DlnaResourceAccessModule: Attempting to load mediaitem {0}", mediaItemGuid.ToString());
+
+          // Attempt to grab the media item from the database.
+          var item = MediaLibraryHelper.GetMediaItem(mediaItemGuid);
+          if (item == null)
+            throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
+
           // Grab the mimetype from the media item and set the Content Type header.
           var mimeType = item.Aspects[DlnaItemAspect.ASPECT_ID].GetAttributeValue(DlnaItemAspect.ATTR_MIME_TYPE);
           if (mimeType == null)

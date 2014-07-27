@@ -22,13 +22,8 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Xml;
-using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using UPnP.Infrastructure.Dv;
@@ -51,8 +46,7 @@ namespace MediaPortal.Extensions.MediaServer
 
 
     public UPnPMediaServerDevice(string deviceUuid)
-      : base(MEDIASERVER_DEVICE_TYPE, MEDIASERVER_DEVICE_VERSION, deviceUuid,
-             new LocalizedUPnPDeviceInformation())
+      : base(MEDIASERVER_DEVICE_TYPE, MEDIASERVER_DEVICE_VERSION, deviceUuid, new MediaServerUpnPDeviceInformation())
     {
       DescriptionGenerateHook += GenerateDescriptionFunc;
       AddService(new UPnPConnectionManagerServiceImpl());
