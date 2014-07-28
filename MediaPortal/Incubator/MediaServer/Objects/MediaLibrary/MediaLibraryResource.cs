@@ -71,6 +71,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       if (dlnaProtocolInfo != null)
         ProtocolInfo = dlnaProtocolInfo.ToString();
 
+      MediaItemAspect mediaAspect;
+      if (Item.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+      {
+        Size = (ulong)mediaAspect.GetAttributeValue<long>(MediaAspect.ATTR_SIZE);
+      }
       MediaItemAspect videoAspect;
       if (Item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
       {
@@ -80,9 +85,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
         var vidBitRate = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE));
         var audBitRate = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_AUDIOBITRATE));
-        // TODO: normalize bitrates (video: bit, audio: kbit)
-        SetBitrate(vidBitRate + audBitRate, 1);
+        SetBitrate(vidBitRate + audBitRate);
         SetDuration(Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION)));
+        NumberOfAudioChannels = Convert.ToUInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_AUDIOSTREAMCOUNT));
       }
       MediaItemAspect audioAspect;
       if (Item.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
@@ -131,10 +136,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
       Duration = TimeSpan.FromSeconds(durationInSeconds).ToString();
     }
-    protected void SetBitrate(int kbitPerSecond, int factor = 1000)
+    protected void SetBitrate(int kbitPerSecond)
     {
-      // TODO: it seems like kbits are only treated by factor 1000
-      BitRate = (uint)((uint)kbitPerSecond * factor / 8);
+      BitRate = (uint)kbitPerSecond / 8;
     }
   }
 }

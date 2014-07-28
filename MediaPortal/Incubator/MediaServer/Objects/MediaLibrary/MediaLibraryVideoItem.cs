@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         var actorObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
         if (genreObj != null)
           CollectionUtils.AddAll(Actor, actorObj.Cast<string>());
-        var directorsObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
+        var directorsObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_DIRECTORS);
         if (genreObj != null)
           CollectionUtils.AddAll(Director, directorsObj.Cast<string>());
       }
