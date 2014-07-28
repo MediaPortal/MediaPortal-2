@@ -174,7 +174,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return new Star
         {
           /*Star*/
-          Template = MpfCopyManager.DeepCopyCutLVPs(StarReadOnlyTemplate)
+          Template = MpfCopyManager.DeepCopyCutLVPs(StarReadOnlyTemplate),
+          Focusable = false
         };
       }
       else
