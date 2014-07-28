@@ -56,6 +56,27 @@
             <Label x:Name="EpisodeName" Grid.Row="3" Grid.Column="1"
                 Content="{Binding EpisodeName}" Color="{ThemeResource TextColor}"/>
 
+            <Label x:Name="RatingLabel" Grid.Row="4" Grid.Column="0"
+                Content="[Media.Rating]" Color="{ThemeResource EmphasisTextColor}"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1">
+              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                                           Maximum="10"
+                                           Value="{Binding TotalRating}">
+                <StarRatingPanel.LayoutTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                  </TransformGroup>
+                </StarRatingPanel.LayoutTransform>
+              </StarRatingPanel>
+
+              <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="3,5,0,0">
+                <Label.Content>
+                  <Binding Path="RatingCount" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0})"/>
+                </Label.Content>
+              </Label>
+            </StackPanel>
+
           </Grid>
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
@@ -67,8 +88,8 @@
       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
   </StackPanel>
-  
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5" 
+
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5"
       Width="380" Height="560"
       FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
       Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">

@@ -231,6 +231,7 @@
 
   <!-- Video currently playing -->
   <string name="Media.VideoCurrentlyPlayingHeader">Current video information</string>
+  <string name="Media.Rating">Rating: </string>
   <string name="Media.VideoTitleLabel">Title: </string>
   <string name="Media.VideoGenreLabel">Genre: </string>
   <string name="Media.VideoCollectionLabel">Collection: </string>
