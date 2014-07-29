@@ -33,6 +33,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
       Publisher = new List<string>();
       Rights = new List<string>();
+
+      var resource = new MediaLibraryResource(item);
+      resource.Initialise();
+      Resources.Add(resource);
     }
 
     public override string Class
