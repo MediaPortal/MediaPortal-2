@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
 using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
@@ -108,22 +107,14 @@ namespace MediaPortal.Extensions.MediaServer
     {
       if (_iconDescriptors == null)
       {
-        IconDescriptor icon120 = new IconDescriptor { ColorDepth = 24, Width = 120, Height = 120, MimeType = "image/png", GetIconURLDelegate = GetIconUrlDelegate120 };
-        IconDescriptor icon256 = new IconDescriptor { ColorDepth = 24, Width = 256, Height = 256, MimeType = "image/png", GetIconURLDelegate = GetIconUrlDelegate256 };
+        IconDescriptor icon120 = new IconDescriptor { ColorDepth = 24, Width = 120, Height = 120, MimeType = "image/png", GetIconURLDelegate = (address, info) => GetIconUrl(120) };
+        IconDescriptor icon256 = new IconDescriptor { ColorDepth = 24, Width = 256, Height = 256, MimeType = "image/png", GetIconURLDelegate = (address, info) => GetIconUrl(256) };
         _iconDescriptors = new List<IconDescriptor> { icon120, icon256 };
       }
       return _iconDescriptors;
     }
-    private string GetIconUrlDelegate120(IPAddress endPointIpAddress, CultureInfo culture)
-    {
-      return GetIconUrlBase(endPointIpAddress, culture, 120);
-    }
-    private string GetIconUrlDelegate256(IPAddress endPointIpAddress, CultureInfo culture)
-    {
-      return GetIconUrlBase(endPointIpAddress, culture, 256);
-    }
 
-    private string GetIconUrlBase(IPAddress endPointIpAddress, CultureInfo culture, int size)
+    private string GetIconUrl(int size)
     {
       return string.Format("{0}{1}/{2}?aspect=ICON&size={3}", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty, size);
     }
