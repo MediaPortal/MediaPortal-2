@@ -108,14 +108,19 @@ namespace MediaPortal.Extensions.MediaServer
     {
       if (_iconDescriptors == null)
       {
-        IconDescriptor icon = new IconDescriptor { ColorDepth = 32, Width = 256, Height = 256, MimeType = "image/png", GetIconURLDelegate = GetIconUrlDelegate };
-        _iconDescriptors = new List<IconDescriptor> { icon };
+        IconDescriptor icon120 = new IconDescriptor { ColorDepth = 24, Width = 120, Height = 120, MimeType = "image/png", GetIconURLDelegate = GetIconUrlDelegate120 };
+        IconDescriptor icon256 = new IconDescriptor { ColorDepth = 24, Width = 256, Height = 256, MimeType = "image/png", GetIconURLDelegate = GetIconUrlDelegate256 };
+        _iconDescriptors = new List<IconDescriptor> { icon120, icon256 };
       }
       return _iconDescriptors;
     }
-    private string GetIconUrlDelegate(IPAddress endPointIpAddress, CultureInfo culture)
+    private string GetIconUrlDelegate120(IPAddress endPointIpAddress, CultureInfo culture)
     {
-      return string.Format("{0}{1}/{2}?aspect=ICON", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty);
+      return string.Format("{0}{1}/{2}?aspect=ICON&size=120", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty);
+    }
+    private string GetIconUrlDelegate256(IPAddress endPointIpAddress, CultureInfo culture)
+    {
+      return string.Format("{0}{1}/{2}?aspect=ICON&size=256", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty);
     }
   }
 }

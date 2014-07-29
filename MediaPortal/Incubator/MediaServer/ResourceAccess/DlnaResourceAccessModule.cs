@@ -221,7 +221,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       {
         if (request.QueryString["aspect"].Value == "ICON")
         {
-          using (var fs = new FileStream(FileUtils.BuildAssemblyRelativePath("MP2_DLNA_Server_256.png"), FileMode.Open, FileAccess.Read))
+          Logger.Debug("DlnaResourceAccessModule: Attempting to load Icon");
+          using (var fs = new FileStream(FileUtils.BuildAssemblyRelativePath(string.Format("MP2_DLNA_Server_{0}.png", request.QueryString["size"].Value)), FileMode.Open, FileAccess.Read))
            SendWholeFile(response, fs, false);
         }
         else
