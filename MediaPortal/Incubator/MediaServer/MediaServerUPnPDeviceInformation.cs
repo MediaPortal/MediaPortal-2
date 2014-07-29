@@ -116,11 +116,16 @@ namespace MediaPortal.Extensions.MediaServer
     }
     private string GetIconUrlDelegate120(IPAddress endPointIpAddress, CultureInfo culture)
     {
-      return string.Format("{0}{1}/{2}?aspect=ICON&size=120", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty);
+      return GetIconUrlBase(endPointIpAddress, culture, 120);
     }
     private string GetIconUrlDelegate256(IPAddress endPointIpAddress, CultureInfo culture)
     {
-      return string.Format("{0}{1}/{2}?aspect=ICON&size=256", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty);
+      return GetIconUrlBase(endPointIpAddress, culture, 256);
+    }
+
+    private string GetIconUrlBase(IPAddress endPointIpAddress, CultureInfo culture, int size)
+    {
+      return string.Format("{0}{1}/{2}?aspect=ICON&size={3}", MediaLibraryResource.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty, size);
     }
   }
 }
