@@ -20,12 +20,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <SetupTvIntegration Include="$(ProjectDir)References\SetupTv\Defaults\**\*.*" />
+    <SetupTvIntegration Include="$(TargetDir)MediaPortal.Common.dll" />
+    <SetupTvIntegration Include="$(TargetDir)MediaPortal.Utilities.dll" />
+    <SetupTvIntegration Include="$(TargetDir)SlimTv.Interfaces.dll" />
+    <SetupTvIntegration Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <DatabaseFiles Include="$(TargetDir)Database\*.*" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <References Include="$(ProjectDir)References\**\*.*" />
-    <ReferencesPlugins Include="$(ProjectDir)References\Plugins\**\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
@@ -33,7 +40,7 @@
     <Copy SourceFiles="@(DatabaseFiles)" DestinationFolder="$(DatabaseDestination)" />
     <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(ReferencesPlugins)" DestinationFiles="@(ReferencesPlugins->'$(PluginDestination)SetupTv\Plugins\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
   </Target>
 
 </Project>
