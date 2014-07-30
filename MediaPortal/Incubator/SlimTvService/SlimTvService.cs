@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Timers;
-using Ionic.Zip;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
@@ -54,7 +54,6 @@ using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using Mediaportal.TV.Server.TVService.Interfaces.Services;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
-using ChannelGroup = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.ChannelGroup;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
@@ -133,8 +132,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Tuningdetails folder does not exist yet, extracting default items.");
       try
       {
-        ZipFile dataArchive = new ZipFile(Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\ProgramData.zip"));
-        dataArchive.ExtractAll(dataPath);
+        ZipFile.ExtractToDirectory(Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\ProgramData.zip"), dataPath);
       }
       catch (Exception ex)
       {
