@@ -89,6 +89,10 @@ namespace MediaPortal.UI.Players.Video
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
+    public const string VSFILTER_CLSID = "{93A22E7A-5091-45EF-BA61-6DA26156A5D0}";
+    public const string VSFILTER_NAME = "xy-VSFilter";
+    public const string VSFILTER_FILENAME = "VSFilter.dll";
+
     #endregion
 
     #region Variables
@@ -171,6 +175,17 @@ namespace MediaPortal.UI.Players.Video
       CreateEvrCallback();
 
       AddEvr();
+    }
+
+    protected override void AddSourceFilter()
+    {
+      //VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      //if (settings.EnableSubtitles)
+      {
+        var _vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
+        _graphBuilder.AddFilter(_vsFilter, VSFILTER_NAME);
+      }
+      base.AddSourceFilter();
     }
 
     #endregion

@@ -157,8 +157,10 @@
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets'))" />
   </Target>
   <Import Project="..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets')" />
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets')" />
+  <Import Project="..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets" Condition="Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" />
 </Project>
