@@ -367,6 +367,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
       channels = channelGroupService.GetChannelGroup(group.ChannelGroupId).GroupMaps
         .Where(groupMap => groupMap.Channel.VisibleInGuide)
+        .OrderBy(groupMap => groupMap.SortOrder)
         .Select(groupMap => groupMap.Channel.ToChannel())
         .ToList();
       return true;
