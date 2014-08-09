@@ -110,6 +110,7 @@
     <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
     <Compile Include="Extensions\ExtendedSchedule.cs" />
     <Compile Include="Extensions\ProgramExample.cs" />
+    <Compile Include="Helpers\ChannelContext.cs" />
     <Compile Include="Helpers\DateFormatExtension.cs" />
     <Compile Include="Helpers\ChannelProgramListItem.cs" />
     <Compile Include="Helpers\ProgramListItem.cs" />

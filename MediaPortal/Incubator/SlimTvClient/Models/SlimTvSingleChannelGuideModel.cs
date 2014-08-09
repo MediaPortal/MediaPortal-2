@@ -185,13 +185,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_GROUP_ID, out groupIdObject) &&
           newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_CHANNEL_ID, out channelIdObject))
       {
-        int groupIdx = _channelGroups.TakeWhile(channelGroup => channelGroup.ChannelGroupId != (int)groupIdObject).Count();
-        if (groupIdx != _webChannelGroupIndex && groupIdx != -1)
-          SetGroup(groupIdx);
+        if (ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject))
+          SetGroup();
 
-        int channelIdx = _channels.TakeWhile(channel => channel.ChannelId != (int)channelIdObject).Count();
-        if (channelIdx != _webChannelIndex && channelIdx != -1)
-          SetChannel(channelIdx);
+        if (ChannelContext.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject))
+          SetChannel();
 
         UpdateCurrentChannel();
         UpdatePrograms();

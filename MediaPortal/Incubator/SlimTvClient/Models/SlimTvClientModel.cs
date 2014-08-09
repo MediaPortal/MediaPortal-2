@@ -460,14 +460,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SlotPlayer.Pause();
 
       // Set the current index of the tuned channel
-      _webChannelIndex = 0;
-      foreach (IChannel currentChannel in _channels)
-        if (currentChannel != channel)
-          _webChannelIndex++;
-        else
-          break;
-
-      _zapChannelIndex = _webChannelIndex; // Needs to be the same to start zapping from current offset
+      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Needs to be the same to start zapping from current offset
 
       BeginZap();
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
@@ -479,10 +472,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    protected override void SetChannel(int webChannelIndex)
+    protected override void SetChannel()
     {
-      base.SetChannel(webChannelIndex);
-      _zapChannelIndex = _webChannelIndex; // Use field, as parameter might be changed by base method
+      base.SetChannel();
+      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Use field, as parameter might be changed by base method
     }
 
     private void BeginZap()
@@ -506,11 +499,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void ZapNextChannel()
     {
-      if (_channels == null)
-        return;
-
       _zapChannelIndex++;
-      if (_zapChannelIndex >= _channels.Count)
+      if (_zapChannelIndex >= ChannelContext.Channels.Count)
         _zapChannelIndex = 0;
 
       ReSetSkipTimer();
@@ -521,12 +511,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void ZapPrevChannel()
     {
-      if (_channels == null)
-        return;
-
       _zapChannelIndex--;
       if (_zapChannelIndex < 0)
-        _zapChannelIndex = _channels.Count - 1;
+        _zapChannelIndex = ChannelContext.Channels.Count - 1;
 
       ReSetSkipTimer();
     }
@@ -603,7 +590,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IsOSDLevel1 = false;
       IsOSDLevel2 = false;
 
-      UpdateRunningChannelPrograms(_channels[_zapChannelIndex]);
+      UpdateRunningChannelPrograms(ChannelContext.Channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
       {
@@ -622,8 +609,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       CloseOSD();
 
-      if (_zapChannelIndex != _webChannelIndex)
-        Tune(_channels[_zapChannelIndex]);
+      if (_zapChannelIndex != ChannelContext.Channels.CurrentIndex)
+        Tune(ChannelContext.Channels[_zapChannelIndex]);
 
       _zapTimer.Close();
       _zapTimer = null;
@@ -774,11 +761,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         CurrentGroupName = CurrentChannelGroup.Name;
       }
       _channelList.Clear();
-      if (_channels == null)
-        return;
 
       bool isOneSelected = false;
-      foreach (IChannel channel in _channels)
+      foreach (IChannel channel in ChannelContext.Channels)
       {
         // Use local variable, otherwise delegate argument is not fixed
         IChannel currentChannel = channel;

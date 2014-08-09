@@ -175,17 +175,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.UpdateChannels();
       _channelList.Clear();
-      if (_channels != null)
-        foreach (IChannel channel in _channels)
-        {
-          IChannel localChannel = channel;
-          var channelProgramsItem = new ChannelProgramListItem(channel, new ItemsList())
-            {
-              Command = new MethodDelegateCommand(() => ShowSingleChannelGuide(localChannel))
-            };
-          UpdateChannelPrograms(channelProgramsItem);
-          _channelList.Add(channelProgramsItem);
-        }
+      foreach (IChannel channel in ChannelContext.Channels)
+      {
+        IChannel localChannel = channel;
+        var channelProgramsItem = new ChannelProgramListItem(channel, new ItemsList())
+          {
+            Command = new MethodDelegateCommand(() => ShowSingleChannelGuide(localChannel))
+          };
+        UpdateChannelPrograms(channelProgramsItem);
+        _channelList.Add(channelProgramsItem);
+      }
       _channelList.FireChange();
     }
 
@@ -276,13 +275,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void UpdateProgramsForGroup()
     {
       if (
-        _bufferGroupIndex != _webChannelGroupIndex || /* Group changed */
+        _bufferGroupIndex != ChannelContext.Channels.CurrentIndex || /* Group changed */
         _bufferStartTime == DateTime.MinValue || _bufferEndTime == DateTime.MinValue || /* Buffer not set */
         GuideStartTime < _bufferStartTime || GuideStartTime > _bufferEndTime || /* Cache is out of request range */
         GuideEndTime < _bufferStartTime || GuideEndTime > _bufferEndTime
         )
       {
-        _bufferGroupIndex = _webChannelGroupIndex;
+        _bufferGroupIndex = ChannelContext.Channels.CurrentIndex;
         _bufferStartTime = GuideStartTime.AddHours(-_bufferHours);
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
         IChannelGroup group = CurrentChannelGroup;

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -46,10 +47,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected ITvHandler _tvHandler;
     protected ItemsList _channelGroupList;
-    protected IList<IChannelGroup> _channelGroups;
-    protected IList<IChannel> _channels;
-    protected int _webChannelGroupIndex;
-    protected int _webChannelIndex;
 
     protected IList<IProgram> _programs;
     protected bool _isInitialized;
@@ -67,7 +64,25 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected SlimTvModelBase(long updateInterval)
       : base(true, updateInterval)
-    { }
+    {
+    }
+
+    #endregion
+
+    #region Channel context
+
+    /// <summary>
+    /// Gets the current <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
+    /// </summary>
+    public ChannelContext ChannelContext
+    {
+      get
+      {
+        if (!ServiceRegistration.IsRegistered<ChannelContext>())
+          ServiceRegistration.Set(new ChannelContext());
+        return ServiceRegistration.Get<ChannelContext>();
+      }
+    }
 
     #endregion
 
@@ -88,9 +103,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        return _channelGroups != null && _webChannelGroupIndex < _channelGroups.Count && _webChannelGroupIndex >= 0 ? 
-          _channelGroups[_webChannelGroupIndex] : 
-          null;
+        return ChannelContext.ChannelGroups.Current;
       }
     }
 
@@ -99,7 +112,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void NextGroup()
     {
-      SetGroup(++_webChannelGroupIndex);
+      ChannelContext.ChannelGroups.MoveNext();
+      SetGroup();
     }
 
     /// <summary>
@@ -107,25 +121,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevGroup()
     {
-      SetGroup(--_webChannelGroupIndex);
+      ChannelContext.ChannelGroups.MovePrevious();
+      SetGroup();
     }
 
     /// <summary>
     /// Sets the current channel group and updates the channel list.
     /// </summary>
-    /// <param name="newIndex">Index of group to select.</param>
-    public void SetGroup(int newIndex)
+    public void SetGroup()
     {
-      if (_channelGroups == null)
-        return;
-
-      if (newIndex >= _channelGroups.Count)
-        newIndex = 0;
-
-      if (newIndex < 0)
-        newIndex = _channelGroups.Count - 1;
-
-      _webChannelGroupIndex = newIndex;
       FillChannelGroupList();
       UpdateChannels();
       SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
@@ -146,8 +150,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        return _channels != null && _webChannelIndex < _channels.Count && _webChannelIndex >= 0 ?
-          _channels[_webChannelIndex] : null;
+        return ChannelContext.Channels.Current;
       }
     }
 
@@ -156,11 +159,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void NextChannel()
     {
-      if (_channels == null)
-        return;
-
-      _webChannelIndex++;
-      SetChannel(_webChannelIndex);
+      ChannelContext.Channels.MoveNext();
+      SetChannel();
     }
 
     /// <summary>
@@ -168,27 +168,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevChannel()
     {
-      if (_channelGroups == null)
-        return;
-
-      _webChannelIndex--;
-      SetChannel(_webChannelIndex);
+      ChannelContext.Channels.MovePrevious();
+      SetChannel();
     }
 
     /// <summary>
-    /// Sets the current channel based on the given <paramref name="webChannelIndex"/>.
+    /// Sets the current channel based on <see cref="ChannelContext"/>
     /// </summary>
-    /// <param name="webChannelIndex">New channel index.</param>
-    protected virtual void SetChannel(int webChannelIndex)
+    protected virtual void SetChannel()
     {
-      if (webChannelIndex < 0)
-        webChannelIndex = _channels.Count - 1;
-
-      if (webChannelIndex >= _channels.Count)
-        webChannelIndex = 0;
-
-      _webChannelIndex = webChannelIndex;
-
       UpdateCurrentChannel();
       UpdatePrograms();
     }
@@ -242,7 +230,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           return;
         _tvHandler = tvHandler;
       }
-      _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
+      IList<IChannelGroup> channelGroups;
+      if (_tvHandler.ChannelAndGroupInfo.GetChannelGroups(out channelGroups))
+      {
+        ChannelContext.ChannelGroups.Clear();
+        ChannelContext.ChannelGroups.AddRange(channelGroups);
+      }
 
       _dialogHeaderProperty = new WProperty(typeof(string), string.Empty);
 
@@ -255,18 +248,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void FillChannelGroupList()
     {
-      if (_channelGroups == null)
-        return;
-
       _channelGroupList = new ItemsList();
-      for (int idx = 0; idx < _channelGroups.Count; idx++)
+      for (int idx = 0; idx < ChannelContext.ChannelGroups.Count; idx++)
       {
-        IChannelGroup group = _channelGroups[idx];
-        int selIdx = idx;
+        IChannelGroup group = ChannelContext.ChannelGroups[idx];
         ListItem channelGroupItem = new ListItem(UiComponents.Media.General.Consts.KEY_NAME, group.Name)
         {
-          Command = new MethodDelegateCommand(() => SetGroup(selIdx)),
-          Selected = selIdx == _webChannelGroupIndex
+          Command = new MethodDelegateCommand(() =>
+          {
+            if (ChannelContext.ChannelGroups.MoveTo(g => g == group))
+              SetGroup();
+          }),
+          Selected = group == ChannelContext.ChannelGroups.Current
         };
         _channelGroupList.Add(channelGroupItem);
       }
@@ -275,26 +268,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetCurrentChannelGroup()
     {
-      _webChannelGroupIndex = 0;
-      if (_channelGroups != null && _tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId != 0)
-        for (int idx = 0; idx < _channelGroups.Count; idx++)
-          if (_channelGroups[idx].ChannelGroupId == _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId)
-          {
-            _webChannelGroupIndex = idx;
-            break;
-          }
+      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelId != 0)
+        ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId);
     }
 
     protected void GetCurrentChannel()
     {
-      _webChannelIndex = 0;
-      if (_channels != null && _tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelId != 0)
-        for (int idx = 0; idx < _channels.Count; idx++)
-          if (_channels[idx].ChannelId == _tvHandler.ChannelAndGroupInfo.SelectedChannelId)
-          {
-            _webChannelIndex = idx;
-            break;
-          }
+      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelId != 0)
+        ChannelContext.Channels.MoveTo(channel => channel.ChannelId == _tvHandler.ChannelAndGroupInfo.SelectedChannelId);
     }
 
     protected void SetCurrentChannelGroup()
@@ -361,9 +342,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IChannelGroup group = CurrentChannelGroup;
       if (group != null)
       {
-        _tvHandler.ChannelAndGroupInfo.GetChannels(group, out _channels);
+        IList<IChannel> channels;
+        if (_tvHandler.ChannelAndGroupInfo.GetChannels(group, out channels))
+        {
+          ChannelContext.Channels.Clear();
+          ChannelContext.Channels.AddRange(channels);
+        }
 
-        _webChannelIndex = 0;
         SetCurrentChannelGroup();
         UpdateCurrentChannel();
         UpdatePrograms();
