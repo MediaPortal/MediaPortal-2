@@ -777,20 +777,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_channels == null)
         return;
 
+      bool isOneSelected = false;
       foreach (IChannel channel in _channels)
       {
         // Use local variable, otherwise delegate argument is not fixed
         IChannel currentChannel = channel;
 
+        bool isCurrentSelected = IsSameChannel(currentChannel, _lastTunedChannel);
+        isOneSelected |= isCurrentSelected;
         ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
         {
           Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
           Command = new MethodDelegateCommand(() => Tune(currentChannel)),
-          Selected = IsSameChannel(currentChannel, _lastTunedChannel)
+          Selected = isCurrentSelected
         };
         item.AdditionalProperties["CHANNEL"] = channel;
         _channelList.Add(item);
       }
+      // If the current watched channel is not part of the channel group, set the "selected" property to first list item to make sure focus will be set to the list view
+      if (!isOneSelected && _channelList.Count > 0)
+        _channelList.First().Selected = true;
+
       // Load programs asynchronously, this increases performance of list building
       GetNowAndNextProgramsList_Async();
       CurrentGroupChannels.FireChange();
