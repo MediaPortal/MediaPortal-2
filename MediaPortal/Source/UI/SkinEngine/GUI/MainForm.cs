@@ -45,6 +45,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.SystemAPI;
 using SharpDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
@@ -105,7 +106,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceRegistration.Set<IScreenControl>(this);
 
       InitializeComponent();
-      Icon = Icon.ExtractAssociatedIcon(ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
+
+      // Use the native method because the Icon.ExtractAssociatedIcon throws an exception when running from UNC paths
+      ushort uicon;
+      IntPtr handle = NativeMethods.ExtractAssociatedIcon(Handle, ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"), out uicon);
+      Icon = Icon.FromHandle(handle);
+
       CheckForIllegalCrossThreadCalls = false;
 
       StartupSettings startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();

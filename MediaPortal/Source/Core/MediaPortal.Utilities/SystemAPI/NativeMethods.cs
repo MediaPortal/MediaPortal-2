@@ -24,6 +24,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.SystemAPI
@@ -509,5 +510,15 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     #endregion FindWindow / BringToFront
+
+    #region Icon handling
+
+    [DllImport("shell32.dll")]
+    public static extern IntPtr ExtractAssociatedIcon(IntPtr hInst, string lpIconPath, out ushort lpiIcon);
+
+    [DllImport("shell32.dll")]
+    public static extern IntPtr ExtractIcon(IntPtr hInst, string lpszExeFileName, int nIconIndex);
+
+    #endregion
   }
 }
