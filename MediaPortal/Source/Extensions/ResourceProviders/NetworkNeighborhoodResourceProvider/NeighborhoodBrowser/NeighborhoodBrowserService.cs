@@ -47,6 +47,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       _browsers = new ConcurrentBag<INeighborhoodBrowser>();
       RegisterBrowser(new WNetEnumNeighborhoodBrowser());
+      RegisterBrowser(new DirectoryEntryNeighborhoodBrowser());
     }
 
     #endregion

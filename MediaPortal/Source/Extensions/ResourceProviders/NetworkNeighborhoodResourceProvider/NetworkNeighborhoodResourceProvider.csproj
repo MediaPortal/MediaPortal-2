@@ -51,6 +51,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -60,6 +61,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="NeighborhoodBrowser\DirectoryEntryNeighborhoodBrowser.cs" />
     <Compile Include="NeighborhoodBrowser\INeighborhoodBrowser.cs" />
     <Compile Include="NeighborhoodBrowser\INeighborhoodBrowserSerivce.cs" />
     <Compile Include="NeighborhoodBrowser\NeighborhoodBrowserHelper.cs" />
