@@ -23,7 +23,7 @@
   <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="70"/>
   <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="330"/>
 
-  <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="550"/>
+  <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="750"/>
 
   <ResourceWrapper x:Key="ChannelWithLogoAndProgramMargin" Resource="0,3,0,3"/>
 

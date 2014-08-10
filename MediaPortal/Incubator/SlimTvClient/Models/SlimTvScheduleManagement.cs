@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
@@ -187,6 +188,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
         };
+        IChannel channel;
+        if(_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
+          item.SetLabel("ChannelName", channel.Name);
+        item.SetLabel("StartTime", schedule.StartTime.FormatProgramTime());
+        item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
         item.AdditionalProperties["SCHEDULE"] = currentSchedule;
         _schedulesList.Add(item);
       }

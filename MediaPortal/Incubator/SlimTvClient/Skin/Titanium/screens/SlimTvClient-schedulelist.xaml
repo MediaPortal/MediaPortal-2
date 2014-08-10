@@ -33,7 +33,7 @@
 
         <ListView Grid.Column="0" 
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SingleProgramGuideListViewStyle}"
+              Style="{ThemeResource ScheduleListViewStyle}"
               ItemsSource="{Binding Path=SchedulesList}"
               SelectionChanged="{CommandStencil UpdateSchedule}">
           <ListView.Resources>

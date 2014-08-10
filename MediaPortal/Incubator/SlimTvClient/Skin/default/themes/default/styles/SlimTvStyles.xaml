@@ -286,6 +286,29 @@
     </Grid>
   </DataTemplate>
 
+  <!-- ScheduleDataTemplate contains channel logo, title, recording type -->
+  <DataTemplate x:Key="ScheduleDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Image x:Name="ChannelLogo" Grid.Column="0" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <StackPanel Grid.Column="2">
+        <Label x:Name="TypeLabel" Content="{Binding [ScheduleType]}" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Right"/>
+        <Label x:Name="StartTimeLabel" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Right"/>
+      </StackPanel>
+    </Grid>
+  </DataTemplate>
+
   <Style x:Key="VirtualizingHorizontalListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemsPanel">
       <Setter.Value>
@@ -415,6 +438,12 @@
   <!-- SingleProgramGuideListViewStyle is used for Single Channel Guide-->
   <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelProgramGuideDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
+  </Style>
+
+  <!-- ScheduleListViewStyle is used for schedule list, including channel, program and recording type -->
+  <Style x:Key="ScheduleListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ScheduleDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
   </Style>
 
