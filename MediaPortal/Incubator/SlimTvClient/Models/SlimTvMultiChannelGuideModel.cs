@@ -235,7 +235,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                               };
       programProperties.SetProgram(placeholderProgram);
 
-      var item = new PlaceholderListItem(programProperties);
+      var item = new PlaceholderListItem(programProperties)
+      {
+        Command = new MethodDelegateCommand(() => ShowProgramActions(placeholderProgram))
+      };
       item.AdditionalProperties["PROGRAM"] = placeholderProgram;
 
       return item;
