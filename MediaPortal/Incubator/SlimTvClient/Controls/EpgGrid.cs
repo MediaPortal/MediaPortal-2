@@ -38,7 +38,6 @@ using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
-using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -674,6 +673,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         key = Key.None;
     }
 
+
+    public override void OnMouseWheel(int numDetents)
+    {
+      base.OnMouseWheel(numDetents);
+
+      if (!IsMouseOver)
+        return;
+
+      int scrollByLines = System.Windows.Forms.SystemInformation.MouseWheelScrollLines; // Use the system setting as default.
+
+      int numLines = numDetents * scrollByLines;
+
+      if (numLines < 0)
+        MoveDown(-1 * numLines);
+      else if (numLines > 0)
+        MoveUp(numLines);
+    }
+
     private bool IsViewPortAtTop
     {
       get
@@ -768,15 +785,25 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool OnPageDown()
     {
-      for (int i = 0; i < _numberOfRows - 1; i++)
+      return MoveDown(_numberOfRows);
+    }
+
+    private bool OnPageUp()
+    {
+      return MoveUp(_numberOfRows);
+    }
+
+    private bool MoveDown(int moveRows)
+    {
+      for (int i = 0; i < moveRows - 1; i++)
         if (!OnDown())
           return false;
       return true;
     }
 
-    private bool OnPageUp()
+    private bool MoveUp(int moveRows)
     {
-      for (int i = 0; i < _numberOfRows - 1; i++)
+      for (int i = 0; i < moveRows - 1; i++)
         if (!OnUp())
           return false;
       return true;
