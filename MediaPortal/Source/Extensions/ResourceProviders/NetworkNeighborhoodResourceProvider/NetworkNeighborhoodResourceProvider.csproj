@@ -66,6 +66,7 @@
     <Compile Include="NeighborhoodBrowser\INeighborhoodBrowserSerivce.cs" />
     <Compile Include="NeighborhoodBrowser\NeighborhoodBrowserHelper.cs" />
     <Compile Include="NeighborhoodBrowser\NeighborhoodBrowserService.cs" />
+    <Compile Include="NeighborhoodBrowser\NetbiosNameServiceNeighborhoodBrowser.cs" />
     <Compile Include="NeighborhoodBrowser\WNetEnumNeighborhoodBrowser.cs" />
     <Compile Include="NetworkNeighborhoodResourceAccessor.cs" />
     <Compile Include="NetworkNeighborhoodResourceProvider.cs" />
