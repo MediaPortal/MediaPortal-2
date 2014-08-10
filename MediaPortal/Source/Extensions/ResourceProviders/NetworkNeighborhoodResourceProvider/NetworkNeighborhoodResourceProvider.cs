@@ -26,10 +26,11 @@ using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
-  public class NetworkNeighborhoodResourceProvider : IBaseResourceProvider
+  public class NetworkNeighborhoodResourceProvider : IBaseResourceProvider, IDisposable
   {
     #region Consts
 
@@ -47,6 +48,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected ResourceProviderMetadata _metadata;
     protected LocalFsResourceProvider _localFsProvider;
+    protected readonly INeighborhoodBrowserSerivce _browserService;
 
     #endregion
 
@@ -55,6 +57,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public NetworkNeighborhoodResourceProvider()
     {
       _metadata = new ResourceProviderMetadata(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false, true, DEFAULT_SYSTEM_AFFINITY);
+      _browserService = new NeighborhoodBrowserService();
     }
 
     #endregion
@@ -64,6 +67,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected LocalFsResourceProvider LocalFsResourceProvider
     {
       get { return LocalFsResourceProvider.Instance; }
+    }
+
+    #endregion
+
+    #region Public members
+
+    public INeighborhoodBrowserSerivce BrowserService
+    {
+      get { return _browserService; }
     }
 
     #endregion
@@ -119,6 +131,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         return null;
       }
+    }
+
+    #endregion
+
+    #region IDisposeable implementation
+
+    public void Dispose()
+    {
+      _browserService.Dispose();
     }
 
     #endregion
