@@ -350,6 +350,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
       groups = channelGroupService.ListAllChannelGroups()
+        .OrderBy(tvGroup => tvGroup.MediaType)
+        .ThenBy(tvGroup => tvGroup.SortOrder)
         .Select(tvGroup => tvGroup.ToChannelGroup())
         .ToList();
       return true;
