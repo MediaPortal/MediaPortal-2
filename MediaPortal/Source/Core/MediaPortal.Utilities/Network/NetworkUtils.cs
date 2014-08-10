@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -123,6 +125,83 @@ namespace MediaPortal.Utilities.Network
         return true;
       }
       return false;
+    }
+
+    /// <summary>
+    /// Returns for each local network interface that is activated, not a loopback or tunnel interface and
+    /// not the MS Loopback Adapter all IPv4 <see cref="UnicastIPAddressInformation"/>s 
+    /// </summary>
+    /// <returns></returns>
+    public static ICollection<UnicastIPAddressInformation> GetAllLocalIPv4Networks()
+    {
+      var result = new HashSet<UnicastIPAddressInformation>();
+
+      if (!NetworkInterface.GetIsNetworkAvailable())
+        return result;
+
+      foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+      {
+        // Discard because NetworkInterface is down, a loopback adapter or a tunnel adapter
+        if ((ni.OperationalStatus != OperationalStatus.Up) ||
+            (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) ||
+            (ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel))
+          continue;
+
+        // Discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
+        if (ni.Description.Equals("Microsoft Loopback Adapter", StringComparison.OrdinalIgnoreCase))
+          continue;
+
+        // Take all IPv4 addresses
+        foreach (var unicastIpAddressInformation in ni.GetIPProperties().UnicastAddresses)
+          if (unicastIpAddressInformation.Address.AddressFamily == AddressFamily.InterNetwork)
+            result.Add(unicastIpAddressInformation);
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Returns a collection of all IP addresses in a given subnet except the network address and the broadcast address
+    /// </summary>
+    /// <param name="network">Subnet for which the IP addresses should be returned</param>
+    /// <returns>Collection of IP addresses in the given <see cref="network"/></returns>
+    public static ICollection<IPAddress> GetAllAddressesInSubnet(UnicastIPAddressInformation network)
+    {
+      var address = ToUInt32(network.Address);
+      var netMask = ToUInt32(network.IPv4Mask);
+      var networkAddress = address & netMask;
+      var broadcastAddress = networkAddress ^ ~netMask;
+
+      // we leave out the networkAdress and the broadcastAddress
+      var result = new List<IPAddress>();
+      for (var i = networkAddress + 1; i < broadcastAddress; i++)
+        result.Add(ToIpAddress(i));
+
+      return result;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="IPAddress"/> object into a <see cref="UInt32"/>
+    /// </summary>
+    /// <remarks>
+    /// Takes care of the host architecture (BigEndian vs. LittleEndian) and makes sure that
+    /// "lower" <see cref="IPAddress"/>es are represented by lower <see cref="UInt32"/> numbers.
+    /// I.e.: ToUint32(IPAddress.Parse("192.168.0.1")) is lower than ToUint32(IPAddress.Parse("192.168.0.2"))
+    /// </remarks>
+    /// <param name="address"><see cref="IPAddress"/> to convert</param>
+    /// <returns><see cref="UInt32"/> representing the <see cref="IPAddress"/></returns>
+    public static UInt32 ToUInt32(IPAddress address)
+    {
+      return BitConverter.ToUInt32(BitConverter.IsLittleEndian ? address.GetAddressBytes().Reverse().ToArray() : address.GetAddressBytes(), 0);
+    }
+
+    /// <summary>
+    /// Converts a <see cref="UInt32"/> into a <see cref="IPAddress"/> object
+    /// </summary>
+    /// <param name="address"><see cref="UInt32"/> that was obtained from a call to <see cref="ToUInt32"/></param>
+    /// <returns><see cref="IPAddress"/> calculated from <param name="address"></param></returns>
+    public static IPAddress ToIpAddress(UInt32 address)
+    {
+      return new IPAddress(BitConverter.IsLittleEndian ? BitConverter.GetBytes(address).Reverse().ToArray() : BitConverter.GetBytes(address));
     }
   }
 }
