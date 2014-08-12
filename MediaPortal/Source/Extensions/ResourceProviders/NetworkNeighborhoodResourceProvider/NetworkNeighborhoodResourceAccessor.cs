@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
@@ -271,8 +272,9 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       using (ImpersonateUser(_impersonationContext))
       {
         if (_path == "/")
-          return NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk, ResourceUsage.All, ResourceDisplayType.Server)
-            .Select(serverName => new NetworkNeighborhoodResourceAccessor(_parent, StringUtils.CheckPrefix(serverName, @"\\").Replace('\\', '/')))
+          return _parent.BrowserService.Hosts
+            .Select(host => host.GetUncString()).Where(uncPathString => uncPathString != null)
+            .Select(uncPathString => new NetworkNeighborhoodResourceAccessor(_parent, uncPathString.Replace('\\', '/')))
             .Cast<IFileSystemResourceAccessor>().ToList();
         if (IsServerPath(_path))
           return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//"))
