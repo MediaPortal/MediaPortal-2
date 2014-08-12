@@ -64,6 +64,7 @@
     <Compile Include="NeighborhoodBrowser\DirectoryEntryNeighborhoodBrowser.cs" />
     <Compile Include="NeighborhoodBrowser\INeighborhoodBrowser.cs" />
     <Compile Include="NeighborhoodBrowser\INeighborhoodBrowserSerivce.cs" />
+    <Compile Include="NeighborhoodBrowser\IpHostEntryExtensions.cs" />
     <Compile Include="NeighborhoodBrowser\NeighborhoodBrowserHelper.cs" />
     <Compile Include="NeighborhoodBrowser\NeighborhoodBrowserService.cs" />
     <Compile Include="NeighborhoodBrowser\NetbiosNameServiceNeighborhoodBrowser.cs" />
