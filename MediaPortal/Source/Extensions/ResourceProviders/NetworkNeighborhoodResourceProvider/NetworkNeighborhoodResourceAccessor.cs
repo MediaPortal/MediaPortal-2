@@ -42,6 +42,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 {
   public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor, IResourceDeletor
   {
+    #region Consts
+
+    protected const string ROOT_PATH = "/";
+
+    #endregion
+
     #region Protected fields
 
     protected NetworkNeighborhoodResourceProvider _parent;
@@ -72,6 +78,11 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
       CollectionUtils.AddAll(result, localFsResourceAccessors.Select(resourceAccessor => new NetworkNeighborhoodResourceAccessor(_parent, resourceAccessor.Path.Substring(1))));
       return result;
+    }
+
+    protected internal static bool IsRootPath(string providerPath)
+    {
+      return (providerPath == ROOT_PATH);
     }
 
     protected internal static bool IsServerPath(string providerPath)
@@ -271,7 +282,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       using (ImpersonateUser(_impersonationContext))
       {
-        if (_path == "/")
+        if (IsRootPath(_path))
           return _parent.BrowserService.Hosts
             .Select(host => host.GetUncString()).Where(uncPathString => uncPathString != null)
             .Select(uncPathString => new NetworkNeighborhoodResourceAccessor(_parent, uncPathString.Replace('\\', '/')))
