@@ -30,6 +30,7 @@ using System.Net;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser
 {
@@ -46,9 +47,16 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public NeighborhoodBrowserService()
     {
       _browsers = new ConcurrentBag<INeighborhoodBrowser>();
-      RegisterBrowser(new WNetEnumNeighborhoodBrowser());
-      RegisterBrowser(new DirectoryEntryNeighborhoodBrowser());
-      RegisterBrowser(new NetbiosNameServiceNeighborhoodBrowser());
+
+      var browserSettings = ServiceRegistration.Get<ISettingsManager>().Load<NeighborhoodBrowserServiceSettings>();
+      ServiceRegistration.Get<ISettingsManager>().Save(browserSettings);
+
+      if (browserSettings.UseWNetEnumNeighborhoodBrowser)
+        RegisterBrowser(new WNetEnumNeighborhoodBrowser());
+      if (browserSettings.UseDirectoryEntryNeighborhoodBrowser)
+        RegisterBrowser(new DirectoryEntryNeighborhoodBrowser());
+      if (browserSettings.UseNetbiosNameServiceNeighborhoodBrowser)
+        RegisterBrowser(new NetbiosNameServiceNeighborhoodBrowser());
     }
 
     #endregion
