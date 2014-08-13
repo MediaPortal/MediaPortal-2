@@ -280,13 +280,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
+      if (IsRootPath(_path))
+        return _parent.BrowserService.Hosts
+          .Select(host => host.GetUncString()).Where(uncPathString => uncPathString != null)
+          .Select(uncPathString => new NetworkNeighborhoodResourceAccessor(_parent, uncPathString.Replace('\\', '/')))
+          .Cast<IFileSystemResourceAccessor>().ToList();
       using (ImpersonateUser(_impersonationContext))
       {
-        if (IsRootPath(_path))
-          return _parent.BrowserService.Hosts
-            .Select(host => host.GetUncString()).Where(uncPathString => uncPathString != null)
-            .Select(uncPathString => new NetworkNeighborhoodResourceAccessor(_parent, uncPathString.Replace('\\', '/')))
-            .Cast<IFileSystemResourceAccessor>().ToList();
         if (IsServerPath(_path))
           return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//"))
             // Allow all filesystems, but exclude "Special" shares (IPC, Admin$)
