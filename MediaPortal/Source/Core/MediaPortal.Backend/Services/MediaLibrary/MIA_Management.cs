@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -151,8 +152,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// Caches all media item aspect types the database is able to store. A MIA type which is currently being
     /// added or removed will have a <c>null</c> value assigned to its ID.
     /// </summary>
-    protected readonly IDictionary<Guid, MediaItemAspectMetadata> _managedMIATypes =
-        new Dictionary<Guid, MediaItemAspectMetadata>();
+    protected readonly IDictionary<Guid, MediaItemAspectMetadata> _managedMIATypes = new Dictionary<Guid, MediaItemAspectMetadata>();
+
+    /// <summary>
+    /// Caches the creation dates of all managed MIAs.
+    /// </summary>
+    protected IDictionary<Guid, DateTime> _MIACreationDates = new ConcurrentDictionary<Guid, DateTime>();
 
     protected readonly object _syncObj = new object();
 
@@ -166,6 +171,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       ReloadAliasCache();
       LoadMIATypeCache();
+      LoadMIACreationDateCache();
     }
 
     #region Table name generation and alias management
@@ -419,6 +425,35 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       foreach (string serialization in miamSerializations)
         result.Add(MediaItemAspectMetadata.Deserialize(serialization));
       return result;
+    }
+
+    protected void LoadMIACreationDateCache()
+    {
+      Interlocked.Exchange(ref _MIACreationDates, SelectAllMediaItemAspectMetadataCreationDates());
+    }
+
+    protected static IDictionary<Guid, DateTime> SelectAllMediaItemAspectMetadataCreationDates()
+    {
+      var database = ServiceRegistration.Get<ISQLDatabase>();
+      var transaction = database.BeginTransaction();
+      try
+      {
+        int miamIdIndex;
+        int creationDateIndex;
+        using (var command = MediaLibrary_SubSchema.SelectAllMediaItemAspectMetadataCreationDatesCommand(transaction, out miamIdIndex, out creationDateIndex))
+        using (var reader = command.ExecuteReader())
+        {
+          IDictionary<Guid, DateTime> result = new ConcurrentDictionary<Guid, DateTime>();
+          while (reader.Read())
+            result.Add(database.ReadDBValue<Guid>(reader, miamIdIndex),
+                database.ReadDBValue<DateTime>(reader, creationDateIndex));
+          return result;
+        }
+      }
+      finally
+      {
+        transaction.Dispose();
+      }      
     }
 
     protected static object TruncateBigValue(object value, MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
@@ -814,6 +849,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    public IDictionary<Guid, DateTime> ManagedMediaItemAspectCreationDates
+    {
+      get
+      {
+        return new Dictionary<Guid, DateTime>(_MIACreationDates);
+      }
+    }
+
     public bool MediaItemAspectStorageExists(Guid aspectId)
     {
       lock (_syncObj)
@@ -1137,6 +1180,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       lock (_syncObj)
         _managedMIATypes[miam.AspectId] = miam;
+      _MIACreationDates[miam.AspectId] = DateTime.Now;
       return true;
     }
 
@@ -1269,6 +1313,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       lock (_syncObj)
         _managedMIATypes.Remove(aspectId);
+      _MIACreationDates.Remove(aspectId);
       return true;
     }
 

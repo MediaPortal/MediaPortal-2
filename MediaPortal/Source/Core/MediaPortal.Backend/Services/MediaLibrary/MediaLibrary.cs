@@ -89,6 +89,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           throw new DisconnectedException();
         }
       }
+
+      public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
+      {
+        try
+        {
+          return _parent.GetManagedMediaItemAspectCreationDates();
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
     }
 
     protected class ImportResultHandler : IImportResultHandler
@@ -997,6 +1009,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata()
     {
       return _miaManagement.ManagedMediaItemAspectTypes;
+    }
+
+    public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
+    {
+      return _miaManagement.ManagedMediaItemAspectCreationDates;
     }
 
     public MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId)

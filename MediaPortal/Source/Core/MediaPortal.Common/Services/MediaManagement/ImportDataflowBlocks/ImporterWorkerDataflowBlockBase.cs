@@ -323,6 +323,23 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
+    protected async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDates()
+    {
+      while (true)
+      {
+        try
+        {
+          await Activated.WaitAsync();
+          return _mediaBrowsingCallback.GetManagedMediaItemAspectCreationDates();
+        }
+        catch (DisconnectedException)
+        {
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
+          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+        }
+      }
+    }
+
     protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
     {
       while (true)
