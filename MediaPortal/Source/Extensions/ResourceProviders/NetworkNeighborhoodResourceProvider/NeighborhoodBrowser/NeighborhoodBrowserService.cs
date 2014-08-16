@@ -69,6 +69,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     /// <returns>List of computers in the NetworkNeighborhood</returns>
     private async Task<ICollection<IPHostEntry>> GetHostsAsync()
     {
+      if (!_browsers.Any())
+      {
+        ServiceRegistration.Get<ILogger>().Error("NeighborhoodBrowserService: No Browsers enabled in NeighborhoodBrowserServiceSettings.xml");
+        return new List<IPHostEntry>();
+      }
+      
       var stopWatch = System.Diagnostics.Stopwatch.StartNew();
       ICollection<IPHostEntry> result = null;
       var tasks = _browsers.Select(browser => browser.GetHostsAsync()).ToList();
@@ -80,7 +86,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("NetworkNeighborhoodResourceProvider.NeighborhoodBrowserService: Error collecting neighborhood computers", e);
+        ServiceRegistration.Get<ILogger>().Error("NeighborhoodBrowserService: Error collecting neighborhood computers", e);
       }
       return result;
     }
@@ -151,10 +157,10 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
                   }
                   else
                   {
-                    ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider.NeighborhoodBrowserService: Found two computers with different HostNames but at least one identical IP-Address:");
-                    ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider.NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", alreadyPresentHost.HostName, String.Join(" / ", alreadyPresentHost.AddressList.Select(adress => adress.ToString())));
-                    ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider.NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", host.HostName, String.Join(" / ", host.AddressList.Select(adress => adress.ToString())));
-                    ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider.NeighborhoodBrowserService:   Discarding the second HostName and adding its IP-Addresses to the first host.");
+                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService: Found two computers with different HostNames but at least one identical IP-Address:");
+                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", alreadyPresentHost.HostName, String.Join(" / ", alreadyPresentHost.AddressList.Select(adress => adress.ToString())));
+                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", host.HostName, String.Join(" / ", host.AddressList.Select(adress => adress.ToString())));
+                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   Discarding the second HostName and adding its IP-Addresses to the first host.");
                     alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
                   }
                 }
