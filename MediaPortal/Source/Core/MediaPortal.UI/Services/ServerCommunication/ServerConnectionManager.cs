@@ -90,6 +90,18 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
+      {
+        try
+        {
+          return _contentDirectory.GetAllManagedMediaItemAspectCreationDates();
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
       #endregion
 
       #region IImportResultHandler implementation

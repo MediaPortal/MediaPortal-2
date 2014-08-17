@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP;
@@ -53,6 +54,7 @@ namespace MediaPortal.Common.UPnP
     public static readonly UPnPExtendedDataType DtPlaylistContents = new UPnPDtPlaylistContents();
     public static readonly UPnPExtendedDataType DtUserProfile = new UPnPDtUserProfile();
     public static readonly UPnPExtendedDataType DtUserProfileEnumeration = new UPnPDtUserProfileEnumeration();
+    public static readonly UPnPExtendedDataType DtDictionaryGuidDateTime = new UPnPDtDictionary<Guid, DateTime>();
 
     protected static IDictionary<string, UPnPExtendedDataType> _dataTypes = new Dictionary<string, UPnPExtendedDataType>();
 
@@ -79,6 +81,7 @@ namespace MediaPortal.Common.UPnP
       AddDataType(DtPlaylistContents);
       AddDataType(DtUserProfile);
       AddDataType(DtUserProfileEnumeration);
+      AddDataType(DtDictionaryGuidDateTime);
     }
 
     public static void AddDataType(UPnPExtendedDataType type)

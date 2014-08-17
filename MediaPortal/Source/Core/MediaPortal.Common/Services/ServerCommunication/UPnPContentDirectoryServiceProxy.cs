@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.General;
@@ -249,6 +250,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       IList<object> outParameters = action.InvokeAction(inParameters);
       string miaTypeIDs = (string) outParameters[0];
       return miaTypeIDs.Split(',').Select(MarshallingHelper.DeserializeGuid).ToList();
+    }
+
+    public IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates()
+    {
+      CpAction action = GetAction("GetAllManagedMediaItemAspectCreationDates");
+      IList<object> inParameters = new List<object>();
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (IDictionary<Guid, DateTime>) outParameters[0];
     }
 
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId)

@@ -275,6 +275,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_PlaylistIdentificationDataEnumeration);
 
+      // Used to transport an IDictionary<Guid, DateTime> such as the MediaItemAspectCreationDates
+      DvStateVariable A_ARG_TYPE_DictionaryGuidDateTime = new DvStateVariable("A_ARG_TYPE_DictionaryGuidDateTime", new DvExtendedDataType(UPnPExtendedDataTypes.DtDictionaryGuidDateTime))
+      {
+        SendEvents = false
+      };
+      AddStateVariable(A_ARG_TYPE_DictionaryGuidDateTime);
+
       // Change event for playlists
       PlaylistsChangeCounter = new DvStateVariable("PlaylistsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
         {
@@ -398,6 +405,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true),
           });
       AddAction(getAllManagedMediaItemAspectTypesAction);
+
+      DvAction getAllManagedMediaItemAspectCreationDatesAction = new DvAction("GetAllManagedMediaItemAspectCreationDates", OnGetAllManagedMediaItemAspectCreationDates,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("MIACreationDates", A_ARG_TYPE_DictionaryGuidDateTime, ArgumentDirection.Out, true),
+          });
+      AddAction(getAllManagedMediaItemAspectCreationDatesAction);
 
       DvAction getMediaItemAspectMetadataAction = new DvAction("GetMediaItemAspectMetadata", OnGetMediaItemAspectMetadata,
           new DvArgument[] {
@@ -877,6 +892,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       ICollection<Guid> result = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;
       outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(result)};
+      return null;
+    }
+
+    static UPnPError OnGetAllManagedMediaItemAspectCreationDates(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IDictionary<Guid, DateTime> result = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectCreationDates();
+      outParams = new List<object> { result };
       return null;
     }
 

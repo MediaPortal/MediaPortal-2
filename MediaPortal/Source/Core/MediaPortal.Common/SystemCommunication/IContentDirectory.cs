@@ -78,6 +78,7 @@ namespace MediaPortal.Common.SystemCommunication
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
     void RemoveMediaItemAspectStorage(Guid aspectId);
     ICollection<Guid> GetAllManagedMediaItemAspectTypes();
+    IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates();
     MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
 
     #endregion
