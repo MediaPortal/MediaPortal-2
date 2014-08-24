@@ -178,6 +178,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesMetadataExtractor", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -453,6 +455,10 @@ Global
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Debug|x86.Build.0 = Debug|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.ActiveCfg = Release|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.Build.0 = Release|x86
+		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.ActiveCfg = Debug|x86
+		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.Build.0 = Debug|x86
+		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.ActiveCfg = Release|x86
+		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -535,5 +541,6 @@ Global
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9} = {55699D26-D191-495A-B73F-271D33D7FE44}
 		{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{E73C038E-FD47-40AD-9256-4457316F8A97} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{7625B1CE-577D-4E56-83DD-08C6EE9984D4} = {D7E79601-A62E-4193-892F-033F8E7C90BD}
 	EndGlobalSection
 EndGlobal

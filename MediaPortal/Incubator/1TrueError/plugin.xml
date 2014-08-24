@@ -1,0 +1,16 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="OneTrueError"
+    PluginId="{37DD9D24-9A85-4E5B-BBBF-D8C283C1E144}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="The OneTrueError plugin allows sending application errors to https://onetrueerror.com/ for error tracking purpose."
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="1TrueError.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.OneTrueError.ErrorReportingService"/>
+  </Runtime>
+
+</Plugin>
