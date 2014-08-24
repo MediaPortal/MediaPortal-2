@@ -26,10 +26,14 @@ using System;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
@@ -60,6 +64,8 @@ namespace MediaPortal.Database.SQLite
     private ConnectionPool<SQLiteConnection> _connectionPool;
     private readonly SQLiteSettings _settings;
     private readonly FileLogger _sqliteDebugLogger;
+    private readonly AsynchronousMessageQueue _messageQueue;
+    private readonly ActionBlock<bool> _maintenanceScheduler;
 
     #endregion
 
@@ -69,6 +75,11 @@ namespace MediaPortal.Database.SQLite
     {
       try
       {
+        _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
+        _messageQueue = new AsynchronousMessageQueue(this, new[] { ContentDirectoryMessaging.CHANNEL });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        _messageQueue.Start();
+
         _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
         _settings.LogSettings();
         ServiceRegistration.Get<ISettingsManager>().Save(_settings);
@@ -236,6 +247,11 @@ namespace MediaPortal.Database.SQLite
       return connection;
     }
 
+    /// <summary>
+    /// Log event handler for trace logging
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void MPSQLiteLogEventHandler(object sender, LogEventArgs e)
     {
       if (_sqliteDebugLogger == null || e == null)
@@ -252,6 +268,65 @@ namespace MediaPortal.Database.SQLite
       }
 
       _sqliteDebugLogger.Debug("SQLite ({0}): {1}", e.ErrorCode, logText);
+    }
+
+    /// <summary>
+    /// Processes system messages
+    /// </summary>
+    /// <param name="queue">MessagQueue that has received the message</param>
+    /// <param name="message">Message received</param>
+    /// <remarks>
+    /// We only listen to the <see cref="ContentDirectoryMessaging.CHANNEL"/> and react on <see cref="ContentDirectoryMessaging.MessageType.ShareImportCompleted"/> messages.
+    /// They are sent whenever a server or client share import is finished (<see cref="ImporterWorkerMessaging.MessageType.ImportCompleted"/> messages
+    /// are only sent for server shares).
+    /// When an import is completed, we schedule a <see cref="PerformDatabaseMaintenanceAsync"/> call. The execution of these calls
+    /// is serialized by the <see cref="_maintenanceScheduler"/>. It has a BoundedCapacity of 2, i.e. one run that is currently
+    /// executed and one run that is scheduled. In case that another run is scheduled while one is processed and another one is
+    /// waiting to be executed, we do not schedule a third run as the maintenance that is waiting to be executed will perform
+    /// everthing we need; we only log that this was the case.
+    /// Currently, we do not react on the deletion of shares, which would also be a good time to schedule a maintenance. However,
+    /// the <see cref="ContentDirectoryMessaging.MessageType.RegisteredSharesChanged"/> message is not only sent when a share is
+    /// deleted, but also when it is added. In the latter case we would schedule a maintenance twice, the first time (too early)
+    /// when the share was added and the second time when the share's import finished.
+    /// ToDo: Maybe change the RegisteredSharesChanged message to carry an argument signaling what exactly changed
+    /// </remarks>
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      var messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+      switch (messageType)
+      {
+        case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+          if (!_maintenanceScheduler.Post(true))
+            ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Runs the "ANALYZE;" SQL command on the database to update the statistics tables for better query performance
+    /// </summary>
+    /// <returns>Task that completes when the "ANALYZE;" command has finished</returns>
+    private async Task PerformDatabaseMaintenanceAsync()
+    {
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Performing database maintenance...");
+      try
+      {
+        using (var connection = new SQLiteConnection(_connectionString))
+        {
+          await connection.OpenAsync();
+          using (var command = connection.CreateCommand())
+          {
+            command.CommandText = "ANALYZE;";
+            await command.ExecuteNonQueryAsync();
+          }
+          connection.Close();
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Error while performing database maintenance:", e);
+      }
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database maintenance finished");
     }
 
     #endregion
@@ -405,6 +480,10 @@ namespace MediaPortal.Database.SQLite
 
     public void Dispose()
     {
+      _messageQueue.Shutdown();
+      _maintenanceScheduler.Complete();
+      _maintenanceScheduler.Completion.Wait();
+
       if (_connectionPool != null)
       {
         _connectionPool.Dispose();
