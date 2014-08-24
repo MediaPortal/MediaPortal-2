@@ -25,7 +25,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
@@ -201,21 +200,27 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     public void SyncMediaToTrakt_Async()
     {
-      SyncMovies();
-      SyncSeries();
-      TestStatus = "[Trakt.SyncFinished]";
+      if (SyncMovies() && SyncSeries())
+      {
+        TestStatus = "[Trakt.SyncFinished]";
+      }
       IsSynchronizing = false;
       BuildBannerUrls();
     }
 
-    public void SyncMovies()
+    public bool SyncMovies()
     {
       try
       {
         TestStatus = "[Trakt.SyncMovies]";
         Guid[] types = { MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID };
-
-        var movies = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(new MediaItemQuery(types, null, null), true);
+        var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+        if (contentDirectory == null)
+        {
+          TestStatus = "[Trakt.MediaLibraryNotConnected]";
+          return false;
+        }
+        var movies = contentDirectory.Search(new MediaItemQuery(types, null, null), true);
         TraktMovieSync syncData = new TraktMovieSync { UserName = Username, Password = Password, MovieList = new List<TraktMovieSync.Movie>() };
         // First send all movies to Trakt that we have so they appear in library
         foreach (var movie in movies)
@@ -233,14 +238,16 @@ namespace MediaPortal.UiComponents.Trakt.Models
         traktSyncMode = TraktSyncModes.seen;
         response = TraktAPI.SyncMovieLibrary(syncData, traktSyncMode);
         ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Movies '{0}': {1} inserted, {2} existing, {3} skipped movies.", traktSyncMode, response.Inserted, SafeCount(response.AlreadyExistMovies), SafeCount(response.SkippedMovies));
+        return true;
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Trakt.tv: Exception while synchronizing media library.", ex);
       }
+      return false;
     }
 
-    public void SyncSeries()
+    public bool SyncSeries()
     {
       try
       {
@@ -248,11 +255,29 @@ namespace MediaPortal.UiComponents.Trakt.Models
         Guid[] types = { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID };
 
         MediaItemQuery mediaItemQuery = new MediaItemQuery(types, null, null);
-        var episodes = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(mediaItemQuery, true);
+        var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+        if (contentDirectory == null)
+        {
+          TestStatus = "[Trakt.MediaLibraryNotConnected]";
+          return false;
+        }
+        var episodes = contentDirectory.Search(mediaItemQuery, true);
 
         var series = episodes.ToLookup(GetSeriesKey);
         foreach (var serie in series)
         {
+          var imdbId = serie.Select(episode =>
+          {
+            string value;
+            return MediaItemAspect.TryGetAttribute(episode.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) ? value : null;
+          }).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
+
+          var tvdbId = serie.Select(episode =>
+          {
+            int value;
+            return MediaItemAspect.TryGetAttribute(episode.Aspects, SeriesAspect.ATTR_TVDB_ID, out value) ? value : 0;
+          }).FirstOrDefault(value => value != 0);
+
           TraktEpisodeSync syncData = new TraktEpisodeSync
           {
             UserName = Username,
@@ -266,8 +291,13 @@ namespace MediaPortal.UiComponents.Trakt.Models
               GetSeriesTitleAndYear(e, out seriesTitle, out year);
               return year;
             }).ToString()
-            // TODO: add IMDBID, TMDBID to series aspect and use information here to uniquely indentify series and episodes
           };
+
+          if (!string.IsNullOrWhiteSpace(imdbId))
+            syncData.IMDBID = imdbId;
+
+          if (tvdbId > 0)
+            syncData.SeriesID = tvdbId.ToString();
 
           HashSet<TraktEpisodeSync.Episode> uniqueEpisodes = new HashSet<TraktEpisodeSync.Episode>();
           foreach (var episode in serie)
@@ -295,12 +325,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
           traktSyncMode = TraktSyncModes.seen;
           response = TraktAPI.SyncEpisodeLibrary(syncData, traktSyncMode);
           ServiceRegistration.Get<ILogger>().Info("Trakt.tv: Series '{0}' '{1}': {2}{3}", syncData.Title, traktSyncMode, response.Message, response.Error);
+          return true;
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Trakt.tv: Exception while synchronizing media library.", ex);
       }
+      return false;
     }
 
     private void BuildBannerUrls()
