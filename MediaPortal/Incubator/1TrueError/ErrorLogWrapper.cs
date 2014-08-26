@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Debug(string format, Exception ex, params object[] args)
     {
       _logger.Debug(string.Format(format, args), ex);
-      OneTrue.Report(ex);
+      OneTrue.Report(ex, string.Format(format, args));
     }
 
     public void Info(string format, params object[] args)
@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Info(string format, Exception ex, params object[] args)
     {
       _logger.Info(string.Format(format, args), ex);
-      OneTrue.Report(ex);
+      OneTrue.Report(ex, string.Format(format, args));
     }
 
     public void Warn(string format, params object[] args)
@@ -74,7 +74,7 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Warn(string format, Exception ex, params object[] args)
     {
       _logger.Warn(string.Format(format, args), ex);
-      OneTrue.Report(ex);
+      OneTrue.Report(ex, string.Format(format, args));
     }
 
     public void Error(string format, params object[] args)
@@ -85,7 +85,7 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Error(string format, Exception ex, params object[] args)
     {
       _logger.Error(string.Format(format, args), ex);
-      OneTrue.Report(ex);
+      OneTrue.Report(ex, string.Format(format, args));
     }
 
     public void Error(Exception ex)
@@ -102,7 +102,7 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Critical(string format, Exception ex, params object[] args)
     {
       _logger.Critical(string.Format(format, args), ex);
-      OneTrue.Report(ex);
+      OneTrue.Report(ex, string.Format(format, args));
     }
 
     public void Critical(Exception ex)
