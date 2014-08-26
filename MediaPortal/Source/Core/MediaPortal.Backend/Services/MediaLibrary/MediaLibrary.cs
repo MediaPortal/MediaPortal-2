@@ -515,11 +515,33 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       lock (_syncObj)
       {
+        // The following lines are a temporary workaround for the fact that our MainQueryBuilder doesn't like
+        // queries without necessary requested MIAs. We therefore add the ProviderResourceAspect as necessary
+        // requested MIA, which doesn't hurt, because in LoadItem we have the ProviderResourceAspect in the
+        // WHERE clause anyway to check for PATH and SYSTEM_ID. We only do this of course, if the ProvierResourceAspect
+        // wasn't included in necessaryRequestedMIATypeIDs anyway, and if we did it, we remove the ProvierResourceAspect
+        // from the result before returning it. This improves the query performance for SQLite by a factor of up to 400.
+        // For details see: http://forum.team-mediaportal.com/threads/speed-improvements-for-the-medialibrary-with-very-large-databases.127220/page-17#post-1097294
+        // ToDo: Rework the MainQueryBuilder to make this happen automatically.
+        var removeProviderResourceAspect = false;
+        var necessaryRequestedMIATypeIDsWithProvierResourceAspect = necessaryRequestedMIATypeIDs.ToList();
+        if (!necessaryRequestedMIATypeIDsWithProvierResourceAspect.Contains(ProviderResourceAspect.ASPECT_ID))
+        {
+          removeProviderResourceAspect = true;
+          necessaryRequestedMIATypeIDsWithProvierResourceAspect.Add(ProviderResourceAspect.ASPECT_ID);
+        }
+        
         MediaItemQuery loadItemQuery = BuildLoadItemQuery(systemId, path);
-        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDsWithProvierResourceAspect);
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
-        return cmiq.QueryMediaItem();
+        var result = cmiq.QueryMediaItem();
+        
+        // This is the second part of the rework as decribed above (remove ProviderResourceAspect if it wasn't requested)
+        if (removeProviderResourceAspect && result != null)
+          result.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
+        
+        return result;
       }
     }
 
