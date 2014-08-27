@@ -30,7 +30,7 @@ using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Database.SQLite
 {
-  class SQLiteSettings
+  public class SQLiteSettings
   {
     #region Constants
 
@@ -105,6 +105,13 @@ namespace MediaPortal.Database.SQLite
 
     [Setting(SettingScope.Global, DEFAULT_CHUNK_SIZE_IN_MEGABYTES)]
     public int ChunkSizeInMegabytes { get; set; }
+
+#if DEBUG
+    [Setting(SettingScope.Global, true)]
+#else
+    [Setting(SettingScope.Global, false)]
+#endif
+    public bool EnableDebugLogging { get; set; }
 
     [Setting(SettingScope.Global, false)]
     public bool EnableTraceLogging { get; set; }

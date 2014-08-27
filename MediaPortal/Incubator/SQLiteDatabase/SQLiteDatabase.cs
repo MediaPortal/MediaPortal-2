@@ -23,9 +23,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Backend.Database;
@@ -54,7 +56,6 @@ namespace MediaPortal.Database.SQLite
     #region Constants
 
     private const string DATABASE_TYPE_STRING = "SQLite"; // Name of this Database
-    private const string DATABASE_VERSION_STRING = "1.0.89.0"; // Version of the sytem.data.sqlite wrapper
 
     #endregion
 
@@ -83,6 +84,8 @@ namespace MediaPortal.Database.SQLite
         _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
         _settings.LogSettings();
         ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+
+        LogVersionInformation();
 
         if (_settings.EnableTraceLogging)
         {
@@ -328,6 +331,31 @@ namespace MediaPortal.Database.SQLite
         ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Error while performing database maintenance:", e);
       }
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database maintenance finished");
+      LogStatistics();
+    }
+
+    /// <summary>
+    /// Logs statistical data of the SQLite engine
+    /// </summary>
+    private void LogStatistics()
+    {
+      IDictionary<String, long> statistics = new Dictionary<string, long>();
+      SQLiteConnection.GetMemoryStatistics(ref statistics);
+      var statisticsString = String.Join("; ", statistics.Select(kvp => String.Format("{0}={1:N0}", kvp.Key, kvp.Value)));
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: Memory Statistics: {0}", statisticsString);
+    }
+
+    /// <summary>
+    /// Logs version information about the used SQLite libraries
+    /// </summary>
+    private void LogVersionInformation()
+    {
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: ProviderVersion={0} (SourceID: {1})", SQLiteConnection.ProviderVersion, SQLiteConnection.ProviderSourceId);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: InteropVersion: {0} (SourceID: {1})", SQLiteConnection.InteropVersion, SQLiteConnection.InteropSourceId);
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: InteropCompileOptions: {0}", SQLiteConnection.InteropCompileOptions);
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: InteropDefineConstants: {0}", SQLiteConnection.DefineConstants);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: SQLiteVersion: {0} (SourceID: {1})", SQLiteConnection.SQLiteVersion, SQLiteConnection.SQLiteSourceId);
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: SQLiteCompileOptions: {0}", SQLiteConnection.SQLiteCompileOptions);
     }
 
     #endregion
@@ -341,7 +369,7 @@ namespace MediaPortal.Database.SQLite
 
     public string DatabaseVersion
     {
-      get { return DATABASE_VERSION_STRING; }
+      get { return SQLiteConnection.ProviderVersion; }
     }
 
     public uint MaxObjectNameLength
@@ -431,12 +459,12 @@ namespace MediaPortal.Database.SQLite
       // so we override any requested IsolationLevel other than Serializable
       // As per the code here: http://system.data.sqlite.org/index.html/vpatch?from=ed229ff2b0076a39&to=de60415f960244d7
       // IsolationLevel.Serializable is the same as the obsolete parameter DeferredLock=false
-      return new SQLiteTransaction(this, IsolationLevel.Serializable);
+      return new SQLiteTransaction(this, IsolationLevel.Serializable, _settings);
     }
 
     public ITransaction BeginTransaction()
     {
-      return new SQLiteTransaction(this, IsolationLevel.Serializable);
+      return new SQLiteTransaction(this, IsolationLevel.Serializable, _settings);
     }
 
     public bool TableExists(string tableName)
