@@ -524,7 +524,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         // For details see: http://forum.team-mediaportal.com/threads/speed-improvements-for-the-medialibrary-with-very-large-databases.127220/page-17#post-1097294
         // ToDo: Rework the MainQueryBuilder to make this happen automatically.
         var removeProviderResourceAspect = false;
-        var necessaryRequestedMIATypeIDsWithProvierResourceAspect = necessaryRequestedMIATypeIDs.ToList();
+        var necessaryRequestedMIATypeIDsWithProvierResourceAspect = (necessaryRequestedMIATypeIDs == null) ? new List<Guid>() : necessaryRequestedMIATypeIDs.ToList();
         if (!necessaryRequestedMIATypeIDsWithProvierResourceAspect.Contains(ProviderResourceAspect.ASPECT_ID))
         {
           removeProviderResourceAspect = true;
