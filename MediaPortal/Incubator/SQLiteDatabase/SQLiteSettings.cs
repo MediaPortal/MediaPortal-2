@@ -65,6 +65,16 @@ namespace MediaPortal.Database.SQLite
         "PRAGMA locking_mode=EXCLUSIVE;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;" :
         "PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
 
+    // If SQLite increases the size of the database file because it needs more space, it increases it
+    // by this value - even if it only needs one byte more space. Setting the chunk size to a high value
+    // dramatically increases import performance for big MediaLibraries (because less system calls are necessary)
+    // and at the same time increases later query speeds in particular on spinning hard discs, as it reduces
+    // the fragmentation of the database file in the file system.
+    // At the same time, chunk size is the minimum size of the database file. 16MB as default value is a
+    // compromise between the interest of people with very small MediaLibraries not to waste disc space and
+    // the interest of people with very big MediaLibraries in speed.
+    private const int DEFAULT_CHUNK_SIZE_IN_MEGABYTES = 16;
+
     #endregion
 
     #region Construnctors/Destructors
@@ -92,6 +102,9 @@ namespace MediaPortal.Database.SQLite
 
     [Setting(SettingScope.Global)]
     public int CacheSizeInKiloBytes { get; set; }
+
+    [Setting(SettingScope.Global, DEFAULT_CHUNK_SIZE_IN_MEGABYTES)]
+    public int ChunkSizeInMegabytes { get; set; }
 
     [Setting(SettingScope.Global, false)]
     public bool EnableTraceLogging { get; set; }
@@ -192,6 +205,7 @@ namespace MediaPortal.Database.SQLite
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database Filename: '{0}' (Default Database Filename: '{1}')", DatabaseFileName, DatabaseFileName);
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: PageSize: {0} Bytes (Default PageSize: {1} Bytes)", PageSize, PageSize);
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: CacheSize: {0} pages = {1}KB (RAM: {2}MB, Default CacheSize: {3}KB)", CacheSizeInPages, CacheSizeInKiloBytes, GetRamInMegaBytes(), GetOptimalCacheSizeInKiloBytes(GetRamInMegaBytes()));
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: ChunkSize: {0}MB", ChunkSizeInMegabytes);
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: LockTimeout: {0}ms (Default LockTimeout: {1}ms)", LockTimeout, LockTimeout);
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Initialization Command: '{0}' (Default Initialization Command: '{1}')", InitializationCommand, InitializationCommand);
     }

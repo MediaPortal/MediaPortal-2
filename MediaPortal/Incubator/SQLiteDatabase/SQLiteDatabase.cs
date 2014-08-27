@@ -242,6 +242,7 @@ namespace MediaPortal.Database.SQLite
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
+      connection.SetChunkSize(_settings.ChunkSizeInMegabytes * 1024 * 1024);
       using (var command = new SQLiteCommand(_settings.InitializationCommand, connection))
         command.ExecuteNonQuery();
       return connection;
