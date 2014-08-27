@@ -202,12 +202,12 @@ namespace MediaPortal.Database.SQLite
     /// </summary>
     public void LogSettings()
     {
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database Filename: '{0}' (Default Database Filename: '{1}')", DatabaseFileName, DatabaseFileName);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: PageSize: {0} Bytes (Default PageSize: {1} Bytes)", PageSize, PageSize);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database Filename: '{0}' (Default Database Filename: '{1}')", DatabaseFileName, DEFAULT_DATABASE_FILE_NAME);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: PageSize: {0} Bytes (Default PageSize: {1} Bytes)", PageSize, DEFAULT_PAGE_SIZE);
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: CacheSize: {0} pages = {1}KB (RAM: {2}MB, Default CacheSize: {3}KB)", CacheSizeInPages, CacheSizeInKiloBytes, GetRamInMegaBytes(), GetOptimalCacheSizeInKiloBytes(GetRamInMegaBytes()));
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: ChunkSize: {0}MB", ChunkSizeInMegabytes);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: LockTimeout: {0}ms (Default LockTimeout: {1}ms)", LockTimeout, LockTimeout);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Initialization Command: '{0}' (Default Initialization Command: '{1}')", InitializationCommand, InitializationCommand);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: ChunkSize: {0}MB (Default ChunkSize: {1}MB)", ChunkSizeInMegabytes, DEFAULT_CHUNK_SIZE_IN_MEGABYTES);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: LockTimeout: {0}ms (Default LockTimeout: {1}ms)", LockTimeout, DEFAULT_LOCK_TIMEOUT);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Initialization Command: '{0}' (Default Initialization Command: '{1}')", InitializationCommand, DEFAULT_INITIALIZATION_COMMAND);
     }
 
     #endregion
