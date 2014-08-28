@@ -24,6 +24,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
@@ -35,7 +36,6 @@ namespace MediaPortal.Database.SQLite
     #region Constants
 
     // The following Constants are the default values for the respective settings
-    public const bool USE_EXCLUSIVE_MODE = false;
 
     // Default page size used in the database file
     // Set page size to NTFS cluster size = 4096 bytes; supposed to give better performance
@@ -51,19 +51,31 @@ namespace MediaPortal.Database.SQLite
 
     // Default SQL commands to be executed on every connection to initialize it.
     // There are currently three commands:
-    // We set locking_mode=EXCLUSIVE; This means that the database file can only be accessed by one
-    // connection. To be able to access the database with multiple connections this setting MUST
-    // NOT be used without shared cache mode. In shared cache mode, multiple connections within one
-    // process (even if they are used in multiple threads of that process) are seen as one connection
-    // towards the operating system. That way, we can access the database with multiple connections
-    // in multiple threads, but at the same time have an exclusive lock on the database file, which
-    // improves the performance materially.
-    // Additionally we set the wal_autocheckpoint to 32768, i.e. every time a commit leads to
-    // a .wal file which is bigger than 32768 pages, a checkpoint is performed.
-    // Finally, we tell SQLite to store all its temporary files in RAM instead of writing them to disk.
-    private const string DEFAULT_INITIALIZATION_COMMAND = USE_EXCLUSIVE_MODE ?
-        "PRAGMA locking_mode=EXCLUSIVE;PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;" :
-        "PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
+    // - We set locking_mode=EXCLUSIVE; This means that the database file can only be accessed by one
+    //   connection. To be able to access the database with multiple connections this setting MUST
+    //   NOT be used without shared cache mode. In shared cache mode, multiple connections within one
+    //   process (even if they are used in multiple threads of that process) are seen as one connection
+    //   towards the operating system. That way, we can access the database with multiple connections
+    //   in multiple threads, but at the same time have an exclusive lock on the database file, which
+    //   improves the performance materially.
+    //   Note: This setting is disabled by default because it makes our installer hang. The installer
+    //         starts our BackendServices and later tries to start the installed MP2 Server service so
+    //         that a second process wants to access the database, which - as per above - can't work.
+    //         After install, however, this setting can be enabled.
+    //         ToDo: Improve the installer so that it doesn't start all BackendServices
+    // - Additionally we set the wal_autocheckpoint to 32768, i.e. every time a commit leads to
+    //   a .wal file which is bigger than 32768 pages, a checkpoint is performed.
+    // - Finally, we tell SQLite to store all its temporary files in RAM instead of writing them to disk.
+    private const string DEFAULT_INITIALIZATION_COMMAND = "PRAGMA wal_autocheckpoint=32768;PRAGMA temp_store=MEMORY;";
+
+    internal const string EXCLUSIVE_MODE_COMMAND = "PRAGMA locking_mode=EXCLUSIVE;";
+    private const bool DEFAULT_USE_EXCLUSIVE_MODE = false;
+
+    private const string WAL_AUTOCHECKPOINT_COMMAND_TEMPLATE = "PRAGMA wal_autocheckpoint={0};";
+    private const int DEFAULT_WAL_AUTOCHECKPOINT = 32768;
+
+    private const string TEMP_STORE_MEMORY_COMMAND = "PRAGMA temp_store=MEMORY;";
+    private const bool DEFAULT_USE_TEMP_STORE_MEMOY = true;
 
     // If SQLite increases the size of the database file because it needs more space, it increases it
     // by this value - even if it only needs one byte more space. Setting the chunk size to a high value
@@ -97,8 +109,14 @@ namespace MediaPortal.Database.SQLite
     [Setting(SettingScope.Global, DEFAULT_DATABASE_FILE_NAME)]
     public string DatabaseFileName { get; set; }
 
-    [Setting(SettingScope.Global, DEFAULT_INITIALIZATION_COMMAND)]
-    public string InitializationCommand { get; set; }
+    [Setting(SettingScope.Global, DEFAULT_USE_EXCLUSIVE_MODE)]
+    public bool UseExclusiveMode { get; set; }
+
+    [Setting(SettingScope.Global, DEFAULT_WAL_AUTOCHECKPOINT)]
+    public int WalAutocheckpointAfterPages { get; set; }
+
+    [Setting(SettingScope.Global, DEFAULT_USE_TEMP_STORE_MEMOY)]
+    public bool UseTempStoreMemory { get; set; }
 
     [Setting(SettingScope.Global)]
     public int CacheSizeInKiloBytes { get; set; }
@@ -115,6 +133,20 @@ namespace MediaPortal.Database.SQLite
 
     [Setting(SettingScope.Global, false)]
     public bool EnableTraceLogging { get; set; }
+
+    public string InitializationCommand
+    {
+      get
+      {
+        var sb = new StringBuilder();
+        if (UseExclusiveMode)
+          sb.Append(EXCLUSIVE_MODE_COMMAND);
+        sb.AppendFormat(WAL_AUTOCHECKPOINT_COMMAND_TEMPLATE, WalAutocheckpointAfterPages);
+        if (UseTempStoreMemory)
+          sb.Append(TEMP_STORE_MEMORY_COMMAND);
+        return sb.ToString();
+      }
+    }
 
     public int CacheSizeInPages
     {

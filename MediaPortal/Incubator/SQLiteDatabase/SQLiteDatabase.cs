@@ -197,13 +197,13 @@ namespace MediaPortal.Database.SQLite
         // although we issue "PRAGMA locking_mode=EXCLUSIVE" at this point.
         // For details see here: http://sqlite.org/wal.html#noshm
         // Avoiding the creation of an "-shm"-file materially improves the database performance.
-        if (SQLiteSettings.USE_EXCLUSIVE_MODE)
+        if (_settings.UseExclusiveMode)
         {
           connBuilder.JournalMode = SQLiteJournalModeEnum.Off;
           using (var connection = new SQLiteConnection(connBuilder.ToString()))
           {
             connection.Open();
-            using (var command = new SQLiteCommand("PRAGMA locking_mode=EXCLUSIVE;", connection))
+            using (var command = new SQLiteCommand(SQLiteSettings.EXCLUSIVE_MODE_COMMAND, connection))
               command.ExecuteNonQuery();
             connection.Close();
           }
