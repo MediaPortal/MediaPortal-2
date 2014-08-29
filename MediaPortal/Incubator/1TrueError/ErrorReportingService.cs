@@ -43,12 +43,19 @@ namespace MediaPortal.Plugins.OneTrueError
 
       // The appkey and shared key can be found in onetrueeror.com
       OneTrue.Configuration.Credentials(appKey.Item1, appKey.Item2);
-      OneTrue.Configuration.CatchWinFormsExeptions();
+      OneTrue.Configuration.CatchWinFormsExceptions();
+      OneTrue.Configuration.Advanced.UploadReportFailed += OnUploadReportFailed;
 
       // Exchange the logger by the error reporting wrapper
       var currentLogger = ServiceRegistration.Get<ILogger>();
       var errorLogger = new ErrorLogWrapper(currentLogger);
       ServiceRegistration.Set<ILogger>(errorLogger);
+    }
+
+    private void OnUploadReportFailed(object sender, UploadReportFailedEventArgs uploadReportFailedEventArgs)
+    {
+      // Note: don't use the overload with Exception parameter, as this would probably trigger a new send failure.
+      ServiceRegistration.Get<ILogger>().Info("ErrorReportingService: Could not send error report to service: {0}", uploadReportFailedEventArgs.Exception.ToString());
     }
 
     public bool RequestEnd()
