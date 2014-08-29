@@ -42,6 +42,20 @@ namespace MediaPortal.Plugins.OneTrueError
       _logger = parentLogger;
     }
 
+    protected string TryFormat(string format, params object[] args)
+    {
+      if (args == null || args.Length == 0)
+        return format;
+      try
+      {
+        return string.Format(format, args);
+      }
+      catch (Exception ex)
+      {
+        return format;
+      }
+    }
+
     #region ILogger implementation
 
     public void Debug(string format, params object[] args)
@@ -51,8 +65,8 @@ namespace MediaPortal.Plugins.OneTrueError
 
     public void Debug(string format, Exception ex, params object[] args)
     {
-      _logger.Debug(string.Format(format, args), ex);
-      OneTrue.Report(ex, string.Format(format, args));
+      _logger.Debug(format, ex, args);
+      OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Info(string format, params object[] args)
@@ -62,8 +76,8 @@ namespace MediaPortal.Plugins.OneTrueError
 
     public void Info(string format, Exception ex, params object[] args)
     {
-      _logger.Info(string.Format(format, args), ex);
-      OneTrue.Report(ex, string.Format(format, args));
+      _logger.Info(format, ex, args);
+      OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Warn(string format, params object[] args)
@@ -73,8 +87,8 @@ namespace MediaPortal.Plugins.OneTrueError
 
     public void Warn(string format, Exception ex, params object[] args)
     {
-      _logger.Warn(string.Format(format, args), ex);
-      OneTrue.Report(ex, string.Format(format, args));
+      _logger.Warn(format, ex, args);
+      OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Error(string format, params object[] args)
@@ -84,8 +98,8 @@ namespace MediaPortal.Plugins.OneTrueError
 
     public void Error(string format, Exception ex, params object[] args)
     {
-      _logger.Error(string.Format(format, args), ex);
-      OneTrue.Report(ex, string.Format(format, args));
+      _logger.Error(format, ex, args);
+      OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Error(Exception ex)
@@ -101,8 +115,8 @@ namespace MediaPortal.Plugins.OneTrueError
 
     public void Critical(string format, Exception ex, params object[] args)
     {
-      _logger.Critical(string.Format(format, args), ex);
-      OneTrue.Report(ex, string.Format(format, args));
+      _logger.Critical(format, ex, args);
+      OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Critical(Exception ex)

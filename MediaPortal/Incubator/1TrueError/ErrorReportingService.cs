@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.OneTrueError
 {
   public class ErrorReportingService : IPluginStateTracker
   {
-    private static Tuple<string, string> KEY_SERVER = new Tuple<string, string>("f2f6310b-1714-4112-bd6d-ec9df98ade37", "c6965f14-db18-41d1-8d1b-ffef6586be92");
+    private static Tuple<string, string> KEY_SERVER = new Tuple<string, string>("f2f6310b-1714-4112-bd6d-ec9df98ade37", "814a5a92-c6b7-473e-af9e-59bcd1d5ee35");
     private static Tuple<string, string> KEY_CLIENT = new Tuple<string, string>("9f39363e-e7c7-4e42-acc7-914ec41a52eb", "93dec981-b867-4adb-8e80-6cb86f52c034");
 
     public void Activated(PluginRuntime pluginRuntime)
