@@ -83,6 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
+                VideoAspect.Metadata,
                 MovieAspect.Metadata
               });
     }

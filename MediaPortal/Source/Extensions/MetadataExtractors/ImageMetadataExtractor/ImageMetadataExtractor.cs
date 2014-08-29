@@ -98,7 +98,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
-                ImageAspect.Metadata
+                ImageAspect.Metadata,
+                ThumbnailLargeAspect.Metadata
               });
     }
 

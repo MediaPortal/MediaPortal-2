@@ -170,7 +170,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
-                AudioAspect.Metadata
+                AudioAspect.Metadata,
+                ThumbnailLargeAspect.Metadata
               });
     }
 
