@@ -66,6 +66,20 @@ namespace MediaPortal.Common.Services.Logging
       get { return LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType); }
     }
 
+    protected string TryFormat(string format, params object[] args)
+    {
+      if (args == null || args.Length == 0)
+        return format;
+      try
+      {
+        return string.Format(format, args);
+      }
+      catch(Exception ex)
+      {
+        return format;
+      }
+    }
+
     #region ILogger implementation
 
     public void Debug(string format, params object[] args)
@@ -75,7 +89,7 @@ namespace MediaPortal.Common.Services.Logging
 
     public void Debug(string format, Exception ex, params object[] args)
     {
-      GetLogger.Debug(string.Format(format, args), ex);
+      GetLogger.Debug(TryFormat(format, args), ex);
     }
 
     public void Info(string format, params object[] args)
@@ -85,7 +99,7 @@ namespace MediaPortal.Common.Services.Logging
 
     public void Info(string format, Exception ex, params object[] args)
     {
-      GetLogger.Info(string.Format(format, args), ex);
+      GetLogger.Info(TryFormat(format, args), ex);
     }
 
     public void Warn(string format, params object[] args)
@@ -95,7 +109,7 @@ namespace MediaPortal.Common.Services.Logging
 
     public void Warn(string format, Exception ex, params object[] args)
     {
-      GetLogger.Warn(string.Format(format, args), ex);
+      GetLogger.Warn(TryFormat(format, args), ex);
     }
 
     public void Error(string format, params object[] args)
@@ -105,7 +119,7 @@ namespace MediaPortal.Common.Services.Logging
 
     public void Error(string format, Exception ex, params object[] args)
     {
-      GetLogger.Error(string.Format(format, args), ex);
+      GetLogger.Error(TryFormat(format, args), ex);
     }
 
     public void Error(Exception ex)
@@ -120,7 +134,7 @@ namespace MediaPortal.Common.Services.Logging
 
     public void Critical(string format, Exception ex, params object[] args)
     {
-      GetLogger.Fatal(string.Format(format, args), ex);
+      GetLogger.Fatal(TryFormat(format, args), ex);
     }
 
     public void Critical(Exception ex)
