@@ -180,6 +180,7 @@
   <string name="Media.PlaylistIdInfoLabel">ID daftar main internal</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Baku</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Pelihara video PiP</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Mainkan item</string>
   <string name="Media.PlayAudioItems">Mainkan item audio</string>

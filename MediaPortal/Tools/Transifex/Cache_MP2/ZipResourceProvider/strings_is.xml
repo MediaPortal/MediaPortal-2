@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Þjóppunarforrit fyrir miðlaskrár</string>
   <string name="ZipMediaProvider.Description">Aðgangur að skrám og möppum í þjöppunarskrám</string>
 </resources>

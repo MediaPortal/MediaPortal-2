@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.TvGuide">TV Guide</string>
+  <string name="SlimTvClient.SingleChannelGuide">Channel Guide</string>
 
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Program information</string>
 
@@ -19,11 +22,52 @@
 
   <string name="SlimTvClient.ProgramOver">Program already over</string>
   <string name="SlimTvClient.WatchNow">Watch program now</string>
+  <string name="SlimTvClient.WatchFromBeginning">Watch recording from beginning</string>
   <string name="SlimTvClient.RecordNow">Record now</string>
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
 
+  <!-- Extended recording features -->
+  <string name="SlimTvClient.RecordActions">Recording actions</string>
+  <string name="SlimTvClient.StopCurrentRecording">Stop current recording '{0}'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Record program '{0}'</string>
+  <string name="SlimTvClient.RecordManual">Record until stopped manually</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Manual Recording</string>
+  
+  <string name="SlimTvClient.RecordProgram">Record program</string>
+  <string name="SlimTvClient.DontRecordProgram">Don't record</string>
+  <string name="SlimTvClient.RecordSeries">Record series</string>
+  <string name="SlimTvClient.ChooseScheduleType">Choose recording schedule type</string>
+
+  <string name="SlimTvClient.DeleteScheduleType">How to delete schedule?</string>
+  <string name="SlimTvClient.DeleteSingle">Delete single program</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Delete full series schedule</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Delete single programs of schedule</string>
+
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Once</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Daily</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Weekly</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Every time on this channel</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Every time on every channel</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekends</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Weekly every time on this channel</string>
+
+  <!-- Schedule management -->
+  <string name="SlimTvClient.ScheduleDetails">Schedule details</string>
+  <string name="SlimTvClient.ScheduleName">Schedule name</string>
+  <string name="SlimTvClient.ScheduleType">Schedule type</string>
+  <string name="SlimTvClient.Schedules">Schedules</string>
+  <string name="SlimTvClient.ExtendedSchedule">Extended scheduling</string>
+  <string name="SlimTvClient.ScheduleManagement">Manage schedules</string>
+
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
+
+  <!-- Settings -->
+  <string name="SlimTvClient.EpgNumberOfRows">Number of rows in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfRows.Help">Defines the number of rows (channels) shown in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours">Number of hours in EPG</string>
+  <string name="SlimTvClient.EpgNumberOfHours.Help">Defines the number of hours (programs) shown in EPG</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>

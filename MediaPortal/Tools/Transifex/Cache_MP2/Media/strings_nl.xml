@@ -188,6 +188,9 @@
   <string name="Media.PlaylistIdInfoLabel">Interne afspeellijst id</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standaard</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Behoud PiP video</string>
+  <!--MediaItemAction dialog-->
+  <string name="Media.MediaItemsActionDialogHeader">Media item acties</string>
+  <string name="Media.DeleteFromStorage">Verwijder uit opslag</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Item afspelen</string>
   <string name="Media.PlayAudioItems">Audio items afspelen</string>

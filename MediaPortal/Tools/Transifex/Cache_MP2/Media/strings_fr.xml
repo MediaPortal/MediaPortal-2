@@ -38,10 +38,10 @@
   <string name="Media.ImageFilterSmall">Petit</string>
   <string name="Media.ImageFilterMedium">Moyen</string>
   <string name="Media.ImageFilterBig">Grand</string>
-  <string name="Media.SwitchToBrowseMLView">Vers vue serveur</string>
-  <string name="Media.SwitchToLocalMediaView">Vers vue locale</string>
-  <string name="Media.SwitchToBrowseShareView">Vers la vue Dossier</string>
-  <string name="Media.SwitchToMediaLibraryView">Vers la vue Bibliothèque </string>
+  <string name="Media.SwitchToBrowseMLView">Affichage type Serveur</string>
+  <string name="Media.SwitchToLocalMediaView">Affichage Locale</string>
+  <string name="Media.SwitchToBrowseShareView">Affichage type  Dossier</string>
+  <string name="Media.SwitchToMediaLibraryView">Affichage type  Bibliothèque </string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -144,7 +144,7 @@
   <string name="Media.ImagesRootViewName">Images</string>
   <string name="Media.SimpleSearchViewName">Recherche simple</string>
   <!--General strings used in views-->
-  <string name="Media.ViewInvalid">Cette vue ne peut pas être affiché</string>
+  <string name="Media.ViewInvalid">Cet affichage ne peut pas être crée</string>
   <string name="Media.ViewEmpty">&lt;Aucun élément disponible&gt;</string>
   <string name="Media.NoItems">Aucun élément</string>
   <!--Shown in the header of an items list-->
@@ -156,16 +156,16 @@
   <!--Shown in the header of an items list, e.g. "15/350 items"-->
   <string name="Media.NItems">{0} éléments</string>
   <!--Shown in the header of an items list, e.g. "45 items"-->
-  <string name="Media.MoreThanMaxItemsHint">Cette vue affiche plus de {0} éléments. SVP, ajoutez des filtres pour réduire le nombre d\'éléments.</string>
-  <string name="Media.MoreThanMaxItemsBrowseHint">Cette vue affiche plus de {0} éléments.</string>
-  <string name="Media.MoreThanMaxItemsSearchResultHint">Cette vue affiche plus de {0} éléments. SVP, affinez votre recherche.</string>
+  <string name="Media.MoreThanMaxItemsHint">Cet affichage contient  plus de {0} éléments. SVP, ajoutez des filtres pour réduire le nombre d\'éléments.</string>
+  <string name="Media.MoreThanMaxItemsBrowseHint">Cet affichage contient  plus de {0} éléments</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Cet affichage contient plus de {0} éléments. SVP, affinez votre recherche.</string>
   <string name="Media.ListIsBeingBuiltHint">La liste des éléments est en cours de construction</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Recherche en cours...</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Playlists</string>
   <string name="Media.AddAllToPlaylist">Ajouter la totalité à la playlist</string>
   <string name="Media.NoItemsToAddHeader">Aucun élément à ajouter</string>
-  <string name="Media.NoItemsToAddText">Il n\'y a aucun élément dans la vue actuelle</string>
+  <string name="Media.NoItemsToAddText">Il n\'y a aucun élément dans l\'affichage actuel</string>
   <string name="Media.ChooseAVTypeDialogHeader">Choisir le type d\'élément</string>
   <string name="Media.AddAllAudio">Ajouter des fichiers audio</string>
   <string name="Media.AddAllVideo">Ajouter des vidéos</string>
@@ -188,6 +188,10 @@
   <string name="Media.PlaylistIdInfoLabel">Identifiant interne de la playlist</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Par défaut</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Maintenir la fonction Picture in Picture</string>
+  <!--MediaItemAction dialog-->
+  <string name="Media.SetWatched">Ensemble visionné</string>
+  <string name="Media.SetUnwatched">Ensemble non visionné</string>
+  <string name="Media.DeleteFromStorage">Supprimer du stockage</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Lire l\'élément</string>
   <string name="Media.PlayAudioItems">Lire le fichies audio</string>
@@ -211,6 +215,7 @@
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">Informations sur la vidéo</string>
+  <string name="Media.Rating">Note:</string>
   <string name="Media.VideoTitleLabel">Titre : </string>
   <string name="Media.VideoGenreLabel">Genre : </string>
   <string name="Media.VideoCollectionLabel">Collection:</string>
@@ -286,8 +291,8 @@
   <string name="Media.Start">Début</string>
   <string name="Media.End">Fin</string>
   <string name="Media.DontSkip">Ne pas passer</string>
-  <string name="Media.SwitchViewModeMenuItem">Type de vue</string>
-  <string name="Media.SwitchViewModeDialogTitle">Choisir le type de vue</string>
+  <string name="Media.SwitchViewModeMenuItem">Type d\'affichage</string>
+  <string name="Media.SwitchViewModeDialogTitle">Choisir le type d\'affichage</string>
   <string name="Media.SmallList">Petite liste</string>
   <string name="Media.MediumList">Liste moyenne</string>
   <string name="Media.LargeList">Grande liste</string>

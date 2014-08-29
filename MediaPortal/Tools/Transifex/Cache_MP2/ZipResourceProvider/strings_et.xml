@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">ZIP faili meedia</string>
   <string name="ZipMediaProvider.Description">Kasuta ZIP failide kataloogide meediafaile</string>
 </resources>

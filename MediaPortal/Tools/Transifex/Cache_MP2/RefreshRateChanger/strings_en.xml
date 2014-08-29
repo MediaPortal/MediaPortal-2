@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Enable refresh rate change</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">If enabled the screen refresh rate is tried to be changed to match video fps.</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Exclude refresh rates</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Exclude list of refresh rates from changes. Enter values as integers separated by commas (i.e. 23,25,50).</string>
+</resources>

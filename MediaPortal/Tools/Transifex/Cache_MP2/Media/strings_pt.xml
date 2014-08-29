@@ -188,6 +188,7 @@
   <string name="Media.PlaylistIdInfoLabel">Id interno da lista de reprodução</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Por defeito</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Manter PiP video</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reproduzir item</string>
   <string name="Media.PlayAudioItems">Reproduzir itens de áudio</string>

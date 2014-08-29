@@ -25,7 +25,7 @@
   <string name="Settings.Players.Rendering.DefaultGeometry">Förvalt zoomläge</string>
   <string name="Settings.Players.Rendering.DefaultGeometry.Help">Välj förvalt zoomläget vid videouppspelning.</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Konfigurera energisparfunktioner</string>
-  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Avaktivera automatiskt viloläge/avstängning eller skärmavstängning när MediaPortal 2 är aktivt</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Inaktivera automatiskt viloläge/avstängning eller skärmavstängning när MediaPortal 2 är aktivt</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Tillåt alla nivåer av energisparande.</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Hindra systemvila, men tillåt avstängning av bildskärmen</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Hindra systemvila och avstängning av bildskärmen</string>

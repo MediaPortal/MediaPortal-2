@@ -156,6 +156,7 @@
   <string name="Media.ChoosePlaylistsToBeRemovedText">Válassza ki az eltávolítandó lejátszási listákat</string>
   <string name="Media.PlaylistNameInfoLabel">Lejátszási lista neve</string>
   <string name="Media.PlaylistTypeInfoLabel">Lejátszási lista típusa</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Videó/Kép</string>

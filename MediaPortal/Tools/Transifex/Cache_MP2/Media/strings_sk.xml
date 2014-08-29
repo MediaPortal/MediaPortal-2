@@ -188,6 +188,9 @@
   <string name="Media.PlaylistIdInfoLabel">Interné ID playlistu</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Predvolené</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Zachovávať PiP video</string>
+  <!--MediaItemAction dialog-->
+  <string name="Media.MediaItemsActionDialogHeader">Akcie položky</string>
+  <string name="Media.DeleteFromStorage">Vymazať z disku</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Položka na prehratie</string>
   <string name="Media.PlayAudioItems">Audio položky na prehratie</string>

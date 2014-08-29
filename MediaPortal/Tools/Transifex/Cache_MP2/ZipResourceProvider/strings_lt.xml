@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">ZIP bylos media tiekėjas</string>
+  <string name="ZipMediaProvider.Name">Zip byla</string>
   <string name="ZipMediaProvider.Description">Pasiekti bylas ir katalogus esančius ZIP bylose</string>
 </resources>

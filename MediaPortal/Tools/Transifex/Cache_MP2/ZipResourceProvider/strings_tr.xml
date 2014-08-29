@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Zip dosya medya sağlayıcı</string>
   <string name="ZipMediaProvider.Description">ZIP dosyalarındaki dosya ve dizinlere erişim</string>
 </resources>

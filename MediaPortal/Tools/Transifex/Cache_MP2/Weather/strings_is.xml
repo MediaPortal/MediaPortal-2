@@ -5,7 +5,8 @@
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Veldu staðsetningu</string>
   <!--Dialog state, doesn't appear at the UI-->
-  <string name="Weather.Title">Veður\n</string>
+  <string name="Weather.Title">Veður
+</string>
   <string name="Weather.ChooseLocation">Veldu staðsetningu</string>
   <string name="Weather.Refresh">Endurstilla</string>
   <string name="Weather.Updating">Uppfæri...</string>

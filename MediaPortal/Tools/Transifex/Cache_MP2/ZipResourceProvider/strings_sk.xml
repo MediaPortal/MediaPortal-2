@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">obsluha ZIP súborov</string>
   <string name="ZipMediaProvider.Description">Pristupuje k súborom a zložkám vo vnútri ZIP archívov</string>
 </resources>

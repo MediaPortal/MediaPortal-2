@@ -171,6 +171,7 @@
   <string name="Media.PlaylistIdInfoLabel">Playlist id interno</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Default</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Mantieni video PiP</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Play voce</string>
   <string name="Media.PlayAudioItems">Play audio</string>

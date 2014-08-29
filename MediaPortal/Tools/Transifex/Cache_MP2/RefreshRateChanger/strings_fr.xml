@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Permettre le changement de fréquence de rafraîchissement</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Si activée, le taux de rafraîchissement de l\'écran peut être modifié pour correspondre au nombre d\'images affichées par seconde .</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Exclure des taux de rafraîchissement</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Exclure des fréquences de la liste des taux de rafraîchissement . Entrez les valeurs sous forme d\'entiers séparés par des virgules (ex 23,25,50).</string>
+</resources>

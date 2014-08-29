@@ -155,6 +155,7 @@
   <string name="Media.PlaylistNumItemsLabel">Liczba elementów</string>
   <string name="Media.PlaylistIdInfoLabel">Wewnętrzny identyfikator listy odtwarzania</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Domyślne</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Odtwórz element</string>
   <string name="Media.PlayAudioItems">Odtwórz elementy audio</string>

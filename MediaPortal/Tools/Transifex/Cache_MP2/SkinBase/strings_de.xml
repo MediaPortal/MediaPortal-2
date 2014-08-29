@@ -151,7 +151,7 @@
   <string name="Shares.Importing">Importiere...</string>
   <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Medienquellen-Konfiguration</string>
-  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Medienquellen entfernen</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Entfernen</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Medienquellen-Information</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Ressourcen-Provider auswählen</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Pfad ändern</string>
@@ -171,7 +171,7 @@
   <string name="SharesConfig.ShareMediaCategoriesInfo">Medien-Kategorien:</string>
   <string name="SharesConfig.ReImportShare">Medienquelle (erneut) importieren</string>
   <string name="SharesConfig.SetupDefaultShares">Standard-Medienquellen einrichten</string>
-  <string name="SharesConfig.RemoveShares">Medienquellen entfernen</string>
+  <string name="SharesConfig.RemoveShares">Entfernen</string>
   <string name="SharesConfig.EditShare">Medienquelle bearbeiten</string>
   <string name="SharesConfig.ChooseSystem">System auswählen</string>
   <string name="SharesConfig.ChooseSharesToBeRemoved">Wähle Medienquellen zum Entfernen</string>
@@ -208,6 +208,7 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Möchtest du verschieben oder löschen und importieren?</string>
   <string name="SharesConfig.Relocate">Verschieben</string>
   <string name="SharesConfig.ReImport">(Erneuter) Import</string>
+  <string name="SharesConfig.ManualPathInput">Manuelle Eingabe</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal-2-Client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

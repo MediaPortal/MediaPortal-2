@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Lecteurs</string>
+  <string name="Settings.Players.AudioPlayer">Lecteur Audio</string>
+  <string name="Settings.Players.BassPlayer.Setup">Configurer le périphérique de sortie</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Configurer le périphérique de sortie BassPlayer et les options</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Mode Exclusif</string>
   <string name="Settings.Players.Rendering">Rendu vidéo</string>
   <string name="Settings.Players.Rendering.CrossFading">Fondu enchainé</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Fondu enchainé activé</string>

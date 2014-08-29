@@ -178,6 +178,7 @@
   <string name="Media.PlaylistNumItemsLabel">İçerik sayısı</string>
   <string name="Media.PlaylistIdInfoLabel">Dahili çalma listesi tanımlayıcısı</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Öntanımlı</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">İçeriği çal</string>
   <string name="Media.PlayAudioItems">Ses içeriklerini çal</string>

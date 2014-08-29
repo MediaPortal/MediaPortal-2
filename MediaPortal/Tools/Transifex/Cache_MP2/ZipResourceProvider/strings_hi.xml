@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">ज़िप फ़ाइल मीडिया प्रदाता</string>
   <string name="ZipMediaProvider.Description">ज़िप फ़ाइलों में फ़ाइलें और निर्देशिका को एक्सेस करें </string>
 </resources>

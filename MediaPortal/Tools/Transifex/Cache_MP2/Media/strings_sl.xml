@@ -188,6 +188,7 @@
   <string name="Media.PlaylistIdInfoLabel">Interna številka seznama</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Privzeto</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Ohrani PiP video</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Predvajaj vsebino</string>
   <string name="Media.PlayAudioItems">Predvajaj audio vsebine</string>

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Zip fil medieadgang</string>
   <string name="ZipMediaProvider.Description">Tilgå filer og mapper i ZIP filer</string>
 </resources>

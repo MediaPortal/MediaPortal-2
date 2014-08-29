@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
-  <string name="configuration.save_on_exit">Haluatko tallentaa muutokset ennen lopetusta?\n</string>
-  <string name="configuration.unsaved_warning">Varoitus: Muutoksia ei ole tallennettu\n</string>
+  <string name="configuration.save_on_exit">Haluatko tallentaa muutokset ennen lopetusta?
+</string>
+  <string name="configuration.unsaved_warning">Varoitus: Muutoksia ei ole tallennettu
+</string>
   <string name="configuration.browse">Selaa</string>
   <string name="configuration.areas.settings">Asetukset</string>
   <string name="configuration.areas.logs">Lokit</string>

@@ -188,6 +188,7 @@
   <string name="Media.PlaylistIdInfoLabel">Sisäinen soittolistan id</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Oletus</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Säilytä PiP video</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Toista kappale</string>
   <string name="Media.PlayAudioItems">Toista audiokappaleita</string>

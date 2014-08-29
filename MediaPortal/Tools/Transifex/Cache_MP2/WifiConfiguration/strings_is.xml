@@ -1,2 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Skimun eftir þráðlausum netum</string>
+  <string name="Network.NoWirelessNetworksFound">Fundust engin þráðlaus net</string>
+  <string name="Network.Connect">Tengjast</string>
+  <string name="Network.Disconnect">Aftengjast</string>
+  <string name="Network.EnterWifiPassword">Sláið inn aðgangsorð þráðlausa netsins</string>
+  <string name="Network.DeleteProfile">Eyða aðgangi fyrir þráðlausa netið</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Þráðlaus net</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Tengjast þráðlausu neti</string>
+</resources>

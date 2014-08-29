@@ -10,6 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Gebruikersnaam en wachtwoord</string>
   <string name="Settings.ServerSettings.Username">Gebruikersnaam:</string>
   <string name="Settings.ServerSettings.Password">Wachtwoord:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Mediabron importeer configuratie</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Automatisch verversen van gedeelde mappen configureren</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Automatisch verversen inschakelen</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Uitvoeren op uur van de dag (op 24 uurs basis)</string>

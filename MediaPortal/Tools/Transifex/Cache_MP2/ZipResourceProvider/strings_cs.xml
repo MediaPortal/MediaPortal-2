@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Poskytovatel médií souboru Zip</string>
   <string name="ZipMediaProvider.Description">Přístup k souborům a adresářům v souborech ZIP</string>
 </resources>

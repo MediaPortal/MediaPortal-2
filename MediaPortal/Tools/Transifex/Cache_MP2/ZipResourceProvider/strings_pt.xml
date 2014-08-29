@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Provedor de mídia para arquivos ZIP</string>
   <string name="ZipMediaProvider.Description">Acessar arquivos e diretórios em aruqivos ZIP</string>
 </resources>

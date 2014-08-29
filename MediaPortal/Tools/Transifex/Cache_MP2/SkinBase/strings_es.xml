@@ -28,6 +28,7 @@
   <string name="Media.MyMusic">Música</string>
   <string name="Media.MyVideos">Vídeos</string>
   <string name="Media.MyPictures">Imágenes</string>
+  <string name="Media.InvalidShareName">Fuente de archivos no válida</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Servidor MP2 disponible</string>
   <string name="ServerConnection.NotificationServerAvailableText">Hay al menos un servidor MediaPortal 2 disponible en la red. Conecte para disponer de todas las característica de MediaPortal 2</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' en el host \'{1}\'</string>
@@ -45,6 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">El servidor de inicio esta actualmente desconectado.</string>
   <string name="ServerConnection.DetachMenu">Desconectar</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Desconectar del servidor casero</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Si te desconectas del servidor principal, todos los datos sobre las fuentes de archivos del Cliente y sus elementos multimedia se eliminarán de la biblioteca multimedia del servidor principal. Puede conectarte de nuevo más tarde. ¿De verdad quieres desconectarte del servidor principal \'{0}\' en el host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Buscar servidores</string>
   <string name="ServerConnection.DetachFromServer">Desconectar del servidor casero</string>
   <string name="ServerConnection.AttachToServerHeader">Conectar al servidor MediaPortal 2</string>
@@ -65,8 +67,11 @@
   <string name="ImporterMessages.ImportStartedText">La importación de \'{0}\' a empezado.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importación finalizada</string>
   <string name="ImporterMessages.ImportCompletedText">La importación de \'{0}\' ha terminado.</string>
+  <string name="LocalFsResourceProvider.Name">Sistema de archivos local</string>
   <string name="LocalFsResourceProvider.Description">Acceso al sistema de archivos locales</string>
+  <string name="RemoteResourceProvider.Name">Recursos remotos</string>
   <string name="RemoteResourceProvider.Description">Recurso de acceso localizado en otro sistema MediaPortal 2</string>
+  <string name="RawUrlResourceProvider.Name">Url Raw</string>
   <string name="RawUrlResourceProvider.Description">Acceso a fuentes de raw Uri</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -119,13 +124,25 @@
   <string name="Settings.Regional.Language">Lenguaje</string>
   <string name="Settings.Regional.Language.Main">Lenguaje</string>
   <string name="Settings.Regional.Language.Main.Help">Selecciona el lenguaje principal usado en la aplicación</string>
+  <string name="Settings.Shares">Fuente de archivos</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Configurar fuente de archivos</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configuración de fuente de archivos</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configurar todas las fuente de archivos</string>
   <string name="Settings.Shares.Overview">Vistazo</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Resumen de las fuentes de archivos</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Vista global sobre las fuentes de archivos</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Reimportar todas las fuentes de archivos</string>
   <string name="Settings.Plugins">Plugins</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Resumen de las fuentes de archivos</string>
+  <string name="SharesOverview.Title">Resumen de las fuentes de archivos</string>
+  <string name="SharesOverview.ReImportAllShares">Reimportar todas las fuentes de archivos</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">El servidor principal no está conectado, no puede recuperarse el servidor de las fuentes de archivo.</string>
+  <string name="Shares.NoSharesInThisView">- No hay fuentes de archivos en esta vista -</string>
   <string name="Shares.InvalidPath">RUTA INVÁLIDA: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Conectado</string>
@@ -133,28 +150,69 @@
   <string name="Shares.ReImport">Reimportar</string>
   <string name="Shares.Importing">Importando...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configuración de fuente de archivos</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Eliminar fuente de archivos</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Información de fuente de archivos</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Elige el proveedor de recursos</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Editar ruta</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Elige la ruta</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Editar nombre</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Elige las categorias</string>
+  <string name="SharesConfig.CannotAddSharesTitle">No se puede añadir fuente de archivos</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">El servidor principal está localizado en la misma máquina, por lo que todas las fuentes de archivos deberían estar registradas en el servidor. Sin embargo, el servidor no está conectado en este momento. Por favor, inicia el servidor y vuelve a intentarlo.</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Configuración de fuente de archivos</string>
+  <string name="SharesConfig.NoSharesAvailable">No hay fuente de archivos disponible</string>
+  <string name="SharesConfig.ShareInformationHeader">Información de los fuente de archivos</string>
   <string name="SharesConfig.ShareNameInfo">Nombre:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Proveedor de recursos base:</string>
   <string name="SharesConfig.ShareSystem">Sistema:</string>
   <string name="SharesConfig.SharePathInfo">Ruta:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Ruta técnica:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Categorías de medios:</string>
+  <string name="SharesConfig.ReImportShare">Reimportar fuente de archivos</string>
+  <string name="SharesConfig.SetupDefaultShares">Configurar por defecto las fuentes</string>
+  <string name="SharesConfig.RemoveShares">Eliminar fuente de archivos</string>
+  <string name="SharesConfig.EditShare">Editar fuente de archivos</string>
   <string name="SharesConfig.ChooseSystem">Elige sistema</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Por favor selecciona la fuente de archivos a eliminar</string>
+  <string name="SharesConfig.ChooseSystemForShare">Elige fuente de archivos</string>
+  <string name="SharesConfig.LocalShare">Cliente de fuente de archivos</string>
+  <string name="SharesConfig.LocalShares">Cliente de fuentes de archivos</string>
+  <string name="SharesConfig.GlobalShare">Servidor de fuente de archivos</string>
+  <string name="SharesConfig.GlobalShares">Servidor de fuentes de archivos</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">El servidor principal no está conectado, por lo que el servidor de la fuente de archivos no puede controlarse en este momento.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">El servidor principal se encuentra en la misma máquina, por lo que sólo puede configurarse el servidor de la fuente de archivos.</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Por favor, selecciona el proveedor de recursos para la fuente de archivos</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Editar la dirección de la fuente de archivos</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Edita una ruta válida en el proveedor de recursos elegido. Puede editar una ruta simple que sea entendible por el proveedor de recursos. También puede editar una ruta compleja en el formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Elegir la dirección de la fuente de archivos</string>
+  <string name="SharesConfig.EditShareName">Editar el nombre de la fuente de archivos</string>
+  <string name="SharesConfig.ChooseShareCategories">Elige las categorías de los archivos localizados en la fuente de archivos</string>
+  <string name="SharesConfig.SharePathExists">Ya existe una fuente de archivos con esta dirección</string>
+  <string name="SharesConfig.ShareNameExists">Ya existe una fuente de archivos con este nombre</string>
+  <string name="SharesConfig.ShareNameEmpty">Editar un nombre para la fuente de archivos</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problema configurando la fuente de archivos</string>
+  <string name="SharesConfig.EditShareProblemText">Hubo un problema interno mientras se configuraba la fuente de archivos</string>
+  <string name="SharesConfig.MenuAddShare">Añadir fuente de archivos</string>
   <string name="SharesConfig.MenuEditShares">Editar</string>
+  <string name="SharesConfig.MenuRemoveShares">Eliminar fuente de archivos</string>
+  <string name="SharesConfig.AddServerShare">Añadir servidor de fuente de archivos</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Editar servidor de fuente de archivos</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Añadir cliente de la fuente de archivos</string>
+  <string name="SharesConfig.EditLocalShare">Editar cliente de la fuente de archivos</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Actualizar fuente de archivos</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">El proveedor de recursos o la dirección de la fuente de archivos ha sido actualizado</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La información de la biblioteca sobre los elementos multimedia en esa fuente de archivos se puede actualizar (trasladar) o eliminar y reimportar.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">¿Quiere recolocar o limpiar y reimportar?</string>
   <string name="SharesConfig.Relocate">Recolocar</string>
   <string name="SharesConfig.ReImport">Reimportar</string>
+  <string name="SharesConfig.ManualPathInput">Entrada manual</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">Cliente MediaPortal 2 - La Interfaz MediaPortal. Reproduce contenidos multimedia, alberga las fuentes de archivos del usuario y proporciona la interfaz de usuario.</string>
   <string name="UPnPFrontendServer.ModelName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
