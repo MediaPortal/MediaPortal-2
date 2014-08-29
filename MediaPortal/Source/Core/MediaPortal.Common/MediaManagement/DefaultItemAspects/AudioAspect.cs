@@ -76,13 +76,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Enumeration of album artist name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUMARTISTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, false);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Enumeration of composer name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COMPOSERS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, false);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Encoding as string. TODO: Describe format.
