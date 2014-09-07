@@ -32,6 +32,8 @@ namespace MediaPortal.Plugins.OneTrueError
   {
     private readonly ILogger _logger;
 
+    private const LogLevel MIN_REPORT_LEVEL = LogLevel.Information;
+
     /// <summary>
     /// Creates a new <see cref="ErrorLogWrapper"/> instance and initializes it with the given <paramref name="parentLogger"/>.
     /// All logging calls that contain an exception will be reported.
@@ -66,7 +68,8 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Debug(string format, Exception ex, params object[] args)
     {
       _logger.Debug(format, ex, args);
-      OneTrue.Report(ex, TryFormat(format, args));
+      if (MIN_REPORT_LEVEL >= LogLevel.Debug)
+        OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Info(string format, params object[] args)
@@ -77,7 +80,8 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Info(string format, Exception ex, params object[] args)
     {
       _logger.Info(format, ex, args);
-      OneTrue.Report(ex, TryFormat(format, args));
+      if (MIN_REPORT_LEVEL >= LogLevel.Information)
+        OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Warn(string format, params object[] args)
@@ -88,7 +92,8 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Warn(string format, Exception ex, params object[] args)
     {
       _logger.Warn(format, ex, args);
-      OneTrue.Report(ex, TryFormat(format, args));
+      if (MIN_REPORT_LEVEL >= LogLevel.Warning)
+        OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Error(string format, params object[] args)
@@ -99,13 +104,15 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Error(string format, Exception ex, params object[] args)
     {
       _logger.Error(format, ex, args);
-      OneTrue.Report(ex, TryFormat(format, args));
+      if (MIN_REPORT_LEVEL >= LogLevel.Error)
+        OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Error(Exception ex)
     {
       _logger.Error("", ex);
-      OneTrue.Report(ex);
+      if (MIN_REPORT_LEVEL >= LogLevel.Error)
+        OneTrue.Report(ex);
     }
 
     public void Critical(string format, params object[] args)
@@ -116,13 +123,15 @@ namespace MediaPortal.Plugins.OneTrueError
     public void Critical(string format, Exception ex, params object[] args)
     {
       _logger.Critical(format, ex, args);
-      OneTrue.Report(ex, TryFormat(format, args));
+      if (MIN_REPORT_LEVEL >= LogLevel.Critical)
+        OneTrue.Report(ex, TryFormat(format, args));
     }
 
     public void Critical(Exception ex)
     {
       _logger.Critical("", ex);
-      OneTrue.Report(ex);
+      if (MIN_REPORT_LEVEL >= LogLevel.Critical)
+        OneTrue.Report(ex);
     }
 
     #endregion
