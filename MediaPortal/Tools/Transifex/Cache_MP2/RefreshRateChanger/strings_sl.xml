@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Omogoči spremembo hitrosti osveževanja</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Če je omogočeno se poskusi sprememba hitrosti osveževanja za ujemanje s fps.</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Izključi hitrosti osveževanja</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Izključi seznam hitrosti osveževanja za spremembe. Vnesi vrednosti kot števila ločena z vejicami (npr. 23,25,50). </string>
+</resources>

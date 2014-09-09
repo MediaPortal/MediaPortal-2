@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Trakt.Enable">Omogoči scrobbling</string>
+  <string name="Trakt.UsernamePasswordGroup">Podrobnosti računa</string>
+  <string name="Trakt.Username">Up. ime</string>
+  <string name="Trakt.Password">Geslo</string>
+  <string name="Trakt.TestAccount">Preizkusi račun</string>
+  <string name="Trakt.SyncMovies">Sinhroniziranje filmov...</string>
+  <string name="Trakt.SyncSeries">Sinhroniziranje serij...</string>
+  <string name="Trakt.SyncFinished">Sinhronizacija je končana!</string>
+  <string name="Trakt.MediaLibraryNotConnected">Server trenutno ni povezan, ni mogoče sinhronizirati!</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">Nastavi Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Nastavi podrobnosti računa za Trakt.tv servis</string>
+</resources>

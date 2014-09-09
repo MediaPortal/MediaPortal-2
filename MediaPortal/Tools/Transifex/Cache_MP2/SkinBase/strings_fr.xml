@@ -198,6 +198,7 @@
   <string name="SharesConfig.AddLocalShare">Ajouter un client  de source de médias</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Mise à jour de la source de médias</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Le fournisseur de ressource et/ou le chemin d\'accès ont été mis à jour.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La bibliothèque d\'informations sur les fichiers multimédias concernant cette source de médias peut être mise à jour (déplacée) effacée ou ré-importée.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Voulez vous déplacer ou effacer et ré-importer ?</string>
   <string name="SharesConfig.Relocate">Déplacer</string>
   <string name="SharesConfig.ReImport">Ré-importer</string>
