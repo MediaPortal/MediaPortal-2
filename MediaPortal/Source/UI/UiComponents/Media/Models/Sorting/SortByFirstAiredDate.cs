@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       MediaItemAspect seriesAspectX;
       MediaItemAspect seriesAspectY;
-      if (x.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectX) && y.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectY))
+      if (MediaItemAspect.TryGetAspect(x.Aspects, SeriesAspect.Metadata, out seriesAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, SeriesAspect.Metadata, out seriesAspectY))
       {
         DateTime? firstAiredX = (DateTime?) seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);
         DateTime? firstAiredY = (DateTime?) seriesAspectY.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);

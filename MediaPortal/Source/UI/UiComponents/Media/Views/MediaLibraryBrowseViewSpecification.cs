@@ -146,8 +146,10 @@ namespace MediaPortal.UiComponents.Media.Views
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {
-          MediaItemAspect ma = childDirectory.Aspects[MediaAspect.ASPECT_ID];
-          MediaItemAspect pra = childDirectory.Aspects[ProviderResourceAspect.ASPECT_ID];
+          MediaItemAspect ma = null;
+          MediaItemAspect.TryGetAspect(childDirectory.Aspects, MediaAspect.Metadata, out ma);
+          MediaItemAspect pra = null;
+          MediaItemAspect.TryGetAspect(childDirectory.Aspects, ProviderResourceAspect.Metadata, out pra);
           MediaLibraryBrowseViewSpecification subViewSpecification = new MediaLibraryBrowseViewSpecification(
               (string) ma.GetAttributeValue(MediaAspect.ATTR_TITLE), childDirectory.MediaItemId,
               (string) pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),

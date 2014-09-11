@@ -239,7 +239,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                     if (attributeValues != null && attributeValues.TryGetValue(attr, out attrValues))
                       mia.SetCollectionAttribute(attr, attrValues);
                   }
-                mediaItem.Aspects[miam.AspectId] = mia;
+                MediaItemAspect.AddAspect(mediaItem.Aspects, miam, mia);
               }
               result.Add(mediaItem);
             }
@@ -341,7 +341,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                     if (complexAttributeValues.TryGetValue(attr, out attrValues))
                       mia.SetCollectionAttribute(attr, attrValues);
                   }
-                result.Aspects[miam.AspectId] = mia;
+                MediaItemAspect.AddAspect(result.Aspects, miam, mia);
               }
             }
             return result;

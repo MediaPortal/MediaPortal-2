@@ -82,7 +82,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained movie information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, MediaItemAspect> aspectData)
+    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (!string.IsNullOrEmpty(MovieName))
       {

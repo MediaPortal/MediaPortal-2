@@ -109,9 +109,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           MediaItemAspect directoryAspect;
           // ReSharper disable once PossibleInvalidOperationException
+          // TODO: REFACTOR THIS - do not assume mi has a provider resource aspect
           path2LastImportDate = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
-            .Where(mi => !mi.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out directoryAspect))
-            .ToDictionary(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)), mi => mi[ImporterAspect.ASPECT_ID].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+            .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect))
+            .ToDictionary(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID][0].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)), mi => mi[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
           await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
         }
 

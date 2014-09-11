@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
     {}
-    public LiveTvMediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
+    public LiveTvMediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
       : base(mediaItemId, aspects)
     { }
 
@@ -98,7 +98,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        _aspects[mia.Metadata.AspectId] = mia;
+        MediaItemAspect.AddAspect(_aspects, mia.Metadata, mia);
       }
       reader.ReadEndElement(); // MI
     }

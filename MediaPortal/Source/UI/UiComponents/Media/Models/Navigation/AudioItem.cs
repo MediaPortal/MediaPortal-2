@@ -43,7 +43,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       MediaItemAspect audioAspect;
-      if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
       {
         IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>)audioAspect[AudioAspect.ATTR_ARTISTS];
         string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);

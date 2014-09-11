@@ -261,7 +261,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
       flipX = false;
       flipY = false;
       MediaItemAspect imageAspect;
-      if (mediaItem != null && mediaItem.Aspects.TryGetValue(ASPECT_ID, out imageAspect))
+      if (mediaItem != null && MediaItemAspect.TryGetAspect(mediaItem.Aspects, Metadata, out imageAspect))
       {
         int orientationInfo = (int) imageAspect[ATTR_ORIENTATION];
         return (OrientationToRotation(orientationInfo, out rotation) &&

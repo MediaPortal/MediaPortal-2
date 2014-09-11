@@ -368,11 +368,12 @@ namespace MediaPortal.Common.Services.MediaManagement
       const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
-      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;
-      resultHandler.UpdateMediaItem(parentDirectoryId, path, aspects.Values);
+      foreach(IList<MediaItemAspect> value in aspects.Values)
+        resultHandler.UpdateMediaItem(parentDirectoryId, path, value);
       resultHandler.DeleteUnderPath(path);
       return true;
     }
@@ -411,7 +412,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (directoryItem != null)
       {
         MediaItemAspect da;
-        if (!directoryItem.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out da))
+        if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out da))
         { // This is the case if the path was formerly imported as a non-directory media item; we cannot reuse it
           resultHandler.DeleteMediaItem(directoryPath);
           directoryItem = null;
@@ -472,7 +473,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION))
           {
             MediaItemAspect providerResourceAspect;
-            if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerResourceAspect))
+            if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
               path2Item[providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
           }
         }
@@ -490,7 +491,7 @@ namespace MediaPortal.Common.Services.MediaManagement
                 MediaItem mediaItem;
                 if (importJob.JobType == ImportJobType.Refresh &&
                     path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
-                    mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
+                    MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImporterAspect.Metadata, out importerAspect) &&
                     importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
                 { // We can skip this file; it was imported after the last change time of the item
                   path2Item.Remove(serializedFilePath);

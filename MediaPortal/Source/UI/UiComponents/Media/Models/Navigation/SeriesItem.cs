@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       base.Update(mediaItem);
       SeriesInfo seriesInfo = new SeriesInfo();
       MediaItemAspect seriesAspect;
-      if (!mediaItem.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect))
+      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, SeriesAspect.Metadata, out seriesAspect)) 
         return;
 
       Series = seriesInfo.Series = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
