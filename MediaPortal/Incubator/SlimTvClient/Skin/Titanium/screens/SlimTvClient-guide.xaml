@@ -24,7 +24,6 @@
           
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
-          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
           
@@ -53,7 +52,7 @@
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
          
-        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+        <ListView  Grid.Column="0" Grid.Row="1"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
@@ -63,7 +62,7 @@
           </ListView.Resources>
         </ListView>
 
-        <GroupBox  Grid.Column="2" Grid.Row="1" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+        <GroupBox  Grid.Column="1" Grid.Row="1" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
