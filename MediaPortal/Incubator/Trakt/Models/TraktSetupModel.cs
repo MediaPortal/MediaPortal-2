@@ -350,7 +350,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
     private static bool IsWatched(MediaItem mediaItem)
     {
       int playCount;
-      return (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, out playCount) && playCount > 0);
+      return (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out playCount) && playCount > 0);
     }
 
     private static int SafeCount(IList list)

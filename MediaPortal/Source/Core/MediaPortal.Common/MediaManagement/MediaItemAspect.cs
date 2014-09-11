@@ -450,7 +450,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
     /// <param name="attributeSpecification">Type of the attribute to read.</param>
     /// <param name="value">Returns the value.</param>
-    /// <returns><c>true</c> if value exists.</returns>
+    /// <returns><c>true</c> if value exists and is not null.</returns>
     public static bool TryGetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
         MediaItemAspectMetadata.AttributeSpecification attributeSpecification, out TE value)
     {
@@ -463,6 +463,30 @@ namespace MediaPortal.Common.MediaManagement
       object attribute = mediaAspect[attributeSpecification];
       if (attribute == null)
         return false;
+
+      value = (TE) attribute;
+      return true;
+    }
+
+    /// <summary>
+    /// Convenience method to get a simple attribute in a dictionary of media item aspects.
+    /// </summary>
+    /// <typeparam name="TE">Type parameter.</typeparam>
+    /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
+    /// <param name="attributeSpecification">Type of the attribute to read.</param>
+    /// <param name="defaultValue">If the attribute is {null} this value will be returned.</param>
+    /// <param name="value">Returns the value.</param>
+    /// <returns><c>true</c> if value exists or a null value was substituted by <paramref name="defaultValue"/>.</returns>
+    public static bool TryGetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
+        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, TE defaultValue, out TE value)
+    {
+      value = default(TE);
+      MediaItemAspect mediaAspect;
+      Guid aspectId = attributeSpecification.ParentMIAM.AspectId;
+      if (!aspectData.TryGetValue(aspectId, out mediaAspect))
+        return false;
+
+      object attribute = mediaAspect[attributeSpecification] ?? defaultValue;
 
       value = (TE) attribute;
       return true;

@@ -133,7 +133,7 @@ namespace MediaPortal.UI.Services.Players
 
       // Update loaded item also, so changes will be visible in GUI without reloading
       int currentPlayCount;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, out currentPlayCount))
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount))
       {
         MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, ++currentPlayCount);
         ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
