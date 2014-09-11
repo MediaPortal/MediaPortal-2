@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -91,7 +92,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         // ReSharper disable once PossibleInvalidOperationException
-        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.Aspects.Values);
+        foreach (IList<MediaItemAspect> value in importResource.Aspects.Values)
+          await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, value);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
           if(importResource.IsSingleResource)

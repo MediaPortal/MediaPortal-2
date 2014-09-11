@@ -138,7 +138,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       if (directoryItem != null)
       {
         MediaItemAspect directoryAspect;
-        if (!directoryItem.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out directoryAspect))
+        if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out directoryAspect))
         {
           // This is the case if the parentResourcePath was formerly imported as a single resource.
           // We cannot reuse it and it is necessary to delete this old MediaItem.

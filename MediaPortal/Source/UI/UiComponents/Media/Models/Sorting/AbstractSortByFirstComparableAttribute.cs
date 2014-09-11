@@ -43,8 +43,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       MediaItemAspect aspectX;
       MediaItemAspect aspectY;
-      Guid aspectId = _attr.ParentMIAM.AspectId;
-      if (x.Aspects.TryGetValue(aspectId, out aspectX) && y.Aspects.TryGetValue(aspectId, out aspectY))
+      MediaItemAspectMetadata metadata = _attr.ParentMIAM;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
       {
         List<string> valuesX = new List<string>(aspectX.GetCollectionAttribute<string>(_attr));
         valuesX.Sort();

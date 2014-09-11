@@ -199,7 +199,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, MediaItemAspect> aspectData)
+    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (!IsCompleteMatch)
         return false;

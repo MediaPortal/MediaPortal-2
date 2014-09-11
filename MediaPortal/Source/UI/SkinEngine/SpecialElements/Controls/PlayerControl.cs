@@ -518,13 +518,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
 
         MediaItemAspect mediaAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
           mediaAspect = null;
         MediaItemAspect videoAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
           videoAspect = null;
         MediaItemAspect audioAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
           audioAspect = null;
 
         if (player == null)
@@ -592,7 +592,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           else
           {
             MediaItemAspect nextMediaAspect;
-            if (nextMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out nextMediaAspect))
+            if (MediaItemAspect.TryGetAspect(nextMediaItem.Aspects, MediaAspect.Metadata, out nextMediaAspect))
             {
               NextMediaItemTitle = nextMediaAspect[MediaAspect.ATTR_TITLE] as string;
               HasNextMediaItem = !string.IsNullOrEmpty(NextMediaItemTitle);

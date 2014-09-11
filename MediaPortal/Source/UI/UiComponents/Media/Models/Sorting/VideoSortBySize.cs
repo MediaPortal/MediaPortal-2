@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       MediaItemAspect videoAspectX;
       MediaItemAspect videoAspectY;
-      if (item1.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspectX) && item2.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspectY))
+      if (MediaItemAspect.TryGetAspect(item1.Aspects, VideoAspect.Metadata, out videoAspectX) && MediaItemAspect.TryGetAspect(item2.Aspects, VideoAspect.Metadata, out videoAspectY))
       {
         int? x = (int?) videoAspectX.GetAttributeValue(VideoAspect.ATTR_WIDTH);
         int? y = (int?) videoAspectX.GetAttributeValue(VideoAspect.ATTR_HEIGHT);

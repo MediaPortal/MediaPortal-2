@@ -291,7 +291,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     public void Init(MediaItem mediaItem)
     {
       MediaItemAspect aspect;
-      if (mediaItem == null || !mediaItem.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out aspect))
+      if (mediaItem == null || !MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out aspect))
       {
         SetEmpty();
         return;

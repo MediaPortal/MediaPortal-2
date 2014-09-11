@@ -297,7 +297,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
         MediaItemAspect imageAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, ImageAspect.Metadata, out imageAspect))
           imageAspect = null;
 
         if (imageAspect == null)

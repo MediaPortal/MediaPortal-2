@@ -75,13 +75,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     private static LiveTvMediaItem.LiveTvMediaItem CreateCommonMediaItem(int slotIndex, string path, bool isTv)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       MediaItemAspect providerResourceAspect;
       MediaItemAspect mediaAspect;
 
       SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
-      aspects[ProviderResourceAspect.ASPECT_ID] = providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
-      aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
+      MediaItemAspect.AddAspect(aspects, ProviderResourceAspect.Metadata, providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata));
+      MediaItemAspect.AddAspect(aspects, MediaAspect.Metadata, mediaAspect = new MediaItemAspect(MediaAspect.Metadata));
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
@@ -92,14 +92,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       if (isTv)
       {
         // VideoAspect needs to be included to associate VideoPlayer later!
-        aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
+        MediaItemAspect.AddAspect(aspects, VideoAspect.Metadata, new MediaItemAspect(VideoAspect.Metadata));
         title = "Live TV";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
       }
       else
       {
         // AudioAspect needs to be included to associate an AudioPlayer later!
-        aspects[AudioAspect.ASPECT_ID] = new MediaItemAspect(AudioAspect.Metadata);
+        MediaItemAspect.AddAspect(aspects, AudioAspect.Metadata, new MediaItemAspect(AudioAspect.Metadata));
         title = "Live Radio";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }

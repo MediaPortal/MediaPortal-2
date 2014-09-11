@@ -994,7 +994,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
       if (item == null)
         return;
-      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
+      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID][0];
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
       int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);

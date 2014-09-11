@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       MediaItemAspect videoAspect;
-      if (mediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
       {
         long? duration = (long?)videoAspect[VideoAspect.ATTR_DURATION];
         SimpleTitle = Title;
