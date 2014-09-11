@@ -278,13 +278,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void UpdateProgramsForGroup()
     {
       if (
-        _bufferGroupIndex != ChannelContext.Channels.CurrentIndex || /* Group changed */
+        _bufferGroupIndex != ChannelContext.ChannelGroups.CurrentIndex || /* Group changed */
         _bufferStartTime == DateTime.MinValue || _bufferEndTime == DateTime.MinValue || /* Buffer not set */
         GuideStartTime < _bufferStartTime || GuideStartTime > _bufferEndTime || /* Cache is out of request range */
         GuideEndTime < _bufferStartTime || GuideEndTime > _bufferEndTime
         )
       {
-        _bufferGroupIndex = ChannelContext.Channels.CurrentIndex;
+        _bufferGroupIndex = ChannelContext.ChannelGroups.CurrentIndex;
         _bufferStartTime = GuideStartTime.AddHours(-_bufferHours);
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
         IChannelGroup group = CurrentChannelGroup;
