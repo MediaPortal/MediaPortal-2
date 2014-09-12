@@ -290,7 +290,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
           series.IMDBID = value;
 
         if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out iValue))
-          series.TVDBID = iValue.ToString();
+          series.SeriesID = iValue.ToString();
 
         if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
           series.Title = value;

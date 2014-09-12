@@ -5,9 +5,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
   [DataContract]
   public class TraktEpisodeScrobble : AbstractScrobble
   {
-    [DataMember(Name = "tvdb_id")]
-    public string TVDBID { get; set; }
-
     [DataMember(Name = "season")]
     public string Season { get; set; }
 
