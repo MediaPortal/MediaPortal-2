@@ -23,8 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
@@ -39,9 +40,9 @@ namespace MediaPortal.UiComponents.Media.Extensions
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("Caption", itemData);
-      BuilderHelper.CheckParameter("Sort", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("Caption");
+      itemData.CheckParameter("Sort");
       return new MediaItemActionExtension(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Caption"], itemData.Attributes["Sort"], itemData.Id);
     }
 
@@ -57,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Extensions
 
     #endregion
   }
-  
+
   /// <summary>
   /// <see cref="MediaItemActionExtension"/> holds extension metadata.
   /// </summary>
