@@ -4,6 +4,7 @@
     PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}"
     Author="Morpheus_xx"
     Copyright="GPL"
+    AutoActivate="true"
     Description="Provides Client access to Fanart stored in MP2 Server"
     PluginVersion="1.0">
 
