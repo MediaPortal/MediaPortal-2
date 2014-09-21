@@ -1019,9 +1019,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             // it won't be used as next focus element
             continue;
           float distance = BorderDistance(child.ActualBounds, currentFocusRect.Value);
-          if (bestMatch == null || distance < bestDistance ||
-            distance == bestDistance && topOrLeftDifference < bestTopOrLeftDifference
-            /* || topOrLeftDifference == bestTopOrLeftDifference && centerDistance < bestCenterDistance*/)
+          if (bestMatch == null || (distance < bestDistance && topOrLeftDifference < 0)
+            || (topOrLeftDifference < bestTopOrLeftDifference && (distance == bestDistance || bestTopOrLeftDifference >= 0))
+            /*|| topOrLeftDifference == bestTopOrLeftDifference && centerDistance < bestCenterDistance*/)
           {
             bestMatch = child;
             bestDistance = distance;
@@ -1057,6 +1057,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
       float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
       return (float) Math.Sqrt(distX * distX + distY * distY);
+    }
+
+    /// <summary>
+    /// Calculates the horizontal distance from <paramref name="r1"/> to <paramref name="r2"/>.
+    /// </summary>
+    /// <param name="r1"></param>
+    /// <param name="r2"></param>
+    /// <returns>Horizontal distance, negative if there is an overlap.</returns>
+    protected static float HorizontalDistance(RectangleF r1, RectangleF r2)
+    {
+      if (r1.Right <= r2.Left)
+        return r2.Left - r1.Right;
+      if (r1.Left >= r2.Right)
+        return r1.Left - r2.Right;
+      if (r1.Left < r2.Left && r1.Right < r2.Right)
+        return r2.Left - r1.Right;
+      if (r1.Right > r2.Right && r1.Left > r2.Left)
+        return r1.Left - r2.Right;
+      return -r1.Width;
+    }
+
+    /// <summary>
+    /// Calculates the vertical distance from <paramref name="r1"/> to <paramref name="r2"/>.
+    /// </summary>
+    /// <param name="r1"></param>
+    /// <param name="r2"></param>
+    /// <returns>Vertical distance, negative if there is an overlap.</returns>
+    protected static float VerticalDistance(RectangleF r1, RectangleF r2)
+    {
+      if (r1.Bottom <= r2.Top)
+        return r2.Top - r1.Bottom;
+      if (r1.Top >= r2.Bottom)
+        return r1.Top - r2.Bottom;
+      if (r1.Top < r2.Top && r1.Bottom < r2.Bottom)
+        return r2.Top - r1.Bottom;
+      if (r1.Bottom > r2.Bottom && r1.Top > r2.Top)
+        return r1.Top - r2.Bottom;
+      return -r1.Height;
     }
 
     protected PointF GetCenterPosition(RectangleF rect)
@@ -1101,7 +1139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
       PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Bottom);
       float alpha = CalcDirection(start, end);
-      topOrLeftDifference = Math.Abs(actualBounds.Left - otherRect.Left);
+      topOrLeftDifference = HorizontalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Left - otherRect.Left);
       return isNear || alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
     }
 
@@ -1112,8 +1150,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
       PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
       float alpha = CalcDirection(start, end);
-      topOrLeftDifference = Math.Abs(actualBounds.Left - otherRect.Left);
-      return isNear|| alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
+      topOrLeftDifference = HorizontalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Left - otherRect.Left);
+      return isNear || alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
     }
 
     protected bool LocatedLeftOf(RectangleF otherRect, out float topOrLeftDifference)
@@ -1123,7 +1161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
       PointF end = new PointF(otherRect.Left, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
-      topOrLeftDifference = Math.Abs(actualBounds.Top - otherRect.Top);
+      topOrLeftDifference = VerticalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Top - otherRect.Top);
       return isNear || alpha < Math.PI / 2 - DELTA_DOUBLE || alpha > 3 * Math.PI / 2 + DELTA_DOUBLE;
     }
 
@@ -1134,7 +1172,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
       PointF end = new PointF(otherRect.Right, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
-      topOrLeftDifference = Math.Abs(actualBounds.Top - otherRect.Top);
+      topOrLeftDifference = VerticalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Top - otherRect.Top);
       return isNear || alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
     }
 
