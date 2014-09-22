@@ -28,8 +28,8 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetService(REFGUID guidService, RE
 
   CheckPointer(ppvObject, E_POINTER);
 
-  // The only service GUID that we support is MR_VIDEO_RENDER_SERVICE.
-  if (guidService != MR_VIDEO_RENDER_SERVICE)
+  // The only service GUIDs that we support are MR_VIDEO_RENDER_SERVICE and MR_VIDEO_ACCELERATION_SERVICE for DXVA2 support.
+  if (guidService != MR_VIDEO_RENDER_SERVICE && guidService != MR_VIDEO_ACCELERATION_SERVICE)
   {
     return MF_E_UNSUPPORTED_SERVICE;
   }
