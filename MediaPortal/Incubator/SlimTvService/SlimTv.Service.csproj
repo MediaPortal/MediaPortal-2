@@ -120,7 +120,6 @@
     <None Include="Database\MP2TVE.s3db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="References\castle.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
