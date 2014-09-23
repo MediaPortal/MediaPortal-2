@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -241,15 +241,19 @@ Global
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Debug|x86.ActiveCfg = Debug|x86
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Debug|x86.Build.0 = Debug|x86
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Release|x86.ActiveCfg = Release|x86
+		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Release|x86.Build.0 = Release|x86
 		{28C12A71-3242-4969-ADB7-372828BDD665}.Debug|x86.ActiveCfg = Debug|x86
 		{28C12A71-3242-4969-ADB7-372828BDD665}.Debug|x86.Build.0 = Debug|x86
 		{28C12A71-3242-4969-ADB7-372828BDD665}.Release|x86.ActiveCfg = Release|x86
+		{28C12A71-3242-4969-ADB7-372828BDD665}.Release|x86.Build.0 = Release|x86
 		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Debug|x86.ActiveCfg = Debug|x86
 		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Debug|x86.Build.0 = Debug|x86
 		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Release|x86.ActiveCfg = Release|x86
+		{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}.Release|x86.Build.0 = Release|x86
 		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Debug|x86.ActiveCfg = Debug|x86
 		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Debug|x86.Build.0 = Debug|x86
 		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Release|x86.ActiveCfg = Release|x86
+		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Release|x86.Build.0 = Release|x86
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}.Debug|x86.ActiveCfg = Debug|x86
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}.Debug|x86.Build.0 = Debug|x86
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}.Release|x86.ActiveCfg = Release|x86
@@ -281,6 +285,7 @@ Global
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.ActiveCfg = Debug|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.Build.0 = Debug|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.ActiveCfg = Release|x86
+		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
