@@ -165,11 +165,15 @@
     <ClInclude Include="EVRPresenter.h" />
     <ClInclude Include="IEVRCallback.h" />
     <ClInclude Include="MediaType.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Scheduler.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EVRPresenter.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EVRPresenter.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

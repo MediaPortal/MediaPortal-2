@@ -48,7 +48,7 @@ void Log(const char *fmt, ...)
   {
     SYSTEMTIME systemTime;
     GetLocalTime(&systemTime);
-    fprintf(fp, "%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d.%03.3d [%x] %s\n",
+    fprintf(fp, "%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d.%03.3d [%04x] %s\n",
       systemTime.wYear, systemTime.wMonth, systemTime.wDay,
       systemTime.wHour, systemTime.wMinute, systemTime.wSecond,
       systemTime.wMilliseconds,

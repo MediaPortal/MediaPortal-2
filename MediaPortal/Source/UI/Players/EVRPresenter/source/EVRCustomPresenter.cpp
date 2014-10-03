@@ -69,6 +69,10 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
   HRESULT hr;
   *ppPresenterInstance = NULL;
 
+  Log("*********************************************************");
+  Log("  Initializing MP2 EVR custom presenter version 2.0.0.0  ");
+  Log("*********************************************************");
+
   // Set IMFVideoRenderer Interface
   CComQIPtr<IMFVideoRenderer> pVideoRenderer = evrFilter;
   if (!pVideoRenderer)
