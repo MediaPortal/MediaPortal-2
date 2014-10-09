@@ -53,6 +53,9 @@
     <Model Id="56B6B935-8972-48C2-811A-BF150A1F8F09" Name="SwitchBrowseModeContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchBrowseModeAction"/>
 
     <Model Id="8573DBD8-A257-426a-9875-9DB155D32D47" Name="ExtendedVideoSkip" ClassName="MediaPortal.UiComponents.Media.Models.ExtendedVideoSkip" />
+
+    <Model Id="E1752E49-67FE-4D94-8544-1134CC3DCD87" Name="LatestMediaModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LatestMediaAction" />
+    <Model Id="11193401-D85D-4D50-9825-E9EB34D87062" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LatestMediaModel" />
   </Register>
 
   <Register Location="/Workflow/States">
@@ -92,6 +95,12 @@
         Name="ImagesNavigation-Root"
         DisplayLabel="[Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
+    <WorkflowState Id="60CD1874-1752-4486-9DF1-82B7BDF635A6"
+        Name="LatestMedia"
+        MainScreen="LatestMedia"
+        DisplayLabel="[Media.LatestMediaWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="11193401-D85D-4D50-9825-E9EB34D87062"/> <!-- Workflow model = Latest Media model -->
 
     <!-- MediaItemActions -->
 

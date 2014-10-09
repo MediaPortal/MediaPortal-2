@@ -39,6 +39,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT = "30F57CBA-459C-4202-A587-09FFF5098251";
     public const string STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT = "312016AA-3DF6-4C1D-B8F7-44D34C456FFE";
 
+    public const string STR_WF_STATE_ID_LATEST_MEDIA = "60CD1874-1752-4486-9DF1-82B7BDF635A6";
+
     public const string STR_WF_STATE_ID_ADD_TO_PLAYLIST = "76CDF664-F49C-40a4-8108-E478AB199595";
 
     public const string STR_WF_STATE_ID_AUDIO_CURRENTLY_PLAYING = "4596B758-CE2B-4e31-9CB9-6C30215831ED";
@@ -76,6 +78,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_IMAGES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_SERIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_MOVIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT);
+
+    public static readonly Guid WF_STATE_ID_LATEST_MEDIA = new Guid(STR_WF_STATE_ID_LATEST_MEDIA);
 
     public static readonly Guid WF_STATE_ID_CURRENTLY_PLAYING_VIDEO = new Guid(STR_WF_STATE_ID_CURRENTLY_PLAYING_VIDEO);
     public static readonly Guid WF_STATE_ID_FULLSCREEN_VIDEO = new Guid(STR_WF_STATE_ID_FULLSCREEN_VIDEO);
@@ -235,6 +239,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGES_MENU_ITEM = "[Media.ImagesMenuItem]";
     public const string RES_SERIES_MENU_ITEM = "[Media.SeriesMenuItem]";
     public const string RES_SERIES_SEASON_MENU_ITEM = "[Media.SeriesSeasonMenuItem]";
+    public const string RES_LATEST_MEDIA_MENU_ITEM = "[Media.LatestMediaMenuItem]";
+
     public const string RES_ADD_TO_PLAYLIST_MENU_ITEM = "[Media.ManagePlaylists]";
     public const string RES_SAVE_PLAYLIST = "[Media.SavePlaylistAction]";
     public const string RES_SAVE_CURRENT_PLAYLIST = "[Media.SaveCurrentPlaylistAction]";

@@ -43,6 +43,12 @@
         SortOrder="f"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="7190C5BB-430E-48be-A6B2-C651A840C54A"/> <!-- Images action -->
+    <WorkflowContributorAction Id="7D68C459-EE9B-4EAA-AE2C-C2C365139AEE"
+        Name="Home->Latest Media"
+        DisplayCategory="a-Media"
+        SortOrder="g"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="E1752E49-67FE-4D94-8544-1134CC3DCD87"/> <!-- Latest media action -->
     <WorkflowContributorAction Id="69283181-C137-493B-891C-F95DA99C9AC6"
         Name="*->SwitchBrowseLocalML"
         DisplayCategory="a0-Media"

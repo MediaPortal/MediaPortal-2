@@ -8,6 +8,7 @@
   <string name="Media.SeriesMenuItem">Series</string>
   <string name="Media.MoviesMenuItem">Movies</string>
   <string name="Media.ImagesMenuItem">Images</string>
+  <string name="Media.LatestMediaMenuItem">Latest media</string>
 
   <!-- Filter titles -->
   <string name="Media.FilterByArtistMenuItem">Filter by artist</string>
@@ -82,6 +83,7 @@
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Series library</string>
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Movies library</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Image library</string>
+  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Latest media</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Fullscreen video</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current audio</string>

@@ -91,6 +91,7 @@
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
+    <Compile Include="Actions\LatestMediaAction.cs" />
     <Compile Include="Actions\SwitchBrowseModeAction.cs" />
     <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
+    <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
@@ -383,7 +385,11 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\default\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
