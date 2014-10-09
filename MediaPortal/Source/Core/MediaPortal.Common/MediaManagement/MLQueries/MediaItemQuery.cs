@@ -55,7 +55,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _attributeType = value; }
     }
 
-    [XmlIgnore]
     public SortDirection Direction
     {
       get { return _sortDirection; }
