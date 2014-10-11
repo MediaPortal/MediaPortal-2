@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -51,7 +52,7 @@ namespace MediaPortal.Database.SQLite
   /// (such as MSSQLCE with a maximum database size of 2GB). The limitations of SQLite are much less
   /// restrictive (e.g. a maximum database size of about 140TB, for details see http://www.sqlite.org/limits.html)
   /// </remarks>
-  public class SQLiteDatabase : ISQLDatabase, IDisposable
+  public class SQLiteDatabase : ISQLDatabasePaging, IDisposable
   {
     #region Constants
 
@@ -501,6 +502,18 @@ namespace MediaPortal.Database.SQLite
       // a TEXT value and SQLite refuses to convert TEXT to INT without an
       // explicit CAST.
       return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
+    }
+
+    public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref int? offset, ref int? limit)
+    {
+      if (!offset.HasValue && !limit.HasValue)
+        return false;
+
+      string limitClause = string.Format(" LIMIT {0}, {1}", offset ?? 0, limit);
+      statementStr += limitClause;
+      offset = null; // To avoid manual processing by caller
+      limit = null; // To avoid manual processing by caller
+      return true;
     }
 
     #endregion

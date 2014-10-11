@@ -563,6 +563,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemQuery executeQuery = filterOnlyOnline ? new MediaItemQuery(
               query.NecessaryRequestedMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}),
               query.OptionalRequestedMIATypeIDs, AddOnlyOnlineFilter(query.Filter)) : query;
+      executeQuery.Limit = query.Limit;
+      executeQuery.Offset = query.Offset;
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = cmiq.QueryList();
       IList<MediaItem> result = new List<MediaItem>(items.Count);
