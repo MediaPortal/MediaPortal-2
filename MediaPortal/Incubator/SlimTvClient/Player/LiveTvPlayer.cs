@@ -159,7 +159,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       Resume();
 
       // Clear any subtitle that might be currently displayed
-      _subtitleRenderer.Reset();
+      if (_subtitleRenderer != null)
+        _subtitleRenderer.Reset();
       EnumerateStreams(true);
       EnumerateChapters(true);
       SetPreferredSubtitle();
