@@ -49,8 +49,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected readonly IFilter _filter;
-    protected int? _offset;
-    protected int? _limit;
+    protected uint? _offset;
+    protected uint? _limit;
 
     protected readonly IList<SortInformation> _sortInformation;
 
@@ -61,8 +61,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
         IFilter filter, IList<SortInformation> sortInformation,
-        int? limit = null,
-        int? offset = null)
+        uint? limit = null,
+        uint? offset = null)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -98,7 +98,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <summary>
     /// Optional offset to return items from a specific starting position from query.
     /// </summary>
-    public int? Offset
+    public uint? Offset
     {
       get { return _offset; }
     }
@@ -106,7 +106,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <summary>
     /// Optional limit to return only a specific number of items from query.
     /// </summary>
-    public int? Limit
+    public uint? Limit
     {
       get { return _limit; }
     }
@@ -239,9 +239,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
             var records = fullReader.AsEnumerable();
             if (_offset.HasValue)
-              records = records.Skip(_offset.Value);
+              records = records.Skip((int)_offset.Value);
             if (_limit.HasValue)
-              records = records.Take(_limit.Value);
+              records = records.Take((int)_limit.Value);
             foreach (var reader in records)
             {
               Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));

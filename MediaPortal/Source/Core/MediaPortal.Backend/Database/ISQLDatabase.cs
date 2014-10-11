@@ -234,6 +234,6 @@ namespace MediaPortal.Backend.Database
     /// <param name="offset">Reference to offset.</param>
     /// <param name="limit">Reference to limit.</param>
     /// <returns></returns>
-    bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref int? offset, ref int? limit);
+    bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit);
   }
 }

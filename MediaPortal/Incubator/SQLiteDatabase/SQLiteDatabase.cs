@@ -504,7 +504,7 @@ namespace MediaPortal.Database.SQLite
       return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
     }
 
-    public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref int? offset, ref int? limit)
+    public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit)
     {
       if (!offset.HasValue && !limit.HasValue)
         return false;
