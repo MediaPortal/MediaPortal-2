@@ -162,7 +162,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                         SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
                         if (model != null)
+                        {
                           model.Tune(channel);
+                          // Always switch to fullscreen
+                          workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+                        }
                       }
                     })
               });
