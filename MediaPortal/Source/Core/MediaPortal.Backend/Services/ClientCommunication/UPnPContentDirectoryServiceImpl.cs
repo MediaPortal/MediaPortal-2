@@ -656,6 +656,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp10GetMediaItemAspectMetadataAction);
 
+      DvAction mpnp10GetAllManagedMediaItemAspectCreationDatesAction = new DvAction("X_MediaPortal_GetAllManagedMediaItemAspectCreationDates", OnMPnP10GetAllManagedMediaItemAspectCreationDates,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("MIACreationDates", A_ARG_TYPE_DictionaryGuidDateTime, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp10GetAllManagedMediaItemAspectCreationDatesAction);
+
       // Media query
 
       DvAction mpnp10LoadItemAction = new DvAction("X_MediaPortal_LoadItem", OnMPnP10LoadItem,
@@ -1348,6 +1356,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       MediaItemAspectMetadata miam = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
       outParams = new List<object> {miam};
+      return null;
+    }
+
+    static UPnPError OnMPnP10GetAllManagedMediaItemAspectCreationDates(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IDictionary<Guid, DateTime> result = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectCreationDates();
+      outParams = new List<object> { result };
       return null;
     }
 

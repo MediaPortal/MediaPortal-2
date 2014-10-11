@@ -59,5 +59,6 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <returns>Dictionary with MIA IDs as keys and the respective creation dates as values</returns>
     IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates();
+
   }
 }
