@@ -30,9 +30,12 @@ using System.IO.Compression;
 using System.Linq;
 using System.Timers;
 using MediaPortal.Backend.Database;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -41,6 +44,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.Plugins.SlimTv.Service.Helpers;
 using Mediaportal.TV.Server.TVControl;
+using Mediaportal.TV.Server.TVControl.Events;
+using Mediaportal.TV.Server.TVControl.Interfaces.Events;
 using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVControl.ServiceAgents;
 using Mediaportal.TV.Server.TVDatabase.Entities;
@@ -63,7 +68,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 {
   public class SlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
-    const int MAX_WAIT_MS = 2000;
+    const int MAX_WAIT_MS = 10000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
     private TvServiceThread _tvServiceThread;
@@ -85,6 +90,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       _timer.Start();
       return true;
     }
+
+    #region Database and program data initialization
 
     private void InitAsync(object sender, ElapsedEventArgs args)
     {
@@ -115,8 +122,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
       _tvServiceThread.Start();
 
+      if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to start TV service thread within {0} seconds.", MAX_WAIT_MS / 1000);
+      }
+
       // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
       PrepareProgramData();
+
+      // Handle events from TvEngine
+      RegisterEvents();
     }
 
     /// <summary>
@@ -212,6 +227,64 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       return true;
     }
+
+    #endregion
+
+    #region Recordings / MediaLibrary synchronization
+
+    protected void RegisterEvents()
+    {
+      GlobalServiceProvider.Instance.Get<ITvServerEvent>().OnTvServerEvent += OnTvServerEvent;
+    }
+
+    protected void OnTvServerEvent(object sender, EventArgs eventArgs)
+    {
+      try
+      {
+        TvServerEventArgs tvEvent = (TvServerEventArgs)eventArgs;
+
+        if (tvEvent.EventType == TvServerEventType.RecordingEnded)
+        {
+          var recording = ServiceAgents.Instance.RecordingServiceAgent.GetRecording(tvEvent.Recording);
+          if (recording != null)
+          {
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Recording ended: {0}", recording.FileName);
+            ImportRecording(recording.FileName);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Exception while handling TvServerEvent", ex);
+      }
+    }
+
+    protected void ImportRecording(string fileName)
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+
+      List<Share> possibleShares = new List<Share>(); // Shares can point to different depth, we try to find the deepest one
+      foreach (var share in mediaLibrary.GetShares(systemResolver.LocalSystemId).Values)
+      {
+        var dir = LocalFsResourceProviderBase.ToDosPath(share.BaseResourcePath.LastPathSegment.Path);
+        if (dir != null && fileName.StartsWith(dir, StringComparison.InvariantCultureIgnoreCase))
+          possibleShares.Add(share);
+      }
+      if (possibleShares.Count == 0)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Received notifaction of new recording but could not find a media source. Have you added recordings folder as media source? File: {0}", fileName); 
+        return;
+      }
+
+      Share usedShare = possibleShares.OrderByDescending(s => s.BaseResourcePath.LastPathSegment.Path.Length).First();
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+      importerWorker.ScheduleImport(LocalFsResourceProviderBase.ToResourcePath(fileName), usedShare.MediaCategories, false);
+    }
+
+    #endregion
+
+    #region ITvProvider implementation
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
@@ -605,5 +678,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
+
+    #endregion
   }
 }
