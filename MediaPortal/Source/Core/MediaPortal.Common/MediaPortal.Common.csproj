@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\RelationshipAspect.cs" />
     <Compile Include="MediaManagement\Helpers\MovieInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
