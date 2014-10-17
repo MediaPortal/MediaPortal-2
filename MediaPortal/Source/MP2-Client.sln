@@ -180,6 +180,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Common", "..\Tests\Test.Common\Test.Common.csproj", "{80A1F03E-F333-420D-8C62-3FFEE778A47C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -454,6 +456,10 @@ Global
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.ActiveCfg = Debug|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.Build.0 = Debug|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.ActiveCfg = Release|x86
+		{80A1F03E-F333-420D-8C62-3FFEE778A47C}.Debug|x86.ActiveCfg = Debug|x86
+		{80A1F03E-F333-420D-8C62-3FFEE778A47C}.Debug|x86.Build.0 = Debug|x86
+		{80A1F03E-F333-420D-8C62-3FFEE778A47C}.Release|x86.ActiveCfg = Release|x86
+		{80A1F03E-F333-420D-8C62-3FFEE778A47C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -537,5 +543,6 @@ Global
 		{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{E73C038E-FD47-40AD-9256-4457316F8A97} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4} = {D7E79601-A62E-4193-892F-033F8E7C90BD}
+		{80A1F03E-F333-420D-8C62-3FFEE778A47C} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
 	EndGlobalSection
 EndGlobal
