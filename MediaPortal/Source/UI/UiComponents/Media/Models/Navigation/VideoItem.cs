@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MediaItemAspect videoAspect;
+      SingleMediaItemAspect videoAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
       {
         long? duration = (long?)videoAspect[VideoAspect.ATTR_DURATION];

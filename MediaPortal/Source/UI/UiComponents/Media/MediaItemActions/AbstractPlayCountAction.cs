@@ -28,7 +28,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
-using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -40,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     public override bool IsAvailable(MediaItem mediaItem)
     {
       int playCount;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, out playCount))
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out playCount))
         return false;
       if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
         return false;
@@ -61,10 +60,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, out parentDirectoryId))
         return false;
 
-      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
+	  MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
 
-      foreach (IList<MediaItemAspect> value in mediaItem.Aspects.Values)
-        cd.AddOrUpdateMediaItem(parentDirectoryId, rl.NativeSystemId, rl.NativeResourcePath, value);
+      cd.AddOrUpdateMediaItem(parentDirectoryId, rl.NativeSystemId, rl.NativeResourcePath, MediaItemAspect.GetAspects(mediaItem.Aspects));
 
       changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
       return true;

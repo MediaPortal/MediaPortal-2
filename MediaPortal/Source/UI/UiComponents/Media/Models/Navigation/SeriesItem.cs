@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       SeriesInfo seriesInfo = new SeriesInfo();
-      MediaItemAspect seriesAspect;
+      SingleMediaItemAspect seriesAspect;
       if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, SeriesAspect.Metadata, out seriesAspect)) 
         return;
 

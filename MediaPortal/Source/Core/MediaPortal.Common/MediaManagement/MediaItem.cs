@@ -67,9 +67,6 @@ namespace MediaPortal.Common.MediaManagement
     {
       _id = mediaItemId;
       _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
-      if (!_aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-        throw new ArgumentException(string.Format("Media items always have to contain the '{0}' aspect",
-            typeof(ProviderResourceAspect).Name));
     }
 
     public Guid MediaItemId
@@ -106,11 +103,11 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
     public IResourceLocator GetResourceLocator()
     {
-      IList<MediaItemAspect> providerAspect;
-      if (!_aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerAspect))
+      SingleMediaItemAspect providerAspect;
+      if (!MediaItemAspect.TryGetAspect(_aspects, ProviderResourceAspect.Metadata, out providerAspect))
         return null;
-      string systemId = (string) providerAspect[0][ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string) providerAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
@@ -149,7 +146,14 @@ namespace MediaPortal.Common.MediaManagement
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        MediaItemAspect.AddAspect(_aspects, mia.Metadata, mia);
+        if(mia is SingleMediaItemAspect)
+        {
+          MediaItemAspect.SetAspect(_aspects, (SingleMediaItemAspect)mia);
+        }
+        else if(mia is MultipleMediaItemAspect)
+        {
+          MediaItemAspect.AddAspect(_aspects, (MultipleMediaItemAspect)mia);
+        }
       }
       reader.ReadEndElement(); // MI
     }
@@ -157,8 +161,9 @@ namespace MediaPortal.Common.MediaManagement
     void IXmlSerializable.WriteXml(XmlWriter writer)
     {
       writer.WriteAttributeString("Id", _id.ToString("D"));
-      foreach (MediaItemAspect mia in _aspects.Values)
-        mia.Serialize(writer);
+      foreach (IList<MediaItemAspect> list in _aspects.Values)
+        foreach(MediaItemAspect mia in list)
+          mia.Serialize(writer);
     }
 
     public void Serialize(XmlWriter writer)

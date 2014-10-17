@@ -39,8 +39,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect seriesAspectX;
-      MediaItemAspect seriesAspectY;
+      SingleMediaItemAspect seriesAspectX;
+      SingleMediaItemAspect seriesAspectY;
       if (MediaItemAspect.TryGetAspect(x.Aspects, SeriesAspect.Metadata, out seriesAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, SeriesAspect.Metadata, out seriesAspectY))
       {
         DateTime? firstAiredX = (DateTime?) seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);

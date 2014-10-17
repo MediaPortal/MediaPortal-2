@@ -42,8 +42,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
+      SingleMediaItemAspect aspectX;
+      SingleMediaItemAspect aspectY;
 
       // Check audio
       if (!MediaItemAspect.TryGetAspect(x.Aspects, AudioAspect.Metadata, out aspectX))

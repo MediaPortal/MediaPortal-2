@@ -823,13 +823,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           mediaItemId = AddMediaItem(database, transaction);
 
-          MediaItemAspect pra = new MediaItemAspect(ProviderResourceAspect.Metadata);
+          MediaItemAspect pra = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
           pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
           pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
 
-          importerAspect = new MediaItemAspect(ImporterAspect.Metadata);
+          importerAspect = new SingleMediaItemAspect(ImporterAspect.Metadata);
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
         }
         else
@@ -988,7 +988,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
       if (item == null)
         return;
-      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID][0];
+      SingleMediaItemAspect mediaAspect;
+	    MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out mediaAspect);
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
       int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);

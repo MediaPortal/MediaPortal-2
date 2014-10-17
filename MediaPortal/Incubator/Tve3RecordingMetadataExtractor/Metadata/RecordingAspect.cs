@@ -42,22 +42,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.Aspects
     /// <summary>
     /// Channel name where the program was recorded.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CHANNEL =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Channel", 50, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHANNEL =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Channel", 50, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the recording start date and time.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STARTTIME =
-        MediaItemAspectMetadata.CreateAttributeSpecification("StartTime", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STARTTIME =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("StartTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the recording start date and time.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ENDTIME =
-        MediaItemAspectMetadata.CreateAttributeSpecification("EndTime", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENDTIME =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("EndTime", typeof(DateTime), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "RecordingItem", new[] {
             ATTR_CHANNEL,
             ATTR_STARTTIME,

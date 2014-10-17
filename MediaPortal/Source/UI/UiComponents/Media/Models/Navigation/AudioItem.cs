@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MediaItemAspect audioAspect;
+      SingleMediaItemAspect audioAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
       {
         IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>)audioAspect[AudioAspect.ATTR_ARTISTS];
