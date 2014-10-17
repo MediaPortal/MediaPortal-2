@@ -283,7 +283,8 @@ namespace MediaPortal.UI.Services.Workflow
         var action = workflowAction.Value;
         inputManager.AddKeyBinding(workflowAction.Key, () =>
         {
-          if (action.IsEnabled(null) && action.IsVisible(null))
+          IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+          if (action.IsEnabled(workflowManager.CurrentNavigationContext) && action.IsVisible(workflowManager.CurrentNavigationContext))
             action.Execute();
         });
       }
