@@ -277,7 +277,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public void Init(MediaItem mediaItem)
     {
-      MediaItemAspect aspect;
+      SingleMediaItemAspect aspect;
       if (mediaItem == null || !MediaItemAspect.TryGetAspect(mediaItem.Aspects, MovieAspect.Metadata, out aspect))
       {
         SetEmpty();

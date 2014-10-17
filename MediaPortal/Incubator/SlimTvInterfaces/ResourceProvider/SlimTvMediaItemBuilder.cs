@@ -76,12 +76,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      MediaItemAspect providerResourceAspect;
-      MediaItemAspect mediaAspect;
+      SingleMediaItemAspect providerResourceAspect;
+      SingleMediaItemAspect mediaAspect;
 
       SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
-      MediaItemAspect.AddAspect(aspects, ProviderResourceAspect.Metadata, providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata));
-      MediaItemAspect.AddAspect(aspects, MediaAspect.Metadata, mediaAspect = new MediaItemAspect(MediaAspect.Metadata));
+      MediaItemAspect.SetAspect(aspects, providerResourceAspect = new SingleMediaItemAspect(ProviderResourceAspect.Metadata));
+      MediaItemAspect.SetAspect(aspects, mediaAspect = new SingleMediaItemAspect(MediaAspect.Metadata));
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
@@ -92,14 +92,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       if (isTv)
       {
         // VideoAspect needs to be included to associate VideoPlayer later!
-        MediaItemAspect.AddAspect(aspects, VideoAspect.Metadata, new MediaItemAspect(VideoAspect.Metadata));
+        MediaItemAspect.SetAspect(aspects, new SingleMediaItemAspect(VideoAspect.Metadata));
         title = "Live TV";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
       }
       else
       {
         // AudioAspect needs to be included to associate an AudioPlayer later!
-        MediaItemAspect.AddAspect(aspects, AudioAspect.Metadata, new MediaItemAspect(AudioAspect.Metadata));
+        MediaItemAspect.SetAspect(aspects, new SingleMediaItemAspect(AudioAspect.Metadata));
         title = "Live Radio";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }

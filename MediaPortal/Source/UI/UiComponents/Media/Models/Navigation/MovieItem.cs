@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       MovieInfo movieInfo = new MovieInfo();
-      MediaItemAspect movieAspect;
+      SingleMediaItemAspect movieAspect;
       if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, MovieAspect.Metadata, out movieAspect)) 
         return;
 

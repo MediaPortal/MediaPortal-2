@@ -517,13 +517,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
         }
 
-        MediaItemAspect mediaAspect;
+        SingleMediaItemAspect mediaAspect;
         if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
           mediaAspect = null;
-        MediaItemAspect videoAspect;
+        SingleMediaItemAspect videoAspect;
         if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
           videoAspect = null;
-        MediaItemAspect audioAspect;
+        SingleMediaItemAspect audioAspect;
         if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
           audioAspect = null;
 
@@ -591,7 +591,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
           else
           {
-            MediaItemAspect nextMediaAspect;
+            SingleMediaItemAspect nextMediaAspect;
             if (MediaItemAspect.TryGetAspect(nextMediaItem.Aspects, MediaAspect.Metadata, out nextMediaAspect))
             {
               NextMediaItemTitle = nextMediaAspect[MediaAspect.ATTR_TITLE] as string;

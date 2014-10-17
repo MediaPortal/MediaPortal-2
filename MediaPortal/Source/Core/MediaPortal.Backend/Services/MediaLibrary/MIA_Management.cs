@@ -1352,7 +1352,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (!_managedMIATypes.TryGetValue(aspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
 
-      MediaItemAspect result = new MediaItemAspect(miaType);
+      MediaItemAspect result = MediaItemAspect.CreateMediaItemAspect(miaType);
 
       Namespace ns = new Namespace();
       string miaTableName = GetMIATableName(miaType);

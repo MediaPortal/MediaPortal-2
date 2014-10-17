@@ -37,8 +37,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem item1, MediaItem item2)
     {
-      MediaItemAspect imageAspectX;
-      MediaItemAspect imageAspectY;
+      SingleMediaItemAspect imageAspectX;
+      SingleMediaItemAspect imageAspectY;
       if (MediaItemAspect.TryGetAspect(item1.Aspects, ImageAspect.Metadata, out imageAspectX) && MediaItemAspect.TryGetAspect(item2.Aspects, ImageAspect.Metadata, out imageAspectY))
       {
         int? x = (int?) imageAspectX.GetAttributeValue(ImageAspect.ATTR_WIDTH);

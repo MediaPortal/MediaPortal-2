@@ -39,73 +39,73 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Contains the TMDB ID of the series.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TVDB_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("TVDBID", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TVDB_ID =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TVDBID", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the IMDB ID of the series.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_IMDB_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_IMDB_ID =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
 
     /// <summary>
     /// Series name.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SERIESNAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIESNAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the number of the season, usually starting at 1. A value of 0 is also valid for specials.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SEASON =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SEASON =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a combination of <see cref="ATTR_SERIESNAME"/> and the <see cref="ATTR_SEASON"/> to allow filtering and retrieval of season banners.
     /// This name must be built in form "{0} S{1}", using SeriesName and Season.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SERIES_SEASON =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesSeasonName", 200, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_SEASON =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesSeasonName", 200, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the number(s) of the episode(s). If a file contains multiple episodes, all episode numbers are added separately.
     /// The numbers start at 1.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Episode", typeof(int), Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_EPISODE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Episode", typeof(int), Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains the number(s) of the episode(s) as they are published on DVD. The number can be different to <see cref="ATTR_EPISODE"/>.
     /// If a file contains multiple episodes, all episode numbers are added separately. The numbers start at 1.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DVDEPISODE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DvdEpisode", typeof(double), Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DVDEPISODE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("DvdEpisode", typeof(double), Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Name of the episode. We only store the first episode name (or combined name) if the file contains multiple episodes.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODENAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EpisodeName", 300, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_EPISODENAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("EpisodeName", 300, Cardinality.Inline, false);
 
     /// <summary>
     /// First aired date of episode.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FIRSTAIRED =
-        MediaItemAspectMetadata.CreateAttributeSpecification("FirstAired", typeof (DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FIRSTAIRED =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("FirstAired", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the overall rating of the episode. Value ranges from 0 (very bad) to 10 (very good).
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TOTAL_RATING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the overall number ratings of the episode.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING_COUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {
             ATTR_IMDB_ID,
             ATTR_TVDB_ID,

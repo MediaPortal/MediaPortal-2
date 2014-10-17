@@ -296,7 +296,7 @@ namespace MediaPortal.UiComponents.Media.Models
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(_playerContext);
 
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
-        MediaItemAspect imageAspect;
+        SingleMediaItemAspect imageAspect;
         if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, ImageAspect.Metadata, out imageAspect))
           imageAspect = null;
 

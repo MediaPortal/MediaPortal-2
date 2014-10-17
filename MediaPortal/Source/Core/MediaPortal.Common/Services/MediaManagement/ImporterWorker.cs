@@ -372,8 +372,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (aspects == null)
         // No metadata could be extracted
         return false;
-      foreach(IList<MediaItemAspect> value in aspects.Values)
-        resultHandler.UpdateMediaItem(parentDirectoryId, path, value);
+      resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects));
       resultHandler.DeleteUnderPath(path);
       return true;
     }
@@ -411,7 +410,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       MediaItem directoryItem = mediaBrowsing.LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
-        MediaItemAspect da;
+        SingleMediaItemAspect da;
         if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out da))
         { // This is the case if the path was formerly imported as a non-directory media item; we cannot reuse it
           resultHandler.DeleteMediaItem(directoryPath);
@@ -420,14 +419,14 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       if (directoryItem == null)
       { // Add directory item to ML
-        MediaItemAspect mia = new MediaItemAspect(MediaAspect.Metadata);
+        MediaItemAspect mia = new SingleMediaItemAspect(MediaAspect.Metadata);
         mia.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
         mia.SetAttribute(MediaAspect.ATTR_MIME_TYPE, null);
         mia.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
         mia.SetAttribute(MediaAspect.ATTR_RATING, 0);
         mia.SetAttribute(MediaAspect.ATTR_COMMENT, null);
         mia.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.MinValue);
-        MediaItemAspect da = new MediaItemAspect(DirectoryAspect.Metadata);
+        MediaItemAspect da = new SingleMediaItemAspect(DirectoryAspect.Metadata);
         IList<MediaItemAspect> aspects = new List<MediaItemAspect>(new[]
           {
               mia,
@@ -472,7 +471,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
               IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, null))
           {
-            MediaItemAspect providerResourceAspect;
+            SingleMediaItemAspect providerResourceAspect;
             if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
               path2Item[providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
           }
@@ -487,7 +486,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               string serializedFilePath = currentFilePath.Serialize();
               try
               {
-                MediaItemAspect importerAspect;
+                SingleMediaItemAspect importerAspect;
                 MediaItem mediaItem;
                 if (importJob.JobType == ImportJobType.Refresh &&
                     path2Item.TryGetValue(serializedFilePath, out mediaItem) &&

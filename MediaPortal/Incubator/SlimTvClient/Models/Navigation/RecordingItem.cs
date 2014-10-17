@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MediaItemAspect recordingAspect;
+      SingleMediaItemAspect recordingAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, RecordingAspect.Metadata, out recordingAspect))
       {
         Channel = (string)recordingAspect[RecordingAspect.ATTR_CHANNEL];

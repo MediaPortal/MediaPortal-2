@@ -107,7 +107,7 @@ namespace MediaPortal.UiComponents.Media.Views
         MediaItem parentDirectory = cd.LoadItem(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION);
         if (parentDirectory == null)
           continue;
-        MediaItemAspect pra = null;
+        SingleMediaItemAspect pra = null;
         MediaItemAspect.TryGetAspect(parentDirectory.Aspects, ProviderResourceAspect.Metadata, out pra);
         subViewSpecifications.Add(new MediaLibraryBrowseViewSpecification(share.Name, parentDirectory.MediaItemId,
             (string) pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),

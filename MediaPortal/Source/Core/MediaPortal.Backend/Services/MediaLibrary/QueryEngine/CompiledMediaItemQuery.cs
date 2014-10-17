@@ -258,7 +258,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 if (reader.IsDBNull(reader.GetOrdinal(miamAliases[miam])))
                   // MIAM is not available for current media item
                   continue;
-                MediaItemAspect mia = new MediaItemAspect(miam);
+                MediaItemAspect mia = MediaItemAspect.CreateMediaItemAspect(miam);
                 foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
                   if (attr.Cardinality == Cardinality.Inline)
                   {
@@ -272,7 +272,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                     if (attributeValues != null && attributeValues.TryGetValue(attr, out attrValues))
                       mia.SetCollectionAttribute(attr, attrValues);
                   }
-                MediaItemAspect.AddAspect(mediaItem.Aspects, miam, mia);
+			    // TODO: Move into MIA static method?
+                SingleMediaItemAspect smia = mia as SingleMediaItemAspect;
+                if (smia != null)
+                  MediaItemAspect.SetAspect(mediaItem.Aspects, smia);
+                MultipleMediaItemAspect mmia = mia as MultipleMediaItemAspect;
+                if(mmia is MultipleMediaItemAspect)
+                  MediaItemAspect.AddAspect(mediaItem.Aspects, mmia);
               }
               result.Add(mediaItem);
             }
@@ -360,7 +366,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 if (mainReader.IsDBNull(mainReader.GetOrdinal(miamAliases[miam])))
                   // MIAM is not available for current media item
                   continue;
-                MediaItemAspect mia = new MediaItemAspect(miam);
+                MediaItemAspect mia = MediaItemAspect.CreateMediaItemAspect(miam);
                 foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
                   if (attr.Cardinality == Cardinality.Inline)
                   {
@@ -374,7 +380,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                     if (complexAttributeValues.TryGetValue(attr, out attrValues))
                       mia.SetCollectionAttribute(attr, attrValues);
                   }
-                MediaItemAspect.AddAspect(result.Aspects, miam, mia);
+			    // TODO: Move into MIA static method?
+                SingleMediaItemAspect smia = mia as SingleMediaItemAspect;
+                if (smia != null)
+                  MediaItemAspect.SetAspect(result.Aspects, smia);
+                MultipleMediaItemAspect mmia = mia as MultipleMediaItemAspect;
+                if (mmia is MultipleMediaItemAspect)
+                  MediaItemAspect.AddAspect(result.Aspects, mmia);
               }
             }
             return result;

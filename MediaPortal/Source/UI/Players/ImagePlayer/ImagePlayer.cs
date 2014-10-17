@@ -376,7 +376,7 @@ namespace MediaPortal.UI.Players.Image
       RightAngledRotation rotation = RightAngledRotation.Zero;
       bool flipX = false;
       bool flipY = false;
-      MediaItemAspect imageAspect = null;
+     SingleMediaItemAspect imageAspect;
       MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out imageAspect);
       if (imageAspect != null)
       {
