@@ -77,7 +77,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
           ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger: Video fps: {0}; No change due to settings.", intFps);
           return;
         }
-        _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum());
+        _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum(), true);
         double fps = intFps;
         if (intFps == 23)
           fps = 23.976;
@@ -140,7 +140,8 @@ namespace MediaPortal.Plugins.RefreshRateChanger
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      Activate();
+      if (_settings.Settings.IsEnabled)
+        Activate();
     }
 
     private void Activate()
