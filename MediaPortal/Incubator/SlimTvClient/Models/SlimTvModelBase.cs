@@ -268,7 +268,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetCurrentChannelGroup()
     {
-      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelId != 0)
+      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId != 0)
         ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId);
     }
 
