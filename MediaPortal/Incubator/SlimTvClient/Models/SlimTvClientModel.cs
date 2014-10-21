@@ -610,7 +610,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       CloseOSD();
 
       if (_zapChannelIndex != ChannelContext.Channels.CurrentIndex)
+      {
+        ChannelContext.Channels.SetIndex(_zapChannelIndex);
         Tune(ChannelContext.Channels[_zapChannelIndex]);
+      }
 
       _zapTimer.Close();
       _zapTimer = null;
