@@ -703,7 +703,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get
       {
-        return ChannelsPrograms == null || ChannelsPrograms.Count == 0 || _channelViewOffset >= ChannelsPrograms.Count - 1 - _numberOfRows;
+        return ChannelsPrograms == null || ChannelsPrograms.Count == 0 || _channelViewOffset >= ChannelsPrograms.Count - _numberOfRows;
       }
     }
 
