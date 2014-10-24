@@ -348,16 +348,19 @@ namespace MediaPortal.UI.SkinEngine.GUI
         _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
-        ISharpDXVideoPlayer SharpDXVideoPlayer = videoPlayer as ISharpDXVideoPlayer;
-        if (SharpDXVideoPlayer != null)
-          if (SharpDXVideoPlayer.SetRenderDelegate(VideoPlayerRender))
-          {
-            _synchronizedVideoPlayer = SharpDXVideoPlayer;
-            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", SharpDXVideoPlayer);
-          }
-          else
-            ServiceRegistration.Get<ILogger>().Info(
-                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", SharpDXVideoPlayer);
+        ISharpDXVideoPlayer newPlayer = videoPlayer as ISharpDXVideoPlayer;
+        if (newPlayer == null)
+        {
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: SynchronizeToVideoPlayerFramerate: Restore default rendering, no new Player!");
+          return;
+        }
+        if (newPlayer.SetRenderDelegate(VideoPlayerRender))
+        {
+          _synchronizedVideoPlayer = newPlayer;
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", newPlayer);
+        }
+        else
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", newPlayer);
       }
     }
 
