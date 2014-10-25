@@ -483,8 +483,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Key event was handeled by child
         return;
 
-      if (!CheckFocusInScope())
+      ScrollViewer subScroller;
+      if (!CheckFocusInScope(out subScroller))
         return;
+
+      if (subScroller != null)
+      {
+        subScroller.OnKeyPressed(ref key);
+        if (key == Key.None)
+          return;
+      }
 
       if (key == Key.Down && OnDown())
         key = Key.None;
@@ -509,8 +517,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
     /// handle the focus scrolling keys in this scope.
     /// </summary>
-    bool CheckFocusInScope()
+    bool CheckFocusInScope(out ScrollViewer subScroller)
     {
+      subScroller = null;
       Screen screen = Screen;
       Visual focusPath = screen == null ? null : screen.FocusedElement;
       while (focusPath != null)
@@ -520,7 +529,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           return true;
         if (focusPath is ScrollViewer)
           // Focused control is located in another scrollviewer's focus scope
-          return false;
+          subScroller = (ScrollViewer)focusPath; //return false;
         focusPath = focusPath.VisualParent;
       }
       return false;
