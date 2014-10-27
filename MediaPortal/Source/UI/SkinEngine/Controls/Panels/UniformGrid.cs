@@ -170,8 +170,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected SizeF CalculateDesiredSize(SizeF totalSize, bool measureChildren,
         out float desiredColumnWidth, out float desiredRowHeight)
     {
-      desiredColumnWidth = (int)totalSize.Width / _actualColumns; // Can be float.NaN
-      desiredRowHeight = (int)totalSize.Height / _actualRows; // Can be float.NaN
+      desiredColumnWidth = _actualColumns == 0 ? float.NaN : (int)totalSize.Width / _actualColumns; // Can be float.NaN
+      desiredRowHeight = _actualRows == 0 ? float.NaN : (int)totalSize.Height / _actualRows; // Can be float.NaN
       SizeF childSize;
       foreach (FrameworkElement child in GetVisibleChildren())
       {
