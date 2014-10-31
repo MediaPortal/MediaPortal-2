@@ -189,7 +189,9 @@ namespace MediaPortal.Utilities.Process
         PrepareProcess(executable, arguments, redirectInputOutput, process, outputWaitHandle, outputBuilder);
 
         process.Start();
-        process.PriorityClass = priorityClass;
+        // Additional check if process is still active, could happen during debugging
+        if (!process.HasExited)
+          process.PriorityClass = priorityClass;
 
         if (redirectInputOutput)
           process.BeginOutputReadLine();
@@ -228,7 +230,8 @@ namespace MediaPortal.Utilities.Process
       {
         PrepareProcess(executable, arguments, redirectInputOutput, process, outputWaitHandle, outputBuilder);
         process.StartAsUser(token);
-        process.PriorityClass = priorityClass;
+        if (!process.HasExited)
+          process.PriorityClass = priorityClass;
 
         if (redirectInputOutput)
           process.BeginOutputReadLine();
@@ -269,7 +272,7 @@ namespace MediaPortal.Utilities.Process
           if (e.Data == null)
             outputWaitHandle.Set();
           else
-            outputBuilder.Append(e.Data);
+            outputBuilder.AppendLine(e.Data);
         }
         // Avoid any exceptions in async calls, they lead to immediate crash.
         catch { }
