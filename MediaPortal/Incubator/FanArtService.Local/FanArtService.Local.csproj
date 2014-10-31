@@ -43,6 +43,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="MkvAttachmentsProvider.cs" />
     <Compile Include="LocalFanartProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -59,6 +60,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj">
+      <Project>{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}</Project>
+      <Name>MatroskaLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
