@@ -477,7 +477,7 @@ namespace MediaPortal.UiComponents.Configuration
               new Guid[] {context.WorkflowState.StateId}, newState, res)
             {
                 DisplayCategory = ACTIONS_WORKFLOW_CATEGORY,
-                SortOrder = res.Evaluate(),
+                SortOrder = childNode.Sort ?? res.Evaluate(),
                 WorkflowNavigationContextVariables = new Dictionary<string, object>
                 {
                     {CONFIG_LOCATION_KEY, childNode.Location}

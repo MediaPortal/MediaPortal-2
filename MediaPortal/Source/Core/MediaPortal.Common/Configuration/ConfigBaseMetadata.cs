@@ -39,6 +39,7 @@ namespace MediaPortal.Common.Configuration
 
     protected string _location;
     protected string _text;
+    protected string _sort;
 
     #endregion
 
@@ -85,6 +86,14 @@ namespace MediaPortal.Common.Configuration
       get { return _text; }
     }
 
+    /// <summary>
+    /// Returns a string used for ordering of items.
+    /// </summary>
+    public string Sort
+    {
+      get { return _sort; }
+    }
+
     #endregion
 
     #region Constructors
@@ -95,10 +104,12 @@ namespace MediaPortal.Common.Configuration
     /// <param name="location">The location of the new instance. This must contain the parent location
     /// if there is a parent, and the Id of this setting registration as last location path element.</param>
     /// <param name="text">The text to be displayed for this setting registration.</param>
-    public ConfigBaseMetadata(string location, string text)
+    /// <param name="sort">Sorting information.</param>
+    public ConfigBaseMetadata(string location, string text, string sort)
     {
       _location = location;
       _text = text;
+      _sort = sort;
     }
 
     #endregion
