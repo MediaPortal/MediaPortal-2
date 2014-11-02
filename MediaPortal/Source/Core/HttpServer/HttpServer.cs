@@ -499,9 +499,16 @@ namespace HttpServer
         WriteLog(this, LogPrio.Warning, "Temp path do not exist: " + tempPath);
         return;
       }
-      DirectoryInfo info = new DirectoryInfo(tempPath);
-      foreach (FileInfo file in info.GetFiles("*.tmp"))
-        file.Delete();
+      try
+      {
+        DirectoryInfo info = new DirectoryInfo(tempPath);
+        foreach (FileInfo file in info.GetFiles("*.tmp"))
+          file.Delete();
+      }
+      catch (Exception ex)
+      {
+        WriteLog(this, LogPrio.Warning, "Error deleting temp internet files: " + ex.Message);
+      }
 
       _requestQueue.Start();
     }
