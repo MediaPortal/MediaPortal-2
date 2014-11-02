@@ -1,0 +1,24 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="BassAudioMetadataExtractor"
+    PluginId="{85EEF5B4-7648-4747-8990-672E6AC3213A}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor based on BASS.NET for many kinds of audio file formats"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{8B248D2D-C6DF-4263-BBF3-B424C6C81B31}"/> <!-- AudioMetadataExtractor -->
+    <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"/> <!-- BassLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="BassAudioMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="BassAudioMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor.BassAudioMetadataExtractor"/>
+  </Register>
+</Plugin>
