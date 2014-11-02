@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 

@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Utils;

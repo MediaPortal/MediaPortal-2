@@ -24,6 +24,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MediaPortal.Extensions.BassLibraries;
 
 namespace MediaPortal.UI.Players.BassPlayer.Utils
 {

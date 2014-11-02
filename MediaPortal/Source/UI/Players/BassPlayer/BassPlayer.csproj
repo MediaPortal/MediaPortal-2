@@ -58,9 +58,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="BassConstants.cs" />
     <Compile Include="BassPlayerPlugin.cs" />
-    <Compile Include="Exceptions.cs" />
     <Compile Include="BassPlayer.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="InputSources\BassFsCDTrackInputSource.cs" />
@@ -81,7 +79,6 @@
     <Compile Include="Interfaces\IInputSource.cs" />
     <Compile Include="Interfaces\IOutputDevice.cs" />
     <Compile Include="OutputDevices\DirectXOutputDevice.cs" />
-    <Compile Include="PlayerComponents\BassLibraryManager.cs" />
     <Compile Include="PlayerComponents\InputSourceFactory.cs" />
     <Compile Include="PlayerComponents\PlaybackSession.cs" />
     <Compile Include="PlayerComponents\OutputDeviceFactory.cs" />
@@ -98,7 +95,6 @@
     <Compile Include="Settings\Configuration\CrossFadingEnabled.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
-    <Compile Include="Utils\Log.cs" />
     <Compile Include="Utils\URLUtils.cs" />
     <Compile Include="Utils\WorkItemQueue.cs" />
     <Compile Include="Utils\WorkItem.cs" />

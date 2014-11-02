@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;

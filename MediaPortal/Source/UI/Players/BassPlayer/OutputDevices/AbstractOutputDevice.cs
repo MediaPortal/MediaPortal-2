@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Utils;

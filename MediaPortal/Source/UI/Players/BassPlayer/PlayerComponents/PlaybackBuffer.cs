@@ -26,6 +26,7 @@ using System;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;

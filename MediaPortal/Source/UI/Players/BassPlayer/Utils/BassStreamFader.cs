@@ -24,6 +24,7 @@
 
 using System;
 using System.Threading;
+using MediaPortal.Extensions.BassLibraries;
 using Un4seen.Bass;
 
 namespace MediaPortal.UI.Players.BassPlayer.Utils
