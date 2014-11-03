@@ -30,7 +30,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
-using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Tags;
@@ -84,9 +83,14 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     #endregion
 
+    [Obsolete("Player plugins are now located in BassLibraries plugin. Setting other folder is no longer supported.")]
     public BassPlayer(string playerMainDirectory)
+     : this()
+    { }
+
+    public BassPlayer()
     {
-      _controller = new Controller(this, playerMainDirectory);
+      _controller = new Controller(this);
       _inputSourceFactory = new InputSourceFactory();
       _externalState = PlayerState.Stopped;
     }

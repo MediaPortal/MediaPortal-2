@@ -35,7 +35,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Graphics;
 using Un4seen.Bass.AddOn.Tags;
 
@@ -83,7 +82,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
                 AudioAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
-      _lib = BassLibraryManager.Get(FileUtils.BuildAssemblyRelativePath("Plugins"));
+      _lib = BassLibraryManager.Get();
     }
 
     #endregion

@@ -24,18 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.BassLibraries;
-using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
 using Un4seen.Bass;
@@ -128,7 +123,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
     public BassPlayerSetupModel()
     {
       // Note: the BassLibraryManager is needed here to initalize the BassPlayer and plugins. The instance is not Disposed here, as this would lead to stopping current playback.
-      var bassLibraryManager = BassLibraryManager.Get(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), InternalSettings.PluginsPath));
+      var bassLibraryManager = BassLibraryManager.Get();
       _enableWASAPIExclusiveProperty = new SProperty(typeof(bool), false);
       _useDirectSoundProperty = new SProperty(typeof(bool), false);
       _useWASAPIProperty = new SProperty(typeof(bool), false);

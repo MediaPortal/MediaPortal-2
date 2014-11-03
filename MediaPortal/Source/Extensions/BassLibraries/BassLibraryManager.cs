@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.FileSystem;
 using Un4seen.Bass;
 
 namespace MediaPortal.Extensions.BassLibraries
@@ -41,17 +42,23 @@ namespace MediaPortal.Extensions.BassLibraries
     private static volatile BassLibraryManager _bassLibraryManager = null;
     private readonly ICollection<int> _decoderPluginHandles = new List<int>();
 
+    [Obsolete("Player plugins are now located in BassLibraries plugin. Setting other folder is no longer supported.")]
+    public static BassLibraryManager Get(string playerPluginsDirectory)
+    {
+      return Get();
+    }
+
     /// <summary>
     /// Loads and initializes the Bass library.
     /// </summary>
-    /// <param name="playerPluginsDirectory">Directory where the BASS player plugins are located.</param>
     /// <returns>The new instance.</returns>
-    public static BassLibraryManager Get(string playerPluginsDirectory)
+    public static BassLibraryManager Get()
     {
       lock (_syncObj)
       {
         if (_bassLibraryManager != null)
           return _bassLibraryManager;
+        string playerPluginsDirectory = FileUtils.BuildAssemblyRelativePath("Plugins");
         _bassLibraryManager = new BassLibraryManager();
         _bassLibraryManager.Initialize(playerPluginsDirectory);
         return _bassLibraryManager;
