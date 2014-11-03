@@ -133,21 +133,25 @@ namespace MediaPortal.UI.Players.Video
       _pendingCmd = true;
 
       _dvdbasefilter = (IBaseFilter) new DVDNavigator();
-      _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
 
       if (_dvdbasefilter == null)
         throw new Exception("Failed to add DVD Navigator!");
 
+      _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
+
       _dvdInfo = _dvdbasefilter as IDvdInfo2;
+      if (_dvdInfo == null)
+        throw new Exception("Failed to get IDvdInfo2 from DVDNavigator!");
+
       _dvdCtrl = _dvdbasefilter as IDvdControl2;
 
       if (_dvdCtrl == null)
-        throw new Exception("Failed to access DVD Control!");
+        throw new Exception("Failed to get IDvdControl2 from DVDNavigator!");
 
       // get a local file system path - will mount via DOKAN when resource is not on the local system
       ILocalFsResourceAccessor lfsr;
       if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
-        throw new IllegalCallException("The DvDPlayer can only play file system resources");
+        throw new IllegalCallException("The DVDPlayer can only play file system resources");
       string path = lfsr.LocalFileSystemPath;
 
       // check if path is a drive root (like D:), otherwise append VIDEO_TS 
