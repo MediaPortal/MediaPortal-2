@@ -255,19 +255,24 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       deviceInfo.MaxRate = sampleRates.First();
       deviceInfo.MinRate = sampleRates.Last();
-      foreach (var sampleRate in sampleRates)
+      foreach (BASSWASAPIInit init in new[] { BASSWASAPIInit.BASS_WASAPI_EXCLUSIVE, BASSWASAPIInit.BASS_WASAPI_SHARED })
       {
-        foreach (var channel in channels)
+        Log.Debug("Check {0} mode", init);
+        foreach (var sampleRate in sampleRates)
         {
-          BASSWASAPIFormat format = BassWasapi.BASS_WASAPI_CheckFormat(deviceNo, sampleRate, channel, _flags & (BASSWASAPIInit.BASS_WASAPI_EXCLUSIVE | BASSWASAPIInit.BASS_WASAPI_SHARED));
-          if (format != BASSWASAPIFormat.BASS_WASAPI_FORMAT_UNKNOWN)
+          foreach (var channel in channels)
           {
-            if (channel > deviceInfo.Channels)
-              deviceInfo.Channels = channel;
-            if (sampleRate > deviceInfo.MaxRate)
-              deviceInfo.MaxRate = sampleRate;
-            if (sampleRate < deviceInfo.MinRate)
-              deviceInfo.MinRate = sampleRate;
+            BASSWASAPIFormat format = BassWasapi.BASS_WASAPI_CheckFormat(deviceNo, sampleRate, channel, init);
+            if (format != BASSWASAPIFormat.BASS_WASAPI_FORMAT_UNKNOWN)
+            {
+              Log.Debug("- {0,-6} Hz / {1} ch: {2}", sampleRate, channel, format);
+              if (channel > deviceInfo.Channels)
+                deviceInfo.Channels = channel;
+              if (sampleRate > deviceInfo.MaxRate)
+                deviceInfo.MaxRate = sampleRate;
+              if (sampleRate < deviceInfo.MinRate)
+                deviceInfo.MinRate = sampleRate;
+            }
           }
         }
       }

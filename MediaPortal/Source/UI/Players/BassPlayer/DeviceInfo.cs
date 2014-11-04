@@ -29,7 +29,7 @@ namespace MediaPortal.UI.Players.BassPlayer
   /// <summary>
   /// Contains information about an outputdevice.
   /// </summary>
-  internal struct DeviceInfo
+  internal class DeviceInfo
   {
     #region Fields
 

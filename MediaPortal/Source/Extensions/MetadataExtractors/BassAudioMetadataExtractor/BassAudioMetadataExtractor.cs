@@ -71,6 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
       AUDIO_EXTENSIONS.Add(".dff");
+      AUDIO_EXTENSIONS.Add(".dsf");
     }
 
     public BassAudioMetadataExtractor()

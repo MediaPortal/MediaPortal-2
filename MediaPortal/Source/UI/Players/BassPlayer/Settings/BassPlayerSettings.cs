@@ -55,7 +55,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
           new List<string>(
               (".mp3,.ogg,.wav,.flac,.cda,.asx,.dts,.mod,.mo3,.s3m,.xm,.it,.mtm,.umx,.mdz,.s3z,.itz,.xmz,.mp2,.mp1," +
                ".aiff,.m2a,.mpa,.m1a,.swa,.aif,.mp3pro,.aac,.mp4,.m4a,.m4b,.ac3,.aac,.mov,.ape,.apl,.midi,.mid,.rmi," +
-               ".kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv,.dff").Split(','));
+               ".kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv,.dff,.dsf").Split(','));
     }
 
     #region Fields
