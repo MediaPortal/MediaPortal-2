@@ -52,7 +52,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     protected BassStream _inputStream = null;
     protected BassStreamFader _fader = null;
-    protected bool _outputStreamEnded = false;
+    protected volatile bool _outputStreamEnded = false;
 
     #endregion
 

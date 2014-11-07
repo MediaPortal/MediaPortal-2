@@ -23,12 +23,11 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
+using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Mix;
 using Un4seen.BassWasapi;
@@ -38,7 +37,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
   /// <summary>
   /// Represents the user-selected WASAPI outputdevice.
   /// </summary>
-  internal class WASAPIOutputDevice : AbstractOutputDevice
+  internal class WASAPIOutputDevice : AbstractOutputDevice, IAudioPlayerAnalyze
   {
     #region Fields
 
@@ -49,6 +48,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     protected BASSWASAPIInit _flags;
     protected BassStream _mixer;
     protected int _mixerHandle;
+    protected readonly int _maxFFT = (int)(BASSData.BASS_DATA_AVAILABLE | BASSData.BASS_DATA_FFT4096);
 
     #endregion
 
@@ -387,6 +387,47 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     protected int OutputStreamWriteProc(IntPtr buffer, int requestedBytes, IntPtr userData)
     {
       return WriteOutputStream(buffer, requestedBytes);
+    }
+
+    #endregion
+
+    #region IAudioPlayerAnalyze Member
+
+    public bool GetWaveData32(int length, out float[] waveData32)
+    {
+      waveData32 = null;
+      if (!BassWasapi.BASS_WASAPI_IsStarted())
+        return false;
+      waveData32 = new float[length];
+      return BassWasapi.BASS_WASAPI_GetData(waveData32, length) == (int)BASSError.BASS_OK;
+    }
+
+    public bool GetFFTData(float[] fftDataBuffer)
+    {
+      if (!BassWasapi.BASS_WASAPI_IsStarted())
+        return false;
+      return BassWasapi.BASS_WASAPI_GetData(fftDataBuffer, _maxFFT) > 0;
+    }
+
+    public bool GetFFTFrequencyIndex(int frequency, out int frequencyIndex)
+    {
+      frequencyIndex = 0;
+      if (_inputStream == null)
+        return false;
+      frequencyIndex = Un4seen.Bass.Utils.FFTFrequency2Index(frequency, 4096, _inputStream.SampleRate);
+      return true;
+    }
+
+    public bool GetChannelLevel(out double dbLevelL, out double dbLevelR)
+    {
+      dbLevelL = 0f;
+      dbLevelR = 0f;
+      if (!BassWasapi.BASS_WASAPI_IsStarted())
+        return false;
+      int level = BassWasapi.BASS_WASAPI_GetLevel();
+      dbLevelL = Un4seen.Bass.Utils.LevelToDB(Un4seen.Bass.Utils.LowWord32(level), 65535); // the left level
+      dbLevelR = Un4seen.Bass.Utils.LevelToDB(Un4seen.Bass.Utils.HighWord32(level), 65535); // the right level
+      return true;
     }
 
     #endregion
