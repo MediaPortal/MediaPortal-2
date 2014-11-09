@@ -54,6 +54,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
           ".mpc",
           ".mp+",
           ".mpp",
+          ".dsf",
+          ".dff",
       };
 
     protected List<string> _unsplittableID3v23Values = new List<string>(DEFAULT_UNSPLITTABLE_ID3V23_VALUES);
