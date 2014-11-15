@@ -494,6 +494,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
+            <Rectangle  RadiusY="20" RadiusX="20" Stroke="#FF008DC4" Opacity="0.8" StrokeThickness="3" IsVisible="{Binding Path=Selected}" Margin="-2" />
             <Control Style="{ThemeResource MenuButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="30,5,30,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
