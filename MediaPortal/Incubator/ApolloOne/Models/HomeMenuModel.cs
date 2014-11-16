@@ -204,7 +204,7 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
       var menuSettings = ServiceRegistration.Get<ISettingsManager>().Load<MenuSettings>();
       if (menuSettings.MenuItems.Count == 0)
       {
-        menuSettings.MainMenuGroupNames = new List<string> { MenuSettings.MENU_NAME_IMAGE, MenuSettings.MENU_NAME_AUDIO, MenuSettings.MENU_NAME_MEDIAHUB, MenuSettings.MENU_NAME_TV, MenuSettings.MENU_NAME_WEATHER, MenuSettings.MENU_NAME_NEWS, MenuSettings.MENU_NAME_SETTINGS, MenuSettings.MENU_NAME_OTHERS };
+        menuSettings.MainMenuGroupNames = new List<string> { MenuSettings.MENU_NAME_IMAGE, MenuSettings.MENU_NAME_AUDIO, MenuSettings.MENU_NAME_MEDIAHUB, MenuSettings.MENU_NAME_TV, MenuSettings.MENU_NAME_NEWS, MenuSettings.MENU_NAME_SETTINGS, MenuSettings.MENU_NAME_OTHERS };
         menuSettings.DefaultIndex = 2;
 
         var positions = new SerializableDictionary<Guid, GridPosition>();
@@ -213,8 +213,8 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
         positions[new Guid("30F57CBA-459C-4202-A587-09FFF5098251")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Series
         positions[new Guid("C33E39CC-910E-41C8-BFFD-9ECCD340B569")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // OnlineVideos
 
-        positions[new Guid("93442DF7-186D-42e5-A0F5-CF1493E68F49")] = new GridPosition { Column = 3 * MenuSettings.DEFAULT_ROWSPAN_NORMAL + 1, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Media
-        positions[new Guid("17D2390E-5B05-4fbd-89F6-24D60CEB427F")] = new GridPosition { Column = 3 * MenuSettings.DEFAULT_ROWSPAN_NORMAL + 1, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Local (exclusive)
+        positions[new Guid("93442DF7-186D-42e5-A0F5-CF1493E68F49")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Media
+        positions[new Guid("17D2390E-5B05-4fbd-89F6-24D60CEB427F")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Local (exclusive)
         menuSettings.MenuItems[MenuSettings.MENU_NAME_MEDIAHUB] = positions;
 
         positions = new SerializableDictionary<Guid, GridPosition>();
@@ -223,7 +223,8 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
 
         positions = new SerializableDictionary<Guid, GridPosition>();
         positions[new Guid("30715D73-4205-417f-80AA-E82F0834171F")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Audio
-        positions[new Guid("E00B8442-8230-4D7B-B871-6AC77755A0D5")] = new GridPosition { Column = MenuSettings.DEFAULT_ROWSPAN_NORMAL + 2, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // PartyMusicPlayer
+        positions[new Guid("E00B8442-8230-4D7B-B871-6AC77755A0D5")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // PartyMusicPlayer
+        positions[new Guid("2DED75C0-5EAE-4E69-9913-6B50A9AB2956")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL + MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // WebRadio
         menuSettings.MenuItems[MenuSettings.MENU_NAME_AUDIO] = positions;
 
         positions = new SerializableDictionary<Guid, GridPosition>();
@@ -234,11 +235,9 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
         menuSettings.MenuItems[MenuSettings.MENU_NAME_TV] = positions;
 
         positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("BB49A591-7705-408F-8177-45D633FDFAD0")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // News
+        positions[new Guid("BD93C5B3-402C-40A2-B323-DA891ED5F50E")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Kino
         positions[new Guid("E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Weather
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_WEATHER] = positions;
-
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("BB49A591-7705-408F-8177-45D633FDFAD0")] = new GridPosition { Column = 1 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Weather
         menuSettings.MenuItems[MenuSettings.MENU_NAME_NEWS] = positions;
 
         positions = new SerializableDictionary<Guid, GridPosition>();
