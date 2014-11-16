@@ -127,14 +127,17 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
       _mainMenuGroupList.Clear();
       if (_menuSettings != null)
       {
+        int idx = 0;
         foreach (string group in _menuSettings.MainMenuGroupNames)
         {
           string groupName = group;
           var groupItem = new ListItem(Consts.KEY_NAME, groupName)
           {
-            Command = new MethodDelegateCommand(() => SetGroup(groupName))
+            Command = new MethodDelegateCommand(() => SetGroup(groupName)),
+            Selected = idx == _menuSettings.DefaultIndex
           };
           _mainMenuGroupList.Add(groupItem);
+          idx ++;
         }
       }
       _mainMenuGroupList.FireChange();
@@ -194,6 +197,14 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
       _menuSettings.DefaultIndex = _menuSettings.MainMenuGroupNames.IndexOf(groupName);
       ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
       CreatePositionedItems();
+      UpdateSelectedGroup();
+    }
+
+    private void UpdateSelectedGroup()
+    {
+      int idx = 0;
+      foreach (ListItem listItem in MainMenuGroupList)
+        listItem.Selected = (idx++) == _menuSettings.DefaultIndex;
     }
 
     /// <summary>

@@ -22,12 +22,11 @@
           <Button Style="{ThemeResource HomeButtonStyle}" Margin="0,0,16,16"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            
+
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-                <Setter TargetName="HoverGlow" Property="IsVisible" Value="true"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -72,9 +71,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <!--ScrollViewer CanContentScroll="True" Margin="5"-->
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-          
+          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -115,7 +112,33 @@
     </Setter>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuMenuItemContainerStyle}"/>
   </Style>
-  
+
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="HomeGroupMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="20,0,20,0"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource NonSelectedTextColor}"/>
+  </DataTemplate>
+
   <!-- ListView style to be used for main groups menu -->
   <Style x:Key="HomeGroupListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <Setter Property="ItemsPanel">
@@ -125,6 +148,8 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeGroupDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeGroupMenuItemContainerStyle}"/>
   </Style>
 
   <!-- Player control styles -->
@@ -134,13 +159,17 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/> <!-- Background -->
-              <RowDefinition Height="Auto"/> <!-- Playback controls -->
+              <RowDefinition Height="Auto"/>
+              <!-- Background -->
+              <RowDefinition Height="Auto"/>
+              <!-- Playback controls -->
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/> <!-- Media thumbnail -->
-              <ColumnDefinition Width="Auto"/> <!-- Optional fanart -->
+              <ColumnDefinition Width="Auto"/>
+              <!-- Media thumbnail -->
+              <ColumnDefinition Width="Auto"/>
+              <!-- Optional fanart -->
             </Grid.ColumnDefinitions>
 
             <!-- Order matters here: first paint the controls, as they will be overlapped by content panel -->
@@ -171,7 +200,7 @@
                   </TransformGroup>
                 </StackPanel.LayoutTransform>-->
             </Grid>
-            
+
             <!-- Background of player control panel-->
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="2" Fill="{ThemeResource PlayerControlBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                        RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}" />
