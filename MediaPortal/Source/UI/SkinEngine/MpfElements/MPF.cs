@@ -42,10 +42,10 @@ using MediaPortal.Utilities;
 using SharpDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
-using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
+using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
-{                            
+{
   /// <summary>
   /// This class holds a registration for all elements which can be instantiated  by a XAML file. It also provides
   /// static methods for type conversions between special types and for copying instances.
@@ -63,10 +63,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     protected static IDictionary<string, Type> _objectClassRegistrations = new Dictionary<string, Type>();
     static MPF()
-    {                    
+    {
       // Screen
       _objectClassRegistrations.Add("Screen", typeof(SkinEngine.ScreenManagement.Screen));
-  
+
       // Panels
       _objectClassRegistrations.Add("DockPanel", typeof(SkinEngine.Controls.Panels.DockPanel));
       _objectClassRegistrations.Add("StackPanel", typeof(SkinEngine.Controls.Panels.StackPanel));
@@ -134,6 +134,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("Polygon", typeof(SkinEngine.Controls.Visuals.Shapes.Polygon));
       _objectClassRegistrations.Add("Path", typeof(SkinEngine.Controls.Visuals.Shapes.Path));
       _objectClassRegistrations.Add("Shape", typeof(SkinEngine.Controls.Visuals.Shapes.Shape));
+
+      // Custom type "Vector2" to be used as "Point"
+      _objectClassRegistrations.Add("Point", typeof(SharpDX.Vector2));
 
       // Animations
       _objectClassRegistrations.Add("ColorAnimation", typeof(SkinEngine.Controls.Animations.ColorAnimation));
@@ -265,7 +268,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         return true;
       if (value is string && targetType == typeof(Type))
       {
-        string typeName = (string) value;
+        string typeName = (string)value;
         Type type;
         if (!_objectClassRegistrations.TryGetValue(typeName, out type))
           type = Type.GetType(typeName);
@@ -279,7 +282,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // LateBoundValue must stay unchanged until some code part explicitly converts them!
       if (value is ResourceWrapper)
       {
-        object resource = ((ResourceWrapper) value).Resource;
+        object resource = ((ResourceWrapper)value).Resource;
         if (TypeConverter.Convert(resource, targetType, out result))
         {
           if (ReferenceEquals(resource, result))
@@ -298,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         // If you try to build a ResourceWrapper with a string and assign that ResourceWrapper to a Button's Content property
         // with a StaticResource, for example, the ResourceWrapper will be assigned directly without the data template being
         // applied. To make it sill work, we need this explicit type conversion here.
-        result = new Label { Content = (string) value, Color = Color.White };
+        result = new Label { Content = (string)value, Color = Color.White };
         return true;
       }
       if (targetType == typeof(Transform))
@@ -312,7 +315,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           {
             object obj;
             TypeConverter.Convert(parts[i], typeof(double), out obj);
-            f[i] = (float) obj;
+            f[i] = (float)obj;
           }
           System.Drawing.Drawing2D.Matrix matrix2d = new System.Drawing.Drawing2D.Matrix(f[0], f[1], f[2], f[3], f[4], f[5]);
           Static2dMatrix matrix = new Static2dMatrix();
@@ -404,7 +407,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           {
             object obj;
             TypeConverter.Convert(text, typeof(double), out obj);
-            result = new GridLength(GridUnitType.Star, (double) obj);
+            result = new GridLength(GridUnitType.Star, (double)obj);
           }
           else
             result = new GridLength(GridUnitType.Star, 1.0);
@@ -418,17 +421,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
       else if (targetType == typeof(string) && value is IResourceString)
       {
-        result = ((IResourceString) value).Evaluate();
+        result = ((IResourceString)value).Evaluate();
         return true;
       }
       else if (targetType.IsAssignableFrom(typeof(IExecutableCommand)) && value is ICommand)
       {
-        result = new CommandBridge((ICommand) value);
+        result = new CommandBridge((ICommand)value);
         return true;
       }
       else if (targetType == typeof(Key) && value is string)
       {
-        string str = (string) value;
+        string str = (string)value;
         // Try a special key
         result = Key.GetSpecialKeyByName(str);
         if (result == null)
@@ -440,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
       else if (targetType == typeof(string) && value is IEnumerable)
       {
-        result = StringUtils.Join(", ", (IEnumerable) value);
+        result = StringUtils.Join(", ", (IEnumerable)value);
         return true;
       }
       result = value;
@@ -455,28 +458,28 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       Type t = source.GetType();
       if (t == typeof(Vector2))
       {
-        Vector2 vec = (Vector2) source;
-        Vector2 result = new Vector2 {X = vec.X, Y = vec.Y};
+        Vector2 vec = (Vector2)source;
+        Vector2 result = new Vector2 { X = vec.X, Y = vec.Y };
         target = result;
         return true;
       }
       if (t == typeof(Vector3))
       {
-        Vector3 vec = (Vector3) source;
-        Vector3 result = new Vector3 {X = vec.X, Y = vec.Y, Z = vec.Z};
+        Vector3 vec = (Vector3)source;
+        Vector3 result = new Vector3 { X = vec.X, Y = vec.Y, Z = vec.Z };
         target = result;
         return true;
       }
       if (t == typeof(Vector4))
       {
-        Vector4 vec = (Vector4) source;
-        Vector4 result = new Vector4 {X = vec.X, Y = vec.Y, W = vec.W, Z = vec.Z};
+        Vector4 vec = (Vector4)source;
+        Vector4 result = new Vector4 { X = vec.X, Y = vec.Y, W = vec.W, Z = vec.Z };
         target = result;
         return true;
       }
       if (source is IUnmodifiableResource)
       {
-        IUnmodifiableResource resource = (IUnmodifiableResource) source;
+        IUnmodifiableResource resource = (IUnmodifiableResource)source;
         if (resource.Owner != null)
         {
           target = source;
@@ -583,12 +586,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (coords.Length > 0)
       {
         TypeConverter.Convert(coords[0], typeof(float), out obj);
-        vec.X = (float) obj;
+        vec.X = (float)obj;
       }
       if (coords.Length > 1)
       {
         TypeConverter.Convert(coords[1], typeof(float), out obj);
-        vec.Y = (float) obj;
+        vec.Y = (float)obj;
       }
       return vec;
     }
@@ -615,17 +618,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (coords.Length > 0)
       {
         TypeConverter.Convert(coords[0], typeof(float), out obj);
-        vec.X = (float) obj;
+        vec.X = (float)obj;
       }
       if (coords.Length > 1)
       {
         TypeConverter.Convert(coords[1], typeof(float), out obj);
-        vec.Y = (float) obj;
+        vec.Y = (float)obj;
       }
       if (coords.Length > 2)
       {
         TypeConverter.Convert(coords[2], typeof(float), out obj);
-        vec.Z = (float) obj;
+        vec.Z = (float)obj;
       }
       return vec;
     }
@@ -654,22 +657,22 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (coords.Length > 0)
       {
         TypeConverter.Convert(coords[0], typeof(float), out obj);
-        vec.X = (float) obj;
+        vec.X = (float)obj;
       }
       if (coords.Length > 1)
       {
         TypeConverter.Convert(coords[1], typeof(float), out obj);
-        vec.Y = (float) obj;
+        vec.Y = (float)obj;
       }
       if (coords.Length > 2)
       {
         TypeConverter.Convert(coords[2], typeof(float), out obj);
-        vec.Z = (float) obj;
+        vec.Z = (float)obj;
       }
       if (coords.Length > 3)
       {
         TypeConverter.Convert(coords[3], typeof(float), out obj);
-        vec.W = (float) obj;
+        vec.W = (float)obj;
       }
       return vec;
     }
@@ -688,7 +691,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         throw new ArgumentException("Empty list");
       float[] result = new float[numbers.Length];
       for (int i = 0; i < numbers.Length; i++)
-        result[i] = (float) TypeConverter.Convert(numbers[i], typeof(float));
+        result[i] = (float)TypeConverter.Convert(numbers[i], typeof(float));
       return result;
     }
 
