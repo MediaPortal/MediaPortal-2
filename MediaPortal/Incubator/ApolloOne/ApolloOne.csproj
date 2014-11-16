@@ -109,8 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="Skin\ApolloOne\fonts\bebas-neue.ttf" />
-    <None Include="Skin\ApolloOne\fonts\bebas-neue.desc" />
+    <None Include="Skin\ApolloOne\fonts\FiraSansOT.desc" />
+    <None Include="Skin\ApolloOne\fonts\FiraSansOT-Light.ttf" />
+    <None Include="Skin\ApolloOne\fonts\FiraSansOT-Regular.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\themes\default\styles\Graphics.xaml">
