@@ -96,19 +96,19 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ItemsList list = new ItemsList();
       FillList(contentDirectory, Consts.NECESSARY_MOVIES_MIAS, list, item => new MovieItem(item));
-      AllItems.Add(new TitledItem("Movies", list));
+      AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", list));
 
       list = new ItemsList();
       FillList(contentDirectory, Consts.NECESSARY_SERIES_MIAS, list, item => new SeriesItem(item));
-      AllItems.Add(new TitledItem("Series", list));
+      AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", list));
 
       list = new ItemsList();
       FillList(contentDirectory, Consts.NECESSARY_IMAGE_MIAS, list, item => new ImageItem(item));
-      AllItems.Add(new TitledItem("Images", list));
+      AllItems.Add(new TitledItem("[Media.ImagesMenuItem]", list));
 
       list = new ItemsList();
       FillList(contentDirectory, Consts.NECESSARY_AUDIO_MIAS, list, item => new AudioItem(item));
-      AllItems.Add(new TitledItem("Audio", list));
+      AllItems.Add(new TitledItem("[Media.AudioMenuItem]", list));
 
       AllItems.FireChange();
     }
