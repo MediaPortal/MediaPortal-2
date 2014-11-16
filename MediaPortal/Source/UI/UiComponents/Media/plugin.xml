@@ -212,6 +212,7 @@
   <!-- MediaItemActions -->
   <Builder Name="MediaItemActionBuilder" ClassName="MediaPortal.UiComponents.Media.Extensions.MediaItemActionBuilder"/>
   <Register Location="/Media/Extensions">
+    <MediaItemActionBuilder Id="{6693EE38-DDC9-4463-8AF1-9EFD75473B3B}" Caption="[Media.AddAllToPlaylist]" Sort="A.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.AddAllToPlaylist"/>
     <MediaItemActionBuilder Id="{A6DC6A3C-3F90-493A-84C5-0E4400E7A949}" Caption="[Media.SetUnwatched]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SetUnwatched"/>
     <MediaItemActionBuilder Id="{6840E4DB-3787-421F-910E-7450BD5A408C}" Caption="[Media.SetWatched]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SetWatched"/>
     <MediaItemActionBuilder Id="{37417344-B43E-486F-A2C5-DFF9E8C1C8E1}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.DeleteFromStorage"/>
