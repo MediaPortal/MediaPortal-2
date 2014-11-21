@@ -81,30 +81,30 @@
         <ItemsPanelTemplate>
           <Grid x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
-              <ColumnDefinition Width="100"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
+              <ColumnDefinition Width="{ThemeResource GridLayoutWidth}"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="100"/>
-              <RowDefinition Height="100"/>
-              <RowDefinition Height="100"/>
-              <RowDefinition Height="100"/>
-              <RowDefinition Height="100"/>
-              <RowDefinition Height="100"/>
+              <RowDefinition Height="{ThemeResource GridLayoutHeight}"/>
+              <RowDefinition Height="{ThemeResource GridLayoutHeight}"/>
+              <RowDefinition Height="{ThemeResource GridLayoutHeight}"/>
+              <RowDefinition Height="{ThemeResource GridLayoutHeight}"/>
+              <RowDefinition Height="{ThemeResource GridLayoutHeight}"/>
+              <RowDefinition Height="{ThemeResource GridLayoutHeight}"/>
             </Grid.RowDefinitions>
           </Grid>
         </ItemsPanelTemplate>

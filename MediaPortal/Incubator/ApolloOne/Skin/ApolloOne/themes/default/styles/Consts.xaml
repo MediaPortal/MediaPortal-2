@@ -8,6 +8,10 @@
   <ResourceWrapper x:Key="HeaderPanelHeight" Resource="135" />
   <ResourceWrapper x:Key="FooterPanelHeight" Resource="220" />
 
+  <!-- Grouped home layout -->
+  <ResourceWrapper x:Key="GridLayoutWidth" Resource="107" />
+  <ResourceWrapper x:Key="GridLayoutHeight" Resource="100" />
+
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlBorderRadius" Resource="15" />
 
