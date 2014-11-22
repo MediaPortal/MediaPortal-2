@@ -36,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// Represents an object which can contain foreign attached properties.
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
   /// which is needed for
-  /// <see cref="MediaPortal.UI.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
+  /// <see cref="BindingExtension">bindings</see>.
   /// </summary>
   public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
   {
@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     void Init()
     {
-      _dataContextProperty = new SProperty(typeof(BindingMarkupExtension), null);
+      _dataContextProperty = new SProperty(typeof(BindingExtension), null);
       _logicalParentProperty = new SProperty(typeof(DependencyObject), null);
     }
 
@@ -115,9 +115,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <summary>
     /// Gets or sets the data context binding.
     /// </summary>
-    public BindingMarkupExtension DataContext
+    public BindingExtension DataContext
     {
-      get { return (BindingMarkupExtension) _dataContextProperty.GetValue(); }
+      get { return (BindingExtension) _dataContextProperty.GetValue(); }
       set { _dataContextProperty.SetValue(value); }
     }
 
@@ -180,9 +180,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
     }
 
-    public BindingMarkupExtension GetOrCreateDataContext()
+    public BindingExtension GetOrCreateDataContext()
     {
-      return DataContext ?? (DataContext = new BindingMarkupExtension(this));
+      return DataContext ?? (DataContext = new BindingExtension(this));
     }
 
     public ICollection<BindingBase> GetOrCreateBindingCollection()

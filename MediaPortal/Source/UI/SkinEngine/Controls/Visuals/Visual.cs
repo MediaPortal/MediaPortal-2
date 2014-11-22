@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Gets or sets the context. This is a convenience property for setting the <see cref="DependencyObject.DataContext"/>
-    /// with a <see cref="BindingMarkupExtension.Source"/> value of the given <paramref name="value"/>.
+    /// with a <see cref="BindingExtension.Source"/> value of the given <paramref name="value"/>.
     /// </summary>
     /// <value>The source value used as data context.</value>
     public object Context
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return DataContext == null ? null : DataContext.Source; }
       set
       {
-        BindingMarkupExtension bme = DataContext;
+        BindingExtension bme = DataContext;
         object oldContext = bme == null ? null : bme.Source;
         if (value == null)
         {
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
         else if (DataContext == null)
         {
-          BindingMarkupExtension dc = new BindingMarkupExtension(this) {Source = value}; // Set the context value before setting the DataContext property
+          BindingExtension dc = new BindingExtension(this) {Source = value}; // Set the context value before setting the DataContext property
           DataContext = dc;
         }
         else

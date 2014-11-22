@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
-    protected BindingMarkupExtension _source;
+    protected BindingExtension _source;
     protected string _path = null;
 
     protected PathExpression _compiledPath = null;
@@ -56,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected CommandBaseMarkupExtension()
     {
-      _source = new BindingMarkupExtension(this);
+      _source = new BindingExtension(this);
     }
 
     protected CommandBaseMarkupExtension(string path): this()
@@ -93,7 +93,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { _source.ElementName = value; }
     }
 
-    public RelativeSource RelativeSource
+    public RelativeSourceExtension RelativeSource
     {
       get { return _source.RelativeSource; }
       set { _source.RelativeSource = value; }

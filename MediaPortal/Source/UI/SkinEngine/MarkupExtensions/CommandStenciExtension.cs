@@ -22,31 +22,38 @@
 
 #endregion
 
-using System;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
-using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Commands;
 
-namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
-  /// <see cref="PriorityBindingConverter"/> will use the first valid binding that can be evaluated. 
-  /// It requires <see cref="MultiBindingExtension.AllowEmptyBinding"/> set to <c>true</c>, otherwise the markup extension
-  /// won't evaluate other bindings.
+  /// Implements the MPF CommandStencil markup extension.
   /// </summary>
-  public class PriorityBindingConverter : IMultiValueConverter
+  public class CommandStenciExtension : CommandBaseMarkupExtension, ICommandStencil
   {
-    public bool Convert (IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    #region Ctor
+
+    public CommandStenciExtension()
+    { }
+
+    public CommandStenciExtension(string path) : base(path)
+    { }
+
+    #endregion
+
+    #region Protected properties and methods
+
+    protected override string CommandTypeName
     {
-      foreach (IDataDescriptor dataDescriptor in values)
-      {
-        if (dataDescriptor !=  null)
-        {
-          result = dataDescriptor.Value;
-          return true;
-        }
-      }
-      result = false;
-      return false;
+      get { return "CommandStencil"; }
     }
+
+    #endregion
+
+    #region ICommandStencil implementation
+
+    // method Execute(IList<object> parameters) inherited from CommandBaseMarkupExtension
+
+    #endregion
   }
 }

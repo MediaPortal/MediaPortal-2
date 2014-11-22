@@ -22,31 +22,30 @@
 
 #endregion
 
-using System;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
-using MediaPortal.UI.SkinEngine.Xaml;
-
-namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
-  /// <see cref="PriorityBindingConverter"/> will use the first valid binding that can be evaluated. 
-  /// It requires <see cref="MultiBindingExtension.AllowEmptyBinding"/> set to <c>true</c>, otherwise the markup extension
-  /// won't evaluate other bindings.
+  /// Implements the MPF TemplateBinding markup extension.
   /// </summary>
-  public class PriorityBindingConverter : IMultiValueConverter
+  public class TemplateBindingExtension: BindingExtension
   {
-    public bool Convert (IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    public TemplateBindingExtension()
     {
-      foreach (IDataDescriptor dataDescriptor in values)
-      {
-        if (dataDescriptor !=  null)
-        {
-          result = dataDescriptor.Value;
-          return true;
-        }
-      }
-      result = false;
-      return false;
+      RelativeSource = RelativeSourceExtension.TemplatedParent;
     }
+
+    public TemplateBindingExtension(string path) : base(path)
+    {
+      RelativeSource = RelativeSourceExtension.TemplatedParent;
+    }
+
+    #region Protected methods
+
+    protected override string BindingTypeName
+    {
+      get { return "TemplateBinding"; }
+    }
+
+    #endregion
   }
 }

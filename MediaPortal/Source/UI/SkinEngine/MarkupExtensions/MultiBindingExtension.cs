@@ -76,9 +76,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     #region Ctor
 
     /// <summary>
-    /// Creates a new <see cref="BindingMarkupExtension"/> instance.
+    /// Creates a new <see cref="BindingExtension"/> instance.
     /// </summary>
-    public MultiBindingMarkupExtension()
+    public MultiBindingExtension()
     {
       Attach();
     }
@@ -118,12 +118,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      MultiBindingMarkupExtension mbme = (MultiBindingMarkupExtension) source;
+      MultiBindingExtension mbme = (MultiBindingExtension) source;
       Converter = copyManager.GetCopy(mbme.Converter);
       ConverterParameter = copyManager.GetCopy(mbme.ConverterParameter);
       Mode = mbme.Mode;
       AllowEmptyBinding = mbme.AllowEmptyBinding;
-      foreach (BindingMarkupExtension childBinding in mbme._childBindings)
+      foreach (BindingExtension childBinding in mbme._childBindings)
         _childBindings.Add(copyManager.GetCopy(childBinding));
       Attach();
     }
@@ -284,7 +284,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// Attaches this multi binding to change events of the specified (child) binding <paramref name="bme"/>.
     /// </summary>
     /// <param name="bme">(Child) binding to be attached to.</param>
-    protected void AttachToSourceBinding(BindingMarkupExtension bme)
+    protected void AttachToSourceBinding(BindingExtension bme)
     {
       IDataDescriptor dd = bme.EvaluatedSourceValue;
       dd.Attach(OnSourceBindingChanged);
@@ -317,7 +317,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       IDataDescriptor[] values = new IDataDescriptor[_childBindings.Count];
       for (int i = 0; i < _childBindings.Count; i++)
       {
-        BindingMarkupExtension bme = _childBindings[i];
+        BindingExtension bme = _childBindings[i];
         IDataDescriptor evaluatedValue;
         AttachToSourceBinding(bme);
         if (!bme.Evaluate(out evaluatedValue) && !allowEmptyBinding)
@@ -447,7 +447,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       base.Activate();
       // Child bindings are never really "bound", because they are instantiated normally without binding them
       // to a target property, so we have to activate them manually
-      foreach (BindingMarkupExtension childBinding in _childBindings)
+      foreach (BindingExtension childBinding in _childBindings)
         childBinding.Activate();
       UpdateBinding();
     }
@@ -456,7 +456,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region IAddChild<BindingMarkupExtension> implementation
 
-    public void AddChild(BindingMarkupExtension o)
+    public void AddChild(BindingExtension o)
     {
       _childBindings.Add(o);
       o.AttachToTargetObject(this);

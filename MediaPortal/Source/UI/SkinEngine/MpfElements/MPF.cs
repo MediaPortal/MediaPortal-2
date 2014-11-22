@@ -203,21 +203,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("StringFormatConverter", typeof(SkinEngine.MpfElements.Converters.StringFormatConverter));
 
       // Markup extensions
-      _objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));
-      _objectClassRegistrations.Add("DynamicResource", typeof(SkinEngine.MarkupExtensions.DynamicResourceMarkupExtension));
-      _objectClassRegistrations.Add("ThemeResource", typeof(SkinEngine.MarkupExtensions.ThemeResourceMarkupExtension));
-      _objectClassRegistrations.Add("Binding", typeof(SkinEngine.MarkupExtensions.BindingMarkupExtension));
-      _objectClassRegistrations.Add("MultiBinding", typeof(SkinEngine.MarkupExtensions.MultiBindingMarkupExtension));
-      _objectClassRegistrations.Add("TemplateBinding", typeof(SkinEngine.MarkupExtensions.TemplateBindingMarkupExtension));
-      _objectClassRegistrations.Add("PickupBinding", typeof(SkinEngine.MarkupExtensions.PickupBindingMarkupExtension));
-      _objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandMarkupExtension));
-      _objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStencilMarkupExtension));
-      _objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.GetModelMarkupExtension));
-      _objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceRegistrationMarkupExtension));
-      _objectClassRegistrations.Add("Color", typeof(SkinEngine.MarkupExtensions.ColorMarkupExtension));
+      _objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceExtension));
+      _objectClassRegistrations.Add("DynamicResource", typeof(SkinEngine.MarkupExtensions.DynamicResourceExtension));
+      _objectClassRegistrations.Add("ThemeResource", typeof(SkinEngine.MarkupExtensions.ThemeResourceExtension));
+      _objectClassRegistrations.Add("Binding", typeof(SkinEngine.MarkupExtensions.BindingExtension));
+      _objectClassRegistrations.Add("MultiBinding", typeof(SkinEngine.MarkupExtensions.MultiBindingExtension));
+      _objectClassRegistrations.Add("TemplateBinding", typeof(SkinEngine.MarkupExtensions.TemplateBindingExtension));
+      _objectClassRegistrations.Add("PickupBinding", typeof(SkinEngine.MarkupExtensions.PickupBindingExtension));
+      _objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandExtension));
+      _objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStenciExtension));
+      _objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.ModelExtension));
+      _objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceExtension));
+      _objectClassRegistrations.Add("Color", typeof(SkinEngine.MarkupExtensions.ColorExtension));
 
       // Others
-      _objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
+      _objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSourceExtension));
 
       // Effects
       // Image effects based on ImageContext

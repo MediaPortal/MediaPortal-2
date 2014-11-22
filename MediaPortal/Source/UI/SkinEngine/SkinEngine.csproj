@@ -259,13 +259,13 @@
     </Compile>
     <Compile Include="InputManagement\ClipboardManager.cs" />
     <Compile Include="InputManagement\InputMapper.cs" />
-    <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\ColorExtension.cs" />
     <Compile Include="MarkupExtensions\IMultiValueConverter.cs" />
     <Compile Include="MarkupExtensions\ITypeConverter.cs" />
     <Compile Include="MarkupExtensions\IValueConverter.cs" />
-    <Compile Include="MarkupExtensions\MultiBindingMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\MultiBindingExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
-    <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\ThemeResourceExtension.cs" />
     <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
     <Compile Include="MpfElements\Converters\AbstractSingleDirectionConverter.cs" />
     <Compile Include="MpfElements\Converters\EmptyString2FalseConverter.cs" />
@@ -353,8 +353,8 @@
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\CommandStencilMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\PickupBindingMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\CommandStenciExtension.cs" />
+    <Compile Include="MarkupExtensions\PickupBindingExtension.cs" />
     <Compile Include="MpfElements\Resources\BindingWrapper.cs" />
     <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
     <Compile Include="MpfElements\Resources\ValueWrapper.cs" />
@@ -442,10 +442,10 @@
     <Compile Include="InputManagement\InputManager.cs" />
     <Compile Include="MarkupExtensions\BindingDependency.cs" />
     <Compile Include="MarkupExtensions\BindingBase.cs" />
-    <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\DynamicResourceMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\ServiceRegistrationMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\RelativeSource.cs" />
+    <Compile Include="MarkupExtensions\CommandExtension.cs" />
+    <Compile Include="MarkupExtensions\DynamicResourceExtension.cs" />
+    <Compile Include="MarkupExtensions\ServiceExtension.cs" />
+    <Compile Include="MarkupExtensions\RelativeSourceExtension.cs" />
     <Compile Include="MarkupExtensions\TreeHelper.cs" />
     <Compile Include="MpfElements\MpfCopyManager.cs" />
     <Compile Include="MpfElements\MPF.cs" />
@@ -480,10 +480,10 @@
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigSetting.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigSetting.cs" />
     <Compile Include="Xaml\ParserHelper.cs" />
-    <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\BindingExtension.cs" />
+    <Compile Include="MarkupExtensions\TemplateBindingExtension.cs" />
+    <Compile Include="MarkupExtensions\StaticResourceExtension.cs" />
+    <Compile Include="MarkupExtensions\ModelExtension.cs" />
     <Compile Include="ScreenManagement\Animator.cs" />
     <Compile Include="ScreenManagement\Screen.cs" />
     <Compile Include="ScreenManagement\ScreenManager.cs" />

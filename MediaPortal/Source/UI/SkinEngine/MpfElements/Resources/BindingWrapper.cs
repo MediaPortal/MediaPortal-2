@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// <summary>
   /// Class to wrap a Binding instance. This is useful if a binding should be
   /// used as a template for a usage in another place. The binding can be accessed
-  /// and copied by using the <see cref="PickupBindingMarkupExtension"/>.
+  /// and copied by using the <see cref="PickupBindingExtension"/>.
   /// </summary>
   public class BindingWrapper : DependencyObject, IContentEnabled
   {
