@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -38,7 +40,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// which is needed for
   /// <see cref="BindingExtension">bindings</see>.
   /// </summary>
-  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
+  [TypeConverter(typeof(MPFConverter<DependencyObject>))]
+  public class DependencyObject : IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
   {
     #region Protected fields
 

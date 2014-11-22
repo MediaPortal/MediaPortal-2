@@ -22,11 +22,14 @@
 
 #endregion
 
+using System.ComponentModel;
 using System.Globalization;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  [TypeConverter(typeof(MPFConverter<Thickness>))]
   public class Thickness : IDeepCopyable
   {
     #region Protected fields
