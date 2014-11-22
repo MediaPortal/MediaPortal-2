@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using SharpDX;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -29,6 +30,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
+  [ContentProperty("Children")]
   public class TransformGroup : Transform, IAddChild<Transform>
   {
     #region Protected fields

@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
     /// <example>
     /// <code>
     /// &lt;ListView
-    ///     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
+    ///     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
     ///     ...
     ///     mp_special_workflow:WorkflowContext.StateSlot="MainMenu"&gt;
     ///   ...

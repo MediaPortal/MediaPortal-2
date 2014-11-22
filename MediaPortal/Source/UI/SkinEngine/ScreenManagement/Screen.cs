@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Markup;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common;
@@ -44,6 +45,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
+using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -90,6 +92,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
+  [ContentProperty("Root")]
   public class Screen : UIElement, INameScope, IAddChild<FrameworkElement>, IUnmodifiableResource
   {
     #region Consts
@@ -230,6 +233,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public FrameworkElement Root
     {
       get { return _root; }
+      set { /* not supported, only implemented for XAML validation ! */ }
     }
 
     /// <summary>

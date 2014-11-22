@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -63,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
   public enum Orientation { Vertical, Horizontal };
 
+  [ContentProperty("Children")]
   public abstract class Panel : FrameworkElement, IAddChild<FrameworkElement>
   {
     #region Constants

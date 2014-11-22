@@ -287,7 +287,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualPositionProperty = new SProperty(typeof(PointF), new PointF(0, 0));
       _marginProperty = new SProperty(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
-      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _triggerProperty = new SProperty(typeof(TriggerCollection), new TriggerCollection());
       _renderTransformProperty = new SProperty(typeof(Transform), null);
       _layoutTransformProperty = new SProperty(typeof(Transform), null);
       _renderTransformOriginProperty = new SProperty(typeof(Vector2), new Vector2(0, 0));
@@ -483,9 +483,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Before triggers are modified, <see cref="UninitializeTriggers"/> must be called to make the old triggers be reset and the new triggers
     /// be initialized correctly.
     /// </remarks>
-    public IList<TriggerBase> Triggers
+    public TriggerCollection Triggers
     {
-      get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
+      get { return (TriggerCollection)_triggerProperty.GetValue(); }
     }
 
     public AbstractProperty ActualPositionProperty

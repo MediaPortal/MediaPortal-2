@@ -23,11 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
@@ -45,6 +47,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
+  [ContentProperty("TemplateElement")]
   public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<FrameworkElement>, IUnmodifiableResource
   {
     #region Protected fields
@@ -129,6 +132,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     public FrameworkElement TemplateElement
     {
       get { return _templateElement; }
+      set { /* Only for XAML */ }
     }
 
     #endregion

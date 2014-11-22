@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -31,11 +33,13 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
+using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 
-namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles      
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 {
   // We implement <see cref="INameScope"/> to break the namescope search and not escalate the search to our logical parent.
   // Named elements in a style must not interfere with other elements contained in our logical parent.
+  [ContentProperty("Setters")]
   public class Style: DependencyObject, INameScope, IAddChild<SetterBase>, IImplicitKey, IUnmodifiableResource
   {
     #region Consts
@@ -47,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     #region Protected fields
 
     protected Style _basedOn = null;
-    protected IList<SetterBase> _setters = new List<SetterBase>();
+    protected SetterBaseCollection _setters = new SetterBaseCollection();
     protected AbstractProperty _targetTypeProperty;
     protected AbstractProperty _triggersProperty;
     protected ResourceDictionary _resources;
@@ -65,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     void Init()
     {
       _targetTypeProperty = new SProperty(typeof(Type), null);
-      _triggersProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _triggersProperty = new SProperty(typeof(TriggerCollection), new TriggerCollection());
       _resources = new ResourceDictionary();
     }
 
@@ -119,9 +123,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       get { return _triggersProperty; }
     }
 
-    public IList<TriggerBase> Triggers
+    public TriggerCollection Triggers
     {
-      get { return (IList<TriggerBase>) _triggersProperty.GetValue(); }
+      get { return (TriggerCollection)_triggersProperty.GetValue(); }
+    }
+
+    public SetterBaseCollection Setters
+    {
+      get { return _setters; }
     }
 
     public ResourceDictionary Resources

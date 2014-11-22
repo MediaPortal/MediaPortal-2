@@ -22,19 +22,21 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
-  public class TransformCollection : DependencyObject, IObservable, IEnumerable<Transform>
+  public class TransformCollection : DependencyObject, IObservable, IEnumerable<Transform>, ICollection
   {
     public class TransformEnumerator : IEnumerator<Transform>
     {
-      protected int index = -1;
+      protected int _index = -1;
       protected readonly IList<Transform> _elements;
 
       public TransformEnumerator(IList<Transform> elements)
@@ -46,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       {
         get
         {
-          return _elements[index];
+          return _elements[_index];
         }
       }
 
@@ -58,19 +60,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       {
         get
         {
-          return _elements[index];
+          return _elements[_index];
         }
       }
 
       public bool MoveNext()
       {
-        index++;
-        return (index < _elements.Count);
+        _index++;
+        return (_index < _elements.Count);
       }
 
       public void Reset()
       {
-        index = -1;
+        _index = -1;
       }
     }
 
@@ -130,10 +132,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Fire();
     }
 
+    public void CopyTo(Array array, int index)
+    {
+      _elements.ToArray().CopyTo(array, index);
+    }
+
     public int Count
     {
       get { return _elements.Count; }
     }
+
+    public object SyncRoot { get { return this; } }
+    public bool IsSynchronized { get { return false; } }
 
     public Transform this[int index]
     {

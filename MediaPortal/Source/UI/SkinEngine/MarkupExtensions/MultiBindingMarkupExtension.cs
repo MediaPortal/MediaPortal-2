@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -43,12 +45,13 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   // update model properties we're bound to. But currently, we only synchronize the MultiBinding against multithreading problems
   // because the probability that a MultiBinding is updated by multiple threads is much higher than the probability for a normal Binding.
   // This comment can also be found in BindingMarkupExtension.
-  public class MultiBindingMarkupExtension: BindingBase, IAddChild<BindingMarkupExtension>
+  [ContentProperty("Bindings")]
+  public class MultiBindingExtension: BindingBase, IAddChild<BindingExtension>
   {
     #region Protected fields
 
     // Binding configuration properties
-    protected IList<BindingMarkupExtension> _childBindings = new List<BindingMarkupExtension>();
+    protected Collection<BindingExtension> _childBindings = new Collection<BindingExtension>();
     protected IMultiValueConverter _converter = null;
     protected object _converterParameter = null;
     protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
@@ -158,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <summary>
     /// Gets the list of our child bindings.
     /// </summary>
-    public IList<BindingMarkupExtension> Bindings
+    public Collection<BindingExtension> Bindings
     {
       get { return _childBindings; }
     }

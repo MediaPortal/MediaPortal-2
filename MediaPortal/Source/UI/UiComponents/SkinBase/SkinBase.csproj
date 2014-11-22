@@ -62,6 +62,10 @@
       <Name>MediaPortal.Utilities</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
+      <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">

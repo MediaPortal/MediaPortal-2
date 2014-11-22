@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -39,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 
-  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope, IBindingContainer
+  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope, IBindingContainer, IDictionary
   {
     #region Protected fields
 
@@ -56,6 +57,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     #endregion
 
     #region Ctor & maintainance
+
+    public ResourceDictionary()
+    {
+      IsFixedSize = false;
+    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -432,9 +438,24 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       return _resources != null && _resources.ContainsKey(key);
     }
 
+    public bool Contains(object key)
+    {
+      return _resources != null && ((IDictionary)_resources).Contains(key);
+    }
+
     public void Add(object key, object value)
     {
       Add(key, value, true);
+    }
+
+    IDictionaryEnumerator IDictionary.GetEnumerator()
+    {
+      return ((IDictionary)_resources).GetEnumerator();
+    }
+
+    void IDictionary.Remove(object key)
+    {
+      ((IDictionary)_resources).Remove(key);
     }
 
     public bool Remove(object key)
@@ -464,6 +485,16 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public ICollection<object> Keys
     {
       get { return _resources == null ? EMPTY_OBJECT_COLLECTION : _resources.Keys; }
+    }
+
+    ICollection IDictionary.Keys
+    {
+      get { return ((IDictionary)_resources).Keys; }
+    }
+
+    ICollection IDictionary.Values
+    {
+      get { return ((IDictionary)_resources).Values; }
     }
 
     public ICollection<object> Values
@@ -517,15 +548,32 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       return result;
     }
 
+    public void CopyTo(Array array, int index)
+    {
+      _resources.ToArray().CopyTo(array, index);
+    }
+
     public int Count
     {
       get { return _resources == null ? 0 : _resources.Count; }
+    }
+
+    bool ICollection.IsSynchronized
+    {
+      get { return ((ICollection)_resources).IsSynchronized; }
+    }
+
+    object ICollection.SyncRoot
+    {
+      get { return ((ICollection)_resources).SyncRoot; }
     }
 
     public bool IsReadOnly
     {
       get { return false; }
     }
+
+    public bool IsFixedSize { get; private set; }
 
     #endregion
 

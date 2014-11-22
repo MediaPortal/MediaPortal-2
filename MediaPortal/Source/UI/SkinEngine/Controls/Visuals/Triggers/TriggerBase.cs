@@ -51,8 +51,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _enterActionsProperty = new SProperty(typeof(IList<TriggerAction>), new List<TriggerAction>());
-      _exitActionsProperty = new SProperty(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _enterActionsProperty = new SProperty(typeof(TriggerActionCollection), new TriggerActionCollection());
+      _exitActionsProperty = new SProperty(typeof(TriggerActionCollection), new TriggerActionCollection());
       _settersProperty = new SProperty(typeof(IList<Setter>), new List<Setter>());
     }
 
@@ -114,9 +114,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _enterActionsProperty; }
     }
 
-    public IList<TriggerAction> EnterActions
+    public TriggerActionCollection EnterActions
     {
-      get { return (IList<TriggerAction>) _enterActionsProperty.GetValue(); }
+      get { return (TriggerActionCollection) _enterActionsProperty.GetValue(); }
     }
 
     public AbstractProperty ExitActionsProperty
@@ -124,9 +124,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _exitActionsProperty; }
     }
 
-    public IList<TriggerAction> ExitActions
+    public TriggerActionCollection ExitActions
     {
-      get { return (IList<TriggerAction>) _exitActionsProperty.GetValue(); }
+      get { return (TriggerActionCollection) _exitActionsProperty.GetValue(); }
     }
 
     public AbstractProperty SettersProperty

@@ -61,6 +61,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -93,11 +94,13 @@
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
     <Compile Include="Controls\Animations\DiscreteObjectKeyFrame.cs" />
+    <Compile Include="Controls\Animations\DoubleKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\ObjectAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleAnimation.cs" />
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\PropertyAnimationTimeline.cs" />
+    <Compile Include="Controls\Animations\TimeLineCollection.cs" />
     <Compile Include="Controls\Animations\TimelineContext.cs" />
     <Compile Include="Controls\Animations\ValueKeyFrame.cs" />
     <Compile Include="Controls\Animations\KeySpline.cs" />
@@ -142,6 +145,7 @@
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Panels\StarRatingPanel.cs" />
     <Compile Include="Controls\Visuals\Star.cs" />
+    <Compile Include="Controls\Visuals\Styles\SetterBaseCollection.cs" />
     <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
     <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />
     <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
@@ -167,6 +171,8 @@
     <Compile Include="Controls\Visuals\Triggers\SoundPlayerAction.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerActionCollection.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerCollection.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\BrushCache.cs" />

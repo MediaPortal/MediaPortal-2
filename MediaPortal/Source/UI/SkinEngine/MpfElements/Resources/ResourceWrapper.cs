@@ -23,9 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
+using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
@@ -34,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// the object is resolved by a markup extension, for example. Instances of this class
   /// will be automatically converted to the underlaying <see cref="Resource"/> object.
   /// </summary>
+  [ContentProperty("Resource")]
   public class ResourceWrapper : ValueWrapper, INameScope, IBindingContainer
   {
     #region Protected fields

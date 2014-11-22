@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -50,6 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     Repeat
   };
 
+  [ContentProperty("GradientStops")]
   public abstract class GradientBrush : Brush, IAddChild<object>
   {
     #region Protected fields

@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -135,6 +136,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   /// <summary>
   /// Represents a Timeline which consists of child timelines.
   /// </summary>
+  [ContentProperty("Children")]
   public abstract class TimelineGroup : Timeline, IList<Timeline>
   {
     #region Protected fields
@@ -152,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _childrenProperty = new SProperty(typeof(IList<Timeline>), new List<Timeline>());
+      _childrenProperty = new SProperty(typeof(TimeLineCollection), new TimeLineCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -179,9 +181,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _childrenProperty; }
     }
 
-    public IList<Timeline> Children
+    public TimeLineCollection Children
     {
-      get { return (IList<Timeline>) _childrenProperty.GetValue(); }
+      get { return (TimeLineCollection)_childrenProperty.GetValue(); }
     }
 
     public override double ActualDurationInMilliseconds

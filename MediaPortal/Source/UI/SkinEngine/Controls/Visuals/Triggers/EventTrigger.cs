@@ -23,18 +23,20 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
+  [ContentProperty("Actions")]
   public class EventTrigger : TriggerBase, IAddChild<TriggerAction>
   {
     #region Protected fields
 
     protected AbstractProperty _routedEventProperty;
-    protected IList<TriggerAction> _actions;
+    protected TriggerActionCollection _actions;
 
     protected UIElement _registeredUIElement = null;
 
@@ -50,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     void Init()
     {
       _routedEventProperty = new SProperty(typeof(string), string.Empty);
-      _actions = new List<TriggerAction>();
+      _actions = new TriggerActionCollection();
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -84,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _routedEventProperty.SetValue(value); }
     }
 
-    public IList<TriggerAction> Actions
+    public TriggerActionCollection Actions
     {
       get { return _actions; }
     }
