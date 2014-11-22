@@ -160,8 +160,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     protected void DisposeBindings()
     {
       if (_bindings != null)
-        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
-          _binding.Dispose();
+        foreach (BindingBase binding in new List<BindingBase>(_bindings))
+          binding.Dispose();
       _bindings = null;
       _deferredBindings = null;
     }

@@ -259,6 +259,7 @@
     </Compile>
     <Compile Include="InputManagement\ClipboardManager.cs" />
     <Compile Include="InputManagement\InputMapper.cs" />
+    <Compile Include="MarkupExtensions\MPFExtensionBase.cs" />
     <Compile Include="MarkupExtensions\ColorExtension.cs" />
     <Compile Include="MarkupExtensions\IMultiValueConverter.cs" />
     <Compile Include="MarkupExtensions\ITypeConverter.cs" />
@@ -492,11 +493,11 @@
     <Compile Include="Xaml\DefaultNamespaceHandler.cs" />
     <Compile Include="Xaml\ElementContextStack.cs" />
     <Compile Include="Xaml\XamlNamespace\XamlNamespaceHandler.cs" />
-    <Compile Include="Xaml\XamlNamespace\ArrayMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\ArrayExtension.cs" />
     <Compile Include="Xaml\XamlNamespace\XDataDirective.cs" />
-    <Compile Include="Xaml\XamlNamespace\TypeMarkupExtension.cs" />
-    <Compile Include="Xaml\XamlNamespace\NullMarkupExtension.cs" />
-    <Compile Include="Xaml\XamlNamespace\StaticMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\TypeExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\NullExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\StaticExtension.cs" />
     <Compile Include="Xaml\Parser.cs" />
     <Compile Include="Utils\CalcHelper.cs" />
   </ItemGroup>

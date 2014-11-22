@@ -23,36 +23,34 @@
 #endregion
 
 using System;
-using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.UI.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 {
-  public class ModelExtension: MPFExtensionBase, IEvaluableMarkupExtension, ISkinEngineManagedObject
+  public class TypeExtension : MPFExtensionBase, IEvaluableMarkupExtension
   {
 
     #region Protected fields
 
-    protected string _id = null;
-    protected object _model = null;
+    protected string _typeName = null;
+
+    protected Type _type = null;
 
     #endregion
 
-    public ModelExtension() { }
+    public TypeExtension() { }
 
-    public ModelExtension(string id)
+    public TypeExtension(string typeName)
     {
-      _id = id;
+      _typeName = typeName;
     }
 
     #region Properties
 
-    public string Id
-    {
-      get { return _id; }
-      set { _id = value; }
+    public string TypeName
+    { get { return _typeName; }
+      set { _typeName = value; }
     }
 
     #endregion
@@ -61,27 +59,13 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      if (Id == null)
-        throw new XamlBindingException("GetModelMarkupExtension: Property Id has to be given");
-      IModelLoader loader = context.GetContextVariable(typeof(IModelLoader)) as IModelLoader;
-      if (loader == null)
-        throw new XamlBindingException("GetModelMarkupExtension: No model loader instance present in parser context");
-      _model = loader.GetOrLoadModel(new Guid(Id));
+      _type =  ParserHelper.ParseType(context, _typeName);
     }
 
     bool IEvaluableMarkupExtension.Evaluate(out object value)
     {
-      value = _model;
-      return _model != null;
-    }
-
-    #endregion
-
-    #region Base overrides
-
-    public override string ToString()
-    {
-      return string.Format("Model Id={0}", _id);
+      value = _type;
+      return _type != null;
     }
 
     #endregion

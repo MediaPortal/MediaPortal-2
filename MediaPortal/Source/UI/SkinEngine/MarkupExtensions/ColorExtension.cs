@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// Only one color scheme can be used, either RGB or HSV, that means don't set both RGB and HSV values,
   /// else an exception will be thrown.
   /// </summary>
-  public class ColorExtension: IEvaluableMarkupExtension, ISkinEngineManagedObject
+  public class ColorExtension : MPFExtensionBase, IEvaluableMarkupExtension, ISkinEngineManagedObject
   {
     #region Protected fields
 

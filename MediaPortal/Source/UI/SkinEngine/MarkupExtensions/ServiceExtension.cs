@@ -39,7 +39,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public class ServiceExtension: IEvaluableMarkupExtension, ISkinEngineManagedObject
+  public class ServiceExtension : MPFExtensionBase, IEvaluableMarkupExtension, ISkinEngineManagedObject
   {
     #region Protected fields
 
