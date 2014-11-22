@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -32,6 +33,7 @@ using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
+  [ContentProperty("KeyFrames")]
   public class ColorAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<ColorKeyFrame>
   {
     #region Protected fields
@@ -49,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _keyFramesProperty = new SProperty(typeof(IList<ColorKeyFrame>), new List<ColorKeyFrame>());
+      _keyFramesProperty = new SProperty(typeof(ColorKeyFrameCollection), new ColorKeyFrameCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -77,9 +79,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _keyFramesProperty; }
     }
 
-    public IList<ColorKeyFrame> KeyFrames
+    public ColorKeyFrameCollection KeyFrames
     {
-      get { return _keyFramesProperty.GetValue() as IList<ColorKeyFrame>; }
+      get { return (ColorKeyFrameCollection)_keyFramesProperty.GetValue(); }
     }
 
     public override double ActualDurationInMilliseconds

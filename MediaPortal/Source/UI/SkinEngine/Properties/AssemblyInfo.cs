@@ -37,5 +37,6 @@ using System.Windows.Markup;
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Visuals.Styles", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Visuals.Templates", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers", AssemblyName = "SkinEngine")]
+[assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.MpfElements.Converters", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.MpfElements.Resources", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.MarkupExtensions", AssemblyName = "SkinEngine")]

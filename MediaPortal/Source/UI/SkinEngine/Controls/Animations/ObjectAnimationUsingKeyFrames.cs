@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _keyFramesProperty = new SProperty(typeof(IList<DiscreteObjectKeyFrame>), new List<DiscreteObjectKeyFrame>());
+      _keyFramesProperty = new SProperty(typeof(ObjectKeyFrameCollection), new ObjectKeyFrameCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -76,9 +76,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _keyFramesProperty; }
     }
 
-    public IList<DiscreteObjectKeyFrame> KeyFrames
+    public ObjectKeyFrameCollection KeyFrames
     {
-      get { return _keyFramesProperty.GetValue() as IList<DiscreteObjectKeyFrame>; }
+      get { return (ObjectKeyFrameCollection)_keyFramesProperty.GetValue(); }
     }
 
     public override double ActualDurationInMilliseconds
