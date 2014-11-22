@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;

@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       _enterActionsProperty = new SProperty(typeof(TriggerActionCollection), new TriggerActionCollection());
       _exitActionsProperty = new SProperty(typeof(TriggerActionCollection), new TriggerActionCollection());
-      _settersProperty = new SProperty(typeof(IList<Setter>), new List<Setter>());
+      _settersProperty = new SProperty(typeof(List<Setter>), new List<Setter>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -134,9 +134,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _settersProperty; }
     }
 
-    public IList<Setter> Setters
+    public List<Setter> Setters
     {
-      get { return (IList<Setter>) _settersProperty.GetValue(); }
+      get { return (List<Setter>) _settersProperty.GetValue(); }
     }
 
     #endregion
