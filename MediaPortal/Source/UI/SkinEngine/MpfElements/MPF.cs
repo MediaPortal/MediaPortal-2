@@ -25,7 +25,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.Commands;
@@ -64,6 +63,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     protected static IDictionary<string, Type> _objectClassRegistrations = new Dictionary<string, Type>();
     static MPF()
     {
+      // ReSharper disable RedundantNameQualifier
       // Screen
       _objectClassRegistrations.Add("Screen", typeof(SkinEngine.ScreenManagement.Screen));
 
@@ -227,6 +227,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("SimpleShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleShaderEffect));
+      // ReSharper restore RedundantNameQualifier
     }
 
     #endregion
@@ -249,7 +250,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       {
         PointCollection coll = new PointCollection();
         string text = value.ToString();
-        string[] parts = text.Split(new char[] { ',', ' ' });
+        string[] parts = text.Split(new[] { ',', ' ' });
         for (int i = 0; i < parts.Length; i += 2)
         {
           Point p = new Point(Int32.Parse(parts[i]), Int32.Parse(parts[i + 1]));
@@ -307,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (targetType == typeof(Transform))
       {
         string v = value.ToString();
-        string[] parts = v.Split(new char[] { ',' });
+        string[] parts = v.Split(new[] { ',' });
         if (parts.Length == 6)
         {
           float[] f = new float[parts.Length];
@@ -317,9 +318,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
             TypeConverter.Convert(parts[i], typeof(double), out obj);
             f[i] = (float)obj;
           }
-          System.Drawing.Drawing2D.Matrix matrix2d = new System.Drawing.Drawing2D.Matrix(f[0], f[1], f[2], f[3], f[4], f[5]);
+          System.Drawing.Drawing2D.Matrix matrix2D = new System.Drawing.Drawing2D.Matrix(f[0], f[1], f[2], f[3], f[4], f[5]);
           Static2dMatrix matrix = new Static2dMatrix();
-          matrix.Set2DMatrix(matrix2d);
+          matrix.Set2DMatrix(matrix2D);
           result = matrix;
           return true;
         }
@@ -581,7 +582,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         return new Vector2(0, 0);
       }
       Vector2 vec = new Vector2();
-      string[] coords = coordsString.Split(new char[] { ',' });
+      string[] coords = coordsString.Split(new[] { ',' });
       object obj;
       if (coords.Length > 0)
       {
@@ -613,7 +614,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         return new Vector3(0, 0, 0);
       }
       Vector3 vec = new Vector3();
-      string[] coords = coordsString.Split(new char[] { ',' });
+      string[] coords = coordsString.Split(new[] { ',' });
       object obj;
       if (coords.Length > 0)
       {
@@ -652,7 +653,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         return new Vector4(0, 0, 0, 0);
       }
       Vector4 vec = new Vector4();
-      string[] coords = coordsString.Split(new char[] { ',' });
+      string[] coords = coordsString.Split(new[] { ',' });
       object obj;
       if (coords.Length > 0)
       {
@@ -686,7 +687,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// is empty or if </exception>
     protected static float[] ParseFloatList(string numbersString)
     {
-      string[] numbers = numbersString.Split(new char[] { ',' });
+      string[] numbers = numbersString.Split(new[] { ',' });
       if (numbers.Length == 0)
         throw new ArgumentException("Empty list");
       float[] result = new float[numbers.Length];
