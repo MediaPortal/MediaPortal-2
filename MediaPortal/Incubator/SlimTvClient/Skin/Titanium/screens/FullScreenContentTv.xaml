@@ -2,7 +2,7 @@
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     x:Name="FullscreenLayoutTv"
     Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"
     >   <!-- DataContext model = SlimTvClient -->
