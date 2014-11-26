@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -31,7 +32,8 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
-  public class TriggerBase: DependencyObject
+  [ContentProperty("Setters")]
+  public class TriggerBase : DependencyObject
   {
     #region Protected fields
 
