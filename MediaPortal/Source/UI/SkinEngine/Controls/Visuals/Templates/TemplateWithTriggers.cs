@@ -48,14 +48,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     void Init()
     {
-      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _triggerProperty = new SProperty(typeof(TriggerCollection), new TriggerCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       TemplateWithTriggers twt = (TemplateWithTriggers) source;
-      IList<TriggerBase> triggers = Triggers;
+      TriggerCollection triggers = Triggers;
       foreach (TriggerBase t in twt.Triggers)
         triggers.Add(copyManager.GetCopy(t));
     }
@@ -76,9 +76,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       get { return _triggerProperty; }
     }
 
-    public IList<TriggerBase> Triggers
+    public TriggerCollection Triggers
     {
-      get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
+      get { return (TriggerCollection)_triggerProperty.GetValue(); }
     }
 
     #endregion
