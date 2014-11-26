@@ -2,12 +2,15 @@
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DependsOnStyleResources="Colors,Consts"
+    DependsOnStyleResources="ColorsOverrides,Consts"
     >
 
   <!-- Default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <ImageBrush ImageSource="Background.jpg" />
   </ResourceWrapper>
+
+  <!-- Default brush used to paint the background of a dialog -->
+  <ResourceWrapper x:Key="DialogBackgroundBrush" Value="Black" />
 
 </ResourceDictionary>

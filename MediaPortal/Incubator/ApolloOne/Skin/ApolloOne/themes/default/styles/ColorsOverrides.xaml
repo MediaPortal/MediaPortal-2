@@ -6,11 +6,24 @@
     >
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
 
-  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF6B94AF"/>
+  <!-- Button background and effects-->
+  <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#000F3369"/>
+
+  <ResourceWrapper x:Key="ButtonGradient2Color" Resource="#00050F20"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradient1Color" Resource="#FF0F3369"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradient2Color" Resource="#FF050F20"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradient3Color" Resource="#FF050F20"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF0F3369"/>
+
+  <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF050F20"/>
+
+  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#00000000"/>
 
   <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF959595"/>
-
-  <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF606060"/>
 
   <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FFB0B0B0"/>
 
@@ -24,7 +37,6 @@
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
   <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00A0C0FF" />
 
-  <!-- Button background and effects-->
   <ResourceWrapper x:Key="ButtonBackgroundFill" Resource="#80000000"/>
   <ResourceWrapper x:Key="ButtonBackgroundDisabledFill" Resource="#F0101010"/>
   <ResourceWrapper x:Key="ButtonBackgroundFocusFill" Resource="#70136D96"/>
@@ -39,5 +51,14 @@
 
   <!-- Text colors -->
   <ResourceWrapper x:Key="NonSelectedTextColor" Resource="#FF808080"/>
+
+  <!-- Semi transparent black used to darken the background when showing a dialog -->
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor">
+    <RadialGradientBrush GradientOrigin="0.5,0.5">
+      <GradientStop Color="#FF000000" Offset="0"/>
+      <GradientStop Color="#C0000000" Offset="0.3"/>
+      <GradientStop Color="#80000000" Offset="1"/>
+    </RadialGradientBrush>
+  </ResourceWrapper>
 
 </ResourceDictionary>

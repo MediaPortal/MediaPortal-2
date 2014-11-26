@@ -28,4 +28,13 @@
 
   <ResourceWrapper x:Key="OsdTitleFontSize" Resource="46"/>
 
+  <!-- Dialog related -->
+  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="12"/>
+
+  <!-- Button related -->
+  <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="15"/>
+  <ResourceWrapper x:Key="ButtonControlRadiusY" Resource="15"/>
+
+  <ResourceWrapper x:Key="FocusedButtonAnimationTime1" Resource="00:00:00.300"/>
+
 </ResourceDictionary>
