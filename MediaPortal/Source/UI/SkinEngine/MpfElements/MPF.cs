@@ -211,7 +211,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("TemplateBinding", typeof(SkinEngine.MarkupExtensions.TemplateBindingExtension));
       _objectClassRegistrations.Add("PickupBinding", typeof(SkinEngine.MarkupExtensions.PickupBindingExtension));
       _objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandExtension));
-      _objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStenciExtension));
+      _objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStencilExtension));
       _objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.ModelExtension));
       _objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceExtension));
       _objectClassRegistrations.Add("Color", typeof(SkinEngine.MarkupExtensions.ColorExtension));

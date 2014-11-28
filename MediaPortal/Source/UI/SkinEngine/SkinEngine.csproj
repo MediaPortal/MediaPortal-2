@@ -358,7 +358,7 @@
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\CommandStenciExtension.cs" />
+    <Compile Include="MarkupExtensions\CommandStencilExtension.cs" />
     <Compile Include="MarkupExtensions\PickupBindingExtension.cs" />
     <Compile Include="MpfElements\Resources\BindingWrapper.cs" />
     <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
@@ -535,12 +535,7 @@
     <None Include="Skin\default\shaders\imagecontext_base.fx" />
     <None Include="Skin\default\shaders\imagecontext_default.fx" />
     <None Include="Skin\default\shaders\imagecontext_transition_base.fx" />
-    <None Include="Skin\default\shaders\lineargradient_opacity.fx" />
-    <None Include="Skin\default\shaders\radialgradient_opacity.fx" />
-    <None Include="Skin\default\shaders\solid_opacity.fx" />
-    <None Include="Skin\default\shaders\tile_opacity.fx" />
     <None Include="Skin\default\shaders\tile_simple.fx" />
-    <None Include="Skin\default\shaders\tile_simple_opacity.fx" />
     <None Include="Skin\default\shaders\transforms\none.fx" />
     <None Include="Skin\default\shaders\transforms\smart_zoom.fx" />
     <None Include="Skin\default\shaders\video_base.fx" />

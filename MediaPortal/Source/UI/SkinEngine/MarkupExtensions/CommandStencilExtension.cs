@@ -29,14 +29,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <summary>
   /// Implements the MPF CommandStencil markup extension.
   /// </summary>
-  public class CommandStenciExtension : CommandBaseMarkupExtension, ICommandStencil
+  public class CommandStencilExtension : CommandBaseMarkupExtension, ICommandStencil
   {
     #region Ctor
 
-    public CommandStenciExtension()
+    public CommandStencilExtension()
     { }
 
-    public CommandStenciExtension(string path) : base(path)
+    public CommandStencilExtension(string path) : base(path)
     { }
 
     #endregion
