@@ -76,6 +76,7 @@
     <Content Include="Skin\ApolloOne\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\ApolloOne\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\ApolloOne\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\ApolloOne\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\ApolloOne\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
     <Content Include="Skin\ApolloOne\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
     <Content Include="Skin\ApolloOne\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
@@ -84,8 +85,12 @@
     <Content Include="Skin\ApolloOne\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\ApolloOne\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\ApolloOne\images\Background.jpg" />
+    <Content Include="Skin\ApolloOne\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
+    <Content Include="Skin\ApolloOne\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
     <Content Include="Skin\ApolloOne\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\ApolloOne\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
+    <Content Include="Skin\ApolloOne\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\ApolloOne\images\shadow_complete.png" />
     <Content Include="Skin\ApolloOne\skin.xml" />
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
