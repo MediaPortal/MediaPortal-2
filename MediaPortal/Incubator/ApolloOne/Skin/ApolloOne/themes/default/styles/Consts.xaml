@@ -31,6 +31,9 @@
   <!-- Dialog related -->
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="12"/>
 
+  <ResourceWrapper x:Key="FixedDialogWidth" Resource="670"/>
+  <ResourceWrapper x:Key="FixedDialogHeight" Resource="280"/>
+
   <!-- Button related -->
   <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="15"/>
   <ResourceWrapper x:Key="ButtonControlRadiusY" Resource="15"/>

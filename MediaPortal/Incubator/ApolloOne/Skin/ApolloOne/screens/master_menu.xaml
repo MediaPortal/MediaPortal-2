@@ -62,11 +62,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.Resources>
-          <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+          <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
         </Grid.Resources>
 
         <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow">
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -92,12 +92,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
 
         <!-- "Background" layer for menu in dialog style, it has a reasonable big margin to overlap full screen -->
+
         <Grid Background="{ThemeResource DialogScreenBackgroundColor}" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"
-               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-100,-500,-100,-500" />
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-100,-500,-100,-500">
+          <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            MousePositionMode="Relative"
+            Buttons="Left"
+            MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel}, Path=CloseMenu}">
+            <mp_special_controls:UserInputCapture.IsActive>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen" />
+                <Binding ElementName="MainMenu" Path="!IsKeyboardFocusWithin" />
+              </MultiBinding>
+            </mp_special_controls:UserInputCapture.IsActive>
+          </mp_special_controls:UserInputCapture>
+        </Grid>
 
         <!-- Menu items are presented same way as dialogs. That's why the layout is nearly identical. Changes to style need to be done in both places ! -->
 
-        <Grid x:Name="MainMenu" VerticalAlignment="Center" HorizontalAlignment="Center" DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+        <Grid x:Name="MainMenu" VerticalAlignment="Center" HorizontalAlignment="Center" DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"
+              Margin="0,45,0,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
@@ -136,20 +150,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
-                  Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
+                  Content="[Menu.Main]" Color="{ThemeResource DialogHeaderColor}"
                   VerticalAlignment="Center" HorizontalAlignment="Left"
                   IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
-                <Control x:Name="AlternativeHeaderControl" Grid.Row="0" Grid.Column="0"
-                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                  Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
-                  IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
-
-                <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"
-                  Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
               </Grid>
 
-              <ListView x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}" DockPanel.Dock="Center"
+              <ListView x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}" DockPanel.Dock="Center" Margin="0,0,0,10"
                 ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}" SetFocusPrio="DefaultLow"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListView.Resources>

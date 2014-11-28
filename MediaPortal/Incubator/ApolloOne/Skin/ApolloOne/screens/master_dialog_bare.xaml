@@ -29,6 +29,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     x:Name="DialogScreen"
     >
   <Screen.Triggers>
@@ -59,6 +60,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <TranslateTransform X="0" Y="0"/>
       </TransformGroup>
     </Grid.RenderTransform>
+    <Grid.Resources>
+      <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
+    </Grid.Resources>
+
+    <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            MousePositionMode="Relative"
+            Buttons="Left"
+            MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
+            IsActive="{Binding ElementName=ContentPanel, Path=!IsKeyboardFocusWithin}"/>
 
     <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
       <Grid.ColumnDefinitions>
@@ -108,8 +118,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
-            <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"
-              Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </Grid>
 
           <Control x:Name="ContentPanel" Margin="10" DockPanel.Dock="Center"

@@ -284,4 +284,19 @@
     </Setter>
   </Style>
 
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
+  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" 
+           Width="{ThemeResource FixedDialogWidth}" Height="{ThemeResource FixedDialogHeight}"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

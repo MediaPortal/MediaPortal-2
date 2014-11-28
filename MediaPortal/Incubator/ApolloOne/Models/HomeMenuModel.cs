@@ -25,11 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.ApolloOne.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
@@ -115,6 +117,16 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
       CreateMenuGroupItems();
       CreatePositionedItems();
       MenuItems.ObjectChanged += MenuItemsOnObjectChanged;
+    }
+
+    public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
+    {
+      ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+    }
+
+    public void CloseMenu(MouseButtons buttons, float x, float y)
+    {
+      ToggleMenu();
     }
 
     protected void MenuItemsOnObjectChanged(IObservable observable)

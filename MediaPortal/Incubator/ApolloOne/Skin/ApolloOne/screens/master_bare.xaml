@@ -34,6 +34,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Resources>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
+    <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
   </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
@@ -61,7 +62,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ImageBrush ImageSource="shadow_complete.png" />
     </DockPanel.Background>
 
-    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Height="{ThemeResource HeaderPanelHeight}">
+    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -108,7 +109,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- HeaderPanel -->
 
     <!-- PlayerControlsPanel -->
-    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,0">
+    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,0"
+                IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
 
       <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
               HorizontalAlignment="Left" VerticalAlignment="Top"

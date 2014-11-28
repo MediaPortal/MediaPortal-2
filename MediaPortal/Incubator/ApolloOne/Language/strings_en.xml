@@ -8,4 +8,6 @@
   <string name="Menu.Weather">Weather</string>
   <string name="Menu.Settings">Settings</string>
   <string name="Menu.Others">Others</string>
+
+  <string name="Menu.Main">Main Menu</string>
 </resources>
