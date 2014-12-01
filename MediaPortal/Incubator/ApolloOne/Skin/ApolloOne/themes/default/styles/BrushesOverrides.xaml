@@ -11,6 +11,6 @@
   </ResourceWrapper>
 
   <!-- Default brush used to paint the background of a dialog -->
-  <ResourceWrapper x:Key="DialogBackgroundBrush" Value="Black" />
+  <ResourceWrapper x:Key="DialogBackgroundBrush" Value="#B0000000" />
 
 </ResourceDictionary>
