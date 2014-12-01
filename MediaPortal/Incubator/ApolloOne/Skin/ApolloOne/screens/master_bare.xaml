@@ -108,6 +108,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid>
     <!-- HeaderPanel -->
 
+    <ListView x:Name="GroupList" DockPanel.Dock="Top" HorizontalAlignment="Center" Style="{ThemeResource HomeGroupListViewStyle}"
+            VerticalAlignment="Stretch"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}">
+      <ListView.Resources>
+        <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+      </ListView.Resources>
+    </ListView>
+
     <!-- PlayerControlsPanel -->
     <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,0"
                 IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
@@ -124,6 +132,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- FooterPanel -->
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea" DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,60,0,40"/>
+    <Control x:Name="ClientArea" DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,0,0,40"/>
   </DockPanel>
 </Screen>

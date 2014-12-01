@@ -46,6 +46,8 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
 
     public const string STR_HOMEMENU_MODEL_ID = "EBA16B93-B669-4162-9CA2-CB1D5E267EC3";
     public static readonly Guid HOMEMENU_MODEL_ID = new Guid(STR_HOMEMENU_MODEL_ID);
+    public const string STR_HOME_STATE_ID = "7F702D9C-F2DD-42da-9ED8-0BA92F07787F";
+    public static readonly Guid HOME_STATE_ID = new Guid(STR_HOME_STATE_ID);
 
     #endregion
 
@@ -210,6 +212,17 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
       ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
       CreatePositionedItems();
       UpdateSelectedGroup();
+      NavigateToHome();
+    }
+
+    private void NavigateToHome()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (workflowManager == null)
+        return;
+
+      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != HOME_STATE_ID)
+        workflowManager.NavigatePopToState(HOME_STATE_ID, false);
     }
 
     private void UpdateSelectedGroup()

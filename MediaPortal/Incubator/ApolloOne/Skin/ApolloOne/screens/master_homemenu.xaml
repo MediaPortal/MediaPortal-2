@@ -11,18 +11,10 @@
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="115,-100,0,-40">
+      <DockPanel LastChildFill="True" Margin="115,-40,0,-40">
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
         </DockPanel.Resources>
-
-        <ListView x:Name="GroupList" DockPanel.Dock="Top" HorizontalAlignment="Center" Style="{ThemeResource HomeGroupListViewStyle}"
-            VerticalAlignment="Stretch"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}">
-          <ListView.Resources>
-            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </ListView.Resources>
-        </ListView>
 
         <ap:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,70,0,0" 
             VerticalAlignment="Stretch" SetFocusPrio="Fallback"
