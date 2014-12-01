@@ -92,6 +92,7 @@
     <Content Include="Skin\ApolloOne\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\ApolloOne\images\shadow_complete.png" />
+    <Content Include="Skin\ApolloOne\images\ShutdownIcon.png" />
     <Content Include="Skin\ApolloOne\skin.xml" />
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
     <Content Include="Skin\ApolloOne\themes\default\workflow\ApolloOne-actions.xml" />
@@ -115,7 +116,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="Skin\ApolloOne\fonts\FiraSansOT.desc" />
+    <None Include="Skin\ApolloOne\fonts\DefaultBold.desc" />
+    <None Include="Skin\ApolloOne\fonts\Default.desc" />
     <None Include="Skin\ApolloOne\fonts\FiraSansOT-Light.ttf" />
     <None Include="Skin\ApolloOne\fonts\FiraSansOT-Regular.ttf" />
   </ItemGroup>

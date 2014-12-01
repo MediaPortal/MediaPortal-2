@@ -35,6 +35,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
     <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
+    <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
@@ -67,54 +68,57 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <!-- WindowButtonsPanel -->
-      <DockPanel x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" LastChildFill="True" Margin="5"
-          VerticalAlignment="Top" HorizontalAlignment="Left" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
+      <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Top" Grid.Column="0" 
+          IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/>
 
-        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
-            OpacityMask="#A0000000" HorizontalAlignment="Left" 
-            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-          <Button.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.Setters>
-                <Setter Property="OpacityMask" Value="#FF000000"/>
-              </Trigger.Setters>
-            </Trigger>
-          </Button.Triggers>
-        </Button>
-      </DockPanel>
-
-      <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Top" Grid.Column="1" />
-
-      <Control x:Name="NotificationControl" Grid.Column="2" Grid.Row="0" Margin="10" Style="{ThemeResource NotificationControlStyle}"
+      <Control x:Name="NotificationControl" Grid.Column="1" Margin="10" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Top"/>
-
-      <DockPanel LastChildFill="True" Grid.Column="3" Grid.Row="0" Margin="10" Width="64" Height="64"
-          HorizontalAlignment="Right" VerticalAlignment="Top">
-        <Image x:Name="HomeServerConnected" Stretch="Uniform"
-            IsVisible="{Binding Source={StaticResource HomeServerModel},Path=IsHomeServerConnected}"
-            Source="server-connected-icon.png"/>
-        <Image x:Name="HomeServerDisconnected" Stretch="Uniform"
-            IsVisible="{Binding Source={StaticResource HomeServerModel},Path=!IsHomeServerConnected}"
-            Source="server-disconnected-icon.png"/>
-      </DockPanel>
 
     </Grid>
     <!-- HeaderPanel -->
 
-    <ListView x:Name="GroupList" DockPanel.Dock="Top" HorizontalAlignment="Center" Style="{ThemeResource HomeGroupListViewStyle}"
+    <Grid DockPanel.Dock="Top" HorizontalAlignment="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- Power button -->
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Column="0" Margin="-3,-3,20,-3"
+            OpacityMask="#A0000000" HorizontalAlignment="Left" VerticalAlignment="Top"
+            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="OpacityMask" Value="#FF000000"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Button.Triggers>
+      </Button>
+
+      <!-- Group tabs -->
+      <ListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Column="1"
             VerticalAlignment="Stretch"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}">
-      <ListView.Resources>
-        <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-      </ListView.Resources>
-    </ListView>
+        <ListView.Resources>
+          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+        </ListView.Resources>
+      </ListView>
+      
+      <!-- Time -->
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="2" Margin="10,-16,0,0"
+             FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+             Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+
+    </Grid>
 
     <!-- PlayerControlsPanel -->
     <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,0"

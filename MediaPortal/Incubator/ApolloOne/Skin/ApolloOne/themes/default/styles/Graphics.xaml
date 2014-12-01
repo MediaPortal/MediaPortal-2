@@ -80,16 +80,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="PowerControlTemplate">
-    <Grid>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="25"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="25"/>
-      </Grid.RowDefinitions>
-      <Label Content="P" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
-          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </Grid>
+    <Image Source="ShutdownIcon.png" Width="39" Height="30" Margin="5" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="WindowCloseControlTemplate">
