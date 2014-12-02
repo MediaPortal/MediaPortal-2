@@ -5,7 +5,7 @@
     >
 
   <!-- Master_Bare layout -->
-  <ResourceWrapper x:Key="HeaderPanelHeight" Resource="135" />
+  <ResourceWrapper x:Key="HeaderPanelHeight" Resource="100" />
   <ResourceWrapper x:Key="FooterPanelHeight" Resource="220" />
 
   <!-- Grouped home layout -->

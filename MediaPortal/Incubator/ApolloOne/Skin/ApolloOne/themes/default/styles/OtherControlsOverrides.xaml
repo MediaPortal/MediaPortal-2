@@ -136,7 +136,7 @@
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
     <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="20,0,20,0"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource NonSelectedTextColor}"/>
+        FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource NonSelectedTextColor}"/>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
