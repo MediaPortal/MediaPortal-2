@@ -7,12 +7,14 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
+    xmlns:apc="clr-namespace:MediaPortal.UiComponents.ApolloOne.Converters;assembly=ApolloOne"
     DependsOnStyleResources="ColorsOverrides,ButtonsOverrides,Consts,OtherControls"
     >
 
   <!-- BackgroundManager model -->
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
+  <apc:StringCaseConverter x:Key="StringCaseConverter"/>
 
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="MainMenuMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
@@ -134,7 +136,7 @@
   </Style>
 
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="20,0,20,0"
+    <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}" Margin="20,0,20,0"
         HorizontalAlignment="Center" VerticalAlignment="Center"
         FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource NonSelectedTextColor}"/>
   </DataTemplate>
