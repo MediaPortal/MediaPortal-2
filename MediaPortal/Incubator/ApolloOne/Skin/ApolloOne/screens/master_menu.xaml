@@ -167,10 +167,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Border>
 
           <Grid.Triggers>
-            <!-- Setting default state of menu to hidden -->
-            <EventTrigger RoutedEvent="Screen.Show">
-              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-            </EventTrigger>
             <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
             <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
               <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />

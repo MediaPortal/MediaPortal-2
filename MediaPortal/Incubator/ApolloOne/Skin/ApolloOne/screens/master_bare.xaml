@@ -39,6 +39,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
+      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
       <EventTrigger.Actions>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
@@ -94,6 +95,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- Power button -->
       <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Column="0" Margin="-3,-3,20,-3"
             OpacityMask="#A0000000" HorizontalAlignment="Left" VerticalAlignment="Top"
+            IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
             Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
         <Button.Triggers>
           <Trigger Property="HasFocus" Value="True">
@@ -107,6 +109,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- Group tabs -->
       <ListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Column="1"
             VerticalAlignment="Stretch"
+            IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}">
         <ListView.Resources>
           <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
@@ -137,5 +140,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
     <Control x:Name="ClientArea" DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,0,0,40"/>
+
   </DockPanel>
 </Screen>

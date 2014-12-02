@@ -210,9 +210,9 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
     {
       _menuSettings.DefaultIndex = _menuSettings.MainMenuGroupNames.IndexOf(groupName);
       ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
+      NavigateToHome();
       CreatePositionedItems();
       UpdateSelectedGroup();
-      NavigateToHome();
     }
 
     private void NavigateToHome()
