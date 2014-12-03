@@ -39,7 +39,8 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <Grid x:Name="ItemControl" Margin="0,0,0,0">
+    <!-- Rounded corners are applied by OpacityMask -->
+    <Grid x:Name="ItemControl" Margin="0,0,0,0" OpacityMask="{ThemeResource HomeTileOpacityBrush}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>

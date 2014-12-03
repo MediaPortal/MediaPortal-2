@@ -13,4 +13,13 @@
   <!-- Default brush used to paint the background of a dialog -->
   <ResourceWrapper x:Key="DialogBackgroundBrush" Value="#B0000000" />
 
+  <!-- Home screen tile opacity brush -->
+  <ResourceWrapper x:Key="HomeTileOpacityBrush">
+    <VisualBrush>
+      <VisualBrush.Visual>
+        <Rectangle Fill="#FFFFFFFF" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}" />
+      </VisualBrush.Visual>
+    </VisualBrush>
+  </ResourceWrapper>
+
 </ResourceDictionary>
