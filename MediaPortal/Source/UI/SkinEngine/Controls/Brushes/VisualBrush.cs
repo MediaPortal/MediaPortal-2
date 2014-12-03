@@ -106,8 +106,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
+      // We need to consider a special case for rendering Opacity masks: in this case the alpha blending is enabled on device already. If we render now without changes,
+      // the Visual will not be visible in target texture. In this case we switch back to normal rendering mode and restore blending mode after the Visual is rendered.
+      var wasBlendingEnabled = GraphicsDevice.IsAlphaChannelBlendingEnabled;
+      if (wasBlendingEnabled)
+      {
+        // Opposite steps as done inside FrameworkElement.RenderOpacityBrush
+        GraphicsDevice.DisableAlphaChannelBlending();
+        GraphicsDevice.EnableAlphaTest();
+      }
       RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
       fe.RenderToTexture(_visualTexture, new RenderContext(Matrix.Identity, Opacity, bounds, 1.0f));
+      if (wasBlendingEnabled)
+      {
+        // Redo steps as done inside FrameworkElement.RenderOpacityBrush
+        GraphicsDevice.EnableAlphaChannelBlending();
+        GraphicsDevice.DisableAlphaTest();
+      }
     }
 
     protected void PrepareVisual()
@@ -194,6 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _visualTexture.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
       UpdateRenderTarget(fe);
+
       return base.BeginRenderBrushOverride(primitiveContext, renderContext);
     }
 

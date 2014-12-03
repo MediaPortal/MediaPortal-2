@@ -524,6 +524,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
+    /// Gets an indicator, if alpha blending is enabled. Enabling is done by <see cref="EnableAlphaChannelBlending"/>, disabling by <see cref="DisableAlphaChannelBlending"/>.
+    /// </summary>
+    public static bool IsAlphaChannelBlendingEnabled
+    {
+      get
+      {
+        return _device.GetRenderState<bool>(RenderState.SeparateAlphaBlendEnable);
+      }
+    }
+
+    /// <summary>
     /// Sets the DirectX render states to enable alpha blending for opacity masks, where only the alpha channel of incoming fragments is blended.
     /// </summary>
     public static void EnableAlphaChannelBlending()
