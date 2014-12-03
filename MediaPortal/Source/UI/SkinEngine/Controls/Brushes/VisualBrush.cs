@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Detach();
       base.DeepCopy(source, copyManager);
       VisualBrush b = (VisualBrush) source;
-      Visual = b.Visual; // Use the original Visual, copying isn't necessary
+      Visual = copyManager.GetCopy(b.Visual); // Copy visual, as same could be used multiple times
       AutoLayoutContent = b.AutoLayoutContent;
       Attach();
     }
