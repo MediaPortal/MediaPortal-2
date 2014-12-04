@@ -131,11 +131,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
               HorizontalAlignment="Left" VerticalAlignment="Top"
-              PlayerContext="PrimaryPlayer"/>
+              AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
 
       <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Right"
               HorizontalAlignment="Right" VerticalAlignment="Top"
-              PlayerContext="SecondaryPlayer"/>
+              AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
 
     </DockPanel>
     <!-- FooterPanel -->
