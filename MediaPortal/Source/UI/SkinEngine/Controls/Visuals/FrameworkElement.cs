@@ -1823,15 +1823,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       using (new TemporaryRenderTarget(renderSurface))
       {
         // Fill the background of the texture with an alpha value of 0
-        GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0,
-          // Morpheus_xx, 2014-12-03: Performance optimization:
-          // When using Effects or OpacityMask, the target texture is as big as the screen size.
-          // Always clearing the whole area even for small controls is waste of resource.
-          new [] { new Rectangle(
-              (int)Math.Floor(renderContext.OccupiedTransformedBounds.X),
-              (int)Math.Floor(renderContext.OccupiedTransformedBounds.Y),
-              (int)Math.Ceiling(renderContext.OccupiedTransformedBounds.Width),
-              (int)Math.Ceiling(renderContext.OccupiedTransformedBounds.Height))});
+        GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
 
         // Render the control into the given texture
         RenderOverride(renderContext);
