@@ -110,7 +110,9 @@
     <Content Include="Skin\ApolloOne\screens\master_menu.xaml" />
     <Content Include="Skin\ApolloOne\screens\home.xaml" />
     <Content Include="Skin\ApolloOne\screens\master_homemenu.xaml" />
-    <Content Include="Skin\ApolloOne\themes\default\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\OtherControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\ApolloOne\themes\default\styles\ColorsOverrides.xaml" />
     <Content Include="Skin\ApolloOne\themes\default\styles\ButtonsOverrides.xaml" />
     <Content Include="Skin\ApolloOne\themes\default\styles\BrushesOverrides.xaml" />

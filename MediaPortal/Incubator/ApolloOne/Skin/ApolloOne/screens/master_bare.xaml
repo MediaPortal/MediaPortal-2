@@ -63,14 +63,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Top" Grid.Column="0" 
+      <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource A_WorkflowNavigationBarStyle}" Grid.Column="0" 
           IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/>
 
       <Control x:Name="NotificationControl" Grid.Column="1" Margin="10" Style="{ThemeResource NotificationControlStyle}"

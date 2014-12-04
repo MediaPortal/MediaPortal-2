@@ -302,4 +302,107 @@
     </Setter>
   </Style>
 
+  <!-- Container style for the entries in the workflow navigation bar -->
+  <Style x:Key="A_WorkflowNavigationBarContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <!-- Available data in the given ListViewItem:
+               - AdditionalProperties[IsFirst] is true for the first item
+               - Executing the Command will navigate the workflow to the underlaying workflow state
+          -->
+          <Button Command="{Binding Command}" Style="{ThemeResource EmptyStyle}">
+            <Button.TemplateControl>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- Dummy placeholder for first item margin -->
+                <Rectangle Width="40" Height="1" IsVisible="{Binding AdditionalProperties[IsFirst]}" Fill="#00000000"/>
+
+                <Ellipse  Width="6" Height="6" Grid.Column="1" Margin="15,8,15,0"
+                     IsVisible="{Binding !AdditionalProperties[IsFirst]}"
+                     VerticalAlignment="Center">
+                  <Ellipse.Fill>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
+                      <Binding Path="AdditionalProperties[IsLast]"/>
+                      <Binding Source="{ThemeResource TextColor}" />
+                      <Binding Source="{ThemeResource HomeNonFocusedColor}"/>
+                    </MultiBinding>
+                  </Ellipse.Fill>
+                </Ellipse>
+
+                <ContentPresenter Grid.Row="0" Grid.Column="2" x:Name="WorkflowNavibationItemContentPresenter" HorizontalAlignment="Center"/>
+              </Grid>
+            </Button.TemplateControl>
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedNavbarContainerStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Data template for contents of workflow navigation bar entries -->
+  <DataTemplate x:Key="A_WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Label x:Name="ItemLabel" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}"
+             Margin="0,4,0,0"
+             FontSize="{ThemeResource SmallFontSize}"
+             VerticalAlignment="Center">
+      <Label.Color>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
+          <Binding Path="AdditionalProperties[IsLast]"/>
+          <Binding Source="{ThemeResource TextColor}" />
+          <Binding Source="{ThemeResource HomeNonFocusedColor}"/>
+        </MultiBinding>
+      </Label.Color>
+    </Label>
+  </DataTemplate>
+
+  <Style x:Key="A_WorkflowNavigationBarListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ItemsPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource A_WorkflowNavigationBarItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource A_WorkflowNavigationBarContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,20,0,-5"
+              Orientation="Horizontal"
+              EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"
+              OpacityMask="{ThemeResource HomeTileOpacityBrush}"
+              Background="#60000000"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="A_WorkflowNavigationBarStyle" TargetType="{x:Type mp_special_controls:WorkflowNavigationBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ListView x:Name="WorkflowNavigationBarListView" ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource A_WorkflowNavigationBarListViewStyle}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>
