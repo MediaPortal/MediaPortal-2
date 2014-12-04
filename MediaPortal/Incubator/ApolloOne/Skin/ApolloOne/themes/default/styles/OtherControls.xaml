@@ -219,15 +219,14 @@
             </Rectangle>-->
 
             <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="1" Stretch="Uniform" Source="{Binding MediaItem}" Height="165" Margin="40,0,20,0">
-              <!-- TODO: rounded corner by opacity mask -->
-              <!--<Image.OpacityMask>
+              <Image.OpacityMask>
                 <VisualBrush>
                   <VisualBrush.Visual>
                     <Rectangle x:Name="CoverOpacityMask" Fill="#FF000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}" />
                   </VisualBrush.Visual>
                 </VisualBrush>
-              </Image.OpacityMask>-->
+              </Image.OpacityMask>
             </Image>
 
             <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Stretch" Margin="10">
