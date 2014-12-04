@@ -43,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected const string KEY_NAME = "Name";
     protected const string KEY_ISFIRST = "IsFirst";
+    protected const string KEY_ISLAST = "IsLast";
 
     #endregion
 
@@ -91,14 +92,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         List<NavigationContext> contexts = new List<NavigationContext>(contextStack);
         contexts.Reverse();
         navigationItems.Clear();
-        bool first = true;
-        foreach (NavigationContext ctx in contexts)
+
+        for (int index = 0; index < contexts.Count; index++)
         {
+          NavigationContext ctx = contexts[index];
           ListItem item = new ListItem(KEY_NAME, ctx.DisplayLabel);
-          item.AdditionalProperties[KEY_ISFIRST] = first;
+          item.AdditionalProperties[KEY_ISFIRST] = index == 0;
+          item.AdditionalProperties[KEY_ISLAST] = index == contexts.Count -1;
           NavigationContext contextCopy = ctx;
           item.Command = new MethodDelegateCommand(() => WorkflowPopToState(contextCopy.WorkflowState.StateId));
-          first = false;
           navigationItems.Add(item);
         }
         navigationItems.FireChange();
