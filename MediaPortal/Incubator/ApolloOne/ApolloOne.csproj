@@ -95,6 +95,14 @@
     <Content Include="Skin\ApolloOne\images\shadow_bottom.png" />
     <Content Include="Skin\ApolloOne\images\shadow_top.png" />
     <Content Include="Skin\ApolloOne\images\ShutdownIcon.png" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemImageDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemMovieCollectionDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemOthersDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemsList.inc" />
+    <Content Include="Skin\ApolloOne\screens\MultiDetails.inc" />
     <Content Include="Skin\ApolloOne\skin.xml" />
     <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
     <Content Include="Skin\ApolloOne\themes\default\workflow\ApolloOne-actions.xml" />
@@ -230,6 +238,31 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SimpleFilterItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SeriesFilterByName.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

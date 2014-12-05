@@ -21,5 +21,14 @@
       </VisualBrush.Visual>
     </VisualBrush>
   </ResourceWrapper>
+  
+  <!-- MediaItem's opacity brush -->
+  <ResourceWrapper x:Key="MediaItemsOpacityBrush">
+    <VisualBrush>
+      <VisualBrush.Visual>
+        <Rectangle Fill="#FFFFFFFF" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="{ThemeResource MediaItemsRadiusX}" RadiusY="{ThemeResource MediaItemsRadiusY}" />
+      </VisualBrush.Visual>
+    </VisualBrush>
+  </ResourceWrapper>
 
 </ResourceDictionary>

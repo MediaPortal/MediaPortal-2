@@ -52,6 +52,8 @@
   <!-- Text colors -->
   <ResourceWrapper x:Key="NonSelectedTextColor" Resource="#FF808080"/>
 
+  <ResourceWrapper x:Key="WatchedTextColor" Resource="#00A7FF"/>
+
   <!-- Semi transparent black used to darken the background when showing a dialog -->
   <ResourceWrapper x:Key="DialogScreenBackgroundColor">
     <RadialGradientBrush GradientOrigin="0.5,0.5">
