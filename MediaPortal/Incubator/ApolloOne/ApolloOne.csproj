@@ -113,9 +113,15 @@
     <Content Include="Skin\ApolloOne\themes\default\styles\OtherControls.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\ApolloOne\themes\default\styles\ColorsOverrides.xaml" />
-    <Content Include="Skin\ApolloOne\themes\default\styles\ButtonsOverrides.xaml" />
-    <Content Include="Skin\ApolloOne\themes\default\styles\BrushesOverrides.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Brushes.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\ApolloOne\themes\default\styles\Consts.xaml" />
   </ItemGroup>
   <ItemGroup>
