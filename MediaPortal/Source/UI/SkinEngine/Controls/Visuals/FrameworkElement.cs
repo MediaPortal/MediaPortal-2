@@ -49,6 +49,7 @@ using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
+using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -1822,8 +1823,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Render to given surface and restore it when we are done
       using (new TemporaryRenderTarget(renderSurface))
       {
+        // Morpheus_xx, 2014-12-03: Performance optimization:
+        // When using Effects or OpacityMask, the target texture is as big as the screen size.
+        // Always clearing the whole area even for small controls is waste of resource.
+        RectangleF bounds = renderContext.ClearOccupiedAreaOnly ? renderContext.OccupiedTransformedBounds : new RectangleF(0, 0, description.Width, description.Height);
+
         // Fill the background of the texture with an alpha value of 0
-        GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
+        GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0,
+          new [] { new Rectangle(
+              (int)Math.Floor(bounds.X),
+              (int)Math.Floor(bounds.Y),
+              (int)Math.Ceiling(bounds.Width),
+              (int)Math.Ceiling(bounds.Height))});
 
         // Render the control into the given texture
         RenderOverride(renderContext);
@@ -1903,7 +1914,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
 
       Brushes.Brush opacityMask = OpacityMask;
-      if (opacityMask == null && Effect == null)
+      Effect effect = Effect;
+      if (opacityMask == null && effect == null)
         // Simply render without opacity mask
         RenderOverride(localRenderContext);
       else
@@ -1936,6 +1948,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Create a temporary render context and render the control to the render texture
         RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
 
+        // If no effect is applied, clear only the area of the control, not whole render target (performance!)
+        tempRenderContext.ClearOccupiedAreaOnly = effect == null;
+
         // An additional copy step is only required for multisampling surfaces
         bool isMultiSample = GraphicsDevice.Setup.IsMultiSample;
         if (isMultiSample)
@@ -1962,7 +1977,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
         // Render Effect
-        Effects.Effect effect = Effect;
         if (effect == null)
         {
           // Use a default effect to draw the render target if none is set
