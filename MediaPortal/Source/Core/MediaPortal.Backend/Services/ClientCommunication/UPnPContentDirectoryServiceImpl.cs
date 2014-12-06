@@ -1635,8 +1635,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[1]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
-      uint offset = (uint)inParams[3];
-      uint limit = (uint)inParams[4];
+      uint? offset = (uint?)inParams[3];
+      uint? limit = (uint?)inParams[4];
       IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, offset, limit);
 
       outParams = new List<object> { result };
@@ -1648,8 +1648,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       MediaItemQuery query = (MediaItemQuery)inParams[0];
       string onlineStateStr = (string)inParams[1];
-      uint offset = (uint)inParams[2];
-      uint limit = (uint)inParams[3];
+      uint? offset = (uint?)inParams[2];
+      uint? limit = (uint?)inParams[3];
       bool all;
       UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
       if (error != null)
@@ -1674,8 +1674,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string searchModeStr = (string)inParams[4];
       string onlineStateStr = (string)inParams[5];
       string capitalizationMode = (string)inParams[6];
-      uint offset = (uint)inParams[7];
-      uint limit = (uint)inParams[8];
+      uint? offset = (uint?)inParams[7];
+      uint? limit = (uint?)inParams[8];
       bool excludeCLOBs;
       bool all = false;
       bool caseSensitive = true;
@@ -1703,8 +1703,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IList<Guid> mediaItemIds = MarshallingHelper.ParseCsvGuidCollection((string)inParams[0]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[1]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
-      uint offset = (uint)inParams[3];
-      uint limit = (uint)inParams[4];
+      uint? offset = (uint?)inParams[3];
+      uint? limit = (uint?)inParams[4];
       IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
           mediaItemIds, necessaryMIATypes, optionalMIATypes, offset, limit);
       outParams = new List<object> { result };
