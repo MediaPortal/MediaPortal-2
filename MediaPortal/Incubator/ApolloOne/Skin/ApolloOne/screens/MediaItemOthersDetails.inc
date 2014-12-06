@@ -4,9 +4,9 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
-  Width="615" Height="560"
-  Margin="30,5,0,0"
+  x:Name="MediaItemDetails"
+  Width="680" Height="560"
+  Margin="35,5,0,0"
   OpacityMask="{ThemeResource HomeTileOpacityBrush}">
   <!-- Rounded corners are applied by OpacityMask -->
 
@@ -33,6 +33,6 @@
              IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
   <!-- Item label -->
-  <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
+  <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
          Color="{ThemeResource TextColor}"/>
 </Grid>

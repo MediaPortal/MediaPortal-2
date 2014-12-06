@@ -12,9 +12,8 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="120,0,0,0">
+      <Grid Margin="120,0,120,0">
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -23,32 +22,27 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Control Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch">
-          <Control.TemplateControl>
-            <Include Source="screens\MediaItemsListHeader.inc"/>
-          </Control.TemplateControl>
-          <Control.LayoutTransform>
-            <RotateTransform Angle="270" CenterX="0.5" CenterY="0.5"/>
-          </Control.LayoutTransform>
-          <Control.RenderTransform>
-            <TranslateTransform Y="-70" X="10" />
-          </Control.RenderTransform>
-        </Control>
-
-
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Control Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsList.inc"/>
           </Control.TemplateControl>
         </Control>
 
-        <Control Grid.Column="1" Grid.Row="0" VerticalAlignment="Stretch" Width="760"
+        <Control Grid.Column="1" VerticalAlignment="Stretch" Width="720"
           Template="{Binding Source={DynamicResource Media_Details_Template}}">
           <Control.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
           </Control.IsVisible>
         </Control>
 
+        <Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,0,10">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsListHeader.inc"/>
+          </Control.TemplateControl>
+          <Control.LayoutTransform>
+            <RotateTransform Angle="270" CenterX="0.5" CenterY="0.5"/>
+          </Control.LayoutTransform>
+        </Control>
       </Grid>
     </ControlTemplate>
 

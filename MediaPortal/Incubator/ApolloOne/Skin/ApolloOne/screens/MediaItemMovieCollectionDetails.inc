@@ -4,42 +4,35 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  x:Name="MediaItemDetails"
+  Width="680" Height="560"
+  Margin="35,5,0,0"
+  OpacityMask="{ThemeResource HomeTileOpacityBrush}">
+  <!-- Rounded corners are applied by OpacityMask -->
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
-  <Grid.RowDefinitions>
-    <RowDefinition Height="*"/>
-  </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="380"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
-  
-  <Grid Grid.Column="1">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="180"/>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="60"/>
+  </Grid.RowDefinitions>
 
-    <Label x:Name="CollectionLabel" Grid.Row="1" Grid.Column="0"
-        Content="[Media.VideoCollectionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-    <Label x:Name="Collection" Grid.Row="1" Grid.Column="1"
-        Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}" Color="{ThemeResource TextColor}"/>
-
-  </Grid>
-
-
-
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5" 
-      Width="380" Height="560"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">
+  <!-- Image -->
+  <Image Grid.Column="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill"
+      FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;800;600}">
   </Image>
+
+  <!-- Darkened band -->
+  <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"
+             IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+  <!-- Item label -->
+  <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
+         Color="{ThemeResource TextColor}"/>
 </Grid>
