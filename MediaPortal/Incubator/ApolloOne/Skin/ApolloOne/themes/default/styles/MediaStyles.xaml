@@ -782,7 +782,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="5"
+          <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
               HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>

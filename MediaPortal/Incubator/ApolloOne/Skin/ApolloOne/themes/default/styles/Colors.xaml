@@ -63,4 +63,23 @@
     </RadialGradientBrush>
   </ResourceWrapper>
 
+  <!-- Scrollbar colors -->
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor">
+    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+      <GradientStop Color="#00404040" Offset="0"/>
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.40"/>
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.60"/>
+      <GradientStop Color="#00404040" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
+
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource=""/>
+
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#DFE0E2" />
+
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="1"/>
+
+  <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="18"/>
 </ResourceDictionary>
