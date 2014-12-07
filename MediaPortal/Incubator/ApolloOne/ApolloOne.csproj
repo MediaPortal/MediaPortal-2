@@ -99,8 +99,8 @@
     <Content Include="Skin\ApolloOne\images\ShutdownIcon.png" />
     <Content Include="Skin\ApolloOne\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemImageDetails.inc" />
-    <Content Include="Skin\ApolloOne\screens\MediaItemMovieCollectionDetails.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemOthersDetails.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemSeriesDetails.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemsList.inc" />
@@ -260,21 +260,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\screens\SimpleFilterItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\SeriesFilterByName.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\MoviesFilterByCollection.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\MoviesShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

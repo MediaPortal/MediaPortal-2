@@ -8,6 +8,13 @@
   x:Name="MediaItemDetails"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
+  <Grid.RowDefinitions>
+    <RowDefinition Height="140"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+
   <Grid.Resources>
     <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
   </Grid.Resources>
@@ -58,11 +65,11 @@
   </Control>
   <Control x:Name="AllOtherDetails">
     <Control.IsVisible>
-      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} &amp;&amp; {1} &amp;&amp; {2} &amp;&amp; {3})">
-        <Binding ElementName="AudioDetails" Path="IsVisible" />
-        <Binding ElementName="ImageDetails" Path="IsVisible" />
-        <Binding ElementName="MovieDetails" Path="IsVisible" />
-        <Binding ElementName="SeriesDetails" Path="IsVisible" />
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible}))">
+        <Binding ElementName="AudioDetails" Path="Visibility" />
+        <Binding ElementName="ImageDetails" Path="Visibility" />
+        <Binding ElementName="MovieDetails" Path="Visibility" />
+        <Binding ElementName="SeriesDetails" Path="Visibility" />
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
