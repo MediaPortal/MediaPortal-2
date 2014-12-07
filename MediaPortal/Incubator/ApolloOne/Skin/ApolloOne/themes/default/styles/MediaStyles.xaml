@@ -174,14 +174,16 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
-    <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
-             Grid.Row="0" Grid.Column="1"
-              OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+    <Grid>
+      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
+             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-      </Image.Source>
-    </Image>
+        </Image.Source>
+      </Image>
+    </Grid>
   </ControlTemplate>
 
 
@@ -238,14 +240,16 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
-    <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
-             Grid.Row="0" Grid.Column="1"
-              OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+    <Grid>
+      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
+             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-      </Image.Source>
-    </Image>
+        </Image.Source>
+      </Image>
+    </Grid>
   </ControlTemplate>
 
   <!-- Movie -->
@@ -296,14 +300,16 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
-    <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
-             Grid.Row="0" Grid.Column="1"
-              OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+    <Grid>
+      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
+             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-      </Image.Source>
-    </Image>
+        </Image.Source>
+      </Image>
+    </Grid>
   </ControlTemplate>
 
   <!-- Video -->
@@ -369,35 +375,12 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Image Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}" Stretch="Uniform"
-             Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
+    <Grid>
+      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
+             Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"
+             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
       </Image>
-      <!--<Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
-           Thumbnail="True" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
-           FallbackSource="VideoLarge.png"/>-->
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
     </Grid>
   </ControlTemplate>
 
@@ -603,32 +586,12 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <!-- For grid layout, we only support large layout size -->
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
-           Source="{Binding MediaItem}" FallbackSource="ImageLarge.png"/>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
+    <Grid>
+      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
+             Source="{Binding MediaItem}" FallbackSource="ImageLarge.png"
+             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
       </Image>
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
     </Grid>
   </ControlTemplate>
 
