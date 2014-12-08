@@ -141,7 +141,8 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         {
           IsoResourceProxy proxy;
           if (_isoUsages.TryGetValue(key, out proxy))
-            return IsoResourceAccessor.IsResource(proxy.DiskFileSystem, path);
+            lock (proxy.SyncObj)
+              return IsoResourceAccessor.IsResource(proxy.DiskFileSystem, path);
         }
         catch (Exception)
         {

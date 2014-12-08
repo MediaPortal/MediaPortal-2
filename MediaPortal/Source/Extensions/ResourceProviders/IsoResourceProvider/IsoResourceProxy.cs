@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       _key = key;
       _isoFileResourceAccessor = isoFileResourceAccessor;
 
-      _underlayingStream = _isoFileResourceAccessor.OpenRead();
+      _underlayingStream = Stream.Synchronized(_isoFileResourceAccessor.OpenRead());
       try
       {
         _diskFileSystem = GetFileSystem(_underlayingStream);
@@ -69,13 +69,14 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public void Dispose()
     {
-      if (_diskFileSystem != null)
-      {
-        IDisposable d = _diskFileSystem as IDisposable;
-        if (d != null)
-          d.Dispose();
-        _diskFileSystem = null;
-      }
+      lock (SyncObj)
+        if (_diskFileSystem != null)
+        {
+          IDisposable d = _diskFileSystem as IDisposable;
+          if (d != null)
+            d.Dispose();
+          _diskFileSystem = null;
+        }
       if (_underlayingStream != null)
       {
         _underlayingStream.Dispose();
