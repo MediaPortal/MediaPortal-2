@@ -436,7 +436,7 @@
                   Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
                   Height="{ThemeResource ScrollBarWidth}"
                   ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+                  Fill="{ThemeResource ScrollBarBackgroundXColor}">
               </Rectangle>
               <!-- Knob -->
               <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
@@ -525,7 +525,7 @@
                   Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
                   Height="{ThemeResource ScrollBarWidth}"
                   ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+                  Fill="{ThemeResource ScrollBarBackgroundXColor}">
               </Rectangle>
               <!-- Knob -->
               <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
@@ -585,5 +585,39 @@
 
   <!-- Implicit default style for ScrollViewer controls -->
   <Style BasedOn="{ThemeResource A_DefaultScrollViewerStyle}" TargetType="{x:Type ScrollViewer}"/>
+
+  <!-- ***************************** Progress bar ******************************** -->
+
+  <Style x:Key="A_DefaultProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       Height="1"
+                       Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" 
+                       Height="1"
+                       Fill="{ThemeResource ProgressBarFillColor}"/>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18" 
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Implicit default style for ProgressBar controls -->
+  <Style BasedOn="{ThemeResource A_DefaultProgressBarStyle}" TargetType="{x:Type ProgressBar}"/>
 
 </ResourceDictionary>
