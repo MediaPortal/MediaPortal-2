@@ -5,22 +5,22 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Tools\$(TargetName)\</PluginDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PluginFiles Include="$(TargetPath)" />
-    <PluginFiles Include="$(TargetPath).config" />
-    <PluginFiles Include="$(TargetDir)DefaultRemoteMap.xml" />
-    <PluginFiles Include="$(TargetDir)eHomeTransceiverList.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <DefaultFiles Include="$(ProjectDir)Defaults\**\*.*" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetPath)" />
+      <PluginFiles Include="$(TargetPath).config" />
+      <PluginFiles Include="$(TargetDir)DefaultRemoteMap.xml" />
+      <PluginFiles Include="$(TargetDir)eHomeTransceiverList.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <DefaultFiles Include="$(ProjectDir)Defaults\**\*.*" />
+    </ItemGroup>
+
     <ItemGroup>
       <DllFiles Include="$(TargetDir)\**\*.dll" />
     </ItemGroup>

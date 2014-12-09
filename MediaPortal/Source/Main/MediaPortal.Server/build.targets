@@ -5,12 +5,12 @@
     <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\</AppDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <BaseFiles Include="$(SolutionDir)Base\Server\**\*.*" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
-    <Copy SourceFiles="@(BaseFiles)"
+    <ItemGroup>
+      <BaseFiles Include="$(SolutionDir)Base\Server\**\*.*" />
+    </ItemGroup>
+  
+      <Copy SourceFiles="@(BaseFiles)"
           DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>

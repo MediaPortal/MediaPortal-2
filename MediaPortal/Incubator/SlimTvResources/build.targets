@@ -5,22 +5,22 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
-    <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resources Include="$(ProjectDir)Designs\**\*.*" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
-    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
+      <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Resources Include="$(ProjectDir)Designs\**\*.*" />
+    </ItemGroup>
+  
+      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(Resources)"
           DestinationFiles="@(Resources->'$(PluginDestination)Designs\%(RecursiveDir)%(Filename)%(Extension)')" />
