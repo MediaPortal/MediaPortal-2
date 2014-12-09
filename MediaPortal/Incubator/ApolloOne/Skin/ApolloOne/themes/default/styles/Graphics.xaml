@@ -8,75 +8,43 @@
 
   <!-- *************************** Play control graphics ****************************** -->
   <ControlTemplate x:Key="AudioActiveControlTemplate">
-    <Canvas Height="167" Width="167">
-      <Path Data="F1M1050,354L1050,381L1059,381L1085,408L1095,408L1095,327L1086,327L1059,354" Fill="White" Height="81" Canvas.Left="42.932" Opacity="0.75" Stretch="Fill" Canvas.Top="42.578" Width="45"/>
-      <Path Data="M1102,341.5439C1124.07,363.6139,1108.07,386.3859,1102,392.4559" Height="53.912" Canvas.Left="93.432" Opacity="0.75" Stretch="Fill" Stroke="White" StrokeThickness="3" StrokeLineJoin="Miter" Canvas.Top="55.622" Width="14.302"/>
-      <Path Data="M1111,327C1133.386,349.386,1133.386,385.614,1111,408" Height="86" Canvas.Left="101.432" Opacity="0.75" Stretch="Fill"  Stroke="White" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Top="40.078" Width="21.79"/>
-    </Canvas>
+    <Image Source="PlayerControls.Small\Audio.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="AudioInactiveControlTemplate">
-    <Canvas Height="167" Width="167">
-      <Path Data="F1M1050,354L1050,381L1059,381L1085,408L1095,408L1095,327L1086,327L1059,354" Fill="White" Height="81" Canvas.Left="42.932" Opacity="0.75" Stretch="Fill" Canvas.Top="42.578" Width="45"/>
-      <Path Data="M1102,341.5439C1124.07,363.6139,1108.07,386.3859,1102,392.4559" Height="53.912" Canvas.Left="93.432" Opacity="0.75" Stretch="Fill" Stroke="White" StrokeThickness="3" StrokeLineJoin="Miter" Canvas.Top="55.622" Width="14.302"/>
-      <Path Data="M1111,327C1133.386,349.386,1133.386,385.614,1111,408" Height="86" Canvas.Left="101.432" Opacity="0.75" Stretch="Fill"  Stroke="White" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Top="40.078" Width="21.79"/>
-    </Canvas>
+    <Image Source="PlayerControls.Small\AudioMute.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="MuteOnOffControlTemplate">
-    <Canvas Height="167" Width="167">
-      <Path Data="F1M1137.8418,600.5068L1130.2018,606.9598L1054.1758,516.9818L1061.8148,510.5278z" Fill="Red" Height="96.432" Canvas.Left="43.108" Opacity="0.75" Stretch="Fill" Canvas.Top="36.106" Width="83.666"/>
-    </Canvas>
+    <Image Source="PlayerControls.Small\AudioMute.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayControlTemplate">
-    <Canvas Height="17" Width="17">
-      <Path Data="F1M1,20C1,20 1.304,1.929 1.304,1.929 1.304,1.929 16.802,11.228 16.802,11.228 16.802,11.228 1,20 1,20z" Fill="White" />
-    </Canvas>
+    <Image Source="PlayerControls.Small\PlayButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PauseControlTemplate">
-    <Canvas Height="17" Width="17">
-      <Path Data="F1M10,1.026C10,1.026 15.808,1.026 15.808,1.026 15.808,1.026 15.808,15.766 15.808,15.766 15.808,15.766 10,15.766 10,15.766 10,15.766 10,1.026 10,1.026z M1.069,1.026C1.069,1.026 7,1.026 7,1.026 7,1.026 7,15.766 7,15.766 7,15.766 1.069,15.766 1.069,15.766 1.069,15.766 1.069,1.026 1.069,1.026z" Fill="White" Stretch="Fill" />
-    </Canvas>
+    <Image Source="PlayerControls.Small\PauseButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="StopControlTemplate">
-    <Canvas Height="17" Width="17">
-      <Path Data="F1M1.069,1.026C1.069,1.026 15.808,1.026 15.808,1.026 15.808,1.026 15.808,15.766 15.808,15.766 15.808,15.766 1.069,15.766 1.069,15.766 1.069,15.766 1.069,1.026 1.069,1.026z" 
-            Fill="White" />
-    </Canvas>
+    <Image Source="PlayerControls.Small\StopButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="ForwardControlTemplate">
-    <Canvas Height="19" Width="24">
-      <Path Data="F1M1.572,1.67C1.572,1.67,3.521,2.888,5.956,4.41L8.422,5.951 8.483,4.222C8.536,2.691 8.572,1.67 8.572,1.67 8.572,1.67 22.428,10.33 22.428,10.33 22.428,10.33 8,18 8,18 8,18 8.036,16.979 8.089,15.448L8.133,14.208 5.565,15.573C3.029,16.921 1,18 1,18 1,18 1.572,1.67 1.572,1.67z" 
-            Fill="White" />
-    </Canvas>
+    <Image Source="PlayerControls.Small\ForwardButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="RewindControlTemplate">
-    <Canvas Height="19" Width="24">
-      <Path Data="F1M15.428,1.67C15.428,1.67,15.464,2.691,15.517,4.222L15.578,5.951 18.044,4.41C20.479,2.888 22.428,1.67 22.428,1.67 22.428,1.67 23,18 23,18 23,18 20.971,16.921 18.435,15.573L15.867,14.208 15.911,15.448C15.964,16.979 16,18 16,18 16,18 1.572,10.33 1.572,10.33 1.572,10.33 15.428,1.67 15.428,1.67z" Fill="White" />
-    </Canvas>
+    <Image Source="PlayerControls.Small\RewindButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipForwardControlTemplate">
-    <Canvas Height="19" Width="24">
-      <Path Data="F1M844.5039,329.1206C840.3769,325.4856,836.9999,327.0116,836.9999,332.5116L836.9999,408.9996C836.9999,414.4996,840.3769,416.0256,844.5039,412.3906L884.2719,377.3656C888.3989,373.7306,888.3989,367.7816,884.2719,364.1466z" 
-            Fill="White" Height="17" Canvas.Left="0" Stretch="Fill" Canvas.Top="0" Width="13"/>
-      <Path Data="F1M901,406.8486C901,411.0986,898.389,414.9996,895.143,414.9996L894.878,414.9996C891.632,414.9996,889,411.0986,889,406.8486L889,334.6986C889,330.4486,891.632,326.9996,894.878,326.9996L895.143,326.9996C898.389,326.9996,901,330.4486,901,334.6986z" 
-            Fill="White" Height="17" Canvas.Left="13" Stretch="Fill" Canvas.Top="0" Width="5"/>
-    </Canvas>
+    <Image Source="PlayerControls.Small\SkipForwardButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipBackControlTemplate">
-    <Canvas Height="19" Width="24">
-      <Path Data="F1M646.4961,412.3906C650.6231,416.0256,654.0001,414.4996,654.0001,408.9996L654.0001,332.5116C654.0001,327.0116,650.6231,325.4856,646.4961,329.1206L606.7291,364.1466C602.6011,367.7816,602.6011,373.7306,606.7291,377.3656z" 
-            Fill="White" Height="17" Canvas.Left="0" Stretch="Fill" Canvas.Top="0" Width="5"/>
-      <Path Data="F1M590,334.6631C590,330.4131,592.611,327.0001,595.857,327.0001L596.122,327.0001C599.368,327.0001,602,330.4131,602,334.6631L602,406.8131C602,411.0631,599.368,415.0001,596.122,415.0001L595.857,415.0001C592.611,415.0001,590,411.0631,590,406.8131z" 
-            Fill="White" Height="17" Canvas.Left="5" Stretch="Fill" Canvas.Top="0" Width="13"/>
-    </Canvas>
+    <Image Source="PlayerControls.Small\SkipBackButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PowerControlTemplate">

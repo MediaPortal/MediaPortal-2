@@ -94,6 +94,34 @@
     <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_Shadow.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\Audio.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\AudioMute.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\ForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\NextChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\PauseButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\PlayButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\PreviousChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\RewindButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SelectChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SelectSubtitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SelectTitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SkipBackButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SkipForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\StopButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\Audio.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\AudioMute.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\ForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\NextChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\PauseButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\PlayButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\PreviousChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\RewindButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SelectChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SelectSubtitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SelectTitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SkipBackButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SkipForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\StopButton.png" />
     <Content Include="Skin\ApolloOne\images\shadow_bottom.png" />
     <Content Include="Skin\ApolloOne\images\shadow_top.png" />
     <Content Include="Skin\ApolloOne\images\ShutdownIcon.png" />
@@ -285,6 +313,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\MediaGraphics.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

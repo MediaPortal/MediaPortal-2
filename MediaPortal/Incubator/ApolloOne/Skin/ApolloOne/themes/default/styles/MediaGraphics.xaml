@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Brushes"
+    >
+
+  <!-- *************************** Play control graphics ****************************** -->
+  <ControlTemplate x:Key="ShowDvdMenuControlTemplate">
+    <Image Source="PlayerControls.Small\SelectTitleButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectChapterControlTemplate">
+    <Image Source="PlayerControls.Small\SelectChapterButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+
+  <ControlTemplate x:Key="NextChapterControlTemplate">
+    <Image Source="PlayerControls.Small\NextChapterButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PreviousChapterControlTemplate">
+    <Image Source="PlayerControls.Small\PreviousChapterButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectSubtitleControlTemplate">
+    <Image Source="PlayerControls.Small\SelectSubtitleButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+</ResourceDictionary>

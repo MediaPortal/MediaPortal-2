@@ -14,6 +14,7 @@
 
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlBorderRadius" Resource="15" />
+  <ResourceWrapper x:Key="PlayerControlButtonMargins" Resource="8,0,8,0" />
 
   <!-- General font sizes -->
   <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
