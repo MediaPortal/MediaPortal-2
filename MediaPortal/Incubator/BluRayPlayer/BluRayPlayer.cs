@@ -96,6 +96,15 @@ namespace MediaPortal.UI.Players.Video
       _streamCount = 2; // Allow Video and Subtitle
     }
 
+    protected override void CreateResourceAccessor()
+    {
+      // BluRayPlayer needs an ILocalFSResourceAccessor
+      ILocalFsResourceAccessor lfsra;
+      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsra))
+        throw new IllegalCallException("The BluRayPlayer can only play local file system resources");
+      _resourceAccessor = lfsra;
+    }
+
     /// <summary>
     /// Adds preferred audio/video codecs.
     /// </summary>
@@ -131,7 +140,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddSourceFilter()
     {
       if (!IsLocalFilesystemResource)
-        throw new IllegalCallException("The BluRayPlayer can only play resources of type IFileSystemResourceAccessor");
+        throw new IllegalCallException("The BluRayPlayer can only play local file system resources");
 
       // Load source filter, assembly location must be determined here, otherwise LoadFilterFromDll would try to lookup the file relative to VideoPlayer!
       string filterPath = FilterLoader.BuildAssemblyRelativePath("BDReader.ax");

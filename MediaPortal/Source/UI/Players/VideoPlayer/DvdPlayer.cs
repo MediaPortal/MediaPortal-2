@@ -124,6 +124,15 @@ namespace MediaPortal.UI.Players.Video
       _streamCount = 3; // Allow Video, CC, and Subtitle
     }
 
+    protected override void CreateResourceAccessor()
+    {
+      // DvdPlayer needs an ILocalFSResourceAccessor
+      ILocalFsResourceAccessor lfsra;
+      if(!_resourceLocator.TryCreateLocalFsAccessor(out lfsra))
+        throw new IllegalCallException("The DVDPlayer can only play local file system resources");
+      _resourceAccessor = lfsra;
+    }
+
     /// <summary>
     /// Adds the DVDNavigator filter to the graph and sets the input path.
     /// </summary>
@@ -148,11 +157,9 @@ namespace MediaPortal.UI.Players.Video
       if (_dvdCtrl == null)
         throw new Exception("Failed to get IDvdControl2 from DVDNavigator!");
 
-      // get a local file system path - will mount via DOKAN when resource is not on the local system
-      ILocalFsResourceAccessor lfsr;
-      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
-        throw new IllegalCallException("The DVDPlayer can only play file system resources");
-      string path = lfsr.LocalFileSystemPath;
+      if (!IsLocalFilesystemResource)
+        throw new IllegalCallException("The DVDPlayer can only play local file system resources");
+      string path = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
       // check if path is a drive root (like D:), otherwise append VIDEO_TS 
       // MediaItem always contains the parent folder. Add the required VIDEO_TS subfolder.
