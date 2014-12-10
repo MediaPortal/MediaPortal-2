@@ -8,13 +8,252 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:apc="clr-namespace:MediaPortal.UiComponents.ApolloOne.Converters;assembly=ApolloOne"
-    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
+    DependsOnStyleResources="Colors,Buttons,Consts"
     >
 
   <!-- BackgroundManager model -->
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
+
+  <!-- ***************************** Converters ********************************* -->
   <apc:StringCaseConverter x:Key="StringCaseConverter"/>
+  <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
+  <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
+  <ReferenceNotNull_BoolConverter x:Key="ReferenceToBoolConverter"/>
+  <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
+  <DateFormatConverter x:Key="DateFormatConverter"/>
+  <DurationConverter x:Key="DurationConverter"/>
+  <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
+  <StringFormatConverter x:Key="StringFormatConverter"/>
+
+  <!-- If a control is defined without a style, the engine will choose a default style for that control.
+       To avoid that default behavior, simply set this empty style. -->
+  <Style x:Key="EmptyStyle"/>
+
+  <!-- ***************************** ScrollViewer styles ********************************* -->
+
+  <Style x:Key="LeftSideScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="1"
+                Grid.ZIndex="0" Margin="2,10,2,2"
+                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  Height="{ThemeResource ScrollBarWidth}"
+                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundXColor}">
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel>
+                  <StackPanel.Width>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
+                      <TemplateBinding Path="ScrollBarXKnobPos" />
+                      <TemplateBinding Path="ScrollBarXKnobWidth" />
+                    </MultiBinding>
+                  </StackPanel.Width>
+                </StackPanel>
+                <Rectangle x:Name="ScrollBarXKnob" Width="18" Height="{ThemeResource ScrollBarKnobWidth}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="0"
+                Grid.ZIndex="0" Margin="2,2,10,2"
+                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}"
+                  Width="{ThemeResource ScrollBarWidth}"
+                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel>
+                  <StackPanel.Height>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
+                      <TemplateBinding Path="ScrollBarYKnobPos" />
+                      <TemplateBinding Path="ScrollBarYKnobHeight" />
+                    </MultiBinding>
+                  </StackPanel.Height>
+                </StackPanel>
+
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="18"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                Grid.ZIndex="0" Margin="2,10,2,2"
+                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  Height="{ThemeResource ScrollBarWidth}"
+                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundXColor}">
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel>
+                  <StackPanel.Width>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
+                      <TemplateBinding Path="ScrollBarXKnobPos" />
+                      <TemplateBinding Path="ScrollBarXKnobWidth" />
+                    </MultiBinding>
+                  </StackPanel.Width>
+                </StackPanel>
+                <Rectangle x:Name="ScrollBarXKnob" Width="18" Height="{ThemeResource ScrollBarKnobWidth}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                Grid.ZIndex="0" Margin="2,2,10,2"
+                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}"
+                  Width="{ThemeResource ScrollBarWidth}"
+                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel>
+                  <StackPanel.Height>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
+                      <TemplateBinding Path="ScrollBarYKnobPos" />
+                      <TemplateBinding Path="ScrollBarYKnobHeight" />
+                    </MultiBinding>
+                  </StackPanel.Height>
+                </StackPanel>
+
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="18"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Implicit default style for ScrollViewer controls -->
+  <Style BasedOn="{ThemeResource DefaultScrollViewerStyle}" TargetType="{x:Type ScrollViewer}"/>
+
+  <!-- ************************* ListView item container styles ************************** -->
+
+  <!-- An item list base container style which sets the selected item's ZIndex to the top.
+       This base style simly shows the content of the ListViewItem. -->
+  <Style x:Key="DefaultItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Style.Triggers>
+      <Trigger Property="Selected" Value="True">
+        <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the
+             same internal property for all panel types -->
+        <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+      </Trigger>
+    </Style.Triggers>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <ContentPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="DefaultMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="MainMenuMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
@@ -36,6 +275,27 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!-- A simple data template to show the Name of the ListItem in a Label -->
+  <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
+
+  <DataTemplate x:Key="MainMenuItemDataTemplate">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <DataStringProvider x:Key="MainMenuItemDataStringProvider" Path="[Name]"/>
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
@@ -67,6 +327,49 @@
              FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
     </Grid>
   </DataTemplate>
+
+  <!-- ***************************** ListView styles ********************************* -->
+
+  <!-- Default ListView style. The properties "ItemTemplate", "ItemContainerStyle" and "DataStringProvider" should be exchanged for custom ListView styles. -->
+  <Style x:Key="DefaultListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+  <!-- Implicit default style for ListView controls -->
+  <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
+
+
+  <!-- ListView style to be used for main menu -->
+  <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
+  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+  </Style>
 
   <!-- ListView style to be used for main menu -->
   <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource MainMenuListViewStyle}">
@@ -162,39 +465,40 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
               <!-- Background -->
               <RowDefinition Height="Auto"/>
               <!-- Playback controls -->
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
               <!-- Media thumbnail -->
               <ColumnDefinition Width="Auto"/>
               <!-- Optional fanart -->
+              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <!-- Order matters here: first paint the controls, as they will be overlapped by content panel -->
-            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,-15,0,0">
-              <Rectangle x:Name="PlaybackControlsBackground" 
-                       Fill="{ThemeResource PlaybackControlsBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,-10,0,0">
+
+              <Rectangle x:Name="PlaybackControlsBackground" Fill="{ThemeResource PlaybackControlsBackgroundColor}" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                        RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}" />
 
-              <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True" Margin="15">
-                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+              <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True" Margin="10,0,10,0" Height="40">
+                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipBack}"
                       Command="{Command Previous}"/>
-                <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                       Command="{Command SeekBackward}"/>
-                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanPlay}"
                       Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanPause}"
                       Command="{Command Pause}"/>
-                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanStop}"
                       Command="{Command Stop}"/>
-                <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSeekForward}"
                       Command="{Command SeekForward}"/>
-                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipForward}"
                       Command="{Command Next}"/>
               </StackPanel>
               <!--<StackPanel.LayoutTransform>
@@ -286,23 +590,8 @@
     </Setter>
   </Style>
 
-  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
-  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
-    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" 
-           Width="{ThemeResource FixedDialogWidth}" Height="{ThemeResource FixedDialogHeight}"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <!-- Container style for the entries in the workflow navigation bar -->
-  <Style x:Key="A_WorkflowNavigationBarContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+  <Style x:Key="WorkflowNavigationBarContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -340,14 +629,14 @@
               </Grid>
             </Button.TemplateControl>
             <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
+              <!--<Trigger Property="HasFocus" Value="True">
                 <Trigger.EnterActions>
                   <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedNavbarContainerStoryboard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
                   <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
                 </Trigger.ExitActions>
-              </Trigger>
+              </Trigger>-->
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -355,8 +644,19 @@
     </Setter>
   </Style>
 
+  <!-- Control which is used to symbolize the ellipsis of some entries when the workflow navigation bar is too long for the available space -->
+  <Style x:Key="WorkflowNavigationBarEllipsisControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Label Content="..." Margin="10,2,10,2" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Data template for contents of workflow navigation bar entries -->
-  <DataTemplate x:Key="A_WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Label x:Name="ItemLabel" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}"
              Margin="0,4,0,0"
              FontSize="{ThemeResource SmallFontSize}"
@@ -371,7 +671,7 @@
     </Label>
   </DataTemplate>
 
-  <Style x:Key="A_WorkflowNavigationBarListViewStyle" TargetType="{x:Type ListView}">
+  <Style x:Key="WorkflowNavigationBarListViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -379,8 +679,8 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemTemplate" Value="{ThemeResource A_WorkflowNavigationBarItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource A_WorkflowNavigationBarContainerStyle}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource WorkflowNavigationBarItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource WorkflowNavigationBarContainerStyle}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
@@ -393,202 +693,19 @@
     </Setter>
   </Style>
 
-  <Style x:Key="A_WorkflowNavigationBarStyle" TargetType="{x:Type mp_special_controls:WorkflowNavigationBar}">
+  <Style x:Key="WorkflowNavigationBarStyle" TargetType="{x:Type mp_special_controls:WorkflowNavigationBar}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ListView x:Name="WorkflowNavigationBarListView" ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource A_WorkflowNavigationBarListViewStyle}"/>
+          <ListView x:Name="WorkflowNavigationBarListView" ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource WorkflowNavigationBarListViewStyle}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
-
-  <!-- ***************************** ScrollViewer styles ********************************* -->
-
-  <Style x:Key="LeftSideScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <Grid x:Name="ScrollViewerGrid">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="1" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-
-            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="1"
-                Grid.ZIndex="0" Margin="2,10,2,2"
-                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
-              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-              <!-- Background -->
-              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
-                  Height="{ThemeResource ScrollBarWidth}"
-                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundXColor}">
-              </Rectangle>
-              <!-- Knob -->
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                <StackPanel>
-                  <StackPanel.Width>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
-                      <TemplateBinding Path="ScrollBarXKnobPos" />
-                      <TemplateBinding Path="ScrollBarXKnobWidth" />
-                    </MultiBinding>
-                  </StackPanel.Width>
-                </StackPanel>
-                <Rectangle x:Name="ScrollBarXKnob" Width="18" Height="{ThemeResource ScrollBarKnobWidth}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
-            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2,2,10,2"
-                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
-              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <!-- Background -->
-              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}"
-                  Width="{ThemeResource ScrollBarWidth}"
-                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
-              </Rectangle>
-              <!-- Knob -->
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
-                <StackPanel>
-                  <StackPanel.Height>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
-                      <TemplateBinding Path="ScrollBarYKnobPos" />
-                      <TemplateBinding Path="ScrollBarYKnobHeight" />
-                    </MultiBinding>
-                  </StackPanel.Height>
-                </StackPanel>
-
-                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="18"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="A_DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <Grid x:Name="ScrollViewerGrid">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-
-            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2,10,2,2"
-                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
-              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-              <!-- Background -->
-              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
-                  Height="{ThemeResource ScrollBarWidth}"
-                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundXColor}">
-              </Rectangle>
-              <!-- Knob -->
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                <StackPanel>
-                  <StackPanel.Width>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
-                      <TemplateBinding Path="ScrollBarXKnobPos" />
-                      <TemplateBinding Path="ScrollBarXKnobWidth" />
-                    </MultiBinding>
-                  </StackPanel.Width>
-                </StackPanel>
-                <Rectangle x:Name="ScrollBarXKnob" Width="18" Height="{ThemeResource ScrollBarKnobWidth}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
-            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
-                Grid.ZIndex="0" Margin="2,2,10,2"
-                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
-              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <!-- Background -->
-              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}"
-                  Width="{ThemeResource ScrollBarWidth}"
-                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
-              </Rectangle>
-              <!-- Knob -->
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
-                <StackPanel>
-                  <StackPanel.Height>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
-                      <TemplateBinding Path="ScrollBarYKnobPos" />
-                      <TemplateBinding Path="ScrollBarYKnobHeight" />
-                    </MultiBinding>
-                  </StackPanel.Height>
-                </StackPanel>
-
-                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="18"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- Implicit default style for ScrollViewer controls -->
-  <Style BasedOn="{ThemeResource A_DefaultScrollViewerStyle}" TargetType="{x:Type ScrollViewer}"/>
 
   <!-- ***************************** Progress bar ******************************** -->
 
-  <Style x:Key="A_DefaultProgressBarStyle" TargetType="{x:Type ProgressBar}">
+  <Style x:Key="DefaultProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
@@ -618,6 +735,6 @@
   </Style>
 
   <!-- Implicit default style for ProgressBar controls -->
-  <Style BasedOn="{ThemeResource A_DefaultProgressBarStyle}" TargetType="{x:Type ProgressBar}"/>
+  <Style BasedOn="{ThemeResource DefaultProgressBarStyle}" TargetType="{x:Type ProgressBar}"/>
 
 </ResourceDictionary>

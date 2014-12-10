@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    DependsOnStyleResources="Colors,Buttons,Graphics,Consts"
+    DependsOnStyleResources="Colors,Graphics,Consts"
     >
 
   <!-- ***************************** Storyboards ******************************** -->
@@ -13,7 +13,7 @@
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.1"/>
 
   <!-- Base storyboard which shows an animation when a button has focus -->
-  <Storyboard x:Key="A_FocusedButtonStoryboard_Base" FillBehavior="HoldEnd">
+  <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames FillBehavior="HoldEnd" BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="{ThemeResource FocusedButtonAnimationTime1}" Value="{ThemeResource FocusedButtonGradient1Color}"/>
     </ColorAnimationUsingKeyFrames>
@@ -24,8 +24,8 @@
 
   <!-- Storyboard for buttons which are focused and which are almost square, e.g. radio buttons.
        This animation scales the button in x- and y-direction with the same factor. -->
-  <Storyboard x:Key="A_FocusedButtonStoryboard" FillBehavior="Stop">
-    <StaticResource ResourceKey="A_FocusedButtonStoryboard_Base"/>
+  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="Stop">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
@@ -38,7 +38,7 @@
 
   <!-- Storyboard for wide buttons which are focused, e.g. text buttons.
        This animation scales the button in x- and y-direction with different factors. -->
-  <Storyboard x:Key="A_FocusedButtonWideStoryboard_GrowOnly" FillBehavior="HoldEnd">
+  <Storyboard x:Key="FocusedButtonWideStoryboard_GrowOnly" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource WideButtonZoomCoefficientX}"/>
@@ -49,13 +49,13 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="A_FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
-    <StaticResource ResourceKey="A_FocusedButtonStoryboard_Base"/>
-    <StaticResource ResourceKey="A_FocusedButtonWideStoryboard_GrowOnly"/>
+  <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
-  <Storyboard x:Key="A_FocusedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
-    <StaticResource ResourceKey="A_FocusedButtonWideStoryboard_GrowOnly"/>
+  <Storyboard x:Key="FocusedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
   <!-- Base storyboard which shows an animation when a button is pressed -->
@@ -140,7 +140,7 @@
 
 
   <Storyboard x:Key="FocusedOSDButtonStoryboard" FillBehavior="HoldEnd">
-    <StaticResource ResourceKey="A_FocusedButtonWideStoryboard_GrowOnly"/>
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
     <ColorAnimationUsingKeyFrames Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00"    Value="#8C221E1F"/>
       <SplineColorKeyFrame KeyTime="00:00:00.20" Value="#FFFFFFFF"/>
@@ -159,7 +159,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <!--<Image x:Name="HoverGlow" Source="basichome_button_focus.png" Margin="-45" IsVisible="false" />-->
+          <Border x:Name="ButtonControlRectangle"
+              IsVisible ="False"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}"
+              BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="2"
+              Margin="-3"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -186,8 +191,9 @@
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource A_FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -263,7 +269,7 @@
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource A_FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -296,7 +302,7 @@
 
   <!-- Menu and ContentsMenu style -->
 
-  <Style x:Key="A_ButtonControlStyle" TargetType="{x:Type Control}">
+  <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -331,13 +337,13 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource A_ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource A_FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -377,7 +383,7 @@
           <Border x:Name="ButtonControlRectangle"
               IsVisible ="False"
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
-              BorderBrush="White"
+              BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="2"
               Margin="-1">
           </Border>
@@ -409,7 +415,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource A_FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>

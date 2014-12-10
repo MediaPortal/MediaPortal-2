@@ -27,4 +27,9 @@
     <ImageBrush ImageSource="MediaItem_OpacityMask.png" />
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="MediaItemsFocusedBorderBrush">
+    <SolidColorBrush Color="White"/>
+  </ResourceWrapper>
+
+
 </ResourceDictionary>

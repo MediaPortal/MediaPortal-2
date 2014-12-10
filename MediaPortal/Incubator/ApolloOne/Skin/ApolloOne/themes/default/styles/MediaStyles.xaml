@@ -915,9 +915,9 @@
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="150"/>
+                      <ColumnDefinition Width="100"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="150"/>
+                      <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
@@ -928,13 +928,13 @@
                         Color="{ThemeResource TextColor}" />-->
 
                     <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                        Color="{ThemeResource TextColor}"  Margin="0,0,20,0" HorizontalAlignment="Right"
+                        Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Left"
                         FontSize="{ThemeResource SmallFontSize}"/>
 
                     <ProgressBar x:Name="ProgressBar" Grid.Column="1" Grid.Row="0" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
                         Value="{Binding Path=PercentPlayed}" />
 
-                    <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" Margin="20,0,0,0"
+                    <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" Margin="0,0,0,0"
                         Content="{Binding Duration}"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         Color="{ThemeResource TextColor}"
