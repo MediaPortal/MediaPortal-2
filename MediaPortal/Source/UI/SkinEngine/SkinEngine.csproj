@@ -56,6 +56,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Toolkit">
+      <HintPath>..\..\..\Packages\SharpDX.2.6.2\Bin\DirectX11-Signed-net40\SharpDX.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Game">
+      <HintPath>..\..\..\Packages\SharpDX.2.6.2\Bin\DirectX11-Signed-net40\SharpDX.Toolkit.Game.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Graphics">
+      <HintPath>..\..\..\Packages\SharpDX.2.6.2\Bin\DirectX11-Signed-net40\SharpDX.Toolkit.Graphics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -134,9 +143,11 @@
     <Compile Include="Controls\Transforms\MatrixTransform.cs" />
     <Compile Include="Controls\Visuals\Effects\Effect.cs" />
     <Compile Include="Controls\Visuals\Effects\ImageEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\GaussianBlur.cs" />
     <Compile Include="Controls\Visuals\Effects\SimpleShaderEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\SimpleImageEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\PixelateEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects\ShinyWave.cs" />
     <Compile Include="Controls\Visuals\Effects\ZoomBlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
@@ -499,6 +510,8 @@
     <Content Include="References\zlib1.dll" />
     <Content Include="Resources\FreeImage.dll" />
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
+    <Content Include="Skin\default\shaders\GaussianBlur.fx" />
+    <Content Include="Skin\default\shaders\ShinyWave.fx" />
     <None Include="packages.config" />
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />

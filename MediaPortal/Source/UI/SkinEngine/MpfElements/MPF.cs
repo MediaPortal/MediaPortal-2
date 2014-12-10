@@ -224,6 +224,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("SimpleShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleShaderEffect));
+      _objectClassRegistrations.Add("ShinyWave", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ShinyWave));
+      _objectClassRegistrations.Add("GaussianBlur", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.GaussianBlur));
     }
 
     #endregion
