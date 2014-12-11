@@ -51,17 +51,28 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </EventTrigger>
   </Screen.Triggers>
 
-  <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" LastChildFill="True">
-    <DockPanel.RenderTransform>
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5">
+    <Grid.RenderTransform>
       <TransformGroup>
         <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
         <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
         <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
         <TranslateTransform X="0" Y="0"/>
       </TransformGroup>
-    </DockPanel.RenderTransform>
+    </Grid.RenderTransform>
 
-    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+    <Grid.RowDefinitions>
+      <!-- Breadcrumb -->
+      <RowDefinition Height="Auto"/>
+      <!-- Header -->
+      <RowDefinition Height="Auto"/>
+      <!-- Content -->
+      <RowDefinition Height="*"/>
+      <!-- Footer -->
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Grid x:Name="HeaderPanel" Grid.Row="0"  Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -79,7 +90,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid>
     <!-- HeaderPanel -->
 
-    <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+    <Grid  Grid.Row="1" HorizontalAlignment="Stretch">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -124,7 +135,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid>
 
     <!-- PlayerControlsPanel -->
-    <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,40"
+    <DockPanel x:Name="FooterPanel" Grid.Row="3" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False" Margin="115,0,115,40"
                 IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
 
       <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" DockPanel.Dock="Top"/>
@@ -153,7 +164,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- FooterPanel -->
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea"  DockPanel.Dock="Center" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,20,0,0" />
+    <Control x:Name="ClientArea"  Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,20,0,0" />
 
-  </DockPanel>
+  </Grid>
 </Screen>
