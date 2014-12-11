@@ -125,6 +125,7 @@
     <Content Include="Skin\ApolloOne\images\shadow_bottom.png" />
     <Content Include="Skin\ApolloOne\images\shadow_top.png" />
     <Content Include="Skin\ApolloOne\images\ShutdownIcon.png" />
+    <Content Include="Skin\ApolloOne\images\VideoLarge.png" />
     <Content Include="Skin\ApolloOne\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\ApolloOne\screens\MediaItemMovieDetails.inc" />
