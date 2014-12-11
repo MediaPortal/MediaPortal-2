@@ -42,7 +42,7 @@
 
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="#FF404040"/>
-  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#E0000000"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#E0808080"/>
   <ResourceWrapper x:Key="PlaybackControlsBackgroundColor" Resource="#FF1E1E1E"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#FFDCD9D9"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#FF1B7EE6"/>

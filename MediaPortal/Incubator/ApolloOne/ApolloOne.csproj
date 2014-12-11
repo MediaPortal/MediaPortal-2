@@ -139,7 +139,6 @@
     <Content Include="Skin\ApolloOne\themes\default\workflow\ApolloOne-actions.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Skin\ApolloOne\backgrounds\" />
     <Folder Include="Skin\ApolloOne\sounds\" />
     <Folder Include="Skin\ApolloOne\superlayers\" />
     <Folder Include="Skin\ApolloOne\themes\default\images\" />
@@ -319,6 +318,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\themes\default\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\backgrounds\video-background.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

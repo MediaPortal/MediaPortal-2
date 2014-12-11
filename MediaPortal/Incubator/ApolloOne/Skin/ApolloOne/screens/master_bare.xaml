@@ -153,10 +153,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
 
       <mp_special_controls:PlayerControl x:Name="PrimaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
-              HorizontalAlignment="Left" VerticalAlignment="Top"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Height="205"
               AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
 
-      <mp_special_controls:PlayerControl x:Name="SecondaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Right"
+      <mp_special_controls:PlayerControl x:Name="SecondaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyleSecondary}" Width="710" DockPanel.Dock="Right"
               HorizontalAlignment="Right" VerticalAlignment="Top"
               AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
 
