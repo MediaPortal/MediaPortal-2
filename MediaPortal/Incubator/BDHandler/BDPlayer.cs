@@ -88,16 +88,23 @@ namespace MediaPortal.UI.Players.Video
       _streamCount = 2; // Allow Video and Subtitle
     }
 
+    protected override void CreateResourceAccessor()
+    {
+      // BDPlayer needs an ILocalFSResourceAccessor
+      ILocalFsResourceAccessor lfsra;
+      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsra))
+        throw new IllegalCallException("The BDPlayer can only play local file system resources");
+      _resourceAccessor = lfsra;
+    }
+
     /// <summary>
     /// Adds a source filter to the graph and sets the input.
     /// </summary>
     protected override void AddSourceFilter()
     {
-      // get a local file system path - will mount via DOKAN when resource is not on the local system
-      ILocalFsResourceAccessor lfsr;
-      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
-        throw new IllegalCallException("The BDPlayer can only play file system resources");
-      string strFile = lfsr.LocalFileSystemPath;
+      if (!IsLocalFilesystemResource)
+        throw new IllegalCallException("The BDPlayer can only play local file system resources");
+      string strFile = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
       // Render the file
       strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
