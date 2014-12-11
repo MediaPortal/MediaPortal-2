@@ -245,20 +245,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       base.RenderOverride(localRenderContext);
       PerformLayout(localRenderContext);
 
-      if (_fillContext != null)
+      Brush fill = Fill;
+      if (_fillContext != null && fill != null)
       {
-        if (Fill.BeginRenderBrush(_fillContext, localRenderContext))
+        if (fill.BeginRenderBrush(_fillContext, localRenderContext))
         {
           _fillContext.Render(0);
-          Fill.EndRender();
+          fill.EndRender();
         }
       }
-      if (_strokeContext != null)
+      Brush stroke = Stroke;
+      if (_strokeContext != null && stroke != null)
       {
-        if (Stroke.BeginRenderBrush(_strokeContext, localRenderContext))
+        if (stroke.BeginRenderBrush(_strokeContext, localRenderContext))
         {
           _strokeContext.Render(0);
-          Stroke.EndRender();
+          stroke.EndRender();
         }
       }
     }
