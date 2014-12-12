@@ -8,84 +8,84 @@
 
   <!-- *************************** Play control graphics ****************************** -->
   <ControlTemplate x:Key="AudioActiveControlTemplate">
-    <Image Source="PlayerControls.Large\Audio.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\Audio.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="AudioInactiveControlTemplate">
-    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="MuteOnOffControlTemplate">
-    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayControlTemplate">
-    <Image Source="PlayerControls.Large\PlayButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\PlayButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PauseControlTemplate">
-    <Image Source="PlayerControls.Large\PauseButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\PauseButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="StopControlTemplate">
-    <Image Source="PlayerControls.Large\StopButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\StopButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="ForwardControlTemplate">
-    <Image Source="PlayerControls.Large\ForwardButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\ForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="RewindControlTemplate">
-    <Image Source="PlayerControls.Large\RewindButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\RewindButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipForwardControlTemplate">
-    <Image Source="PlayerControls.Large\SkipForwardButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\SkipForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipBackControlTemplate">
-    <Image Source="PlayerControls.Large\SkipBackButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <!-- Dark version -->
   <ControlTemplate x:Key="AudioActiveDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\Audio.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\Audio.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="AudioInactiveDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\AudioMute.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="MuteOnOffDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\AudioMute.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\PlayButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\PlayButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PauseDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\PauseButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\PauseButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="StopDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\StopButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\StopButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="ForwardDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\ForwardButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\ForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="RewindDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\RewindButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\RewindButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipForwardDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\SkipForwardButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\SkipForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipBackDarkControlTemplate">
-    <Image Source="PlayerControls.Large.Dark\SkipBackButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large.Dark\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PowerControlTemplate">
