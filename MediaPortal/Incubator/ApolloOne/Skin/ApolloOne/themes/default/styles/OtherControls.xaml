@@ -214,6 +214,97 @@
   <!-- Implicit default style for ScrollViewer controls -->
   <Style BasedOn="{ThemeResource DefaultScrollViewerStyle}" TargetType="{x:Type ScrollViewer}"/>
 
+  <!-- ***************************** Progress bar ******************************** -->
+  <Style x:Key="DefaultProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                       Height="4"
+                       Fill="{ThemeResource ProgressBarBackgroundColor}"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
+                       Height="4"
+                       Fill="{ThemeResource ProgressBarFillColor}"/>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Implicit default style for ProgressBar controls -->
+  <Style BasedOn="{ThemeResource DefaultProgressBarStyle}" TargetType="{x:Type ProgressBar}"/>
+
+  <Style x:Key="OSDProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                       Height="1"
+                       Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
+                       Height="1"
+                       Fill="{ThemeResource OSDProgressBarFillColor}"/>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PlayerControlsProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                       Height="4"
+                       Fill="{ThemeResource ProgressBarBackgroundColor}"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
+                       Height="4"
+                       Fill="{ThemeResource ProgressBarFillColor}"/>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
+                    Stroke="#A0626262" RadiusX="9" RadiusY="9"
+                    Fill="#D3D4D6"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ************************* ListView item container styles ************************** -->
 
   <!-- An item list base container style which sets the selected item's ZIndex to the top.
@@ -474,39 +565,31 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlButtons">
-    <Grid HorizontalAlignment="Center" Margin="0,-10,0,0">
+    <Grid HorizontalAlignment="Center" Margin="0">
 
-      <Rectangle x:Name="PlaybackControlsBackground" Fill="{ThemeResource PlaybackControlsBackgroundColor}"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-               RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}" />
-
-      <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True" Margin="10,0,10,0" Height="40">
-        <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipBack}"
+      <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True" Margin="10,0,10,0" Height="30">
+        <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipBack}"
               Command="{Command Previous}"/>
-        <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+        <Button x:Name="RewindButton" Style="{ThemeResource RewindDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSeekBackward}"
               Command="{Command SeekBackward}"/>
-        <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanPlay}"
+        <Button x:Name="PlayButton" Style="{ThemeResource PlayDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanPlay}"
               Command="{Command Play}"/>
-        <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanPause}"
+        <Button x:Name="PauseButton" Style="{ThemeResource PauseDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanPause}"
               Command="{Command Pause}"/>
-        <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanStop}"
+        <Button x:Name="StopButton" Style="{ThemeResource StopDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanStop}"
               Command="{Command Stop}"/>
-        <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSeekForward}"
+        <Button x:Name="ForwardButton" Style="{ThemeResource ForwardDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSeekForward}"
               Command="{Command SeekForward}"/>
-        <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipForward}"
+        <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipForward}"
               Command="{Command Next}"/>
       </StackPanel>
-      <!--<StackPanel.LayoutTransform>
-                  <TransformGroup>
-                    <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
-                  </TransformGroup>
-                </StackPanel.LayoutTransform>-->
+
     </Grid>
 
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlVideoPrimary">
-    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="-25,0,0,0"
+    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,-5,-25,-5"
                RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
       <Rectangle.Fill>
         <VideoBrush Stream="0"/>
@@ -515,28 +598,32 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlVideoSecondary">
-    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,0,-25,0"
+    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="-25,-5,0,-5"
                RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
       <Rectangle.Fill>
         <VideoBrush Stream="1"/>
       </Rectangle.Fill>
     </Rectangle>
   </ControlTemplate>
-  
+
   <ControlTemplate x:Key="PlayerControlMediaInfo">
-    <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical" VerticalAlignment="Stretch" Margin="10">
+    <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical" VerticalAlignment="Stretch">
       <Grid x:Name="MediaInfoPanel" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="60"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="MediaItemTitle" Grid.Row="0" Color="{ThemeResource PlayerControlMediaItemColor}" FontSize="{ThemeResource SmallFontSize}"
-            Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Scroll="Auto">
+        <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.ColumnSpan="3" Color="{ThemeResource PlayerControlMediaItemColor}" FontSize="{ThemeResource SmallFontSize}"
+            Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Scroll="Auto"
+            Margin="10,0,0,0">
           <Label.Triggers>
             <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
               <Setter Property="Color" Value="{ThemeResource PlayerControlInactiveMediaItemColor}"/>
@@ -544,15 +631,10 @@
           </Label.Triggers>
         </Label>
 
-        <Label x:Name="CurrentPositionLabel" Grid.Row="1" Color="{ThemeResource PlayerControlMediaItemColor}"
-            FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding IsPlayerPresent}" HorizontalAlignment="Center">
-          <Label.Content>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
-              <Binding Path="CurrentTime"/>
-              <Binding Source=" / " />
-              <Binding Path="Duration"/>
-            </MultiBinding>
-          </Label.Content>
+        <Label x:Name="CurrentPositionLabel" Grid.Row="1" Grid.Column="0" Color="{ThemeResource PlayerControlMediaItemColor}"
+            FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding IsPlayerPresent}" HorizontalAlignment="Left"
+            Content="{Binding CurrentTime}"
+            Margin="0,0,10,0">
           <Label.Triggers>
             <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
               <Setter Property="Color" Value="{ThemeResource PlayerControlInactiveMediaItemColor}"/>
@@ -560,14 +642,27 @@
           </Label.Triggers>
         </Label>
 
-        <ProgressBar x:Name="ProgressBar"
-                Grid.Row="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
+        <Label x:Name="DurationLabel" Grid.Row="1" Grid.Column="3" Color="{ThemeResource PlayerControlMediaItemColor}"
+            FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding IsPlayerPresent}" HorizontalAlignment="Right"
+            Content="{Binding Duration}">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
+              <Setter Property="Color" Value="{ThemeResource PlayerControlInactiveMediaItemColor}"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+
+        <ProgressBar x:Name="ProgressBar" Grid.ColumnSpan="3" Grid.Row="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
+                Style="{ThemeResource PlayerControlsProgressBarStyle}"
                 Value="{Binding Path=PercentPlayed}" IsVisible="{Binding IsPlayerPresent}" />
+
+        <Control Template="{ThemeResource PlayerControlButtons}" Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
+
       </Grid>
     </StackPanel>
   </ControlTemplate>
 
-  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="NavigationScreenPlayerControlStyleSecondary" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -586,9 +681,6 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Order matters here: first paint the controls, as they will be overlapped by content panel -->
-            <Control Template="{ThemeResource PlayerControlButtons}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" HorizontalAlignment="Right"/>
-
             <!-- Background of player control panel-->
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Fill="{ThemeResource PlayerControlBackgroundColor}"
@@ -597,7 +689,7 @@
 
             <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="0"/>
 
-            <Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Column="1" Grid.ColumnSpan="1"/>
+            <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1"/>
 
             <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2"/>
 
@@ -614,7 +706,7 @@
   </Style>
 
   <!-- Alternative style for 2nd player to mirror structure -->
-  <Style x:Key="NavigationScreenPlayerControlStyleSecondary" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -633,9 +725,6 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Order matters here: first paint the controls, as they will be overlapped by content panel -->
-            <Control Template="{ThemeResource PlayerControlButtons}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1"/>
-
             <!-- Background of player control panel Fill="{ThemeResource PlayerControlBackgroundColor}"-->
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Fill="{ThemeResource PlayerControlBackgroundColor}"
@@ -644,7 +733,7 @@
 
             <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="2"/>
 
-            <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1"/>
+            <Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Column="1" Grid.ColumnSpan="1"/>
 
             <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="0"/>
 
@@ -772,39 +861,5 @@
       </Setter.Value>
     </Setter>
   </Style>
-
-  <!-- ***************************** Progress bar ******************************** -->
-
-  <Style x:Key="DefaultProgressBarStyle" TargetType="{x:Type ProgressBar}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       Height="1"
-                       Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
-                       Height="1"
-                       Fill="{ThemeResource ProgressBarFillColor}"/>
-            <StackPanel Orientation="Horizontal">
-              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
-              <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
-            </StackPanel>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- Implicit default style for ProgressBar controls -->
-  <Style BasedOn="{ThemeResource DefaultProgressBarStyle}" TargetType="{x:Type ProgressBar}"/>
 
 </ResourceDictionary>

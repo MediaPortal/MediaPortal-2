@@ -28,7 +28,12 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="MediaItemsFocusedBorderBrush">
-    <SolidColorBrush Color="White"/>
+    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0"/>
+      <GradientStop Color="{ThemeResource TextColor}" Offset="0.30"/>
+      <GradientStop Color="{ThemeResource TextColor}" Offset="0.70"/>
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="1"/>
+    </LinearGradientBrush>
   </ResourceWrapper>
 
 

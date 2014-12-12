@@ -8,23 +8,45 @@
 
   <!-- *************************** Play control graphics ****************************** -->
   <ControlTemplate x:Key="ShowDvdMenuControlTemplate">
-    <Image Source="PlayerControls.Small\SelectTitleButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\SelectTitleButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SelectChapterControlTemplate">
-    <Image Source="PlayerControls.Small\SelectChapterButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\SelectChapterButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
 
   <ControlTemplate x:Key="NextChapterControlTemplate">
-    <Image Source="PlayerControls.Small\NextChapterButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\NextChapterButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="PreviousChapterControlTemplate">
-    <Image Source="PlayerControls.Small\PreviousChapterButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\PreviousChapterButton.png" Stretch="Uniform" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="SelectSubtitleControlTemplate">
-    <Image Source="PlayerControls.Small\SelectSubtitleButton.png" Stretch="Uniform" />
+    <Image Source="PlayerControls.Large\SelectSubtitleButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <!-- Dark version -->
+  <ControlTemplate x:Key="ShowDvdMenuDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectTitleButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectChapterButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+
+  <ControlTemplate x:Key="NextChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\NextChapterButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PreviousChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\PreviousChapterButton.png" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectSubtitleDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectSubtitleButton.png" Stretch="Uniform" />
   </ControlTemplate>
 </ResourceDictionary>

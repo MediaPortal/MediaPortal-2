@@ -41,8 +41,8 @@
   <ResourceWrapper x:Key="ButtonBackgroundFocusFill" Resource="#70136D96"/>
 
   <!-- Player control -->
-  <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="#FF404040"/>
-  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#E0808080"/>
+  <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="#FF262626"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#FFD0CEA8"/>
   <ResourceWrapper x:Key="PlaybackControlsBackgroundColor" Resource="#FF1E1E1E"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#FFDCD9D9"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#FF1B7EE6"/>
@@ -81,7 +81,10 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ProgressBarFillColor">
+  <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#A5A5A5" />
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4780A0" />
+
+  <ResourceWrapper x:Key="OSDProgressBarFillColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
       <GradientStop Color="#FF4780A0" Offset="0.60"/>

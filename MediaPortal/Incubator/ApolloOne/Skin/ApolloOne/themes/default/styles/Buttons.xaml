@@ -164,7 +164,7 @@
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="2"
-              Margin="-3"/>
+              Margin="-2"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -502,5 +502,48 @@
   </Style>
 
   <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
+
+  <!-- Dark version of player buttons -->
+  <Style x:Key="PlayDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PlayDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="PauseDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PauseDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="StopDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource StopDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="ForwardDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ForwardDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="RewindDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource RewindDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="SkipForwardDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SkipForwardDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="SkipBackDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SkipBackDarkControlTemplate}" />
+    </Style.Resources>
+  </Style>
 
 </ResourceDictionary>

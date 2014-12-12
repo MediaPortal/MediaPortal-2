@@ -94,6 +94,20 @@
     <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_Shadow.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\Audio.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\AudioMute.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\ForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\NextChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\PauseButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\PlayButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\PreviousChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\RewindButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SelectChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SelectSubtitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SelectTitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SkipBackButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SkipForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\StopButton.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large\Audio.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large\AudioMute.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large\ForwardButton.png" />
@@ -323,6 +337,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\ApolloOne\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\FullScreenContentConsts.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
