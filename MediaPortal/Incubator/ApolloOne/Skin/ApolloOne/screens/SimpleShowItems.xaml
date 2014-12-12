@@ -12,7 +12,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="120,0,120,0">
+      <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>

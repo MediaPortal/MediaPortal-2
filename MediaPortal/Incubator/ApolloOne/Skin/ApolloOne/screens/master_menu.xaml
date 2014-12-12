@@ -95,7 +95,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <!-- "Background" layer for menu in dialog style, it has a reasonable big margin to overlap full screen -->
 
         <Grid Background="{ThemeResource DialogScreenBackgroundColor}" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"
-               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-100,-500,-100,-500">
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500">
           <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             MousePositionMode="Relative"
             Buttons="Left"
