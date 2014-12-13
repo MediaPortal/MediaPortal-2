@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="NfoMetadataExtractors"
+    PluginId="{2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5}"
+    Author = "MJGraf"
+    Copyright="GPL"
+    Description="Metadata extractors reading metadata from local nfo-files"
+    PluginVersion="0.01">
+
+  <Runtime>
+    <Assembly FileName="NfoMetadataExtractors.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="NfoMovieMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoMovieMetadataExtractor"/>
+  </Register>
+</Plugin>
