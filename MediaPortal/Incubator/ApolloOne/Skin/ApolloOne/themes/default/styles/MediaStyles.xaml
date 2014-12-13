@@ -932,7 +932,7 @@
                         FontSize="{ThemeResource SmallFontSize}"/>
 
                     <ProgressBar x:Name="ProgressBar" Grid.Column="1" Grid.Row="0" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
-                        Value="{Binding Path=PercentPlayed}" />
+                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed}" />
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" Margin="0,0,0,0"
                         Content="{Binding Duration}"

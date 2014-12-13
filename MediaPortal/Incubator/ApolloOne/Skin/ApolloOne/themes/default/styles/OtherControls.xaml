@@ -457,6 +457,15 @@
 
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="{ThemeResource FixedDialogWidth}"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
@@ -552,16 +561,20 @@
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">
-    <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="{Binding MediaItem}" Height="170">
-      <Image.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Rectangle x:Name="CoverOpacityMask" Fill="#FF000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-               RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}" />
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Image.OpacityMask>
-    </Image>
+    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}">
+      <Grid.Width>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
+          <Binding ElementName="ItemTypeImage" Path="HasImage"/>
+          <Binding Source="{StaticResource MEDIA_POSTER_WIDTH}" />
+          <Binding Source="0"/>
+        </MultiBinding>
+      </Grid.Width>
+      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
+      <Image x:Name="ItemTypeImage" Source="{Binding MediaItem}"
+             Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
+             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+      </Image>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlButtons">
