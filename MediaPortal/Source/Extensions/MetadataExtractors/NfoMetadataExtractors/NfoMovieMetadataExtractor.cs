@@ -41,16 +41,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
   /// </summary>
   public class NfoMovieMetadataExtractor : IMetadataExtractor
   {
-    #region Constants
+    #region Constants / Static fields
 
     /// <summary>
-    /// GUID of the NfoMetadataExtractors plugin.
+    /// GUID of the NfoMetadataExtractors plugin
     /// </summary>
     public const string PLUGIN_ID_STR = "2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5";
     public static readonly Guid PLUGIN_ID = new Guid(PLUGIN_ID_STR);
 
     /// <summary>
-    /// GUID for the NfoMovieMetadataExtractor.
+    /// GUID for the NfoMovieMetadataExtractor
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "F1028D66-6E60-4EB6-9987-1C34D4B7813C";
     public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
@@ -65,14 +65,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #region Private fields
 
+    /// <summary>
+    /// Metadata of this MetadataExtractor
+    /// </summary>
     private readonly MetadataExtractorMetadata _metadata;
+
+    /// <summary>
+    /// Settings of the <see cref="NfoMovieMetadataExtractor"/>
+    /// </summary>
     private readonly NfoMovieMetadataExtratorSettings _settings;
+    
+    /// <summary>
+    /// Debug logger
+    /// </summary>
+    /// <remarks>
+    /// NoLogger if _settings.EnableDebugLogging == <c>false</c>"/>
+    /// FileLogger if _settings.EnableDebugLogging == <c>true</c>"/>
+    /// </remarks>
     private readonly ILogger _debugLogger;
 
     #endregion
 
     #region Ctor
 
+    /// <summary>
+    /// Initializes <see cref="MEDIA_CATEGORIES"/> and, if necessary, registers the "Movie" <see cref="MediaCategory"/>
+    /// </summary>
     static NfoMovieMetadataExtractor()
     {
       MediaCategory movieCategory;
@@ -82,15 +100,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       MEDIA_CATEGORIES.Add(movieCategory);
     }
 
+    /// <summary>
+    /// Instantiates a new <see cref="NfoMovieMetadataExtractor"/> object
+    /// </summary>
     public NfoMovieMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Nfo movie metadata extractor", MetadataExtractorPriority.Extended, true,
-        MEDIA_CATEGORIES, new[]
-          {
-            MediaAspect.Metadata,
-            VideoAspect.Metadata,
-            MovieAspect.Metadata
-          });
+      _metadata = new MetadataExtractorMetadata(
+        metadataExtractorId: METADATAEXTRACTOR_ID,
+        name: "Nfo movie metadata extractor",
+        metadataExtractorPriority: MetadataExtractorPriority.Extended,
+        processesNonFiles: true,
+        shareCategories: MEDIA_CATEGORIES,
+        extractedAspectTypes: new[]
+        {
+          MediaAspect.Metadata,
+          VideoAspect.Metadata,
+          MovieAspect.Metadata
+        });
+
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtratorSettings>();
 
       // The following save operation makes sure that in any case an xml-file is written for the NfoMovieMetadataExtratorSettings
@@ -110,6 +137,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #region Private methods
 
+    /// <summary>
+    /// Logs version and setting information into <see cref="_debugLogger"/>
+    /// </summary>
     private void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
