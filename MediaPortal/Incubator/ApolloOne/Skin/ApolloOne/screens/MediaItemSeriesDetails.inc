@@ -28,15 +28,15 @@
           </Grid.ColumnDefinitions>
 
           <StackPanel Orientation="Horizontal">
-            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}">
+            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
               <Label.Content>
-                <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} - S"/>
+                <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
               </Label.Content>
             </Label>
 
             <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}">
               <Label.Content>
-                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} E"/>
+                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} - S {0} E "/>
               </Label.Content>
             </Label>
 
