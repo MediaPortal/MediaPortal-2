@@ -28,7 +28,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -40,23 +44,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Constants
 
     /// <summary>
-    /// GUID string for the NfoMovieMetadataExtractor.
+    /// GUID of the NfoMetadataExtractors plugin.
     /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "F1028D66-6E60-4EB6-9987-1C34D4B7813C";
+    public const string PLUGIN_ID_STR = "2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5";
+    public static readonly Guid PLUGIN_ID = new Guid(PLUGIN_ID_STR);
 
     /// <summary>
-    /// NfoMovieMetadataExtractor GUID.
+    /// GUID for the NfoMovieMetadataExtractor.
     /// </summary>
+    public const string METADATAEXTRACTOR_ID_STR = "F1028D66-6E60-4EB6-9987-1C34D4B7813C";
     public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    /// <summary>
+    /// MediaCategories this MetadataExtractor is applied to
+    /// </summary>
+    private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
     #endregion
 
     #region Private fields
 
-    private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     private readonly MetadataExtractorMetadata _metadata;
+    private readonly NfoMovieMetadataExtratorSettings _settings;
+    private readonly ILogger _debugLogger;
 
     #endregion
 
@@ -80,12 +91,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             VideoAspect.Metadata,
             MovieAspect.Metadata
           });
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtratorSettings>();
+
+      // The following save operation makes sure that in any case an xml-file is written for the NfoMovieMetadataExtratorSettings
+      // ToDo: Remove this once the SettingsManager does this automatically
+      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+
+      if (_settings.EnableDebugLogging)
+      {
+        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoMovieMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
+        LogSettings();
+      }
+      else
+        _debugLogger = new NoLogger();
     }
 
     #endregion
 
     #region Private methods
 
+    private void LogSettings()
+    {
+      _debugLogger.Info("-------------------------------------------------------------");
+      _debugLogger.Info("NfoMovieMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
+      _debugLogger.Info("Setttings:");
+      _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
+      _debugLogger.Info("-------------------------------------------------------------");
+    }
 
     #endregion
 
