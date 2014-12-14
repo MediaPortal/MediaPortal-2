@@ -6,7 +6,7 @@
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails"
   Width="680" Height="560"
-  Margin="35,5,0,0"
+  Margin="35,10,0,14"
   OpacityMask="{ThemeResource HomeTileOpacityBrush}">
   <!-- Rounded corners are applied by OpacityMask -->
 

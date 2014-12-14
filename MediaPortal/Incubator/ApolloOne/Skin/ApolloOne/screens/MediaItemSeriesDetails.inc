@@ -72,10 +72,10 @@
           </StackPanel>
 
           <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Grid.ColumnSpan="3"
-                Scroll="Auto" ScrollSpeed="5"
+                Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
                 HorizontalAlignment="Stretch"
                 Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                Color="{ThemeResource TextColor}"/>
 
         </Grid>
       </ControlTemplate>
