@@ -41,29 +41,4 @@
     </media:MediaAspectWrapper.Template>
   </media:MediaAspectWrapper>
 
-  <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="0" Grid.Column="2" >
-    <media:MovieAspectWrapper.Template>
-      <ControlTemplate>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-
-          <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="0,5,3,0">
-            <Label.Content>
-              <Binding Path="RatingCount" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0})"/>
-            </Label.Content>
-          </Label>
-
-          <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                       Maximum="10"
-                                       Value="{Binding TotalRating}">
-            <StarRatingPanel.LayoutTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-              </TransformGroup>
-            </StarRatingPanel.LayoutTransform>
-          </StarRatingPanel>
-        </StackPanel>
-      </ControlTemplate>
-    </media:MovieAspectWrapper.Template>
-  </media:MovieAspectWrapper>
-
 </Grid>
