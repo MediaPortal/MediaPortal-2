@@ -22,12 +22,38 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
   public class NfoMovieMetadataExtratorSettings
   {
+    #region Ctor
+
+    public NfoMovieMetadataExtratorSettings()
+    {
+      // Set the default values
+      NfoFileNames = new List<string> { "movie" };
+      NfoFileNameExtensions = new List<string> { ".nfo", ".xml" };
+    }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// These file names are used additionally to the media file name to find a respective nfo-file
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public List<string> NfoFileNames { get; set; }
+
+    /// <summary>
+    /// These file name extensions are used to find a respective nfo-file
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public List<string> NfoFileNameExtensions { get; set; }
+
     /// <summary>
     /// Indicates whether a very detailed NfoMovieMetadataExtractorDebug.log is created.
     /// </summary>
@@ -37,5 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     [Setting(SettingScope.Global, false)]
 #endif
     public bool EnableDebugLogging { get; set; }
+
+    #endregion
   }
 }
