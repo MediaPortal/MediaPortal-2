@@ -16,7 +16,10 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="MuteOnOffControlTemplate">
-    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Canvas>
+      <Path Data="F1M1137.8418,600.5068L1130.2018,606.9598L1054.1758,516.9818L1061.8148,510.5278z" Fill="#A0FF0000" Stretch="Fill"
+            Height="{ThemeResource PlayerControlHeight}" Width="{ThemeResource PlayerControlHeight}"/>
+    </Canvas>
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayControlTemplate">

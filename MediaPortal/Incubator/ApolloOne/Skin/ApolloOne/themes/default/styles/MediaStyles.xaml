@@ -1013,7 +1013,7 @@
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
-                  <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
+                  <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4">
                     <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
                       VerticalAlignment="Center" HorizontalAlignment="Center">
                       <!-- Must be located the same as Audio_Mouse -->

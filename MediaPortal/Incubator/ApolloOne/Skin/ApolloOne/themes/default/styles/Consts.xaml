@@ -17,6 +17,7 @@
   <ResourceWrapper x:Key="PlayerControlButtonMargins" Resource="-2,0,-2,0" />
   <ResourceWrapper x:Key="PlayerControlHomeButtonMargins" Resource="-2,0,-2,0" />
   <ResourceWrapper x:Key="PlayerControlHeight" Resource="35"/>
+  <ResourceWrapper x:Key="PlayerControlButtonOpacity" Resource="0.6"/>
 
   <!-- General font sizes -->
   <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
