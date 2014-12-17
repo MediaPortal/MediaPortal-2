@@ -144,10 +144,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
     <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,20,115,0" />
 
-    <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" DockPanel.Dock="Top" Grid.Row="3" VerticalAlignment="Top" />
+    <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" />
 
 
-    <Grid Margin="115,40,115,0" Grid.Row="4" VerticalAlignment="Top">
+    <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>

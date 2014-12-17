@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
+    >
+  <Include.Resources>
+
+    <!-- Custom margin that will be applied to the content area -->
+    <ResourceWrapper x:Key="CustomContentMargin" Resource="0,110,-4,-35" />
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="Groups" Margin="0,20,0,0" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
+              Command="{Command PrevGroup}"/>
+          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
+              Command="{Command NextGroup}"/>
+          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+        </StackPanel>
+        <StackPanel x:Name="TimeControls" Margin="0,20,0,0" Grid.Column="1" Grid.Row="0"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+          <Button x:Name="ScrollBackwardButton" Style="{StaticResource SmallButtonStyle}" Content=" - "
+              Command="{Command ScrollBackward}"/>
+          <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
+              Command="{Command ScrollForward}"/>
+          <Label x:Name="GuideStartTimeLabel" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </StackPanel>
+
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" />
+
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+       <Include Source="screens\ProgramInfoSlim.inc"/>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

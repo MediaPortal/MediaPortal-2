@@ -146,6 +146,7 @@
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
     <Compile Include="TvHandler\TimeshiftContext.cs" />
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
+    <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
@@ -244,6 +245,31 @@
     <None Include="Skin\Titanium\screens\master_tv_menu.xaml">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\FullScreenContentTv.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SlimTvClient-guide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
