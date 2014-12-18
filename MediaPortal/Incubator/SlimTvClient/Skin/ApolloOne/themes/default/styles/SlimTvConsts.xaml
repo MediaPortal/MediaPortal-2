@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <ResourceWrapper x:Key="ChannelLogoSmall" Resource="48"/>
+  <ResourceWrapper x:Key="ChannelLogoSmall" Resource="80"/>
   <ResourceWrapper x:Key="ChannelLogoContainerSmall" Resource="50"/>
 
   <ResourceWrapper x:Key="ChannelLogoMedium" Resource="64"/>
@@ -23,7 +23,7 @@
   <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="500"/>
 
   <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="350"/>
-  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="68"/>
+  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="60"/>
   <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="250"/>
 
   <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="750"/>
