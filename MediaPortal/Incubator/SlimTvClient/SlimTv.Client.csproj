@@ -271,6 +271,11 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <Import Project="..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets')" />
