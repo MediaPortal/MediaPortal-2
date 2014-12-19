@@ -36,7 +36,7 @@
 
             <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}">
               <Label.Content>
-                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} - S {0} E "/>
+                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} - S{0} E"/>
               </Label.Content>
             </Label>
 
@@ -52,23 +52,6 @@
               </Label.Content>
             </Label>
 
-          </StackPanel>
-
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="2">
-            <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="0,5,3,0">
-              <Label.Content>
-                <Binding Path="RatingCount" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0})"/>
-              </Label.Content>
-            </Label>
-            <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                          Maximum="10"
-                                          Value="{Binding TotalRating}">
-              <StarRatingPanel.LayoutTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-                </TransformGroup>
-              </StarRatingPanel.LayoutTransform>
-            </StarRatingPanel>
           </StackPanel>
 
           <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Grid.ColumnSpan="3"
