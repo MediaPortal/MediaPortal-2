@@ -103,4 +103,8 @@
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="1"/>
 
   <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="18"/>
+
+  <!-- Star Rating -->
+  <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#E8E8E8"/>
+
 </ResourceDictionary>

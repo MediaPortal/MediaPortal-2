@@ -338,7 +338,7 @@
                                  Value="{Binding TotalRating}">
                     <StarRatingPanel.LayoutTransform>
                       <TransformGroup>
-                        <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                        <ScaleTransform ScaleX="1.7" ScaleY="1.7"/>
                       </TransformGroup>
                     </StarRatingPanel.LayoutTransform>
                   </StarRatingPanel>
