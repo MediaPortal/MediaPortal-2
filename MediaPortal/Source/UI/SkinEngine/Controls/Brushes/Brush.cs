@@ -25,7 +25,6 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
@@ -115,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Transform = copyManager.GetCopy(b.Transform);
       Freezable = b.Freezable;
       // TODO: copy?
-      _brush2D = b._brush2D; 
+      _brush2D = b._brush2D;
       _finalBrushTransform = null;
       Attach();
     }
@@ -245,44 +244,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
-    public virtual void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    public virtual void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
-      if (!UpdateBounds(ref verts))
+      if (!UpdateBounds(ref boundary))
         return;
-      float w = _vertsBounds.Width;
-      float h = _vertsBounds.Height;
-      float xoff = _vertsBounds.X;
-      float yoff = _vertsBounds.Y;
-      if (adaptVertsToBrushTexture)
-        for (int i = 0; i < verts.Length; i++)
-        {
-          PositionColoredTextured vert = verts[i];
-          float x = vert.X;
-          float u = x - xoff;
-          u /= w;
+      //float w = _vertsBounds.Width;
+      //float h = _vertsBounds.Height;
+      //float xoff = _vertsBounds.X;
+      //float yoff = _vertsBounds.Y;
+      //if (adaptVertsToBrushTexture)
+      //  for (int i = 0; i < boundary.Length; i++)
+      //  {
+      //    PositionColoredTextured vert = boundary[i];
+      //    float x = vert.X;
+      //    float u = x - xoff;
+      //    u /= w;
 
-          float y = vert.Y;
-          float v = y - yoff;
-          v /= h;
+      //    float y = vert.Y;
+      //    float v = y - yoff;
+      //    v /= h;
 
-          if (u < 0) u = 0;
-          if (u > 1) u = 1;
-          if (v < 0) v = 0;
-          if (v > 1) v = 1;
-          unchecked
-          {
-            Color4 color = Color.White;
-            color.Alpha *= (float)Opacity;
-            vert.Color = color.ToBgra();
-          }
-          vert.Tu1 = u;
-          vert.Tv1 = v;
-          vert.Z = zOrder;
-          verts[i] = vert;
-        }
+      //    if (u < 0) u = 0;
+      //    if (u > 1) u = 1;
+      //    if (v < 0) v = 0;
+      //    if (v > 1) v = 1;
+      //    unchecked
+      //    {
+      //      Color4 color = Color.White;
+      //      color.Alpha *= (float)Opacity;
+      //      vert.Color = color.ToBgra();
+      //    }
+      //    vert.Tu1 = u;
+      //    vert.Tv1 = v;
+      //    vert.Z = zOrder;
+      //    boundary[i] = vert;
+      //  }
     }
 
-    protected bool UpdateBounds(ref PositionColoredTextured[] verts)
+    protected bool UpdateBounds(ref RectangleF verts)
     {
       if (verts == null)
       {
@@ -293,14 +292,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       float miny = float.MaxValue;
       float maxx = 0;
       float maxy = 0;
-      foreach (PositionColoredTextured vert in verts)
-      {
-        if (vert.X < minx) minx = vert.X;
-        if (vert.Y < miny) miny = vert.Y;
+      if (verts.Left < minx) minx = verts.Left;
+      if (verts.Top < miny) miny = verts.Top;
 
-        if (vert.X > maxx) maxx = vert.X;
-        if (vert.Y > maxy) maxy = vert.Y;
-      }
+      if (verts.Right > maxx) maxx = verts.Right;
+      if (verts.Bottom > maxy) maxy = verts.Bottom;
+
       _vertsBounds = new RectangleF(minx, miny, maxx - minx, maxy - miny);
       return true;
     }
@@ -321,17 +318,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _finalBrushTransform = transform;
       return transform.Value;
     }
-
-    //public bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
-    //{
-    //  if (_vertsBounds.IsEmpty)
-    //    return false;
-    //  return BeginRenderBrushOverride(primitiveContext, renderContext);
-    //}
-
-    //protected abstract bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext);
-
-    //public abstract void EndRender();
 
     public virtual void Allocate()
     { }

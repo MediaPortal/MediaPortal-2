@@ -22,15 +22,11 @@
 
 #endregion
 
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
-using SharpDX.Direct3D9;
-using RectangleF = SharpDX.RectangleF;
+using SharpDX.Direct2D1;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 
@@ -42,6 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected AbstractProperty _radiusXProperty;
     protected AbstractProperty _radiusYProperty;
+    protected RoundedRectangle _roundedRectangle;
 
     #endregion
 
@@ -118,40 +115,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = CreateRectanglePath(_innerRect))
-        {
-          if (path.PointCount == 0)
-            return;
-
-          PointF[] pathPoints = path.PathPoints;
-          PositionColoredTextured[] verts;
-
-          float centerX = _innerRect.Width / 2 + _innerRect.Left;
-          float centerY = _innerRect.Height / 2 + _innerRect.Top;
-          if (Fill != null)
-          {
-            TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
-            Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
-          }
-          else
-            PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
-
-          if (Stroke != null && StrokeThickness > 0)
-          {
-            TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, true, 1, StrokeLineJoin, out verts);
-            Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
-          }
-          else
-            PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
-        }
+        var roundedRectangle = new RoundedRectangle { RadiusX = (float)RadiusX, RadiusY = (float)RadiusY, Rect = _innerRect };
+        _geometry = new RoundedRectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, roundedRectangle);
       }
-    }
-
-    protected GraphicsPath CreateRectanglePath(RectangleF rect)
-    {
-      return GraphicsPathHelper.CreateRoundedRectPath(rect, (float) RadiusX, (float) RadiusY);
+      else
+      {
+        TryDispose(ref _geometry);
+      }
     }
   }
 }

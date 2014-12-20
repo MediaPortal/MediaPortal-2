@@ -22,18 +22,11 @@
 
 #endregion
 
-using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
-using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using Matrix = System.Drawing.Drawing2D.Matrix;
-using RectangleF = System.Drawing.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -138,70 +131,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _y2Property.SetValue(value); }
     }
 
-    protected override void DoPerformLayout(RenderContext context)
+    public override void RenderOverride(RenderContext parentRenderContext)
     {
-      base.DoPerformLayout(context);
-
-      if (Stroke != null && StrokeThickness > 0)
+      base.RenderOverride(parentRenderContext);
+      var brush = Stroke;
+      if (brush != null && StrokeThickness > 0)
       {
-        using (GraphicsPath path = GetLine(_innerRect.ToDrawingRectF()))
-        {
-          float centerX;
-          float centerY;
-          PointF[] pathPoints = path.PathPoints;
-          TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
-          PositionColoredTextured[] verts;
-          TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
-
-          Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-          PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
-        }
+        GraphicsDevice11.Instance.Context2D1.DrawLine(new Vector2((float)X1, (float)Y1), new Vector2((float)X2, (float)Y2), brush.Brush2D, (float)StrokeThickness);
       }
-      else
-        PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
-    }
-
-    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
-    {
-      using (GraphicsPath p = GetLine(new RectangleF(0, 0, totalSize.Width, totalSize.Height)))
-      {
-        RectangleF bounds = p.GetBounds();
-
-        return new Size2F(bounds.Width, bounds.Height);
-      }
-    }
-
-    /// <summary>
-    /// Get the desired Rounded Rectangle path.
-    /// </summary>
-    private GraphicsPath GetLine(RectangleF baseRect)
-    {
-      float x1 = (float) X1;
-      float y1 = (float) Y1;
-      float x2 = (float) X2;
-      float y2 = (float) Y2;
-
-      float w = (float) Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-
-      float ang = (y2 - y1) / (x2 - x1);
-      ang = (float) Math.Atan(ang);
-      ang *= (float) (180.0f / Math.PI);
-      GraphicsPath mPath = new GraphicsPath();
-      System.Drawing.Rectangle r = new System.Drawing.Rectangle((int) x1, (int) y1, (int) w, (int) StrokeThickness);
-      mPath.AddRectangle(r);
-      mPath.CloseFigure();
-
-      using (Matrix matrix = new Matrix())
-      {
-        matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
-        matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-        RectangleF bounds = mPath.GetBounds(matrix);
-        matrix.Scale(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
-        mPath.Transform(matrix);
-      }
-      mPath.Flatten();
-
-      return mPath;
     }
   }
 }

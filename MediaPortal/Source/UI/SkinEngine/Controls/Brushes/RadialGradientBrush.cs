@@ -174,9 +174,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public methods
 
-    public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
-      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
+      base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       RadialGradientBrushProperties props = new RadialGradientBrushProperties { Center = Center, RadiusX = (float)RadiusX, RadiusY = (float)RadiusY };
 
       // TODO: apply transform?

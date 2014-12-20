@@ -22,12 +22,9 @@
 
 #endregion
 
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -40,44 +37,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = GetEllipse(_innerRect.ToDrawingRectF()))
-        {
-          PositionColoredTextured[] verts;
-          float centerX;
-          float centerY;
-          PointF[] pathPoints = path.PathPoints;
-          TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
-          if (Fill != null)
-          {
-            TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
-            Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
-          }
-          else
-            PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
-
-          if (Stroke != null && StrokeThickness > 0)
-          {
-            TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, true, 1, PenLineJoin.Bevel, out verts);
-            Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
-          }
-          else
-            PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
-        }
+        var ellipse = new SharpDX.Direct2D1.Ellipse {RadiusX = _innerRect.Width / 2, RadiusY = _innerRect.Height /2, Point = _innerRect.Center};
+        _geometry = new EllipseGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, ellipse);
       }
-    }
-
-    /// <summary>
-    /// Get the desired Rounded Rectangle path.
-    /// </summary>
-    private static GraphicsPath GetEllipse(RectangleF baseRect)
-    {
-      GraphicsPath mPath = new GraphicsPath();
-      mPath.AddEllipse(baseRect);
-      mPath.CloseFigure();
-      mPath.Flatten();
-      return mPath;
+      else
+      {
+        TryDispose(ref _geometry);
+      }
     }
   }
 }
