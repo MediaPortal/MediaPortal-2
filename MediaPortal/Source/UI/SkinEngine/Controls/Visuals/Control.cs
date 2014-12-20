@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -55,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
     protected volatile bool _performLayout = true; // Mark control to adapt background brush and related contents to the layout
     protected PrimitiveBuffer _backgroundContext;
+    protected RectangleF _backgroundRect;
 
     #endregion
 
@@ -259,13 +261,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       base.RenderOverride(localRenderContext);
-      if (_backgroundContext != null)
+
+      Brush background = Background;
+      if (background != null)
       {
-        if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
-        {
-          _backgroundContext.Render(0);
-          Background.EndRender();
-        }
+        GraphicsDevice11.Instance.Context2D1.DrawRectangle(_backgroundRect, background.Brush2D);
       }
 
       FrameworkElement templateControl = _initializedTemplateControl;
@@ -285,21 +285,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
-        RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
+        _backgroundRect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        PositionColoredTextured[] verts = new PositionColoredTextured[6];
-        verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
-        verts[1].Position = new Vector3(rect.Left, rect.Bottom, 1.0f);
-        verts[2].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
-        verts[3].Position = new Vector3(rect.Left, rect.Top, 1.0f);
-        verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
-        verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
-        Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
-        PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
+        Background.SetupBrush(this, ref _backgroundRect, localRenderContext.ZOrder, true);
       }
-      else
-        PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     #endregion

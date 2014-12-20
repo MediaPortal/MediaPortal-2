@@ -185,9 +185,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
-      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
+      base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       _visualTexture = ContentManager.Instance.GetRenderTexture(_renderTextureKey);
       _screen = parent.Screen;
       PrepareVisual();

@@ -2128,12 +2128,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       GraphicsDevice.EnableAlphaChannelBlending();
       GraphicsDevice.DisableAlphaTest();
 
-      // Now render the OpacityMask brush
-      if (opacityMask.BeginRenderBrush(_opacityMaskContext, new RenderContext(Matrix.Identity, _lastOccupiedTransformedBounds)))
-      {
-        _opacityMaskContext.Render(0);
-        opacityMask.EndRender();
-      }
+      //// Now render the OpacityMask brush
+      //if (opacityMask.BeginRenderBrush(_opacityMaskContext, new RenderContext(Matrix.Identity, _lastOccupiedTransformedBounds)))
+      //{
+      //  _opacityMaskContext.Render(0);
+      //  opacityMask.EndRender();
+      //}
       GraphicsDevice.DisableAlphaChannelBlending();
       GraphicsDevice.EnableAlphaTest();
     }
@@ -2143,12 +2143,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float)Opacity;
 
-      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
-          0.0f, 0.0f, 1.0f, 1.0f,
-          zPos, col);
+      //PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
+      //    bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+      //    0.0f, 0.0f, 1.0f, 1.0f,
+      //    zPos, col);
 
-      OpacityMask.SetupBrush(this, ref verts, zPos, false);
+      OpacityMask.SetupBrush(this, ref bounds, zPos, false);
       //PrimitiveBuffer.SetPrimitiveBuffer(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);
     }
 

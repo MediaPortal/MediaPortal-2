@@ -30,6 +30,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Direct2D1;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -188,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _headerLabel.Arrange(_headerLabelRect);
     }
 
-    protected override GraphicsPath CreateBorderRectPath(RectangleF innerBorderRect)
+    protected override PathGeometry CreateBorderRectPath(RectangleF innerBorderRect)
     {
       SizeF headerLabelSize = _headerLabel.DesiredSize;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(innerBorderRect,

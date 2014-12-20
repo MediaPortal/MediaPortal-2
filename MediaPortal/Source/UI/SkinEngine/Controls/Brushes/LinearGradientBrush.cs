@@ -133,9 +133,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _endPointProperty.SetValue(value); }
     }
 
-    public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
-      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
+      base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       _refresh = true;
 
       LinearGradientBrushProperties props = new LinearGradientBrushProperties();

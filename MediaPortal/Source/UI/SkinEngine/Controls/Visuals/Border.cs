@@ -24,17 +24,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
@@ -61,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _performLayout;
     protected RectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
+    protected PathGeometry _pathGeometry;
 
     #endregion
 
@@ -353,61 +352,63 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Background != null)
       {
         // TODO: Draw background only in the inner rectangle (outer rect minus BorderThickness)
-        using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
-        {
-          // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
-          // for example GroupBox). To create a completely filled background, we need a closed figure.
-          path.CloseFigure();
-          PositionColoredTextured[] verts;
-          float centerX, centerY;
-          PointF[] pathPoints = path.PathPoints;
-          TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
-          TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
+        _pathGeometry = CreateBorderRectPath(innerBorderRect);
+        //using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
+        //{
+        //  // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
+        //  // for example GroupBox). To create a completely filled background, we need a closed figure.
+        //  path.CloseFigure();
+        //  PositionColoredTextured[] verts;
+        //  float centerX, centerY;
+        //  PointF[] pathPoints = path.PathPoints;
+        //  TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
+        //  TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
 
-          Background.SetupBrush(this, ref verts, context.ZOrder, true);
-          PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
-        }
+        //  Background.SetupBrush(this, ref innerBorderRect, context.ZOrder, true);
+        //  PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
+        //}
       }
-      else
-        PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
+      //else
+      //  PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     protected void PerformLayoutBorder(RectangleF innerBorderRect, RenderContext context)
     {
       // Setup border brush
-      if (BorderBrush != null && BorderThickness > 0)
-      {
-        // TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
-        using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
-        {
-          using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
-          {
-            PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
-            using (GraphicsPath subPath = new GraphicsPath())
-            {
-              for (int i = 0; i < subPathVerts.Length; i++)
-              {
-                bool isClosed;
-                gpi.NextSubpath(subPath, out isClosed);
-                PointF[] pathPoints = subPath.PathPoints;
-                PenLineJoin lineJoin = Math.Abs(CornerRadius) < DELTA_DOUBLE ? BorderLineJoin : PenLineJoin.Bevel;
-                TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, lineJoin,
-                    out subPathVerts[i]);
-              }
-            }
-            PositionColoredTextured[] verts;
-            GraphicsPathHelper.Flatten(subPathVerts, out verts);
-            BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
+      //if (BorderBrush != null && BorderThickness > 0)
+      //{
+        //TODO should be same geom
+        //// TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
+        //using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
+        //{
+        //  using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
+        //  {
+        //    PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
+        //    using (GraphicsPath subPath = new GraphicsPath())
+        //    {
+        //      for (int i = 0; i < subPathVerts.Length; i++)
+        //      {
+        //        bool isClosed;
+        //        gpi.NextSubpath(subPath, out isClosed);
+        //        PointF[] pathPoints = subPath.PathPoints;
+        //        PenLineJoin lineJoin = Math.Abs(CornerRadius) < DELTA_DOUBLE ? BorderLineJoin : PenLineJoin.Bevel;
+        //        TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, lineJoin,
+        //            out subPathVerts[i]);
+        //      }
+        //    }
+        //    PositionColoredTextured[] verts;
+        //    GraphicsPathHelper.Flatten(subPathVerts, out verts);
+        //    BorderBrush.SetupBrush(this, ref innerBorderRect, context.ZOrder, true);
 
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _borderContext, ref verts, PrimitiveType.TriangleList);
-          }
-        }
-      }
-      else
-        PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
+        //    PrimitiveBuffer.SetPrimitiveBuffer(ref _borderContext, ref verts, PrimitiveType.TriangleList);
+        //  }
+        //}
+      //}
+      //else
+      //  PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
     }
 
-    protected virtual GraphicsPath CreateBorderRectPath(RectangleF innerBorderRect)
+    protected virtual PathGeometry CreateBorderRectPath(RectangleF innerBorderRect)
     {
       return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float)CornerRadius, (float)CornerRadius);
     }
@@ -420,19 +421,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       PerformLayout(localRenderContext);
 
-      if (_backgroundContext != null)
-        if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
-        {
-          _backgroundContext.Render(0);
-          Background.EndRender();
-        }
+      var background = Background;
+      if (background != null)
+      {
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_pathGeometry, background.Brush2D);
+      }
 
-      if (_borderContext != null)
-        if (BorderBrush.BeginRenderBrush(_borderContext, localRenderContext))
-        {
-          _borderContext.Render(0);
-          BorderBrush.EndRender();
-        }
+      var border = BorderBrush;
+      if (border != null)
+      {
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_pathGeometry, border.Brush2D, (float)BorderThickness);
+      }
 
       FrameworkElement content = _initializedContent;
       if (content != null)
