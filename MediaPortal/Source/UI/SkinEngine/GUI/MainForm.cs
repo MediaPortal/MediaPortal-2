@@ -38,6 +38,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Services.Players.VideoPlayerSynchronizationStrategies;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -150,6 +151,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Initialize DirectX");
       GraphicsDevice.Initialize_MainThread(this);
+      GraphicsDevice11.Instance.Initialize_MainThread(this);
 
       // Read and apply ScreenSaver settings
       _screenSaverTimeOut = TimeSpan.FromMinutes(appSettings.ScreenSaverTimeoutMin);
@@ -257,6 +259,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Dispose DirectX");
       GraphicsDevice.Dispose();
+      GraphicsDevice11.Instance.Dispose();
     }
 
     protected void StoreClientBounds()

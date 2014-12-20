@@ -24,9 +24,12 @@
       <References Include="$(ProjectDir)References\zlib1.dll" />
       <References Include="$(TargetDir)SharpDX.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
+      <References Include="$(TargetDir)SharpDX.Direct3D11.dll" />
+      <References Include="$(TargetDir)SharpDX.Direct2D1.dll" />
+      <References Include="$(TargetDir)SharpDX.DXGI.dll" />
     </ItemGroup>
   
-      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
