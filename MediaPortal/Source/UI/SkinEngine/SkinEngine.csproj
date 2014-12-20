@@ -201,6 +201,7 @@
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardPresenter.cs" />
+    <Compile Include="DirectX11\GraphicsDevice11.cs" />
     <Compile Include="DirectX\D3DConfiguration.cs" />
     <Compile Include="DirectX\DxCapabilities.cs" />
     <Compile Include="DirectX\MPDirect3D.cs" />
