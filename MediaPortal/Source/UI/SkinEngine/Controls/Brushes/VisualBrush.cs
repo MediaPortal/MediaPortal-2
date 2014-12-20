@@ -106,23 +106,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
-      // We need to consider a special case for rendering Opacity masks: in this case the alpha blending is enabled on device already. If we render now without changes,
-      // the Visual will not be visible in target texture. In this case we switch back to normal rendering mode and restore blending mode after the Visual is rendered.
-      var wasBlendingEnabled = GraphicsDevice.IsAlphaChannelBlendingEnabled;
-      if (wasBlendingEnabled)
-      {
-        // Opposite steps as done inside FrameworkElement.RenderOpacityBrush
-        GraphicsDevice.DisableAlphaChannelBlending();
-        GraphicsDevice.EnableAlphaTest();
-      }
-      RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
-      fe.RenderToTexture(_visualTexture, new RenderContext(Matrix.Identity, Opacity, bounds, 1.0f));
-      if (wasBlendingEnabled)
-      {
-        // Redo steps as done inside FrameworkElement.RenderOpacityBrush
-        GraphicsDevice.EnableAlphaChannelBlending();
-        GraphicsDevice.DisableAlphaTest();
-      }
+      //RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
+      //fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Opacity, bounds, 1.0f));
+
+      //// Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
+      //GraphicsDevice.Device.StretchRectangle(
+      //    _visualSurface.Surface, new Rectangle(0, 0, _visualSurface.Size.Width, _visualSurface.Size.Height),
+      //    _visualTexture.Surface0, new Rectangle(0, 0, _visualTexture.Size.Width, _visualTexture.Size.Height),
+      //    TextureFilter.None);
     }
 
     protected void PrepareVisual()
@@ -177,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _autoLayoutContentProperty.SetValue(value); }
     }
 
-    public override Texture Texture
+    public Texture Texture
     {
       get { return _visualTexture.Texture; }
     }
@@ -202,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PrepareVisual();
     }
 
-    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       FrameworkElement fe = _preparedVisual;
       if (fe == null) return false;

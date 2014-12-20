@@ -27,13 +27,30 @@ using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
-using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
+
+  //public abstract class Brush<T> : Brush
+  //  where T : SharpDX.Direct2D1.Brush
+  //{
+  //  protected T _brush2D = null;
+
+  //  public virtual SharpDX.Direct2D1.Brush Brush2D
+  //  {
+  //    get { return _brush2D; }
+  //  }
+
+  //  public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+  //  {
+  //    base.DeepCopy(source, copyManager);
+  //    Brush<T> b = (Brush<T>)source;
+  //    _brush2D = b._brush2D;
+  //  }
+  //}
+
   public abstract class Brush : DependencyObject, IObservable
   {
     #region Protected fields
@@ -45,6 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected RectangleF _vertsBounds;
     protected Matrix? _finalBrushTransform = null;
     protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
+    protected SharpDX.Direct2D1.Brush _brush2D = null;
 
     #endregion
 
@@ -91,11 +109,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Brush b = (Brush) source;
+      Brush b = (Brush)source;
       Opacity = b.Opacity;
       RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
       Transform = copyManager.GetCopy(b.Transform);
       Freezable = b.Freezable;
+      // TODO: copy?
+      _brush2D = b._brush2D; 
       _finalBrushTransform = null;
       Attach();
     }
@@ -104,20 +124,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void OnRelativeTransformChanged(AbstractProperty prop, object oldVal)
     {
-      Transform oldTransform = (Transform) oldVal;
+      Transform oldTransform = (Transform)oldVal;
       if (oldTransform != null)
         oldTransform.ObjectChanged -= OnRelativeTransformChanged;
-      Transform transform = (Transform) prop.GetValue();
+      Transform transform = (Transform)prop.GetValue();
       if (transform != null)
         transform.ObjectChanged += OnRelativeTransformChanged;
     }
 
     void OnTransformChanged(AbstractProperty prop, object oldVal)
     {
-      Transform oldTransform = (Transform) oldVal;
+      Transform oldTransform = (Transform)oldVal;
       if (oldTransform != null)
         oldTransform.ObjectChanged -= OnTransformChanged;
-      Transform transform = (Transform) prop.GetValue();
+      Transform transform = (Transform)prop.GetValue();
       if (transform != null)
         transform.ObjectChanged += OnTransformChanged;
     }
@@ -132,7 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void FireChanged()
     {
-      _objectChanged.Fire(new object[] {this});
+      _objectChanged.Fire(new object[] { this });
     }
 
     /// <summary>
@@ -161,6 +181,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
+    public virtual SharpDX.Direct2D1.Brush Brush2D
+    {
+      get { return _brush2D; }
+    }
+
     public AbstractProperty FreezableProperty
     {
       get { return _freezableProperty; }
@@ -168,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public bool Freezable
     {
-      get { return (bool) _freezableProperty.GetValue(); }
+      get { return (bool)_freezableProperty.GetValue(); }
       set { _freezableProperty.SetValue(value); }
     }
 
@@ -179,7 +204,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public double Opacity
     {
-      get { return (double) _opacityProperty.GetValue(); }
+      get { return (double)_opacityProperty.GetValue(); }
       set { _opacityProperty.SetValue(value); }
     }
 
@@ -190,7 +215,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Transform RelativeTransform
     {
-      get { return (Transform) _relativeTransformProperty.GetValue(); }
+      get { return (Transform)_relativeTransformProperty.GetValue(); }
       set { _relativeTransformProperty.SetValue(value); }
     }
 
@@ -201,14 +226,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Transform Transform
     {
-      get { return (Transform) _transformProperty.GetValue(); }
+      get { return (Transform)_transformProperty.GetValue(); }
       set { _transformProperty.SetValue(value); }
     }
 
-    public virtual Texture Texture
-    {
-      get { return null; }
-    }
+    //public virtual Texture Texture
+    //{
+    //  get { return null; }
+    //}
 
     #endregion
 
@@ -247,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           unchecked
           {
             Color4 color = Color.White;
-            color.Alpha *= (float) Opacity;
+            color.Alpha *= (float)Opacity;
             vert.Color = color.ToBgra();
           }
           vert.Tu1 = u;
@@ -289,7 +314,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         transform = Matrix.Scaling(new Vector3(_vertsBounds.Width, _vertsBounds.Height, 1));
         transform *= Matrix.Invert(Transform.GetTransform());
-        transform *= Matrix.Scaling(new Vector3(1/_vertsBounds.Width, 1/_vertsBounds.Height, 1));
+        transform *= Matrix.Scaling(new Vector3(1 / _vertsBounds.Width, 1 / _vertsBounds.Height, 1));
       }
       else
         transform = Matrix.Identity;
@@ -297,16 +322,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return transform.Value;
     }
 
-    public bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
-    {
-      if (_vertsBounds.IsEmpty)
-        return false;
-      return BeginRenderBrushOverride(primitiveContext, renderContext);
-    }
+    //public bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    //{
+    //  if (_vertsBounds.IsEmpty)
+    //    return false;
+    //  return BeginRenderBrushOverride(primitiveContext, renderContext);
+    //}
 
-    protected abstract bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext);
+    //protected abstract bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext);
 
-    public abstract void EndRender();
+    //public abstract void EndRender();
 
     public virtual void Allocate()
     { }

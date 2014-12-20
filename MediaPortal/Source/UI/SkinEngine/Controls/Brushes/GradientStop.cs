@@ -37,6 +37,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _offsetProperty;
     protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
+    protected SharpDX.Direct2D1.GradientStop _gradientStop2D;
+
     #endregion
 
     #region Ctor
@@ -65,6 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _colorProperty = new SProperty(typeof(Color), Color.White);
       _offsetProperty = new SProperty(typeof(double), 0.0);
+      _gradientStop2D = new SharpDX.Direct2D1.GradientStop();
     }
 
     void Attach()
@@ -107,11 +110,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       Fire();
+      _gradientStop2D.Color = Color;
+      _gradientStop2D.Position = (float)Offset;
     }
 
     #endregion
 
     #region Public properties
+
+    public SharpDX.Direct2D1.GradientStop GradientStop2D
+    {
+      get { return _gradientStop2D; }
+    }
 
     public AbstractProperty ColorProperty
     {

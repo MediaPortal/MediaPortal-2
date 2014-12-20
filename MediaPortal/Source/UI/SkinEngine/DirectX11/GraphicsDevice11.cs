@@ -19,8 +19,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     private Texture2D _backBufferTexture;
     private Surface1 _backBuffer;
     private SharpDX.Direct2D1.DeviceContext _context2D;
+    private Bitmap1 _renderTarget2D;
 
     private static GraphicsDevice11 _instance;
+
     public static GraphicsDevice11 Instance
     {
       get { return _instance ?? (_instance = new GraphicsDevice11()); }
@@ -63,6 +65,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       get { return _context2D; }
     }
 
+    public Bitmap1 RenderTarget2D
+    {
+      get { return _renderTarget2D; }
+    }
+
     /// <summary>
     /// Initializes or re-initializes the DirectX device and the backbuffer. This is necessary in the initialization phase
     /// of the SkinEngine and after a parameter was changed which affects the DX device creation.
@@ -85,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       var desc = new SwapChainDescription
       {
         BufferCount = 1,
-        ModeDescription = new ModeDescription(width, height, new Rational(60, 1), Format.R8G8B8A8_UNorm),
+        ModeDescription = new ModeDescription(width, height, new Rational(50, 1), Format.R8G8B8A8_UNorm),
         IsWindowed = true,
         OutputHandle = RenderTarget.Handle,
         SampleDescription = new SampleDescription(1, 0),
@@ -118,6 +125,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       _device2D1 = new SharpDX.Direct2D1.Device(_deviceDXGI); // initialize the D2D device
 
       _context2D = new SharpDX.Direct2D1.DeviceContext(_device2D1, DeviceContextOptions.EnableMultithreadedOptimizations);
+
+      _renderTarget2D = new Bitmap1(_context2D, _backBuffer);
     }
 
     private static void TryDispose<TE>(ref TE disposable)
@@ -134,6 +143,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       TryDispose(ref _backBufferTexture);
       TryDispose(ref _swapChain);
 
+      TryDispose(ref _renderTarget2D);
       TryDispose(ref _context2D);
 
       TryDispose(ref _device3D1);

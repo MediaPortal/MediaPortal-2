@@ -281,36 +281,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Reset();
     }
 
-    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      if (Texture == null)
-        return false;
+      //if (Texture == null)
+      //  return false;
 
-      Matrix finalTransform = renderContext.Transform.Clone();
+      //Matrix finalTransform = renderContext.Transform.Clone();
 
-      if (_refresh)
-      {
-        RefreshEffectParameters();
-        _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
-        _refresh = false;
-      }
+      //if (_refresh)
+      //{
+      //  RefreshEffectParameters();
+      //  _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
+      //  _refresh = false;
+      //}
 
-      if (_simplemode)
-        SetSimpleEffectParameters(renderContext);
-      else
-        SetEffectParameters(renderContext);
+      //if (_simplemode)
+      //  SetSimpleEffectParameters(renderContext);
+      //else
+      //  SetEffectParameters(renderContext);
 
-      _effect.StartRender(Texture, finalTransform);
+      //_effect.StartRender(Texture, finalTransform);
 
       return true;
     }
 
-    public override void EndRender()
+    public void EndRender()
     {
-      if (Texture == null)
-        return;
-      if (_effect != null)
-        _effect.EndRender();
+      //if (Texture == null)
+      //  return;
+      //if (_effect != null)
+      //  _effect.EndRender();
     }
 
     protected void RefreshEffectParameters()

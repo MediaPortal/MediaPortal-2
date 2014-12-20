@@ -23,8 +23,7 @@
 #endregion
 
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -32,19 +31,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush
   {
-    #region Consts
-
-    protected const string EFFECT_SOLID = "solid";
-    protected const string EFFECT_SOLIDOPACITY = "solid_opacity";
-
-    protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
-
-    #endregion
-
     #region Protected properties
 
     protected AbstractProperty _colorProperty;
-    protected EffectAsset _effect;
 
     #endregion
 
@@ -60,6 +49,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
+    }
+
+    public override void Allocate()
+    {
+      base.Allocate();
+      _brush2D = new SharpDX.Direct2D1.SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color.White);
+    }
+
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      if (_brush2D != null)
+      {
+        _brush2D.Dispose();
+        _brush2D = null;
+      }
     }
 
     void Init()
@@ -86,6 +91,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
+    {
+      base.OnPropertyChanged(prop, oldValue);
+      // Forward all property changes to internal brush
+      var brush = _brush2D as SharpDX.Direct2D1.SolidColorBrush;
+      if (brush != null)
+      {
+        brush.Color = Color;
+      }
+    }
+
     #endregion
 
     public AbstractProperty ColorProperty
@@ -97,23 +113,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       get { return (Color) _colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
-    }
-
-    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveBuffer, RenderContext renderContext)
-    {
-      Matrix finalTransform = renderContext.Transform.Clone();
-      Color4 v = ColorConverter.FromColor(Color);
-      v.Alpha *= (float) (Opacity * renderContext.Opacity);
-      _effect = ContentManager.Instance.GetEffect(EFFECT_SOLID);
-      _effect.Parameters[PARAM_SOLIDCOLOR] = v;
-      _effect.StartRender(finalTransform);
-      return true;
-    }
-
-    public override void EndRender()
-    {
-      if (_effect != null)
-        _effect.EndRender();
     }
   }
 }
