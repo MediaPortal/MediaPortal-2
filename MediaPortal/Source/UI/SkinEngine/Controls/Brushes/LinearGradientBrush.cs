@@ -23,46 +23,24 @@
 #endregion
 
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class LinearGradientBrush : GradientBrush
   {
-    #region Consts
-
-    protected const string EFFECT_LINEARGRADIENT = "lineargradient";
-    protected const string EFFECT_LINEAROPACITYGRADIENT = "lineargradient_opacity";
-
-    protected const string PARAM_TRANSFORM = "g_transform";
-    protected const string PARAM_OPACITY = "g_opacity";
-    protected const string PARAM_STARTPOINT = "g_startpoint";
-    protected const string PARAM_ENDPOINT = "g_endpoint";
-    protected const string PARAM_FRAMESIZE = "g_framesize";
-
-    protected const string PARAM_ALPHATEX = "g_alphatex";
-    protected const string PARAM_UPPERVERTSBOUNDS = "g_uppervertsbounds";
-    protected const string PARAM_LOWERVERTSBOUNDS = "g_lowervertsbounds";
-
-    #endregion
-
     #region Protected fields
-
-    protected EffectAsset _effect;
 
     protected AbstractProperty _startPointProperty;
     protected AbstractProperty _endPointProperty;
-    protected GradientBrushTexture _gradientBrushTexture;
-    protected float[] g_startpoint;
-    protected float[] g_endpoint;
-    protected float[] g_framesize;
     protected volatile bool _refresh = false;
+
+    protected SharpDX.Direct2D1.LinearGradientBrush _linearGradientBrush2D;
 
     #endregion
 
@@ -78,6 +56,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
+      if (_linearGradientBrush2D != null)
+        _linearGradientBrush2D.Dispose();
     }
 
     void Init()
@@ -105,6 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       LinearGradientBrush b = (LinearGradientBrush) source;
       StartPoint = copyManager.GetCopy(b.StartPoint);
       EndPoint = copyManager.GetCopy(b.EndPoint);
+      // TODO: copy?
+      _linearGradientBrush2D = b._linearGradientBrush2D;
       _refresh = true;
       Attach();
     }
@@ -121,6 +103,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _refresh = true;
       base.OnRelativeTransformChanged(trans);
+    }
+
+
+    public SharpDX.Direct2D1.LinearGradientBrush LinearGradientBrush2D
+    {
+      get { return _linearGradientBrush2D; }
     }
 
     public AbstractProperty StartPointProperty
@@ -149,63 +137,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
       _refresh = true;
-    }
 
-    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
-    {
-      if (_gradientBrushTexture == null || _refresh)
-      {
-        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        if (_gradientBrushTexture == null)
-          return false;
-      }
-
-      Matrix finalTransform = renderContext.Transform.Clone();
-      if (_refresh)
-      {
-        _refresh = false;
-        _effect = ContentManager.Instance.GetEffect(EFFECT_LINEARGRADIENT);
-
-        g_startpoint = new float[] {StartPoint.X, StartPoint.Y};
-        g_endpoint = new float[] {EndPoint.X, EndPoint.Y};
-        if (MappingMode == BrushMappingMode.Absolute)
-        {
-          g_startpoint[0] /= _vertsBounds.Width;
-          g_startpoint[1] /= _vertsBounds.Height;
-
-          g_endpoint[0] /= _vertsBounds.Width;
-          g_endpoint[1] /= _vertsBounds.Height;
-        }
-        g_framesize = new float[] {_vertsBounds.Width, _vertsBounds.Height};
-
-        if (RelativeTransform != null)
-        {
-          Matrix m = RelativeTransform.GetTransform();
-          m.Transform(ref g_startpoint[0], ref g_startpoint[1]);
-          m.Transform(ref g_endpoint[0], ref g_endpoint[1]);
-        }
-      }
-
-      _effect.Parameters[PARAM_FRAMESIZE] = g_framesize;
-      _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
-      _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
-      _effect.Parameters[PARAM_STARTPOINT] = g_startpoint;
-      _effect.Parameters[PARAM_ENDPOINT] = g_endpoint;
-
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.AddressU, SpreadAddressMode);
-      _effect.StartRender(_gradientBrushTexture.Texture, finalTransform);
-      return true;
-    }
-
-    public override void EndRender()
-    {
-      if (_effect != null)
-        _effect.EndRender();
-    }
-
-    public override Texture Texture
-    {
-      get { return _gradientBrushTexture.Texture; }
+      LinearGradientBrushProperties props = new LinearGradientBrushProperties();
+      _linearGradientBrush2D = new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
     }
   }
 }

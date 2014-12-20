@@ -118,7 +118,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _downloadProgressProperty.SetValue(value); }
     }
 
-    public override Texture Texture
+    public Texture Texture
     {
       get { return (_tex == null) ? null : _tex.Texture; }
     }
@@ -177,7 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
     }
 
-    protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       Allocate();
       if (_tex != null)
