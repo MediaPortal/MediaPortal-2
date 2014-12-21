@@ -111,6 +111,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _parent = parent;
     }
 
+    public void Allocate()
+    {
+      // Make sure to free any existing D2D resource here to allow them to be recreated
+      Free2DCollection();
+    }
+
     public void Add(GradientStop element)
     {
       _orderedGradientStopList = null;

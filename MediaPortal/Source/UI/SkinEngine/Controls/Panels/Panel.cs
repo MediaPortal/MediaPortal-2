@@ -283,7 +283,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Brush background = Background;
       if (background != null)
       {
-        GraphicsDevice11.Instance.Context2D1.DrawRectangle(localRenderContext.OccupiedTransformedBounds, background.Brush2D);
+        GraphicsDevice11.Instance.Context2D1.FillRectangle(localRenderContext.OccupiedTransformedBounds, background.Brush2D);
       }
 
       RenderChildren(localRenderContext);
