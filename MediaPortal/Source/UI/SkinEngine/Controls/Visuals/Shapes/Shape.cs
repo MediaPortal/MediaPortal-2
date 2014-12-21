@@ -258,12 +258,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           return;
 
         var fill = Fill;
-        if (fill != null)
+        if (fill != null && fill.Brush2D != null)
         {
           GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill.Brush2D); // TODO: Opacity brush?
         }
         var stroke = Stroke;
-        if (stroke != null)
+        // TODO: why is stroke.Brush2D null sometimes? Not yet allocated or already disposed?
+        if (stroke != null && stroke.Brush2D != null)
         {
           GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness);
         }
@@ -302,7 +303,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       SharpDX.Direct2D1.Geometry result = path;
       Matrix m = Matrix.Identity;
-      RectangleF bounds = result.GetBounds();
+      //RectangleF bounds = result.GetBounds();
+      RectangleF bounds = result.GetWidenedBounds((float)StrokeThickness);
       _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
       if (Width > 0) baseRect.Width = (float)Width;
       if (Height > 0) baseRect.Height = (float)Height;
