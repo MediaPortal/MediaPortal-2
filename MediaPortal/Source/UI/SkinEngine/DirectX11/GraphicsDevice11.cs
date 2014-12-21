@@ -13,6 +13,7 @@ using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
 using SharpDX.DXGI;
+using Factory = SharpDX.DirectWrite.Factory;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Format = SharpDX.DXGI.Format;
 using PresentFlags = SharpDX.DXGI.PresentFlags;
@@ -35,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     private Surface1 _backBuffer;
     private SharpDX.Direct2D1.DeviceContext _context2D;
     private Bitmap1 _renderTarget2D;
+    private Factory _factoryDW;
 
     private readonly ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
@@ -85,6 +87,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     public Bitmap1 RenderTarget2D
     {
       get { return _renderTarget2D; }
+    }
+
+    public Factory FactoryDW
+    {
+      get { return _factoryDW; }
     }
 
     public RenderPassType RenderPass { get; set; }
@@ -160,6 +167,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
       _renderTarget2D = new Bitmap1(_context2D, _backBuffer);
       _context2D.Target = _renderTarget2D;
+
+      _factoryDW = new SharpDX.DirectWrite.Factory();
+
 
       SetupRenderPipelines();
       SetupRenderStrategies();
@@ -273,7 +283,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
         Fire(DeviceSceneEnd);
 
-        _swapChain.Present(1, PresentFlags.None);
+        _swapChain.Present(0, PresentFlags.None);
         //_device.PresentEx(renderStrategy.PresentMode);
 
         Fire(DeviceScenePresented);
@@ -308,6 +318,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
       TryDispose(ref _renderTarget2D);
       TryDispose(ref _context2D);
+
+      TryDispose(ref _factoryDW);
 
       TryDispose(ref _device3D1);
       TryDispose(ref _device3D);
