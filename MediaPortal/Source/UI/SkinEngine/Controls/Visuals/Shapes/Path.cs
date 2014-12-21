@@ -84,9 +84,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
-        using (var path = CalculateTransformedPath(ParsePath(), _innerRect))
+        using (PathGeometry pathRaw = ParsePath())
         {
-          var boundaries = path.GetBounds();
+          lock (_resourceRenderLock)
+            TryDispose(ref _geometry);
+          _geometry = CalculateTransformedPath(pathRaw, _innerRect);
+          var boundaries = _geometry.GetBounds();
           var fill = Fill;
           if (fill != null && !_fillDisabled)
             fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
@@ -105,8 +108,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      _geometry = ParsePath();
-      using (var p = CalculateTransformedPath(_geometry, new RectangleF(0, 0, 0, 0)))
+      using (PathGeometry pathRaw = ParsePath())
+      using (var p = CalculateTransformedPath(pathRaw, new RectangleF(0, 0, 0, 0)))
       {
         var bounds = p.GetBounds();
         return new Size2F(bounds.Width, bounds.Height);

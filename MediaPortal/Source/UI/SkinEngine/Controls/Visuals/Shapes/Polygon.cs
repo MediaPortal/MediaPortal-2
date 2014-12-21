@@ -82,9 +82,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (var path = CalculateTransformedPath(GetPolygon(), _innerRect))
+        using(PathGeometry pathRaw = GetPolygon())
         {
-          var boundaries = path.GetBounds();
+          lock (_resourceRenderLock)
+            TryDispose(ref _geometry);
+          _geometry = CalculateTransformedPath(pathRaw, _innerRect);
+          var boundaries = _geometry.GetBounds();
           var fill = Fill;
           if (fill != null && !_fillDisabled)
             fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
@@ -104,7 +107,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      using (var p = CalculateTransformedPath(GetPolygon(), new RectangleF(0, 0, 0, 0)))
+      using (PathGeometry pathRaw = GetPolygon())
+      using (var p = CalculateTransformedPath(pathRaw, new RectangleF(0, 0, 0, 0)))
       {
         var bounds = p.GetBounds();
         return new Size2F(bounds.Width, bounds.Height);
@@ -112,16 +116,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     }
 
     /// <summary>
-    /// Get the desired Rounded Rectangle path.
+    /// Get the desired Polygon path.
     /// </summary>
     private PathGeometry GetPolygon()
     {
+      var points = Points.ToArray();
+      if (points.Length < 3)
+        return null;
       PathGeometry path = new PathGeometry(GraphicsDevice11.Instance.Context2D1.Factory);
       using (var sink = path.Open())
       {
-        foreach (var point in Points)
+        sink.BeginFigure(points[0], FigureBegin.Filled);
+
+        for (int i = 1; i < points.Length; i++)
         {
-          sink.AddLine(point);
+          sink.AddLine(points[0]);
         }
 
         sink.EndFigure(FigureEnd.Closed);

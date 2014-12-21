@@ -27,6 +27,8 @@ using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct2D1;
+using RectangleF = SharpDX.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -77,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Line l = (Line) source;
+      Line l = (Line)source;
       X1 = l.X1;
       Y1 = l.Y1;
       X2 = l.X2;
@@ -94,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public double X1
     {
-      get { return (double) _x1Property.GetValue(); }
+      get { return (double)_x1Property.GetValue(); }
       set { _x1Property.SetValue(value); }
     }
 
@@ -105,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public double Y1
     {
-      get { return (double) _y1Property.GetValue(); }
+      get { return (double)_y1Property.GetValue(); }
       set { _y1Property.SetValue(value); }
     }
 
@@ -116,7 +118,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public double X2
     {
-      get { return (double) _x2Property.GetValue(); }
+      get { return (double)_x2Property.GetValue(); }
       set { _x2Property.SetValue(value); }
     }
 
@@ -127,8 +129,50 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public double Y2
     {
-      get { return (double) _y2Property.GetValue(); }
+      get { return (double)_y2Property.GetValue(); }
       set { _y2Property.SetValue(value); }
+    }
+
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
+    {
+      using (PathGeometry lineRaw = GetLine())
+      using (var line = CalculateTransformedPath(lineRaw, new RectangleF(0, 0, totalSize.Width, totalSize.Height)))
+      {
+        var bounds = line.GetBounds();
+        return new Size2F(bounds.Width, bounds.Height);
+      }
+    }
+
+    protected override void DoPerformLayout(RenderContext context)
+    {
+      base.DoPerformLayout(context);
+
+      if (Stroke != null && StrokeThickness > 0)
+      {
+        TryDispose(ref _geometry);
+        using (PathGeometry lineRaw = GetLine())
+          _geometry = CalculateTransformedPath(lineRaw, _innerRect);
+        var bounds = _geometry.GetBounds();
+        Stroke.SetupBrush(this, ref bounds, context.ZOrder, true);
+      }
+      else
+      {
+        lock (_resourceRenderLock)
+          TryDispose(ref _geometry);
+      }
+    }
+
+    private PathGeometry GetLine()
+    {
+      PathGeometry path = new PathGeometry(GraphicsDevice11.Instance.Context2D1.Factory);
+      using (var sink = path.Open())
+      {
+        sink.BeginFigure(new Vector2((float)X1, (float)Y1), FigureBegin.Filled);
+        sink.AddLine(new Vector2((float)X2, (float)Y2));
+        sink.EndFigure(FigureEnd.Open);
+        sink.Close();
+      }
+      return path;
     }
 
     public override void RenderOverride(RenderContext parentRenderContext)
@@ -137,7 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       var brush = Stroke;
       if (brush != null && StrokeThickness > 0)
       {
-        GraphicsDevice11.Instance.Context2D1.DrawLine(new Vector2((float)X1, (float)Y1), new Vector2((float)X2, (float)Y2), brush.Brush2D, (float)StrokeThickness);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry, brush.Brush2D, (float)StrokeThickness);
       }
     }
   }
