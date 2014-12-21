@@ -164,6 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         stop.Dispose();
       }
       _elements.Clear();
+      Free2DCollection();
       if (_parent != null)
         _parent.OnGradientsChanged();
     }

@@ -89,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       GradientStop s = (GradientStop) source;
       Color = s.Color;
       Offset = s.Offset;
+      UpdateGradientStop2D();
       Attach();
     }
 
@@ -110,6 +111,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       Fire();
+      UpdateGradientStop2D();
+    }
+
+    private void UpdateGradientStop2D()
+    {
       _gradientStop2D.Color = Color;
       _gradientStop2D.Position = (float)Offset;
     }
