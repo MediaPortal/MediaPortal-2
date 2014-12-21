@@ -263,7 +263,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brush background = Background;
       if (background != null)
       {
-        GraphicsDevice11.Instance.Context2D1.FillRectangle(_backgroundRect, background.Brush2D);
+        var oldOpacity = background.Brush2D.Opacity;
+        background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
+        GraphicsDevice11.Instance.Context2D1.FillRectangle(localRenderContext.OccupiedTransformedBounds, background.Brush2D);
+        background.Brush2D.Opacity = oldOpacity;
       }
 
       FrameworkElement templateControl = _initializedTemplateControl;

@@ -260,13 +260,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         var fill = Fill;
         if (fill != null && fill.Brush2D != null)
         {
+          var oldOpacity = fill.Brush2D.Opacity;
+          fill.Brush2D.Opacity *= (float)localRenderContext.Opacity;
           GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill.Brush2D); // TODO: Opacity brush?
+          fill.Brush2D.Opacity = oldOpacity;
         }
         var stroke = Stroke;
         // TODO: why is stroke.Brush2D null sometimes? Not yet allocated or already disposed?
         if (stroke != null && stroke.Brush2D != null)
         {
+          var oldOpacity = stroke.Brush2D.Opacity;
+          stroke.Brush2D.Opacity *= (float)localRenderContext.Opacity;
           GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness);
+          stroke.Brush2D.Opacity = oldOpacity;
         }
       }
     }

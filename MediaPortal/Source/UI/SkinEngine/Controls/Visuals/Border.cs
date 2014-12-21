@@ -420,13 +420,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       var background = Background;
       if (background != null && _pathGeometry != null)
       {
+        var oldOpacity = background.Brush2D.Opacity;
+        background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
         GraphicsDevice11.Instance.Context2D1.FillGeometry(_pathGeometry, background.Brush2D);
+        background.Brush2D.Opacity = oldOpacity;
       }
 
       var border = BorderBrush;
       if (border != null && _pathGeometry != null)
       {
+        var oldOpacity = border.Brush2D.Opacity;
+        border.Brush2D.Opacity *= (float)localRenderContext.Opacity;
         GraphicsDevice11.Instance.Context2D1.DrawGeometry(_pathGeometry, border.Brush2D, (float)BorderThickness);
+        border.Brush2D.Opacity = oldOpacity;
       }
 
       FrameworkElement content = _initializedContent;
