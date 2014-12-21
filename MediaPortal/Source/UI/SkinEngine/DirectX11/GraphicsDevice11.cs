@@ -273,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
         Fire(DeviceSceneEnd);
 
-        _swapChain.Present(0, PresentFlags.None);
+        _swapChain.Present(1, PresentFlags.None);
         //_device.PresentEx(renderStrategy.PresentMode);
 
         Fire(DeviceScenePresented);

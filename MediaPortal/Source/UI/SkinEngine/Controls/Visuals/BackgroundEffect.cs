@@ -71,11 +71,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         device.StretchRectangle(backBuffer, destSurfaceRef, TextureFilter.None);
 
       UpdateEffectMask(effect, localRenderContext.OccupiedTransformedBounds, desc.Width, desc.Height, localRenderContext.ZOrder);
-      if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
-      {
-        _effectContext.Render(0);
-        effect.EndRender();
-      }
+      //if (effect.BeginRender(_texture, new RenderContext(Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
+      //{
+      //  _effectContext.Render(0);
+      //  effect.EndRender();
+      //}
       backBuffer.Dispose();
     }
 

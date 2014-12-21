@@ -194,12 +194,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           return;
       }
 
-      _effect.SetValue(_handleWorldProjection, finalTransform * GraphicsDevice.FinalTransform);
-      _effect.SetTexture(_handleTexture, texture);
-      _effect.Technique = _handleTechnique;
-      SetEffectParameters();
-      _effect.Begin(0);
-      _effect.BeginPass(0);
+      //_effect.SetValue(_handleWorldProjection, finalTransform * GraphicsDevice.FinalTransform);
+      //_effect.SetTexture(_handleTexture, texture);
+      //_effect.Technique = _handleTechnique;
+      //SetEffectParameters();
+      //_effect.Begin(0);
+      //_effect.BeginPass(0);
 
       KeepAlive();
     }
@@ -210,11 +210,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <param name="stream">Number of the stream to end the rendering.</param>
     public void EndRender(int stream)
     {
-      if (_effect != null)
-      {
-        _effect.EndPass();
-        _effect.End();
-      }
+      //if (_effect != null)
+      //{
+      //  _effect.EndPass();
+      //  _effect.End();
+      //}
     }
 
     public void SetEffectParameters()

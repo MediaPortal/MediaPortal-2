@@ -301,8 +301,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
-        Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
+      //_asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
+      //  Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
     }
 
     public override void Deallocate()
