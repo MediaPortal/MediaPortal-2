@@ -21,8 +21,10 @@
 */
 
 #endregion
+#define MEASURE_FPS
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -385,6 +387,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting main render loop");
       GraphicsDevice.SetRenderState();
+#if MEASURE_FPS
+      Stopwatch sw = new Stopwatch();
+      sw.Start();
+      int cnt = 0;
+#endif
       while (!_renderThreadStopped)
       {
         // EVR handling
@@ -407,6 +414,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
         if (!GraphicsDevice.DeviceOk)
           break;
+#if MEASURE_FPS
+        cnt++;
+        double frameDuration = sw.ElapsedMilliseconds;
+
+        if (frameDuration > 1000)
+        {
+          Text = string.Format("FPS: {0}", (cnt / (frameDuration / 1000)).ToString("F2"));
+          cnt = 0;
+          sw.Restart();
+        }
+#endif
       }
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
     }
