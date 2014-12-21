@@ -25,9 +25,12 @@
 using System;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -48,8 +51,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _scrollSpeedProperty;
     protected AbstractProperty _scrollDelayProperty;
     protected AbstractProperty _wrapProperty;
-    protected TextBuffer _asset = null;
+    //protected TextBuffer _asset = null;
     protected string _resourceString;
+    private Size2F _totalSize;
+    private TextFormat _textFormat;
+    private TextLayout _textLayout;
+    private SolidColorBrush _textBrush;
 
     #endregion
 
@@ -81,6 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollProperty.Attach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Attach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Attach(OnLayoutPropertyChanged);
+      _colorProperty.Attach(OnColorPropertyChanged);
 
       HorizontalAlignmentProperty.Attach(OnLayoutPropertyChanged);
       VerticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
@@ -98,9 +106,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollProperty.Detach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Detach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Detach(OnLayoutPropertyChanged);
+      _colorProperty.Detach(OnColorPropertyChanged);
 
       HorizontalAlignmentProperty.Detach(OnLayoutPropertyChanged);
-      VerticalAlignmentProperty.Detach(OnLayoutPropertyChanged); 
+      VerticalAlignmentProperty.Detach(OnLayoutPropertyChanged);
       FontFamilyProperty.Detach(OnFontChanged);
       FontSizeProperty.Detach(OnFontChanged);
 
@@ -112,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Label l = (Label) source;
+      Label l = (Label)source;
       Content = l.Content;
       HorizontalAlignment = l.HorizontalAlignment;
       VerticalAlignment = l.VerticalAlignment;
@@ -133,24 +142,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnContentChanged(AbstractProperty prop, object oldValue)
     {
       InitializeResourceString();
-      if (_asset != null)
-        _asset.Text = _resourceString;
+      ReAllocFont();
       InvalidateLayout(true, false);
     }
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
     {
-      AllocFont();
-      if (_asset != null)
-        _asset.ResetScrollPosition();
+      ReAllocFont();
       InvalidateLayout(true, false);
     }
 
     protected void OnFontChanged(AbstractProperty prop, object oldValue)
     {
       InvalidateLayout(true, false);
-      if (_asset != null)
-        _asset.SetFont(GetFontFamilyOrInherited(), GetFontSizeOrInherited());
+      ReAllocFont();
+    }
+
+    private void OnColorPropertyChanged(AbstractProperty property, object oldvalue)
+    {
+      if (_textBrush != null)
+      {
+        _textBrush.Color = Color;
+      }
     }
 
     #endregion
@@ -159,7 +172,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       string content = Content;
       _resourceString = string.IsNullOrEmpty(content) ? string.Empty :
-          LocalizationHelper.CreateResourceString(content).Evaluate(); 
+          LocalizationHelper.CreateResourceString(content).Evaluate();
     }
 
     #region Public properties
@@ -171,7 +184,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public string Content
     {
-      get { return (string) _contentProperty.GetValue(); }
+      get { return (string)_contentProperty.GetValue(); }
       set { _contentProperty.SetValue(value); }
     }
 
@@ -180,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public Color Color
     {
-      get { return (Color) _colorProperty.GetValue(); }
+      get { return (Color)_colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
     }
 
@@ -194,7 +207,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public TextScrollEnum Scroll
     {
-      get { return (TextScrollEnum) _scrollProperty.GetValue(); }
+      get { return (TextScrollEnum)_scrollProperty.GetValue(); }
       set { _scrollProperty.SetValue(value); }
     }
 
@@ -208,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public Double ScrollDelay
     {
-      get { return (double) _scrollDelayProperty.GetValue(); }
+      get { return (double)_scrollDelayProperty.GetValue(); }
       set { _scrollDelayProperty.SetValue(value); }
     }
 
@@ -223,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public double ScrollSpeed
     {
-      get { return (double) _scrollSpeedProperty.GetValue(); }
+      get { return (double)_scrollSpeedProperty.GetValue(); }
       set { _scrollSpeedProperty.SetValue(value); }
     }
 
@@ -237,7 +250,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public bool Wrap
     {
-      get { return (bool) _wrapProperty.GetValue(); }
+      get { return (bool)_wrapProperty.GetValue(); }
       set { _wrapProperty.SetValue(value); }
     }
 
@@ -248,36 +261,95 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    void ReAllocFont()
+    {
+      DeAllocFont();
+      AllocFont();
+    }
+
+    private void DeAllocFont()
+    {
+      TryDispose(ref _textFormat);
+      TryDispose(ref _textLayout);
+      TryDispose(ref _textBrush);
+    }
+
     void AllocFont()
     {
-      if (_asset == null)
-        _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) {Text = _resourceString};
+      // HACK: avoid NREs during style load time
+      if (GraphicsDevice11.Instance.FactoryDW == null)
+        return;
+
+      if (_textLayout == null)
+      {
+        _textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()); // create the text format of specified font configuration
+
+        // create the text layout - this improves the drawing performance for static text
+        // as the glyph positions are precalculated
+        float layoutWidth = _totalSize.Width;
+        if (float.IsNaN(layoutWidth) || layoutWidth == 0.0f)
+          layoutWidth = 2048;
+        float layoutHeight = _totalSize.Height;
+        if (float.IsNaN(layoutHeight) || layoutHeight == 0.0f)
+          layoutHeight = 2048;
+        _textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()); // create the text format of specified font configuration
+        _textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, _resourceString, _textFormat, layoutWidth, layoutHeight);
+        // _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) { Text = _resourceString };
+      }
+      if (_textBrush == null)
+      {
+        _textBrush = new SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color);
+      }
     }
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       base.CalculateInnerDesiredSize(totalSize); // Needs to be called in each sub class of Control, see comment in Control.CalculateInnerDesiredSize()
-      AllocFont();
-
       // Measure the text
       float totalWidth = totalSize.Width; // Attention: totalWidth is cleaned up by SkinContext.Zoom
       if (!double.IsNaN(Width))
-        totalWidth = (float) Width;
-
+        totalWidth = (float)Width;
       SizeF size = new SizeF();
-      var textBuffer = _asset;
-      if (textBuffer == null)
-        return size;
-      string[] lines = textBuffer.GetLines(totalWidth, Wrap);
       size.Width = 0;
-      foreach (string line in lines)
-        size.Width = Math.Max(size.Width, textBuffer.TextWidth(line));
-      size.Height = textBuffer.TextHeight(Math.Max(lines.Length, 1));
-
+      string[] lines = _resourceString.Split(Environment.NewLine.ToCharArray());
+      using (var textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()))
+      {
+        foreach (string line in lines)
+        {
+          using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, line, textFormat, totalWidth, 4096))
+          {
+            size.Width = Math.Max(size.Width, textLayout.Metrics.WidthIncludingTrailingWhitespace);
+            size.Height = textLayout.Metrics.Height;
+          }
+        }
+      }
       // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
       size.Width += 1;
       size.Height += 1;
+      _totalSize = size;
       return size;
+
+      //AllocFont();
+      //return totalSize;
+      //// Measure the text
+      //float totalWidth = totalSize.Width; // Attention: totalWidth is cleaned up by SkinContext.Zoom
+      //if (!double.IsNaN(Width))
+      //  totalWidth = (float)Width;
+
+      //SizeF size = new SizeF();
+      //var textBuffer = _asset;
+      //if (textBuffer == null)
+      //  return size;
+      //string[] lines = textBuffer.GetLines(totalWidth, Wrap);
+      //size.Width = 0;
+      //foreach (string line in lines)
+      //  size.Width = Math.Max(size.Width, textBuffer.TextWidth(line));
+      //size.Height = textBuffer.TextHeight(Math.Max(lines.Length, 1));
+
+      //// Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
+      //size.Width += 1;
+      //size.Height += 1;
+      //return size;
     }
 
     public override void RenderOverride(RenderContext localRenderContext)
@@ -299,7 +371,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         vertAlign = VerticalTextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
-      color.Alpha *= (float) localRenderContext.Opacity;
+      color.Alpha *= (float)localRenderContext.Opacity;
+
+      var oldOpacity = _textBrush.Opacity;
+      _textBrush.Opacity *= (float)localRenderContext.Opacity;
+      GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, _textBrush);
+      _textBrush.Opacity = oldOpacity;
 
       //_asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
       //  Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
@@ -308,11 +385,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      if (_asset != null)
-      {
-        _asset.Dispose();
-        _asset = null;
-      }
+      DeAllocFont();
     }
 
     public override void Dispose()
