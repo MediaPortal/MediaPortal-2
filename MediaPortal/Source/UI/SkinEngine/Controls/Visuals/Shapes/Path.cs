@@ -87,15 +87,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         using (var path = CalculateTransformedPath(ParsePath(), _innerRect))
         {
           var boundaries = path.GetBounds();
-          if (Fill != null && !_fillDisabled)
-          {
-            Fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
-          }
+          var fill = Fill;
+          if (fill != null && !_fillDisabled)
+            fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
 
-          if (Stroke != null && StrokeThickness > 0)
-          {
-            Stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
-          }
+          var stroke = Stroke;
+          if (stroke != null)
+            stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
         }
       }
     }
@@ -120,10 +118,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       PathGeometry result = new PathGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory);
       using (var sink = result.Open())
       {
-
         PointF lastPoint = new PointF();
         Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
         MatchCollection matches = regex.Matches(Data);
+
+        bool hasOpenFigure = false;
 
         foreach (Match match in matches)
         {
@@ -152,6 +151,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           }
           else
             points = new PointF[] { };
+
           switch (cmd)
           {
             case 'm':
@@ -160,14 +160,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                 PointF point = points[0];
                 lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
 
-                sink.BeginFigure(ToVector2(lastPoint), FigureBegin.Filled);
+                sink.BeginFigure(ToVector2(lastPoint), FigureBegin.Hollow);
+                hasOpenFigure = true;
               }
               break;
             case 'M':
               {
                 //Absolute origin
                 lastPoint = points[0];
-                sink.BeginFigure(ToVector2(lastPoint), FigureBegin.Filled);
+                sink.BeginFigure(ToVector2(lastPoint), FigureBegin.Hollow);
+                hasOpenFigure = true;
               }
               break;
             case 'L':
@@ -276,9 +278,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               break;
             case 'z':
               sink.EndFigure(FigureEnd.Closed);
+              hasOpenFigure = false;
               break;
           }
         }
+        if (hasOpenFigure)
+        {
+          sink.EndFigure(FigureEnd.Open);
+        }
+
+        sink.Close();
       }
       return result;
     }

@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct3D9;
 
@@ -34,9 +35,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   {
     public virtual void BeginRender()
     {
-      GraphicsDevice.RenderPass = RenderPassType.SingleOrFirstPass;
-      GraphicsDevice.Device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-      GraphicsDevice.Device.BeginScene();
+      // TODO: this can't work that 2 different engines render concurrently to different devices
+      //GraphicsDevice.RenderPass = RenderPassType.SingleOrFirstPass;
+      //GraphicsDevice.Device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
+      //GraphicsDevice.Device.BeginScene();
+      GraphicsDevice11.Instance.RenderPass = RenderPassType.SingleOrFirstPass;
+      GraphicsDevice11.Instance.Context2D1.BeginDraw();
+      GraphicsDevice11.Instance.Context2D1.Clear(Color.Black);
     }
 
     public virtual void Render()
@@ -46,15 +51,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 
     public virtual void EndRender()
     {
-      GraphicsDevice.Device.EndScene();
+      //GraphicsDevice.Device.EndScene();
+      GraphicsDevice11.Instance.Context2D1.EndDraw();
     }
 
-    public virtual void GetVideoClip (RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public virtual void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
       tranformedRect = fullVideoClip;
     }
 
-    public virtual Matrix GetRenderPassTransform (Matrix initialScreenTransform)
+    public virtual Matrix GetRenderPassTransform(Matrix initialScreenTransform)
     {
       return initialScreenTransform;
     }

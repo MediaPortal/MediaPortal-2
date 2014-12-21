@@ -422,13 +422,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null)
+      if (background != null && _pathGeometry != null)
       {
         GraphicsDevice11.Instance.Context2D1.FillGeometry(_pathGeometry, background.Brush2D);
       }
 
       var border = BorderBrush;
-      if (border != null)
+      if (border != null && _pathGeometry != null)
       {
         GraphicsDevice11.Instance.Context2D1.DrawGeometry(_pathGeometry, border.Brush2D, (float)BorderThickness);
       }

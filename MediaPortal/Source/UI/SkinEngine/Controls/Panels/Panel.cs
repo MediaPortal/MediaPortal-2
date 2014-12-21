@@ -27,16 +27,15 @@ using System.Linq;
 using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using SharpDX;
-using SharpDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
+using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -47,13 +46,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   /// Matcher implementation which looks for a panel which has its
   /// <see cref="Panel.IsItemsHost"/> property set.
   /// </summary>
-  public class ItemsHostMatcher: IMatcher
+  public class ItemsHostMatcher : IMatcher
   {
     private static ItemsHostMatcher _instance = null;
 
     public bool Match(UIElement current)
     {
-      return current is Panel && ((Panel) current).IsItemsHost;
+      return current is Panel && ((Panel)current).IsItemsHost;
     }
 
     public static ItemsHostMatcher Instance
@@ -82,7 +81,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected List<FrameworkElement> _renderOrder = new List<FrameworkElement>(); // Cache for the render order of our children. Take care of locking out writing threads using the Children.SyncRoot.
     protected IList<AbstractProperty> _zIndexRegisteredProperties = new List<AbstractProperty>();
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
-    protected PrimitiveBuffer _backgroundContext;
 
     #endregion
 
@@ -123,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Panel p = (Panel) source;
+      Panel p = (Panel)source;
       Background = copyManager.GetCopy(p.Background);
       IsItemsHost = p.IsItemsHost;
       FrameworkElementCollection children = Children;
@@ -167,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public Brush Background
     {
-      get { return (Brush) _backgroundProperty.GetValue(); }
+      get { return (Brush)_backgroundProperty.GetValue(); }
       set { _backgroundProperty.SetValue(value); }
     }
 
@@ -178,7 +176,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public FrameworkElementCollection Children
     {
-      get { return (FrameworkElementCollection) _childrenProperty.GetValue(); }
+      get { return (FrameworkElementCollection)_childrenProperty.GetValue(); }
     }
 
     public bool IsItemsHost
@@ -237,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <returns></returns>
     protected static double SumActualExtendsInOrientationDirection(IList<FrameworkElement> elements, Orientation orientation, int startIndex, int endIndex)
     {
-      CalcHelper.Bound(ref startIndex, 0, elements.Count-1);
+      CalcHelper.Bound(ref startIndex, 0, elements.Count - 1);
       CalcHelper.Bound(ref endIndex, 0, elements.Count); // End index is exclusive
       if (startIndex == endIndex || elements.Count == 0)
         return 0;
@@ -282,10 +280,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
       PerformLayout(localRenderContext);
 
-      if (_backgroundContext != null && Background.BeginRenderBrush(_backgroundContext, localRenderContext))
+      Brush background = Background;
+      if (background != null)
       {
-        _backgroundContext.Render(0);
-        Background.EndRender();
+        GraphicsDevice11.Instance.Context2D1.DrawRectangle(localRenderContext.OccupiedTransformedBounds, background.Brush2D);
       }
 
       RenderChildren(localRenderContext);
@@ -300,23 +298,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       // Setup background brush
       if (Background != null)
       {
-        SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
+        SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
 
         RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        PositionColoredTextured[] verts = new PositionColoredTextured[6];
-        verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
-        verts[1].Position = new Vector3(rect.Left, rect.Bottom, 1.0f);
-        verts[2].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
-        verts[3].Position = new Vector3(rect.Left, rect.Top, 1.0f);
-        verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
-        verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
-        Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
-        PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
+        Background.SetupBrush(this, ref rect, localRenderContext.ZOrder, true);
       }
-      else
-        PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     protected IList<FrameworkElement> GetVisibleChildren()
@@ -351,7 +339,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               return 0.0;
             prop.Attach(OnZIndexChanged);
             _zIndexRegisteredProperties.Add(prop);
-            return (double) prop.GetValue();
+            return (double)prop.GetValue();
           });
         _renderOrder.Clear();
         _renderOrder.AddRange(orderedElements);
@@ -414,17 +402,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void Deallocate()
     {
       base.Deallocate();
-      if (Background != null)
-        Background.Deallocate();
-
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
+      Brush background = Background;
+      if (background != null)
+        background.Deallocate();
     }
 
     public override void Allocate()
     {
       base.Allocate();
-      if (Background != null)
-        Background.Allocate();
+      Brush background = Background;
+      if (background != null)
+        background.Allocate();
       _performLayout = true;
     }
 

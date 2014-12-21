@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 
@@ -41,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 
     public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
     {
-      tranformedRect = GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass ?
+      tranformedRect = GraphicsDevice11.Instance.RenderPass == RenderPassType.SingleOrFirstPass ?
         new RectangleF(0.0f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height) : // SBS first pass, left side
         new RectangleF(fullVideoClip.Width * 0.5f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height); // SBS second pass, right side
     }
@@ -50,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     {
       Matrix initialMatrix = initialScreenTransform;
       initialMatrix *= Matrix.Scaling(0.5f, 1, 1); // Scale to left side
-      if (GraphicsDevice.RenderPass == RenderPassType.SecondPass)
+      if (GraphicsDevice11.Instance.RenderPass == RenderPassType.SecondPass)
         initialMatrix *= Matrix.Translation(SkinContext.WindowSize.Width * 0.5f, 0, 0); // Move to right side
       return initialMatrix;
     }

@@ -82,6 +82,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         bool withTitleRegion, float titleInset, float titleWidth)
     {
       PathGeometry result = new PathGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory);
+      bool hasOpenFigure = false;
       using (var sink = result.Open())
       {
         if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width == 0 || baseRect.Height == 0)
@@ -94,7 +95,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
             titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * titleInset);
             // Right from the title to the upper right edge
-            sink.AddLine(new Vector2(baseRect.Left + 2 * titleInset + titleWidth, baseRect.Top));
+            sink.BeginFigure(new Vector2(baseRect.Left + 2 * titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
+            hasOpenFigure = true;
             sink.AddLine(new Vector2(baseRect.Right, baseRect.Top));
 
             // Upper right edge to lower right edge
@@ -113,14 +115,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
             sink.AddLine(new Vector2(baseRect.Left, baseRect.Top));
             sink.AddLine(new Vector2(baseRect.Left + titleInset, baseRect.Top));
             sink.EndFigure(FigureEnd.Closed);
+            hasOpenFigure = false;
           }
           else
           {
-            sink.AddLine(baseRect.TopLeft);
+            sink.BeginFigure(baseRect.TopLeft, FigureBegin.Hollow);
+            hasOpenFigure = true;
             sink.AddLine(baseRect.TopRight);
             sink.AddLine(baseRect.BottomRight);
             sink.AddLine(baseRect.BottomLeft);
             sink.EndFigure(FigureEnd.Closed);
+            hasOpenFigure = false;
           }
         }
         else
@@ -137,8 +142,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           {
             titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * (radiusX + titleInset));
             // Right of the title to the upper right edge
-            sink.AddLine(new Vector2(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top));
+            sink.BeginFigure(new Vector2(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
+            hasOpenFigure = true;
             sink.AddLine(new Vector2(baseRect.Right - radiusX, baseRect.Top));
+          }
+          else
+          {
+            // TODO: where to start?!
+            sink.BeginFigure(baseRect.TopLeft, FigureBegin.Hollow);
+            hasOpenFigure = true;
           }
 
           // Top right arc 
@@ -186,12 +198,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
             // Upper left edge to the left side of the title
             sink.AddLine(new Vector2(baseRect.Left + radiusX, baseRect.Top));
             sink.AddLine(new Vector2(baseRect.Left + radiusX + titleInset, baseRect.Top));
+            sink.EndFigure(FigureEnd.Open);
           }
           else
             sink.EndFigure(FigureEnd.Closed);
         }
         sink.Close();
-        
+
         //TODO:
         //sink.Flatten();
       }

@@ -86,7 +86,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public SharpDX.Direct2D1.GradientStopCollection GradientStopCollection2D
     {
-      get { return _gradientStopCollection2D; }
+      get
+      {
+        if (_gradientStopCollection2D == null)
+          ReCreate2DCollection();
+        return _gradientStopCollection2D;
+      }
     }
 
     void OnStopChanged(IObservable observable)
@@ -111,7 +116,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _orderedGradientStopList = null;
       element.ObjectChanged += OnStopChanged;
       _elements.Add(element);
-      ReCreate2DCollection();
+      Free2DCollection();
       if (_parent != null)
         _parent.OnGradientsChanged();
     }
@@ -119,9 +124,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     private void ReCreate2DCollection()
     {
       var gradientStops = OrderedGradientStopList.Select(s => s.GradientStop2D).ToArray();
-      if (_gradientStopCollection2D != null)
-        _gradientStopCollection2D.Dispose();
       _gradientStopCollection2D = new SharpDX.Direct2D1.GradientStopCollection(GraphicsDevice11.Instance.Context2D1, gradientStops);
+    }
+
+    private void Free2DCollection()
+    {
+      if (_gradientStopCollection2D == null)
+        return;
+      _gradientStopCollection2D.Dispose();
+      _gradientStopCollection2D = null;
     }
 
     public void Remove(GradientStop element)
@@ -130,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         _orderedGradientStopList = null;
         _elements.Remove(element);
-        ReCreate2DCollection();
+        Free2DCollection();
         element.ObjectChanged -= OnStopChanged;
         element.Dispose();
       }

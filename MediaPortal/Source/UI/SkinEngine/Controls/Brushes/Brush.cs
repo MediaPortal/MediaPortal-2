@@ -31,25 +31,6 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-
-  //public abstract class Brush<T> : Brush
-  //  where T : SharpDX.Direct2D1.Brush
-  //{
-  //  protected T _brush2D = null;
-
-  //  public virtual SharpDX.Direct2D1.Brush Brush2D
-  //  {
-  //    get { return _brush2D; }
-  //  }
-
-  //  public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-  //  {
-  //    base.DeepCopy(source, copyManager);
-  //    Brush<T> b = (Brush<T>)source;
-  //    _brush2D = b._brush2D;
-  //  }
-  //}
-
   public abstract class Brush : DependencyObject, IObservable
   {
     #region Protected fields
@@ -182,7 +163,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public virtual SharpDX.Direct2D1.Brush Brush2D
     {
-      get { return _brush2D; }
+      get
+      {
+        // TODO: should not be the case. Allocate happens before, but is missing in rendering. DeepCopy?!
+        if (_brush2D == null)
+          Allocate();
+        return _brush2D;
+      }
     }
 
     public AbstractProperty FreezableProperty
@@ -229,11 +216,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _transformProperty.SetValue(value); }
     }
 
-    //public virtual Texture Texture
-    //{
-    //  get { return null; }
-    //}
-
     #endregion
 
     #region Public methods
@@ -248,37 +230,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (!UpdateBounds(ref boundary))
         return;
-      //float w = _vertsBounds.Width;
-      //float h = _vertsBounds.Height;
-      //float xoff = _vertsBounds.X;
-      //float yoff = _vertsBounds.Y;
-      //if (adaptVertsToBrushTexture)
-      //  for (int i = 0; i < boundary.Length; i++)
-      //  {
-      //    PositionColoredTextured vert = boundary[i];
-      //    float x = vert.X;
-      //    float u = x - xoff;
-      //    u /= w;
-
-      //    float y = vert.Y;
-      //    float v = y - yoff;
-      //    v /= h;
-
-      //    if (u < 0) u = 0;
-      //    if (u > 1) u = 1;
-      //    if (v < 0) v = 0;
-      //    if (v > 1) v = 1;
-      //    unchecked
-      //    {
-      //      Color4 color = Color.White;
-      //      color.Alpha *= (float)Opacity;
-      //      vert.Color = color.ToBgra();
-      //    }
-      //    vert.Tu1 = u;
-      //    vert.Tv1 = v;
-      //    vert.Z = zOrder;
-      //    boundary[i] = vert;
-      //  }
     }
 
     protected bool UpdateBounds(ref RectangleF verts)

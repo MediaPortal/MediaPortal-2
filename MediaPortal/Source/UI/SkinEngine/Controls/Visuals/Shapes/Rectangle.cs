@@ -117,6 +117,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         var roundedRectangle = new RoundedRectangle { RadiusX = (float)RadiusX, RadiusY = (float)RadiusY, Rect = _innerRect };
         _geometry = new RoundedRectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, roundedRectangle);
+        var fill = Fill;
+        if (fill != null)
+          fill.SetupBrush(this, ref _innerRect, context.ZOrder, true);
+
+        var stroke = Stroke;
+        if (stroke != null)
+          stroke.SetupBrush(this, ref _innerRect, context.ZOrder, true);
       }
       else
       {
