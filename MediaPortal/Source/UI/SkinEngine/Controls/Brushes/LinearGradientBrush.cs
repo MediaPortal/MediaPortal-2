@@ -88,7 +88,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
+      UpdateBrush();
       base.OnPropertyChanged(prop, oldValue);
+    }
+
+    protected void UpdateBrush()
+    {
+      // Forward all property changes to internal brush
+      var brush = _brush2D as SharpDX.Direct2D1.LinearGradientBrush;
+      if (brush != null)
+      {
+        brush.StartPoint = TransformToBoundary(StartPoint);
+        brush.EndPoint = TransformToBoundary(EndPoint);
+        _refresh = false; // We could update an existing brush, no need to recreate it
+      }
     }
 
     protected override void OnRelativeTransformChanged(IObservable trans)

@@ -106,7 +106,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
+      UpdateBrush();
       base.OnPropertyChanged(prop, oldValue);
+    }
+
+    protected void UpdateBrush()
+    {
+      // Forward all property changes to internal brush
+      var brush = _brush2D as SharpDX.Direct2D1.RadialGradientBrush;
+      if (brush != null)
+      {
+        brush.Center = TransformToBoundary(Center);
+        brush.RadiusX = TransformRadiusX(RadiusX);
+        brush.RadiusY = TransformRadiusX(RadiusY);
+        brush.GradientOriginOffset = TransformOffset(GradientOrigin);
+        _refresh = false; // We could update an existing brush, no need to recreate it
+      }
     }
 
     #endregion
@@ -175,6 +190,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         Center = TransformToBoundary(Center),
         RadiusX = TransformRadiusX(RadiusX),
         RadiusY = TransformRadiusY(RadiusY),
+        GradientOriginOffset = TransformOffset(GradientOrigin)
       };
       _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
     }
@@ -187,6 +203,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected float TransformRadiusY(double radiusY)
     {
       return (float)(_vertsBounds.Height * radiusY);
+    }
+
+    // TODO: check this logic, results looks different compared to before
+    protected Vector2 TransformOffset(Vector2 relativeCoord)
+    {
+      var x = _vertsBounds.Width * (relativeCoord.X - 0.5f); // Relative to center
+      var y = _vertsBounds.Height * (relativeCoord.Y - 0.5f); // Relative to center
+      return new Vector2(x, y);
     }
 
     #endregion
