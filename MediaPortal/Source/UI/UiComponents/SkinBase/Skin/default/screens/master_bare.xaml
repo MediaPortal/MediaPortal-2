@@ -110,13 +110,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </DockPanel>
     </Grid> <!-- HeaderPanel -->
     <Line x:Name="UpperSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
-        HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+        HorizontalAlignment="Stretch" DockPanel.Dock="Top" Stretch="Fill"/>
     <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="{ThemeResource FooterPanelHeight}" LastChildFill="False"
         Background="{ThemeResource FooterPanelBackgroundBrush}">
       <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Bottom"/>
     </DockPanel> <!-- FooterPanel -->
     <Line x:Name="LowerSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
-        HorizontalAlignment="Stretch" DockPanel.Dock="Bottom"/>
+        HorizontalAlignment="Stretch" DockPanel.Dock="Bottom" Stretch="Fill"/>
 
 <!-- Not sure if and how we should show shortcuts...
     <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
