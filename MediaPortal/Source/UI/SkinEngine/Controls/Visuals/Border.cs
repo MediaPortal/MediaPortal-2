@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Border b = (Border) source;
+      Border b = (Border)source;
       BorderBrush = copyManager.GetCopy(b.BorderBrush);
       Background = copyManager.GetCopy(b.Background);
       BorderThickness = b.BorderThickness;
@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public FrameworkElement Content
     {
-      get { return (FrameworkElement) _contentProperty.GetValue(); }
+      get { return (FrameworkElement)_contentProperty.GetValue(); }
       set { _contentProperty.SetValue(value); }
     }
 
@@ -230,7 +230,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double BorderThickness
     {
-      get { return (double) _borderThicknessProperty.GetValue(); }
+      get { return (double)_borderThicknessProperty.GetValue(); }
       set { _borderThicknessProperty.SetValue(value); }
     }
 
@@ -241,7 +241,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public PenLineJoin BorderLineJoin
     {
-      get { return (PenLineJoin) _borderLineJoinProperty.GetValue(); }
+      get { return (PenLineJoin)_borderLineJoinProperty.GetValue(); }
       set { _borderLineJoinProperty.SetValue(value); }
     }
 
@@ -252,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double CornerRadius
     {
-      get { return (double) _cornerRadiusProperty.GetValue(); }
+      get { return (double)_cornerRadiusProperty.GetValue(); }
       set { _cornerRadiusProperty.SetValue(value); }
     }
 
@@ -317,12 +317,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected float GetBorderCornerInsetX()
     {
-      return (float) Math.Max(BorderThickness, CornerRadius);
+      return (float)Math.Max(BorderThickness, CornerRadius);
     }
 
     protected float GetBorderCornerInsetY()
     {
-      return (float) Math.Max(BorderThickness, CornerRadius);
+      return (float)Math.Max(BorderThickness, CornerRadius);
     }
 
     #endregion
@@ -335,9 +335,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       _performLayout = false;
 
-      float borderThickness = (float) BorderThickness;
-      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness -0.5f, _outerBorderRect.Y + borderThickness -0.5f,
-          _outerBorderRect.Size.Width - 2*borderThickness + 0.5f, _outerBorderRect.Size.Height - 2*borderThickness + 0.5f);
+      float borderThickness = (float)BorderThickness;
+      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness - 0.5f, _outerBorderRect.Y + borderThickness - 0.5f,
+          _outerBorderRect.Size.Width - 2 * borderThickness + 0.5f, _outerBorderRect.Size.Height - 2 * borderThickness + 0.5f);
       PerformLayoutBackground(innerBorderRect, context);
       PerformLayoutBorder(innerBorderRect, context);
     }
@@ -373,32 +373,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Setup border brush
       //if (BorderBrush != null && BorderThickness > 0)
       //{
-        //TODO should be same geom
-        //// TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
-        //using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
-        //{
-        //  using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
-        //  {
-        //    PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
-        //    using (GraphicsPath subPath = new GraphicsPath())
-        //    {
-        //      for (int i = 0; i < subPathVerts.Length; i++)
-        //      {
-        //        bool isClosed;
-        //        gpi.NextSubpath(subPath, out isClosed);
-        //        PointF[] pathPoints = subPath.PathPoints;
-        //        PenLineJoin lineJoin = Math.Abs(CornerRadius) < DELTA_DOUBLE ? BorderLineJoin : PenLineJoin.Bevel;
-        //        TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, lineJoin,
-        //            out subPathVerts[i]);
-        //      }
-        //    }
-        //    PositionColoredTextured[] verts;
-        //    GraphicsPathHelper.Flatten(subPathVerts, out verts);
-        //    BorderBrush.SetupBrush(this, ref innerBorderRect, context.ZOrder, true);
+      //TODO should be same geom
+      //// TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
+      //using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
+      //{
+      //  using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
+      //  {
+      //    PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
+      //    using (GraphicsPath subPath = new GraphicsPath())
+      //    {
+      //      for (int i = 0; i < subPathVerts.Length; i++)
+      //      {
+      //        bool isClosed;
+      //        gpi.NextSubpath(subPath, out isClosed);
+      //        PointF[] pathPoints = subPath.PathPoints;
+      //        PenLineJoin lineJoin = Math.Abs(CornerRadius) < DELTA_DOUBLE ? BorderLineJoin : PenLineJoin.Bevel;
+      //        TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, lineJoin,
+      //            out subPathVerts[i]);
+      //      }
+      //    }
+      //    PositionColoredTextured[] verts;
+      //    GraphicsPathHelper.Flatten(subPathVerts, out verts);
+      //    BorderBrush.SetupBrush(this, ref innerBorderRect, context.ZOrder, true);
 
-        //    PrimitiveBuffer.SetPrimitiveBuffer(ref _borderContext, ref verts, PrimitiveType.TriangleList);
-        //  }
-        //}
+      //    PrimitiveBuffer.SetPrimitiveBuffer(ref _borderContext, ref verts, PrimitiveType.TriangleList);
+      //  }
+      //}
       //}
       //else
       //  PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
@@ -418,7 +418,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null && _pathGeometry != null)
+      if (background != null && background.Brush2D != null && _pathGeometry != null)
       {
         var oldOpacity = background.Brush2D.Opacity;
         background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
@@ -427,7 +427,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
 
       var border = BorderBrush;
-      if (border != null && _pathGeometry != null)
+      if (border != null && border.Brush2D != null && _pathGeometry != null)
       {
         var oldOpacity = border.Brush2D.Opacity;
         border.Brush2D.Opacity *= (float)localRenderContext.Opacity;

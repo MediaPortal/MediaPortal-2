@@ -281,7 +281,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       PerformLayout(localRenderContext);
 
       Brush background = Background;
-      if (background != null)
+      if (background != null && background.Brush2D != null)
       {
         var oldOpacity = background.Brush2D.Opacity;
         background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
