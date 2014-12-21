@@ -81,7 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      SolidColorBrush b = (SolidColorBrush) source;
+      SolidColorBrush b = (SolidColorBrush)source;
       Color = b.Color;
       Attach();
     }
@@ -89,6 +89,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       base.OnPropertyChanged(prop, oldValue);
+      UpdateBrush();
+    }
+
+    protected void UpdateBrush()
+    {
       // Forward all property changes to internal brush
       var brush = _brush2D as SharpDX.Direct2D1.SolidColorBrush;
       if (brush != null)
@@ -106,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Color Color
     {
-      get { return (Color) _colorProperty.GetValue(); }
+      get { return (Color)_colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
     }
   }
