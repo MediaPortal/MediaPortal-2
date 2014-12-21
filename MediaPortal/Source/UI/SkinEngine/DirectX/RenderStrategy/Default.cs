@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     public Default(D3DSetup setup) : base(setup)
     {
       _manualWaitFrame = !setup.IsMultiSample;
-      PresentMode = setup.Present;
+      //PresentMode = setup.Present;
       IsMultiSampleCompatible = true;
     }
 

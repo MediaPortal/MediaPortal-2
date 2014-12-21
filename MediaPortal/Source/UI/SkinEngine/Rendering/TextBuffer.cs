@@ -579,9 +579,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected void DoRender(Matrix finalTransform)
     {
-      _effect.StartRender(_font.Texture, finalTransform);
-      _buffer.Render(0);
-      _effect.EndRender();
+      //_effect.StartRender(_font.Texture, finalTransform);
+      //_buffer.Render(0);
+      //_effect.EndRender();
     }
 
     protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed, float scrollDelay)
