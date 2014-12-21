@@ -64,11 +64,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected AbstractProperty _strokeLineJoinProperty;
 
     protected volatile bool _performLayout;
-    protected PrimitiveBuffer _fillContext;
-    protected PrimitiveBuffer _strokeContext;
 
     protected bool _fillDisabled;
     protected SharpDX.Direct2D1.Geometry _geometry;
+    protected readonly object _resourceRenderLock = new object();
 
     #endregion
 
@@ -82,10 +81,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public override void Dispose()
     {
-      Detach();
-      MPF.TryCleanupAndDispose(Fill);
-      MPF.TryCleanupAndDispose(Stroke);
-      base.Dispose();
+      lock (_resourceRenderLock)
+      {
+        Detach();
+        MPF.TryCleanupAndDispose(Fill);
+        MPF.TryCleanupAndDispose(Stroke);
+        lock (_resourceRenderLock)
+          TryDispose(ref _geometry);
+        base.Dispose();
+      }
     }
 
     void Init()
@@ -123,6 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       StrokeThickness = s.StrokeThickness;
       StrokeLineJoin = s.StrokeLineJoin;
       Stretch = s.Stretch;
+      _geometry = copyManager.GetCopy(s._geometry);
       Attach();
       OnFillBrushPropertyChanged(_fillProperty, null);
       OnStrokeBrushPropertyChanged(_strokeProperty, null);
@@ -244,20 +249,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public override void RenderOverride(RenderContext localRenderContext)
     {
-      base.RenderOverride(localRenderContext);
-      PerformLayout(localRenderContext);
-      if (_geometry == null)
-        return;
+      lock (_resourceRenderLock)
+      {
+        base.RenderOverride(localRenderContext);
+        PerformLayout(localRenderContext);
+        var geometry = _geometry;
+        if (geometry == null || geometry.IsDisposed)
+          return;
 
-      var fill = Fill;
-      if (fill != null)
-      {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_geometry, fill.Brush2D); // TODO: Opacity brush?
-      }
-      var stroke = Stroke;
-      if (stroke != null && StrokeThickness > 0)
-      {
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry, stroke.Brush2D, (float)StrokeThickness);
+        var fill = Fill;
+        if (fill != null)
+        {
+          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill.Brush2D); // TODO: Opacity brush?
+        }
+        var stroke = Stroke;
+        if (stroke != null)
+        {
+          GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness);
+        }
       }
     }
 
@@ -269,13 +278,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public override void Deallocate()
     {
-      base.Deallocate();
-      if (Fill != null)
-        Fill.Deallocate();
-      if (Stroke != null)
-        Stroke.Deallocate();
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
+      lock (_resourceRenderLock)
+      {
+        base.Deallocate();
+        if (Fill != null)
+          Fill.Deallocate();
+        if (Stroke != null)
+          Stroke.Deallocate();
+      }
     }
 
     public override void Allocate()

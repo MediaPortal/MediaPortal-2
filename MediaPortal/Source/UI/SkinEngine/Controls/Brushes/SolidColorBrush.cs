@@ -54,17 +54,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Allocate()
     {
       base.Allocate();
-      _brush2D = new SharpDX.Direct2D1.SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color.White);
+      _brush2D = new SharpDX.Direct2D1.SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color);
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
-      if (_brush2D != null)
-      {
-        _brush2D.Dispose();
-        _brush2D = null;
-      }
     }
 
     void Init()

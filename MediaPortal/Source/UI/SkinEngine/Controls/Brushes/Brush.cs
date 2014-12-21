@@ -95,8 +95,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
       Transform = copyManager.GetCopy(b.Transform);
       Freezable = b.Freezable;
-      // TODO: copy?
-      _brush2D = copyManager.GetCopy(b._brush2D);
       _finalBrushTransform = null;
       Attach();
     }
@@ -166,9 +164,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       get
       {
-        // TODO: should not be the case. Allocate happens before, but is missing in rendering. DeepCopy?!
-        if (_refresh || _brush2D == null)
+        if (_refresh)
+        {
+          _refresh = false;
           Allocate();
+        }
         return _brush2D;
       }
     }
@@ -280,7 +280,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       TryDispose(ref _brush2D);
     }
-
 
     protected Vector2 TransformToBoundary(Vector2 relativeCoord)
     {
