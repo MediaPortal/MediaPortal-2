@@ -397,7 +397,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
           // so we wait for that event here.
           _videoRenderFrameEvent.WaitOne(RENDER_MAX_WAIT_FOR_VIDEO_FRAME_MS);
 
-        bool shouldWait = GraphicsDevice.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
+        //bool shouldWait = GraphicsDevice.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
+        bool shouldWait = GraphicsDevice11.Instance.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
         _renderFinishedEvent.Set();
 
         if (shouldWait || !_hasFocus)

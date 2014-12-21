@@ -171,8 +171,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Allocate()
     {
       base.Allocate();
-      // TODO: apply transform?
-      RadialGradientBrushProperties props = new RadialGradientBrushProperties { Center = Center, RadiusX = (float)RadiusX, RadiusY = (float)RadiusY };
+      RadialGradientBrushProperties props = new RadialGradientBrushProperties
+      {
+        Center = TransformToBoundary(Center),
+        RadiusX = (float)RadiusX,
+        RadiusY = (float)RadiusY,
+      };
       _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
     }
 

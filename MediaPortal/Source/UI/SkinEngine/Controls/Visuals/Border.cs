@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _performLayout;
     protected RectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
-    protected PathGeometry _pathGeometry;
+    protected SharpDX.Direct2D1.Geometry _pathGeometry;
 
     #endregion
 
@@ -408,7 +408,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       //  PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
     }
 
-    protected virtual PathGeometry CreateBorderRectPath(RectangleF innerBorderRect)
+    protected virtual SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
     {
       return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float)CornerRadius, (float)CornerRadius);
     }

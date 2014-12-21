@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      LinearGradientBrush b = (LinearGradientBrush) source;
+      LinearGradientBrush b = (LinearGradientBrush)source;
       StartPoint = copyManager.GetCopy(b.StartPoint);
       EndPoint = copyManager.GetCopy(b.EndPoint);
       _refresh = true;
@@ -105,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Vector2 StartPoint
     {
-      get { return (Vector2) _startPointProperty.GetValue(); }
+      get { return (Vector2)_startPointProperty.GetValue(); }
       set { _startPointProperty.SetValue(value); }
     }
 
@@ -116,7 +116,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Vector2 EndPoint
     {
-      get { return (Vector2) _endPointProperty.GetValue(); }
+      get { return (Vector2)_endPointProperty.GetValue(); }
       set { _endPointProperty.SetValue(value); }
     }
 
@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Allocate();
 
-      LinearGradientBrushProperties props = new LinearGradientBrushProperties();
+      LinearGradientBrushProperties props = new LinearGradientBrushProperties { StartPoint = TransformToBoundary(StartPoint), EndPoint = TransformToBoundary(EndPoint) };
       _brush2D = new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
     }
   }

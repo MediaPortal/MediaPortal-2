@@ -61,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="baseRect">The rect which surrounds the created path.</param>
     /// <param name="radiusX">The X radius of the rounded edges.</param>
     /// <param name="radiusY">The Y radius of the rounded edges.</param>
-    public static SharpDX.Direct2D1.PathGeometry CreateRoundedRectPath(RectangleF baseRect, float radiusX, float radiusY)
+    public static SharpDX.Direct2D1.Geometry CreateRoundedRectPath(RectangleF baseRect, float radiusX, float radiusY)
     {
       return CreateRoundedRectWithTitleRegionPath(baseRect, radiusX, radiusY, false, 0f, 0f);
     }
@@ -78,55 +78,42 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <paramref name="withTitleRegion"/> is set to <c>true</c>.</param>
     /// <param name="titleWidth">Width of the title region to leave out. This parameter will only be used if
     /// <paramref name="withTitleRegion"/> is set to <c>true</c>.</param>
-    public static PathGeometry CreateRoundedRectWithTitleRegionPath(RectangleF baseRect, float radiusX, float radiusY,
+    public static SharpDX.Direct2D1.Geometry CreateRoundedRectWithTitleRegionPath(RectangleF baseRect, float radiusX, float radiusY,
         bool withTitleRegion, float titleInset, float titleWidth)
     {
+      if (!withTitleRegion)
+      {
+        RoundedRectangle rrect = new RoundedRectangle { Rect = baseRect, RadiusX = radiusX, RadiusY = radiusY };
+        RoundedRectangleGeometry rrgeom = new RoundedRectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, rrect);
+        return rrgeom;
+      }
+
       PathGeometry result = new PathGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory);
-      bool hasOpenFigure = false;
       using (var sink = result.Open())
       {
         if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width == 0 || baseRect.Height == 0)
         {
           // if corner radius is less than or equal to zero, return the original rectangle
-          if (withTitleRegion)
-          {
-            // If we should leave out a title region, we need to do it manually, because we need to start next to the
-            // title.
+          // If we should leave out a title region, we need to do it manually, because we need to start next to the
+          // title.
 
-            titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * titleInset);
-            // Right from the title to the upper right edge
-            sink.BeginFigure(new Vector2(baseRect.Left + 2 * titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
-            hasOpenFigure = true;
-            sink.AddLine(new Vector2(baseRect.Right, baseRect.Top));
+          titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * titleInset);
+          // Right from the title to the upper right edge
+          sink.BeginFigure(new Vector2(baseRect.Left + 2 * titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
+          sink.AddLine(new Vector2(baseRect.Right, baseRect.Top));
 
-            // Upper right edge to lower right edge
-            sink.AddLine(new Vector2(baseRect.Right, baseRect.Top));
-            sink.AddLine(new Vector2(baseRect.Right, baseRect.Bottom));
+          // Upper right edge to lower right edge
+          sink.AddLine(new Vector2(baseRect.Right, baseRect.Bottom));
 
-            // Lower right edge to lower left edge
-            sink.AddLine(new Vector2(baseRect.Right, baseRect.Bottom));
-            sink.AddLine(new Vector2(baseRect.Left, baseRect.Bottom));
+          // Lower right edge to lower left edge
+          sink.AddLine(new Vector2(baseRect.Left, baseRect.Bottom));
 
-            // Lower left edge to upper left edge
-            sink.AddLine(new Vector2(baseRect.Left, baseRect.Bottom));
-            sink.AddLine(new Vector2(baseRect.Left, baseRect.Top));
+          // Lower left edge to upper left edge
+          sink.AddLine(new Vector2(baseRect.Left, baseRect.Top));
 
-            // Upper left edge to the left side of the title
-            sink.AddLine(new Vector2(baseRect.Left, baseRect.Top));
-            sink.AddLine(new Vector2(baseRect.Left + titleInset, baseRect.Top));
-            sink.EndFigure(FigureEnd.Closed);
-            hasOpenFigure = false;
-          }
-          else
-          {
-            sink.BeginFigure(baseRect.TopLeft, FigureBegin.Hollow);
-            hasOpenFigure = true;
-            sink.AddLine(baseRect.TopRight);
-            sink.AddLine(baseRect.BottomRight);
-            sink.AddLine(baseRect.BottomLeft);
-            sink.EndFigure(FigureEnd.Closed);
-            hasOpenFigure = false;
-          }
+          // Upper left edge to the left side of the title
+          sink.AddLine(new Vector2(baseRect.Left + titleInset, baseRect.Top));
+          sink.EndFigure(FigureEnd.Closed);
         }
         else
         {
@@ -134,79 +121,64 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
             radiusX = baseRect.Width / 2f;
           if (radiusY >= baseRect.Height / 2f)
             radiusY = baseRect.Height / 2f;
-          // create the arc for the rectangle sides and declare a graphics path object for the drawing 
-          SizeF sizeF = new SizeF(radiusX * 2f, radiusY * 2f);
-          RectangleF arc = SharpDXExtensions.CreateRectangleF(baseRect.Location, sizeF);
 
-          if (withTitleRegion)
-          {
-            titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * (radiusX + titleInset));
-            // Right of the title to the upper right edge
-            sink.BeginFigure(new Vector2(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
-            hasOpenFigure = true;
-            sink.AddLine(new Vector2(baseRect.Right - radiusX, baseRect.Top));
-          }
-          else
-          {
-            // TODO: where to start?!
-            sink.BeginFigure(baseRect.TopLeft, FigureBegin.Hollow);
-            hasOpenFigure = true;
-          }
+          // create the arc for the rectangle sides and declare a graphics path object for the drawing 
+          titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * (radiusX + titleInset));
+
+          // Right of the title to the upper right edge
+          sink.BeginFigure(new Vector2(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
+          sink.AddLine(new Vector2(baseRect.Right - radiusX, baseRect.Top));
 
           // Top right arc 
-          arc.X = baseRect.Right - radiusX * 2f;
           sink.AddArc(new ArcSegment
           {
             ArcSize = ArcSize.Small,
-            Point = baseRect.TopRight, // new Vector2(arc.X, arc.Y),
-            Size = new Size2F(radiusX, radiusY)
+            Point = new Vector2(baseRect.Right, baseRect.Top + radiusY),
+            Size = new Size2F(radiusX, radiusY),
+            SweepDirection = SweepDirection.Clockwise
           });
-          //result.AddArc(arc.ToDrawingRectF(), 270, 90));
+
+          // Right line down
+          sink.AddLine(new Vector2(baseRect.Right, baseRect.Bottom - radiusY));
 
           // Bottom right arc 
-          arc.Y = baseRect.Bottom - radiusY * 2f;
           sink.AddArc(new ArcSegment
           {
             ArcSize = ArcSize.Small,
-            Point = baseRect.BottomRight, // new Vector2(arc.X, arc.Y),
-            Size = new Size2F(radiusX, radiusY)
+            Point = new Vector2(baseRect.Right - radiusX, baseRect.Bottom),
+            Size = new Size2F(radiusX, radiusY),
+            SweepDirection = SweepDirection.Clockwise
           });
-          //result.AddArc(arc.ToDrawingRectF(), 0, 90);
+
+          // Bottom line left
+          sink.AddLine(new Vector2(baseRect.Left + radiusX, baseRect.Bottom));
 
           // Bottom left arc
-          arc.X = baseRect.Left;
           sink.AddArc(new ArcSegment
           {
             ArcSize = ArcSize.Small,
-            Point = baseRect.BottomLeft, // new Vector2(arc.X, arc.Y),
-            Size = new Size2F(radiusX, radiusY)
+            Point = new Vector2(baseRect.Left, baseRect.Bottom - radiusY),
+            Size = new Size2F(radiusX, radiusY),
+            SweepDirection = SweepDirection.Clockwise
           });
-          //result.AddArc(arc.ToDrawingRectF(), 90, 90);
+
+          // Left line up
+          sink.AddLine(new Vector2(baseRect.Left, baseRect.Top + radiusY));
 
           // Top left arc 
-          arc.Y = baseRect.Top;
           sink.AddArc(new ArcSegment
           {
             ArcSize = ArcSize.Small,
-            Point = baseRect.TopLeft, // new Vector2(arc.X, arc.Y),
-            Size = new Size2F(radiusX, radiusY)
+            Point = new Vector2(baseRect.Left+radiusX, baseRect.Top),
+            Size = new Size2F(radiusX, radiusY),
+            SweepDirection = SweepDirection.Clockwise
           });
-          //result.AddArc(arc.ToDrawingRectF(), 180, 90);
 
-          if (withTitleRegion)
-          {
-            // Upper left edge to the left side of the title
-            sink.AddLine(new Vector2(baseRect.Left + radiusX, baseRect.Top));
-            sink.AddLine(new Vector2(baseRect.Left + radiusX + titleInset, baseRect.Top));
-            sink.EndFigure(FigureEnd.Open);
-          }
-          else
-            sink.EndFigure(FigureEnd.Closed);
+          // Upper left edge to the left side of the title
+          sink.AddLine(new Vector2(baseRect.Left + radiusX + titleInset, baseRect.Top));
+          sink.EndFigure(FigureEnd.Open);
         }
         sink.Close();
-
-        //TODO:
-        //sink.Flatten();
       }
       return result;
     }

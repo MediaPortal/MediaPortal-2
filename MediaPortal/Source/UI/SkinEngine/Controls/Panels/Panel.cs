@@ -296,14 +296,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _performLayout = false;
 
       // Setup background brush
-      if (Background != null)
+      Brush background = Background;
+      if (background != null)
       {
         SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
 
+        // TODO: check if this is still required
         RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        Background.SetupBrush(this, ref rect, localRenderContext.ZOrder, true);
+        background.SetupBrush(this, ref rect, localRenderContext.ZOrder, true);
       }
     }
 

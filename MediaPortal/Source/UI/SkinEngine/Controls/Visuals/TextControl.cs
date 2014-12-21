@@ -30,6 +30,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
@@ -93,6 +94,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected TextCursorState _cursorState;
     protected PrimitiveBuffer _cursorContext = null;
     protected Brush _cursorBrush = null;
+    protected RectangleF _cursorBounds;
 
     #endregion
 
@@ -454,9 +456,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       DeallocateCursor();
 
-      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          cursorBounds.Left - 0.5f, cursorBounds.Top - 0.5f, cursorBounds.Right - 0.5f, cursorBounds.Bottom - 0.5f,
-          0, 0, 0, 0, zPos, Color);
+      //PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
+      //    cursorBounds.Left - 0.5f, cursorBounds.Top - 0.5f, cursorBounds.Right - 0.5f, cursorBounds.Bottom - 0.5f,
+      //    0, 0, 0, 0, zPos, Color);
 
       if (_cursorBrushInvalid && _cursorBrush != null)
       {
@@ -468,8 +470,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _cursorBrush = new SolidColorBrush { Color = Color };
       _cursorBrushInvalid = false;
 
-      _cursorBrush.SetupBrush(this, ref verts, zPos, false);
-      PrimitiveBuffer.SetPrimitiveBuffer(ref _cursorContext, ref verts, PrimitiveType.TriangleFan);
+      _cursorBrush.SetupBrush(this, ref cursorBounds, zPos, false);
 
       _cursorShapeInvalid = false;
     }
@@ -557,8 +558,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_virtualPosition + caretX > _innerRect.Width - 10)
           _virtualPosition = _innerRect.Width * 2 / 3 - caretX;
         Bound(ref _virtualPosition, -caretX, 0);
-        RectangleF cursorBounds = new RectangleF(_innerRect.X + _virtualPosition + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
-        UpdateCursorShape(cursorBounds, localRenderContext.ZOrder);
+        _cursorBounds = new RectangleF(_innerRect.X + _virtualPosition + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
+        UpdateCursorShape(_cursorBounds, localRenderContext.ZOrder);
       }
 
       // Render text
@@ -567,9 +568,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible)
       {
-        _cursorBrush.BeginRenderBrush(_cursorContext, localRenderContext);
-        _cursorContext.Render(0);
-        _cursorBrush.EndRender();
+        GraphicsDevice11.Instance.Context2D1.FillRectangle(_cursorBounds, _cursorBrush.Brush2D);
       }
     }
 

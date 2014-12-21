@@ -189,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _headerLabel.Arrange(_headerLabelRect);
     }
 
-    protected override PathGeometry CreateBorderRectPath(RectangleF innerBorderRect)
+    protected override SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
     {
       SizeF headerLabelSize = _headerLabel.DesiredSize;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(innerBorderRect,
