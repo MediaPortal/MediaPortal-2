@@ -23,14 +23,10 @@
 #endregion
 
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX11;
-using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
@@ -44,7 +40,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _radiusXProperty;
     protected AbstractProperty _radiusYProperty;
     protected volatile bool _refresh = false;
-    protected SharpDX.Direct2D1.RadialGradientBrush _radialGradientBrush2D;
 
     #endregion
 
@@ -95,8 +90,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       GradientOrigin = copyManager.GetCopy(b.GradientOrigin);
       RadiusX = b.RadiusX;
       RadiusY = b.RadiusY;
-      // TODO: copy?
-      _radialGradientBrush2D = b._radialGradientBrush2D;
       _refresh = true;
       Attach();
     }
@@ -120,11 +113,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #endregion
 
     #region Public properties
-
-    public SharpDX.Direct2D1.RadialGradientBrush RadialGradientBrush2D
-    {
-      get { return _radialGradientBrush2D; }
-    }
 
     public AbstractProperty CenterProperty
     {
@@ -177,13 +165,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
-      RadialGradientBrushProperties props = new RadialGradientBrushProperties { Center = Center, RadiusX = (float)RadiusX, RadiusY = (float)RadiusY };
-
-      // TODO: apply transform?
-      // props.GradientOriginOffset = 
-
-      _radialGradientBrush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
       _refresh = true;
+    }
+
+    public override void Allocate()
+    {
+      base.Allocate();
+      // TODO: apply transform?
+      RadialGradientBrushProperties props = new RadialGradientBrushProperties { Center = Center, RadiusX = (float)RadiusX, RadiusY = (float)RadiusY };
+      _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
     }
 
     #endregion

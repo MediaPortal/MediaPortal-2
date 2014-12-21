@@ -22,17 +22,12 @@
 
 #endregion
 
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using MediaPortal.Utilities.DeepCopy;
-using Point = System.Drawing.Point;
-using RectangleF = System.Drawing.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -59,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Polygon p = (Polygon) source;
+      Polygon p = (Polygon)source;
       Points = new PointCollection(p.Points);
     }
 
@@ -84,44 +79,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override void DoPerformLayout(RenderContext context)
     {
-      base.DoPerformLayout(context);
-
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = CalculateTransformedPath(GetPolygon(), _innerRect))
+        using (var path = CalculateTransformedPath(GetPolygon(), _innerRect))
         {
-          float centerX;
-          float centerY;
-          PointF[] pathPoints = path.PathPoints;
-          TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
-          PositionColoredTextured[] verts;
-          if (Fill != null)
-          {
-            TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
-            Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
-          }
-          else
-            PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
+          var boundaries = path.GetBounds();
+          var fill = Fill;
+          if (fill != null && !_fillDisabled)
+            fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
 
-          if (Stroke != null && StrokeThickness > 0)
-          {
-            TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) StrokeThickness, true, 1, StrokeLineJoin, out verts);
-            Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-            PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
-          }
-          else
-            PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
+          var stroke = Stroke;
+          if (stroke != null)
+            stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
         }
       }
+      base.DoPerformLayout(context);
     }
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      using (GraphicsPath p = CalculateTransformedPath(GetPolygon(), new SharpDX.RectangleF(0, 0, 0, 0)))
+      using (var p = CalculateTransformedPath(GetPolygon(), new SharpDX.RectangleF(0, 0, 0, 0)))
       {
-        RectangleF bounds = p.GetBounds();
+        var bounds = p.GetBounds();
         return new Size2F(bounds.Width, bounds.Height);
       }
     }
@@ -129,17 +109,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
-    private GraphicsPath GetPolygon()
+    private PathGeometry GetPolygon()
     {
-      Point[] points = new Point[Points.Count];
-      for (int i = 0; i < Points.Count; ++i)
-        points[i] = Points[i].ToDrawingPoint();
-      GraphicsPath mPath = new GraphicsPath();
-      mPath.AddPolygon(points);
-      mPath.CloseFigure();
+      PathGeometry path = new PathGeometry(GraphicsDevice11.Instance.Context2D1.Factory);
+      using (var sink = path.Open())
+      {
+        foreach (var point in Points)
+        {
+          sink.AddLine(point);
+        }
 
-      mPath.Flatten();
-      return mPath;
+        sink.EndFigure(FigureEnd.Closed);
+        sink.Close();
+      }
+      return path;
     }
 
     #endregion

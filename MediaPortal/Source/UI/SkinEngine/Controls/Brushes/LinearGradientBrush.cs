@@ -24,7 +24,6 @@
 
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -40,8 +39,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _endPointProperty;
     protected volatile bool _refresh = false;
 
-    protected SharpDX.Direct2D1.LinearGradientBrush _linearGradientBrush2D;
-
     #endregion
 
     #region Ctor
@@ -56,8 +53,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
-      if (_linearGradientBrush2D != null)
-        _linearGradientBrush2D.Dispose();
     }
 
     void Init()
@@ -85,8 +80,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       LinearGradientBrush b = (LinearGradientBrush) source;
       StartPoint = copyManager.GetCopy(b.StartPoint);
       EndPoint = copyManager.GetCopy(b.EndPoint);
-      // TODO: copy?
-      _linearGradientBrush2D = b._linearGradientBrush2D;
       _refresh = true;
       Attach();
     }
@@ -103,12 +96,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _refresh = true;
       base.OnRelativeTransformChanged(trans);
-    }
-
-
-    public SharpDX.Direct2D1.LinearGradientBrush LinearGradientBrush2D
-    {
-      get { return _linearGradientBrush2D; }
     }
 
     public AbstractProperty StartPointProperty
@@ -137,9 +124,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       _refresh = true;
+    }
+
+    public override void Allocate()
+    {
+      base.Allocate();
 
       LinearGradientBrushProperties props = new LinearGradientBrushProperties();
-      _linearGradientBrush2D = new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
+      _brush2D = new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
     }
   }
 }

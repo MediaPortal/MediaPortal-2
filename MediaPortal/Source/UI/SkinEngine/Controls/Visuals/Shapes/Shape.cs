@@ -235,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     }
 
     /// <summary>
-    /// Allocates the <see cref="_fillContext"/> and <see cref="_strokeContext"/> variables.
+    /// Allocates and initializes the Brushes <see cref="Fill"/> and <see cref="Stroke"/>.
     /// This method will be overridden in sub classes.
     /// </summary>
     protected virtual void DoPerformLayout(RenderContext context)
