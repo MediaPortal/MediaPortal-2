@@ -173,10 +173,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       RadialGradientBrushProperties props = new RadialGradientBrushProperties
       {
         Center = TransformToBoundary(Center),
-        RadiusX = (float)RadiusX,
-        RadiusY = (float)RadiusY,
+        RadiusX = TransformRadiusX(RadiusX),
+        RadiusY = TransformRadiusY(RadiusY),
       };
       _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
+    }
+
+    protected float TransformRadiusX(double radiusX)
+    {
+      return (float)(_vertsBounds.Width * radiusX);
+    }
+
+    protected float TransformRadiusY(double radiusY)
+    {
+      return (float)(_vertsBounds.Height * radiusY);
     }
 
     #endregion

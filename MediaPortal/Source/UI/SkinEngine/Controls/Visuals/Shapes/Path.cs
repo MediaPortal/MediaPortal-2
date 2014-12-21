@@ -96,6 +96,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
         }
       }
+      else
+      {
+        lock (_resourceRenderLock)
+          TryDispose(ref _geometry);
+      }
     }
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)

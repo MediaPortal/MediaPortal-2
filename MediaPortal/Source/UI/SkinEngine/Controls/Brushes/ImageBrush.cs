@@ -165,6 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void Allocate()
     {
+      base.Allocate();
       if (_tex == null && !string.IsNullOrEmpty(ImageSource))
         _tex = ContentManager.Instance.GetTexture(ImageSource, Thumbnail);
       if (_tex != null && !_tex.IsAllocated)

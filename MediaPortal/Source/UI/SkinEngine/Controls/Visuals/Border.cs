@@ -31,12 +31,10 @@ using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
-using SharpDX.Direct2D1;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using RectangleF = SharpDX.RectangleF;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 
@@ -53,9 +51,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _borderLineJoinProperty;
     protected AbstractProperty _cornerRadiusProperty;
     protected AbstractProperty _contentProperty;
-    protected int _verticesCountBorder;
-    protected PrimitiveBuffer _backgroundContext;
-    protected PrimitiveBuffer _borderContext;
     protected bool _performLayout;
     protected RectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
@@ -112,8 +107,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       BorderLineJoin = b.BorderLineJoin;
       CornerRadius = b.CornerRadius;
       Content = copyManager.GetCopy(b.Content);
+      _pathGeometry = copyManager.GetCopy(b._pathGeometry);
       _initializedContent = copyManager.GetCopy(b._initializedContent);
-
       Attach();
     }
 
@@ -121,6 +116,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       MPF.TryCleanupAndDispose(Background);
       MPF.TryCleanupAndDispose(BorderBrush);
+      TryDispose(ref _pathGeometry);
       base.Dispose();
     }
 
@@ -450,8 +446,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Background != null)
         Background.Deallocate();
       _performLayout = true;
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
     }
 
     public override void Allocate()

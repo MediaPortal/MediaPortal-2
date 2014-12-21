@@ -94,12 +94,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
         }
       }
+      else
+      {
+        lock (_resourceRenderLock)
+          TryDispose(ref _geometry);
+      }
       base.DoPerformLayout(context);
     }
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      using (var p = CalculateTransformedPath(GetPolygon(), new SharpDX.RectangleF(0, 0, 0, 0)))
+      using (var p = CalculateTransformedPath(GetPolygon(), new RectangleF(0, 0, 0, 0)))
       {
         var bounds = p.GetBounds();
         return new Size2F(bounds.Width, bounds.Height);
