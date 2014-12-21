@@ -37,7 +37,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected AbstractProperty _startPointProperty;
     protected AbstractProperty _endPointProperty;
-    protected volatile bool _refresh = false;
 
     #endregion
 

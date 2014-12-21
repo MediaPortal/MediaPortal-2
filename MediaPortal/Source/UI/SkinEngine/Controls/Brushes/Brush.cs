@@ -43,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Matrix? _finalBrushTransform = null;
     protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
     protected SharpDX.Direct2D1.Brush _brush2D = null;
+    protected volatile bool _refresh = false;
 
     #endregion
 
@@ -95,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Transform = copyManager.GetCopy(b.Transform);
       Freezable = b.Freezable;
       // TODO: copy?
-      _brush2D = b._brush2D;
+      _brush2D = copyManager.GetCopy(b._brush2D);
       _finalBrushTransform = null;
       Attach();
     }
@@ -166,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get
       {
         // TODO: should not be the case. Allocate happens before, but is missing in rendering. DeepCopy?!
-        if (_brush2D == null)
+        if (_refresh || _brush2D == null)
           Allocate();
         return _brush2D;
       }
@@ -271,10 +272,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     }
 
     public virtual void Allocate()
-    { }
+    {
+      TryDispose(ref _brush2D);
+    }
 
     public virtual void Deallocate()
-    { }
+    {
+      TryDispose(ref _brush2D);
+    }
 
 
     protected Vector2 TransformToBoundary(Vector2 relativeCoord)

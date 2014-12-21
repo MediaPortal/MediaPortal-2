@@ -25,13 +25,11 @@
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SharpDX;
-using SharpDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
@@ -265,7 +263,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brush background = Background;
       if (background != null)
       {
-        GraphicsDevice11.Instance.Context2D1.DrawRectangle(_backgroundRect, background.Brush2D);
+        GraphicsDevice11.Instance.Context2D1.FillRectangle(_backgroundRect, background.Brush2D);
       }
 
       FrameworkElement templateControl = _initializedTemplateControl;
@@ -281,14 +279,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = false;
 
       // Setup background brush
-      if (Background != null)
+      Brush background = Background;
+      if (background != null)
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
+        // TODO: still required?
         _backgroundRect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        Background.SetupBrush(this, ref _backgroundRect, localRenderContext.ZOrder, true);
+        background.SetupBrush(this, ref _backgroundRect, localRenderContext.ZOrder, true);
       }
     }
 

@@ -39,7 +39,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _gradientOriginProperty;
     protected AbstractProperty _radiusXProperty;
     protected AbstractProperty _radiusYProperty;
-    protected volatile bool _refresh = false;
 
     #endregion
 

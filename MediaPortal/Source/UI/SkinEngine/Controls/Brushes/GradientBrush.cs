@@ -191,6 +191,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
     }
 
+    public override void Allocate()
+    {
+      base.Allocate();
+      GradientStops.Allocate();
+    }
 
     #region IAddChild Members
 
