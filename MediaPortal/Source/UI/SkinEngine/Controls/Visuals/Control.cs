@@ -263,11 +263,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brush background = Background;
       if (background != null && background.TryAllocate() && _backgroundGeometry.HasGeom)
       {
-        var oldOpacity = background.Brush2D.Opacity;
-        background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-        _backgroundGeometry.UpdateTransform(localRenderContext.Transform);
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D);
-        background.Brush2D.Opacity = oldOpacity;
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, localRenderContext);
       }
 
       FrameworkElement templateControl = _initializedTemplateControl;

@@ -217,6 +217,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device successfully reset");
       return true;
     }
+
     /// <summary>
     /// Setups all <see cref="IRenderStrategy"/>s.
     /// </summary>

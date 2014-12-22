@@ -116,9 +116,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       var brush = _brush2D as SharpDX.Direct2D1.RadialGradientBrush;
       if (brush != null)
       {
-        brush.Center = TransformToBoundary(Center);
-        brush.RadiusX = TransformRadiusX(RadiusX);
-        brush.RadiusY = TransformRadiusX(RadiusY);
+        brush.Center = Center;
+        brush.RadiusX = (float)RadiusX;
+        brush.RadiusY = (float)RadiusY;
         brush.GradientOriginOffset = TransformOffset(GradientOrigin);
         _refresh = false; // We could update an existing brush, no need to recreate it
       }
@@ -187,12 +187,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       base.Allocate();
       RadialGradientBrushProperties props = new RadialGradientBrushProperties
       {
-        Center = TransformToBoundary(Center),
-        RadiusX = TransformRadiusX(RadiusX),
-        RadiusY = TransformRadiusY(RadiusY),
+        Center = Center,
+        RadiusX = (float)RadiusX,
+        RadiusY = (float)RadiusY,
         GradientOriginOffset = TransformOffset(GradientOrigin)
       };
       _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
+
+      // Transform brush into control scope
+      Matrix3x2 transform = Matrix3x2.Identity;
+      transform *= Matrix3x2.Scaling(_vertsBounds.Width, _vertsBounds.Height);
+      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
+
+      _brush2D.Transform = transform;
     }
 
     protected float TransformRadiusX(double radiusX)
@@ -208,8 +215,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     // TODO: check this logic, results looks different compared to before
     protected Vector2 TransformOffset(Vector2 relativeCoord)
     {
-      var x = _vertsBounds.Width * (relativeCoord.X - 0.5f); // Relative to center
-      var y = _vertsBounds.Height * (relativeCoord.Y - 0.5f); // Relative to center
+      var x = (relativeCoord.X - 0.5f); // Relative to center
+      var y = (relativeCoord.Y - 0.5f); // Relative to center
       return new Vector2(x, y);
     }
 

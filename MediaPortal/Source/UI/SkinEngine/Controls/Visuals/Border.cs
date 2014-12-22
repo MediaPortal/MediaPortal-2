@@ -382,25 +382,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       var background = Background;
       if (background != null && _backgroundGeometry.HasGeom && background.TryAllocate())
       {
-        var oldOpacity = background.Brush2D.Opacity;
-        background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-        _backgroundGeometry.UpdateTransform(localRenderContext.Transform);
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D);
-        background.Brush2D.Opacity = oldOpacity;
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, localRenderContext);
       }
 
       var border = BorderBrush;
       if (border != null && _borderGeometry.HasGeom && BorderThickness > 0 && border.TryAllocate())
       {
-        var oldOpacity = border.Brush2D.Opacity;
-        border.Brush2D.Opacity *= (float)localRenderContext.Opacity;
         // TODO: add StrokeJoin and other layout features! Properties don't have setters yet? (SharpDX 2.6.3)
         //StrokeStyleProperties prop = new StrokeStyleProperties();
         //var style = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
-        //style.LineJoin = LineJoin.Miter;
-        _borderGeometry.UpdateTransform(localRenderContext.Transform);
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry.TransformedGeom, border.Brush2D, (float)BorderThickness);
-        border.Brush2D.Opacity = oldOpacity;
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry.TransformedGeom, border.Brush2D, (float)BorderThickness, localRenderContext);
       }
 
       FrameworkElement content = _initializedContent;
