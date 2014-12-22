@@ -54,8 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     //protected TextBuffer _asset = null;
     protected string _resourceString;
     private Size2F _totalSize;
-    private TextFormat _textFormat;
-    private TextLayout _textLayout;
+    private TextBuffer2D _asset;
     private SolidColorBrush _textBrush;
 
     #endregion
@@ -269,8 +268,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     private void DeAllocFont()
     {
-      TryDispose(ref _textFormat);
-      TryDispose(ref _textLayout);
+      TryDispose(ref _asset);
       TryDispose(ref _textBrush);
     }
 
@@ -280,21 +278,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (GraphicsDevice11.Instance.FactoryDW == null)
         return;
 
-      if (_textLayout == null)
+      if (_asset == null)
       {
-        _textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()); // create the text format of specified font configuration
-
-        // create the text layout - this improves the drawing performance for static text
-        // as the glyph positions are precalculated
-        float layoutWidth = _totalSize.Width;
-        if (float.IsNaN(layoutWidth) || layoutWidth == 0.0f)
-          layoutWidth = 2048;
-        float layoutHeight = _totalSize.Height;
-        if (float.IsNaN(layoutHeight) || layoutHeight == 0.0f)
-          layoutHeight = 2048;
-        _textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()); // create the text format of specified font configuration
-        _textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, _resourceString, _textFormat, layoutWidth, layoutHeight);
-        // _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) { Text = _resourceString };
+        _asset =  new TextBuffer2D(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
+        _asset.Text = _resourceString;
       }
       if (_textBrush == null)
       {
@@ -309,47 +296,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float totalWidth = totalSize.Width; // Attention: totalWidth is cleaned up by SkinContext.Zoom
       if (!double.IsNaN(Width))
         totalWidth = (float)Width;
+      if (float.IsNaN(totalWidth))
+        totalWidth = 4096;
       SizeF size = new SizeF();
       size.Width = 0;
-      string[] lines = _resourceString.Split(Environment.NewLine.ToCharArray());
-      using (var textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()))
+
+      if (_asset == null)
       {
-        foreach (string line in lines)
-        {
-          using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, line, textFormat, totalWidth, 4096))
-          {
-            size.Width = Math.Max(size.Width, textLayout.Metrics.WidthIncludingTrailingWhitespace);
-            size.Height = textLayout.Metrics.Height;
-          }
-        }
+        AllocFont();
+        if (_asset == null)
+          return size;
       }
+
+      size = _asset.TextSize(_resourceString, totalWidth);
+
       // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
       size.Width += 1;
       size.Height += 1;
       _totalSize = size;
       return size;
 
-      //AllocFont();
-      //return totalSize;
-      //// Measure the text
-      //float totalWidth = totalSize.Width; // Attention: totalWidth is cleaned up by SkinContext.Zoom
-      //if (!double.IsNaN(Width))
-      //  totalWidth = (float)Width;
-
-      //SizeF size = new SizeF();
-      //var textBuffer = _asset;
-      //if (textBuffer == null)
-      //  return size;
-      //string[] lines = textBuffer.GetLines(totalWidth, Wrap);
-      //size.Width = 0;
-      //foreach (string line in lines)
-      //  size.Width = Math.Max(size.Width, textBuffer.TextWidth(line));
-      //size.Height = textBuffer.TextHeight(Math.Max(lines.Length, 1));
-
-      //// Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
-      //size.Width += 1;
-      //size.Height += 1;
-      //return size;
     }
 
     public override void RenderOverride(RenderContext localRenderContext)
@@ -373,10 +339,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float)localRenderContext.Opacity;
 
-      var oldOpacity = _textBrush.Opacity;
-      _textBrush.Opacity *= (float)localRenderContext.Opacity;
-      GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, _textBrush);
-      _textBrush.Opacity = oldOpacity;
+      _asset.TextBrush = _textBrush;
+      _asset.Render(localRenderContext.OccupiedTransformedBounds, localRenderContext);
+      //var oldOpacity = _textBrush.Opacity;
+      //_textBrush.Opacity *= (float)localRenderContext.Opacity;
+      //GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, _textBrush);
+      //_textBrush.Opacity = oldOpacity;
 
       //_asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
       //  Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
