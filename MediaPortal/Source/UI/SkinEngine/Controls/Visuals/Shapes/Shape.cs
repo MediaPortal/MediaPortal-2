@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected volatile bool _performLayout;
 
     protected bool _fillDisabled;
-    protected SharpDX.Direct2D1.Geometry _geometry;
+    protected TransformedGeometryCache _geometry = new TransformedGeometryCache();
     protected readonly object _resourceRenderLock = new object();
 
     #endregion
@@ -127,7 +127,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       StrokeThickness = s.StrokeThickness;
       StrokeLineJoin = s.StrokeLineJoin;
       Stretch = s.Stretch;
-      _geometry = copyManager.GetCopy(s._geometry);
       Attach();
       OnFillBrushPropertyChanged(_fillProperty, null);
       OnStrokeBrushPropertyChanged(_strokeProperty, null);
@@ -254,24 +253,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         base.RenderOverride(localRenderContext);
         PerformLayout(localRenderContext);
         var geometry = _geometry;
-        if (geometry == null || geometry.IsDisposed)
+        if (geometry == null)
           return;
 
-        var fill = Fill;
-        if (fill != null && fill.TryAllocate())
+        lock (geometry.SyncObj)
         {
-          var oldOpacity = fill.Brush2D.Opacity;
-          fill.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill.Brush2D); // TODO: Opacity brush?
-          fill.Brush2D.Opacity = oldOpacity;
-        }
-        var stroke = Stroke;
-        if (stroke != null && stroke.TryAllocate())
-        {
-          var oldOpacity = stroke.Brush2D.Opacity;
-          stroke.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-          GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness);
-          stroke.Brush2D.Opacity = oldOpacity;
+          var fill = Fill;
+          if (fill != null && fill.TryAllocate() && geometry.HasGeom)
+          {
+            var oldOpacity = fill.Brush2D.Opacity;
+            fill.Brush2D.Opacity *= (float)localRenderContext.Opacity;
+            geometry.UpdateTransform(localRenderContext.Transform);
+            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry.TransformedGeom, fill.Brush2D); // TODO: Opacity brush?
+            fill.Brush2D.Opacity = oldOpacity;
+          }
+          var stroke = Stroke;
+          if (stroke != null && stroke.TryAllocate() && geometry.HasGeom)
+          {
+            var oldOpacity = stroke.Brush2D.Opacity;
+            stroke.Brush2D.Opacity *= (float)localRenderContext.Opacity;
+            geometry.UpdateTransform(localRenderContext.Transform);
+            GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry.TransformedGeom, stroke.Brush2D, (float)StrokeThickness);
+            stroke.Brush2D.Opacity = oldOpacity;
+          }
         }
       }
     }

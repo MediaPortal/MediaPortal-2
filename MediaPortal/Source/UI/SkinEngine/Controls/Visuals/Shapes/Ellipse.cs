@@ -40,8 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         var ellipse = new SharpDX.Direct2D1.Ellipse { RadiusX = _innerRect.Width / 2, RadiusY = _innerRect.Height / 2, Point = _innerRect.Center };
         lock (_resourceRenderLock)
         {
-          TryDispose(ref _geometry);
-          _geometry = new EllipseGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, ellipse);
+          _geometry.UpdateGeometry(new EllipseGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, ellipse));
         }
         var fill = Fill;
         if (fill != null)
@@ -51,11 +50,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         if (stroke != null)
           stroke.SetupBrush(this, ref _innerRect, context.ZOrder, true);
       }
-      else
-      {
-        lock (_resourceRenderLock)
-          TryDispose(ref _geometry);
-      }
+      //else
+      //{
+      //  lock (_resourceRenderLock)
+      //    TryDispose(ref _geometry);
+      //}
     }
   }
 }
