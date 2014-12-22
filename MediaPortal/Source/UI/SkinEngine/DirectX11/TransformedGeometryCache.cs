@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     {
       lock (_syncObj)
       {
-        if (newTransform != _transform || forceRefresh)
+        if (/*newTransform != _transform ||*/ forceRefresh)
         {
           _transform = newTransform;
           if (_transformedGeom != null)

@@ -154,11 +154,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         var bounds = _geometry.OriginalGeom.GetBounds();
         Stroke.SetupBrush(this, ref bounds, context.ZOrder, true);
       }
-      //else
-      //{
-      //  lock (_resourceRenderLock)
-      //    TryDispose(ref _geometry);
-      //}
     }
 
     private PathGeometry GetLine()
@@ -180,8 +175,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       var brush = Stroke;
       if (brush != null && StrokeThickness > 0 && _geometry.HasGeom)
       {
-        _geometry.UpdateTransform(localRenderContext.Transform);
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry.TransformedGeom, brush.Brush2D, (float)StrokeThickness);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry.TransformedGeom, brush.Brush2D, (float)StrokeThickness, localRenderContext);
       }
     }
   }

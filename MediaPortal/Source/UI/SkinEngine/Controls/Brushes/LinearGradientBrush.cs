@@ -98,8 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       var brush = _brush2D as SharpDX.Direct2D1.LinearGradientBrush;
       if (brush != null)
       {
-        brush.StartPoint = TransformToBoundary(StartPoint);
-        brush.EndPoint = TransformToBoundary(EndPoint);
+        brush.StartPoint = StartPoint;
+        brush.EndPoint = EndPoint;
         _refresh = false; // We could update an existing brush, no need to recreate it
       }
     }
@@ -142,8 +142,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Allocate();
 
-      LinearGradientBrushProperties props = new LinearGradientBrushProperties { StartPoint = TransformToBoundary(StartPoint), EndPoint = TransformToBoundary(EndPoint) };
+      LinearGradientBrushProperties props = new LinearGradientBrushProperties
+      {
+        StartPoint = StartPoint,
+        EndPoint = EndPoint
+      };
       _brush2D = new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
+
+      // Transform brush into control scope
+      Matrix3x2 transform = Matrix3x2.Identity;
+      transform *= Matrix3x2.Scaling(_vertsBounds.Width, _vertsBounds.Height);
+      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
+      _brush2D.Transform = transform;
     }
   }
 }

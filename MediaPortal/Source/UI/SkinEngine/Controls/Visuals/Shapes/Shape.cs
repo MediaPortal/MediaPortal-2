@@ -261,20 +261,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           var fill = Fill;
           if (fill != null && fill.TryAllocate() && geometry.HasGeom)
           {
-            var oldOpacity = fill.Brush2D.Opacity;
-            fill.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-            geometry.UpdateTransform(localRenderContext.Transform);
-            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry.TransformedGeom, fill.Brush2D); // TODO: Opacity brush?
-            fill.Brush2D.Opacity = oldOpacity;
+            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry.TransformedGeom, fill.Brush2D, localRenderContext); // TODO: Opacity brush?
           }
           var stroke = Stroke;
           if (stroke != null && stroke.TryAllocate() && geometry.HasGeom)
           {
-            var oldOpacity = stroke.Brush2D.Opacity;
-            stroke.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-            geometry.UpdateTransform(localRenderContext.Transform);
-            GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry.TransformedGeom, stroke.Brush2D, (float)StrokeThickness);
-            stroke.Brush2D.Opacity = oldOpacity;
+            GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry.TransformedGeom, stroke.Brush2D, (float)StrokeThickness, localRenderContext);
           }
         }
       }

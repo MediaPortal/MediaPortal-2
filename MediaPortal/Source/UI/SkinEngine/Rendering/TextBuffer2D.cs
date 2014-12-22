@@ -508,23 +508,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       //// No fading
       //_effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
 
-      //// Render
-      //_effect.Parameters[PARAM_COLOR] = color;
-      //_effect.Parameters[PARAM_ALIGNMENT] = alignParam;
-      //_effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(offsetX, yPosition, 0.0f, 0.0f);
-      //_effect.Parameters[PARAM_TEXT_RECT] = new Vector4(textBox.Left, textBox.Top, textBox.Width, textBox.Height);
-
+      // Render
       var brush = TextBrush;
       // _textLayout can be null if no Text has been set before.
       if (brush != null && _textLayout != null) 
       {
-        var oldOpacity = brush.Opacity;
-        brush.Opacity *= (float)localRenderContext.Opacity;
-        // TODO: add support for render transform!
-        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, brush);
-        brush.Opacity = oldOpacity;
+        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, brush, localRenderContext);
       }
-      //DoRender(finalTransform);
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 

@@ -598,13 +598,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Render text
       _asset.TextBrush = _textBrush;
       _asset.Render(localRenderContext.OccupiedTransformedBounds, localRenderContext);
-      //_asset.Render(_innerRect, horzAlign, vertAlign, _virtualPosition, color, localRenderContext.ZOrder, localRenderContext.Transform);
 
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry.HasGeom)
       {
-        _cursorGeometry.UpdateTransform(localRenderContext.Transform);
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry.TransformedGeom, _cursorBrush.Brush2D);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry.TransformedGeom, _cursorBrush.Brush2D, localRenderContext);
       }
     }
 
