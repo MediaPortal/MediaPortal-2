@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct2D1;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -53,8 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
     protected volatile bool _performLayout = true; // Mark control to adapt background brush and related contents to the layout
-    protected PrimitiveBuffer _backgroundContext;
-    protected RectangleF _backgroundRect;
+    protected TransformedGeometryCache _backgroundGeometry = new TransformedGeometryCache();
 
     #endregion
 
@@ -261,11 +261,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.RenderOverride(localRenderContext);
 
       Brush background = Background;
-      if (background != null && background.TryAllocate())
+      if (background != null && background.TryAllocate() && _backgroundGeometry.HasGeom)
       {
         var oldOpacity = background.Brush2D.Opacity;
         background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-        GraphicsDevice11.Instance.Context2D1.FillRectangle(localRenderContext.OccupiedTransformedBounds, background.Brush2D);
+        _backgroundGeometry.UpdateTransform(localRenderContext.Transform);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D);
         background.Brush2D.Opacity = oldOpacity;
       }
 
@@ -288,10 +289,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
 
         // TODO: still required?
-        _backgroundRect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
+        var rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        background.SetupBrush(this, ref _backgroundRect, localRenderContext.ZOrder, true);
+        _backgroundGeometry.UpdateGeometry(new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, rect));
+
+        background.SetupBrush(this, ref rect, localRenderContext.ZOrder, true);
       }
     }
 
@@ -338,7 +341,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
+      TryDispose(ref _backgroundGeometry);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

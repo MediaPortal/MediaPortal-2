@@ -118,8 +118,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         var roundedRectangle = new RoundedRectangle { RadiusX = (float)RadiusX, RadiusY = (float)RadiusY, Rect = _innerRect };
         lock (_resourceRenderLock)
         {
-          TryDispose(ref _geometry);
-          _geometry = new RoundedRectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, roundedRectangle);
+          _geometry.UpdateGeometry(new RoundedRectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, roundedRectangle));
         }
         var fill = Fill;
         if (fill != null)
@@ -129,11 +128,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         if (stroke != null)
           stroke.SetupBrush(this, ref _innerRect, context.ZOrder, true);
       }
-      else
-      {
-        lock (_resourceRenderLock)
-          TryDispose(ref _geometry);
-      }
+      //else
+      //{
+      //  lock (_resourceRenderLock)
+      //    TryDispose(ref _geometry);
+      //}
     }
   }
 }

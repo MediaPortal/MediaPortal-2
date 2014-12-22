@@ -149,17 +149,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        TryDispose(ref _geometry);
         using (PathGeometry lineRaw = GetLine())
-          _geometry = CalculateTransformedPath(lineRaw, _innerRect);
-        var bounds = _geometry.GetBounds();
+          _geometry.UpdateGeometry(CalculateTransformedPath(lineRaw, _innerRect));
+        var bounds = _geometry.OriginalGeom.GetBounds();
         Stroke.SetupBrush(this, ref bounds, context.ZOrder, true);
       }
-      else
-      {
-        lock (_resourceRenderLock)
-          TryDispose(ref _geometry);
-      }
+      //else
+      //{
+      //  lock (_resourceRenderLock)
+      //    TryDispose(ref _geometry);
+      //}
     }
 
     private PathGeometry GetLine()
@@ -175,13 +174,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       return path;
     }
 
-    public override void RenderOverride(RenderContext parentRenderContext)
+    public override void RenderOverride(RenderContext localRenderContext)
     {
-      base.RenderOverride(parentRenderContext);
+      base.RenderOverride(localRenderContext);
       var brush = Stroke;
-      if (brush != null && StrokeThickness > 0)
+      if (brush != null && StrokeThickness > 0 && _geometry.HasGeom)
       {
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry, brush.Brush2D, (float)StrokeThickness);
+        _geometry.UpdateTransform(localRenderContext.Transform);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry.TransformedGeom, brush.Brush2D, (float)StrokeThickness);
       }
     }
   }

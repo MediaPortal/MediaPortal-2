@@ -520,6 +520,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       {
         var oldOpacity = brush.Opacity;
         brush.Opacity *= (float)localRenderContext.Opacity;
+        // TODO: add support for render transform!
         GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, brush);
         brush.Opacity = oldOpacity;
       }

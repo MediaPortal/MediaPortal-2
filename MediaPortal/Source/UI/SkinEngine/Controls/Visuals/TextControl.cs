@@ -28,7 +28,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -37,11 +36,13 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using SolidColorBrush = MediaPortal.UI.SkinEngine.Controls.Brushes.SolidColorBrush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -94,6 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _cursorBounds;
     protected TextBuffer2D _asset;
     protected SharpDX.Direct2D1.SolidColorBrush _textBrush;
+    protected TransformedGeometryCache _cursorGeometry;
 
     #endregion
 
@@ -473,6 +475,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _cursorBrush = new SolidColorBrush { Color = Color };
       _cursorBrushInvalid = false;
 
+      _cursorGeometry.UpdateGeometry(new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, cursorBounds));
+
       _cursorBrush.SetupBrush(this, ref cursorBounds, zPos, false);
 
       _cursorShapeInvalid = false;
@@ -597,11 +601,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       //_asset.Render(_innerRect, horzAlign, vertAlign, _virtualPosition, color, localRenderContext.ZOrder, localRenderContext.Transform);
 
       // Render text cursor
-      if (_cursorBrush != null && CursorState == TextCursorState.Visible)
+      if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry.HasGeom)
       {
-        if (_cursorBrush.Brush2D == null)
-          _cursorBrush.Allocate();
-        GraphicsDevice11.Instance.Context2D1.FillRectangle(_cursorBounds, _cursorBrush.Brush2D);
+        _cursorGeometry.UpdateTransform(localRenderContext.Transform);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry.TransformedGeom, _cursorBrush.Brush2D);
       }
     }
 
@@ -611,6 +614,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       TryDispose(ref _textBrush);
       TryDispose(ref _asset);
       DeallocateCursor();
+      TryDispose(ref _cursorGeometry);
     }
 
     public override void Dispose()
