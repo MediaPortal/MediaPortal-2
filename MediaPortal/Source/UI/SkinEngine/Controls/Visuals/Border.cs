@@ -54,7 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _performLayout;
     protected RectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
-    protected SharpDX.Direct2D1.Geometry _pathGeometry;
+    protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
+    protected SharpDX.Direct2D1.Geometry _borderGeometry;
 
     #endregion
 
@@ -107,7 +108,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       BorderLineJoin = b.BorderLineJoin;
       CornerRadius = b.CornerRadius;
       Content = copyManager.GetCopy(b.Content);
-      _pathGeometry = copyManager.GetCopy(b._pathGeometry);
       _initializedContent = copyManager.GetCopy(b._initializedContent);
       Attach();
     }
@@ -116,7 +116,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       MPF.TryCleanupAndDispose(Background);
       MPF.TryCleanupAndDispose(BorderBrush);
-      TryDispose(ref _pathGeometry);
+      TryDispose(ref _backgroundGeometry);
+      TryDispose(ref _borderGeometry);
       base.Dispose();
     }
 
@@ -347,61 +348,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Setup background brush
       if (Background != null)
       {
-        // TODO: Draw background only in the inner rectangle (outer rect minus BorderThickness)
-        _pathGeometry = CreateBorderRectPath(innerBorderRect);
-        //using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
-        //{
-        //  // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
-        //  // for example GroupBox). To create a completely filled background, we need a closed figure.
-        //  path.CloseFigure();
-        //  PositionColoredTextured[] verts;
-        //  float centerX, centerY;
-        //  PointF[] pathPoints = path.PathPoints;
-        //  TriangulateHelper.CalcCentroid(pathPoints, out centerX, out centerY);
-        //  TriangulateHelper.FillPolygon_TriangleList(pathPoints, centerX, centerY, 1, out verts);
-
-        //  Background.SetupBrush(this, ref innerBorderRect, context.ZOrder, true);
-        //  PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
-        //}
+        _backgroundGeometry = CreateBorderRectPath(innerBorderRect);
       }
-      //else
-      //  PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     protected void PerformLayoutBorder(RectangleF innerBorderRect, RenderContext context)
     {
-      // Setup border brush
-      //if (BorderBrush != null && BorderThickness > 0)
-      //{
-      //TODO should be same geom
-      //// TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
-      //using (GraphicsPath path = CreateBorderRectPath(innerBorderRect))
-      //{
-      //  using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
-      //  {
-      //    PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
-      //    using (GraphicsPath subPath = new GraphicsPath())
-      //    {
-      //      for (int i = 0; i < subPathVerts.Length; i++)
-      //      {
-      //        bool isClosed;
-      //        gpi.NextSubpath(subPath, out isClosed);
-      //        PointF[] pathPoints = subPath.PathPoints;
-      //        PenLineJoin lineJoin = Math.Abs(CornerRadius) < DELTA_DOUBLE ? BorderLineJoin : PenLineJoin.Bevel;
-      //        TriangulateHelper.TriangulateStroke_TriangleList(pathPoints, (float) BorderThickness, isClosed, 1, lineJoin,
-      //            out subPathVerts[i]);
-      //      }
-      //    }
-      //    PositionColoredTextured[] verts;
-      //    GraphicsPathHelper.Flatten(subPathVerts, out verts);
-      //    BorderBrush.SetupBrush(this, ref innerBorderRect, context.ZOrder, true);
-
-      //    PrimitiveBuffer.SetPrimitiveBuffer(ref _borderContext, ref verts, PrimitiveType.TriangleList);
-      //  }
-      //}
-      //}
-      //else
-      //  PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
+      // Setup background brush
+      if (BorderBrush != null && BorderThickness > 0)
+      {
+        // Adjust border to outline of background, otherwise the stroke is centered
+        innerBorderRect.X -= (float)BorderThickness / 2;
+        innerBorderRect.Y -= (float)BorderThickness / 2;
+        innerBorderRect.Width += (float)BorderThickness;
+        innerBorderRect.Height += (float)BorderThickness;
+        _borderGeometry = CreateBorderRectPath(innerBorderRect);
+      }
     }
 
     protected virtual SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
@@ -418,20 +380,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null && _pathGeometry != null && background.TryAllocate())
+      if (background != null && _backgroundGeometry != null && background.TryAllocate())
       {
         var oldOpacity = background.Brush2D.Opacity;
         background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_pathGeometry, background.Brush2D);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background.Brush2D);
         background.Brush2D.Opacity = oldOpacity;
       }
 
       var border = BorderBrush;
-      if (border != null && _pathGeometry != null && border.TryAllocate())
+      if (border != null && _borderGeometry != null && BorderThickness > 0 && border.TryAllocate())
       {
         var oldOpacity = border.Brush2D.Opacity;
         border.Brush2D.Opacity *= (float)localRenderContext.Opacity;
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_pathGeometry, border.Brush2D, (float)BorderThickness);
+        // TODO: add StrokeJoin and other layout features! Properties don't have setters yet? (SharpDX 2.6.3)
+        //StrokeStyleProperties prop = new StrokeStyleProperties();
+        //var style = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
+        //style.LineJoin = LineJoin.Miter;
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness);
         border.Brush2D.Opacity = oldOpacity;
       }
 
