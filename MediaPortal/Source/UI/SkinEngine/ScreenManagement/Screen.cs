@@ -36,6 +36,7 @@ using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
@@ -785,7 +786,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public RenderContext GetRenderPassContext()
     {
-      return new RenderContext(GraphicsDevice.RenderPipeline.GetRenderPassTransform(_renderContext.Transform), new RectangleF(0, 0, _skinWidth, _skinHeight));
+      return new RenderContext(GraphicsDevice11.Instance.RenderPipeline.GetRenderPassTransform(_renderContext.Transform), new RectangleF(0, 0, _skinWidth, _skinHeight));
     }
 
     protected RectangleF CreateCenterRect()

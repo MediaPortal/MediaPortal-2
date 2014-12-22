@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 
     public virtual void Render()
     {
-      GraphicsDevice.ScreenManager.Render();
+      GraphicsDevice11.Instance.ScreenManager.Render();
     }
 
     public virtual void EndRender()

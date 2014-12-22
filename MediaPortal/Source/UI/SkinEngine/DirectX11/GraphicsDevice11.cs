@@ -8,15 +8,22 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
+using SharpDX.Direct3D9;
 using SharpDX.DXGI;
+using Device = SharpDX.Direct3D11.Device;
+using Device1 = SharpDX.Direct3D11.Device1;
+using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Factory = SharpDX.DirectWrite.Factory;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Format = SharpDX.DXGI.Format;
 using PresentFlags = SharpDX.DXGI.PresentFlags;
+using PresentParameters = SharpDX.Direct3D9.PresentParameters;
 using SwapChain = SharpDX.DXGI.SwapChain;
 using SwapEffect = SharpDX.DXGI.SwapEffect;
 using Usage = SharpDX.DXGI.Usage;
@@ -25,16 +32,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 {
   internal class GraphicsDevice11 : IDisposable
   {
-    private SharpDX.Direct3D11.Device _device3D;
-    private SharpDX.Direct3D11.Device1 _device3D1;
+    private Device _device3D;
+    private Device1 _device3D1;
     private SharpDX.DXGI.Device _deviceDXGI;
     private SharpDX.Direct2D1.Device _device2D1;
     private readonly D3DSetup _setup = new D3DSetup();
+    private ScreenManager _screenManager = null;
 
     private SwapChain _swapChain;
     private Texture2D _backBufferTexture;
     private Surface1 _backBuffer;
-    private SharpDX.Direct2D1.DeviceContext _context2D;
+    private DeviceContext _context2D;
     private Bitmap1 _renderTarget2D;
     private Factory _factoryDW;
 
@@ -59,12 +67,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       get { return _backBufferTexture; }
     }
 
-    public SharpDX.Direct3D11.Device Device3D
+    public Device Device3D
     {
       get { return _device3D; }
     }
 
-    public SharpDX.Direct3D11.Device1 Device3D1
+    public Device1 Device3D1
     {
       get { return _device3D1; }
     }
@@ -79,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       get { return _device2D1; }
     }
 
-    public SharpDX.Direct2D1.DeviceContext Context2D1
+    public DeviceContext Context2D1
     {
       get { return _context2D; }
     }
@@ -92,6 +100,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     public Factory FactoryDW
     {
       get { return _factoryDW; }
+    }
+
+    public ScreenManager ScreenManager
+    {
+      get { return _screenManager; }
+      internal set { _screenManager = value; }
     }
 
     public RenderPassType RenderPass { get; set; }
@@ -152,29 +166,57 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         FeatureLevel.Level_11_1
       };
 
-      SharpDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, flags, featureLevels, desc, out _device3D, out _swapChain);
+      Device.CreateWithSwapChain(DriverType.Hardware, flags, featureLevels, desc, out _device3D, out _swapChain);
 
       // New RenderTargetView from the backbuffer
       _backBufferTexture = Texture2D.FromSwapChain<Texture2D>(_swapChain, 0);
       _backBuffer = _backBufferTexture.QueryInterface<Surface1>();
 
-      _device3D1 = _device3D.QueryInterface<SharpDX.Direct3D11.Device1>(); // get a reference to the Direct3D 11.1 device
+      _device3D1 = _device3D.QueryInterface<Device1>(); // get a reference to the Direct3D 11.1 device
       _deviceDXGI = _device3D1.QueryInterface<SharpDX.DXGI.Device>(); // get a reference to DXGI device
 
       _device2D1 = new SharpDX.Direct2D1.Device(_deviceDXGI); // initialize the D2D device
 
-      _context2D = new SharpDX.Direct2D1.DeviceContext(_device2D1, DeviceContextOptions.EnableMultithreadedOptimizations);
+      _context2D = new DeviceContext(_device2D1, DeviceContextOptions.EnableMultithreadedOptimizations);
 
       _renderTarget2D = new Bitmap1(_context2D, _backBuffer);
       _context2D.Target = _renderTarget2D;
 
-      _factoryDW = new SharpDX.DirectWrite.Factory();
+      _factoryDW = new Factory();
 
 
       SetupRenderPipelines();
       SetupRenderStrategies();
     }
 
+    public void ExecuteInMainThread(WorkDlgt method)
+    {
+      RenderTarget.Invoke(method);
+    }
+
+    /// <summary>
+    /// Resets the DirectX device. This will release all screens, other UI resources and our back buffer, reset the DX device and realloc
+    /// all resources.
+    /// </summary>
+    public bool Reset()
+    {
+      ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Resetting DX11 device...");
+      _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(() =>
+      {
+        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX");
+        UIResourcesHelper.ReleaseUIResources();
+
+        if (ContentManager.Instance.TotalAllocationSize != 0)
+          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: ContentManager.TotalAllocationSize = {0}, should be 0!", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
+
+        Dispose();
+        CreateDevice();
+
+        UIResourcesHelper.ReallocUIResources();
+      }));
+      ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device successfully reset");
+      return true;
+    }
     /// <summary>
     /// Setups all <see cref="IRenderStrategy"/>s.
     /// </summary>

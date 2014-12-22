@@ -152,7 +152,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Initialize DirectX");
-      GraphicsDevice.Initialize_MainThread(this);
       GraphicsDevice11.Instance.Initialize_MainThread(this);
 
       // Read and apply ScreenSaver settings
@@ -260,7 +259,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public void DisposeDirectX()
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Dispose DirectX");
-      GraphicsDevice.Dispose();
       GraphicsDevice11.Instance.Dispose();
     }
 
@@ -288,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public void StartUI()
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting UI");
-      GraphicsDevice.Reset();
+      GraphicsDevice11.Instance.Reset();
       StartRenderThread_Async();
     }
 
@@ -386,7 +384,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private void RenderLoop()
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting main render loop");
-      GraphicsDevice.SetRenderState();
 #if MEASURE_FPS
       Stopwatch sw = new Stopwatch();
       sw.Start();
@@ -412,8 +409,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
           // The device was lost or we don't have focus - reduce the render rate
           Thread.Sleep(10);
 
-        if (!GraphicsDevice.DeviceOk)
-          break;
 #if MEASURE_FPS
         cnt++;
         double frameDuration = sw.ElapsedMilliseconds;
@@ -793,15 +788,15 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (Monitor.TryEnter(_reclaimDeviceSyncObj))
         try
         {
-          if (!GraphicsDevice.DeviceOk)
-          {
-            StopRenderThread();
-            if (_hasFocus)
-            {
-              if (GraphicsDevice.ReclaimDevice())
-                StartRenderThread_Async();
-            }
-          }
+          //if (!GraphicsDevice.DeviceOk)
+          //{
+          //  StopRenderThread();
+          //  if (_hasFocus)
+          //  {
+          //    if (GraphicsDevice.ReclaimDevice())
+          //      StartRenderThread_Async();
+          //  }
+          //}
         }
         finally
         {
