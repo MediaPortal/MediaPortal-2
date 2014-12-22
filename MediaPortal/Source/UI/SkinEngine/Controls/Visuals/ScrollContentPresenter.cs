@@ -273,8 +273,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         OpacityMask.Dispose();
         OpacityMask = null;
-        _opacityMaskContext.Dispose();
-        _opacityMaskContext = null;
+        TryDispose(ref _opacityMaskContext);
         _forcedOpacityMask = false;
       }
       base.Render(parentRenderContext);

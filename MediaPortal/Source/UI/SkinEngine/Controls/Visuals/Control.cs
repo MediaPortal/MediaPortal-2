@@ -31,7 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
-using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
+using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Control c = (Control) source;
+      Control c = (Control)source;
       BorderBrush = copyManager.GetCopy(c.BorderBrush);
       Background = copyManager.GetCopy(c.Background);
       BorderThickness = c.BorderThickness;
@@ -180,7 +180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public FrameworkElement TemplateControl
     {
-      get { return (FrameworkElement) _templateControlProperty.GetValue(); }
+      get { return (FrameworkElement)_templateControlProperty.GetValue(); }
       set { _templateControlProperty.SetValue(value); }
     }
 
@@ -191,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Brush Background
     {
-      get { return (Brush) _backgroundProperty.GetValue(); }
+      get { return (Brush)_backgroundProperty.GetValue(); }
       set { _backgroundProperty.SetValue(value); }
     }
 
@@ -202,7 +202,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Brush BorderBrush
     {
-      get { return (Brush) _borderBrushProperty.GetValue(); }
+      get { return (Brush)_borderBrushProperty.GetValue(); }
       set { _borderBrushProperty.SetValue(value); }
     }
 
@@ -213,7 +213,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double BorderThickness
     {
-      get { return (double) _borderThicknessProperty.GetValue(); }
+      get { return (double)_borderThicknessProperty.GetValue(); }
       set { _borderThicknessProperty.SetValue(value); }
     }
 
@@ -224,7 +224,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public ControlTemplate Template
     {
-      get { return (ControlTemplate) _templateProperty.GetValue(); }
+      get { return (ControlTemplate)_templateProperty.GetValue(); }
       set { _templateProperty.SetValue(value); }
     }
 
@@ -235,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum HorizontalContentAlignment
     {
-      get { return (HorizontalAlignmentEnum) _horizontalContentAlignmentProperty.GetValue(); }
+      get { return (HorizontalAlignmentEnum)_horizontalContentAlignmentProperty.GetValue(); }
       set { _horizontalContentAlignmentProperty.SetValue(value); }
     }
 
@@ -246,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public VerticalAlignmentEnum VerticalContentAlignment
     {
-      get { return (VerticalAlignmentEnum) _verticalContentAlignmentProperty.GetValue(); }
+      get { return (VerticalAlignmentEnum)_verticalContentAlignmentProperty.GetValue(); }
       set { _verticalContentAlignmentProperty.SetValue(value); }
     }
 
@@ -261,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.RenderOverride(localRenderContext);
 
       Brush background = Background;
-      if (background != null)
+      if (background != null && background.TryAllocate())
       {
         var oldOpacity = background.Brush2D.Opacity;
         background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
@@ -285,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brush background = Background;
       if (background != null)
       {
-        SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
+        SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
 
         // TODO: still required?
         _backgroundRect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
