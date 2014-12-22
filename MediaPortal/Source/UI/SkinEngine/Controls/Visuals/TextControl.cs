@@ -29,7 +29,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -38,7 +37,7 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
-using SharpDX.Direct3D9;
+using SharpDX.DirectWrite;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -78,7 +77,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _preferredTextLengthProperty;
     protected AbstractProperty _textAlignProperty;
     protected AbstractProperty _isPasswordProperty;
-    protected TextBuffer _asset;
     protected AbstractTextInputHandler _textInputHandler = null;
 
     // Use to avoid change handlers during text updates
@@ -92,9 +90,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _cursorBrushInvalid = true;
     protected Timer _cursorBlinkTimer = null;
     protected TextCursorState _cursorState;
-    protected PrimitiveBuffer _cursorContext = null;
     protected Brush _cursorBrush = null;
     protected RectangleF _cursorBounds;
+    protected TextBuffer2D _asset;
+    protected SharpDX.Direct2D1.SolidColorBrush _textBrush;
 
     #endregion
 
@@ -156,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      TextControl tc = (TextControl) source;
+      TextControl tc = (TextControl)source;
       Text = tc.Text;
       InternalText = Text;
       CaretIndex = tc.CaretIndex;
@@ -219,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (_asset == null)
         AllocFont();
-      else
+      if (_asset != null)
         _asset.Text = GetVisibleText(text);
       if (CursorState == TextCursorState.Visible)
         // A text change makes the text cursor visible at once
@@ -286,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           this, "CaretIndex", out caretIndexDataDescriptor))
         throw new FatalException("One of the properties 'InternalText' or 'CaretIndex' was not found");
       return settings.CellPhoneInputStyle ?
-          (AbstractTextInputHandler) new CellPhoneTextInputHandler(this, internalTextPropertyDataDescriptor, caretIndexDataDescriptor) :
+          (AbstractTextInputHandler)new CellPhoneTextInputHandler(this, internalTextPropertyDataDescriptor, caretIndexDataDescriptor) :
           new DefaultTextInputHandler(this, internalTextPropertyDataDescriptor, caretIndexDataDescriptor);
     }
 
@@ -296,7 +295,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_asset == null)
         AllocFont();
       else
-        _asset.SetFont(GetFontFamilyOrInherited(), GetFontSizeOrInherited());
+        // TODO: properties for FontWeight and FontStyle
+        _asset.SetFont(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
     }
 
     internal override void OnKeyPreview(ref Key key)
@@ -365,7 +365,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public int? PreferredTextLength
     {
-      get { return (int?) _preferredTextLengthProperty.GetValue(); }
+      get { return (int?)_preferredTextLengthProperty.GetValue(); }
       set { _preferredTextLengthProperty.SetValue(value); }
     }
 
@@ -376,7 +376,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public int CaretIndex
     {
-      get { return (int) _caretIndexProperty.GetValue(); }
+      get { return (int)_caretIndexProperty.GetValue(); }
       set { _caretIndexProperty.SetValue(value); }
     }
 
@@ -387,7 +387,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public string Text
     {
-      get { return (string) _textProperty.GetValue(); }
+      get { return (string)_textProperty.GetValue(); }
       set { _textProperty.SetValue(value); }
     }
 
@@ -398,7 +398,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool IsPassword
     {
-      get { return (bool) _isPasswordProperty.GetValue(); }
+      get { return (bool)_isPasswordProperty.GetValue(); }
       set { _isPasswordProperty.SetValue(value); }
     }
 
@@ -409,7 +409,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public string InternalText
     {
-      get { return (string) _internalTextProperty.GetValue(); }
+      get { return (string)_internalTextProperty.GetValue(); }
       set { _internalTextProperty.SetValue(value); }
     }
 
@@ -420,7 +420,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Color Color
     {
-      get { return (Color) _colorProperty.GetValue(); }
+      get { return (Color)_colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
     }
 
@@ -431,25 +431,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum TextAlign
     {
-      get { return (HorizontalAlignmentEnum) _textAlignProperty.GetValue(); }
+      get { return (HorizontalAlignmentEnum)_textAlignProperty.GetValue(); }
       set { _textAlignProperty.SetValue(value); }
     }
 
     void AllocFont()
     {
+      // HACK: avoid NREs during style load time
+      if (GraphicsDevice11.Instance.FactoryDW == null)
+        return;
+
       if (_asset == null)
       {
-        // We want to select the font based on the maximum zoom height (fullscreen)
-        // This means that the font will be scaled down in windowed mode, but look
-        // good in full screen. 
-        _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) { Text = VisibleText };
+        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
+      }
+      if (_textBrush == null)
+      {
+        _textBrush = new SharpDX.Direct2D1.SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color);
       }
     }
 
     void DeallocateCursor()
     {
-      if (_cursorContext != null)
-        PrimitiveBuffer.DisposePrimitiveBuffer(ref _cursorContext);
+      TryDispose(ref _cursorBrush);
     }
 
     void UpdateCursorShape(RectangleF cursorBounds, float zPos)
@@ -463,8 +467,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_cursorBrushInvalid && _cursorBrush != null)
       {
         _cursorBrush.Deallocate();
-        _cursorBrush.Dispose();
-        _cursorBrush = null;
+        TryDispose(ref _cursorBrush);
       }
       if (_cursorBrush == null)
         _cursorBrush = new SolidColorBrush { Color = Color };
@@ -496,11 +499,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.CalculateInnerDesiredSize(totalSize); // Needs to be called in each sub class of Control, see comment in Control.CalculateInnerDesiredSize()
       AllocFont();
 
-      SizeF childSize = _asset == null ? new SizeF() : new SizeF(_asset.TextWidth(VisibleText ?? string.Empty), _asset.TextHeight(1));
+      // Measure the text
+      float totalWidth = totalSize.Width; // Attention: totalWidth is cleaned up by SkinContext.Zoom
+      if (!double.IsNaN(Width))
+        totalWidth = (float)Width;
+      if (float.IsNaN(totalWidth))
+        totalWidth = 4096;
+      SizeF size = new SizeF();
+      size.Width = 0;
+      string line = VisibleText ?? string.Empty;
+      float textWidthW = 0;
+      using (var textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()))
+      {
+        using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, line, textFormat, totalWidth, 4096))
+        {
+          size.Width = Math.Max(size.Width, textLayout.Metrics.WidthIncludingTrailingWhitespace);
+          size.Height = textLayout.Metrics.Height;
+        }
+        using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, "W", textFormat, totalWidth, 4096))
+        {
+          textWidthW = textLayout.Metrics.WidthIncludingTrailingWhitespace;
+        }
+      }
+      // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
+      size.Width += 1;
+      size.Height += 1;
 
-      if (PreferredTextLength.HasValue && _asset != null)
+      SizeF childSize = size;
+
+      if (PreferredTextLength.HasValue)
         // We use the "W" character as the character which needs the most space in X-direction
-        childSize.Width = PreferredTextLength.Value * _asset.TextWidth("W");
+        childSize.Width = PreferredTextLength.Value * textWidthW;
 
       return childSize;
     }
@@ -531,7 +560,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         vertAlign = VerticalTextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
-      color.Alpha *= (float) localRenderContext.Opacity;
+      color.Alpha *= (float)localRenderContext.Opacity;
 
       // Update text cursor
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
@@ -563,11 +592,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
 
       // Render text
-      _asset.Render(_innerRect, horzAlign, vertAlign, _virtualPosition, color, localRenderContext.ZOrder, localRenderContext.Transform);
+      _asset.TextBrush = _textBrush;
+      _asset.Render(localRenderContext.OccupiedTransformedBounds, localRenderContext);
+      //_asset.Render(_innerRect, horzAlign, vertAlign, _virtualPosition, color, localRenderContext.ZOrder, localRenderContext.Transform);
 
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible)
       {
+        if (_cursorBrush.Brush2D == null)
+          _cursorBrush.Allocate();
         GraphicsDevice11.Instance.Context2D1.FillRectangle(_cursorBounds, _cursorBrush.Brush2D);
       }
     }
@@ -575,11 +608,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      if (_asset != null)
-      {
-        _asset.Dispose();
-        _asset = null;
-      }
+      TryDispose(ref _textBrush);
+      TryDispose(ref _asset);
       DeallocateCursor();
     }
 
