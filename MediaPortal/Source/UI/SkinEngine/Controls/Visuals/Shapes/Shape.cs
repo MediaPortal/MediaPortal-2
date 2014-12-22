@@ -258,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           return;
 
         var fill = Fill;
-        if (fill != null && fill.Brush2D != null)
+        if (fill != null && fill.TryAllocate())
         {
           var oldOpacity = fill.Brush2D.Opacity;
           fill.Brush2D.Opacity *= (float)localRenderContext.Opacity;
@@ -266,8 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           fill.Brush2D.Opacity = oldOpacity;
         }
         var stroke = Stroke;
-        // TODO: why is stroke.Brush2D null sometimes? Not yet allocated or already disposed?
-        if (stroke != null && stroke.Brush2D != null)
+        if (stroke != null && stroke.TryAllocate())
         {
           var oldOpacity = stroke.Brush2D.Opacity;
           stroke.Brush2D.Opacity *= (float)localRenderContext.Opacity;

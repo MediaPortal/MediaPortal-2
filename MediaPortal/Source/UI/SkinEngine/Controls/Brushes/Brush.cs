@@ -271,6 +271,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return transform.Value;
     }
 
+    public bool TryAllocate()
+    {
+      if (_brush2D != null)
+        return true;
+      Allocate();
+      return _brush2D != null;
+    }
+
     public virtual void Allocate()
     {
       TryDispose(ref _brush2D);

@@ -418,7 +418,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null && background.Brush2D != null && _pathGeometry != null)
+      if (background != null && _pathGeometry != null && background.TryAllocate())
       {
         var oldOpacity = background.Brush2D.Opacity;
         background.Brush2D.Opacity *= (float)localRenderContext.Opacity;
@@ -427,7 +427,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
 
       var border = BorderBrush;
-      if (border != null && border.Brush2D != null && _pathGeometry != null)
+      if (border != null && _pathGeometry != null && border.TryAllocate())
       {
         var oldOpacity = border.Brush2D.Opacity;
         border.Brush2D.Opacity *= (float)localRenderContext.Opacity;
