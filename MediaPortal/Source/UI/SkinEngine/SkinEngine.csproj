@@ -337,6 +337,7 @@
     <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Players\PlayerRotationTranslator.cs" />
     <Compile Include="Rendering\EffectContext.cs" />
+    <Compile Include="Rendering\ImageContext2D.cs" />
     <Compile Include="Rendering\ImageContext.cs" />
     <Compile Include="Rendering\PrimitiveBuffer.cs" />
     <Compile Include="Rendering\RenderContext.cs" />

@@ -27,7 +27,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   {
     #region Protected fields
 
-    protected TextureAsset _texture = null;
+    protected BitmapAsset _texture = null;
     protected bool _flipX = false;
     protected bool _flipY = false;
 
@@ -76,9 +76,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _texture != null && _texture.IsAllocated; }
     }
 
-    protected override Texture Texture
+    protected override Bitmap1 Texture
     {
-      get { return _texture == null ? null : _texture.Texture; }
+      get { return _texture == null ? null : _texture.Bitmap; }
     }
 
     protected override SizeF RawSourceSize
@@ -94,9 +94,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void Allocate()
     {
       _imageContext.Rotation = _rotation;
-      TextureAsset texture = _texture;
+      BitmapAsset texture = _texture;
       if (texture == null && _stream != null)
-        texture = _texture = ContentManager.Instance.GetTexture(_stream, _key);
+        texture = _texture = ContentManager.Instance.GetBitmap(_stream, _key);
       if (texture != null && !texture.IsAllocated)
         texture.Allocate();
     }

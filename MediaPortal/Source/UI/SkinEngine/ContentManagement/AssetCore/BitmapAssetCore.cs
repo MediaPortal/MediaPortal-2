@@ -33,7 +33,9 @@ using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Network;
 using MediaPortal.Common.Services.ThumbnailGenerator;
+using SharpDX.Direct2D1;
 using SharpDX.WIC;
+using PixelFormat = SharpDX.WIC.PixelFormat;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -49,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     public const int MAX_TEXTURE_DIMENSION = 2048;
 
-    protected BitmapSource _bitmapSource = null;
+    protected Bitmap1 _bitmap = null;
     protected int _width = 0;
     protected int _height = 0;
     protected int _decodeWidth = 0;
@@ -62,12 +64,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     #region Public properties & events
 
-    public BitmapSource Bitmap
+    public Bitmap1 Bitmap
     {
       get
       {
         KeepAlive();
-        return _bitmapSource;
+        return _bitmap;
       }
     }
 
@@ -107,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           // decode the loaded image to a format that can be consumed by D2D
           var formatConverter = new FormatConverter(GraphicsDevice11.Instance.FactoryWIC);
           formatConverter.Initialize(decoder.GetFrame(0), WIC_PIXEL_FORMAT);
-          _bitmapSource = formatConverter;
+          _bitmap = Bitmap1.FromWicBitmap(GraphicsDevice11.Instance.Context2D1, formatConverter);
         }
       }
       catch (Exception e)
@@ -115,8 +117,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading bitmapSource from file data stream", e);
         return;
       }
-      if (_bitmapSource != null)
-        FinalizeAllocation(_bitmapSource, _bitmapSource.Size.Width, _bitmapSource.Size.Height);
+      if (_bitmap != null)
+        FinalizeAllocation(_bitmap, (int)_bitmap.Size.Width, (int)_bitmap.Size.Height);
     }
 
     protected void AllocateFromBuffer_NoLock(byte[] data)
@@ -173,27 +175,27 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     //  return bitmapSource;
     //}
 
-    protected virtual void FinalizeAllocation(BitmapSource bitmapSource, int fileWidth, int fileHeight)
+    protected virtual void FinalizeAllocation(Bitmap1 bitmap, int fileWidth, int fileHeight)
     {
       lock (_syncObj)
       {
-        if (bitmapSource == null)
+        if (bitmap == null)
           return;
 
         // Don't dispose same instance, as it would free the underlying stream
-        if (_bitmapSource != null && _bitmapSource != bitmapSource)
+        if (_bitmap != null && _bitmap != bitmap)
         {
-          _bitmapSource.Dispose();
+          _bitmap.Dispose();
           AllocationChanged(_allocationSize);
         }
-        _bitmapSource = bitmapSource;
+        _bitmap = bitmap;
 
-        var desc = bitmapSource.Size;
+        var desc = bitmap.Size;
         _width = fileWidth;
         _height = fileHeight;
-        _maxU = fileWidth / ((float)desc.Width);
-        _maxV = fileHeight / ((float)desc.Height);
-        _allocationSize = desc.Width * desc.Height * 4;
+        _maxU = fileWidth / desc.Width;
+        _maxV = fileHeight / desc.Height;
+        _allocationSize = (int)desc.Width * (int)desc.Height * 4;
         AllocationChanged(_allocationSize);
       }
     }
@@ -207,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get
       {
         lock (_syncObj)
-          return _bitmapSource != null;
+          return _bitmap != null;
       }
     }
 
@@ -224,11 +226,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
-        if (_bitmapSource != null)
+        if (_bitmap != null)
         {
           FireAllocationChanged(-AllocationSize);
-          _bitmapSource.Dispose();
-          _bitmapSource = null;
+          _bitmap.Dispose();
+          _bitmap = null;
         }
       }
     }
@@ -634,10 +636,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         }
     }
 
-    protected override void FinalizeAllocation(BitmapSource bitmapSource, int fileWidth, int fileHeight)
+    protected override void FinalizeAllocation(Bitmap1 bitmap, int fileWidth, int fileHeight)
     {
-      base.FinalizeAllocation(bitmapSource, fileWidth, fileHeight);
-      _state = _bitmapSource == null ? State.Failed : State.None;
+      base.FinalizeAllocation(bitmap, fileWidth, fileHeight);
+      _state = _bitmap == null ? State.Failed : State.None;
     }
 
     protected void AllocateFromFile(string path)
@@ -653,7 +655,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading bitmapSource from file '{0}'", e, path);
-        return;
       }
     }
 

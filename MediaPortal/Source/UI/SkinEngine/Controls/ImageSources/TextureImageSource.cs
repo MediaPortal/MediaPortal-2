@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -50,8 +51,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _effectProperty;
     protected AbstractProperty _effectTimerProperty;
 
-    protected PrimitiveBuffer _primitiveBuffer;
-    protected ImageContext _imageContext = new ImageContext();
+    //protected PrimitiveBuffer _primitiveBuffer;
+    protected ImageContext2D _imageContext = new ImageContext2D();
     protected SizeF _frameSize;
 
     #endregion
@@ -158,7 +159,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Deallocate()
     {
-      PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
+      //PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
       FreeData();
     }
 
@@ -198,7 +199,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       verts[3].Tv1 = 0.0f;
       verts[3].Z = zOrder;
 
-      PrimitiveBuffer.SetPrimitiveBuffer(ref _primitiveBuffer, ref verts, PrimitiveType.TriangleFan);
+      //PrimitiveBuffer.SetPrimitiveBuffer(ref _primitiveBuffer, ref verts, PrimitiveType.TriangleFan);
 
       _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
       _imageContext.FrameSize = _frameSize;
@@ -211,11 +212,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float) EffectTimer, 0);
-      if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData))
-      {
-        _primitiveBuffer.Render(0);
-        _imageContext.EndRender();
-      }
+      if (_imageContext != null)
+        _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData);
+      //if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData))
+      //{
+      //  _primitiveBuffer.Render(0);
+      //  _imageContext.EndRender();
+      //}
     }
 
     #endregion
@@ -225,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the texture to be rendered. Must be overridden in subclasses.
     /// </summary>
-    protected abstract Texture Texture { get; }
+    protected abstract Bitmap1 Texture { get; }
 
     /// <summary>
     /// Returns the size of the last image before any transformation but after the <see cref="TextureClip"/> was applied.

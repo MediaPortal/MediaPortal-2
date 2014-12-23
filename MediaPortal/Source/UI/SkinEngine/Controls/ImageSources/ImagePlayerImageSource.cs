@@ -30,6 +30,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.SkinEngine.Rendering.RightAngledRotation;
 using Size = SharpDX.Size2;
@@ -40,16 +41,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   public class ImagePlayerImageSource : MultiImageSourceBase
   {
-    protected Texture _lastTexture = null;
+    protected Bitmap1 _lastTexture = null;
     protected SizeF _lastRawSourceSize;
     protected RectangleF _lastTextureClip;
 
-    protected Texture _currentTexture = null;
+    protected Bitmap1 _currentTexture = null;
     protected SizeF _currentTextureSize; // Size of the texture, can be bigger than the actual image in the texture because of DX. _currentTextureClip is based on this size.
     protected RectangleF _currentTextureClip; // Clipping rectangle to be used from the _currentTexture. Values go from 0 to 1.
     protected SizeF _currentClippedSize; // Size of the raw image part in the texture to be shown.
 
-    protected Texture _lastCopiedTexture = null;
+    protected Bitmap1 _lastCopiedTexture = null;
 
     protected AbstractProperty _streamProperty;
 
@@ -132,18 +133,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         // It's a bit stupid because the Image calls Allocate() before Setup() and thus, at the first call of this method,
         // _frameSize is empty and so we cannot calculate a proper size for this image source...
         RectangleF textureClip = player.GetTextureClip(new Size((int) _frameSize.Width, (int) _frameSize.Height));
-        if (texture != null)
-        {
-          if (texture != _lastCopiedTexture)
-          {
-            _lastCopiedTexture = texture;
-            // The SharpDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
-            // in horizontal or vertical direction after the rotation. Very few images have those flags; we don't implement them here.
-            CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
-          }
-          else if (textureClip != _currentTextureClip)
-            UpdateTextureClip(textureClip);
-        }
+        // TODO: Interface between DX/D2D
+        //if (texture != null)
+        //{
+        //  if (texture != _lastCopiedTexture)
+        //  {
+        //    _lastCopiedTexture = texture;
+        //    // The SharpDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
+        //    // in horizontal or vertical direction after the rotation. Very few images have those flags; we don't implement them here.
+        //    CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
+        //  }
+        //  else if (textureClip != _currentTextureClip)
+        //    UpdateTextureClip(textureClip);
+        //}
       }
     }
 
@@ -151,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region Protected members
 
-    protected override Texture LastTexture
+    protected override Bitmap1 LastTexture
     {
       get { return _lastTexture; }
     }
@@ -166,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTextureClip; }
     }
 
-    protected override Texture CurrentTexture
+    protected override Bitmap1 CurrentTexture
     {
       get { return _currentTexture; }
     }
@@ -207,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _currentTextureSize = textureSize;
       UpdateTextureClip(textureClip);
 
-      _imageContext = new ImageContext
+      _imageContext = new ImageContext2D
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect,
@@ -224,21 +226,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _currentTextureClip = textureClip;
     }
 
-    protected static Texture CreateTextureCopy(Texture sourceTexture, out SizeF textureSize)
+    protected static Bitmap1 CreateTextureCopy(Texture sourceTexture, out SizeF textureSize)
     {
-      if (sourceTexture == null)
+      //if (sourceTexture == null)
       {
         textureSize = new SizeF();
         return null;
       }
-      SurfaceDescription desc = sourceTexture.GetLevelDescription(0);
-      textureSize = new SizeF(desc.Width, desc.Height);
-      DeviceEx device = SkinContext.Device;
-      Texture result = new Texture(device, desc.Width, desc.Height, 1, Usage.None, Format.A8R8G8B8, Pool.Default);
-      using(Surface target = result.GetSurfaceLevel(0))
-      using(Surface source = sourceTexture.GetSurfaceLevel(0))
-        device.StretchRectangle(source, target, TextureFilter.None);
-      return result;
+      // TODO: DX/D2D
+      //SurfaceDescription desc = sourceTexture.GetLevelDescription(0);
+      //textureSize = new SizeF(desc.Width, desc.Height);
+      //DeviceEx device = SkinContext.Device;
+      //Texture result = new Texture(device, desc.Width, desc.Height, 1, Usage.None, Format.A8R8G8B8, Pool.Default);
+      //using(Surface target = result.GetSurfaceLevel(0))
+      //using(Surface source = sourceTexture.GetSurfaceLevel(0))
+      //  device.StretchRectangle(source, target, TextureFilter.None);
+      //return result;
     }
 
     protected override void FreeData()
