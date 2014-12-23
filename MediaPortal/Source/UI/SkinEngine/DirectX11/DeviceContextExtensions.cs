@@ -35,13 +35,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
             brush.Opacity *= ((SolidColorBrush)opacityBrush2D).Color.Alpha;
             GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
           }
-          else if (opacityBrush2D is LinearGradientBrush || opacityBrush2D is RadialGradientBrush)
+          else if (opacityBrush2D is LinearGradientBrush || opacityBrush2D is RadialGradientBrush || opacityBrush2D is BitmapBrush)
           {
             GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
           }
           else
             GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush.Brush2D);
-          GraphicsDevice11.Instance.Context2D1.Flush();
+          // Only for debugging: if there were errors they are only visible in EndDraw / Flush
+          //GraphicsDevice11.Instance.Context2D1.Flush();
         });
     }
 
