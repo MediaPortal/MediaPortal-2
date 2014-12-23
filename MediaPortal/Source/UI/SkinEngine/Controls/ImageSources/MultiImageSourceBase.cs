@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      MultiImageSourceBase misb = (MultiImageSourceBase) source;
+      MultiImageSourceBase misb = (MultiImageSourceBase)source;
       Transition = misb.Transition;
       TransitionInOut = misb.TransitionInOut;
       TransitionDuration = misb.TransitionDuration;
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string Transition
     {
-      get { return (string) _transitionProperty.GetValue(); }
+      get { return (string)_transitionProperty.GetValue(); }
       set { _transitionProperty.SetValue(value); }
     }
 
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public bool TransitionInOut
     {
-      get { return (bool) _transitionInOutProperty.GetValue(); }
+      get { return (bool)_transitionInOutProperty.GetValue(); }
       set { _transitionInOutProperty.SetValue(value); }
     }
 
@@ -110,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public double TransitionDuration
     {
-      get { return (double) _transitionDurationProperty.GetValue(); }
+      get { return (double)_transitionDurationProperty.GetValue(); }
       set { _transitionDurationProperty.SetValue(value); }
     }
 
@@ -157,7 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       var currentTexture = CurrentTexture;
       SizeF currentRawSourceSize = CurrentRawSourceSize;
       RectangleF currentTextureClip = CurrentTextureClip;
-      Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float) EffectTimer, 0);
+      Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float)EffectTimer, 0);
 
       if (_transitionActive)
       {
@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           var lastTexture = LastTexture;
           SizeF lastRawSourceSize = LastRawSourceSize;
           RectangleF lastTextureClip = LastTextureClip;
-          Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float) EffectTimer, 0);
+          Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float)EffectTimer, 0);
 
           //var start = lastTexture ?? NullTexture.Texture;
           //var end = currentTexture ?? NullTexture.Texture;
@@ -196,7 +196,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
-        var target = new RectangleF(_targetRect.X, _targetRect.Y, sourceSize.Width, sourceSize.Height);
+        var target = new RectangleF(
+        _targetRect.X + (_targetRect.Width - sourceSize.Width) / 2,
+        _targetRect.Y + (_targetRect.Height - sourceSize.Height) / 2,
+        sourceSize.Width, sourceSize.Height);
+
         if (_imageContext.StartRender(renderContext, target, currentTexture, currentTextureClip, BorderColor, frameData))
         {
           //_primitiveBuffer.Render(0);
@@ -266,7 +270,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return new SizeF(); }
     }
 
-    protected override RectangleF  TextureClip
+    protected override RectangleF TextureClip
     {
       get { return RectangleF.Empty; }
     }
@@ -281,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         return;
 
       // Get a list of transitions to use
-      string[] transitions = Transition.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+      string[] transitions = Transition.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
       if (transitions.Length == 0)
         return;
       // Choose a random transition

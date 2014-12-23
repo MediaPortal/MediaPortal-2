@@ -94,11 +94,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       base.DeepCopy(source, copyManager);
       Detach();
-      TextureImageSource tis= (TextureImageSource) source;
+      TextureImageSource tis = (TextureImageSource)source;
       BorderColor = tis.BorderColor;
       Effect = tis.Effect;
       EffectTimer = tis.EffectTimer;
-      
+
       Attach();
       FreeData();
     }
@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public Color BorderColor
     {
-      get { return (Color) _borderColorProperty.GetValue(); }
+      get { return (Color)_borderColorProperty.GetValue(); }
       set { _borderColorProperty.SetValue(value); }
     }
 
@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string Effect
     {
-      get { return (string) _effectProperty.GetValue(); }
+      get { return (string)_effectProperty.GetValue(); }
       set { _effectProperty.SetValue(value); }
     }
 
@@ -140,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public double EffectTimer
     {
-      get { return (double) _effectTimerProperty.GetValue(); }
+      get { return (double)_effectTimerProperty.GetValue(); }
       set { _effectTimerProperty.SetValue(value); }
     }
 
@@ -213,7 +213,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         return;
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
-      var target = new RectangleF(_targetRect.X, _targetRect.Y, modifiedSourceSize.Width, modifiedSourceSize.Height);
+      var target = new RectangleF(
+        _targetRect.X + (_targetRect.Width - modifiedSourceSize.Width) / 2,
+        _targetRect.Y + (_targetRect.Height - modifiedSourceSize.Height) / 2,
+        modifiedSourceSize.Width, modifiedSourceSize.Height);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float)EffectTimer, 0);
       if (_imageContext != null)
         _imageContext.StartRender(renderContext, target, Texture, TextureClip, BorderColor, frameData);
