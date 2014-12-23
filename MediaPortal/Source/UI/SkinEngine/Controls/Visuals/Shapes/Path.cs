@@ -86,8 +86,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         using (PathGeometry pathRaw = ParsePath())
         {
-          _geometry.UpdateGeometry(CalculateTransformedPath(pathRaw, _innerRect));
-          var boundaries = _geometry.OriginalGeom.GetBounds();
+          SetGeometry(CalculateTransformedPath(pathRaw, _innerRect));
+
+          var boundaries = _geometry.GetBounds();
           var fill = Fill;
           if (fill != null && !_fillDisabled)
             fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
@@ -97,11 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
         }
       }
-      //else
-      //{
-      //  lock (_resourceRenderLock)
-      //    TryDispose(ref _geometry);
-      //}
+      else
+        SetGeometry(null);
     }
 
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)

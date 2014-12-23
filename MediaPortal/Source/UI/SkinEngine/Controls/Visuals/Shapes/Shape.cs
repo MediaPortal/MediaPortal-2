@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected volatile bool _performLayout;
 
     protected bool _fillDisabled;
-    protected TransformedGeometryCache _geometry = new TransformedGeometryCache();
+    protected SharpDX.Direct2D1.Geometry _geometry;
     protected readonly object _resourceRenderLock = new object();
 
     #endregion
@@ -256,18 +256,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         if (geometry == null)
           return;
 
-        lock (geometry.SyncObj)
+        var fill = Fill;
+        if (fill != null && fill.TryAllocate())
         {
-          var fill = Fill;
-          if (fill != null && fill.TryAllocate() && geometry.HasGeom)
-          {
-            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry.TransformedGeom, fill.Brush2D, OpacityMask, localRenderContext); // TODO: Opacity brush?
-          }
-          var stroke = Stroke;
-          if (stroke != null && stroke.TryAllocate() && geometry.HasGeom)
-          {
-            GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry.TransformedGeom, stroke.Brush2D, (float)StrokeThickness, localRenderContext);
-          }
+          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill.Brush2D, OpacityMask, localRenderContext); // TODO: Opacity brush?
+        }
+        var stroke = Stroke;
+        if (stroke != null && stroke.TryAllocate())
+        {
+          GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness, localRenderContext);
         }
       }
     }
@@ -298,6 +295,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (Stroke != null)
         Stroke.Allocate();
       _performLayout = true;
+    }
+
+    protected void SetGeometry(SharpDX.Direct2D1.Geometry geometry)
+    {
+      lock (_resourceRenderLock)
+      {
+        TryDispose(ref _geometry);
+        _geometry = geometry;
+      }
     }
 
     protected SharpDX.Direct2D1.Geometry CalculateTransformedPath(SharpDX.Direct2D1.Geometry path, RectangleF baseRect)

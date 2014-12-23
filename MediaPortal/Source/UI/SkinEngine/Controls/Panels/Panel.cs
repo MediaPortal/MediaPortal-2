@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected List<FrameworkElement> _renderOrder = new List<FrameworkElement>(); // Cache for the render order of our children. Take care of locking out writing threads using the Children.SyncRoot.
     protected IList<AbstractProperty> _zIndexRegisteredProperties = new List<AbstractProperty>();
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
-    protected TransformedGeometryCache _backgroundGeometry = new TransformedGeometryCache();
+    protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
 
     #endregion
 
@@ -283,9 +283,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       PerformLayout(localRenderContext);
 
       Brush background = Background;
-      if (background != null && background.TryAllocate() && _backgroundGeometry.HasGeom)
+      if (background != null && background.TryAllocate() && _backgroundGeometry != null)
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, OpacityMask, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background.Brush2D, OpacityMask, localRenderContext);
       }
 
       RenderChildren(localRenderContext);
@@ -307,7 +307,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        _backgroundGeometry.UpdateGeometry(new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, rect));
+        _backgroundGeometry = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, rect);
 
         background.SetupBrush(this, ref rect, localRenderContext.ZOrder, true);
       }

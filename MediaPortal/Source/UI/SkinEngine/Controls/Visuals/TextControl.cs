@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _cursorBounds;
     protected TextBuffer2D _asset;
     protected SharpDX.Direct2D1.SolidColorBrush _textBrush;
-    protected TransformedGeometryCache _cursorGeometry = new TransformedGeometryCache();
+    protected SharpDX.Direct2D1.Geometry _cursorGeometry;
 
     #endregion
 
@@ -475,7 +475,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _cursorBrush = new SolidColorBrush { Color = Color };
       _cursorBrushInvalid = false;
 
-      _cursorGeometry.UpdateGeometry(new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, cursorBounds));
+      _cursorGeometry = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, cursorBounds);
 
       _cursorBrush.SetupBrush(this, ref cursorBounds, zPos, false);
 
@@ -598,9 +598,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _asset.Render(pos, localRenderContext);
 
       // Render text cursor
-      if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry.HasGeom)
+      if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry != null)
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry.TransformedGeom, _cursorBrush.Brush2D, OpacityMask, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry, _cursorBrush.Brush2D, OpacityMask, localRenderContext);
       }
     }
 
