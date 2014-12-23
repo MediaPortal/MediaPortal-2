@@ -382,7 +382,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       var background = Background;
       if (background != null && _backgroundGeometry.HasGeom && background.TryAllocate())
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, OpacityMask, localRenderContext);
       }
 
       var border = BorderBrush;

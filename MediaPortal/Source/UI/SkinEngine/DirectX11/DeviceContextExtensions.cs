@@ -13,6 +13,38 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush));
     }
 
+    public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, Brush opacityBrush, RenderContext renderContext)
+    {
+      if (opacityBrush == null)
+        FillGeometry(context, geometry, brush, renderContext);
+      else
+        DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush));
+    }
+
+    public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, Controls.Brushes.Brush opacityBrush, RenderContext renderContext)
+    {
+      if (opacityBrush == null || !opacityBrush.TryAllocate())
+        FillGeometry(context, geometry, brush, renderContext);
+      else
+        DrawAdjustedToRenderContext(brush, renderContext, () =>
+        {
+          var opacityBrush2D = opacityBrush.Brush2D;
+          if (opacityBrush2D is SolidColorBrush)
+          {
+            // SolidColorBrushes won't work? So only use the Alpha value
+            brush.Opacity *= ((SolidColorBrush)opacityBrush2D).Color.Alpha;
+            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
+          }
+          else if (opacityBrush2D is LinearGradientBrush || opacityBrush2D is RadialGradientBrush)
+          {
+            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
+          }
+          else
+            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush.Brush2D);
+          GraphicsDevice11.Instance.Context2D1.Flush();
+        });
+    }
+
     public static void DrawGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, float strokeWidth, RenderContext renderContext)
     {
       DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, brush, strokeWidth));
