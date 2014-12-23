@@ -340,7 +340,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float)localRenderContext.Opacity;
 
       _asset.TextBrush = _textBrush;
-      _asset.Render(localRenderContext.OccupiedTransformedBounds, localRenderContext);
+      RectangleF pos = new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
+      _asset.Render(pos, localRenderContext);
       //var oldOpacity = _textBrush.Opacity;
       //_textBrush.Opacity *= (float)localRenderContext.Opacity;
       //GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, _textBrush);

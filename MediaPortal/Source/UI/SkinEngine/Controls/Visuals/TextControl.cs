@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _cursorBounds;
     protected TextBuffer2D _asset;
     protected SharpDX.Direct2D1.SolidColorBrush _textBrush;
-    protected TransformedGeometryCache _cursorGeometry;
+    protected TransformedGeometryCache _cursorGeometry = new TransformedGeometryCache();
 
     #endregion
 
@@ -563,9 +563,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (VerticalContentAlignment == VerticalAlignmentEnum.Center)
         vertAlign = VerticalTextAlignEnum.Center;
 
-      Color4 color = ColorConverter.FromColor(Color);
-      color.Alpha *= (float)localRenderContext.Opacity;
-
       // Update text cursor
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
       {
@@ -597,7 +594,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // Render text
       _asset.TextBrush = _textBrush;
-      _asset.Render(localRenderContext.OccupiedTransformedBounds, localRenderContext);
+      RectangleF pos = new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
+      _asset.Render(pos, localRenderContext);
 
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry.HasGeom)
