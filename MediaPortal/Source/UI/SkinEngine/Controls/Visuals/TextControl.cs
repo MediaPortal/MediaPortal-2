@@ -600,7 +600,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry.HasGeom)
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry.TransformedGeom, _cursorBrush.Brush2D, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_cursorGeometry.TransformedGeom, _cursorBrush.Brush2D, OpacityMask, localRenderContext);
       }
     }
 
