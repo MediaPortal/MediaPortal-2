@@ -31,12 +31,18 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Fonts
 {
-  public class FontManager 
+  public class FontManager
   {
     public const string DEFAULT_FONT_FILE = "default-font.xml";
     private static readonly IDictionary<string, FontFamily> _families = new Dictionary<string, FontFamily>();
     private static string _defaultFontFamily;
     private static int _defaultFontSize;
+    private static ResourceFontLoader _fontResourceLoader;
+
+    public static ResourceFontLoader ResourceFontLoader
+    {
+      get { return _fontResourceLoader; }
+    }
 
     /// <summary>
     /// Returns the default font family.
@@ -81,6 +87,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// </summary>
     public static void Load(IResourceAccessor resourcesCollection)
     {
+      _fontResourceLoader = new ResourceFontLoader();
+
       Unload();
       string defaultFontFilePath = resourcesCollection.GetResourceFilePath(
           SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + DEFAULT_FONT_FILE);
@@ -107,8 +115,11 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         if (string.IsNullOrEmpty(ttfFile))
           throw new ArgumentException("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFilePath);
 
-        string fontFilePath = resourcesCollection.GetResourceFilePath(
-            SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+        string fontFilePath = resourcesCollection.GetResourceFilePath(SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+
+        // DirectWrite font handling
+        _fontResourceLoader.QueueRegisterFont(fontFilePath);
+
         FontFamily family = new FontFamily(familyName, fontFilePath);
         _families[familyName] = family;
       }

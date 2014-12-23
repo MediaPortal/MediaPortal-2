@@ -8,6 +8,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
+using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using SharpDX;
@@ -191,10 +192,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
       _factoryWIC = new ImagingFactory2(); // initialize the WIC factory
 
-
-
       SetupRenderPipelines();
       SetupRenderStrategies();
+      SetupFonts();
+    }
+
+    private void SetupFonts()
+    {
+      FontManager.ResourceFontLoader.LoadFonts(_factoryDW);
     }
 
     public void ExecuteInMainThread(WorkDlgt method)
