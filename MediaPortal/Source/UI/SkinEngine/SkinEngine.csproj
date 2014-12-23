@@ -260,6 +260,9 @@
     <Compile Include="DirectX\Triangulate\Utility\Point2DList.cs" />
     <Compile Include="DirectX\Triangulate\Utility\Rect2D.cs" />
     <Compile Include="Fonts\FontFamily.cs" />
+    <Compile Include="Fonts\ResourceFontFileEnumerator.cs" />
+    <Compile Include="Fonts\ResourceFontFileStream.cs" />
+    <Compile Include="Fonts\ResourceFontLoader.cs" />
     <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
     <Compile Include="Geometry\GeometryLetterBox.cs" />
     <Compile Include="Geometry\GeometryManager.cs" />
