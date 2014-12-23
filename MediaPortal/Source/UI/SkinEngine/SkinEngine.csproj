@@ -82,6 +82,7 @@
     <Compile Include="Commands\ICommandStencil.cs" />
     <Compile Include="Commands\IExecutableCommand.cs" />
     <Compile Include="Commands\InvokeCommand.cs" />
+    <Compile Include="ContentManagement\AssetCore\BitmapAssetCore.cs" />
     <Compile Include="ContentManagement\AssetWrapper.cs" />
     <Compile Include="ContentManagement\AssetCore\RenderTargetAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\EffectAssetCore.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="ContentManagement\IAsset.cs" />
     <Compile Include="ContentManagement\ITextureAsset.cs" />
     <Compile Include="ContentManagement\RenderTextureAsset.cs" />
+    <Compile Include="ContentManagement\BitmapAsset.cs" />
     <Compile Include="ContentManagement\TextureAsset.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />

@@ -23,6 +23,7 @@
 #endregion
 
 using SharpDX.Direct3D9;
+using SharpDX.WIC;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -32,5 +33,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// Gets the texture resource for this asset.
     /// </summary>
     Texture Texture { get; }
+  }
+
+  public interface IBitmapAsset2D : IAsset
+  {
+    /// <summary>
+    /// Gets the bitmap resource for this asset.
+    /// </summary>
+    BitmapSource Bitmap { get; }
   }
 }

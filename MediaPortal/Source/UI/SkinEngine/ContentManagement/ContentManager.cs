@@ -301,6 +301,74 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     #endregion
 
+    #region Public asset methods (2D)
+
+    /// <summary>
+    /// Retrieves a <see cref="BitmapAsset"/> (creating it if necessary) from the specified file.
+    /// </summary>
+    /// <param name="fileName">Name of the file (.jpg, .png).</param>
+    /// <param name="thumb"><c>true</c> to load the image as a thumbnail, <c>false</c> otherwise.</param>
+    /// <returns>A <see cref="TextureAsset"/> object.</returns>
+    public BitmapAsset GetBitmap(string fileName, bool thumb)
+    {
+      return GetCreateBitmap(fileName, fileName, 0, 0, thumb);
+    }
+
+    public BitmapAsset GetBitmap(string fileName)
+    {
+      return GetBitmap(fileName, false);
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="BitmapAsset"/> (creating it if necessary) filled with image data from the given stream.
+    /// </summary>
+    /// <param name="stream">Stream to read the image data to create the texture from.</param>
+    /// <param name="key">Key which is unique for the given image <paramref name="stream"/>.</param>
+    /// <param name="useSyncLoading">If <c>true</c> the stream gets read synchronously.</param>
+    /// <returns>A texture asset containing the image given by the <paramref name="stream"/>.</returns>
+    public BitmapAsset GetBitmap(Stream stream, string key, bool useSyncLoading = false)
+    {
+      return GetCreateAsset(AssetType.Thumbnail, key,
+          assetCore => new BitmapAsset(assetCore as BitmapAssetCore),
+          () => useSyncLoading ?
+            new SynchronousStreamBitmapAssetCore(stream, key) as BitmapAssetCore :
+            new StreamBitmapAssetCore(stream, key)
+            ) as BitmapAsset;
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="BitmapAsset"/> (creating it if necessary) filled with the given binary image data.
+    /// </summary>
+    /// <param name="binaryData">The binary image data to create the texture from.</param>
+    /// <param name="key">Key which is unique for the given image <paramref name="binaryData"/>.</param>
+    /// <returns>A texture asset containing the image given by the <paramref name="binaryData"/>.</returns>
+    public BitmapAsset GetBitmap(byte[] binaryData, string key)
+    {
+      return GetCreateAsset(AssetType.Thumbnail, key,
+          assetCore => new BitmapAsset(assetCore as BitmapAssetCore),
+          () => new BinaryBitmapAssetCore(binaryData, key)) as BitmapAsset;
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="BitmapAsset"/> (creating it if necessary) from the specified file
+    /// at a specified size.
+    /// </summary>
+    /// <param name="fileName">Name of the file (.jpg, .png).</param>
+    /// <param name="width">Restricts the size to the given width.</param>
+    /// <param name="height">Restricts the size to the given height.</param>
+    /// <param name="thumb"><c>true</c> to load the image as a thumbnail, false otherwise.</param>
+    /// <returns>A texture asset with the given parameters.</returns>
+    public BitmapAsset GetBitmap(string fileName, int width, int height, bool thumb)
+    {
+      if (width == 0 && height == 0)
+        return GetBitmap(fileName, thumb);
+
+      string key = String.Format("{0}:[{1},{2}]", fileName, width, height);
+      return GetCreateBitmap(fileName, key, width, height, thumb);
+    }
+
+    #endregion
+
     #region Public methods
 
     /// <summary>
@@ -402,6 +470,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       return GetCreateAsset(type, key,
           assetCore => new TextureAsset(assetCore as TextureAssetCore),
           () => new TextureAssetCore(fileName, width, height) {UseThumbnail = thumb}) as TextureAsset;
+    }
+
+    private BitmapAsset GetCreateBitmap(string fileName, string key, int width, int height, bool thumb)
+    {
+      AssetType type = thumb ? AssetType.Thumbnail : AssetType.Texture;
+
+      return GetCreateAsset(type, key,
+          assetCore => new BitmapAsset(assetCore as BitmapAssetCore),
+          () => new BitmapAssetCore(fileName, width, height) { UseThumbnail = thumb }) as BitmapAsset;
     }
 
 
