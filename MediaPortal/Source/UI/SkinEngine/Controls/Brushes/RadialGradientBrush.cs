@@ -193,26 +193,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         GradientOriginOffset = TransformOffset(GradientOrigin)
       };
       _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
+      SetBrushTransform();
+     }
 
-      // Transform brush into control scope
-      Matrix3x2 transform = Matrix3x2.Identity;
-      transform *= Matrix3x2.Scaling(_vertsBounds.Width, _vertsBounds.Height);
-      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
-
-      _brush2D.Transform = transform;
-    }
-
-    protected float TransformRadiusX(double radiusX)
-    {
-      return (float)(_vertsBounds.Width * radiusX);
-    }
-
-    protected float TransformRadiusY(double radiusY)
-    {
-      return (float)(_vertsBounds.Height * radiusY);
-    }
-
-    // TODO: check this logic, results looks different compared to before
     protected Vector2 TransformOffset(Vector2 relativeCoord)
     {
       var x = (relativeCoord.X - 0.5f); // Relative to center

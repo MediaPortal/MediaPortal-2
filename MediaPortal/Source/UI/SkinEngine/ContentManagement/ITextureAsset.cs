@@ -22,8 +22,8 @@
 
 #endregion
 
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
-using SharpDX.WIC;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -40,6 +40,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Gets the bitmap resource for this asset.
     /// </summary>
-    BitmapSource Bitmap { get; }
+    Bitmap1 Bitmap { get; }
   }
 }

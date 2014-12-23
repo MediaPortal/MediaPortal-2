@@ -30,6 +30,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -42,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _transitionInOutProperty;
     protected AbstractProperty _transitionDurationProperty;
 
-    protected ImageContext _lastImageContext = new ImageContext();
+    protected ImageContext2D _lastImageContext = new ImageContext2D();
     protected DateTime _transitionStart;
     protected bool _transitionActive = false;
     protected Random _rand = new Random();
@@ -153,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       Allocate();
 
-      Texture currentTexture = CurrentTexture;
+      var currentTexture = CurrentTexture;
       SizeF currentRawSourceSize = CurrentRawSourceSize;
       RectangleF currentTextureClip = CurrentTextureClip;
       Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float) EffectTimer, 0);
@@ -165,29 +166,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           _transitionActive = false;
         else
         {
-          Texture lastTexture = LastTexture;
+          var lastTexture = LastTexture;
           SizeF lastRawSourceSize = LastRawSourceSize;
           RectangleF lastTextureClip = LastTextureClip;
           Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float) EffectTimer, 0);
 
-          Texture start = lastTexture ?? NullTexture.Texture;
-          Texture end = currentTexture ?? NullTexture.Texture;
+          //var start = lastTexture ?? NullTexture.Texture;
+          //var end = currentTexture ?? NullTexture.Texture;
 
-          if (start != end)
-          {
-            SizeF startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastRawSourceSize, stretchMode, stretchDirection);
-            SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
+          //if (start != end)
+          //{
+          //  SizeF startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastRawSourceSize, stretchMode, stretchDirection);
+          //  SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
 
-            // Render transition from last texture to current texture
-            _lastImageContext.Update(startSize, start, lastTextureClip);
+          //  // Render transition from last texture to current texture
+          //  _lastImageContext.Update(startSize, start, lastTextureClip);
 
-            if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext,
-                endSize, end, currentTextureClip, BorderColor, lastFrameData, frameData))
-            {
-              _primitiveBuffer.Render(0);
-              _imageContext.EndRenderTransition();
-            }
-          }
+          //  //if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext,
+          //  //    endSize, end, currentTextureClip, BorderColor, lastFrameData, frameData))
+          //  //{
+          //  //  _primitiveBuffer.Render(0);
+          //  //  _imageContext.EndRenderTransition();
+          //  //}
+          //}
           return;
         }
       }
@@ -197,7 +198,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
         if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor, frameData))
         {
-          _primitiveBuffer.Render(0);
+          //_primitiveBuffer.Render(0);
           _imageContext.EndRender();
         }
       }
@@ -210,7 +211,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the last texture to be rendered. Must be overridden in subclasses.
     /// </summary>
-    protected abstract Texture LastTexture { get; }
+    protected abstract Bitmap1 LastTexture { get; }
 
     /// <summary>
     /// Returns the size of the last image before any transformation but after the <see cref="LastTextureClip"/> was applied.
@@ -225,7 +226,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the current texture to be rendered. Must be overridden in subclasses.
     /// </summary>
-    protected abstract Texture CurrentTexture { get; }
+    protected abstract Bitmap1 CurrentTexture { get; }
 
     /// <summary>
     /// Returns the size of the current image before any transformation but after the <see cref="LastTextureClip"/> was applied.
@@ -254,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region Not used from base class
 
-    protected override Texture Texture
+    protected override Bitmap1 Texture
     {
       get { return null; }
     }

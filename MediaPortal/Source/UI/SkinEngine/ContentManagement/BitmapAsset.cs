@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
+using SharpDX.Direct2D1;
 using SharpDX.WIC;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
@@ -129,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Gets the actual Direct2D BitmapSource resource.
     /// </summary>
-    public BitmapSource Bitmap
+    public Bitmap1 Bitmap
     {
       get { return _assetCore.Bitmap; }
 

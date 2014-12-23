@@ -25,11 +25,10 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -40,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _imageSourceProperty;
     protected AbstractProperty _downloadProgressProperty;
     protected AbstractProperty _thumbnailProperty;
-    protected TextureAsset _tex;
+    protected BitmapAsset _tex;
 
     #endregion
 
@@ -118,9 +117,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _downloadProgressProperty.SetValue(value); }
     }
 
-    public Texture Texture
+    public Bitmap1 Bitmap
     {
-      get { return (_tex == null) ? null : _tex.Texture; }
+      get { return (_tex == null) ? null : _tex.Bitmap; }
     }
 
     public AbstractProperty ThumbnailProperty
@@ -167,23 +166,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Allocate();
       if (_tex == null && !string.IsNullOrEmpty(ImageSource))
-        _tex = ContentManager.Instance.GetTexture(ImageSource, Thumbnail);
+        _tex = ContentManager.Instance.GetBitmap(ImageSource, Thumbnail);
       if (_tex != null && !_tex.IsAllocated)
         _tex.Allocate();
+
+      if (_tex != null)
+      {
+        BitmapBrushProperties props = new BitmapBrushProperties
+        {
+          ExtendModeX = ExtendMode.Clamp,
+          ExtendModeY = ExtendMode.Clamp,
+        };
+        _brush2D = new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _tex.Bitmap, props);
+        SetBrushTransform();
+      }
     }
 
     public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       Allocate();
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
-    }
-
-    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
-    {
-      Allocate();
-      if (_tex != null)
-        _tex.Bind(0);
-      return base.BeginRenderBrushOverride(primitiveContext, renderContext);
+      SetBrushTransform();
     }
 
     #endregion

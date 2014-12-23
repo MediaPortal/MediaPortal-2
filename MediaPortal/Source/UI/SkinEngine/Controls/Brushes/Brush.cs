@@ -289,6 +289,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       TryDispose(ref _brush2D);
     }
 
+    // Transform brush into control scope
+    protected void SetBrushTransform()
+    {
+      if (_brush2D == null || _vertsBounds.IsEmpty)
+        return;
+      Matrix3x2 transform = Matrix3x2.Identity;
+      transform *= Matrix3x2.Scaling(_vertsBounds.Width, _vertsBounds.Height);
+      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
+      _brush2D.Transform = transform;
+    }
+
     protected Vector2 TransformToBoundary(Vector2 relativeCoord)
     {
       var x = _vertsBounds.Left + _vertsBounds.Width * relativeCoord.X;

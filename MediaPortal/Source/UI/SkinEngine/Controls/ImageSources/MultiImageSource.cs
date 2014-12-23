@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -50,9 +51,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _thumbnailDimensionProperty;
     protected bool _thumbnail = false;
 
-    protected TextureAsset _lastTexture = null;
-    protected TextureAsset _currentTexture = null;
-    protected TextureAsset _nextTexture = null;
+    protected BitmapAsset _lastTexture = null;
+    protected BitmapAsset _currentTexture = null;
+    protected BitmapAsset _nextTexture = null;
     protected bool _source = true;
 
     #region Ctor
@@ -208,14 +209,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         }
         else
         {
-          _nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+          _nextTexture = ContentManager.Instance.GetBitmap(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
           _nextTexture.ThumbnailDimension = ThumbnailDimension;
         }
       }
       // Check our previous texture is allocated. Synchronous.
-      TextureAsset lastTexture = _lastTexture;
-      TextureAsset currentTexture = _currentTexture;
-      TextureAsset nextTexture = _nextTexture;
+      BitmapAsset lastTexture = _lastTexture;
+      BitmapAsset currentTexture = _currentTexture;
+      BitmapAsset nextTexture = _nextTexture;
       if (lastTexture != null && !lastTexture.IsAllocated)
         lastTexture.Allocate();
       // Check our current texture is allocated. Synchronous.
@@ -242,9 +243,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region Protected methods
 
-    protected override Texture LastTexture
+    protected override Bitmap1 LastTexture
     {
-      get { return _lastTexture == null ? null : _lastTexture.Texture; }
+      get { return _lastTexture == null ? null : _lastTexture.Bitmap; }
     }
 
     protected override SizeF LastRawSourceSize
@@ -257,9 +258,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTexture == null ? RectangleF.Empty : new RectangleF(0, 0, _lastTexture.MaxU, _lastTexture.MaxV); }
     }
 
-    protected override Texture CurrentTexture
+    protected override Bitmap1 CurrentTexture
     {
-      get { return _currentTexture == null ? null : _currentTexture.Texture; }
+      get { return _currentTexture == null ? null : _currentTexture.Bitmap; }
     }
 
     protected override SizeF CurrentRawSourceSize
@@ -284,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastImageContext = _imageContext;
       // Next -> Current
       _currentTexture = _nextTexture;
-      _imageContext = new ImageContext
+      _imageContext = new ImageContext2D
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect,

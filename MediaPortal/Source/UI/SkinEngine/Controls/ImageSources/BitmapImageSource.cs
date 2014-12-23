@@ -27,6 +27,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -52,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _decodePixelWidthProperty;
     protected AbstractProperty _decodePixelHeightProperty;
 
-    protected TextureAsset _texture = null;
+    protected BitmapAsset _texture = null;
     protected AbstractProperty _thumbnailDimensionProperty;
 
     protected bool _thumbnail = false;
@@ -198,9 +199,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _texture != null && _texture.IsAllocated; }
     }
 
-    protected override Texture Texture
+    protected override Bitmap1 Texture
     {
-      get { return _texture == null ? null : _texture.Texture; }
+      get { return _texture == null ? null : _texture.Bitmap; }
     }
 
     protected override SizeF RawSourceSize
@@ -225,9 +226,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         }
         return;
       }
-      TextureAsset texture = _texture;
+      BitmapAsset texture = _texture;
       if (texture == null)
-        texture = _texture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+        texture = _texture = ContentManager.Instance.GetBitmap(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
       if (texture != null && !texture.IsAllocated)
       {
         if (Thumbnail)
