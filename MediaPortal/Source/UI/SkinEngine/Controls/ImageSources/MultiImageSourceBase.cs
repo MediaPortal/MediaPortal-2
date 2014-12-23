@@ -196,7 +196,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
-        if (_imageContext.StartRender(renderContext, sourceSize, currentTexture, currentTextureClip, BorderColor, frameData))
+        var target = new RectangleF(_targetRect.X, _targetRect.Y, sourceSize.Width, sourceSize.Height);
+        if (_imageContext.StartRender(renderContext, target, currentTexture, currentTextureClip, BorderColor, frameData))
         {
           //_primitiveBuffer.Render(0);
           _imageContext.EndRender();

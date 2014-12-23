@@ -163,19 +163,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// Renders the <see cref="ImageContext"/>.
     /// </summary>
     /// <param name="renderContext">The current rendering context.</param>
-    /// <param name="targetImageSize">The size, the final image should take within the frame. This size is given in the same
+    /// <param name="targetRect">The size, the final image should take within the frame. This size is given in the same
     /// orientation as the <paramref name="bitmap"/>, i.e. it is not rotated.</param>
     /// <param name="bitmap">A bitmap object containing the image.</param>
     /// <param name="textureClip">The section of the bitmap that should be rendered. Values are between 0 and 1.</param>
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Bitmap1 bitmap, RectangleF textureClip,
+    public bool StartRender(RenderContext renderContext, RectangleF targetRect, Bitmap1 bitmap, RectangleF textureClip,
         Color borderColor, Vector4 frameData)
     {
       _bitmap = bitmap;
 
-      GraphicsDevice11.Instance.Context2D1.DrawBitmap(_bitmap, renderContext.OccupiedTransformedBounds, (float)renderContext.Opacity, BitmapInterpolationMode.NearestNeighbor);
+      GraphicsDevice11.Instance.Context2D1.DrawBitmap(_bitmap, targetRect, (float)renderContext.Opacity, BitmapInterpolationMode.NearestNeighbor, renderContext);
       return StartRender(renderContext, borderColor, frameData);
     }
     ///// <summary>
