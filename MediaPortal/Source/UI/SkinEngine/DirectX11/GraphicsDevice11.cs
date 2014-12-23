@@ -14,8 +14,8 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
-using SharpDX.Direct3D9;
 using SharpDX.DXGI;
+using SharpDX.WIC;
 using Device = SharpDX.Direct3D11.Device;
 using Device1 = SharpDX.Direct3D11.Device1;
 using DeviceContext = SharpDX.Direct2D1.DeviceContext;
@@ -23,7 +23,6 @@ using Factory = SharpDX.DirectWrite.Factory;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Format = SharpDX.DXGI.Format;
 using PresentFlags = SharpDX.DXGI.PresentFlags;
-using PresentParameters = SharpDX.Direct3D9.PresentParameters;
 using SwapChain = SharpDX.DXGI.SwapChain;
 using SwapEffect = SharpDX.DXGI.SwapEffect;
 using Usage = SharpDX.DXGI.Usage;
@@ -45,6 +44,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     private DeviceContext _context2D;
     private Bitmap1 _renderTarget2D;
     private Factory _factoryDW;
+    private ImagingFactory2 _factoryWIC;
 
     private readonly ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
@@ -100,6 +100,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     public Factory FactoryDW
     {
       get { return _factoryDW; }
+    }
+
+    public ImagingFactory2 FactoryWIC
+    {
+      get { return _factoryWIC; }
     }
 
     public ScreenManager ScreenManager
@@ -183,6 +188,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       _context2D.Target = _renderTarget2D;
 
       _factoryDW = new Factory();
+
+      _factoryWIC = new ImagingFactory2(); // initialize the WIC factory
+
 
 
       SetupRenderPipelines();
@@ -363,6 +371,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       TryDispose(ref _context2D);
 
       TryDispose(ref _factoryDW);
+      TryDispose(ref _factoryWIC);
 
       TryDispose(ref _device3D1);
       TryDispose(ref _device3D);
