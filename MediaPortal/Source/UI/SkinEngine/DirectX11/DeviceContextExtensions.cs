@@ -55,13 +55,21 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawTextLayout(origin, textLayout, brush));
     }
 
+    public static void DrawBitmap(this DeviceContext context, Bitmap bitmap, RectangleF destinationRectangle, float opacity, BitmapInterpolationMode interpolationMode, RenderContext renderContext)
+    {
+      DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawBitmap(bitmap, destinationRectangle, opacity, interpolationMode));
+    }
+
     public static void DrawAdjustedToRenderContext(Brush brush, RenderContext renderContext, Action renderCall)
     {
-      var oldOpacity = brush.Opacity;
+      float oldOpacity = 1f;
+      if (brush != null)
+      {
+        oldOpacity = brush.Opacity;
+        brush.Opacity *= (float)renderContext.Opacity;
+      }
       var oldTransform = GraphicsDevice11.Instance.Context2D1.Transform;
-      var oldBrushTransform = brush.Transform;
 
-      brush.Opacity *= (float)renderContext.Opacity;
 
       // Note: no Brush transformation here. The Brush has to be initialized to match control boundaries
 
@@ -70,8 +78,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       renderCall();
 
       GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
-      brush.Opacity = oldOpacity;
-      brush.Transform = oldBrushTransform;
+      if (brush != null)
+      {
+        brush.Opacity = oldOpacity;
+      }
+      ;
     }
   }
 }

@@ -54,6 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     //protected PrimitiveBuffer _primitiveBuffer;
     protected ImageContext2D _imageContext = new ImageContext2D();
     protected SizeF _frameSize;
+    protected RectangleF _targetRect;
 
     #endregion
 
@@ -203,6 +204,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
       _imageContext.FrameSize = _frameSize;
+      _targetRect = ownerRect;
     }
 
     public override void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection)
@@ -211,9 +213,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         return;
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
-      Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float) EffectTimer, 0);
+      var target = new RectangleF(_targetRect.X, _targetRect.Y, modifiedSourceSize.Width, modifiedSourceSize.Height);
+      Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float)EffectTimer, 0);
       if (_imageContext != null)
-        _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData);
+        _imageContext.StartRender(renderContext, target, Texture, TextureClip, BorderColor, frameData);
       //if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData))
       //{
       //  _primitiveBuffer.Render(0);
