@@ -513,7 +513,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // _textLayout can be null if no Text has been set before.
       if (brush != null && _textLayout != null) 
       {
-        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, brush, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(textBox.TopLeft, _textLayout, brush, localRenderContext);
       }
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
