@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
     protected volatile bool _performLayout = true; // Mark control to adapt background brush and related contents to the layout
-    protected TransformedGeometryCache _backgroundGeometry = new TransformedGeometryCache();
+    protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
 
     #endregion
 
@@ -261,9 +261,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.RenderOverride(localRenderContext);
 
       Brush background = Background;
-      if (background != null && background.TryAllocate() && _backgroundGeometry.HasGeom)
+      if (background != null && background.TryAllocate() && _backgroundGeometry != null)
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, OpacityMask, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background.Brush2D, OpacityMask, localRenderContext);
       }
 
       FrameworkElement templateControl = _initializedTemplateControl;
@@ -288,9 +288,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         var rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        _backgroundGeometry.UpdateGeometry(new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, rect));
+        _backgroundGeometry = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, rect);
 
         background.SetupBrush(this, ref rect, localRenderContext.ZOrder, true);
+      }
+      else
+      {
+        TryDispose(ref _backgroundGeometry);
       }
     }
 

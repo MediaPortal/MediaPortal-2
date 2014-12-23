@@ -54,8 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _performLayout;
     protected RectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
-    protected TransformedGeometryCache _backgroundGeometry = new TransformedGeometryCache();
-    protected TransformedGeometryCache _borderGeometry = new TransformedGeometryCache();
+    protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
+    protected SharpDX.Direct2D1.Geometry _borderGeometry;
 
     #endregion
 
@@ -347,9 +347,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       // Setup background brush
       if (Background != null)
-      {
-        _backgroundGeometry.UpdateGeometry(CreateBorderRectPath(innerBorderRect));
-      }
+        _backgroundGeometry = CreateBorderRectPath(innerBorderRect);
+      else
+        TryDispose(ref _backgroundGeometry);
     }
 
     protected void PerformLayoutBorder(RectangleF innerBorderRect, RenderContext context)
@@ -362,8 +362,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         innerBorderRect.Y -= (float)BorderThickness / 2;
         innerBorderRect.Width += (float)BorderThickness;
         innerBorderRect.Height += (float)BorderThickness;
-        _borderGeometry.UpdateGeometry(CreateBorderRectPath(innerBorderRect));
+        _borderGeometry = CreateBorderRectPath(innerBorderRect);
       }
+      else
+        TryDispose(ref _borderGeometry);
     }
 
     protected virtual SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
@@ -380,18 +382,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null && _backgroundGeometry.HasGeom && background.TryAllocate())
+      if (background != null && _backgroundGeometry!= null && background.TryAllocate())
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry.TransformedGeom, background.Brush2D, OpacityMask, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background.Brush2D, OpacityMask, localRenderContext);
       }
 
       var border = BorderBrush;
-      if (border != null && _borderGeometry.HasGeom && BorderThickness > 0 && border.TryAllocate())
+      if (border != null && _borderGeometry != null && BorderThickness > 0 && border.TryAllocate())
       {
         // TODO: add StrokeJoin and other layout features! Properties don't have setters yet? (SharpDX 2.6.3)
         //StrokeStyleProperties prop = new StrokeStyleProperties();
         //var style = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry.TransformedGeom, border.Brush2D, (float)BorderThickness, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness, localRenderContext);
       }
 
       FrameworkElement content = _initializedContent;

@@ -150,10 +150,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (Stroke != null && StrokeThickness > 0)
       {
         using (PathGeometry lineRaw = GetLine())
-          _geometry.UpdateGeometry(CalculateTransformedPath(lineRaw, _innerRect));
-        var bounds = _geometry.OriginalGeom.GetBounds();
+          SetGeometry(CalculateTransformedPath(lineRaw, _innerRect));
+        var bounds = _geometry.GetBounds();
         Stroke.SetupBrush(this, ref bounds, context.ZOrder, true);
       }
+      else
+        SetGeometry(null);
     }
 
     private PathGeometry GetLine()
@@ -173,9 +175,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       base.RenderOverride(localRenderContext);
       var brush = Stroke;
-      if (brush != null && StrokeThickness > 0 && _geometry.HasGeom)
+      if (brush != null && StrokeThickness > 0 && _geometry != null)
       {
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry.TransformedGeom, brush.Brush2D, (float)StrokeThickness, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_geometry, brush.Brush2D, (float)StrokeThickness, localRenderContext);
       }
     }
   }
