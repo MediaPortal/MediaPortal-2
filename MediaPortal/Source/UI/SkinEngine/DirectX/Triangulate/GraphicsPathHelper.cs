@@ -83,6 +83,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     {
       if (!withTitleRegion)
       {
+        // Optimization: if there is no radius, use a simple rectangle
+        if (radiusX == 0f && radiusY == 0f)
+          return new RectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, baseRect);
+
         RoundedRectangle rrect = new RoundedRectangle { Rect = baseRect, RadiusX = radiusX, RadiusY = radiusY };
         RoundedRectangleGeometry rrgeom = new RoundedRectangleGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, rrect);
         return rrgeom;
