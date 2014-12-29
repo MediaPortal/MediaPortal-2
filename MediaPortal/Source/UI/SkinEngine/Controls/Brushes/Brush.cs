@@ -231,6 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (!UpdateBounds(ref boundary))
         return;
+      SetBrushTransform();
     }
 
     protected bool UpdateBounds(ref RectangleF verts)
@@ -281,7 +282,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public virtual void Allocate()
     {
-      TryDispose(ref _brush2D);
     }
 
     public virtual void Deallocate()
@@ -289,8 +289,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       TryDispose(ref _brush2D);
     }
 
+    protected void SetBrush(SharpDX.Direct2D1.Brush brush)
+    {
+      TryDispose(ref _brush2D);
+      _brush2D = brush;
+      SetBrushTransform();
+    }
+
     // Transform brush into control scope
-    protected void SetBrushTransform()
+    protected virtual void SetBrushTransform()
     {
       if (_brush2D == null || _vertsBounds.IsEmpty)
         return;

@@ -192,8 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         RadiusY = (float)RadiusY,
         GradientOriginOffset = TransformOffset(GradientOrigin)
       };
-      _brush2D = new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
-      SetBrushTransform();
+      SetBrush(new SharpDX.Direct2D1.RadialGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D));
      }
 
     protected Vector2 TransformOffset(Vector2 relativeCoord)

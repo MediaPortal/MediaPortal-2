@@ -35,8 +35,8 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -49,10 +49,11 @@ using SharpDX;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
-using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
+using SharpDX.Direct2D1;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using Transform = MediaPortal.UI.SkinEngine.Controls.Transforms.Transform;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -276,7 +277,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       object oldLayoutTransform = LayoutTransform;
       base.DeepCopy(source, copyManager);
-      FrameworkElement fe = (FrameworkElement) source;
+      FrameworkElement fe = (FrameworkElement)source;
       Width = fe.Width;
       Height = fe.Height;
       Style = copyManager.GetCopy(fe.Style);
@@ -349,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!PreparingOrRunning)
         return;
-      UpdateStyle((Style) oldValue);
+      UpdateStyle((Style)oldValue);
     }
 
     void OnActualBoundsChanged(AbstractProperty property, object oldValue)
@@ -384,7 +385,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnLayoutTransformPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (oldValue is Transform)
-        ((Transform) oldValue).ObjectChanged -= OnLayoutTransformChanged;
+        ((Transform)oldValue).ObjectChanged -= OnLayoutTransformChanged;
       if (LayoutTransform != null)
         LayoutTransform.ObjectChanged += OnLayoutTransformChanged;
     }
@@ -455,7 +456,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double Width
     {
-      get { return (double) _widthProperty.GetValue(); }
+      get { return (double)_widthProperty.GetValue(); }
       set { _widthProperty.SetValue(value); }
     }
 
@@ -466,7 +467,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double Height
     {
-      get { return (double) _heightProperty.GetValue(); }
+      get { return (double)_heightProperty.GetValue(); }
       set { _heightProperty.SetValue(value); }
     }
 
@@ -477,7 +478,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double ActualWidth
     {
-      get { return (double) _actualWidthProperty.GetValue(); }
+      get { return (double)_actualWidthProperty.GetValue(); }
       set { _actualWidthProperty.SetValue(value); }
     }
 
@@ -488,7 +489,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double ActualHeight
     {
-      get { return (double) _actualHeightProperty.GetValue(); }
+      get { return (double)_actualHeightProperty.GetValue(); }
       set { _actualHeightProperty.SetValue(value); }
     }
 
@@ -499,7 +500,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double MinWidth
     {
-      get { return (double) _minWidthProperty.GetValue(); }
+      get { return (double)_minWidthProperty.GetValue(); }
       set { _minWidthProperty.SetValue(value); }
     }
 
@@ -510,7 +511,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double MinHeight
     {
-      get { return (double) _minHeightProperty.GetValue(); }
+      get { return (double)_minHeightProperty.GetValue(); }
       set { _minHeightProperty.SetValue(value); }
     }
 
@@ -521,7 +522,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double MaxWidth
     {
-      get { return (double) _maxWidthProperty.GetValue(); }
+      get { return (double)_maxWidthProperty.GetValue(); }
       set { _maxWidthProperty.SetValue(value); }
     }
 
@@ -532,7 +533,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public double MaxHeight
     {
-      get { return (double) _maxHeightProperty.GetValue(); }
+      get { return (double)_maxHeightProperty.GetValue(); }
       set { _maxHeightProperty.SetValue(value); }
     }
 
@@ -586,7 +587,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum HorizontalAlignment
     {
-      get { return (HorizontalAlignmentEnum) _horizontalAlignmentProperty.GetValue(); }
+      get { return (HorizontalAlignmentEnum)_horizontalAlignmentProperty.GetValue(); }
       set { _horizontalAlignmentProperty.SetValue(value); }
     }
 
@@ -597,7 +598,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public VerticalAlignmentEnum VerticalAlignment
     {
-      get { return (VerticalAlignmentEnum) _verticalAlignmentProperty.GetValue(); }
+      get { return (VerticalAlignmentEnum)_verticalAlignmentProperty.GetValue(); }
       set { _verticalAlignmentProperty.SetValue(value); }
     }
 
@@ -612,7 +613,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public Style Style
     {
-      get { return (Style) _styleProperty.GetValue(); }
+      get { return (Style)_styleProperty.GetValue(); }
       set { _styleProperty.SetValue(value); }
     }
 
@@ -647,7 +648,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual bool HasFocus
     {
-      get { return (bool) _hasFocusProperty.GetValue(); }
+      get { return (bool)_hasFocusProperty.GetValue(); }
       internal set { _hasFocusProperty.SetValue(value); }
     }
 
@@ -664,7 +665,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return (bool)_isKeyboardFocusWithinProperty.GetValue(); }
       internal set { _isKeyboardFocusWithinProperty.SetValue(value); }
     }
-    
+
     public AbstractProperty FocusableProperty
     {
       get { return _focusableProperty; }
@@ -672,7 +673,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool Focusable
     {
-      get { return (bool) _focusableProperty.GetValue(); }
+      get { return (bool)_focusableProperty.GetValue(); }
       set { _focusableProperty.SetValue(value); }
     }
 
@@ -683,7 +684,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool IsMouseOver
     {
-      get { return (bool) _isMouseOverProperty.GetValue(); }
+      get { return (bool)_isMouseOverProperty.GetValue(); }
       internal set { _isMouseOverProperty.SetValue(value); }
     }
 
@@ -694,7 +695,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public IExecutableCommand ContextMenuCommand
     {
-      get { return (IExecutableCommand) _contextMenuCommandProperty.GetValue(); }
+      get { return (IExecutableCommand)_contextMenuCommandProperty.GetValue(); }
       internal set { _contextMenuCommandProperty.SetValue(value); }
     }
 
@@ -707,7 +708,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     // panels, and in MPF, panels inherit from FrameworkElement
     public string FontFamily
     {
-      get { return (string) _fontFamilyProperty.GetValue(); }
+      get { return (string)_fontFamilyProperty.GetValue(); }
       set { _fontFamilyProperty.SetValue(value); }
     }
 
@@ -720,7 +721,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     // panels, and in MPF, panels inherit from FrameworkElement
     public int FontSize
     {
-      get { return (int) _fontSizeProperty.GetValue(); }
+      get { return (int)_fontSizeProperty.GetValue(); }
       set { _fontSizeProperty.SetValue(value); }
     }
 
@@ -1049,14 +1050,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         distY = r2.Top - r1.Bottom;
       else
         distY = 0;
-      return (float) Math.Sqrt(distX * distX + distY * distY);
+      return (float)Math.Sqrt(distX * distX + distY * distY);
     }
 
     protected static float CenterDistance(RectangleF r1, RectangleF r2)
     {
       float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
       float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
-      return (float) Math.Sqrt(distX * distX + distY * distY);
+      return (float)Math.Sqrt(distX * distX + distY * distY);
     }
 
     protected PointF GetCenterPosition(RectangleF rect)
@@ -1075,7 +1076,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         alpha = -alpha;
       if (alpha < 0)
         alpha += 2 * Math.PI;
-      return (float) alpha;
+      return (float)alpha;
     }
 
     protected static bool AInsideB(RectangleF a, RectangleF b)
@@ -1113,7 +1114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
       float alpha = CalcDirection(start, end);
       topOrLeftDifference = Math.Abs(actualBounds.Left - otherRect.Left);
-      return isNear|| alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
+      return isNear || alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
     }
 
     protected bool LocatedLeftOf(RectangleF otherRect, out float topOrLeftDifference)
@@ -1451,16 +1452,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalSize = FindMaxTransformedSize(layoutTransform.Value, totalSize);
 
       if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width;
+        totalSize.Width = (float)Width;
       if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height;
+        totalSize.Height = (float)Height;
 
       totalSize = CalculateInnerDesiredSize(totalSize);
 
       if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width;
+        totalSize.Width = (float)Width;
       if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height;
+        totalSize.Height = (float)Height;
 
       totalSize = ClampSize(totalSize);
 
@@ -1568,9 +1569,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected SizeF ClampSize(SizeF size)
     {
       if (!float.IsNaN(size.Width))
-        size.Width = (float) Math.Min(Math.Max(size.Width, MinWidth), MaxWidth);
+        size.Width = (float)Math.Min(Math.Max(size.Width, MinWidth), MaxWidth);
       if (!float.IsNaN(size.Height))
-        size.Height = (float) Math.Min(Math.Max(size.Height, MinHeight), MaxHeight);
+        size.Height = (float)Math.Min(Math.Max(size.Height, MinHeight), MaxHeight);
       return size;
     }
 
@@ -1904,10 +1905,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
 
       Brushes.Brush opacityMask = OpacityMask;
+      if (opacityMask != null && opacityMask.TryAllocate())
+      {
+        // If the control bounds have changed we need to update our Brush transform to make the 
+        // texture coordinates match up
+        if (_updateOpacityMask || _lastOccupiedTransformedBounds != localRenderContext.OccupiedTransformedBounds)
+        {
+          UpdateOpacityMask(localRenderContext.OccupiedTransformedBounds, localRenderContext.ZOrder);
+          _lastOccupiedTransformedBounds = localRenderContext.OccupiedTransformedBounds;
+          _updateOpacityMask = false;
+        }
+
+        LayerParameters1 layerParameters = new LayerParameters1
+        {
+          ContentBounds = RectangleF.Infinite,
+          LayerOptions = LayerOptions1.None,
+          MaskAntialiasMode = AntialiasMode.PerPrimitive,
+          MaskTransform = Matrix.Identity,
+          Opacity = 1.0f,
+          OpacityBrush = opacityMask.Brush2D
+        };
+
+        GraphicsDevice11.Instance.Context2D1.PushLayer(ref layerParameters, null);
+      }
       // TODO
       //if (opacityMask == null && Effect == null)
-        // Simply render without opacity mask
-        RenderOverride(localRenderContext);
+      // Simply render without opacity mask
+      RenderOverride(localRenderContext);
+      if (opacityMask != null)
+      {
+        GraphicsDevice11.Instance.Context2D1.PopLayer();
+      }
       //else
       //{
       //  // Control has an opacity mask or Effect
@@ -1998,17 +2026,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <returns>Converted rect</returns>
     protected Rectangle ToRect(RectangleF rect, Size clip)
     {
-      int x = Math.Min(Math.Max(0, (int) Math.Floor(rect.X)), clip.Width); // Limit to 0 .. Width
-      int y = Math.Min(Math.Max(0, (int) Math.Floor(rect.Y)), clip.Height); // Limit to 0 .. Height
-      int width = Math.Min(Math.Max(0, (int) Math.Ceiling(rect.Width)), clip.Width - x); // Limit to 0 .. Width - x
-      int height = Math.Min(Math.Max(0, (int) Math.Ceiling(rect.Height)), clip.Height - y); // Limit to 0 .. Height - y
+      int x = Math.Min(Math.Max(0, (int)Math.Floor(rect.X)), clip.Width); // Limit to 0 .. Width
+      int y = Math.Min(Math.Max(0, (int)Math.Floor(rect.Y)), clip.Height); // Limit to 0 .. Height
+      int width = Math.Min(Math.Max(0, (int)Math.Ceiling(rect.Width)), clip.Width - x); // Limit to 0 .. Width - x
+      int height = Math.Min(Math.Max(0, (int)Math.Ceiling(rect.Height)), clip.Height - y); // Limit to 0 .. Height - y
       return new Rectangle(x, y, width, height);
     }
 
     protected void UpdateEffectMask(Effects.Effect effect, RectangleF bounds, float width, float height, float zPos)
     {
       Color4 col = ColorConverter.FromColor(Color.White);
-      col.Alpha *= (float) Opacity;
+      col.Alpha *= (float)Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
           bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
@@ -2031,7 +2059,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     private void RenderOpacityBrush(RenderContext renderContext)
     {
       Brushes.Brush opacityMask = OpacityMask;
-      if (opacityMask == null) 
+      if (opacityMask == null)
         return;
 
       // If the control bounds have changed we need to update our primitive context to make the 

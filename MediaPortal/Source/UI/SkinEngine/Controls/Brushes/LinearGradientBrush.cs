@@ -147,8 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         StartPoint = StartPoint,
         EndPoint = EndPoint
       };
-      _brush2D = new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D);
-      SetBrushTransform();
+      SetBrush(new SharpDX.Direct2D1.LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, props, GradientStops.GradientStopCollection2D));
     }
   }
 }
