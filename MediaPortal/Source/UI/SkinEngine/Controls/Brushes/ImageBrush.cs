@@ -177,8 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           ExtendModeX = ExtendMode.Clamp,
           ExtendModeY = ExtendMode.Clamp,
         };
-        _brush2D = new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _tex.Bitmap, props);
-        SetBrushTransform();
+        SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _tex.Bitmap, props));
       }
     }
 
@@ -186,7 +185,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Allocate();
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
-      SetBrushTransform();
+    }
+
+    // Transform brush into control scope
+    protected override void SetBrushTransform()
+    {
+      if (_brush2D == null || _vertsBounds.IsEmpty || _tex == null)
+        return;
+      Matrix3x2 transform = Matrix3x2.Identity;
+      transform *= Matrix3x2.Scaling(_vertsBounds.Width / _tex.Width, _vertsBounds.Height / _tex.Height);
+      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
+      _brush2D.Transform = transform;
     }
 
     #endregion
