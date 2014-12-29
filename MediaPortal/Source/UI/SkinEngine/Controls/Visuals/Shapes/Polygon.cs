@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
         for (int i = 1; i < points.Length; i++)
         {
-          sink.AddLine(points[0]);
+          sink.AddLine(points[i]);
         }
 
         sink.EndFigure(FigureEnd.Closed);
