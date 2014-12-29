@@ -34,25 +34,6 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
-  /// <summary>
-  /// Describes the shape that joins two lines or segments.
-  /// </summary>
-  public enum PenLineJoin
-  {
-    /// <summary>
-    /// Line joins use regular angular vertices. This is the default behavior in MPF.
-    /// </summary>
-    Miter,
-    /// <summary>
-    /// Line joins use beveled vertices.
-    /// </summary>
-    Bevel,
-    /// <summary>
-    /// Line joins use rounded vertices. This is currently not supported and will be rendered using the default behavior.
-    /// </summary>
-    Round
-  }
-
   public class Shape : FrameworkElement
   {
     #region Protected fields
@@ -67,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected bool _fillDisabled;
     protected SharpDX.Direct2D1.Geometry _geometry;
+    protected StrokeStyle _strokeStyle;
     protected readonly object _resourceRenderLock = new object();
 
     #endregion
@@ -87,7 +69,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         MPF.TryCleanupAndDispose(Fill);
         MPF.TryCleanupAndDispose(Stroke);
         lock (_resourceRenderLock)
+        {
           TryDispose(ref _geometry);
+          TryDispose(ref _strokeStyle);
+        }
         base.Dispose();
       }
     }
@@ -97,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       _fillProperty = new SProperty(typeof(Brush), null);
       _strokeProperty = new SProperty(typeof(Brush), null);
       _strokeThicknessProperty = new SProperty(typeof(double), 1.0);
-      _strokeLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Miter);
+      _strokeLineJoinProperty = new SProperty(typeof(LineJoin), LineJoin.Miter);
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
     }
 
@@ -152,6 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     void OnStrokeLineJoinChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
+      ReCreateStrokeStyle();
     }
 
     void OnFillBrushPropertyChanged(AbstractProperty property, object oldValue)
@@ -224,9 +210,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     /// <summary>
     /// Gets or sets a PenLineJoin enumeration value that specifies the type of join that is used at the vertices of a Shape.
     /// </summary>
-    public PenLineJoin StrokeLineJoin
+    public LineJoin StrokeLineJoin
     {
-      get { return (PenLineJoin)_strokeLineJoinProperty.GetValue(); }
+      get { return (LineJoin)_strokeLineJoinProperty.GetValue(); }
       set { _strokeLineJoinProperty.SetValue(value); }
     }
 
@@ -244,6 +230,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     /// </summary>
     protected virtual void DoPerformLayout(RenderContext context)
     {
+      ReCreateStrokeStyle();
     }
 
     public override void RenderOverride(RenderContext localRenderContext)
@@ -264,7 +251,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         var stroke = Stroke;
         if (stroke != null && stroke.TryAllocate())
         {
-          GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness, localRenderContext);
+          GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness, _strokeStyle, localRenderContext);
         }
       }
     }
@@ -284,6 +271,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           Fill.Deallocate();
         if (Stroke != null)
           Stroke.Deallocate();
+        // Deallocate device dependend resources
+        TryDispose(ref _geometry);
+        TryDispose(ref _strokeStyle);
       }
     }
 
@@ -303,6 +293,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         TryDispose(ref _geometry);
         _geometry = geometry;
+      }
+    }
+
+    /// <summary>
+    /// (Re-)Creates the StrokeStyle. The D2D StrokeStyle is immutable and must be recreated on changes.
+    /// </summary>
+    protected void ReCreateStrokeStyle()
+    {
+      StrokeStyleProperties prop = new StrokeStyleProperties
+      {
+        LineJoin = StrokeLineJoin,
+        // TODO: add properties, where to find default values?
+        //MiterLimit = StrokeMiterLimit,
+        //DashCap = StrokeDashCap,
+        //DashOffset = StrokeDashOffset,
+        //DashStyle = StrokeDashStyle,
+        //StartCap = StrokeStartCap,
+        //EndCap = StrokeEndCap
+      };
+
+      lock (_resourceRenderLock)
+      {
+        TryDispose(ref _strokeStyle);
+        _strokeStyle = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
       }
     }
 

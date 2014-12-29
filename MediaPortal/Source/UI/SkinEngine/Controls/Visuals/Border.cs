@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Markup;
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -34,6 +33,7 @@ using SharpDX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct2D1;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -56,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
     protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
     protected SharpDX.Direct2D1.Geometry _borderGeometry;
+    protected StrokeStyle _strokeStyle;
 
     #endregion
 
@@ -72,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _borderBrushProperty = new SProperty(typeof(Brush), null);
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
-      _borderLineJoinProperty = new SProperty(typeof(PenLineJoin), PenLineJoin.Miter);
+      _borderLineJoinProperty = new SProperty(typeof(LineJoin), LineJoin.Miter);
       _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
       _contentProperty = new SProperty(typeof(FrameworkElement), null);
     }
@@ -118,6 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(BorderBrush);
       TryDispose(ref _backgroundGeometry);
       TryDispose(ref _borderGeometry);
+      TryDispose(ref _strokeStyle);
       base.Dispose();
     }
 
@@ -150,6 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnBorderLineJoinChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
+      ReCreateStrokeStyle();
     }
 
     void OnBackgroundBrushChanged(IObservable observable)
@@ -240,9 +243,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _borderLineJoinProperty; }
     }
 
-    public PenLineJoin BorderLineJoin
+    public LineJoin BorderLineJoin
     {
-      get { return (PenLineJoin)_borderLineJoinProperty.GetValue(); }
+      get { return (LineJoin)_borderLineJoinProperty.GetValue(); }
       set { _borderLineJoinProperty.SetValue(value); }
     }
 
@@ -382,7 +385,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null && _backgroundGeometry!= null && background.TryAllocate())
+      if (background != null && _backgroundGeometry != null && background.TryAllocate())
       {
         GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background.Brush2D, OpacityMask, localRenderContext);
       }
@@ -390,10 +393,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       var border = BorderBrush;
       if (border != null && _borderGeometry != null && BorderThickness > 0 && border.TryAllocate())
       {
-        // TODO: add StrokeJoin and other layout features! Properties don't have setters yet? (SharpDX 2.6.3)
-        //StrokeStyleProperties prop = new StrokeStyleProperties();
-        //var style = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness, _strokeStyle, localRenderContext);
       }
 
       FrameworkElement content = _initializedContent;
@@ -402,6 +402,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    /// <summary>
+    /// (Re-)Creates the StrokeStyle. The D2D StrokeStyle is immutable and must be recreated on changes.
+    /// </summary>
+    protected void ReCreateStrokeStyle()
+    {
+      StrokeStyleProperties prop = new StrokeStyleProperties
+      {
+        LineJoin = BorderLineJoin,
+        // TODO: add properties, where to find default values?
+        //MiterLimit = StrokeMiterLimit,
+        //DashCap = StrokeDashCap,
+        //DashOffset = StrokeDashOffset,
+        //DashStyle = StrokeDashStyle,
+        //StartCap = StrokeStartCap,
+        //EndCap = StrokeEndCap
+      };
+
+      TryDispose(ref _strokeStyle);
+      _strokeStyle = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
+    }
 
     // Allocation/Deallocation of _initializedContent not necessary because UIElement handles all direct children
 
@@ -412,6 +433,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         BorderBrush.Deallocate();
       if (Background != null)
         Background.Deallocate();
+      TryDispose(ref _strokeStyle);
       _performLayout = true;
     }
 

@@ -51,6 +51,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, brush, strokeWidth));
     }
 
+    public static void DrawGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, float strokeWidth, StrokeStyle strokeStyle, RenderContext renderContext)
+    {
+      DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, brush, strokeWidth, strokeStyle));
+    }
+
     public static void DrawTextLayout(this DeviceContext context, Vector2 origin, TextLayout textLayout, Brush brush, RenderContext renderContext)
     {
       DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawTextLayout(origin, textLayout, brush));
