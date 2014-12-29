@@ -195,93 +195,93 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       return true;
     }
 
-    /// <summary>
-    /// Converts the graphics path to an array of vertices using TriangleList.
-    /// </summary>
-    /// <param name="points">The points of the line.</param>
-    /// <param name="thickness">The thickness of the line.</param>
-    /// <param name="close">True if we should connect the first and last point.</param>
-    /// <param name="zCoord">Z coordinate of the returned vertices.</param>
-    /// <param name="lineJoin">The PenLineJoin to use.</param>
-    /// <param name="verts">The generated verts.</param>
-    public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
-    {
-      verts = null;
-      PointF[] pathPoints = AdjustPoints(points);
+    ///// <summary>
+    ///// Converts the graphics path to an array of vertices using TriangleList.
+    ///// </summary>
+    ///// <param name="points">The points of the line.</param>
+    ///// <param name="thickness">The thickness of the line.</param>
+    ///// <param name="close">True if we should connect the first and last point.</param>
+    ///// <param name="zCoord">Z coordinate of the returned vertices.</param>
+    ///// <param name="lineJoin">The PenLineJoin to use.</param>
+    ///// <param name="verts">The generated verts.</param>
+    //public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
+    //{
+    //  verts = null;
+    //  PointF[] pathPoints = AdjustPoints(points);
 
-      if (pathPoints.Length <= 0)
-        return;
+    //  if (pathPoints.Length <= 0)
+    //    return;
 
-      int pointCount;
-      if (close)
-        pointCount = pathPoints.Length;
-      else
-        pointCount = pathPoints.Length - 1;
+    //  int pointCount;
+    //  if (close)
+    //    pointCount = pathPoints.Length;
+    //  else
+    //    pointCount = pathPoints.Length - 1;
 
-      int pointsLength = pathPoints.Length;
-      List<PositionColoredTextured> vertList = new List<PositionColoredTextured>();
+    //  int pointsLength = pathPoints.Length;
+    //  List<PositionColoredTextured> vertList = new List<PositionColoredTextured>();
 
-      PointF[] lastLine = new PointF[] { PointF.Empty, PointF.Empty };
-      if (close)
-        GetLastLine(pathPoints, out lastLine);
+    //  PointF[] lastLine = new PointF[] { PointF.Empty, PointF.Empty };
+    //  if (close)
+    //    GetLastLine(pathPoints, out lastLine);
 
-      for (int i = 0; i < pointCount; i++)
-      {
-        PointF currentPoint = pathPoints[i];
-        PointF nextPoint = GetNextPoint(pathPoints, i, pointsLength);
+    //  for (int i = 0; i < pointCount; i++)
+    //  {
+    //    PointF currentPoint = pathPoints[i];
+    //    PointF nextPoint = GetNextPoint(pathPoints, i, pointsLength);
 
-        PointF movedCurrent = PointF.Empty;
-        PointF movedNext = PointF.Empty;
+    //    PointF movedCurrent = PointF.Empty;
+    //    PointF movedNext = PointF.Empty;
 
-        MoveVector(currentPoint, nextPoint, thickness, ref movedCurrent, ref movedNext);
+    //    MoveVector(currentPoint, nextPoint, thickness, ref movedCurrent, ref movedNext);
 
-        if (lastLine[0] != PointF.Empty && lastLine[1] != PointF.Empty)
-        {
-          // We move the original line by the needed thickness.
-          PointF movedLast0 = PointF.Empty;
-          PointF movedLast1 = PointF.Empty;
-          MoveVector(lastLine[0], lastLine[1], thickness, ref movedLast0, ref movedLast1);
+    //    if (lastLine[0] != PointF.Empty && lastLine[1] != PointF.Empty)
+    //    {
+    //      // We move the original line by the needed thickness.
+    //      PointF movedLast0 = PointF.Empty;
+    //      PointF movedLast1 = PointF.Empty;
+    //      MoveVector(lastLine[0], lastLine[1], thickness, ref movedLast0, ref movedLast1);
 
-          // StrokeLineJoin implementation
-          switch (lineJoin)
-          {
-            case PenLineJoin.Round:
-            // We fallback to the Miter because we don't support the Round line join yet.
-            case PenLineJoin.Miter:
-              // We need to calculate the intersection of the 2 moved lines (Line A: movedCurrent/movedNext and Line B: movedLast0/movedLast1)
-              PointF intersection;
-              if (LineIntersect(movedCurrent, movedNext, movedLast0, movedLast1, out intersection))
-              {
-                vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
-                vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
-                vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
+    //      // StrokeLineJoin implementation
+    //      switch (lineJoin)
+    //      {
+    //        case PenLineJoin.Round:
+    //        // We fallback to the Miter because we don't support the Round line join yet.
+    //        case PenLineJoin.Miter:
+    //          // We need to calculate the intersection of the 2 moved lines (Line A: movedCurrent/movedNext and Line B: movedLast0/movedLast1)
+    //          PointF intersection;
+    //          if (LineIntersect(movedCurrent, movedNext, movedLast0, movedLast1, out intersection))
+    //          {
+    //            vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+    //            vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
+    //            vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
 
-                vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
-                vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
-                vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
-              }
-              break;
-            case PenLineJoin.Bevel:
-              // This is currently not the exact WPF "Bevel" implementation, we only insert a simple triangle between the line ends.
-              vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
-              vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
-              vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
-              break;
-          }
-        }
+    //            vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+    //            vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
+    //            vertList.Add(new PositionColoredTextured { Position = new Vector3(intersection.X, intersection.Y, zCoord) });
+    //          }
+    //          break;
+    //        case PenLineJoin.Bevel:
+    //          // This is currently not the exact WPF "Bevel" implementation, we only insert a simple triangle between the line ends.
+    //          vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+    //          vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
+    //          vertList.Add(new PositionColoredTextured { Position = new Vector3(movedLast1.X, movedLast1.Y, zCoord) });
+    //          break;
+    //      }
+    //    }
 
-        vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
-        vertList.Add(new PositionColoredTextured { Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord) });
-        vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
+    //    vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
+    //    vertList.Add(new PositionColoredTextured { Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord) });
+    //    vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
 
-        vertList.Add(new PositionColoredTextured { Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord) });
-        vertList.Add(new PositionColoredTextured { Position = new Vector3(movedNext.X, movedNext.Y, zCoord) });
-        vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
+    //    vertList.Add(new PositionColoredTextured { Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord) });
+    //    vertList.Add(new PositionColoredTextured { Position = new Vector3(movedNext.X, movedNext.Y, zCoord) });
+    //    vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
 
-        lastLine = new PointF[] { currentPoint, nextPoint };
-      }
-      verts = vertList.ToArray();
-    }
+    //    lastLine = new PointF[] { currentPoint, nextPoint };
+    //  }
+    //  verts = vertList.ToArray();
+    //}
 
     /// <summary>
     /// Creates a <see cref="PrimitiveType.TriangleList"/> of vertices which cover the interior of the
