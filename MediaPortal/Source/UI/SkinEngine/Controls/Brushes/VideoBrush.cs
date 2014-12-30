@@ -30,6 +30,7 @@ using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -339,7 +340,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       
       // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
       RectangleF tranformedRect;
-      GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
+      GraphicsDevice11.Instance.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor, _lastFrameData);
     }
 

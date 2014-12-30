@@ -30,7 +30,9 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX.Direct3D9;
+using Device = SharpDX.Direct2D1.Device;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
 {
@@ -70,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static Size WindowSize
     {
-      get { return (Size) _windowSizeProperty.GetValue(); }
+      get { return (Size)_windowSizeProperty.GetValue(); }
       internal set { _windowSizeProperty.SetValue(value); }
     }
 
@@ -85,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static Form Form
     {
-      get { return GraphicsDevice.Setup.RenderTarget; }
+      get { return GraphicsDevice11.Instance.RenderTarget; }
     }
 
     public static Thread RenderThread
@@ -115,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static IRenderStrategy RenderStrategy
     {
-      get { return GraphicsDevice.RenderStrategy; }
+      get { return GraphicsDevice11.Instance.RenderStrategy; }
     }
 
     /// <summary>
@@ -123,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static void NextRenderStrategy()
     {
-      GraphicsDevice.NextRenderStrategy();
+      GraphicsDevice11.Instance.NextRenderStrategy();
     }
 
     /// <summary>
@@ -131,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static IRenderPipeline RenderPipeline
     {
-      get { return GraphicsDevice.RenderPipeline; }
+      get { return GraphicsDevice11.Instance.RenderPipeline; }
     }
 
     /// <summary>
@@ -139,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static void NextRenderPipeline()
     {
-      GraphicsDevice.NextRenderPipeline();
+      GraphicsDevice11.Instance.NextRenderPipeline();
     }
 
     /// <summary>
@@ -147,7 +149,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static bool IsMultiSample
     {
-      get { return GraphicsDevice.Setup.IsMultiSample; }
+      // TODO: remove multisampling support
+      get { return false; }
     }
 
     /// <summary>
@@ -155,8 +158,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static event EventHandler DeviceSceneBegin
     {
-      add { GraphicsDevice.DeviceSceneBegin += value; }
-      remove { GraphicsDevice.DeviceSceneBegin -= value; }
+      add { GraphicsDevice11.Instance.DeviceSceneBegin += value; }
+      remove { GraphicsDevice11.Instance.DeviceSceneBegin -= value; }
     }
 
     /// <summary>
@@ -164,8 +167,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static event EventHandler DeviceSceneEnd
     {
-      add { GraphicsDevice.DeviceSceneEnd += value; }
-      remove { GraphicsDevice.DeviceSceneEnd -= value; }
+      add { GraphicsDevice11.Instance.DeviceSceneEnd += value; }
+      remove { GraphicsDevice11.Instance.DeviceSceneEnd -= value; }
     }
 
     /// <summary>
@@ -173,8 +176,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static event EventHandler DeviceScenePresented
     {
-      add { GraphicsDevice.DeviceScenePresented += value; }
-      remove { GraphicsDevice.DeviceScenePresented -= value; }
+      add { GraphicsDevice11.Instance.DeviceScenePresented += value; }
+      remove { GraphicsDevice11.Instance.DeviceScenePresented -= value; }
     }
 
     /// <summary>
@@ -182,7 +185,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static int BackBufferWidth
     {
-      get { return GraphicsDevice.Width; }
+      get { return GraphicsDevice11.Instance.BackBuffer.Description.Width; }
     }
 
     /// <summary>
@@ -190,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static int BackBufferHeight
     {
-      get { return GraphicsDevice.Height; }
+      get { return GraphicsDevice11.Instance.BackBuffer.Description.Height; }
     }
 
     /// <summary>
@@ -219,7 +222,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       internal set
       {
         _skinResources = value;
-        _skinResourcesChangedDelegate.Fire(new object[] {_skinResources});
+        _skinResourcesChangedDelegate.Fire(new object[] { _skinResources });
       }
     }
 
@@ -235,7 +238,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </remarks>
     public static float MaxZoomHeight
     {
-      get { return GraphicsDevice.Setup.DesktopHeight / (float) _skinResources.SkinHeight; }
+      get { return GraphicsDevice.Setup.DesktopHeight / (float)_skinResources.SkinHeight; }
     }
 
     /// <summary>
@@ -247,7 +250,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </remarks>
     public static float MaxZoomWidth
     {
-      get { return GraphicsDevice.Setup.DesktopWidth / (float) _skinResources.SkinWidth; }
+      get { return GraphicsDevice.Setup.DesktopWidth / (float)_skinResources.SkinWidth; }
     }
 
     /// <summary>

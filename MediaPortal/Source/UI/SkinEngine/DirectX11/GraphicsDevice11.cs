@@ -392,6 +392,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       TryDispose(ref _device3D);
       TryDispose(ref _device2D1);
       TryDispose(ref _deviceDXGI);
+
+      foreach (IRenderPipeline renderPipeline in _renderPipelines)
+      {
+        var pipeline = renderPipeline;
+        TryDispose(ref pipeline);
+      }
     }
   }
 }

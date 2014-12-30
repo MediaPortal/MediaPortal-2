@@ -33,11 +33,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class SBSRenderPipeline : AbstractMultiPassRenderPipeline
   {
+    public SBSRenderPipeline()
+    {
+      _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width / 2, _renderTarget.Height);
+      _secondFrameTargetRect = new Rectangle(_renderTarget.Width / 2, 0, _renderTarget.Width / 2, _renderTarget.Height);
+      InitGeometries();
+    }
+
     public override void BeginRender()
     {
       base.BeginRender();
-      _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width / 2, _renderTarget.Height);
-      _secondFrameTargetRect = new Rectangle(_renderTarget.Width / 2, 0, _renderTarget.Width / 2, _renderTarget.Height);
+      //_firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width / 2, _renderTarget.Height);
+      //_secondFrameTargetRect = new Rectangle(_renderTarget.Width / 2, 0, _renderTarget.Width / 2, _renderTarget.Height);
     }
 
     public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)

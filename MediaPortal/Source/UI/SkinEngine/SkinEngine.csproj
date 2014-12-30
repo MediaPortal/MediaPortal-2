@@ -361,6 +361,7 @@
     <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\RotationTranslator.cs" />
     <Compile Include="Rendering\TemporaryRenderState.cs" />
+    <Compile Include="Rendering\TemporaryRenderTarget2D.cs" />
     <Compile Include="Rendering\TemporaryRenderTarget.cs" />
     <Compile Include="Rendering\TextBuffer2D.cs" />
     <Compile Include="Rendering\TextBuffer.cs" />

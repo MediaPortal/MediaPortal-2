@@ -22,23 +22,19 @@
 
 #endregion
 
+using System;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
-using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
   /// <summary>
   /// Abstract render pipeline that implementes a generic 1-pass 2D rendering.
   /// </summary>
-  internal abstract class AbstractRenderPipeline : IRenderPipeline
+  internal abstract class AbstractRenderPipeline : IRenderPipeline, IDisposable
   {
     public virtual void BeginRender()
     {
-      // TODO: this can't work that 2 different engines render concurrently to different devices
-      //GraphicsDevice.RenderPass = RenderPassType.SingleOrFirstPass;
-      //GraphicsDevice.Device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-      //GraphicsDevice.Device.BeginScene();
       GraphicsDevice11.Instance.RenderPass = RenderPassType.SingleOrFirstPass;
       GraphicsDevice11.Instance.Context2D1.BeginDraw();
       GraphicsDevice11.Instance.Context2D1.Clear(Color.Black);
@@ -51,7 +47,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 
     public virtual void EndRender()
     {
-      //GraphicsDevice.Device.EndScene();
       GraphicsDevice11.Instance.Context2D1.EndDraw();
     }
 
@@ -64,5 +59,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     {
       return initialScreenTransform;
     }
+
+    public virtual void Dispose() { }
   }
 }

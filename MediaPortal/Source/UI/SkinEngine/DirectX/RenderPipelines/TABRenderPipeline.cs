@@ -32,11 +32,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class TABRenderPipeline : AbstractMultiPassRenderPipeline
   {
-    public override void BeginRender()
+    public TABRenderPipeline()
     {
-      base.BeginRender();
       _firstFrameTargetRect = new Rectangle(0, 0, _renderTarget.Width, _renderTarget.Height / 2);
       _secondFrameTargetRect = new Rectangle(0, _renderTarget.Height / 2, _renderTarget.Width, _renderTarget.Height / 2);
+      InitGeometries();
     }
 
     public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
