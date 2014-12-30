@@ -35,11 +35,22 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     Texture Texture { get; }
   }
 
-  public interface IBitmapAsset2D : IAsset
+  public interface IBitmapAsset2D : IAssetAllocator
   {
     /// <summary>
     /// Gets the bitmap resource for this asset.
     /// </summary>
     Bitmap1 Bitmap { get; }
+
+    /// <summary>
+    /// Gets the width of the texture resource.
+    /// </summary>
+    int Width { get; }
+
+    /// <summary>
+    /// Gets the height of the texture resource.
+    /// </summary>
+    int Height { get; }
+
   }
 }

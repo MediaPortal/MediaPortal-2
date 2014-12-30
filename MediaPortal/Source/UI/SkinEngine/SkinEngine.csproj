@@ -83,6 +83,7 @@
     <Compile Include="Commands\IExecutableCommand.cs" />
     <Compile Include="Commands\InvokeCommand.cs" />
     <Compile Include="ContentManagement\AssetCore\BitmapAssetCore.cs" />
+    <Compile Include="ContentManagement\AssetCore\RenderTarget2DAssetCore.cs" />
     <Compile Include="ContentManagement\AssetWrapper.cs" />
     <Compile Include="ContentManagement\AssetCore\RenderTargetAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\EffectAssetCore.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="ContentManagement\AssetCore\TemporaryAssetCoreBase.cs" />
     <Compile Include="ContentManagement\AssetCore\TextureAssetCore.cs" />
     <Compile Include="ContentManagement\ContentManager.cs" />
+    <Compile Include="ContentManagement\RenderTarget2DAsset.cs" />
     <Compile Include="ContentManagement\RenderTargetAsset.cs" />
     <Compile Include="ContentManagement\EffectAsset.cs" />
     <Compile Include="ContentManagement\FontAsset.cs" />
@@ -142,6 +144,7 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\BinaryTextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
+    <Compile Include="Controls\IRenderBrush.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />
     <Compile Include="Controls\Panels\VirtualizingWrapPanel.cs" />
     <Compile Include="Controls\Visuals\BackgroundEffect.cs" />

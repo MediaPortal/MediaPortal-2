@@ -26,30 +26,29 @@ using System;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class VisualBrush : TileBrush
+  public class VisualBrush : TileBrush, IRenderBrush
   {
     #region Protected fields
 
     protected AbstractProperty _visualProperty;
     protected AbstractProperty _autoLayoutContentProperty;
-    protected RenderTextureAsset _visualTexture = null;
     protected Screen _screen = null;
     protected SizeF _visualSize = new SizeF();
     protected FrameworkElement _preparedVisual = null;
-    protected String _renderTextureKey;
+    protected String _renderTargetKey;
     protected static int _visualBrushId = 0;
 
     #endregion
@@ -59,7 +58,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public VisualBrush()
     {
       _visualBrushId++;
-      _renderTextureKey = String.Format("VisualBrush RenderTexture #{0}", _visualBrushId);
+      _renderTargetKey = String.Format("VisualBrush RenderTarget2D #{0}", _visualBrushId);
+
       Init();
       Attach();
     }
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      VisualBrush b = (VisualBrush) source;
+      VisualBrush b = (VisualBrush)source;
       Visual = copyManager.GetCopy(b.Visual); // Copy visual, as same could be used multiple times
       AutoLayoutContent = b.AutoLayoutContent;
       Attach();
@@ -106,14 +106,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void UpdateRenderTarget(FrameworkElement fe)
     {
-      //RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
-      //fe.RenderToSurface(_visualSurface, new RenderContext(Matrix.Identity, Opacity, bounds, 1.0f));
-
-      //// Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
-      //GraphicsDevice.Device.StretchRectangle(
-      //    _visualSurface.Surface, new Rectangle(0, 0, _visualSurface.Size.Width, _visualSurface.Size.Height),
-      //    _visualTexture.Surface0, new Rectangle(0, 0, _visualTexture.Size.Width, _visualTexture.Size.Height),
-      //    TextureFilter.None);
+      RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
+      var oldTarget = GraphicsDevice11.Instance.Context2D1.Target;
+      // Render visual to local render target (Bitmap)
+      GraphicsDevice11.Instance.Context2D1.Target = _tex.Bitmap;
+      //GraphicsDevice11.Instance.Context2D1.BeginDraw();
+      fe.Render(new RenderContext(Matrix.Identity, bounds));
+      //GraphicsDevice11.Instance.Context2D1.EndDraw();
+      GraphicsDevice11.Instance.Context2D1.Target = oldTarget;
     }
 
     protected void PrepareVisual()
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public FrameworkElement Visual
     {
-      get { return (FrameworkElement) _visualProperty.GetValue(); }
+      get { return (FrameworkElement)_visualProperty.GetValue(); }
       set { _visualProperty.SetValue(value); }
     }
 
@@ -164,23 +164,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public bool AutoLayoutContent
     {
-      get { return (bool) _autoLayoutContentProperty.GetValue(); }
+      get { return (bool)_autoLayoutContentProperty.GetValue(); }
       set { _autoLayoutContentProperty.SetValue(value); }
     }
 
-    public Texture Texture
+    public Bitmap1 Bitmap
     {
-      get { return _visualTexture.Texture; }
+      get { return (_tex == null) ? null : _tex.Bitmap; }
     }
 
     protected override Vector2 BrushDimensions
     {
-      get { return (_visualTexture != null) ? new Vector2(_visualTexture.Width, _visualTexture.Height) : new Vector2(1.0f, 1.0f); }
+      get { return (_tex != null) ? new Vector2(_tex.Width, _tex.Height) : new Vector2(1.0f, 1.0f); }
     }
 
     protected override Vector2 TextureMaxUV
     {
-      get { return (_visualTexture != null) ? new Vector2(_visualTexture.MaxU, _visualTexture.MaxV) : new Vector2(1.0f, 1.0f); }
+      get { return new Vector2(1.0f, 1.0f); }
     }
 
     #endregion
@@ -188,20 +188,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
-      _visualTexture = ContentManager.Instance.GetRenderTexture(_renderTextureKey);
+      _tex = ContentManager.Instance.GetRenderTarget2D(_renderTargetKey);
       _screen = parent.Screen;
       PrepareVisual();
     }
 
-    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    public bool RenderContent(RenderContext renderContext)
     {
       FrameworkElement fe = _preparedVisual;
       if (fe == null) return false;
-      _visualTexture.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      ((RenderTarget2DAsset)_tex).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
 
       UpdateRenderTarget(fe);
-
-      return base.BeginRenderBrushOverride(primitiveContext, renderContext);
+      return true;
     }
 
     public override void Allocate()
@@ -210,6 +209,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       FrameworkElement fe = _preparedVisual;
       if (fe != null)
         fe.Allocate();
+      if (_tex != null)
+      {
+        ((RenderTarget2DAsset)_tex).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
+
+        if (!_tex.IsAllocated)
+          return;
+        BitmapBrushProperties props = new BitmapBrushProperties
+        {
+          ExtendModeX = ExtendMode.Clamp,
+          ExtendModeY = ExtendMode.Clamp,
+        };
+        SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _tex.Bitmap, props));
+      }
     }
 
     public override void Deallocate()

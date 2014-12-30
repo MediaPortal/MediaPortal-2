@@ -263,7 +263,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brush background = Background;
       if (background != null && background.TryAllocate() && _backgroundGeometry != null)
       {
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background.Brush2D, OpacityMask, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background, OpacityMask, localRenderContext);
       }
 
       FrameworkElement templateControl = _initializedTemplateControl;

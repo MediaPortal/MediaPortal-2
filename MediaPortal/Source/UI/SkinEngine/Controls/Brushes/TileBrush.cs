@@ -93,6 +93,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Vector4 _brushTransform;
     protected Matrix _relativeTransformCache;
 
+    protected IBitmapAsset2D _tex;
+
     #endregion
 
     #region Ctor
@@ -107,6 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
+      TryDispose(ref _tex);
     }
 
     void Init()
@@ -467,6 +470,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         textureClip.Height * TextureMaxUV.Y
         );
       return vector4;
+    }
+
+    // Transform brush into control scope
+    protected override void SetBrushTransform()
+    {
+      if (_brush2D == null || _vertsBounds.IsEmpty || _tex == null)
+        return;
+      Matrix3x2 transform = Matrix3x2.Identity;
+      transform *= Matrix3x2.Scaling(_vertsBounds.Width / _tex.Width, _vertsBounds.Height / _tex.Height);
+      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
+      _brush2D.Transform = transform;
     }
 
     protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)

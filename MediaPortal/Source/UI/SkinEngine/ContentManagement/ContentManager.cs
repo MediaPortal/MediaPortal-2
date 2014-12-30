@@ -299,6 +299,18 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           () => new RenderTargetAssetCore()) as RenderTargetAsset;
     }
 
+    /// <summary>
+    /// Retrieves a <see cref="RenderTarget2DAsset"/>, creating it if necessary.
+    /// </summary>
+    /// <param name="key">The name/key to use for storing the asset.</param>
+    /// <returns>A <see cref="RenderTargetAsset"/> object.</returns>
+    public RenderTarget2DAsset GetRenderTarget2D(string key)
+    {
+      return GetCreateAsset(AssetType.RenderTarget, key,
+          assetCore => new RenderTarget2DAsset(assetCore as RenderTarget2DAssetCore),
+          () => new RenderTarget2DAssetCore()) as RenderTarget2DAsset;
+    }
+
     #endregion
 
     #region Public asset methods (2D)

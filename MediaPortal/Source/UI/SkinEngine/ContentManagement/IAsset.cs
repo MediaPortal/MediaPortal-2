@@ -41,4 +41,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </value>
     bool IsAllocated { get; }
   }
+
+  /// <summary>
+  /// Exposed by assets to allow allocation of resources.
+  /// </summary>
+  public interface IAssetAllocator: IAsset
+  {
+    /// <summary>
+    /// Allocates required resources.
+    /// </summary>
+    void Allocate();
+  }
 }
