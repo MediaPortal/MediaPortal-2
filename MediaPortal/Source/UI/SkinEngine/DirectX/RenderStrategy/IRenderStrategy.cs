@@ -22,17 +22,17 @@
 
 #endregion
 
-using SharpDX.Direct3D9;
+using SharpDX.DXGI;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   /// <summary>
   /// <see cref="IRenderStrategy"/> is used by the <seealso cref="GraphicsDevice"/>"/> to control the rendering of a scene. Each different
-  /// strategy can control the <see cref="PresentMode"/>, do manual waiting on <see cref="BeginRender"/> and affect other parameters of the rendering
+  /// strategy can control the <see cref="PresentFlags"/>, do manual waiting on <see cref="BeginRender"/> and affect other parameters of the rendering
   /// system.
   /// <para>
   /// Not all <see cref="IRenderStrategy"/> modes can be used for MultiSampling screen modes (i.e. they require a specific
-  /// <see cref="PresentMode"/> of <see cref="Present.None"/>).
+  /// <see cref="PresentFlags"/>).
   /// So classes that implement <see cref="IRenderStrategy"/> have to declare if they are compabtible with MultiSampling by implementing
   /// <see cref="IsMultiSampleCompatible"/>.
   /// </para>
@@ -45,20 +45,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     string Name { get; }
 
     /// <summary>
-    /// Returns <c>true</c> if strategy is MultiSampling compatible.
-    /// </summary>
-    bool IsMultiSampleCompatible { get; }
-
-    /// <summary>
     /// Sets the target frame rate for rendering. This can be used for manual render delay handling.
     /// </summary>
     /// <param name="frameRate"></param>
-    void SetTargetFrameRate(double frameRate);
+    void SetTargetFrameRate(Rational frameRate);
     
     /// <summary>
     /// Gets the current frame rate, which was set before by <see cref="SetTargetFrameRate"/>.
     /// </summary>
-    double TargetFrameRate { get; }
+    Rational TargetFrameRate { get; }
 
     /// <summary>
     /// Gets the time per frame in ms.
@@ -77,8 +72,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     void EndRender();
 
     /// <summary>
-    /// Gets the <see cref="Present"/> mode.
+    /// Gets the <see cref="PresentFlags"/>.
     /// </summary>
-    Present PresentMode { get; }
+    PresentFlags PresentFlags { get; }
+
+    /// <summary>
+    /// Gets the sync interval for presenting swap chain.
+    /// </summary>
+    int SyncInterval { get; }
   }
 }

@@ -21,19 +21,18 @@
 */
 
 #endregion
-using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   /// <summary>
-  /// The presenting is using <see cref="Present.None"/>, so each frame will be syncronized with v-blank.
+  /// The presenting is using SyncInterval of <see cref="AbstractStrategy.SYNC_VBLANK"/>, so each frame will be syncronized with v-blank.
   /// If MultiSampling is used, this mode is equal to <see cref="Default"/>.
   /// </summary>
   class VSync : AbstractStrategy
   {
     public VSync(D3DSetup setup) : base(setup)
     {
-      PresentMode = Present.None;
+      SyncInterval = SYNC_VBLANK;
     }
   }
 }

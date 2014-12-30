@@ -253,6 +253,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
           new MaxPerformance(_setup)
         };
       _currentRenderStrategyIndex = 0;
+      _renderStrategies.ForEach(r => r.SetTargetFrameRate(_swapChain.Description.ModeDescription.RefreshRate));
     }
 
     /// <summary>
@@ -349,8 +350,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
         Fire(DeviceSceneEnd);
 
-        _swapChain.Present(0, PresentFlags.None);
-        //_device.PresentEx(renderStrategy.PresentMode);
+        _swapChain.Present(renderStrategy.SyncInterval, renderStrategy.PresentFlags);
 
         Fire(DeviceScenePresented);
 

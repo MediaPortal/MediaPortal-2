@@ -23,12 +23,12 @@
 #endregion
 using System;
 using System.Threading;
-using SharpDX.Direct3D9;
+using SharpDX.DXGI;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   /// <summary>
-  /// If MultiSampling is used, this mode uses <see cref="Present.None"/>, otherwise <see cref="Present.ForceImmediate"/> with manual frame time waiting.
+  /// Default strategy uses <see cref="PresentFlags.DoNotWait"/> with manual frame time waiting.
   /// </summary>
   class Default : AbstractStrategy
   {
@@ -37,9 +37,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 
     public Default(D3DSetup setup) : base(setup)
     {
-      _manualWaitFrame = !setup.IsMultiSample;
-      //PresentMode = setup.Present;
-      IsMultiSampleCompatible = true;
+      _manualWaitFrame = true;
+      PresentFlags = PresentFlags.None;
     }
 
     public override void BeginRender(bool doWaitForNextFame)
