@@ -1,4 +1,5 @@
 ﻿using System;
+using MediaPortal.UI.SkinEngine.Controls;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -21,6 +22,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush));
     }
 
+    public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Controls.Brushes.Brush brush, Controls.Brushes.Brush opacityBrush, RenderContext renderContext)
+    {
+      IRenderBrush renderBrush = brush as IRenderBrush;
+      if (renderBrush != null)
+      {
+        if (!renderBrush.RenderContent(renderContext))
+          return;
+      }
+      FillGeometry(context, geometry, brush.Brush2D, opacityBrush, renderContext);
+    }
+
     public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, Controls.Brushes.Brush opacityBrush, RenderContext renderContext)
     {
       if (opacityBrush == null || !opacityBrush.TryAllocate())
@@ -41,8 +53,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
           }
           else
             GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush.Brush2D);
-          // Only for debugging: if there were errors they are only visible in EndDraw / Flush
-          //GraphicsDevice11.Instance.Context2D1.Flush();
         });
     }
 
@@ -82,6 +92,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform;
 
       renderCall();
+      // Only for debugging: if there were errors they are only visible in EndDraw / Flush. This call is bad for performance.
+      //GraphicsDevice11.Instance.Context2D1.Flush();
 
       GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
       if (brush != null)

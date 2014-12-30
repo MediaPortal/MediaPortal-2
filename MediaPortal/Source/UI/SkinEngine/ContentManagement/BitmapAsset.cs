@@ -24,7 +24,6 @@
 
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using SharpDX.Direct2D1;
-using SharpDX.WIC;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {

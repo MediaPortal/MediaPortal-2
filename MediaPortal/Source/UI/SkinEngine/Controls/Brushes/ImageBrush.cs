@@ -39,7 +39,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _imageSourceProperty;
     protected AbstractProperty _downloadProgressProperty;
     protected AbstractProperty _thumbnailProperty;
-    protected BitmapAsset _tex;
 
     #endregion
 
@@ -83,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ImageBrush b = (ImageBrush) source;
+      ImageBrush b = (ImageBrush)source;
       ImageSource = b.ImageSource;
       DownloadProgress = b.DownloadProgress;
       Thumbnail = b.Thumbnail;
@@ -102,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public string ImageSource
     {
-      get { return (string) _imageSourceProperty.GetValue(); }
+      get { return (string)_imageSourceProperty.GetValue(); }
       set { _imageSourceProperty.SetValue(value); }
     }
 
@@ -113,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public double DownloadProgress
     {
-      get { return (double) _downloadProgressProperty.GetValue(); }
+      get { return (double)_downloadProgressProperty.GetValue(); }
       set { _downloadProgressProperty.SetValue(value); }
     }
 
@@ -129,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public bool Thumbnail
     {
-      get { return (bool) _thumbnailProperty.GetValue(); }
+      get { return (bool)_thumbnailProperty.GetValue(); }
       set { _thumbnailProperty.SetValue(value); }
     }
 
@@ -139,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override Vector2 TextureMaxUV
     {
-      get { return (_tex == null || !_tex.IsAllocated) ? new Vector2(1.0f, 1.0f) : new Vector2(_tex.MaxU, _tex.MaxV); }
+      get { return new Vector2(1.0f, 1.0f); }
     }
 
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
@@ -185,17 +184,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Allocate();
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
-    }
-
-    // Transform brush into control scope
-    protected override void SetBrushTransform()
-    {
-      if (_brush2D == null || _vertsBounds.IsEmpty || _tex == null)
-        return;
-      Matrix3x2 transform = Matrix3x2.Identity;
-      transform *= Matrix3x2.Scaling(_vertsBounds.Width / _tex.Width, _vertsBounds.Height / _tex.Height);
-      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
-      _brush2D.Transform = transform;
     }
 
     #endregion
