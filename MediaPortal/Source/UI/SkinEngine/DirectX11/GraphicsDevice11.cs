@@ -17,6 +17,7 @@ using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
 using SharpDX.DXGI;
 using SharpDX.WIC;
+using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using Device = SharpDX.Direct3D11.Device;
 using Device1 = SharpDX.Direct3D11.Device1;
 using DeviceContext = SharpDX.Direct2D1.DeviceContext;
@@ -116,6 +117,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
     public RenderPassType RenderPass { get; set; }
 
+    public BitmapInterpolationMode InterpolationMode { get; private set; }
+
     // Render process related events
     public event EventHandler DeviceSceneBegin;
     public event EventHandler DeviceSceneEnd;
@@ -141,6 +144,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     {
       RenderTarget = window;
       CreateDevice();
+      InitDefaults();
+    }
+
+    private void InitDefaults()
+    {
+      // Init some performance / quality relevant properties
+      InterpolationMode = BitmapInterpolationMode.Linear;
     }
 
     public void CreateDevice()

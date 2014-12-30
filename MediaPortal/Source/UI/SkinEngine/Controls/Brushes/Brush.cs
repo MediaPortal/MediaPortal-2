@@ -307,13 +307,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _brush2D.Transform = transform;
     }
 
-    protected Vector2 TransformToBoundary(Vector2 relativeCoord)
-    {
-      var x = _vertsBounds.Left + _vertsBounds.Width * relativeCoord.X;
-      var y = _vertsBounds.Top + _vertsBounds.Height * relativeCoord.Y;
-      return new Vector2(x, y);
-    }
-
     #endregion
   }
 }

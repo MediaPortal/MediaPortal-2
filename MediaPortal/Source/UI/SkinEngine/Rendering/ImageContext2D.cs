@@ -170,13 +170,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, RectangleF targetRect, Bitmap1 bitmap, RectangleF textureClip,
-        Color borderColor, Vector4 frameData)
+    public bool StartRender(RenderContext renderContext, RectangleF targetRect, Bitmap1 bitmap, RectangleF textureClip, Color borderColor, Vector4 frameData)
     {
       _bitmap = bitmap;
 
-      GraphicsDevice11.Instance.Context2D1.DrawBitmap(_bitmap, targetRect, (float)renderContext.Opacity, BitmapInterpolationMode.NearestNeighbor, renderContext);
-      return StartRender(renderContext, borderColor, frameData);
+      GraphicsDevice11.Instance.Context2D1.DrawBitmap(_bitmap, targetRect, textureClip, (float)renderContext.Opacity, renderContext);
+      return true;
     }
     ///// <summary>
     ///// Starts a rendering operation where two images are mixed together using a transition effect.

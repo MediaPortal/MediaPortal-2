@@ -22,7 +22,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush));
     }
 
-    public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Controls.Brushes.Brush brush, Controls.Brushes.Brush opacityBrush, RenderContext renderContext)
+    public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Controls.Brushes.Brush brush, RenderContext renderContext)
     {
       IRenderBrush renderBrush = brush as IRenderBrush;
       if (renderBrush != null)
@@ -30,7 +30,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         if (!renderBrush.RenderContent(renderContext))
           return;
       }
-      FillGeometry(context, geometry, brush.Brush2D, opacityBrush, renderContext);
+      FillGeometry(context, geometry, brush.Brush2D, renderContext);
     }
 
     public static void FillGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, Controls.Brushes.Brush opacityBrush, RenderContext renderContext)
@@ -38,22 +38,20 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       if (opacityBrush == null || !opacityBrush.TryAllocate())
         FillGeometry(context, geometry, brush, renderContext);
       else
-        DrawAdjustedToRenderContext(brush, renderContext, () =>
+      {
+        var opacityBrush2D = opacityBrush.Brush2D;
+        if (opacityBrush2D is SolidColorBrush)
         {
-          var opacityBrush2D = opacityBrush.Brush2D;
-          if (opacityBrush2D is SolidColorBrush)
-          {
-            // SolidColorBrushes won't work? So only use the Alpha value
-            brush.Opacity *= ((SolidColorBrush)opacityBrush2D).Color.Alpha;
-            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
-          }
-          else if (opacityBrush2D is LinearGradientBrush || opacityBrush2D is RadialGradientBrush || opacityBrush2D is BitmapBrush)
-          {
-            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
-          }
-          else
-            GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush, opacityBrush.Brush2D);
-        });
+          // SolidColorBrushes won't work? So only use the Alpha value
+          brush.Opacity *= ((SolidColorBrush)opacityBrush2D).Color.Alpha;
+          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
+        }
+        else
+        {
+          // Other kinds of OpacityMasks are handled as Layers
+          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
+        }
+      }
     }
 
     public static void DrawGeometry(this DeviceContext context, SharpDX.Direct2D1.Geometry geometry, Brush brush, float strokeWidth, RenderContext renderContext)
@@ -71,9 +69,26 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       DrawAdjustedToRenderContext(brush, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawTextLayout(origin, textLayout, brush));
     }
 
-    public static void DrawBitmap(this DeviceContext context, Bitmap bitmap, RectangleF destinationRectangle, float opacity, BitmapInterpolationMode interpolationMode, RenderContext renderContext)
+    public static void DrawBitmap(this DeviceContext context, Bitmap bitmap, RectangleF destinationRectangle, RectangleF textureClip, float opacity, RenderContext renderContext)
     {
-      DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawBitmap(bitmap, destinationRectangle, opacity, interpolationMode));
+      AdjustClipRect(bitmap, ref textureClip);
+      DrawAdjustedToRenderContext(null, renderContext,
+        () => GraphicsDevice11.Instance.Context2D1.DrawBitmap(bitmap, destinationRectangle, opacity, GraphicsDevice11.Instance.InterpolationMode, textureClip));
+    }
+
+    /// <summary>
+    /// Translates relative rect to real size.
+    /// </summary>
+    /// <param name="bitmap">Bitmap</param>
+    /// <param name="textureClip">Relative rect</param>
+    private static void AdjustClipRect(Bitmap bitmap, ref RectangleF textureClip)
+    {
+      int w = bitmap.PixelSize.Width;
+      int h = bitmap.PixelSize.Height;
+      textureClip.Width *= w;
+      textureClip.Height *= h;
+      textureClip.Left *= textureClip.Width;
+      textureClip.Top *= textureClip.Height;
     }
 
     public static void DrawAdjustedToRenderContext(Brush brush, RenderContext renderContext, Action renderCall)
@@ -92,15 +107,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform;
 
       renderCall();
+
       // Only for debugging: if there were errors they are only visible in EndDraw / Flush. This call is bad for performance.
       //GraphicsDevice11.Instance.Context2D1.Flush();
 
       GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
       if (brush != null)
-      {
         brush.Opacity = oldOpacity;
-      }
-      ;
     }
   }
 }
