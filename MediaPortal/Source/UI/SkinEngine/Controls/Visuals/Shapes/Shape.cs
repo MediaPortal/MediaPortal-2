@@ -246,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         var fill = Fill;
         if (fill != null && fill.TryAllocate())
         {
-          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill, OpacityMask, localRenderContext); // TODO: Opacity brush?
+          GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill, localRenderContext); // TODO: Opacity brush?
         }
         var stroke = Stroke;
         if (stroke != null && stroke.TryAllocate())

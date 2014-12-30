@@ -39,7 +39,7 @@ using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class VisualBrush : TileBrush, IRenderBrush
+  public class VisualBrush : TileBrush
   {
     #region Protected fields
 
@@ -110,9 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       var oldTarget = GraphicsDevice11.Instance.Context2D1.Target;
       // Render visual to local render target (Bitmap)
       GraphicsDevice11.Instance.Context2D1.Target = _tex.Bitmap;
-      //GraphicsDevice11.Instance.Context2D1.BeginDraw();
       fe.Render(new RenderContext(Matrix.Identity, bounds));
-      //GraphicsDevice11.Instance.Context2D1.EndDraw();
       GraphicsDevice11.Instance.Context2D1.Target = oldTarget;
     }
 
@@ -193,8 +191,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PrepareVisual();
     }
 
-    public bool RenderContent(RenderContext renderContext)
+    public override bool RenderContent(RenderContext renderContext)
     {
+      if (!base.RenderContent(renderContext))
+        return false;
+
       FrameworkElement fe = _preparedVisual;
       if (fe == null) return false;
       ((RenderTarget2DAsset)_tex).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);

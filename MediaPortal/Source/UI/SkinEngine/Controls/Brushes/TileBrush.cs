@@ -30,6 +30,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Direct2D1;
 using Stretch = MediaPortal.UI.SkinEngine.Controls.Visuals.Stretch;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -50,29 +51,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     FlipXY
   };
 
-  public abstract class TileBrush : Brush
+  public abstract class TileBrush : Brush, IRenderBrush
   {
     #region Consts
 
-    protected const string EFFECT_TILE = "tile";
-    protected const string EFFECT_TILE_OPACITY = "tile_opacity";
-    protected const string EFFECT_TILE_SIMPLE = "tile_simple";
-    protected const string EFFECT_TILE_OPACITY_SIMPLE = "tile_simple_opacity";
-
-    protected const string PARAM_TRANSFORM = "g_transform";
-    protected const string PARAM_OPACITY = "g_opacity";
-
-    protected const string PARAM_TEXTURE = "g_texture";
-    protected const string PARAM_ALPHATEX = "g_alphatex";
-    protected const string PARAM_TEXTURE_VIEWPORT = "g_textureviewport";
-    protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
-    protected const string PARAM_BRUSH_TRANSFORM = "g_brushtransform";
-
-    // Only used for complex cases (tiling / flipping)
-    protected const string PARAM_U_OFFSET = "g_uoffset";
-    protected const string PARAM_V_OFFSET = "g_voffset";
-    protected const string PARAM_TILE_U = "g_tileu";
-    protected const string PARAM_TILE_V = "g_tilev";
+    protected readonly RectangleF CROP_FULLSIZE = new RectangleF(0, 0, 1, 1);
 
     #endregion
 
@@ -87,13 +70,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _animationEnabledProperty;
 
     protected bool _refresh = true;
-    protected bool _simplemode = false;
-    protected EffectAsset _effect;
     protected Vector4 _textureViewport;
-    protected Vector4 _brushTransform;
     protected Matrix _relativeTransformCache;
 
     protected IBitmapAsset2D _tex;
+    protected RectangleF _textureClip;
 
     #endregion
 
@@ -149,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      TileBrush b = (TileBrush) source;
+      TileBrush b = (TileBrush)source;
       AlignmentX = b.AlignmentX;
       AlignmentY = b.AlignmentY;
       Stretch = b.Stretch;
@@ -175,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public AlignmentX AlignmentX
     {
-      get { return (AlignmentX) _alignmentXProperty.GetValue(); }
+      get { return (AlignmentX)_alignmentXProperty.GetValue(); }
       set { _alignmentXProperty.SetValue(value); }
     }
 
@@ -189,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public AlignmentY AlignmentY
     {
-      get { return (AlignmentY) _alignmentYProperty.GetValue(); }
+      get { return (AlignmentY)_alignmentYProperty.GetValue(); }
       set { _alignmentYProperty.SetValue(value); }
     }
 
@@ -203,7 +184,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public Stretch Stretch
     {
-      get { return (Stretch) _stretchProperty.GetValue(); }
+      get { return (Stretch)_stretchProperty.GetValue(); }
       set { _stretchProperty.SetValue(value); }
     }
 
@@ -217,7 +198,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public Vector4 ViewPort
     {
-      get { return (Vector4) _viewPortProperty.GetValue(); }
+      get { return (Vector4)_viewPortProperty.GetValue(); }
       set { _viewPortProperty.SetValue(value); }
     }
 
@@ -231,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public TileMode Tile
     {
-      get { return (TileMode) _tileModeProperty.GetValue(); }
+      get { return (TileMode)_tileModeProperty.GetValue(); }
       set { _tileModeProperty.SetValue(value); }
     }
 
@@ -242,7 +223,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public IImageAnimator Animation
     {
-      get { return (IImageAnimator) _animationProperty.GetValue(); }
+      get { return (IImageAnimator)_animationProperty.GetValue(); }
       set { _animationProperty.SetValue(value); }
     }
 
@@ -253,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public bool AnimationEnabled
     {
-      get { return (bool) _animationEnabledProperty.GetValue(); }
+      get { return (bool)_animationEnabledProperty.GetValue(); }
       set { _animationEnabledProperty.SetValue(value); }
     }
 
@@ -316,6 +297,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       //  _effect.EndRender();
     }
 
+    public virtual bool RenderContent(RenderContext renderContext)
+    {
+      if (_refresh)
+      {
+        RefreshEffectParameters();
+        _refresh = false;
+      }
+      SetEffectParameters(renderContext);
+      return true;
+    }
+
     protected void RefreshEffectParameters()
     {
       float w = _vertsBounds.Width;
@@ -374,45 +366,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         };
 
       // This structure is used for modifying vertex texture coords to position the brush texture
-      _brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
+      //_brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
 
       _relativeTransformCache = RelativeTransform == null ? Matrix.Identity : Matrix.Invert(RelativeTransform.GetTransform());
-
-      // Determine if we can use the simpler, more optimised effects
-      if (Tile == TileMode.None && Stretch != Stretch.UniformToFill)
-        _simplemode = true;
-      else if (ViewPort.X <= 0.0f && ViewPort.Z >= 1.0f && ViewPort.Y <= 0.0f && ViewPort.W >= 1.0f)
-        _simplemode = true;
-      else
-        _simplemode = false;
     }
 
     protected void SetEffectParameters(RenderContext renderContext)
     {
       Vector2 uvoffset = new Vector2(0.0f, 0.0f);
+      BitmapBrush bmpBrush = _brush2D as BitmapBrush;
+      if (bmpBrush == null)
+        return;
       switch (Tile)
       {
         case TileMode.Tile:
           // Tile both directions
-          _effect.Parameters[PARAM_TILE_U] = 1; // D3DTADDRESS_WRAP
-          _effect.Parameters[PARAM_TILE_V] = 1; // D3DTADDRESS_WRAP
+          bmpBrush.ExtendModeX = ExtendMode.Wrap;
+          bmpBrush.ExtendModeY = ExtendMode.Wrap;
           break;
         case TileMode.FlipX:
           // Tile both directions but mirror texture on alterate repeats in u/x direction
-          _effect.Parameters[PARAM_TILE_U] = 2; // D3DTADDRESS_MIRROR
-          _effect.Parameters[PARAM_TILE_V] = 1; // D3DTADDRESS_WRAP
+          bmpBrush.ExtendModeX = ExtendMode.Mirror;
+          bmpBrush.ExtendModeY = ExtendMode.Wrap;
           uvoffset.X = 1.0f - TextureMaxUV.X;
           break;
         case TileMode.FlipY:
           // Tile both directions but mirror texture on alterate repeats in v/y direction
-          _effect.Parameters[PARAM_TILE_U] = 1; // D3DTADDRESS_WRAP
-          _effect.Parameters[PARAM_TILE_V] = 2; // D3DTADDRESS_MIRROR
+          bmpBrush.ExtendModeX = ExtendMode.Wrap;
+          bmpBrush.ExtendModeY = ExtendMode.Mirror;
           uvoffset.Y = 1.0f - TextureMaxUV.Y;
           break;
         case TileMode.FlipXY:
           // Tile and mirror texture in both directions
-          _effect.Parameters[PARAM_TILE_U] = 2; // D3DTADDRESS_MIRROR
-          _effect.Parameters[PARAM_TILE_V] = 2; // D3DTADDRESS_MIRROR
+          bmpBrush.ExtendModeX = ExtendMode.Mirror;
+          bmpBrush.ExtendModeY = ExtendMode.Mirror;
           uvoffset = TextureMaxUV;
           uvoffset.X = 1.0f - uvoffset.X;
           uvoffset.Y = 1.0f - uvoffset.Y;
@@ -420,28 +407,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         case TileMode.None:
         default:
           // No tiling
-          _effect.Parameters[PARAM_TILE_U] = 4; // D3DTADDRESS_BORDER
-          _effect.Parameters[PARAM_TILE_V] = 4; // D3DTADDRESS_BORDER
+          bmpBrush.ExtendModeX = ExtendMode.Clamp;
+          bmpBrush.ExtendModeY = ExtendMode.Clamp;
+          //_effect.Parameters[PARAM_TILE_U] = 4; // D3DTADDRESS_BORDER
+          //_effect.Parameters[PARAM_TILE_V] = 4; // D3DTADDRESS_BORDER
           break;
       }
-
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
-      _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
-      _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
-      _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = GetTextureClip();
-      _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
-      _effect.Parameters[PARAM_V_OFFSET] = uvoffset.Y;
-    }
-
-    protected void SetSimpleEffectParameters(RenderContext renderContext)
-    {
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
-      _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
-      _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
-      _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = GetTextureClip();
-
+      _textureClip = GetTextureClip();
+      SetBrushTransform();
     }
 
     public void Reset()
@@ -452,24 +425,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _refresh = true;
     }
 
-    public Vector4 GetTextureClip()
+    public RectangleF GetTextureClip()
     {
       IImageAnimator animator = Animation;
       // TODO: Execute animation in own timer
       if (animator == null || !AnimationEnabled)
-        return _brushTransform;
+        return CROP_FULLSIZE;
 
-      Size size = new Size((int) BrushDimensions.X, (int) BrushDimensions.Y);
-      Size outputSize = new Size((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      Size size = new Size((int)BrushDimensions.X, (int)BrushDimensions.Y);
+      Size outputSize = new Size((int)_vertsBounds.Width, (int)_vertsBounds.Height);
       RectangleF textureClip = animator.GetZoomRect(size, outputSize, DateTime.Now);
 
-      var vector4 = new Vector4(
-        -textureClip.X * TextureMaxUV.X, 
-        -textureClip.Y * TextureMaxUV.Y,
-        textureClip.Width * TextureMaxUV.X, 
-        textureClip.Height * TextureMaxUV.Y
-        );
-      return vector4;
+      return textureClip;
     }
 
     // Transform brush into control scope
@@ -478,12 +445,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_brush2D == null || _vertsBounds.IsEmpty || _tex == null)
         return;
       Matrix3x2 transform = Matrix3x2.Identity;
-      transform *= Matrix3x2.Scaling(_vertsBounds.Width / _tex.Width, _vertsBounds.Height / _tex.Height);
-      transform *= Matrix3x2.Translation(_vertsBounds.X, _vertsBounds.Y);
+      float contentWidth = _tex.Width;
+      float contentHeight = _tex.Height;
+      float brushOffsetX = 0f;
+      float brushOffsetY = 0f;
+      if (!_textureClip.IsEmpty)
+      {
+        contentWidth = _textureClip.Width * _tex.Width;
+        contentHeight = _textureClip.Height * _tex.Height;
+        brushOffsetX = _textureClip.Left * _tex.Width;
+        brushOffsetY = _textureClip.Top * _tex.Height;
+      }
+      transform *= Matrix3x2.Scaling(_vertsBounds.Width / contentWidth, _vertsBounds.Height / contentHeight);
+      transform *= Matrix3x2.Translation(_vertsBounds.X - brushOffsetX, _vertsBounds.Y - brushOffsetY);
       _brush2D.Transform = transform;
     }
 
-    protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)
+    protected virtual Vector4 AlignBrushInViewport(Vector2 brushSize)
     {
       Vector4 rect = new Vector4();
       switch (AlignmentX)
@@ -493,12 +471,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           break;
 
         case AlignmentX.Right:
-          rect.X = ViewPort.X + ViewPort.Z - brush_size.X;
+          rect.X = ViewPort.X + ViewPort.Z - brushSize.X;
           break;
 
         case AlignmentX.Center:
         default:
-          rect.X = ViewPort.X + (ViewPort.Z - brush_size.X) / 2;
+          rect.X = ViewPort.X + (ViewPort.Z - brushSize.X) / 2;
           break;
       }
       switch (AlignmentY)
@@ -508,16 +486,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           break;
 
         case AlignmentY.Bottom:
-          rect.Y = ViewPort.Y + ViewPort.W - brush_size.Y;
+          rect.Y = ViewPort.Y + ViewPort.W - brushSize.Y;
           break;
 
         case AlignmentY.Center:
         default:
-          rect.Y = ViewPort.Y + (ViewPort.W - brush_size.Y) / 2;
+          rect.Y = ViewPort.Y + (ViewPort.W - brushSize.Y) / 2;
           break;
       }
-      rect.Z = brush_size.X;
-      rect.W = brush_size.Y;
+      rect.Z = brushSize.X;
+      rect.W = brushSize.Y;
       return rect;
     }
 
