@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Vector4 _textureViewport;
     protected Matrix _relativeTransformCache;
 
-    protected IBitmapAsset2D _tex;
+    protected IBitmapAsset2D _bitmapAsset2D;
     protected RectangleF _textureClip;
 
     #endregion
@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
-      TryDispose(ref _tex);
+      TryDispose(ref _bitmapAsset2D);
     }
 
     void Init()
@@ -265,38 +265,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Reset();
     }
 
-    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
-    {
-      //if (Texture == null)
-      //  return false;
-
-      //Matrix finalTransform = renderContext.Transform.Clone();
-
-      //if (_refresh)
-      //{
-      //  RefreshEffectParameters();
-      //  _effect = ContentManager.Instance.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
-      //  _refresh = false;
-      //}
-
-      //if (_simplemode)
-      //  SetSimpleEffectParameters(renderContext);
-      //else
-      //  SetEffectParameters(renderContext);
-
-      //_effect.StartRender(Texture, finalTransform);
-
-      return true;
-    }
-
-    public void EndRender()
-    {
-      //if (Texture == null)
-      //  return;
-      //if (_effect != null)
-      //  _effect.EndRender();
-    }
-
     public virtual bool RenderContent(RenderContext renderContext)
     {
       if (_refresh)
@@ -442,19 +410,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     // Transform brush into control scope
     protected override void SetBrushTransform()
     {
-      if (_brush2D == null || _vertsBounds.IsEmpty || _tex == null)
+      if (_brush2D == null || _vertsBounds.IsEmpty || _bitmapAsset2D == null)
         return;
       Matrix3x2 transform = Matrix3x2.Identity;
-      float contentWidth = _tex.Width;
-      float contentHeight = _tex.Height;
+      float contentWidth = _bitmapAsset2D.Width;
+      float contentHeight = _bitmapAsset2D.Height;
       float brushOffsetX = 0f;
       float brushOffsetY = 0f;
       if (!_textureClip.IsEmpty)
       {
-        contentWidth = _textureClip.Width * _tex.Width;
-        contentHeight = _textureClip.Height * _tex.Height;
-        brushOffsetX = _textureClip.Left * _tex.Width;
-        brushOffsetY = _textureClip.Top * _tex.Height;
+        contentWidth = _textureClip.Width * _bitmapAsset2D.Width;
+        contentHeight = _textureClip.Height * _bitmapAsset2D.Height;
+        brushOffsetX = _textureClip.Left * _bitmapAsset2D.Width;
+        brushOffsetY = _textureClip.Top * _bitmapAsset2D.Height;
       }
       transform *= Matrix3x2.Scaling(_vertsBounds.Width / contentWidth, _vertsBounds.Height / contentHeight);
       transform *= Matrix3x2.Translation(_vertsBounds.X - brushOffsetX, _vertsBounds.Y - brushOffsetY);

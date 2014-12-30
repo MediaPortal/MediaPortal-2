@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       ImageSource = b.ImageSource;
       DownloadProgress = b.DownloadProgress;
       Thumbnail = b.Thumbnail;
-      _tex = null;
+      _bitmapAsset2D = null;
       Attach();
     }
 
@@ -118,7 +118,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Bitmap1 Bitmap
     {
-      get { return (_tex == null) ? null : _tex.Bitmap; }
+      get { return (_bitmapAsset2D == null) ? null : _bitmapAsset2D.Bitmap; }
     }
 
     public AbstractProperty ThumbnailProperty
@@ -149,7 +149,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override Vector2 BrushDimensions
     {
-      get { return _tex == null ? base.BrushDimensions : new Vector2(_tex.Width, _tex.Height); }
+      get { return _bitmapAsset2D == null ? base.BrushDimensions : new Vector2(_bitmapAsset2D.Width, _bitmapAsset2D.Height); }
     }
 
     #endregion
@@ -158,25 +158,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public void Free()
     {
-      _tex = null;
+      _bitmapAsset2D = null;
     }
 
     public override void Allocate()
     {
       base.Allocate();
-      if (_tex == null && !string.IsNullOrEmpty(ImageSource))
-        _tex = ContentManager.Instance.GetBitmap(ImageSource, Thumbnail);
-      if (_tex != null && !_tex.IsAllocated)
-        _tex.Allocate();
+      if (_bitmapAsset2D == null && !string.IsNullOrEmpty(ImageSource))
+        _bitmapAsset2D = ContentManager.Instance.GetBitmap(ImageSource, Thumbnail);
+      if (_bitmapAsset2D != null && !_bitmapAsset2D.IsAllocated)
+        _bitmapAsset2D.Allocate();
 
-      if (_tex != null)
+      if (_bitmapAsset2D != null)
       {
         BitmapBrushProperties props = new BitmapBrushProperties
         {
           ExtendModeX = ExtendMode.Clamp,
           ExtendModeY = ExtendMode.Clamp,
         };
-        SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _tex.Bitmap, props));
+        SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));
       }
     }
 

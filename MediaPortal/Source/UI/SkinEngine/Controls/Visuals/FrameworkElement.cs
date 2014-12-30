@@ -135,6 +135,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected const string GLOBAL_RENDER_TEXTURE_ASSET_KEY = "SkinEngine::GlobalRenderTexture";
     protected const string GLOBAL_RENDER_SURFACE_ASSET_KEY = "SkinEngine::GlobalRenderSurface";
 
+    protected static Color4 TRANSPARENT_BLACK = new Color4(Color3.Black, 0);
+
     #endregion
 
     #region Protected fields
@@ -1775,68 +1777,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
-    ///// <summary>
-    ///// Renders the <see cref="FrameworkElement"/> to the given <paramref name="renderTarget"/>. This method works with
-    ///// surfaces that are created as render target, which do support multisampling.
-    ///// </summary>
-    ///// <param name="renderTarget">Render target.</param>
-    ///// <param name="renderContext">Render context.</param>
-    //public void RenderToSurface(RenderTargetAsset renderTarget, RenderContext renderContext)
-    //{
-    //  RenderToSurfaceInternal(renderTarget.Surface, renderContext);
-    //}
+    /// <summary>
+    /// Renders the <see cref="FrameworkElement"/> to the given <paramref name="renderTarget"/>. This method works with
+    /// surfaces that are created as render target, which do support multisampling.
+    /// </summary>
+    /// <param name="renderTarget">Render target.</param>
+    /// <param name="renderContext">Render context.</param>
+    public void RenderToTarget(IBitmapAsset2D renderTarget, RenderContext renderContext)
+    {
+      RenderToTargetInternal(renderTarget.Bitmap, renderContext);
+    }
 
-    ///// <summary>
-    ///// Renders the <see cref="FrameworkElement"/> to the given <paramref name="renderTarget"/>. This method works with
-    ///// textures internally which do not support multisampling.
-    ///// </summary>
-    ///// <param name="renderTarget">Render target.</param>
-    ///// <param name="renderContext">Render context.</param>
-    //public void RenderToTexture(RenderTextureAsset renderTarget, RenderContext renderContext)
-    //{
-    //  RenderToSurfaceInternal(renderTarget.Surface0, renderContext);
-    //}
+    protected void RenderToTargetInternal(SharpDX.Direct2D1.Image renderTarget, RenderContext renderContext)
+    {
+      // We do the following here:
+      // 1. Remember old render target
+      // 2. Set the rendertarget to the given Image
+      // 3. Clear the surface with an alpha value of 0
+      // 4. Render the control (into the surface)
+      // 5. Restore the rendertarget to the backbuffer
 
-    //public virtual void DoRender(RenderContext localRenderContext)
-    //{
-    //}
+      var oldTarget = GraphicsDevice11.Instance.Context2D1.Target;
 
-    //protected void RenderToSurfaceInternal(Surface renderSurface, RenderContext renderContext)
-    //{
-    //  // We do the following here:
-    //  // 1. Set the transformation matrix to match the render surface's size
-    //  // 2. Set the rendertarget to the given surface
-    //  // 3. Clear the surface with an alpha value of 0
-    //  // 4. Render the control (into the surface)
-    //  // 5. Restore the rendertarget to the backbuffer
-    //  // 6. Restore previous transformation matrix
+      GraphicsDevice11.Instance.Context2D1.Target = renderTarget;
 
-    //  // Set transformation matrix
-    //  Matrix? oldTransform = null;
-    //  SurfaceDescription description = renderSurface.Description;
+      GraphicsDevice11.Instance.Context2D1.Clear(TRANSPARENT_BLACK);
 
-    //  if (description.Width != GraphicsDevice.Width || description.Height != GraphicsDevice.Height)
-    //  {
-    //    oldTransform = GraphicsDevice.FinalTransform;
-    //    GraphicsDevice.SetCameraProjection(description.Width, description.Height);
-    //  }
+      // Render visual to local render target (Bitmap)
+      Render(renderContext);
 
-    //  // Render to given surface and restore it when we are done
-    //  using (new TemporaryRenderTarget(renderSurface))
-    //  {
-    //    // Fill the background of the texture with an alpha value of 0
-    //    GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
-
-    //    // Render the control into the given texture
-    //    RenderOverride(renderContext);
-    //    // Render opacity brush so that it modifies the alpha channel in the target
-    //    RenderOpacityBrush(renderContext);
-    //  }
-
-    //  // Restore standard transformation matrix
-    //  if (oldTransform.HasValue)
-    //    GraphicsDevice.FinalTransform = oldTransform.Value;
-    //}
+      GraphicsDevice11.Instance.Context2D1.Target = oldTarget;
+    }
 
     private static RectangleF CalculateBoundingBox(RectangleF rectangle, Matrix transformation)
     {
@@ -1970,18 +1941,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       //  bool isMultiSample = GraphicsDevice.Setup.IsMultiSample;
       //  if (isMultiSample)
       //  {
-      //    RenderTargetAsset renderSurface = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_SURFACE_ASSET_KEY);
-      //    renderSurface.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
-      //    if (!renderSurface.IsAllocated)
+      //    RenderTargetAsset renderTarget = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_SURFACE_ASSET_KEY);
+      //    renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
+      //    if (!renderTarget.IsAllocated)
       //      return;
 
       //    // First render to the multisampled surface
-      //    RenderToSurface(renderSurface, tempRenderContext);
+      //    RenderToTarget(renderTarget, tempRenderContext);
 
       //    // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
       //    // Morpheus_xx, 03/2013: changed to copy only the occupied area of Surface, instead of complete area. This improves performance a lot.
       //    GraphicsDevice.Device.StretchRectangle(
-      //        renderSurface.Surface, ToRect(tempRenderContext.OccupiedTransformedBounds, renderSurface.Size), // new Rectangle(new Point(), renderSurface.Size),
+      //        renderTarget.Surface, ToRect(tempRenderContext.OccupiedTransformedBounds, renderTarget.Size), // new Rectangle(new Point(), renderTarget.Size),
       //        renderTexture.Surface0, ToRect(tempRenderContext.OccupiedTransformedBounds, renderTexture.Size), // new Rectangle(new Point(), renderTexture.Size),
       //        TextureFilter.None);
       //  }

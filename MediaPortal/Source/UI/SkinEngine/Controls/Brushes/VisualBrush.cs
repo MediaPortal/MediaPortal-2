@@ -107,11 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void UpdateRenderTarget(FrameworkElement fe)
     {
       RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
-      var oldTarget = GraphicsDevice11.Instance.Context2D1.Target;
-      // Render visual to local render target (Bitmap)
-      GraphicsDevice11.Instance.Context2D1.Target = _tex.Bitmap;
-      fe.Render(new RenderContext(Matrix.Identity, bounds));
-      GraphicsDevice11.Instance.Context2D1.Target = oldTarget;
+      fe.RenderToTarget(_bitmapAsset2D, new RenderContext(Matrix.Identity, bounds));
     }
 
     protected void PrepareVisual()
@@ -168,12 +164,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Bitmap1 Bitmap
     {
-      get { return (_tex == null) ? null : _tex.Bitmap; }
+      get { return (_bitmapAsset2D == null) ? null : _bitmapAsset2D.Bitmap; }
     }
 
     protected override Vector2 BrushDimensions
     {
-      get { return (_tex != null) ? new Vector2(_tex.Width, _tex.Height) : new Vector2(1.0f, 1.0f); }
+      get { return (_bitmapAsset2D != null) ? new Vector2(_bitmapAsset2D.Width, _bitmapAsset2D.Height) : new Vector2(1.0f, 1.0f); }
     }
 
     protected override Vector2 TextureMaxUV
@@ -186,7 +182,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
-      _tex = ContentManager.Instance.GetRenderTarget2D(_renderTargetKey);
+      _bitmapAsset2D = ContentManager.Instance.GetRenderTarget2D(_renderTargetKey);
       _screen = parent.Screen;
       PrepareVisual();
     }
@@ -198,7 +194,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       FrameworkElement fe = _preparedVisual;
       if (fe == null) return false;
-      ((RenderTarget2DAsset)_tex).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
+      ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
 
       UpdateRenderTarget(fe);
       return true;
@@ -210,18 +206,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       FrameworkElement fe = _preparedVisual;
       if (fe != null)
         fe.Allocate();
-      if (_tex != null)
+      if (_bitmapAsset2D != null)
       {
-        ((RenderTarget2DAsset)_tex).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
+        ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
 
-        if (!_tex.IsAllocated)
+        if (!_bitmapAsset2D.IsAllocated)
           return;
         BitmapBrushProperties props = new BitmapBrushProperties
         {
           ExtendModeX = ExtendMode.Clamp,
           ExtendModeY = ExtendMode.Clamp,
         };
-        SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _tex.Bitmap, props));
+        SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));
       }
     }
 
