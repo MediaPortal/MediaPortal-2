@@ -350,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       // Setup background brush
       if (Background != null)
-        _backgroundGeometry = CreateBorderRectPath(innerBorderRect);
+        _backgroundGeometry = CreateBackgroundRectPath(innerBorderRect);
       else
         TryDispose(ref _backgroundGeometry);
     }
@@ -369,6 +369,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else
         TryDispose(ref _borderGeometry);
+    }
+
+    protected virtual SharpDX.Direct2D1.Geometry CreateBackgroundRectPath(RectangleF innerBorderRect)
+    {
+      return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float)CornerRadius, (float)CornerRadius);
     }
 
     protected virtual SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
