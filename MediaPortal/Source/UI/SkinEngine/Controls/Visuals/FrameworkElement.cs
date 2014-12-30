@@ -1886,7 +1886,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         LayerParameters1 layerParameters = new LayerParameters1
         {
-          ContentBounds = RectangleF.Infinite,
+          ContentBounds = _lastOccupiedTransformedBounds,
           LayerOptions = LayerOptions1.None,
           MaskAntialiasMode = AntialiasMode.PerPrimitive,
           MaskTransform = Matrix.Identity,
