@@ -398,6 +398,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         var pipeline = renderPipeline;
         TryDispose(ref pipeline);
       }
+
+      FontManager.ResourceFontLoader.Dispose();
     }
   }
 }
