@@ -21,18 +21,20 @@
 */
 
 #endregion
-using SharpDX.Direct3D9;
+
+using SharpDX.DXGI;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   /// <summary>
-  /// For maximum performance, rendering will be done without manual waiting and presenting using <see cref="Present.ForceImmediate"/>.
+  /// For maximum performance, rendering will be done without manual waiting and presenting using SyncInterval of <see cref="AbstractStrategy.SYNC_NONE"/>.
   /// </summary>
   class MaxPerformance : AbstractStrategy
   {
     public MaxPerformance(D3DSetup setup) : base(setup)
     {
-      PresentMode = Present.ForceImmediate;
+      SyncInterval = SYNC_NONE;
+      PresentFlags = PresentFlags.None;
     }
   }
 }

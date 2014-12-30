@@ -21,15 +21,19 @@
 */
 
 #endregion
-using SharpDX.Direct3D9;
+
+using SharpDX.DXGI;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
 {
   abstract class AbstractStrategy : IRenderStrategy
   {
+    protected const int SYNC_NONE = 0;
+    protected const int SYNC_VBLANK = 1;
+
     #region Fields
 
-    protected double _frameRate = 25d;
+    protected Rational _frameRate = new Rational(25, 1);
     protected double _msPerFrame;
     protected D3DSetup _setup;
 
@@ -40,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     protected AbstractStrategy(D3DSetup setup)
     {
       _setup = setup;
-      IsMultiSampleCompatible = false;
+      PresentFlags = PresentFlags.None;
     }
 
     #endregion
@@ -52,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
       get { return GetType().Name; }
     }
 
-    public double TargetFrameRate
+    public Rational TargetFrameRate
     {
       get { return _frameRate; }
     }
@@ -62,15 +66,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
       get { return _msPerFrame; }
     }
 
-    public bool IsMultiSampleCompatible { get; protected set; }
-
-    public void SetTargetFrameRate(double frameRate)
+    public void SetTargetFrameRate(Rational frameRate)
     {
-      if (frameRate == 0)
-        frameRate = 1;
-
       _frameRate = frameRate;
-      _msPerFrame = 1000 / _frameRate;
+      _msPerFrame = 1000d / ((double)_frameRate.Numerator / _frameRate.Denominator);
     }
 
     public virtual void BeginRender(bool doWaitForNextFame)
@@ -79,7 +78,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     public virtual void EndRender()
     { }
 
-    public Present PresentMode { get; protected set; }
+    public PresentFlags PresentFlags { get; protected set; }
+    
+    public int SyncInterval { get; protected set; }
 
     #endregion
   }

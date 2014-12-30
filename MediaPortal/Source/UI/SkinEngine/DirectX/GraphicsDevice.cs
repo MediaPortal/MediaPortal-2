@@ -35,6 +35,9 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using SharpDX;
 using SharpDX.Direct3D9;
+using SharpDX.DXGI;
+using PresentParameters = SharpDX.Direct3D9.PresentParameters;
+using Surface = SharpDX.Direct3D9.Surface;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
@@ -89,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps using
     /// one of the methods <see cref="AdaptTargetFrameRateToDisplayMode"/> or <see cref="SetFrameRate"/>.
     /// </summary>
-    public static double TargetFrameRate
+    public static Rational TargetFrameRate
     {
       get { return RenderStrategy.TargetFrameRate; }
     }
@@ -225,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         int ordinal = deviceCapabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
-        AdaptTargetFrameRateToDisplayMode(currentMode);
+
         LogScreenMode(currentMode);
         bool firstTimeInitialization = _dxCapabilities == null;
         _dxCapabilities = DxCapabilities.RequestCapabilities(deviceCapabilities, currentMode);
@@ -258,8 +261,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           new VSync(_setup), 
           new MaxPerformance(_setup)
         };
-      if (_setup.IsMultiSample)
-        _renderStrategies.RemoveAll(s => !s.IsMultiSampleCompatible);
       _currentRenderStrategyIndex = 0;
     }
 
@@ -299,16 +300,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _renderAndResourceAccessLock.Dispose();
     }
 
-    public static void SetFrameRate(double frameRate)
-    {
-      RenderStrategy.SetTargetFrameRate(frameRate);
-    }
-
-    private static void AdaptTargetFrameRateToDisplayMode(DisplayMode displayMode)
-    {
-      SetFrameRate(displayMode.RefreshRate);
-    }
-
     /// <summary>
     /// Resets the DirectX device. This will release all screens, other UI resources and our back buffer, reset the DX device and realloc
     /// all resources.
@@ -342,7 +333,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             int ordinal = deviceCapabilities.AdapterOrdinal;
             AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
             DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
-            AdaptTargetFrameRateToDisplayMode(currentMode);
+
             ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                 currentMode.Format, TargetFrameRate);
             _backBuffer = _device.GetRenderTarget(0);
