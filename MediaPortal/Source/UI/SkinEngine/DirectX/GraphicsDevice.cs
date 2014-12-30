@@ -30,7 +30,6 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -74,10 +73,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     // RenderModeType related fields
     private static int _currentRenderStrategyIndex = 0;
     private static List<IRenderStrategy> _renderStrategies;
-
-    // RenderPipeline related fields
-    private static int _currentRenderPipeplineIndex;
-    private static List<IRenderPipeline> _renderPipelines;
 
     /// <summary>
     /// Returns the information if the graphics device is healthy, which means it was neither lost nor hung nor removed.
@@ -223,7 +218,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         // End cleanup part
 
         SetupRenderStrategies();
-        SetupRenderPipelines();
 
         Capabilities deviceCapabilities = _device.Capabilities;
         _backBuffer = _device.GetRenderTarget(0);
@@ -269,22 +263,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _currentRenderStrategyIndex = 0;
     }
 
-    /// <summary>
-    /// Setups all <see cref="IRenderPipeline"/>s.
-    /// </summary>
-    private static void SetupRenderPipelines()
-    {
-      _renderPipelines = new List<IRenderPipeline>
-        {
-          new SinglePass2DRenderPipeline(),
-          new SBSRenderPipeline(),
-          new TABRenderPipeline(),
-          new SBS2DRenderPipeline(),
-          new TAB2DRenderPipeline(),
-        };
-      _currentRenderPipeplineIndex = 0;
-    }
-
     private static void LogScreenMode(DisplayMode mode)
     {
       ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
@@ -306,22 +284,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       _currentRenderStrategyIndex = (_currentRenderStrategyIndex + 1) % _renderStrategies.Count;
       LogScreenMode(CurrentDisplayMode);
-    }
-
-    /// <summary>
-    /// Gets the current <see cref="IRenderPipeline"/>.
-    /// </summary>
-    public static IRenderPipeline RenderPipeline
-    {
-      get { return _renderPipelines[_currentRenderPipeplineIndex]; }
-    }
-
-    /// <summary>
-    /// Switches through all possible RenderPipelines.
-    /// </summary>
-    public static void NextRenderPipeline()
-    {
-      _currentRenderPipeplineIndex = (_currentRenderPipeplineIndex + 1) % _renderPipelines.Count;
     }
 
     internal static void Dispose()
@@ -375,7 +337,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _setup.PresentParameters = parameters;
 
             SetupRenderStrategies();
-            SetupRenderPipelines();
 
             Capabilities deviceCapabilities = _device.Capabilities;
             int ordinal = deviceCapabilities.AdapterOrdinal;
@@ -591,55 +552,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       {
         ServiceRegistration.Get<ILogger>().Error("Error executing render event handler:", e);
       }
-    }
-
-    /// <summary>
-    /// Renders the entire scene.
-    /// </summary>
-    /// <param name="doWaitForNextFame"><c>true</c>, if this method should wait to the correct frame start time
-    /// before it renders, else <c>false</c>.</param>
-    /// <returns><c>true</c>, if the caller should wait some milliseconds before rendering the next time.</returns>
-    public static bool Render(bool doWaitForNextFame)
-    {
-      if (_device == null || !_deviceOk)
-        return true;
-
-      IRenderStrategy renderStrategy = RenderStrategy;
-      IRenderPipeline pipeline = RenderPipeline;
-
-      renderStrategy.BeginRender(doWaitForNextFame);
-
-      _renderAndResourceAccessLock.EnterReadLock();
-      try
-      {
-        Fire(DeviceSceneBegin);
-
-        pipeline.BeginRender();
-
-        pipeline.Render();
-
-        pipeline.EndRender();
-
-        Fire(DeviceSceneEnd);
-
-        _device.PresentEx(renderStrategy.PresentMode);
-
-        Fire(DeviceScenePresented);
-
-        ContentManager.Instance.Clean();
-      }
-      catch (SharpDXException e)
-      {
-        DeviceState state = CheckDeviceState();
-        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception, DeviceState: {0}", e, state);
-        _deviceOk = state == DeviceState.Ok;
-        return !_deviceOk;
-      }
-      finally
-      {
-        _renderAndResourceAccessLock.ExitReadLock();
-      }
-      return false;
     }
   }
 }

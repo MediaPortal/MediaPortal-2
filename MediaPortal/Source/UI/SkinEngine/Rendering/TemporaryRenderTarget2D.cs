@@ -24,42 +24,37 @@
 
 using System;
 using MediaPortal.UI.SkinEngine.DirectX11;
-using SharpDX;
+using SharpDX.Direct2D1;
 
-namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
+namespace MediaPortal.UI.SkinEngine.Rendering
 {
   /// <summary>
-  /// Abstract render pipeline that implementes a generic 1-pass 2D rendering.
+  /// <see cref="TemporaryRenderTarget2D"/> allows rendering to a custom render target. It automatically sets
+  /// the RenderTarget of the GraphicsDevice and restores all changes at the end (in Dispose).
   /// </summary>
-  internal abstract class AbstractRenderPipeline : IRenderPipeline, IDisposable
+  public class TemporaryRenderTarget2D : IDisposable
   {
-    public virtual void BeginRender()
+    // The current D3D device
+    private readonly DeviceContext _context = GraphicsDevice11.Instance.Context2D1;
+
+    private readonly Image _backBuffer;
+
+    /// <summary>
+    /// Constructs a <see cref="TemporaryRenderTarget"/> instance.
+    /// </summary>
+    /// <param name="targetSurface">Target surface to render on</param>
+    public TemporaryRenderTarget2D(Bitmap1 targetSurface)
     {
-      GraphicsDevice11.Instance.RenderPass = RenderPassType.SingleOrFirstPass;
-      GraphicsDevice11.Instance.Context2D1.BeginDraw();
-      GraphicsDevice11.Instance.Context2D1.Clear(Color.Black);
+      // Remember old RenderTarget
+      _backBuffer = _context.Target;
+
+      // Set new target
+      _context.Target = targetSurface;
     }
 
-    public virtual void Render()
+    public void Dispose()
     {
-      GraphicsDevice11.Instance.ScreenManager.Render();
+      _context.Target = _backBuffer;
     }
-
-    public virtual void EndRender()
-    {
-      GraphicsDevice11.Instance.Context2D1.EndDraw();
-    }
-
-    public virtual void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
-    {
-      tranformedRect = fullVideoClip;
-    }
-
-    public virtual Matrix GetRenderPassTransform(Matrix initialScreenTransform)
-    {
-      return initialScreenTransform;
-    }
-
-    public virtual void Dispose() { }
   }
 }

@@ -1788,7 +1788,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RenderToTargetInternal(renderTarget.Bitmap, renderContext);
     }
 
-    protected void RenderToTargetInternal(SharpDX.Direct2D1.Image renderTarget, RenderContext renderContext)
+    protected void RenderToTargetInternal(Bitmap1 renderTarget, RenderContext renderContext)
     {
       // We do the following here:
       // 1. Remember old render target
@@ -1797,16 +1797,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // 4. Render the control (into the surface)
       // 5. Restore the rendertarget to the backbuffer
 
-      var oldTarget = GraphicsDevice11.Instance.Context2D1.Target;
+      using (new TemporaryRenderTarget2D(renderTarget))
+      {
+        GraphicsDevice11.Instance.Context2D1.Clear(TRANSPARENT_BLACK);
 
-      GraphicsDevice11.Instance.Context2D1.Target = renderTarget;
-
-      GraphicsDevice11.Instance.Context2D1.Clear(TRANSPARENT_BLACK);
-
-      // Render visual to local render target (Bitmap)
-      Render(renderContext);
-
-      GraphicsDevice11.Instance.Context2D1.Target = oldTarget;
+        // Render visual to local render target (Bitmap)
+        Render(renderContext);
+      }
     }
 
     private static RectangleF CalculateBoundingBox(RectangleF rectangle, Matrix transformation)
@@ -1941,7 +1938,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       //  bool isMultiSample = GraphicsDevice.Setup.IsMultiSample;
       //  if (isMultiSample)
       //  {
-      //    RenderTargetAsset renderTarget = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_SURFACE_ASSET_KEY);
+      //    RenderTargetAsset renderTarget = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_TARGET_ASSET_KEY);
       //    renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
       //    if (!renderTarget.IsAllocated)
       //      return;
