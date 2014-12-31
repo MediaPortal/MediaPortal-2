@@ -60,21 +60,29 @@ namespace MediaPortal.Common
     /// be used to startup the application using a custom directory for data storage.
     /// </summary>
     /// <param name="dataDirectory">Path to custom data directory</param>
-    public static void RegisterVitalCoreServices(string dataDirectory = null)
+    public static void RegisterVitalCoreServices(bool paths, string dataDirectory = null)
     {
-      // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
-      // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
-      // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
-      ServiceRegistration.Set<ILogger>(new NoLogger());
+      ILogger logger = null;
+      if (paths)
+      {
+        // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
+        // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
+        // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
+        ServiceRegistration.Set<ILogger>(new NoLogger());
 
-      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
-      pathManager.InitializeDefaults();
-      if (!string.IsNullOrEmpty(dataDirectory))
-        pathManager.SetPath("DATA", dataDirectory);
+        Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
+        pathManager.InitializeDefaults();
+        if (!string.IsNullOrEmpty(dataDirectory))
+          pathManager.SetPath("DATA", dataDirectory);
 
-      ServiceRegistration.Set<IPathManager>(pathManager);
+        ServiceRegistration.Set<IPathManager>(pathManager);
 
-      ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
+        logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
+      }
+      else
+      {
+        logger = ServiceRegistration.Get<ILogger>();
+      }
 
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
