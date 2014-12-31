@@ -35,7 +35,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   /// Builds the SQL statement for the main media item query. The main query requests all Inline and MTO attributes of
   /// media item aspects, filtered by a <see cref="CompiledFilter"/>.
   /// </summary>
-  public class MainQueryBuilder : BaseQueryBuilder
+  public abstract class MainQueryBuilder : BaseQueryBuilder
   {
     #region Inner classes
 
@@ -122,6 +122,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected void GenerateSqlStatement(bool groupByValues,
         IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out string mediaItemIdOrGroupSizeAlias,
+        IDictionary<MediaItemAspectMetadata, string> indexAliases,
         out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<BindVar> bindVars)
     {
@@ -169,6 +170,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary MIA, so optimize redundant entry
           continue;
+        if (!Include(miaType))
+          continue;
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         RequestedAttribute ra;
@@ -194,6 +197,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary or optional MIA, so optimize redundant entry
           continue;
+        if (!Include(miaType))
+            continue;
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqd,
@@ -205,6 +210,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // + add alias to selectAttributeDeclarations
       foreach (QueryAttribute attr in _selectAttributes)
       {
+        if (!Include(attr.Attr.ParentMIAM))
+          continue;
         RequestedAttribute ra;
         RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
             miaIdAttribute, out ra);
@@ -222,6 +229,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // + compile query attribute
       foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
+        if (!Include(attr.Attr.ParentMIAM))
+          continue;
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
         // Tables of Inline and MTO attributes, which are part of a filter, are joined with main table
@@ -235,6 +244,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         compiledSortInformation = new List<CompiledSortInformation>();
         foreach (SortInformation sortInformation in _sortInformation)
         {
+          if (!Include(sortInformation.AttributeType.ParentMIAM))
+            continue;
           MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
           if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
             // Sorting can only be done for Inline and MTO attributes
@@ -280,6 +291,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Append(miamAlias);
           if (miamAlias != null)
             miamAliases.Add(kvp.Key, miamAlias);
+
+          if(kvp.Key is MultipleMediaItemAspectMetadata)
+          {
+              result.Append(", ");
+              string indexColumn = kvp.Value.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_INDEX_ID_COL_NAME;
+              result.Append(indexColumn);
+              string indexAlias = ns.GetOrCreate(indexColumn, "A");
+              result.Append(" ");
+              result.Append(indexAlias);
+              if (indexAlias != null)
+                  indexAliases.Add(kvp.Key, indexAlias);
+          }
         }
       }
 
@@ -336,46 +359,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       statementStr = result.ToString();
     }
 
-    /// <summary>
-    /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
-    /// values and a count column containing the size of each group.
-    /// </summary>
-    /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
-    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-    /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<BindVar> bindVars)
-    {
-      GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
-    }
+    protected abstract bool Include(MediaItemAspectMetadata miam);
 
-    /// <summary>
-    /// Generates the SQL statement for the underlaying query specification.
-    /// </summary>
-    /// <param name="mediaItemIdAlias">Alias of the media item's IDs in the result set.</param>
-    /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
-    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
-    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-    /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlStatement(out string mediaItemIdAlias,
-        out IDictionary<MediaItemAspectMetadata, string> miamAliases,
-        out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<BindVar> bindVars)
-    {
-      miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
-    }
+    /*
+  protected void GenerateSqlStatement(bool groupByValues,
+      IDictionary<MediaItemAspectMetadata, string> miamAliases,
+      out string mediaItemIdOrGroupSizeAlias,
+      IDictionary<MediaItemAspectMetadata, string> indexAliases,
+      out IDictionary<QueryAttribute, string> attributeAliases,
+      out string statementStr, out IList<BindVar> bindVars)
+    */
 
     public override string ToString()
     {
-      string mediaItemIdAlias2;
-      IDictionary<MediaItemAspectMetadata, string> miamAliases;
+      string mediaItemIdAlias;
+      IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+      IDictionary<MediaItemAspectMetadata, string> indexAliases = new Dictionary<MediaItemAspectMetadata, string>();
       IDictionary<QueryAttribute, string> qa2a;
       string statementStr;
       IList<BindVar> bindVars;
-      GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
+      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, indexAliases, out qa2a, out statementStr, out bindVars);
       return statementStr;
     }
   }
