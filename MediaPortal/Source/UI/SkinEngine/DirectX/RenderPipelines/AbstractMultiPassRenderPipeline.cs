@@ -22,9 +22,7 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX11;
-using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 
@@ -35,57 +33,62 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal abstract class AbstractMultiPassRenderPipeline : AbstractRenderPipeline
   {
-    protected const string GLOBAL_RENDER_TARGET_ASSET_KEY = "SkinEngine::GlobalRenderTarget";
-    protected RenderTarget2DAsset _renderTarget = null;
     protected Bitmap1 _backbuffer = null;
     protected Rectangle _renderRect;
     protected Rectangle _firstFrameTargetRect;
-    protected RectangleGeometry _firstFrameGeometry;
     protected Rectangle _secondFrameTargetRect;
-    protected RectangleGeometry _secondFrameGeometry;
-    protected ImageBrushProperties _imageBrushProperties;
-    protected ImageBrush _imgBrush;
+    protected LayerParameters1 _layerParams1;
+    protected LayerParameters1 _layerParams2;
+    protected SolidColorBrush _opacityBrush;
 
     protected AbstractMultiPassRenderPipeline()
     {
       _backbuffer = GraphicsDevice11.Instance.RenderTarget2D;
-      _renderTarget = ContentManager.Instance.GetRenderTarget2D(GLOBAL_RENDER_TARGET_ASSET_KEY);
-      int width = GraphicsDevice11.Instance.BackBuffer.Description.Width;
-      int height = GraphicsDevice11.Instance.BackBuffer.Description.Height;
-      _renderTarget.AllocateRenderTarget(width, height);
-      _imageBrushProperties = new ImageBrushProperties
-      {
-        ExtendModeX = ExtendMode.Clamp,
-        ExtendModeY = ExtendMode.Clamp,
-        InterpolationMode = InterpolationMode.Linear
-      };
-      _imgBrush = new ImageBrush(GraphicsDevice11.Instance.Context2D1, _renderTarget.Bitmap, _imageBrushProperties);
     }
 
-    protected void InitGeometries()
+    protected void InitMasks()
     {
-      _firstFrameGeometry = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, _firstFrameTargetRect);
-      _secondFrameGeometry = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, _secondFrameTargetRect);
+      _opacityBrush = new SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color4.Black);
+      _layerParams1 = new LayerParameters1
+      {
+        ContentBounds = _firstFrameTargetRect,
+        LayerOptions = LayerOptions1.None,
+        MaskAntialiasMode = AntialiasMode.PerPrimitive,
+        Opacity = 1.0f,
+        OpacityBrush = _opacityBrush
+      };
+      _layerParams2 = new LayerParameters1
+     {
+       ContentBounds = _secondFrameTargetRect,
+       LayerOptions = LayerOptions1.None,
+       MaskAntialiasMode = AntialiasMode.PerPrimitive,
+       Opacity = 1.0f,
+       OpacityBrush = _opacityBrush
+     };
     }
 
     public override void BeginRender()
     {
       // Remember current backbuffer and set internal surface as new render target.
       _renderRect = new Rectangle(0, 0, GraphicsDevice.Width, GraphicsDevice.Height);
-      GraphicsDevice11.Instance.Context2D1.Target = _renderTarget.Bitmap;
       base.BeginRender();
     }
 
     public override void Render()
     {
       // First frame.
+      // We use a layer with defined rect to make sure we don't overdraw the target rect
+      GraphicsDevice11.Instance.RenderPass = RenderPassType.SingleOrFirstPass;
+      GraphicsDevice11.Instance.Context2D1.PushLayer(_layerParams1, null);
       base.Render();
-      CopyFirstFrameToBackbuffer();
+      GraphicsDevice11.Instance.Context2D1.PopLayer();
 
       // Second frame.
-      GraphicsDevice.RenderPass = RenderPassType.SecondPass;
+      // We use a layer with defined rect to make sure we don't overdraw the target rect
+      GraphicsDevice11.Instance.RenderPass = RenderPassType.SecondPass;
+      GraphicsDevice11.Instance.Context2D1.PushLayer(_layerParams2, null);
       base.Render();
-      CopySecondFrameToBackbuffer();
+      GraphicsDevice11.Instance.Context2D1.PopLayer();
     }
 
     public override void EndRender()
@@ -95,41 +98,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       base.EndRender();
     }
 
-    protected virtual void CopyFirstFrameToBackbuffer()
-    {
-      CopySubRegion(_firstFrameGeometry);
-    }
-
-    protected virtual void CopySecondFrameToBackbuffer()
-    {
-      CopySubRegion(_secondFrameGeometry);
-    }
-
-    private void CopySubRegion(RectangleGeometry geometry)
-    {
-      // Make sure all rendering is done, before we copy results
-      GraphicsDevice11.Instance.Context2D1.Flush();
-
-      // Transform brush into control scope
-      Matrix3x2 transform = Matrix3x2.Identity;
-      float contentWidth = _renderTarget.Width;
-      float contentHeight = _renderTarget.Height;
-      transform *= Matrix3x2.Scaling(_firstFrameGeometry.Rectangle.Width / contentWidth, _firstFrameGeometry.Rectangle.Height / contentHeight);
-      transform *= Matrix3x2.Translation(_firstFrameGeometry.Rectangle.X, _firstFrameGeometry.Rectangle.Y);
-      _imgBrush.Transform = transform;
-
-      using (new TemporaryRenderTarget2D(_backbuffer))
-        GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, _imgBrush);
-    }
-
     public override void Dispose()
     {
-      if (_imgBrush != null)
-        _imgBrush.Dispose();
-      if (_firstFrameGeometry != null)
-        _firstFrameGeometry.Dispose();
-      if (_secondFrameGeometry != null)
-        _secondFrameGeometry.Dispose();
+      if (_opacityBrush != null)
+        _opacityBrush.Dispose();
     }
   }
 }
