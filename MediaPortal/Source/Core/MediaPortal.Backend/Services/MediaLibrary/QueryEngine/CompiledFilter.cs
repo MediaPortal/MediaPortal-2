@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -204,9 +205,75 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
+      RelationshipFilter relationshipFilter = filter as RelationshipFilter;
+      if (relationshipFilter != null)
+      {
+        BindVar roleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.Role, typeof(Guid));
+        BindVar linkedRoleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.LinkedRole, typeof(Guid));
+        BindVar roleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.Role, typeof(Guid));
+        BindVar linkedRoleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.LinkedRole, typeof(Guid));
+
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(" IN(");
+
+        resultParts.Add("SELECT V1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        resultParts.Add(" V1 WHERE V1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + roleVar1.Name);
+        resultBindVars.Add(roleVar1);
+        resultParts.Add(" AND ");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + linkedRoleVar1.Name);
+        resultBindVars.Add(linkedRoleVar1);
+        resultParts.Add(" AND ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add("=");
+        resultParts.Add(outerMIIDJoinVariable);
+
+        resultParts.Add(" UNION ");
+
+        resultParts.Add("SELECT V2.");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        resultParts.Add(" V2 WHERE V2.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + linkedRoleVar2.Name);
+        resultBindVars.Add(linkedRoleVar2);
+        resultParts.Add(" AND ");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + roleVar2.Name);
+        resultBindVars.Add(roleVar2);
+        resultParts.Add(" AND ");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+        resultParts.Add("=");
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(")");
+        return;
+      }
+
       IAttributeFilter attributeFilter = filter as IAttributeFilter;
       if (attributeFilter != null)
       {
+        MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
+        if(attributeType.ParentMIAM is MultipleMediaItemAspectMetadata)
+        {
+          resultParts.Add(outerMIIDJoinVariable);
+          resultParts.Add(" IN(");
+          resultParts.Add("SELECT ");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIATableName(attributeType.ParentMIAM));
+          resultParts.Add(" WHERE ");
+          BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType), bvNamespace, resultParts, resultBindVars);
+          resultParts.Add(")");
+          
+          return;
+        }
+
         // For attribute filters, we have to create different kinds of expressions, depending on the
         // cardinality of the attribute to be filtered.
         // For Inline and MTO attributes, we simply create
@@ -224,7 +291,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         // INNER JOIN [MTM-Value-Table] V ON NM.ID = V.ID
         // WHERE [...] AND V.VALUE [Operator] [Comparison-Value])
 
-        MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
         requiredMIATypes.Add(attributeType.ParentMIAM);
         Cardinality cardinality = attributeType.Cardinality;
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
@@ -416,7 +482,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (object statementPart in _statementParts)
       {
         QueryAttribute qa = statementPart as QueryAttribute;
-        filterBuilder.Append(qa == null ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
+        filterBuilder.Append(qa == null || !requestedAttributes.ContainsKey(qa) ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
       }
       bindVars = _statementBindVars;
       return filterBuilder.ToString();
