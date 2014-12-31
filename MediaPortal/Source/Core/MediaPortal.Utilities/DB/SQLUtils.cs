@@ -104,7 +104,7 @@ namespace MediaPortal.Utilities.DB
         return String.Empty;
 
       StringBuilder sb = new StringBuilder();
-      foreach (System.Data.Common.DbParameter param in parameterCollection)
+      foreach (System.Data.IDbDataParameter param in parameterCollection)
       {
         String quoting = "";
         String pv = "[NULL]";
