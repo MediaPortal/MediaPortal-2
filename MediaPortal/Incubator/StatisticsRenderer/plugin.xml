@@ -11,6 +11,8 @@
   <Runtime>
     <Assembly FileName="StatisticsRenderer.dll"/>
     <Assembly FileName="..\SkinEngine\SharpDX.dll"/> <!-- Placed in SkinEngine plugin -->
+    <Assembly FileName="..\SkinEngine\SharpDX.DXGI.dll"/> <!-- Placed in SkinEngine plugin -->
+    <Assembly FileName="..\SkinEngine\SharpDX.Direct2D1.dll"/> <!-- Placed in SkinEngine plugin -->
     <PluginStateTracker ClassName="MediaPortal.Plugins.StatisticsRenderer.StatisticsRenderer"/>
   </Runtime>
 

@@ -32,7 +32,6 @@ using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX.Direct3D9;
-using Device = SharpDX.Direct2D1.Device;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
 {
@@ -102,6 +101,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static DeviceEx Device
     {
       get { return GraphicsDevice.Device; }
+    }
+
+    /// <summary>
+    /// Gets the DirectX11 device.
+    /// </summary>
+    public static GraphicsDevice11 Device11
+    {
+      get { return GraphicsDevice11.Instance; }
     }
 
     /// <summary>
