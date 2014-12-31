@@ -89,7 +89,7 @@ namespace MediaPortal.Database.SQLite
 
     #endregion
 
-    #region Construnctors/Destructors
+    #region Constructors/Destructors
 
     public SQLiteSettings()
     {
