@@ -68,6 +68,7 @@ namespace MediaPortal.Common.MediaManagement
     protected MediaItemAspectMetadata _metadata;
     protected IDictionary<MediaItemAspectMetadata.AttributeSpecification, object> _aspectData =
         new Dictionary<MediaItemAspectMetadata.AttributeSpecification, object>();
+    protected bool _deleted;
 
     #endregion
 
@@ -87,6 +88,16 @@ namespace MediaPortal.Common.MediaManagement
     public MediaItemAspectMetadata Metadata
     {
       get { return _metadata; }
+    }
+
+    /// <summary>
+    /// Returns the deleted state for this media item aspect.
+    /// This field is for serialising only, it is not persisted to storage
+    /// </summary>
+    public bool Deleted
+    {
+      get { return _deleted; }
+      set { _deleted = value; }
     }
 
     /// <summary>
@@ -288,6 +299,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       writer.WriteStartElement("Aspect");
       writer.WriteAttributeString("Id", _metadata.AspectId.ToString());
+      writer.WriteAttributeString("Deleted", XmlConvert.ToString(_deleted));
       WriteAttributes(writer);
       foreach (MediaItemAspectMetadata.AttributeSpecification spec in _aspectData.Keys)
       {
@@ -314,10 +326,15 @@ namespace MediaPortal.Common.MediaManagement
       if (!reader.MoveToAttribute("Id"))
         throw new ArgumentException("Media item aspect cannot be deserialized: 'Id' attribute missing");
       Guid aspectTypeId = new Guid(reader.ReadContentAsString());
-      Guid aspectIndex = Guid.Empty;
+      string aspectIndex = null;
       if (reader.MoveToAttribute("Index"))
       {
-        aspectIndex = new Guid(reader.ReadContentAsString());
+        aspectIndex = reader.ReadContentAsString();
+      }
+      bool deleted = false;
+      if (reader.MoveToAttribute("Deleted"))
+      {
+        deleted = reader.ReadContentAsBoolean();
       }
       reader.MoveToElement();
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -332,10 +349,11 @@ namespace MediaPortal.Common.MediaManagement
       }
       else if(miaType is MultipleMediaItemAspectMetadata)
       {
-        if(aspectIndex == Guid.Empty)
+        if(aspectIndex == null)
           throw new ArgumentException("Media item aspect attribute cannot be deserialized: 'Index' is empty");
-        result = new MultipleMediaItemAspect(aspectIndex, (MultipleMediaItemAspectMetadata)miaType);
+        result = new MultipleMediaItemAspect(int.Parse(aspectIndex), (MultipleMediaItemAspectMetadata)miaType);
       }
+      result.Deleted = deleted;
       if (SoapHelper.ReadEmptyStartElement(reader, "Aspect"))
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
@@ -473,7 +491,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="value">Metadata values used for creation.</param>
     public static MultipleMediaItemAspect CreateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, MultipleMediaItemAspectMetadata mediaItemAspectMetadata)
     {
-      MultipleMediaItemAspect mediaAspect = new MultipleMediaItemAspect(Guid.NewGuid(), mediaItemAspectMetadata);
+      MultipleMediaItemAspect mediaAspect = new MultipleMediaItemAspect(0, mediaItemAspectMetadata);
       AddAspect(aspects, mediaAspect);
       return mediaAspect;
     }
@@ -543,6 +561,24 @@ namespace MediaPortal.Common.MediaManagement
       return true;
     }
 
+    public static bool TryGetAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MultipleMediaItemAspectMetadata mediaItemAspectMetadata, int index, out MultipleMediaItemAspect value)
+    {
+        value = null;
+        IList<MultipleMediaItemAspect> aspects;
+        if (!TryGetAspects(aspectData, mediaItemAspectMetadata, out aspects))
+            return false;
+        foreach(MultipleMediaItemAspect aspect in aspects)
+        {
+            if(aspect.Index == index)
+            {
+                value = aspect;
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Convenience method to get a simple attribute in a dictionary of media item aspects.
     /// </summary>
@@ -608,21 +644,6 @@ namespace MediaPortal.Common.MediaManagement
       aspect.SetCollectionAttribute(attributeSpecification, value);
     }
 
-    public static MediaItemAspect CreateMediaItemAspect(MediaItemAspectMetadata miam)
-    {
-      if (miam is SingleMediaItemAspectMetadata)
-      {
-        return new SingleMediaItemAspect((SingleMediaItemAspectMetadata)miam);
-      }
-      else if (miam is MultipleMediaItemAspectMetadata)
-      {
-        // TODO: Fix GUID arg
-        return new MultipleMediaItemAspect(new Guid(""), (MultipleMediaItemAspectMetadata)miam);
-      }
-
-      throw new ArgumentException(string.Format("Illegal media item aspect metadata type {0}", miam.GetType().Name));
-    }
-
     public static IList<MediaItemAspect> GetAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
@@ -665,7 +686,7 @@ namespace MediaPortal.Common.MediaManagement
   {
     #region Protected fields
 
-    protected Guid _index;
+    protected int _index;
 
     #endregion
 
@@ -673,14 +694,15 @@ namespace MediaPortal.Common.MediaManagement
     /// Creates a new media item aspect instance for the specified media item aspect <paramref name="metadata"/>.
     /// </summary>
     /// <param name="metadata">Media item aspect specification.</param>
-    public MultipleMediaItemAspect(Guid index, MultipleMediaItemAspectMetadata metadata) : base(metadata)
+    public MultipleMediaItemAspect(int index, MultipleMediaItemAspectMetadata metadata) : base(metadata)
     {
       _index = index;
     }
 
-    public Guid Index
+    public int Index
     {
       get { return _index; }
+      set { _index = value; }
     }
 
     /// <summary>
