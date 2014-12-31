@@ -33,13 +33,17 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
+using SharpDX.DXGI;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using SwapChain = SharpDX.DXGI.SwapChain;
 
 namespace MediaPortal.Plugins.StatisticsRenderer
 {
@@ -63,17 +67,14 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     #region Fields
 
-    private DeviceEx _device;
+    private GraphicsDevice11 _device;
     private SwapChain _swapChain;
-    private SwapChain9Ex _swapChainEx;
-    private DisplayModeEx _adapterDisplayModeEx;
+    private ModeDescription _adapterDisplayModeEx;
 
     private readonly RingBuffer<Stats> _stats = new RingBuffer<Stats>(MAX_STAT_VALUES, true);
 
     private int _tearingPos;
-    private Sprite _fontSprite;
-    private Font _font;
-    private Line _line;
+    private TextFormat _textFormat;
 
     private TimeSpan _totalGuiRenderDuration;
     private TimeSpan _guiRenderDuration;
@@ -92,6 +93,13 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
 
+    private SolidColorBrush _whiteBrush;
+    private SolidColorBrush _grayBrush;
+    private SolidColorBrush _redBrush;
+    private SolidColorBrush _greenBrush;
+    private SolidColorBrush _blueBrush;
+    private SolidColorBrush _yellowBrush;
+
     #endregion
 
     #region Members
@@ -102,19 +110,23 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     private void EnableStats()
     {
       Log("Try get Device");
-      _device = SkinContext.Device;
-      if (_device == null)
+      _device = SkinContext.Device11;
+      if (_device.Device2D1 == null)
         return;
 
-      _swapChain = _device.GetSwapChain(0);
-      _swapChainEx = new SwapChain9Ex(_swapChain.NativePointer);
-      _line = new Line(_device) { Width = 2.5f, Antialias = true };
+      _swapChain = _device.SwapChain;
 
-      _fontSprite = new Sprite(_device);
-      _font = new Font(_device, TEXT_SIZE, 0, FontWeight.Normal, 0, false, FontCharacterSet.Default, FontPrecision.Default, FontQuality.ClearTypeNatural, FontPitchAndFamily.DontCare, "tahoma");
+      _whiteBrush = new SolidColorBrush(_device.Context2D1, Color.White);
+      _grayBrush = new SolidColorBrush(_device.Context2D1, Color.Gray);
+      _redBrush = new SolidColorBrush(_device.Context2D1, Color.Red);
+      _greenBrush = new SolidColorBrush(_device.Context2D1, Color.Gray);
+      _blueBrush = new SolidColorBrush(_device.Context2D1, Color.Blue);
+      _yellowBrush = new SolidColorBrush(_device.Context2D1, Color.Yellow);
+
+      _textFormat = new TextFormat(_device.FactoryDW, "Tahoma", FontWeight.Normal, FontStyle.Normal, TEXT_SIZE);
 
       // Get device info
-      _adapterDisplayModeEx = SkinContext.Direct3D.GetAdapterDisplayModeEx(0);
+      _adapterDisplayModeEx = SkinContext.Device11.SwapChain.Description.ModeDescription;
       Log("Screen height {0} at refresh rate {1} Hz", _adapterDisplayModeEx.Height, _adapterDisplayModeEx.RefreshRate);
 
       Log("Attach render events");
@@ -140,11 +152,13 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       SkinContext.DeviceSceneBegin -= BeginScene;
       SkinContext.DeviceSceneEnd -= EndScene;
       _renderFinished.WaitOne(TimeSpan.FromSeconds(2)); // Wait for the last render cycle to finish
-      TryDispose(ref _line);
-      TryDispose(ref _font);
-      TryDispose(ref _fontSprite);
-      TryDispose(ref _swapChainEx);
-      TryDispose(ref _swapChain);
+      TryDispose(ref _whiteBrush);
+      TryDispose(ref _grayBrush);
+      TryDispose(ref _redBrush);
+      TryDispose(ref _greenBrush);
+      TryDispose(ref _blueBrush);
+      TryDispose(ref _yellowBrush);
+      TryDispose(ref _textFormat);
     }
 
     /// <summary>
@@ -208,7 +222,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         _guiRenderDuration += guiDur;
         _totalFrameCount++;
         _frameCount++;
-        int scanLine = _device.GetRasterStatus(0).ScanLine;
+        int scanLine = 0; // Not supported in D3D11? // _device.GetRasterStatus(0).ScanLine;
         _sumMsToVBlank += ScanlineToVblankOffset(scanLine);
 
         _fpsCounter++;
@@ -248,9 +262,12 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         }
 
         _stats.Push(currentFrameStats);
+
+        _device.Context2D1.BeginDraw();
         DrawLines();
         DrawTearingTest();
         DrawText(_perfLogString);
+        _device.Context2D1.EndDraw();
       }
       finally
       {
@@ -264,39 +281,37 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private void DrawTearingTest()
     {
-      using (Surface surface = _device.GetRenderTarget(0))
-      {
-        int left = _tearingPos;
-        int width = surface.Description.Width;
-        int height = surface.Description.Height;
-        Size size = new Size(4, height);
-        Point topLeft = new Point(left, 0);
-        if (topLeft.X + size.Width >= width)
-          topLeft.X = 0;
+      int left = _tearingPos;
+      int width = _device.Context2D1.PixelSize.Width;
+      int height = _device.Context2D1.PixelSize.Height;
+      Size size = new Size(4, height);
+      Point topLeft = new Point(left, 0);
+      if (topLeft.X + size.Width >= width)
+        topLeft.X = 0;
 
-        Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+      Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
 
-        _device.ColorFill(surface, rcTearing, ColorConverter.FromArgb(255, 255, 255, 255));
+      _device.Context2D1.DrawRectangle(rcTearing, _whiteBrush);
 
-        topLeft = new Point((rcTearing.Right + 15) % width, 0);
-        if (topLeft.X + size.Width >= width)
-          topLeft.X = 0;
+      topLeft = new Point((rcTearing.Right + 15) % width, 0);
+      if (topLeft.X + size.Width >= width)
+        topLeft.X = 0;
 
-        rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
-        _device.ColorFill(surface, rcTearing, ColorConverter.FromArgb(255, 100, 100, 100));
+      rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+      _device.Context2D1.DrawRectangle(rcTearing, _grayBrush);
 
-        _tearingPos = (_tearingPos + 7) % width;
-      }
+      _tearingPos = (_tearingPos + 7) % width;
     }
+
 
     private void DrawText(string text)
     {
-      int numberOfLines = text.Split('\n').Length;
-      int bgHeight = TEXT_SIZE * numberOfLines;
-      Rectangle rcTextField = new Rectangle(RENDER_OFFSET_LEFT, 0, SkinContext.BackBufferWidth - RENDER_OFFSET_LEFT, bgHeight);
-      _fontSprite.Begin(SpriteFlags.AlphaBlend);
-      _font.DrawText(_fontSprite, text, rcTextField, FontDrawFlags.Left, Color.Red);
-      _fontSprite.End();
+      using (var layout = new TextLayout(_device.FactoryDW, text, _textFormat, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight))
+      {
+
+        Rectangle rcTextField = new Rectangle(RENDER_OFFSET_LEFT, 0, SkinContext.BackBufferWidth - RENDER_OFFSET_LEFT, (int)Math.Ceiling(layout.Metrics.Height));
+        _device.Context2D1.DrawText(text, _textFormat, rcTextField, _redBrush);
+      }
     }
 
     private void DrawLines()
@@ -312,10 +327,10 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       renderBaseLine[0].Y = renderBaseLine[1].Y = RENDER_OFFSET_TOP + 30;
       presentBaseLine[0].Y = presentBaseLine[1].Y = RENDER_OFFSET_TOP + 70;
       int x = 0;
-      _line.Begin();
 
-      _line.Draw(renderBaseLine, new ColorBGRA(0.8f, 0.8f, 0.8f, 0.8f));
-      _line.Draw(presentBaseLine, new ColorBGRA(0.8f, 0.8f, 0.8f, 0.8f));
+      float strokeWidth = 2.5f;
+      _device.Context2D1.DrawLine(renderBaseLine[0], renderBaseLine[1], _grayBrush, strokeWidth);
+      _device.Context2D1.DrawLine(presentBaseLine[0], presentBaseLine[1], _grayBrush, strokeWidth);
 
       foreach (Stats stats in _stats.ReadAll(_totalFrameCount))
       {
@@ -328,14 +343,13 @@ namespace MediaPortal.Plugins.StatisticsRenderer
         pointsGlitches[pIdx].Y = RENDER_OFFSET_TOP + stats.Glitch * -5; // scale to see glitches better, mirror them
         if (pIdx == 1)
         {
-          _line.Draw(pointsFps, Color.Red);
-          _line.Draw(pointsRenderTime, Color.Blue);
-          _line.Draw(pointsTimeToPresent, Color.Green);
-          _line.Draw(pointsGlitches, Color.Yellow);
+          _device.Context2D1.DrawLine(pointsFps[0], pointsFps[1], _redBrush, strokeWidth);
+          _device.Context2D1.DrawLine(pointsRenderTime[0], pointsRenderTime[1], _blueBrush, strokeWidth);
+          _device.Context2D1.DrawLine(pointsTimeToPresent[0], pointsTimeToPresent[1], _greenBrush, strokeWidth);
+          _device.Context2D1.DrawLine(pointsGlitches[0], pointsGlitches[1], _yellowBrush, strokeWidth);
         }
         x++;
       }
-      _line.End();
     }
 
     #endregion
@@ -344,7 +358,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private float ScanlineToVblankOffset(int currentScanline)
     {
-      float singleLineDuration = 1000f / _adapterDisplayModeEx.RefreshRate / _adapterDisplayModeEx.Height;
+      float singleLineDuration = 1000f / ((float)_adapterDisplayModeEx.RefreshRate.Numerator / _adapterDisplayModeEx.RefreshRate.Denominator) / _adapterDisplayModeEx.Height;
       return (_adapterDisplayModeEx.Height - currentScanline) * singleLineDuration;
     }
 
@@ -357,9 +371,10 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
       try
       {
-        PresentationStatistics stats = _swapChainEx.PresentStats;
+        var stats = _swapChain.FrameStatistics;
         glitchCount = stats.SyncRefreshCount - stats.PresentRefreshCount;
-        presentStats = string.Format("PresentCount: {0}, Glitches (SRC-PRC): {1} [ylw]", stats.PresentCount, glitchCount);
+        int presentCount = stats.PresentCount;
+        presentStats = string.Format("PresentCount: {0}, Glitches (SRC-PRC): {1} [ylw]", presentCount, glitchCount);
       }
       catch (SharpDXException e)
       {
@@ -390,7 +405,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
           ISharpDXVideoPlayer player = psc.CurrentPlayer as ISharpDXVideoPlayer;
           if (player == null || player.Surface == null)
             return;
-          SurfaceDescription desc = player.Surface.Description;
+          var desc = player.Surface.Description;
           playerInfos += String.Format("{0}Player {1}: Resolution {2}x{3}", string.IsNullOrEmpty(playerInfos) ? "" : "\r\n", index++, desc.Width, desc.Height);
         });
       return playerInfos;

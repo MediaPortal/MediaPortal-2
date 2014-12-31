@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2014 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
@@ -24,14 +48,13 @@ using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Factory = SharpDX.DirectWrite.Factory;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Format = SharpDX.DXGI.Format;
-using PresentFlags = SharpDX.DXGI.PresentFlags;
 using SwapChain = SharpDX.DXGI.SwapChain;
 using SwapEffect = SharpDX.DXGI.SwapEffect;
 using Usage = SharpDX.DXGI.Usage;
 
 namespace MediaPortal.UI.SkinEngine.DirectX11
 {
-  internal class GraphicsDevice11 : IDisposable
+  public class GraphicsDevice11 : IDisposable
   {
     private Device _device3D;
     private Device1 _device3D1;
@@ -67,6 +90,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     public Texture2D BackBufferTexture
     {
       get { return _backBufferTexture; }
+    }
+
+    public SwapChain SwapChain
+    {
+      get { return _swapChain; }
     }
 
     public Device Device3D
