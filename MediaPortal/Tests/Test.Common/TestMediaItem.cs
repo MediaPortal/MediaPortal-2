@@ -1,4 +1,28 @@
-﻿using MediaPortal.Common;
+﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2014 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -41,7 +65,7 @@ namespace Test.Common
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
     }
 
-    private void AddRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid index, Guid localRole, Guid remoteRole, Guid remoteId)
+    private void AddRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspects, int index, Guid localRole, Guid remoteRole, Guid remoteId)
     {
       MultipleMediaItemAspect relationship = new MultipleMediaItemAspect(index, RelationshipAspect.Metadata);
       relationship.SetAttribute(RelationshipAspect.ATTR_ROLE, localRole);
@@ -65,7 +89,8 @@ namespace Test.Common
 
       SingleMediaItemAspect mediaAspect1;
       Assert.IsTrue(MediaItemAspect.TryGetAspect(album1.Aspects, MediaAspect.Metadata, out mediaAspect1), "Media aspect");
-      Assert.AreEqual(mediaAspect1.GetAttributeValue<string>(MediaAspect.ATTR_TITLE), "The Album", "Album title");
+      Assert.AreEqual(false, mediaAspect1.Deleted, "Album title");
+      Assert.AreEqual("The Album", mediaAspect1.GetAttributeValue<string>(MediaAspect.ATTR_TITLE), "Album title");
 
       TextWriter writer = new StringWriter();
       XmlWriter serialiser = new XmlTextWriter(writer);
@@ -88,16 +113,18 @@ namespace Test.Common
       MediaItem track2 = MediaItem.Deserialize(reader);
 
       SingleMediaItemAspect mediaAspect2;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track2.Aspects, MediaAspect.Metadata, out mediaAspect2), "Media aspect");
-      Assert.AreEqual(mediaAspect2.GetAttributeValue<string>(MediaAspect.ATTR_TITLE), "The Album", "Album title");
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(track2.Aspects, MediaAspect.Metadata, out mediaAspect2), "Media aspect 2");
+      Assert.AreEqual("The Album", mediaAspect2.GetAttributeValue<string>(MediaAspect.ATTR_TITLE), "Album title 2");
+      Assert.AreEqual(false, mediaAspect2.Deleted, "Album delete state 2");
 
       // Read the track again
       //Console.WriteLine("Reader state track3, {0} {1}", reader.NodeType, reader.Name);
       MediaItem track3 = MediaItem.Deserialize(reader);
 
       SingleMediaItemAspect mediaAspect3;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track3.Aspects, MediaAspect.Metadata, out mediaAspect3), "Media aspect");
-      Assert.AreEqual(mediaAspect3.GetAttributeValue<string>(MediaAspect.ATTR_TITLE), "The Album", "Album title");
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(track3.Aspects, MediaAspect.Metadata, out mediaAspect3), "Media aspect 3");
+      Assert.AreEqual("The Album", mediaAspect3.GetAttributeValue<string>(MediaAspect.ATTR_TITLE), "Album title 3");
+      Assert.AreEqual(false, mediaAspect3.Deleted, "Album delete state 3");
 
       reader.Read(); // Test
     }
@@ -109,38 +136,26 @@ namespace Test.Common
       Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
       Guid artistId = new Guid("11111111-aaaa-aaaa-aaaa-100000000002");
 
-      Guid trackAspect = new Guid("22222222-bbbb-bbbb-bbbb-200000000000");
+      int trackAspect = 1;
       Guid trackRelationship = new Guid("22222222-bbbb-bbbb-bbbb-200000000001");
 
-      Guid albumAspect = new Guid("33333333-cccc-cccc-cccc-300000000000");
+      int albumAspect = 2;
       Guid albumRelationship = new Guid("33333333-cccc-cccc-cccc-300000000001");
 
-      Guid artistAspect = new Guid("44444444-dddd-dddd-dddd-400000000000");
+      int artistAspect = 3;
       Guid artistRelationship = new Guid("44444444-dddd-dddd-dddd-400000000001");
 
       IDictionary<Guid, IList<MediaItemAspect>> aspects1 = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      SingleMediaItemAspect track1RA = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
-      track1RA.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
-      MediaItemAspect.SetAspect(aspects1, track1RA);
+      SingleMediaItemAspect resourceAspect1 = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
+      resourceAspect1.Deleted = true;
+      resourceAspect1.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
+      MediaItemAspect.SetAspect(aspects1, resourceAspect1);
 
       AddRelationship(aspects1, albumAspect, trackRelationship, albumRelationship, albumId);
       AddRelationship(aspects1, artistAspect, trackRelationship, artistRelationship, artistId);
 
       MediaItem track1 = new MediaItem(trackId, aspects1);
-
-      SingleMediaItemAspect resourceAspect1;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track1.Aspects, ProviderResourceAspect.Metadata, out resourceAspect1), "Resource aspects");
-      Assert.AreEqual(resourceAspect1.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "c:\\file.mp3", "Track location");
-      IList<MediaItemAspect> relationships1 = track1[RelationshipAspect.ASPECT_ID];
-      Assert.IsTrue(track1[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
-      Assert.AreEqual(relationships1.Count, 2, "Track relationship count");
-      Assert.AreEqual(relationships1[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), trackRelationship, "Track -> album item type");
-      Assert.AreEqual(relationships1[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), albumRelationship, "Track -> album relationship type");
-      Assert.AreEqual(relationships1[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), albumId, "Track -> album relationship ID");
-      Assert.AreEqual(relationships1[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), trackRelationship, "Track -> album item type");
-      Assert.AreEqual(relationships1[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), artistRelationship, "Track -> album relationship type");
-      Assert.AreEqual(relationships1[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), artistId, "Track -> album relationship ID");
 
       TextWriter writer = new StringWriter();
       XmlWriter serialiser = new XmlTextWriter(writer);
@@ -164,16 +179,17 @@ namespace Test.Common
 
       SingleMediaItemAspect resourceAspect2;
       Assert.IsTrue(MediaItemAspect.TryGetAspect(track2.Aspects, ProviderResourceAspect.Metadata, out resourceAspect2), "Resource aspects");
-      Assert.AreEqual(resourceAspect2.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "c:\\file.mp3", "Track location");
+      Assert.AreEqual(true, resourceAspect2.Deleted, "Track deleted status");
+      Assert.AreEqual("c:\\file.mp3", resourceAspect2.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
       IList<MediaItemAspect> relationships2 = track2[RelationshipAspect.ASPECT_ID];
       Assert.IsTrue(track2[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
       Assert.AreEqual(relationships2.Count, 2, "Track relationship count");
-      Assert.AreEqual(relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), trackRelationship, "Track -> album item type");
-      Assert.AreEqual(relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), albumRelationship, "Track -> album relationship type");
-      Assert.AreEqual(relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), albumId, "Track -> album relationship ID");
-      Assert.AreEqual(relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), trackRelationship, "Track -> album item type");
-      Assert.AreEqual(relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), artistRelationship, "Track -> album relationship type");
-      Assert.AreEqual(relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), artistId, "Track -> album relationship ID");
+      Assert.AreEqual(trackRelationship, relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
+      Assert.AreEqual(albumRelationship, relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
+      Assert.AreEqual(albumId, relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
+      Assert.AreEqual(trackRelationship, relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
+      Assert.AreEqual(artistRelationship, relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
+      Assert.AreEqual(artistId, relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
 
       // Read the track a second time (
       //Console.WriteLine("Reader state track3, {0} {1}", reader.NodeType, reader.Name);
@@ -181,16 +197,16 @@ namespace Test.Common
 
       SingleMediaItemAspect resourceAspect3;
       Assert.IsTrue(MediaItemAspect.TryGetAspect(track3.Aspects, ProviderResourceAspect.Metadata, out resourceAspect3), "Resource aspects");
-      Assert.AreEqual(resourceAspect3.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "c:\\file.mp3", "Track location");
+      Assert.AreEqual("c:\\file.mp3", resourceAspect3.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
       IList<MediaItemAspect> relationships3 = track3[RelationshipAspect.ASPECT_ID];
       Assert.IsTrue(track3[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
-      Assert.AreEqual(relationships3.Count, 2, "Track relationship count");
-      Assert.AreEqual(relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), trackRelationship, "Track -> album item type");
-      Assert.AreEqual(relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), albumRelationship, "Track -> album relationship type");
-      Assert.AreEqual(relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), albumId, "Track -> album relationship ID");
-      Assert.AreEqual(relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), trackRelationship, "Track -> album item type");
-      Assert.AreEqual(relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), artistRelationship, "Track -> album relationship type");
-      Assert.AreEqual(relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), artistId, "Track -> album relationship ID");
+      Assert.AreEqual(2, relationships3.Count, "Track relationship count");
+      Assert.AreEqual(trackRelationship, relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
+      Assert.AreEqual(albumRelationship, relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
+      Assert.AreEqual(albumId, relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
+      Assert.AreEqual(trackRelationship, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
+      Assert.AreEqual(artistRelationship, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
+      Assert.AreEqual(artistId, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
 
       reader.Read(); // Test
     }
