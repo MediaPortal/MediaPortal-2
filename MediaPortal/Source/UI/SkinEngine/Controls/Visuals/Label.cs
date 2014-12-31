@@ -298,15 +298,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalWidth = (float)Width;
       if (float.IsNaN(totalWidth))
         totalWidth = 4096;
-      SizeF size = new SizeF();
-      size.Width = 0;
+      SizeF size = new SizeF { Width = 0 };
 
+      ReAllocFont(); // Make sure to recreate asset to match current font metrics
       if (_asset == null)
-      {
-        AllocFont();
-        if (_asset == null)
-          return size;
-      }
+        return size;
 
       size = _asset.TextSize(_resourceString, totalWidth);
 
@@ -315,7 +311,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       size.Height += 1;
       _totalSize = size;
       return size;
-
     }
 
     public override void RenderOverride(RenderContext localRenderContext)
