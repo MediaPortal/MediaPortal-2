@@ -188,12 +188,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       int height = RenderTarget.ClientSize.Height;
       var desc = new SwapChainDescription
       {
-        BufferCount = 1,
+        BufferCount = 4,
         ModeDescription = new ModeDescription(width, height, new Rational(50, 1), Format.R8G8B8A8_UNorm),
         IsWindowed = true,
         OutputHandle = RenderTarget.Handle,
         SampleDescription = new SampleDescription(1, 0),
-        SwapEffect = SwapEffect.Discard,
+        SwapEffect = SwapEffect.FlipSequential,
         Usage = Usage.RenderTargetOutput
       };
 
