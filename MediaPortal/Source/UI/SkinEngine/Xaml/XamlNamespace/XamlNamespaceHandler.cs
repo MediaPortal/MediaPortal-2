@@ -71,14 +71,25 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 
     public Type GetElementType(string typeName)
     {
+      return GetElementType(typeName, false);
+    }
+
+    public Type GetElementType(string typeName, bool includeAbstractTypes)
+    {
+      Type type;
       try
       {
-        return objectTypes[typeName];
+        type = objectTypes[typeName];
       }
       catch
       {
         throw new XamlParserException("Element type '{0}' is not present", typeName);
       }
+      if (!includeAbstractTypes && type.IsAbstract)
+      {
+        throw new XamlParserException("Element type '{0}' is abstract", typeName);
+      }
+      return type;
     }
 
     public AbstractProperty GetAttachedProperty(string propertyProvider, string propertyName, object targetObject)

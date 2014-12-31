@@ -710,7 +710,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_KeyDown(object sender, KeyEventArgs e)
+    private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
       try
       {
@@ -729,7 +729,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+    private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
     {
       try
       {
@@ -748,7 +748,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_MouseClick(object sender, MouseEventArgs e)
+    private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
       try
       {
@@ -924,6 +924,32 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnLostFocus(e);
       _hasFocus = false;
+    }
+
+    private void MainForm_MouseDown(object sender, MouseEventArgs e)
+    {
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.MouseDown(e.Button, e.Clicks);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
+      }
+    }
+
+    private void MainForm_MouseUp(object sender, MouseEventArgs e)
+    {
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.MouseUp(e.Button, e.Clicks);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
+      }
     }
   }
 }

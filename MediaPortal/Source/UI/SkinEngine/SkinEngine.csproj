@@ -316,9 +316,16 @@
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
     <Compile Include="MpfElements\Converters\StringFormatConverter.cs" />
+    <Compile Include="MpfElements\EventManager.cs" />
+    <Compile Include="MpfElements\GlobalEventManager.cs" />
     <Compile Include="MpfElements\IBindingContainer.cs" />
+    <Compile Include="MpfElements\InputEventArgs.cs" />
+    <Compile Include="MpfElements\Input\MouseButtonEventArgs.cs" />
+    <Compile Include="MpfElements\Input\MouseEventArgs.cs" />
     <Compile Include="MpfElements\ISkinEngineManagedObject.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
+    <Compile Include="MpfElements\RoutedEvent.cs" />
+    <Compile Include="MpfElements\RoutedEventArgs.cs" />
     <Compile Include="Players\ISharpDXImagePlayer.cs" />
     <Compile Include="Players\ISharpDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />

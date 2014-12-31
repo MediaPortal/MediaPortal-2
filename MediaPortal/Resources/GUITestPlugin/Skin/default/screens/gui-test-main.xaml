@@ -61,6 +61,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="StarRating test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-starrating}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="EventManager test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-eventmanager}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>

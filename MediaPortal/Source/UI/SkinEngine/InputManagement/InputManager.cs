@@ -34,6 +34,9 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 
 namespace MediaPortal.UI.SkinEngine.InputManagement
 {
@@ -62,6 +65,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   /// <param name="key">The key which was pressed. This parmeter should be set to <see cref="Key.None"/> when the
   /// key was consumed.</param>
   public delegate void KeyPressedHandler(ref Key key);
+
+  internal delegate void RoutedInputEventHandler(RoutedEventArgs args, RoutedEvent[] events);
 
   /// <summary>
   /// Input manager class which provides the public <see cref="IInputManager"/> interface and some other
@@ -192,6 +197,18 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     internal class InputTouchUpEvent : InputTouchEvent { }
     internal class InputTouchMoveEvent : InputTouchEvent { }
 
+    protected class RoutedInputEvent : InputEvent
+    {
+      public RoutedInputEvent(RoutedEventArgs args, params RoutedEvent[] events)
+      {
+        EventArgs = args;
+        RoutedEvents = events;
+      }
+
+      public RoutedEventArgs EventArgs { get; private set; }
+      public RoutedEvent[] RoutedEvents { get; private set; }
+    }
+
     #endregion
 
     #region Consts
@@ -279,6 +296,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     public event EventHandler<TouchUpEvent> TouchUp;       // touch up event handler
     public event EventHandler<TouchMoveEvent> TouchMove;   // touch move event handler
 
+    internal event RoutedInputEventHandler RoutedInputEventFired;
+
     public void Terminate()
     {
       _terminatedEvent.Set();
@@ -359,6 +378,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         ExecuteTouchUp(ToUiEvent<TouchUpEvent>((InputTouchUpEvent)evt));
       else if (eventType == typeof(InputTouchMoveEvent))
         ExecuteTouchMove(ToUiEvent<TouchMoveEvent>((InputTouchMoveEvent)evt));
+      else if (eventType == typeof(RoutedInputEvent))
+        ExecuteRoutedInputEvent((RoutedInputEvent)evt);
     }
 
     protected void Dispatch(object o)
@@ -484,6 +505,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         dlgt(this, evt);
     }
 
+    protected void ExecuteRoutedInputEvent(RoutedInputEvent evt)
+    {
+      var dlgt = RoutedInputEventFired;
+      if (dlgt != null)
+        dlgt(evt.EventArgs, evt.RoutedEvents);
+    }
+
     internal static TE ToUiEvent<TE>(InputTouchEvent inputEvent) where TE : TouchEvent, new()
     {
       TE uiEvent = new TE
@@ -575,6 +603,52 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       TryEvent_NoLock(new MouseClickEvent(mouseButtons));
+    }
+
+
+    public void MouseDown(MouseButtons mouseButtons, int clicks)
+    {
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseButtonEventArgs(Environment.TickCount, ToMpfMouseButton(mouseButtons))
+        {
+          ClickCount = clicks
+        },
+        UIElement.PreviewMouseDownEvent, UIElement.MouseDownEvent));
+    }
+
+    public void MouseUp(MouseButtons mouseButtons, int clicks)
+    {
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseButtonEventArgs(Environment.TickCount, ToMpfMouseButton(mouseButtons))
+        {
+          ClickCount = clicks
+        },
+        UIElement.PreviewMouseUpEvent, UIElement.MouseUpEvent));
+    }
+
+    private MouseButton ToMpfMouseButton(MouseButtons button)
+    {
+      switch (button)
+      {
+        case MouseButtons.Left:
+          return MouseButton.Left;
+        case MouseButtons.Right:
+          return MouseButton.Right;
+        case MouseButtons.Middle:
+          return MouseButton.Middle;
+        case MouseButtons.XButton1:
+          return MouseButton.XButton1;
+        case MouseButtons.XButton2:
+          return MouseButton.XButton2;
+      }
+      ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Unsupported WinForms MouseButton: {0}", button);
+      return MouseButton.Left;
     }
 
     public void MouseWheel(int numDetents)

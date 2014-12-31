@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Screen.Resources>
+    <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/>
+    <!-- GUI-Test-Model -->
+  </Screen.Resources>
+
+  <Grid x:Name="Grid" 
+        UIElement.PreviewMouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+        UIElement.MouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+        UIElement.PreviewMouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+        UIElement.MouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    
+    <Border Grid.Column="0" Grid.Row="0" Margin="20" Background="Yellow"
+            PreviewMouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+            MouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+            PreviewMouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+            MouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+            x:Name="Yellow">
+      <StackPanel Margin="10">
+        <Border Margin="10" Background="Red" x:Name="RenInYellow"
+                PreviewMouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+                MouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+                PreviewMouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+                MouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}">
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Content="Red in yellow"/>
+        </Border>
+        <Border Margin="10" Background="Green" x:Name="GreenInYellow"
+                PreviewMouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+                MouseDown="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+                PreviewMouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}"
+                MouseUp="{CommandStencil Source={StaticResource Model}, Path=RoutedEventHandler}">
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Content="Green in yellow"/>
+        </Border>
+      </StackPanel>
+    </Border>
+  </Grid>
+
+</Screen>

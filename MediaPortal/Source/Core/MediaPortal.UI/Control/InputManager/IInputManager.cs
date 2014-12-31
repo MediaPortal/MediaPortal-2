@@ -92,6 +92,20 @@ namespace MediaPortal.UI.Control.InputManager
     void MouseClick(MouseButtons mouseButtons);
 
     /// <summary>
+    /// Called to handle a mouse down event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    /// <param name="clicks">Number of times the mouse button was pressed an released</param>
+    void MouseDown(MouseButtons mouseButtons, int clicks);
+
+    /// <summary>
+    /// Called to handle a mouse up event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    /// <param name="clicks">Number of times the mouse button was pressed an released</param>
+    void MouseUp(MouseButtons mouseButtons, int clicks);
+
+    /// <summary>
     /// Called to handle a key event. The key event can come from a mapped keyboard input or from any other
     /// input service.
     /// </summary>

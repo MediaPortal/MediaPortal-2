@@ -90,7 +90,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       }
     }
 
-    public abstract Type GetElementType(string typeName);
+    public virtual Type GetElementType(string typeName)
+    {
+      return GetElementType(typeName, false);
+    }
+
+    public abstract Type GetElementType(string typeName, bool includeAbstractTypes);
 
     public bool HasAttachedProperty(string propertyProvider, string propertyName, object targetObject)
     {

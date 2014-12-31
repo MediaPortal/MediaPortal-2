@@ -25,9 +25,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 
 namespace MediaPortal.Test.GUITest
 {
@@ -48,6 +51,16 @@ namespace MediaPortal.Test.GUITest
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow), null);
+    }
+
+    public void RoutedEventHandler(object sender, MouseButtonEventArgs e)
+    {
+      Debug.Print("RoutedEvent:");
+      Debug.Print("  Event=         {0}", e.RoutedEvent.Name);
+      Debug.Print("  sender=        {0}", sender);
+      Debug.Print("  Source=        {0}", e.Source);
+      Debug.Print("  OriginalSource={0}", e.OriginalSource);
+      Debug.Print("  Hit at=        {0}", e.GetPosition(sender as UIElement));
     }
 
     #endregion

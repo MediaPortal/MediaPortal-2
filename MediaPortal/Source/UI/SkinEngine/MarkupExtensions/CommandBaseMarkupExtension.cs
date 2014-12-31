@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -170,6 +171,49 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
+      }
+    }
+
+    /// <summary>
+    /// Returns the delegate for the command, matching the given delegate type
+    /// </summary>
+    /// <param name="delegateType">Type of the delegate</param>
+    /// <returns>Delegate of the command method.</returns>
+    public Delegate GetDelegate(Type delegateType)
+    {
+      // get number of parameters from delegate type
+      var miInvoke = delegateType.GetMember("Invoke").FirstOrDefault() as MethodInfo;
+      if (miInvoke == null)
+      {
+        throw new ArgumentException(@"Type is not a valid delegate", "delegateType");
+      }
+      int parameterCount = miInvoke.GetParameters().Length;
+
+      IDataDescriptor start;
+      if (!_source.Evaluate(out start))
+      {
+        ServiceRegistration.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find source value, could not create delegate for command ({0})",
+            ToString());
+        return null;
+      }
+
+      object obj;
+      MethodInfo mi;
+      _compiledPath.GetMethod(start, parameterCount, out obj, out mi);
+      if (mi == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find method, could not create delegate for command ({0})",
+            ToString());
+        return null;
+      }
+      try
+      {
+        return mi.CreateDelegate(delegateType, obj);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("CommandBaseMarkupExtension: Error creating delegate for command '{0}'", e, this);
+        return null;
       }
     }
 

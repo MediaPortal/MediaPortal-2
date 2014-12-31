@@ -28,6 +28,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.UI.SkinEngine.Xaml.XamlNamespace;
@@ -471,13 +474,38 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         string namespaceURI = (memberDeclarationNode.NamespaceURI == string.Empty && memberDeclarationNode is XmlAttribute) ?
             _elementContextStack.GetNamespaceOfPrefix(string.Empty) :
             memberDeclarationNode.NamespaceURI;
-        DefaultAttachedPropertyDataDescriptor dapdd;
-        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(GetNamespaceHandler(namespaceURI),
-            elementContext.Instance, explicitTargetQualifier, memberName, out dapdd))
-          throw new InvalidOperationException(string.Format("Attached property '{0}.{1}' is not available on new target object '{2}'",
+
+        //TODO: optimization potential: GetQualifiedEvent makes similar things line DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor below
+        var routedEvent = GetQualifiedEvent(GetNamespaceHandler(namespaceURI), explicitTargetQualifier, memberName);
+        if (routedEvent != null)
+        {
+          var uiElement = elementContext.Instance as UIElement;
+          if (uiElement == null)
+          {
+            throw new InvalidOperationException(string.Format("Qualified event {0}.{1} is not allowed on target object '{2}",
               explicitTargetQualifier, memberName, elementContext.Instance));
-        object value = ParseValue(memberDeclarationNode);
-        HandleMemberAssignment(dapdd, value);
+          }
+          object value = ParseValue(memberDeclarationNode);
+          var cmdExtension = value as CommandBaseMarkupExtension;
+          if (cmdExtension != null)
+          {
+            HandleEventAssignment(uiElement, routedEvent, cmdExtension);
+          }
+          else
+          {
+            HandleEventAssignment(uiElement, routedEvent, (string)Convert(value, typeof(string)));
+          }
+        }
+        else
+        {
+          DefaultAttachedPropertyDataDescriptor dapdd;
+          if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(GetNamespaceHandler(namespaceURI),
+            elementContext.Instance, explicitTargetQualifier, memberName, out dapdd))
+            throw new InvalidOperationException(string.Format("Attached property '{0}.{1}' is not available on new target object '{2}'",
+              explicitTargetQualifier, memberName, elementContext.Instance));
+          object value = ParseValue(memberDeclarationNode);
+          HandleMemberAssignment(dapdd, value);
+        }
       }
       else
       { // Local member
@@ -500,8 +528,18 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           }
           EventInfo evt = t.GetEvent(memberName);
           if (evt != null)
-          { // Event assignment
-            HandleEventAssignment(elementContext.Instance, evt, (string) Convert(value, typeof(string)));
+          {
+            // Event assignment
+            // we handle command extensions separately here to avoid parsing it again
+            var cmdExtension = value as CommandBaseMarkupExtension;
+            if (cmdExtension != null)
+            {
+              HandleEventAssignment(elementContext.Instance, evt, cmdExtension);
+            }
+            else
+            {
+              HandleEventAssignment(elementContext.Instance, evt, (string)Convert(value, typeof(string)));
+            }
             return;
           }
           throw new XamlBindingException("XAML parser: Member '{0}' was not found on type '{1}'",
@@ -515,6 +553,30 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           throw new XamlParserException("Attribute '{0}' is not defined in namespace '{1}'",
               memberDeclarationNode.LocalName, memberDeclarationNode.NamespaceURI);
       }
+    }
+
+    /// <summary>
+    /// Gets a routed event from a qualified event name like 'UIElement.MouseDown'.
+    /// </summary>
+    /// <param name="namespaceHandler">Namespace handler for eventProvider.</param>
+    /// <param name="eventProvider">Name of event provider type.</param>
+    /// <param name="eventName">Event name.</param>
+    /// <returns>Returns the routed event or <c>null</c> if <see cref="eventProvider"/> has no event with this name.</returns>
+    private RoutedEvent GetQualifiedEvent(INamespaceHandler namespaceHandler,
+        string eventProvider, string eventName)
+    {
+      Type type = namespaceHandler.GetElementType(eventProvider, true);
+      if (type != null)
+      {
+        foreach (var routedEvent in EventManager.GetRoutedEventsForOwner(type))
+        {
+          if (routedEvent.Name.Equals(eventName))
+          {
+            return routedEvent;
+          }
+        }
+      }
+      return null;
     }
 
     /// <summary>
@@ -764,14 +826,39 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     }
 
     /// <summary>
+    /// Will create an event handler association for the current element, using a command markup extension as handler.
+    /// </summary>
+    /// <param name="obj">Object which defines the event to assign the event
+    /// handler specified by <paramref name="cmdExtension"/> to.</param>
+    /// <param name="evt">Event which is defined on the class of <paramref name="obj"/>.</param>
+    /// <param name="cmdExtension">Command extension to be used as event handler.</param>
+    protected void HandleEventAssignment(object obj, EventInfo evt, CommandBaseMarkupExtension cmdExtension)
+    {
+      try
+      {
+        // initialize command extension
+        ((IEvaluableMarkupExtension)cmdExtension).Initialize(this);
+
+        // get the delegate from the command extension
+        var dlgt = cmdExtension.GetDelegate(evt.EventHandlerType);
+
+        // add the event handler to the event
+        evt.AddEventHandler(obj, dlgt);
+      }
+      catch (Exception e)
+      {
+        throw new XamlBindingException("Error assigning event handler", e);
+      }
+    }
+
+    /// <summary>
     /// Will create an event handler association for the current element.
     /// </summary>
     /// <remarks>
     /// In contrast to method
     /// <see cref="HandleMemberAssignment"/>,
     /// this method can only be used for the current element, which is part of the
-    /// visual tree. We do not support adding event handlers to markup extension
-    /// instances.
+    /// visual tree.
     /// </remarks>
     /// <param name="obj">Object which defines the event to assign the event
     /// handler specified by <paramref name="value"/> to.</param>
@@ -787,6 +874,62 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       try
       {
         evt.AddEventHandler(obj, dlgt);
+      }
+      catch (Exception e)
+      {
+        throw new XamlBindingException("Error assigning event handler", e);
+      }
+    }
+
+    /// <summary>
+    /// Will create an event handler association for the current element, using a command markup extension as handler.
+    /// </summary>
+    /// <param name="obj"><see cref="UIElement"/> which defines the event to assign the event
+    /// handler specified by <paramref name="cmdExtension"/> to.</param>
+    /// <param name="evt"><see cref="RoutedEvent"/> which is defined on the class of <paramref name="obj"/>.</param>
+    /// <param name="cmdExtension">Command extension to be used as event handler.</param>
+    protected void HandleEventAssignment(UIElement obj, RoutedEvent evt, CommandBaseMarkupExtension cmdExtension)
+    {
+      try
+      {
+        // initialize command extension
+        ((IEvaluableMarkupExtension)cmdExtension).Initialize(this);
+
+        // get the delegate from the command extension
+        var dlgt = cmdExtension.GetDelegate(evt.HandlerType);
+
+        // add the event handler to the event
+        obj.AddHandler(evt, dlgt);
+      }
+      catch (Exception e)
+      {
+        throw new XamlBindingException("Error assigning event handler", e);
+      }
+    }
+
+    /// <summary>
+    /// Will create an event handler association for the current element.
+    /// </summary>
+    /// <remarks>
+    /// In contrast to method
+    /// <see cref="HandleMemberAssignment"/>,
+    /// this method can only be used for the current element, which is part of the
+    /// visual tree.
+    /// </remarks>
+    /// <param name="obj"><see cref="UIElement"/> which defines the event to assign the event
+    /// handler specified by <paramref name="value"/> to.</param>
+    /// <param name="evt"><see cref="RoutedEvent"/> which is defined on the class of
+    /// <paramref name="obj"/>.</param>
+    /// <param name="value">Name of the event handler to assign to the specified
+    /// event.</param>
+    protected void HandleEventAssignment(UIElement obj, RoutedEvent evt, string value)
+    {
+      if (_getEventHandler == null)
+        throw new XamlBindingException("Delegate 'GetEventHandler' is not assigned");
+      Delegate dlgt = _getEventHandler(this, evt.HandlerType.GetMethod("Invoke"), value);
+      try
+      {
+        obj.AddHandler(evt, dlgt);
       }
       catch (Exception e)
       {

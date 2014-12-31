@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
 using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -430,6 +431,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.TouchDown += HandleTouchDown;
         inputManager.TouchUp += HandleTouchUp;
         inputManager.TouchMove += HandleTouchMove;
+        inputManager.RoutedInputEventFired += HandleRoutedInputEvent;
         HasInputFocus = true;
       }
       FrameworkElement lastFocusElement = (FrameworkElement)_lastFocusedElement.Target;
@@ -450,6 +452,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.TouchDown -= HandleTouchDown;
         inputManager.TouchUp -= HandleTouchUp;
         inputManager.TouchMove -= HandleTouchMove;
+        inputManager.RoutedInputEventFired -= HandleRoutedInputEvent;
         HasInputFocus = false;
         RemoveCurrentFocus();
       }
@@ -724,6 +727,48 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    private void HandleRoutedInputEvent(RoutedEventArgs args, RoutedEvent[] events)
+    {
+      try
+      {
+        lock (_syncObj)
+        {
+          UIElement element;
+          //TODO: add specific element selection logic for all RoutedEvent types, fall back is screen
+          if (args is MouseEventArgs)
+          {
+            // mouse events go to where mouse hovers over
+            var inputManager = ServiceRegistration.Get<IInputManager>();
+            var pt = inputManager.MousePosition;
+            element = _root.InputHitTest(new PointF(pt.X, pt.Y));
+          }
+          else if (args is InputEventArgs)
+          {
+            // all non mouse input events go to focused element
+            element = FocusedElement;
+          }
+          else
+          {
+            // fall back is screen
+            element = this;
+          }
+
+          if (element != null)
+          {
+            foreach (var routedEvent in events)
+            {
+              args.RoutedEvent = routedEvent;
+              element.RaiseEvent(args);
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing mouse down event", e, _resourceName);
+      }
+    }
+    
     public override bool IsInArea(float x, float y)
     {
       return true; // Screens always cover the whole physical area
