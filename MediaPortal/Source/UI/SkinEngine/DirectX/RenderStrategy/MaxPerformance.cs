@@ -34,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderStrategy
     public MaxPerformance(D3DSetup setup) : base(setup)
     {
       SyncInterval = SYNC_NONE;
-      PresentFlags = PresentFlags.None;
+      PresentFlags = PresentFlags.DoNotWait;
     }
   }
 }

@@ -378,8 +378,8 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       }
       catch (SharpDXException e)
       {
-        // Ignore "stats disjoint" exception that can happen the first time access of PresentStatistics
-        if (e.ResultCode.Code != -2005530492)
+        // Ignore "stats disjoint" exception that can happen the first time access of FrameStatistics
+        if (e.ResultCode.Code != -2005270517)
           throw;
       }
       return presentStats;
