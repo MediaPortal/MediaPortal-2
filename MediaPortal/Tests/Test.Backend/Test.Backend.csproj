@@ -56,6 +56,10 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Base.cs" />
+    <Compile Include="DatabaseUtils.cs" />
+    <Compile Include="TestLibrary.cs" />
+    <Compile Include="MIAUtils.cs" />
     <Compile Include="TestQueryEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
