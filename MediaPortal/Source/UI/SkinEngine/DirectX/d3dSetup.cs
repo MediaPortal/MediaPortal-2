@@ -503,8 +503,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       result.BackBufferCount = 20; // Such high backbuffer count is only useful for benchmarking so that rendering is not limited by backbuffer count
       result.PresentationInterval = PresentInterval.One;
 #else
-      result.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
+      result.BackBufferCount = 1; // 2 to 4 are recommended for FlipEx swap mode
       result.PresentationInterval = PresentInterval.One;
+      //result.BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
+      //result.PresentationInterval = PresentInterval.One;
 #endif
       result.FullScreenRefreshRateInHz = result.Windowed ? 0 : configuration.DisplayMode.RefreshRate;
       
@@ -512,7 +514,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // To use multisampling, the SwapEffect member of D3DPRESENT_PARAMETER must be set to D3DSWAPEFFECT_DISCARD.
       // SwapEffect must be set to SwapEffect.FlipEx to support the Present property to be Present.ForceImmediate
       // (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb174343%28v=vs.85%29.aspx )
-      result.SwapEffect = mst == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard;
+      //result.SwapEffect = mst == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard;
+      result.SwapEffect = SwapEffect.Discard;
 
       result.BackBufferWidth = backBufferWidth;
       result.BackBufferHeight = backBufferHeight;
