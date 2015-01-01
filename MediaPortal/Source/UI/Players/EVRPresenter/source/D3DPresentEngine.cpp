@@ -191,7 +191,9 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
   for (int i = 0; i < NUM_PRESENTER_BUFFERS; i++)
   {
     CComPtr<IDirect3DTexture9> texture;
-    hr = m_pDevice->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_RENDERTARGET, d3dFormat, D3DPOOL_DEFAULT, &texture, NULL);
+    // Use the shared resource handle to access texture later from DX11 device
+    HANDLE sharedResourceHandle;
+    hr = m_pDevice->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_RENDERTARGET, d3dFormat, D3DPOOL_DEFAULT, &texture, &sharedResourceHandle);
     if (FAILED(hr))
     {
       Log("D3DPresentEngine::CreateVideoSamples Could not create texture %d. Error 0x%x", i, hr);
@@ -209,6 +211,14 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
     if (FAILED(hr))
     {
       Log("D3DPresentEngine::CreateVideoSamples CreateVideoSampleFromSurface failed: 0x%x", hr);
+      break;
+    }
+
+    // Store our sharedHandle inside sample
+    hr = pVideoSample->SetUINT32(MFSamplePresenter_SharedResourceHande, (UINT32)sharedResourceHandle);
+    if (FAILED(hr))
+    {
+      Log("D3DPresentEngine::CreateVideoSamples setting shared handle failed: 0x%x", hr);
       break;
     }
 
