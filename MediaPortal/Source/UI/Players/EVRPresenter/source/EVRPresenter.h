@@ -123,6 +123,12 @@ static const GUID MFSamplePresenter_SampleCounter = { 0xb0bb83cc, 0xf10f, 0x4e2e
 // Pointer to a Direct3D swap chain.
 static const GUID MFSamplePresenter_SampleSwapChain = { 0xad885bd1, 0x7def, 0x414a, { 0xb5, 0xb0, 0xd3, 0xd2, 0x63, 0xd6, 0xe9, 0x6d } };
 
+// MFSamplePresenter_SharedResourceHande 
+// Data type: HANDLE
+// Contains the shared handle required to access sample from DX11 device
+// {F9284B76-1D2F-415D-9B76-21A51B3AF518}
+static const GUID MFSamplePresenter_SharedResourceHande = { 0xf9284b76, 0x1d2f, 0x415d, { 0x9b, 0x76, 0x21, 0xa5, 0x1b, 0x3a, 0xf5, 0x18 } };
+
 #pragma warning(disable: 4995)
 // write message to EVR Log.
 void Log(const char *fmt, ...);
