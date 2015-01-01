@@ -47,6 +47,24 @@
         </Border>
       </StackPanel>
     </Border>
+    
+    <Border Grid.Column="0" Grid.Row="1" Margin="20" Background="Silver">
+      <Border.Triggers>
+        <EventTrigger RoutedEvent="UIElement.MouseDown">
+          <TriggerCommand Command="{Command Source={StaticResource Model}, Path=TriggerTestMouseDown}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.MouseUp">
+          <TriggerCommand Command="{Command Source={StaticResource Model}, Path=TriggerTestMouseUp}"/>
+        </EventTrigger>
+      </Border.Triggers>
+
+      <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+               Content="Click here to test triggers"/>
+        <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+               Content="{Binding Source={StaticResource Model}, Path=TriggerTestMouseState, Mode=OneWay}"/>
+      </StackPanel>
+    </Border>
   </Grid>
 
 </Screen>

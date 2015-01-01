@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -42,6 +43,23 @@ namespace MediaPortal.Test.GUITest
     public const string MODEL_ID_STR = "F4FC1599-F412-40d0-82BF-46FC352E93BE";
 
     #region Protected fields
+
+    protected AbstractProperty _triggerTestMouseStateProperty = new SProperty(typeof(string), "Mouse not triggered yet");
+
+    #endregion
+
+    #region public properties
+
+    public AbstractProperty TriggerTestMouseStateProperty
+    {
+      get { return _triggerTestMouseStateProperty; }
+    }
+
+    public string TriggerTestMouseState
+    {
+      get { return (string) _triggerTestMouseStateProperty.GetValue(); }
+      set { _triggerTestMouseStateProperty.SetValue(value); }
+    }
 
     #endregion
 
@@ -61,6 +79,16 @@ namespace MediaPortal.Test.GUITest
       Debug.Print("  Source=        {0}", e.Source);
       Debug.Print("  OriginalSource={0}", e.OriginalSource);
       Debug.Print("  Hit at=        {0}", e.GetPosition(sender as UIElement));
+    }
+
+    public void TriggerTestMouseDown()
+    {
+      TriggerTestMouseState = "Mouse is down";
+    }
+
+    public void TriggerTestMouseUp()
+    {
+      TriggerTestMouseState = "Mouse is up";
     }
 
     #endregion
