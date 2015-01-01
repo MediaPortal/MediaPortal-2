@@ -68,9 +68,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Allocates a new render-texture with the specified size and default format.
     /// </summary>
-    public void AllocateRenderTarget(int width, int height)
+    public void AllocateRenderTarget(int width, int height, BitmapOptions options = BitmapOptions.Target)
     {
-      _assetCore.Allocate(width, height);
+      _assetCore.Allocate(width, height, options);
     }
 
     public void Allocate()

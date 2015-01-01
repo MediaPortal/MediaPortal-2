@@ -23,7 +23,9 @@
 #endregion
 
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Players
@@ -51,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// <summary>
     /// Returns the render surface for the current frame. May be <c>null</c>.
     /// </summary>
-    Surface Surface { get; } 
+    IBitmapAsset2D Surface { get; } 
 
     /// <summary>
     /// Gets the rectangle out of the video frame <see cref="Surface"/> which should be presented.

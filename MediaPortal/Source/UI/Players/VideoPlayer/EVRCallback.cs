@@ -31,8 +31,10 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 
 using System;
 using System.Runtime.InteropServices;
-using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX11;
+using SharpDX.Direct2D1;
+using SharpDX.Direct3D11;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -54,10 +56,10 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="cy">Video height.</param>
     /// <param name="arx">Aspect Ratio X.</param>
     /// <param name="ary">Aspect Ratio Y.</param>
-    /// <param name="dwSurface">Address of the DirectX surface.</param>
+    /// <param name="sharedHandle">Address of the DirectX surface.</param>
     /// <returns><c>0</c>, if the method succeeded, <c>!= 0</c> else.</returns>
     [PreserveSig]
-    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, ref IntPtr dwSurface);
+    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, ref IntPtr sharedHandle);
   }
 
   public delegate void RenderDlgt();
@@ -71,11 +73,11 @@ namespace MediaPortal.UI.Players.Video
     private readonly object _lock = new object();
     private Size _originalVideoSize = new Size();
     private SizeF _aspectRatio = new SizeF();
-    private Surface _surface = null;
+    protected IBitmapAsset2D _bitmapAsset2D;
 
-    private readonly DeviceEx _device;
     private readonly RenderDlgt _renderDlgt;
     private readonly Action _onTextureInvalidated;
+    private string _instanceKey;
 
     #endregion
 
@@ -83,13 +85,11 @@ namespace MediaPortal.UI.Players.Video
     {
       _onTextureInvalidated = onTextureInvalidated;
       _renderDlgt = renderDlgt;
-      _device = SkinContext.Device;
     }
 
     public void Dispose()
     {
       VideoSizePresent = null;
-      FreeSurface();
     }
 
     #region Public properties and events
@@ -100,9 +100,12 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
-    public Surface Surface
+    public IBitmapAsset2D Surface
     {
-      get { return _surface; }
+      get
+      {
+        return _bitmapAsset2D;
+      }
     }
 
     public object SurfaceLock
@@ -126,20 +129,25 @@ namespace MediaPortal.UI.Players.Video
       get { return _aspectRatio; }
     }
 
-    #endregion
-
-    private void FreeSurface()
+    /// <summary>
+    /// Sets the current presenter instance. This is used to generate an unique asset key.
+    /// </summary>
+    public IntPtr PresenterInstance
     {
-      lock (_lock)
-        FilterGraphTools.TryDispose(ref _surface);
+      set
+      {
+        _instanceKey = "EVRCallbackSurface_" + value; // Unique texture per EVR instance
+      }
     }
+
+    #endregion
 
     #region IEVRPresentCallback implementation
 
-    public int PresentSurface(short cx, short cy, short arx, short ary, ref IntPtr dwSurface)
+    public int PresentSurface(short cx, short cy, short arx, short ary, ref IntPtr sharedHandle)
     {
       lock (_lock)
-        if (dwSurface != IntPtr.Zero && cx != 0 && cy != 0)
+        if (sharedHandle != IntPtr.Zero && cx != 0 && cy != 0)
         {
           if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
             _originalVideoSize = new Size(cx, cy);
@@ -147,22 +155,19 @@ namespace MediaPortal.UI.Players.Video
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          // We need to Dispose the created instance because SharpDX tracks all created objects. When the surface is disposed, it will get released
-          // on unmanaged side as well, that's why we set the dwSurface to IntPtr.Zero to avoid duplicated release (which leads to hard crashes).
-          using (Surface surf = new Surface(dwSurface))
+          using (Texture2D tex = GraphicsDevice11.Instance.Device3D1.OpenSharedResource<Texture2D>(sharedHandle))
+          using (SharpDX.DXGI.Surface surface10 = tex.QueryInterface<SharpDX.DXGI.Surface>())
           {
-            SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
-            SurfaceDescription surfDesc = surf.Description;
-            if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
+            using (var texBitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, surface10))
             {
-              if (_surface != null)
-                _surface.Dispose();
-              _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
+              _bitmapAsset2D = ContentManager.Instance.GetRenderTarget2D(_instanceKey);
+              ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget(cx, cy, BitmapOptions.None);
+              if (!_bitmapAsset2D.IsAllocated)
+                return 0;
+
+              _bitmapAsset2D.Bitmap.CopyFromBitmap(texBitmap);
             }
-            _device.StretchRectangle(surf, _surface, TextureFilter.None);
           }
-          // Clear pointer, surface was already released.
-          dwSurface = IntPtr.Zero;
         }
 
       VideoSizePresentDlgt vsp = VideoSizePresent;
