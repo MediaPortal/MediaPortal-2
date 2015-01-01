@@ -280,7 +280,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (_asset == null)
       {
-        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
+        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited());
         _asset.Text = _resourceString;
       }
       if (_textBrush == null)
