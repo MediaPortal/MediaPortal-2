@@ -34,7 +34,9 @@ using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.Utilities.Exceptions;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
@@ -330,9 +332,10 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Render subtitles on video texture if enabled and available.
     /// </summary>
-    protected override void PostProcessTexture(Surface targetSurface)
+    protected override void PostProcessTexture(IBitmapAsset2D targetSurface)
     {
-      _subtitleRenderer.DrawOverlay(targetSurface);
+      // TODO:
+      //_subtitleRenderer.DrawOverlay(targetSurface);
     }
 
     public override TimeSpan CurrentTime

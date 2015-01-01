@@ -405,7 +405,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
           ISharpDXVideoPlayer player = psc.CurrentPlayer as ISharpDXVideoPlayer;
           if (player == null || player.Surface == null)
             return;
-          var desc = player.Surface.Description;
+          var desc = player.Surface.Bitmap.PixelSize;
           playerInfos += String.Format("{0}Player {1}: Resolution {2}x{3}", string.IsNullOrEmpty(playerInfos) ? "" : "\r\n", index++, desc.Width, desc.Height);
         });
       return playerInfos;

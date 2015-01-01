@@ -36,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected Bitmap1 _bitmap = null;
     protected Size _size = new Size();
-    protected PixelFormat _format = new PixelFormat(SharpDX.DXGI.Format.R8G8B8A8_UNorm, AlphaMode.Premultiplied);
+    protected PixelFormat _format = new PixelFormat(SharpDX.DXGI.Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied);
 
     #endregion
 
@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _size; }
     }
 
-    public void Allocate(int width, int height)
+    public void Allocate(int width, int height, BitmapOptions options = BitmapOptions.Target)
     {
       bool free;
       lock (_syncObj)
@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         _size.Height = height;
 
         // Create the D2D bitmap description using default 96 DPI
-        var bitmapProperties = new BitmapProperties1(_format, 96, 96, BitmapOptions.Target);
+        var bitmapProperties = new BitmapProperties1(_format, 96, 96, options);
 
         // Create the render target
         _bitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, new Size(width, height), bitmapProperties);

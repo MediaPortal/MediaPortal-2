@@ -36,8 +36,12 @@ using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX11;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
@@ -177,12 +181,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       EnumerateChapters(true);
     }
 
-    protected override void PostProcessTexture(Surface targetSurface)
+    protected override void PostProcessTexture(IBitmapAsset2D targetSurface)
     {
       if (_zapping)
       {
         // While zapping fill the current video frame with black. This avoids a frozen last frame from previous channel.
-        SkinContext.Device.ColorFill(targetSurface, Color.Black);
+        using(new TemporaryRenderTarget2D(targetSurface.Bitmap))
+          GraphicsDevice11.Instance.Context2D1.Clear(Color.Black);
       }
       else
         base.PostProcessTexture(targetSurface);

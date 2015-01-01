@@ -129,6 +129,7 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Brushes\VideoBrush2D.cs" />
     <Compile Include="Controls\ImageSources\ResourceAccessorTextureImageSource.cs" />
     <Compile Include="Controls\Brushes\Animation\AbstractKenBurnsEffect.cs" />
     <Compile Include="Controls\Brushes\Animation\IImageAnimator.cs" />
@@ -202,12 +203,12 @@
     <Compile Include="Controls\Brushes\RadialGradientBrush.cs" />
     <Compile Include="Controls\Brushes\SolidColorBrush.cs" />
     <Compile Include="Controls\Brushes\TileBrush.cs" />
-    <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardPresenter.cs" />
     <Compile Include="DirectX11\DeviceContextExtensions.cs" />
     <Compile Include="DirectX11\GraphicsDevice11.cs" />
+    <Compile Include="DirectX11\TextureExtension.cs" />
     <Compile Include="DirectX\D3DConfiguration.cs" />
     <Compile Include="DirectX\DxCapabilities.cs" />
     <Compile Include="DirectX\MPDirect3D.cs" />
