@@ -296,7 +296,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         AllocFont();
       else
         // TODO: properties for FontWeight and FontStyle
-        _asset.SetFont(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
+        _asset.SetFont(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited());
     }
 
     public override void OnKeyPreview(ref Key key)
@@ -443,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (_asset == null)
       {
-        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
+        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited());
       }
       if (_textBrush == null)
       {
@@ -511,7 +511,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       size.Width = 0;
       string line = VisibleText ?? string.Empty;
       float textWidthW = 0;
-      using (var textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited()))
+      using (var textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited()))
       {
         using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, line, textFormat, totalWidth, 4096))
         {

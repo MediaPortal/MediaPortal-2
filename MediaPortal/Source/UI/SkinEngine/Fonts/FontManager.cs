@@ -28,6 +28,7 @@ using System.IO;
 using System.Xml.XPath;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX.DirectWrite;
 
 namespace MediaPortal.UI.SkinEngine.Fonts
 {
@@ -37,6 +38,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     private static readonly IDictionary<string, FontFamily> _families = new Dictionary<string, FontFamily>();
     private static string _defaultFontFamily;
     private static int _defaultFontSize;
+    private static FontWeight _defaultFontWeight;
+    private static FontStyle _defaultFontStyle;
     private static ResourceFontLoader _fontResourceLoader;
 
     public static ResourceFontLoader ResourceFontLoader
@@ -58,6 +61,22 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     public static int DefaultFontSize
     {
       get { return _defaultFontSize; }
+    }
+
+    /// <summary>
+    /// Returns the default font weight.
+    /// </summary>
+    public static FontWeight DefaultFontWeight
+    {
+      get { return _defaultFontWeight; }
+    }
+
+    /// <summary>
+    /// Returns the default font style.
+    /// </summary>
+    public static FontStyle DefaultFontStyle
+    {
+      get { return _defaultFontStyle; }
     }
 
     /// <summary>
@@ -99,7 +118,11 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       nav.MoveToChild(XPathNodeType.Element);
       _defaultFontFamily = nav.GetAttribute("FontFamily", string.Empty);
       string defaultFontSize = nav.GetAttribute("FontSize", string.Empty);
+      string defaultFontWeight = nav.GetAttribute("FontWeight", string.Empty);
+      string defaultFontStyle = nav.GetAttribute("FontStyle", string.Empty);
       _defaultFontSize = int.Parse(defaultFontSize);
+      Enum.TryParse(defaultFontWeight, true, out _defaultFontWeight);
+      Enum.TryParse(defaultFontStyle, true, out _defaultFontStyle);
 
       // Iterate over font family descriptors
       foreach (string descriptorFilePath in resourcesCollection.GetResourceFilePaths(

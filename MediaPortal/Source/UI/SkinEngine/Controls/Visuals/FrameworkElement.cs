@@ -50,6 +50,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -159,6 +160,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _isMouseOverProperty;
     protected AbstractProperty _fontSizeProperty;
     protected AbstractProperty _fontFamilyProperty;
+    protected AbstractProperty _fontWeightProperty;
+    protected AbstractProperty _fontStyleProperty;
 
     protected AbstractProperty _contextMenuCommandProperty;
 
@@ -234,6 +237,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Font properties
       _fontFamilyProperty = new SProperty(typeof(string), String.Empty);
       _fontSizeProperty = new SProperty(typeof(int), -1);
+      _fontWeightProperty = new SProperty(typeof(FontWeight?), null);
+      _fontStyleProperty = new SProperty(typeof(FontStyle?), null);
     }
 
     void Attach()
@@ -290,6 +295,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Focusable = fe.Focusable;
       FontSize = fe.FontSize;
       FontFamily = fe.FontFamily;
+      FontWeight = fe.FontWeight;
+      FontStyle = fe.FontStyle;
       MinWidth = fe.MinWidth;
       MinHeight = fe.MinHeight;
       MaxWidth = fe.MaxWidth;
@@ -727,6 +734,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _fontSizeProperty.SetValue(value); }
     }
 
+    public AbstractProperty FontWeightProperty
+    {
+      get { return _fontWeightProperty; }
+    }
+
+    // FontFamily & FontSize are defined in FrameworkElement because it should also be defined on
+    // panels, and in MPF, panels inherit from FrameworkElement
+    public FontWeight? FontWeight
+    {
+      get { return (FontWeight?)_fontWeightProperty.GetValue(); }
+      set { _fontWeightProperty.SetValue(value); }
+    }
+
+    public AbstractProperty FontStyleProperty
+    {
+      get { return _fontStyleProperty; }
+    }
+
+    // FontFamily & FontSize are defined in FrameworkElement because it should also be defined on
+    // panels, and in MPF, panels inherit from FrameworkElement
+    public FontStyle? FontStyle
+    {
+      get { return (FontStyle?)_fontStyleProperty.GetValue(); }
+      set { _fontStyleProperty.SetValue(value); }
+    }
+
     public bool IsMeasureInvalid
     {
       get { return _isMeasureInvalid; }
@@ -765,6 +798,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           result = currentFE.FontSize;
       }
       return result == -1 ? FontManager.DefaultFontSize : result;
+    }
+
+    public FontWeight GetFontWeightOrInherited()
+    {
+      FontWeight? result = FontWeight;
+      Visual current = this;
+      while (!result.HasValue && (current = current.VisualParent) != null)
+      {
+        FrameworkElement currentFE = current as FrameworkElement;
+        if (currentFE != null)
+          result = currentFE.FontWeight;
+      }
+      return result.HasValue ? result.Value : FontManager.DefaultFontWeight;
+    }
+
+    public FontStyle GetFontStyleOrInherited()
+    {
+      FontStyle? result = FontStyle;
+      Visual current = this;
+      while (!result.HasValue && (current = current.VisualParent) != null)
+      {
+        FrameworkElement currentFE = current as FrameworkElement;
+        if (currentFE != null)
+          result = currentFE.FontStyle;
+      }
+      return result.HasValue ? result.Value : FontManager.DefaultFontStyle;
     }
 
     #endregion
