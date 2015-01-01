@@ -191,9 +191,9 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
   for (int i = 0; i < NUM_PRESENTER_BUFFERS; i++)
   {
     CComPtr<IDirect3DTexture9> texture;
-    // Use the shared resource handle to access texture later from DX11 device
-    HANDLE sharedResourceHandle;
-    hr = m_pDevice->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_RENDERTARGET, d3dFormat, D3DPOOL_DEFAULT, &texture, &sharedResourceHandle);
+    // Use the shared resource handle to access texture later from DX11 device. Note: the D3DFMT_A8R8G8B8 is required for shared resources!
+    HANDLE sharedResourceHandle = NULL;
+    hr = m_pDevice->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedResourceHandle);
     if (FAILED(hr))
     {
       Log("D3DPresentEngine::CreateVideoSamples Could not create texture %d. Error 0x%x", i, hr);
@@ -215,7 +215,7 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
     }
 
     // Store our sharedHandle inside sample
-    hr = pVideoSample->SetUINT32(MFSamplePresenter_SharedResourceHande, (UINT32)sharedResourceHandle);
+    hr = surface->SetPrivateData(MFSamplePresenter_SharedResourceHande, &sharedResourceHandle, sizeof(HANDLE), 0);
     if (FAILED(hr))
     {
       Log("D3DPresentEngine::CreateVideoSamples setting shared handle failed: 0x%x", hr);
@@ -300,6 +300,8 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
   IMFMediaBuffer* pBuffer = NULL;
   IDirect3DSurface9* pSurface = NULL;
 
+  DWORD sharedResourceHandle;
+  DWORD dataSize;
   if (pSample)
   {
     // Get the buffer from the sample.
@@ -308,6 +310,12 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
     {
       // Get the surface from the buffer.
       hr = MFGetService(pBuffer, MR_BUFFER_SERVICE, __uuidof(IDirect3DSurface9), (void**)&pSurface);
+      hr = pSurface->GetPrivateData(MFSamplePresenter_SharedResourceHande, &sharedResourceHandle, &dataSize);
+      if (FAILED(hr))
+      {
+        Log("D3DPresentEngine::PresentSample getting shared handle failed: 0x%x", hr);
+        return S_FALSE;
+      }
     }
     if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
     {
@@ -320,12 +328,12 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
   }
   else if (m_pSurfaceRepaint)
   {
-    // Redraw from the last surface.
-    pSurface = m_pSurfaceRepaint;
-    pSurface->AddRef();
+    //// Redraw from the last surface.
+    //pSurface = m_pSurfaceRepaint;
+    //pSurface->AddRef();
   }
 
-  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&pSurface); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
+  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&sharedResourceHandle); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
 
   SAFE_RELEASE(pSurface);
   SAFE_RELEASE(pBuffer);
