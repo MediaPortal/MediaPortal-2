@@ -24,14 +24,11 @@
 
 using System;
 using MediaPortal.UI.SkinEngine.DirectX11;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
@@ -39,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
   {
     #region Consts
 
-    protected const int FADE_SIZE = 15;
+    protected const float FADE_SIZE = 15f;
 
     #endregion
 
@@ -53,11 +50,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     // State
     protected string _text;
     protected bool _textChanged;
-    protected SizeF _lastTextSize;
     protected float _lastTextBoxWidth;
     protected bool _lastWrap;
-    protected bool _kerning;
-    protected int[] _textLines;
 
     // Scrolling
     protected Vector2 _scrollPos;
@@ -67,6 +61,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected string _fontName;
     protected FontWeight _fontWeight;
     protected FontStyle _fontStyle;
+    protected RectangleF _lastTextBox;
+    protected Brush _opacityBrush;
 
     #endregion
 
@@ -87,9 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _fontSize = fontSize;
       SetFont();
 
-      _kerning = true;
       _lastTimeUsed = DateTime.MinValue;
-      _lastTextSize = new SizeF();
       ResetScrollPosition();
     }
 
@@ -102,7 +96,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     public Brush TextBrush
     {
-      get; set;
+      get;
+      set;
     }
 
     /// <summary>
@@ -134,15 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       if (_textLayout != null)
         _textLayout.Dispose();
-      _textLayout= new TextLayout(GraphicsDevice11.Instance.FactoryDW, _text, _textFormat, 4096, 4096);
-    }
-
-    /// <summary>
-    /// Gets the current kerning setting.
-    /// </summary>
-    public bool Kerning
-    {
-      get { return _kerning; }
+      _textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, _text, _textFormat, 4096, 4096);
     }
 
     /// <summary>
@@ -210,6 +197,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         // TODO: check correct value
         return lineSpacing;
       }
+    }
+
+    public bool IsAllocated
+    {
+      get { return _textLayout != null; }
     }
 
     public override string ToString()
@@ -364,170 +356,153 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
-    /// Standard draw method for this text.
+    /// Simplified draw method for this text.
+    /// <para>
+    /// The <see cref="TextBrush"/> has to be set before and will be used for text rendering. Usually this is a SolidColorBrush with desired color, but could also be
+    /// some kind of GradientBrush for text rendering effects.
+    /// </para>
     /// </summary>
     /// <param name="textBox">The box where the text should be drawn.</param>
-    /// <param name="horzAlignment">The horizontal alignment.</param>
-    /// <param name="vertAlignment">The vertical alignment.</param>
-    /// <param name="color">The color.</param>
-    /// <param name="wrap">If <c>true</c> then text will be word-wrapped to fit the <paramref name="textBox"/>.</param>
-    /// <param name="fade">If <c>true</c> then text will be faded at the edge of the <paramref name="textBox"/>.</param>
-    /// <param name="zOrder">A value indicating the depth (and thus position in the visual heirachy) that this element should be rendered at.</param>
+    /// <param name="localRenderContext">RenderContext to apply transformations.</param>
+    public void Render(RectangleF textBox, RenderContext localRenderContext)
+    {
+      Render(textBox, 0f, 0f, localRenderContext);
+    }
+
+    /// <summary>
+    /// Draw method that supports scrolling of text if it is larger than the target <paramref name="textBox"/>.
+    /// <para>
+    /// The <see cref="TextBrush"/> has to be set before and will be used for text rendering. Usually this is a SolidColorBrush with desired color, but could also be
+    /// some kind of GradientBrush for text rendering effects.
+    /// </para>
+    /// </summary>
+    /// <param name="textBox">The box where the text should be drawn.</param>
     /// <param name="scrollMode">Text scrolling behaviour.</param>
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
     /// <param name="scrollDelay">Text scrolling delay in seconds.</param>
-    /// <param name="finalTransform">The final combined layout/render-transform.</param>
-    //public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color,
-    //    bool wrap, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, Matrix finalTransform)
-    //{
-    //  if (wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
-    //  {
-    //    Allocate(textBox.Width, wrap);
-    //  }
+    /// <param name="localRenderContext">RenderContext to apply transformations.</param>
+    public void Render(RectangleF textBox, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, RenderContext localRenderContext)
+    {
+      // Update scrolling
+      if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
+        UpdateScrollPosition(textBox, scrollMode, scrollSpeed, scrollDelay);
 
-    //  // Update scrolling
-    //  TextScrollEnum actualScrollMode = scrollMode;
-    //  if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
-    //    actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed, scrollDelay);
-
-    //  // Prepare horizontal alignment info for shader. X is position offset, Y is multiplyer for line width.
-    //  Vector4 alignParam;
-    //  switch (horzAlignment)
-    //  {
-    //    case HorizontalTextAlignEnum.Center:
-    //      alignParam = new Vector4(textBox.Width / 2.0f, -0.5f, zOrder, 1.0f);
-    //      break;
-    //    case HorizontalTextAlignEnum.Right:
-    //      alignParam = new Vector4(textBox.Width, -1.0f, zOrder, 1.0f);
-    //      break;
-    //    //case TextAlignEnum.Left:
-    //    default:
-    //      alignParam = new Vector4(0.0f, 0.0f, zOrder, 1.0f);
-    //      break;
-    //  }
-    //  // Do vertical alignment by adjusting yPosition
-    //  float yPosition = 0.0f;
-    //  switch (vertAlignment)
-    //  {
-    //    case VerticalTextAlignEnum.Bottom:
-    //      yPosition = Math.Max(textBox.Height - _lastTextSize.Height, 0.0f);
-    //      break;
-    //    case VerticalTextAlignEnum.Center:
-    //      yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);
-    //      break;
-    //    //case TextAlignEnum.Top:
-    //    // Do nothing
-    //  }
-
-    //  // Do we need to add fading edges?
-    //  //Vector4 fadeBorder;
-    //  //if (fade && CalculateFadeBorder(actualScrollMode, textBox, horzAlignment, out fadeBorder))
-    //  //{
-    //  //  _effect = ContentManager.Instance.GetEffect(EFFECT_FONT_FADE);
-    //  //  _effect.Parameters[PARAM_FADE_BORDER] = fadeBorder;
-    //  //}
-    //  //else
-    //  //  _effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
-
-    //  //// Render
-    //  //_effect.Parameters[PARAM_COLOR] = color;
-    //  //_effect.Parameters[PARAM_ALIGNMENT] = alignParam;
-    //  //_effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y + yPosition, 0.0f, 0.0f);
-    //  //_effect.Parameters[PARAM_TEXT_RECT] = new Vector4(textBox.Left, textBox.Top, textBox.Width, textBox.Height);
-    //  DoRender(finalTransform);
-
-    //  //// Because text wraps around before it is complete scrolled off the screen we may need to render a second copy 
-    //  //// to create the desired wrapping effect
-    //  //if (scrollMode != TextScrollEnum.None)
-    //  //{
-    //  //  if (!float.IsNaN(_scrollWrapOffset.X))
-    //  //  {
-    //  //    _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X + _scrollWrapOffset.X, _scrollPos.Y, 0.0f, 0.0f);
-    //  //    DoRender(finalTransform);
-    //  //  }
-    //  //  else if (!float.IsNaN(_scrollWrapOffset.Y))
-    //  //  {
-    //  //    _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y + _scrollWrapOffset.Y, 0.0f, 0.0f);
-    //  //    DoRender(finalTransform);
-    //  //  }
-    //  //}
-    //  _lastTimeUsed = SkinContext.FrameRenderingStartTime;
-    //}
+      Render(textBox, _scrollPos.X, _scrollPos.Y, true, localRenderContext);
+    }
 
     /// <summary>
-    /// Simplified render method to draw the text with a given text offset. This can be used for text edit controls where the text is
-    /// shifted horizontally against its textbox.
+    /// Draw method that supports virtual scrolling of text. If it is larger than the target <paramref name="textBox"/>, the position can be shifted by the given
+    /// offsets (<see cref="offsetX"/> and <see cref="offsetY"/>). When using this method, no fading of text will be used.
+    /// <para>
+    /// The <see cref="TextBrush"/> has to be set before and will be used for text rendering. Usually this is a SolidColorBrush with desired color, but could also be
+    /// some kind of GradientBrush for text rendering effects.
+    /// </para>
     /// </summary>
     /// <param name="textBox">The box where the text should be drawn.</param>
-    /// <param name="horzAlignment">The horizontal alignment.</param>
-    /// <param name="vertAlignment">The vertical alignment.</param>
-    /// <param name="offsetX">Horizontal offset of the text in relation to its text box. A negative offset will make the text start left of its
-    /// normal position.</param>
-    /// <param name="color">The color.</param>
-    /// <param name="zOrder">A value indicating the depth (and thus position in the visual heirachy) that this element should be rendered at.</param>
-    /// <param name="finalTransform">The final combined layout/render-transform.</param>
-    public void Render(RectangleF textBox, RenderContext localRenderContext)
+    /// <param name="offsetX">Text rendering offset in x direction.</param>
+    /// <param name="offsetY">Text rendering offset in y direction.</param>
+    /// <param name="localRenderContext">RenderContext to apply transformations.</param>
+    public void Render(RectangleF textBox, float offsetX, float offsetY, RenderContext localRenderContext)
+    {
+      Render(textBox, offsetX, offsetY, false, localRenderContext);
+    }
 
-    //public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, float offsetX,
-    //    Color4 color, float zOrder, Matrix finalTransform)
+    protected void Render(RectangleF textBox, float offsetX, float offsetY, bool isScrolling, RenderContext localRenderContext)
     {
       if (_lastWrap || _textChanged)
       {
         Allocate(textBox.Width, false);
       }
 
-      // Prepare horizontal alignment info for shader. X is position offset, Y is multiplyer for line width.
-      //Vector4 alignParam;
-      //switch (horzAlignment)
-      //{
-      //  case HorizontalTextAlignEnum.Center:
-      //    alignParam = new Vector4(textBox.Width / 2.0f, -0.5f, zOrder, 1.0f);
-      //    break;
-      //  case HorizontalTextAlignEnum.Right:
-      //    alignParam = new Vector4(textBox.Width, -1.0f, zOrder, 1.0f);
-      //    break;
-      //  //case TextAlignEnum.Left:
-      //  default:
-      //    alignParam = new Vector4(0.0f, 0.0f, zOrder, 1.0f);
-      //    break;
-      //}
-      //// Do vertical alignment by adjusting yPosition
-      //float yPosition = 0.0f;
-      //switch (vertAlignment)
-      //{
-      //  case VerticalTextAlignEnum.Bottom:
-      //    yPosition = Math.Max(textBox.Height - _lastTextSize.Height, 0.0f);
-      //    break;
-      //  case VerticalTextAlignEnum.Center:
-      //    yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);
-      //    break;
-      //  //case TextAlignEnum.Top:
-      //  // Do nothing
-      //}
-
-      //// No fading
-      //_effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
-
-      // Render
-      var brush = TextBrush;
       // _textLayout can be null if no Text has been set before.
-      if (brush != null && _textLayout != null) 
+      var brush = TextBrush;
+      if (brush != null && _textLayout != null)
       {
-        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(textBox.TopLeft, _textLayout, brush, localRenderContext);
+        Size2F totalTextSize = new Size2F(_textLayout.Metrics.Width, _textLayout.Metrics.Height);
+        bool usingMask = false;
+        bool textLargerThanTextbox = totalTextSize.Width > textBox.Width || totalTextSize.Height > textBox.Height;
+        bool hasManualOffsets = !isScrolling && (offsetX != 0f || offsetY != 0f);
+        if (textLargerThanTextbox || hasManualOffsets)
+        {
+          if (_opacityBrush == null || _lastTextBox != textBox)
+          {
+            _lastTextBox = textBox;
+            DependencyObject.TryDispose(ref _opacityBrush);
+
+            // Two different case for opacity mask handling:
+            // 1) Text has offsets and might be clipped into viewport, then we use solid color to avoid fading
+            // 2) Text is larger than text box, then we use a LinearGradientBrush to fade out side / bottom
+            if (hasManualOffsets)
+            {
+              _opacityBrush = new SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color.Black);
+            }
+            else
+            {
+              // Horizontal from left to right
+              Vector2 startPoint;
+              Vector2 endPoint;
+              float gradientFadeOffset;
+
+              bool isHorizontal = true; // TODO: determine preferred direction
+              if (isHorizontal)
+              {
+                startPoint = new Vector2(0, 0);
+                endPoint = new Vector2(1, 0);
+                gradientFadeOffset = 1f - (FADE_SIZE / textBox.Width);
+              }
+              else
+              {
+                startPoint = new Vector2(0, 0);
+                endPoint = new Vector2(0, 1);
+                gradientFadeOffset = 1f - (FADE_SIZE / textBox.Height);
+              }
+
+              LinearGradientBrushProperties properties = new LinearGradientBrushProperties { StartPoint = startPoint, EndPoint = endPoint };
+
+              GradientStopCollection gradientStopCollection = new GradientStopCollection(GraphicsDevice11.Instance.Context2D1, new[]
+              {
+                new GradientStop { Position = 0, Color = Color.Black },
+                new GradientStop { Position = gradientFadeOffset, Color = Color.Black }, // Transform into relative position, so it will render 15 pixel width
+                new GradientStop { Position = 1, Color = Color.Transparent }
+              });
+              _opacityBrush = new LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, properties, gradientStopCollection);
+            }
+
+            Matrix3x2 transform = Matrix3x2.Identity;
+            transform *= Matrix3x2.Scaling(textBox.Width, textBox.Height);
+            transform *= Matrix3x2.Translation(textBox.X, textBox.Y);
+            _opacityBrush.Transform = transform;
+          }
+
+          usingMask = true;
+          var layerParams1 = new LayerParameters1
+          {
+            ContentBounds = localRenderContext.OccupiedTransformedBounds,
+            LayerOptions = LayerOptions1.None,
+            MaskAntialiasMode = AntialiasMode.PerPrimitive,
+            MaskTransform = Matrix.Identity,
+            Opacity = 1f,
+            OpacityBrush = _opacityBrush
+          };
+
+          GraphicsDevice11.Instance.Context2D1.PushLayer(layerParams1, null);
+        }
+
+        // Render
+        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(textBox.X + offsetX, textBox.Y), _textLayout, brush, localRenderContext);
+
+        if (usingMask)
+        {
+          GraphicsDevice11.Instance.Context2D1.PopLayer();
+        }
       }
+
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     #endregion
 
     #region Protected methods
-
-    protected void DoRender(Matrix finalTransform)
-    {
-      //_effect.StartRender(_font.Texture, finalTransform);
-      //_buffer.Render(0);
-      //_effect.EndRender();
-    }
 
     protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed, float scrollDelay)
     {
@@ -538,9 +513,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       if (mode == TextScrollEnum.Auto)
       {
-        if (_lastWrap && _lastTextSize.Height > textBox.Height)
+        if (_lastWrap && _textLayout.Metrics.Height > textBox.Height)
           mode = TextScrollEnum.Up;
-        else if (_textLines.Length == 1 && _lastTextSize.Width > textBox.Width)
+        else if (_textLayout.Metrics.LineCount == 1 && _textLayout.Metrics.Width > textBox.Width)
           mode = TextScrollEnum.Left;
         else
           return TextScrollEnum.None;
@@ -550,13 +525,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       {
         case TextScrollEnum.Left:
           _scrollPos.X -= dif;
-          if (_scrollPos.X + _lastTextSize.Width < textBox.Width / 2.0f)
+          if (_scrollPos.X + _textLayout.Metrics.Width < textBox.Width / 2.0f)
           {
             _scrollWrapOffset.X = _scrollPos.X;
             _scrollPos.X = textBox.Width + 4;
             _scrollWrapOffset.X -= _scrollPos.X;
           }
-          else if (_scrollWrapOffset.X + _scrollPos.X + _lastTextSize.Width < 0.0f)
+          else if (_scrollWrapOffset.X + _scrollPos.X + _textLayout.Metrics.Width < 0.0f)
             _scrollWrapOffset.X = float.NaN;
           break;
         case TextScrollEnum.Right:
@@ -564,7 +539,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           if (_scrollPos.X > textBox.Width / 2.0f)
           {
             _scrollWrapOffset.X = _scrollPos.X;
-            _scrollPos.X = -_lastTextSize.Width - 4;
+            _scrollPos.X = -_textLayout.Metrics.Width - 4;
             _scrollWrapOffset.X -= _scrollPos.X;
           }
           else if (_scrollWrapOffset.X + _scrollPos.X > textBox.Width)
@@ -575,7 +550,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           if (_scrollPos.Y > textBox.Height / 2.0f)
           {
             _scrollWrapOffset.Y = _scrollPos.Y;
-            _scrollPos.Y = -_lastTextSize.Height - 4;
+            _scrollPos.Y = -_textLayout.Metrics.Height - 4;
             _scrollWrapOffset.Y -= _scrollPos.Y;
           }
           else if (_scrollWrapOffset.Y + _scrollPos.Y > textBox.Height)
@@ -584,13 +559,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         //case TextScrollEnum.Up:
         default:
           _scrollPos.Y -= dif;
-          if (_scrollPos.Y + _lastTextSize.Height < textBox.Height / 2.0f)
+          if (_scrollPos.Y + _textLayout.Metrics.Height < textBox.Height / 2.0f)
           {
             _scrollWrapOffset.Y = _scrollPos.Y;
             _scrollPos.Y = textBox.Height + 4;
             _scrollWrapOffset.Y -= _scrollPos.Y;
           }
-          else if (_scrollWrapOffset.Y + _scrollPos.Y + _lastTextSize.Height < 0.0f)
+          else if (_scrollWrapOffset.Y + _scrollPos.Y + _textLayout.Metrics.Height < 0.0f)
             _scrollWrapOffset.Y = float.NaN;
           break;
       }
@@ -618,7 +593,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         fadeBorder.Z = FADE_SIZE; // Fade on right edge
         dofade = true;
       }
-      else if (_lastTextSize.Width > textBox.Width)
+      else if (_textLayout.Metrics.Width > textBox.Width)
       {
         if (horzAlign == HorizontalTextAlignEnum.Right || horzAlign == HorizontalTextAlignEnum.Center)
           fadeBorder.X = FADE_SIZE; // Fade on left edge
@@ -632,7 +607,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         fadeBorder.W = FADE_SIZE; // Fade on bottom edge
         dofade = true;
       }
-      else if (_lastTextSize.Height > textBox.Height + _fontSize / 4)
+      else if (_textLayout.Metrics.Height > textBox.Height + _fontSize / 4)
       {
         fadeBorder.W = FADE_SIZE; // Fade on bottom edge
         dofade = true;
@@ -642,10 +617,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     void DisposeFont()
     {
-      if (_textFormat != null)
-        _textFormat.Dispose();
-      if (_textLayout != null)
-        _textLayout.Dispose();
+      DependencyObject.TryDispose(ref _textFormat);
+      DependencyObject.TryDispose(ref _textLayout);
+      DependencyObject.TryDispose(ref _opacityBrush);
     }
 
     #endregion

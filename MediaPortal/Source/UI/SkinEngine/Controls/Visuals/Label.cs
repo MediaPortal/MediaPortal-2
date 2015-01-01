@@ -280,7 +280,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (_asset == null)
       {
-        _asset =  new TextBuffer2D(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
+        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), FontWeight.Normal, FontStyle.Normal, GetFontSizeOrInherited());
         _asset.Text = _resourceString;
       }
       if (_textBrush == null)
@@ -319,6 +319,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       AllocFont();
 
+      // TODO: add alignment handling to TextBuffer2D
       HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
       if (HorizontalContentAlignment == HorizontalAlignmentEnum.Right)
         horzAlign = HorizontalTextAlignEnum.Right;
@@ -335,15 +336,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float)localRenderContext.Opacity;
 
       _asset.TextBrush = _textBrush;
-      RectangleF pos = new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
-      _asset.Render(pos, localRenderContext);
-      //var oldOpacity = _textBrush.Opacity;
-      //_textBrush.Opacity *= (float)localRenderContext.Opacity;
-      //GraphicsDevice11.Instance.Context2D1.DrawTextLayout(localRenderContext.OccupiedTransformedBounds.TopLeft, _textLayout, _textBrush);
-      //_textBrush.Opacity = oldOpacity;
 
-      //_asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
-      //  Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
+      _asset.Render(_innerRect, Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext);
     }
 
     public override void Deallocate()

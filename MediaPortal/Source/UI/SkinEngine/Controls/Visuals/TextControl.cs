@@ -39,9 +39,7 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 using SolidColorBrush = MediaPortal.UI.SkinEngine.Controls.Brushes.SolidColorBrush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -594,8 +592,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // Render text
       _asset.TextBrush = _textBrush;
-      RectangleF pos = new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
-      _asset.Render(pos, localRenderContext);
+      _asset.Render(_innerRect, _virtualPosition, 0f, localRenderContext);
 
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.TryAllocate() && _cursorGeometry != null)
