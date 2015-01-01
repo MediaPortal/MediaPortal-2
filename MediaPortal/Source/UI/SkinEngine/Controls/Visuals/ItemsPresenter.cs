@@ -122,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _itemsHostPanel; }
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       base.OnMouseMove(x, y, focusCandidates);
       _startsWithIndex = -1;

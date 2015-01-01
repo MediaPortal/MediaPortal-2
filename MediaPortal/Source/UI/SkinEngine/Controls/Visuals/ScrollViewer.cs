@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -415,11 +416,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         svfs.ScrollUp(numLines);
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       // Only handle mouse moves if no touch event happens
       if (_lastTouchEvent == null)
         base.OnMouseMove(x, y, focusCandidates);
+    }
+
+    protected override void OnPreviewMouseMove(MouseEventArgs e)
+    {
+      // consume event if touch is down
+      if (_lastTouchEvent != null)
+      {
+        e.Handled = true;
+      }
     }
 
     public override void OnTouchDown(TouchDownEvent touchEventArgs)

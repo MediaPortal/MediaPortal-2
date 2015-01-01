@@ -123,8 +123,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       command.Execute(new object[] {key});
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
+      //TODO: check if this could also be done in routed event OnMouseMove or OnPreviewMouseMove
+      // The only difference should be that routed events get not called if mouse is not over this or a child element
       base.OnMouseMove(x, y, focusCandidates);
       float xTrans = x;
       float yTrans = y;

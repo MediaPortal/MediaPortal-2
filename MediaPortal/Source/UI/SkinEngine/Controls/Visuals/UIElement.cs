@@ -48,6 +48,8 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
+using MouseEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventHandler;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -1056,11 +1058,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       EventManager.RegisterClassHandler(type, MouseDownEvent, new MouseButtonEventHandler(OnMouseDownThunk), true);
       EventManager.RegisterClassHandler(type, PreviewMouseUpEvent, new MouseButtonEventHandler(OnPreviewMouseUpThunk), true);
       EventManager.RegisterClassHandler(type, MouseUpEvent, new MouseButtonEventHandler(OnMouseUpThunk), true);
+      EventManager.RegisterClassHandler(type, PreviewMouseMoveEvent, new MouseEventHandler(OnPreviewMouseMoveThunk), false);
+      EventManager.RegisterClassHandler(type, MouseMoveEvent, new MouseEventHandler(OnMouseMoveThunk), false);
     }
 
 
     private static void OnPreviewMouseDownThunk(object sender, MouseButtonEventArgs e)
     {
+      //TODO: crack up left/right preview mouse down events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1092,6 +1097,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     private static void OnMouseDownThunk(object sender, MouseButtonEventArgs e)
     {
+      //TODO: crack up left/right mouse down events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1121,9 +1127,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
 
-
     private static void OnPreviewMouseUpThunk(object sender, MouseButtonEventArgs e)
     {
+      //TODO: crack up left/right preview mouse up events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1155,6 +1161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     private static void OnMouseUpThunk(object sender, MouseButtonEventArgs e)
     {
+      //TODO: crack up left/right mouse up events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1181,6 +1188,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       add { AddHandler(MouseUpEvent, value); }
       remove { RemoveHandler(MouseUpEvent, value); }
+    }
+
+
+    private static void OnPreviewMouseMoveThunk(object sender, MouseEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseMove(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseMove event reaches this element. This method is called before the PreviewMouseMove event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseMove(MouseEventArgs e)
+    { }
+
+    public static readonly RoutedEvent PreviewMouseMoveEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseMove", RoutingStrategy.Tunnel, typeof(MouseEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseEventHandler PreviewMouseMove
+    {
+      add { AddHandler(PreviewMouseMoveEvent, value); }
+      remove { RemoveHandler(PreviewMouseMoveEvent, value); }
+    }
+
+
+    private static void OnMouseMoveThunk(object sender, MouseEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseMove(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseMove event reaches this element. This method is called before the MouseMove event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseMove(MouseEventArgs e)
+    { }
+
+    public static readonly RoutedEvent MouseMoveEvent = EventManager.RegisterRoutedEvent(
+      "MouseMove", RoutingStrategy.Bubble, typeof(MouseEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseEventHandler MouseMove
+    {
+      add { AddHandler(MouseMoveEvent, value); }
+      remove { RemoveHandler(MouseMoveEvent, value); }
     }
 
     #endregion
@@ -1333,7 +1396,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Input handling
 
-    public virtual void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    /// <summary>
+    /// Internal mouse move handler for focus and IsMouseOver handling
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="focusCandidates"></param>
+    /// <remarks>
+    /// For normal mouse move handling use On(Preview)MouseMove(object, MouseEventArgs) or (Preview)MouseMove events
+    /// </remarks>
+    internal virtual void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       foreach (UIElement child in GetChildren())
       {

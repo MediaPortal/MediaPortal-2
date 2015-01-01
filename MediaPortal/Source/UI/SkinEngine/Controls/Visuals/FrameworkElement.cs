@@ -831,7 +831,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return _inverseFinalTransform.HasValue;
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       if (IsVisible)
       {

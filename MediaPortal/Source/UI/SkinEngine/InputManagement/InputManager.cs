@@ -37,6 +37,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 
 namespace MediaPortal.UI.SkinEngine.InputManagement
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   /// </summary>
   /// <param name="x">X coordinate of the new mouse position.</param>
   /// <param name="y">Y coordinate of the new mouse position.</param>
-  public delegate void MouseMoveHandler(float x, float y);
+  //public delegate void MouseMoveHandler(float x, float y);
 
   /// <summary>
   /// Delegate for a mouse click handler.
@@ -103,7 +104,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       }
     }
 
-    protected class MouseMoveEvent : InputEvent
+    /*protected class MouseMoveEvent : InputEvent
     {
       protected float _x;
       protected float _y;
@@ -123,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       {
         get { return _y; }
       }
-    }
+    }*/
 
     protected class MouseClickEvent : InputEvent
     {
@@ -270,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     /// <summary>
     /// Can be registered by classes of the skin engine to be informed about mouse movements.
     /// </summary>
-    public event MouseMoveHandler MouseMoved;
+    //public event MouseMoveHandler MouseMoved;
 
     /// <summary>
     /// Can be registered by classes of the skin engine to be informed about mouse clicks.
@@ -366,8 +367,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Type eventType = evt.GetType();
       if (eventType == typeof(KeyEvent))
         ExecuteKeyPress((KeyEvent)evt);
-      else if (eventType == typeof(MouseMoveEvent))
-        ExecuteMouseMove((MouseMoveEvent)evt);
+      /*else if (eventType == typeof(MouseMoveEvent))
+        ExecuteMouseMove((MouseMoveEvent)evt);*/
       else if (eventType == typeof(MouseClickEvent))
         ExecuteMouseClick((MouseClickEvent)evt);
       else if (eventType == typeof(MouseWheelEvent))
@@ -463,12 +464,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       }
     }
 
-    protected void ExecuteMouseMove(MouseMoveEvent evt)
+    /*protected void ExecuteMouseMove(MouseMoveEvent evt)
     {
       MouseMoveHandler dlgt = MouseMoved;
       if (dlgt != null)
         dlgt(evt.X, evt.Y);
-    }
+    }*/
 
     protected void ExecuteMouseClick(MouseClickEvent evt)
     {
@@ -594,7 +595,10 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       _mousePosition = new PointF(x, y);
-      TryEvent_NoLock(new MouseMoveEvent(x, y));
+      //TryEvent_NoLock(new MouseMoveEvent(x, y));
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseEventArgs(Environment.TickCount),
+        UIElement.PreviewMouseMoveEvent, UIElement.MouseMoveEvent));
     }
 
     public void MouseClick(MouseButtons mouseButtons)
