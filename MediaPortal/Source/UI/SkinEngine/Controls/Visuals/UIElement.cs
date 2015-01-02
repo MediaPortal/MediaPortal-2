@@ -1056,8 +1056,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       EventManager.RegisterClassHandler(type, PreviewMouseDownEvent, new MouseButtonEventHandler(OnPreviewMouseDownThunk), true);
       EventManager.RegisterClassHandler(type, MouseDownEvent, new MouseButtonEventHandler(OnMouseDownThunk), true);
+      EventManager.RegisterClassHandler(type, PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(OnPreviewMouseLeftButtonDownThunk), false);
+      EventManager.RegisterClassHandler(type, MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnMouseLeftButtonDownThunk), false);
+      EventManager.RegisterClassHandler(type, PreviewMouseRightButtonDownEvent, new MouseButtonEventHandler(OnPreviewMouseRightButtonDownThunk), false);
+      EventManager.RegisterClassHandler(type, MouseRightButtonDownEvent, new MouseButtonEventHandler(OnMouseRightButtonDownThunk), false);
+
       EventManager.RegisterClassHandler(type, PreviewMouseUpEvent, new MouseButtonEventHandler(OnPreviewMouseUpThunk), true);
       EventManager.RegisterClassHandler(type, MouseUpEvent, new MouseButtonEventHandler(OnMouseUpThunk), true);
+      EventManager.RegisterClassHandler(type, PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(OnPreviewMouseLeftButtonUpThunk), false);
+      EventManager.RegisterClassHandler(type, MouseLeftButtonUpEvent, new MouseButtonEventHandler(OnMouseLeftButtonUpThunk), false);
+      EventManager.RegisterClassHandler(type, PreviewMouseRightButtonUpEvent, new MouseButtonEventHandler(OnPreviewMouseRightButtonUpThunk), false);
+      EventManager.RegisterClassHandler(type, MouseRightButtonUpEvent, new MouseButtonEventHandler(OnMouseRightButtonUpThunk), false);
+      
       EventManager.RegisterClassHandler(type, PreviewMouseMoveEvent, new MouseEventHandler(OnPreviewMouseMoveThunk), false);
       EventManager.RegisterClassHandler(type, MouseMoveEvent, new MouseEventHandler(OnMouseMoveThunk), false);
     }
@@ -1065,7 +1075,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     private static void OnPreviewMouseDownThunk(object sender, MouseButtonEventArgs e)
     {
-      //TODO: crack up left/right preview mouse down events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1073,6 +1082,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           uiElement.OnPreviewMouseDown(e);
         }
+      }
+      switch (e.ChangedButton)
+      {
+        case MouseButton.Left:
+          ReRaiseEventAs(sender as UIElement, e, PreviewMouseLeftButtonDownEvent);
+          break;
+        case MouseButton.Right:
+          ReRaiseEventAs(sender as UIElement, e, PreviewMouseRightButtonDownEvent);
+          break;
       }
     }
 
@@ -1097,7 +1115,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     private static void OnMouseDownThunk(object sender, MouseButtonEventArgs e)
     {
-      //TODO: crack up left/right mouse down events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1105,6 +1122,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           uiElement.OnMouseDown(e);
         }
+      }
+      switch (e.ChangedButton)
+      {
+        case MouseButton.Left:
+          ReRaiseEventAs(sender as UIElement, e, MouseLeftButtonDownEvent);
+          break;
+        case MouseButton.Right:
+          ReRaiseEventAs(sender as UIElement, e, MouseRightButtonDownEvent);
+          break;
       }
     }
 
@@ -1127,9 +1153,124 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
 
+    private static void OnPreviewMouseLeftButtonDownThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseLeftButtonDown(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseLeftButtonDown event reaches this element. This method is called before the MouseLeftButtonDown event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+    { }
+
+    // since PreviewMouseLeftButtonDownEvent is raised by the PreviewMouseDownEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent PreviewMouseLeftButtonDownEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseLeftButtonDown", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler PreviewMouseLeftButtonDown
+    {
+      add { AddHandler(PreviewMouseLeftButtonDownEvent, value); }
+      remove { RemoveHandler(PreviewMouseLeftButtonDownEvent, value); }
+    }
+
+
+    private static void OnMouseLeftButtonDownThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseLeftButtonDown(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseLeftButtonDown event reaches this element. This method is called before the MouseLeftButtonDown event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+    { }
+
+    // since MouseLeftButtonDownEvent is raised by the MouseDownEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent MouseLeftButtonDownEvent = EventManager.RegisterRoutedEvent(
+      "MouseLeftButtonDown", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler MouseLeftButtonDown
+    {
+      add { AddHandler(MouseLeftButtonDownEvent, value); }
+      remove { RemoveHandler(MouseLeftButtonDownEvent, value); }
+    }
+    
+
+    private static void OnPreviewMouseRightButtonDownThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseRightButtonDown(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseRightButtonDown event reaches this element. This method is called before the MouseRightButtonDown event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseRightButtonDown(MouseButtonEventArgs e)
+    { }
+
+    // since PreviewMouseRightButtonDownEvent is raised by the PreviewMouseDownEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent PreviewMouseRightButtonDownEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseRightButtonDown", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler PreviewMouseRightButtonDown
+    {
+      add { AddHandler(PreviewMouseRightButtonDownEvent, value); }
+      remove { RemoveHandler(PreviewMouseRightButtonDownEvent, value); }
+    }
+
+
+    private static void OnMouseRightButtonDownThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseRightButtonDown(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseRightButtonDown event reaches this element. This method is called before the MouseRightButtonDown event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseRightButtonDown(MouseButtonEventArgs e)
+    { }
+
+    // since MouseRightButtonDownEvent is raised by the MouseDownEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent MouseRightButtonDownEvent = EventManager.RegisterRoutedEvent(
+      "MouseRightButtonDown", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler MouseRightButtonDown
+    {
+      add { AddHandler(MouseRightButtonDownEvent, value); }
+      remove { RemoveHandler(MouseRightButtonDownEvent, value); }
+    }
+    
+
     private static void OnPreviewMouseUpThunk(object sender, MouseButtonEventArgs e)
     {
-      //TODO: crack up left/right preview mouse up events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1137,6 +1278,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           uiElement.OnPreviewMouseDown(e);
         }
+      }
+      switch (e.ChangedButton)
+      {
+        case MouseButton.Left:
+          ReRaiseEventAs(sender as UIElement, e, PreviewMouseLeftButtonUpEvent);
+          break;
+        case MouseButton.Right:
+          ReRaiseEventAs(sender as UIElement, e, PreviewMouseRightButtonUpEvent);
+          break;
       }
     }
 
@@ -1161,7 +1311,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     private static void OnMouseUpThunk(object sender, MouseButtonEventArgs e)
     {
-      //TODO: crack up left/right mouse up events
       if (!e.Handled)
       {
         var uiElement = sender as UIElement;
@@ -1169,6 +1318,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           uiElement.OnMouseUp(e);
         }
+      }
+      switch (e.ChangedButton)
+      {
+        case MouseButton.Left:
+          ReRaiseEventAs(sender as UIElement, e, MouseLeftButtonUpEvent);
+          break;
+        case MouseButton.Right:
+          ReRaiseEventAs(sender as UIElement, e, MouseRightButtonUpEvent);
+          break;
       }
     }
 
@@ -1188,6 +1346,122 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       add { AddHandler(MouseUpEvent, value); }
       remove { RemoveHandler(MouseUpEvent, value); }
+    }
+
+
+    private static void OnPreviewMouseLeftButtonUpThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseLeftButtonUp(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseLeftButtonUp event reaches this element. This method is called before the MouseLeftButtonUp event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+    { }
+
+    // since PreviewMouseLeftButtonUpEvent is raised by the PreviewMouseUpEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent PreviewMouseLeftButtonUpEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseLeftButtonUp", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler PreviewMouseLeftButtonUp
+    {
+      add { AddHandler(PreviewMouseLeftButtonUpEvent, value); }
+      remove { RemoveHandler(PreviewMouseLeftButtonUpEvent, value); }
+    }
+
+
+    private static void OnMouseLeftButtonUpThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseLeftButtonUp(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseLeftButtonUp event reaches this element. This method is called before the MouseLeftButtonUp event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+    { }
+
+    // since MouseLeftButtonUpEvent is raised by the MouseUpEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent MouseLeftButtonUpEvent = EventManager.RegisterRoutedEvent(
+      "MouseLeftButtonUp", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler MouseLeftButtonUp
+    {
+      add { AddHandler(MouseLeftButtonUpEvent, value); }
+      remove { RemoveHandler(MouseLeftButtonUpEvent, value); }
+    }
+
+
+    private static void OnPreviewMouseRightButtonUpThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseRightButtonUp(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseRightButtonUp event reaches this element. This method is called before the MouseRightButtonUp event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseRightButtonUp(MouseButtonEventArgs e)
+    { }
+
+    // since PreviewMouseRightButtonUpEvent is raised by the PreviewMouseUpEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent PreviewMouseRightButtonUpEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseRightButtonUp", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler PreviewMouseRightButtonUp
+    {
+      add { AddHandler(PreviewMouseRightButtonUpEvent, value); }
+      remove { RemoveHandler(PreviewMouseRightButtonUpEvent, value); }
+    }
+
+
+    private static void OnMouseRightButtonUpThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseRightButtonUp(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseRightButtonUp event reaches this element. This method is called before the MouseRightButtonUp event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseRightButtonUp(MouseButtonEventArgs e)
+    { }
+
+    // since MouseRightButtonUpEvent is raised by the MouseUpEvent, which is already tunneled, we use RoutingStrategy.Direct here!
+    public static readonly RoutedEvent MouseRightButtonUpEvent = EventManager.RegisterRoutedEvent(
+      "MouseRightButtonUp", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler MouseRightButtonUp
+    {
+      add { AddHandler(MouseRightButtonUpEvent, value); }
+      remove { RemoveHandler(MouseRightButtonUpEvent, value); }
     }
 
 
@@ -1301,11 +1575,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public void RaiseEvent(RoutedEventArgs e)
+    public void RaiseEvent(RoutedEventArgs args)
     {
-      if (e == null) throw new ArgumentNullException("e");
-      RaiseEventImpl(this, e);
+      if (args == null) throw new ArgumentNullException("args");
+      RaiseEventImpl(this, args);
     }
+
+    protected static void ReRaiseEventAs(UIElement sender, RoutedEventArgs args, RoutedEvent newEvent)
+    {
+      if(sender == null)
+        return;
+      if (args == null) throw new ArgumentNullException("args");
+      if (newEvent == null) throw new ArgumentNullException("newEvent");
+
+      var oldEvent = args.RoutedEvent;
+      try
+      {
+        args.RoutedEvent = newEvent;
+        RaiseEventImpl(sender, args);
+      }
+      finally
+      {
+        args.RoutedEvent = oldEvent;
+      }
+    }
+
 
     private static void RaiseEventImpl(UIElement sender, RoutedEventArgs args)
     {
@@ -1318,7 +1612,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           break;
 
         case RoutingStrategy.Bubble:
-          e = sender;
+          e = sender as UIElement;
           while (e != null)
           {
             InvokeEventHandlers(e, args);
