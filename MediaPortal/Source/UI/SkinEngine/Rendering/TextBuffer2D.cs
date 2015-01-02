@@ -50,19 +50,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     // State
     protected string _text;
     protected bool _textChanged;
-    protected float _lastTextBoxWidth;
     protected bool _lastWrap;
+    protected RectangleF _lastTextBox;
+
+    protected string _fontName;
+    protected FontWeight _fontWeight;
+    protected FontStyle _fontStyle;
+    protected Brush _opacityBrush;
 
     // Scrolling
     protected Vector2 _scrollPos;
     protected Vector2 _scrollWrapOffset;
     protected DateTime _lastTimeUsed;
     protected DateTime _scrollInitialized;
-    protected string _fontName;
-    protected FontWeight _fontWeight;
-    protected FontStyle _fontStyle;
-    protected RectangleF _lastTextBox;
-    protected Brush _opacityBrush;
     protected TextScrollEnum _lastScrollDirection;
 
     #endregion
@@ -130,7 +130,16 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       if (_textLayout != null)
         _textLayout.Dispose();
-      _textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, _text, _textFormat, 4096, 4096);
+
+      var totalWidth = _lastTextBox.Width;
+      var totalHeight = _lastTextBox.Height;
+
+      if (!_lastWrap)
+      {
+        totalWidth = 4096;
+        totalHeight = 4096;
+      }
+      _textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, _text, _textFormat, totalWidth, totalHeight);
     }
 
     /// <summary>
@@ -142,7 +151,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, text, _textFormat, 4096, 4096))
       {
-        return textLayout.Metrics.Width;
+        return textLayout.Metrics.WidthIncludingTrailingWhitespace;
       }
     }
 
@@ -155,11 +164,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <returns>The width of the text in graphics device units (pixels)</returns>
     public Size2F TextSize(string text, bool wrap = false, float totalWidth = float.NaN)
     {
+      // If we won't wrap text or have no size limitations we consider full skin resolution as available space (TODO: check screen original size?)
       if (!wrap || float.IsNaN(totalWidth))
-        totalWidth = 4096;
-      using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, text, _textFormat, totalWidth, 4096))
+        totalWidth = SkinContext.SkinResources.SkinWidth;
+      var totalHeight = SkinContext.SkinResources.SkinHeight;
+      using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, text, _textFormat, totalWidth, totalHeight))
       {
-        return new Size2F(textLayout.Metrics.Width, textLayout.Metrics.Height);
+        var textWidth = textLayout.Metrics.WidthIncludingTrailingWhitespace;
+        var textHeight = textLayout.Metrics.Height;
+        // If there should be no wrap, then we calculate only one single line height
+        if (!wrap)
+          textHeight /= textLayout.Metrics.LineCount;
+
+        return new Size2F(textWidth, textHeight);
       }
     }
 
@@ -247,25 +264,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <summary>
     /// Allocates or re-alocates this resource.
     /// </summary>
-    /// <param name="boxWidth"></param>
-    /// <param name="wrap"></param>
-    public void Allocate(float boxWidth, bool wrap)
+    public void Allocate(RectangleF boxWidth, bool wrap)
     {
       if (String.IsNullOrEmpty(_text))
       {
         return;
       }
 
-      // Get text quads
-      //string[] lines = GetLines(boxWidth, wrap);
-      //PositionColoredTextured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
-
-      //// Re-use existing buffer if necessary
-      //_buffer.Set(ref verts, PrimitiveType.TriangleList);
-
       // Preserve state
-      _lastTextBoxWidth = boxWidth;
+      _lastTextBox = boxWidth;
       _lastWrap = wrap;
+
+      CreateTextLayout();
+
       _textChanged = false;
     }
     /// <summary>
@@ -379,18 +390,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </para>
     /// </summary>
     /// <param name="textBox">The box where the text should be drawn.</param>
+    /// <param name="wrap">If <c>true</c> text is allowed to wrap into multiple lines.</param>
     /// <param name="scrollMode">Text scrolling behaviour.</param>
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
     /// <param name="scrollDelay">Text scrolling delay in seconds.</param>
     /// <param name="localRenderContext">RenderContext to apply transformations.</param>
-    public void Render(RectangleF textBox, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, RenderContext localRenderContext)
+    public void Render(RectangleF textBox, bool wrap, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, RenderContext localRenderContext)
     {
       // Update scrolling
       var actualScrolling = scrollMode;
       if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
         actualScrolling = UpdateScrollPosition(textBox, scrollMode, scrollSpeed, scrollDelay);
 
-      Render(textBox, _scrollPos.X, _scrollPos.Y, actualScrolling, localRenderContext);
+      Render(textBox, wrap, _scrollPos.X, _scrollPos.Y, actualScrolling, localRenderContext);
     }
 
     /// <summary>
@@ -407,14 +419,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="localRenderContext">RenderContext to apply transformations.</param>
     public void Render(RectangleF textBox, float offsetX, float offsetY, RenderContext localRenderContext)
     {
-      Render(textBox, offsetX, offsetY, TextScrollEnum.None, localRenderContext);
+      Render(textBox, false, offsetX, offsetY, TextScrollEnum.None, localRenderContext);
     }
 
-    protected void Render(RectangleF textBox, float offsetX, float offsetY, TextScrollEnum scrollMode, RenderContext localRenderContext)
+    protected void Render(RectangleF textBox, bool wrap, float offsetX, float offsetY, TextScrollEnum scrollMode, RenderContext localRenderContext)
     {
-      if (_lastWrap || _textChanged)
+      if (_lastWrap != wrap || _textChanged)
       {
-        Allocate(textBox.Width, false);
+        Allocate(textBox, wrap);
       }
 
       // _textLayout can be null if no Text has been set before.
@@ -483,9 +495,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
               _opacityBrush = new LinearGradientBrush(GraphicsDevice11.Instance.Context2D1, properties, gradientStopCollection);
             }
 
-            Matrix3x2 transform = Matrix3x2.Identity;
-            transform *= Matrix3x2.Scaling(textBox.Width, textBox.Height);
-            transform *= Matrix3x2.Translation(textBox.X, textBox.Y);
+            // Calculate actual gradient positions from transformed bounds
+            var bounds = localRenderContext.OccupiedTransformedBounds;
+            Matrix3x2 transform = Matrix.Identity;
+            transform *= Matrix3x2.Scaling(bounds.Width, bounds.Height);
+            transform *= Matrix3x2.Translation(bounds.X, bounds.Y);
             _opacityBrush.Transform = transform;
           }
 
@@ -495,7 +509,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
             ContentBounds = localRenderContext.OccupiedTransformedBounds,
             LayerOptions = LayerOptions1.None,
             MaskAntialiasMode = AntialiasMode.PerPrimitive,
-            MaskTransform = Matrix.Identity,
+            MaskTransform = localRenderContext.Transform,
             Opacity = 1f,
             OpacityBrush = _opacityBrush
           };
