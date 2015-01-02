@@ -62,7 +62,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected RightAngledRotation _rotation = RightAngledRotation.Zero;
 
     protected Bitmap1 _bitmap;
-    protected Brush _maskBrush;
+    protected Brush _bmpBrush;
+    protected RectangleGeometry _rectGeom;
+    protected RectangleF _lastTargetRect;
 
     #endregion
 
@@ -173,23 +175,33 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRender(RenderContext renderContext, RectangleF targetRect, Bitmap1 bitmap, RectangleF textureClip, Color borderColor, Vector4 frameData)
     {
+      bool refresh = _bitmap != bitmap || targetRect != _lastTargetRect || textureClip != _lastTextureClip;
+
       _bitmap = bitmap;
-      if (_maskBrush == null)
-        _maskBrush = new SolidColorBrush(GraphicsDevice11 .Instance.Context2D1, Color.Black);
+      _lastTextureClip = textureClip;
+      _lastTargetRect = targetRect;
 
-      LayerParameters1 layerParameters = new LayerParameters1
+      if (refresh)
       {
-        ContentBounds = renderContext.OccupiedTransformedBounds,
-        LayerOptions = LayerOptions1.None,
-        MaskAntialiasMode = AntialiasMode.PerPrimitive,
-        MaskTransform = Matrix.Identity,
-        Opacity = 1.0f,
-        OpacityBrush = _maskBrush
-      };
+        MPF.TryDispose(ref _bmpBrush);
+        MPF.TryDispose(ref _rectGeom);
+        BitmapBrushProperties1 props = new BitmapBrushProperties1
+        {
+          ExtendModeX = ExtendMode.Clamp,
+          ExtendModeY = ExtendMode.Clamp,
+          InterpolationMode = GraphicsDevice11.Instance.ImageInterpolationMode
+        };
 
-      GraphicsDevice11.Instance.Context2D1.PushLayer(layerParameters, null);
-      GraphicsDevice11.Instance.Context2D1.DrawBitmap(_bitmap, targetRect, textureClip, (float)renderContext.Opacity, renderContext);
-      GraphicsDevice11.Instance.Context2D1.PopLayer();
+        _bmpBrush = new BitmapBrush1(GraphicsDevice11.Instance.Context2D1, _bitmap, props);
+        _rectGeom = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, targetRect);
+        Matrix3x2 brushTransform = Matrix3x2.Identity;
+        brushTransform *= Matrix3x2.Scaling(targetRect.Width / _bitmap.PixelSize.Width, targetRect.Height / _bitmap.PixelSize.Height);
+        brushTransform *= Matrix3x2.Translation(targetRect.X, targetRect.Y);
+        _bmpBrush.Transform = brushTransform;
+      }
+
+      GraphicsDevice11.Instance.Context2D1.FillGeometry(_rectGeom, _bmpBrush, (Brush)null, renderContext);
+
       return true;
     }
 
@@ -270,7 +282,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       base.Clear();
       _effectTransition = null;
-      MPF.TryDispose(ref _maskBrush);
+      MPF.TryDispose(ref _bmpBrush);
+      MPF.TryDispose(ref _rectGeom);
     }
 
     #endregion
