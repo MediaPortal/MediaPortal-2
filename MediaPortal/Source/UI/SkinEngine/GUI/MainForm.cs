@@ -262,6 +262,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Dispose DirectX");
       GraphicsDevice11.Instance.Dispose();
+      GraphicsDevice.Dispose();
     }
 
     protected void StoreClientBounds()
