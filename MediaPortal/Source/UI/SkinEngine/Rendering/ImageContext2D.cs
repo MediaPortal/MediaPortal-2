@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX11;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -62,6 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected RightAngledRotation _rotation = RightAngledRotation.Zero;
 
     protected Bitmap1 _bitmap;
+    protected Brush _maskBrush;
 
     #endregion
 
@@ -173,10 +174,25 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public bool StartRender(RenderContext renderContext, RectangleF targetRect, Bitmap1 bitmap, RectangleF textureClip, Color borderColor, Vector4 frameData)
     {
       _bitmap = bitmap;
+      if (_maskBrush == null)
+        _maskBrush = new SolidColorBrush(GraphicsDevice11 .Instance.Context2D1, Color.Black);
 
+      LayerParameters1 layerParameters = new LayerParameters1
+      {
+        ContentBounds = renderContext.OccupiedTransformedBounds,
+        LayerOptions = LayerOptions1.None,
+        MaskAntialiasMode = AntialiasMode.PerPrimitive,
+        MaskTransform = Matrix.Identity,
+        Opacity = 1.0f,
+        OpacityBrush = _maskBrush
+      };
+
+      GraphicsDevice11.Instance.Context2D1.PushLayer(layerParameters, null);
       GraphicsDevice11.Instance.Context2D1.DrawBitmap(_bitmap, targetRect, textureClip, (float)renderContext.Opacity, renderContext);
+      GraphicsDevice11.Instance.Context2D1.PopLayer();
       return true;
     }
+
     ///// <summary>
     ///// Starts a rendering operation where two images are mixed together using a transition effect.
     ///// </summary>
@@ -254,6 +270,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       base.Clear();
       _effectTransition = null;
+      DependencyObject.TryDispose(ref _maskBrush);
     }
 
     #endregion
