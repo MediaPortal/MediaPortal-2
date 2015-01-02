@@ -21,6 +21,7 @@
 */
 
 #endregion
+#define PROFILE_PERFORMANCE_MODE
 
 using System;
 using System.Collections.Generic;
@@ -183,7 +184,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     {
       // Init some performance / quality relevant properties
       InterpolationMode = BitmapInterpolationMode.Linear;
-      ImageInterpolationMode = SharpDX.Direct2D1.InterpolationMode.HighQualityCubic;
+      ImageInterpolationMode = SharpDX.Direct2D1.InterpolationMode.Linear;
+      // TODO: AntialiasMode.Aliased;
     }
 
     public void CreateDevice()
@@ -193,10 +195,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       int height = RenderTarget.ClientSize.Height;
       var desc = new SwapChainDescription
       {
-        //BufferCount = 1,
-        //SwapEffect = SwapEffect.Discard,
+#if PROFILE_PERFORMANCE_MODE
+        BufferCount = 1,
+        SwapEffect = SwapEffect.Discard,
+#else
         BufferCount = 4,
         SwapEffect = SwapEffect.FlipSequential,
+#endif
         ModeDescription = new ModeDescription(width, height, new Rational(50, 1), Format.R8G8B8A8_UNorm),
         IsWindowed = true,
         OutputHandle = RenderTarget.Handle,
