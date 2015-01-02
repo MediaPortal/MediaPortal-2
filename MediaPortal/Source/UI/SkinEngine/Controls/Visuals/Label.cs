@@ -304,11 +304,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_asset == null)
         return size;
 
-      size = _asset.TextSize(_resourceString, false, totalWidth);
+      size = _asset.TextSize(_resourceString, Wrap, totalWidth);
 
-      // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
-      size.Width += 1;
-      size.Height += 1;
       _totalSize = size;
       return size;
     }
@@ -337,7 +334,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _asset.TextBrush = _textBrush;
 
-      _asset.Render(_innerRect, Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext);
+      _asset.Render(_innerRect, Wrap, Scroll, (float)ScrollSpeed, (float)ScrollDelay, localRenderContext);
     }
 
     public override void Deallocate()
