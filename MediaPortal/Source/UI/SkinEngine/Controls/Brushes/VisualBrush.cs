@@ -203,6 +203,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Allocate()
     {
       base.Allocate();
+
       FrameworkElement fe = _preparedVisual;
       if (fe != null)
         fe.Allocate();

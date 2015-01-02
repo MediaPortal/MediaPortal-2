@@ -1931,117 +1931,74 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _renderedBoundingBox = CalculateBoundingBox(_innerRect, finalTransform);
       }
 
-      bool layerPushed = false;
-      Brushes.Brush opacityMask = OpacityMask;
-      if (opacityMask != null && opacityMask.TryAllocate())
-      {
-        // If the control bounds have changed we need to update our Brush transform to make the 
-        // texture coordinates match up
-        if (_updateOpacityMask || _lastOccupiedTransformedBounds != localRenderContext.OccupiedTransformedBounds)
-        {
-          UpdateOpacityMask(localRenderContext.OccupiedTransformedBounds, localRenderContext.ZOrder);
-          _lastOccupiedTransformedBounds = localRenderContext.OccupiedTransformedBounds;
-          _updateOpacityMask = false;
-        }
+      // Begin Opacity Mask
+      bool layerPushed = BeginRenderOpacityMask(localRenderContext);
 
-        LayerParameters1 layerParameters = new LayerParameters1
-        {
-          ContentBounds = _lastOccupiedTransformedBounds,
-          LayerOptions = LayerOptions1.None,
-          MaskAntialiasMode = AntialiasMode.PerPrimitive,
-          MaskTransform = Matrix.Identity,
-          Opacity = 1.0f,
-          OpacityBrush = opacityMask.Brush2D
-        };
-
-        GraphicsDevice11.Instance.Context2D1.PushLayer(ref layerParameters, null);
-        layerPushed = true;
-      }
-
+      // Control content
       RenderOverride(localRenderContext);
+
+      // End Opacity Mask
       if (layerPushed)
-      {
-        GraphicsDevice11.Instance.Context2D1.PopLayer();
-      }
-      //else
-      //{
-      //  // Control has an opacity mask or Effect
-      //  // Get global render surface and render texture or create them if they doesn't exist
-      //  RenderTextureAsset renderTexture = ContentManager.Instance.GetRenderTexture(GLOBAL_RENDER_TEXTURE_ASSET_KEY);
-
-      //  // Ensure they are allocated
-      //  renderTexture.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
-      //  if (!renderTexture.IsAllocated)
-      //    return;
-
-      //  // Morpheus_xx: these are typical performance results comparing direct rendering to texture and rendering 
-      //  // to surfaces (for multisampling support).
-
-      //  // Results inside GUI-Test OpacityMask screen for default skin (720p windowed / fullscreen 1080p)
-      //  // Surface + full StretchRect -> Texture    : 350 fps / 174 fps 
-      //  // Texture                                  : 485 fps / 265 fps
-
-      //  // After OpacityMask fix:
-      //  // Surface + full StretchRect -> Texture    : 250 fps / 155 fps 
-      //  // Surface + Occupied Rect -> Texture       : 325 fps / 204 fps 
-      //  // Texture                                  : 330 fps / 213 fps
-
-      //  // Results inside GUI-Test OpacityMask screen for Reflexion skin (fullscreen 1080p)
-      //  // Surface + full StretchRect -> Texture    : 142 fps
-      //  // Texture                                  : 235 fps
-
-      //  // Create a temporary render context and render the control to the render texture
-      //  RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
-
-      //  // An additional copy step is only required for multisampling surfaces
-      //  bool isMultiSample = GraphicsDevice.Setup.IsMultiSample;
-      //  if (isMultiSample)
-      //  {
-      //    RenderTargetAsset renderTarget = ContentManager.Instance.GetRenderTarget(GLOBAL_RENDER_TARGET_ASSET_KEY);
-      //    renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
-      //    if (!renderTarget.IsAllocated)
-      //      return;
-
-      //    // First render to the multisampled surface
-      //    RenderToTarget(renderTarget, tempRenderContext);
-
-      //    // Unfortunately, brushes/brush effects are based on textures and cannot work with surfaces, so we need this additional copy step
-      //    // Morpheus_xx, 03/2013: changed to copy only the occupied area of Surface, instead of complete area. This improves performance a lot.
-      //    GraphicsDevice.Device.StretchRectangle(
-      //        renderTarget.Surface, ToRect(tempRenderContext.OccupiedTransformedBounds, renderTarget.Size), // new Rectangle(new Point(), renderTarget.Size),
-      //        renderTexture.Surface0, ToRect(tempRenderContext.OccupiedTransformedBounds, renderTexture.Size), // new Rectangle(new Point(), renderTexture.Size),
-      //        TextureFilter.None);
-      //  }
-      //  else
-      //  {
-      //    // Directly render to texture
-      //    RenderToTexture(renderTexture, tempRenderContext);
-      //  }
-
-      //  // Render Effect
-      //  Effects.Effect effect = Effect;
-      //  if (effect == null)
-      //  {
-      //    // Use a default effect to draw the render target if none is set
-      //    if (_defaultEffect == null)
-      //    {
-      //      _defaultEffect = new SimpleShaderEffect { ShaderEffectName = "normal" };
-      //    }
-
-      //    effect = _defaultEffect;
-      //  }
-
-      //  UpdateEffectMask(effect, tempRenderContext.OccupiedTransformedBounds, renderTexture.Width, renderTexture.Height, localRenderContext.ZOrder);
-      //  if (effect.BeginRender(renderTexture.Texture, new RenderContext(Matrix.Identity, 1.0d, bounds, localRenderContext.ZOrder)))
-      //  {
-      //    _effectContext.Render(0);
-      //    effect.EndRender();
-      //  }
-      //}
+        EndRenderOpacityMask();
 
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
       _lastZIndex = localRenderContext.ZOrder;
+    }
+
+    /// <summary>
+    /// Begins the rendering of OpacityMask. It uses a D2D layer to clip bounds and apply an OpacityBrush.
+    /// If the method returbs <c>true</c>, the <see cref="EndRenderOpacityMask"/> must be called when control was rendered.
+    /// </summary>
+    /// <param name="localRenderContext">RenderContext</param>
+    /// <returns><c>true</c> if a layer was pushed.</returns>
+    protected bool BeginRenderOpacityMask(RenderContext localRenderContext)
+    {
+      Brushes.Brush opacityMask = OpacityMask;
+      if (opacityMask == null)
+        return false;
+
+      // If the control bounds have changed we need to update our Brush transform to make the 
+      // texture coordinates match up
+      if (_updateOpacityMask || _lastOccupiedTransformedBounds != localRenderContext.OccupiedTransformedBounds)
+      {
+        UpdateOpacityMask(localRenderContext.OccupiedTransformedBounds, localRenderContext.ZOrder);
+        _lastOccupiedTransformedBounds = localRenderContext.OccupiedTransformedBounds;
+        _updateOpacityMask = false;
+      }
+
+      if (!opacityMask.TryAllocate())
+        return false;
+
+      IRenderBrush renderBrush = opacityMask as IRenderBrush;
+      if (renderBrush != null)
+      {
+        if (!renderBrush.RenderContent(localRenderContext))
+          return false;
+      }
+
+      LayerParameters1 layerParameters = new LayerParameters1
+      {
+        ContentBounds = _lastOccupiedTransformedBounds,
+        LayerOptions = LayerOptions1.None,
+        MaskAntialiasMode = AntialiasMode.PerPrimitive,
+        MaskTransform = Matrix.Identity,
+        Opacity = 1.0f,
+        OpacityBrush = opacityMask.Brush2D
+      };
+
+      GraphicsDevice11.Instance.Context2D1.PushLayer(ref layerParameters, null);
+      return true;
+    }
+
+    /// <summary>
+    /// Ends the rendering of OpacityMask and pops the D2D layer.
+    /// </summary>
+    /// <returns></returns>
+    protected bool EndRenderOpacityMask()
+    {
+      GraphicsDevice11.Instance.Context2D1.PopLayer();
+      return true;
     }
 
     /// <summary>
