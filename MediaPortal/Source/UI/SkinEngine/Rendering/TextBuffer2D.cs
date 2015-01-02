@@ -63,6 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected FontStyle _fontStyle;
     protected RectangleF _lastTextBox;
     protected Brush _opacityBrush;
+    protected TextScrollEnum _lastScrollDirection;
 
     #endregion
 
@@ -141,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, text, _textFormat, 4096, 4096))
       {
-        return textLayout.Metrics.WidthIncludingTrailingWhitespace;
+        return textLayout.Metrics.Width;
       }
     }
 
@@ -149,15 +150,16 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// Gets the width of a string as if it was rendered by this resource.
     /// </summary>
     /// <param name="text">String to evaluate</param>
+    /// <param name="wrap">Text may wrap around when it is larger than <see cref="totalWidth"/></param>
     /// <param name="totalWidth"></param>
     /// <returns>The width of the text in graphics device units (pixels)</returns>
-    public Size2F TextSize(string text, float totalWidth = float.NaN)
+    public Size2F TextSize(string text, bool wrap = false, float totalWidth = float.NaN)
     {
-      if (float.IsNaN(totalWidth))
+      if (!wrap || float.IsNaN(totalWidth))
         totalWidth = 4096;
       using (var textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, text, _textFormat, totalWidth, 4096))
       {
-        return new Size2F(textLayout.Metrics.WidthIncludingTrailingWhitespace, textLayout.Metrics.Height);
+        return new Size2F(textLayout.Metrics.Width, textLayout.Metrics.Height);
       }
     }
 
@@ -384,10 +386,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Render(RectangleF textBox, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, RenderContext localRenderContext)
     {
       // Update scrolling
+      var actualScrolling = scrollMode;
       if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
-        UpdateScrollPosition(textBox, scrollMode, scrollSpeed, scrollDelay);
+        actualScrolling = UpdateScrollPosition(textBox, scrollMode, scrollSpeed, scrollDelay);
 
-      Render(textBox, _scrollPos.X, _scrollPos.Y, true, localRenderContext);
+      Render(textBox, _scrollPos.X, _scrollPos.Y, actualScrolling, localRenderContext);
     }
 
     /// <summary>
@@ -404,10 +407,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="localRenderContext">RenderContext to apply transformations.</param>
     public void Render(RectangleF textBox, float offsetX, float offsetY, RenderContext localRenderContext)
     {
-      Render(textBox, offsetX, offsetY, false, localRenderContext);
+      Render(textBox, offsetX, offsetY, TextScrollEnum.None, localRenderContext);
     }
 
-    protected void Render(RectangleF textBox, float offsetX, float offsetY, bool isScrolling, RenderContext localRenderContext)
+    protected void Render(RectangleF textBox, float offsetX, float offsetY, TextScrollEnum scrollMode, RenderContext localRenderContext)
     {
       if (_lastWrap || _textChanged)
       {
@@ -421,12 +424,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         Size2F totalTextSize = new Size2F(_textLayout.Metrics.Width, _textLayout.Metrics.Height);
         bool usingMask = false;
         bool textLargerThanTextbox = totalTextSize.Width > textBox.Width || totalTextSize.Height > textBox.Height;
-        bool hasManualOffsets = !isScrolling && (offsetX != 0f || offsetY != 0f);
+        bool hasManualOffsets = scrollMode == TextScrollEnum.None && (offsetX != 0f || offsetY != 0f);
         if (textLargerThanTextbox || hasManualOffsets)
         {
-          if (_opacityBrush == null || _lastTextBox != textBox)
+          if (_opacityBrush == null || _lastTextBox != textBox || _lastScrollDirection != scrollMode)
           {
             _lastTextBox = textBox;
+            _lastScrollDirection = scrollMode;
             DependencyObject.TryDispose(ref _opacityBrush);
 
             // Two different case for opacity mask handling:
@@ -443,18 +447,29 @@ namespace MediaPortal.UI.SkinEngine.Rendering
               Vector2 endPoint;
               float gradientFadeOffset;
 
-              bool isHorizontal = true; // TODO: determine preferred direction
-              if (isHorizontal)
+              switch (scrollMode)
               {
-                startPoint = new Vector2(0, 0);
-                endPoint = new Vector2(1, 0);
-                gradientFadeOffset = 1f - (FADE_SIZE / textBox.Width);
-              }
-              else
-              {
-                startPoint = new Vector2(0, 0);
-                endPoint = new Vector2(0, 1);
-                gradientFadeOffset = 1f - (FADE_SIZE / textBox.Height);
+                default:
+                case TextScrollEnum.Left:
+                  startPoint = new Vector2(0, 0);
+                  endPoint = new Vector2(1, 0);
+                  gradientFadeOffset = 1f - (FADE_SIZE / textBox.Width);
+                  break;
+                case TextScrollEnum.Right:
+                  startPoint = new Vector2(1, 0);
+                  endPoint = new Vector2(0, 0);
+                  gradientFadeOffset = 1f - (FADE_SIZE / textBox.Width);
+                  break;
+                case TextScrollEnum.Up:
+                  startPoint = new Vector2(0, 0);
+                  endPoint = new Vector2(0, 1);
+                  gradientFadeOffset = 1f - (FADE_SIZE / textBox.Height);
+                  break;
+                case TextScrollEnum.Down:
+                  startPoint = new Vector2(0, 1);
+                  endPoint = new Vector2(0, 0);
+                  gradientFadeOffset = 1f - (FADE_SIZE / textBox.Height);
+                  break;
               }
 
               LinearGradientBrushProperties properties = new LinearGradientBrushProperties { StartPoint = startPoint, EndPoint = endPoint };
@@ -489,7 +504,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         }
 
         // Render
-        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(textBox.X + offsetX, textBox.Y), _textLayout, brush, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(textBox.X + offsetX, textBox.Y + offsetY), _textLayout, brush, localRenderContext);
 
         if (usingMask)
         {
@@ -506,20 +521,20 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed, float scrollDelay)
     {
-      if ((SkinContext.FrameRenderingStartTime - _scrollInitialized).TotalSeconds < scrollDelay)
-        return TextScrollEnum.None;
-
       float dif = speed * (float)SkinContext.FrameRenderingStartTime.Subtract(_lastTimeUsed).TotalSeconds;
 
       if (mode == TextScrollEnum.Auto)
       {
-        if (_lastWrap && _textLayout.Metrics.Height > textBox.Height)
+        if (_textLayout.Metrics.Height > textBox.Height)
           mode = TextScrollEnum.Up;
         else if (_textLayout.Metrics.LineCount == 1 && _textLayout.Metrics.Width > textBox.Width)
           mode = TextScrollEnum.Left;
         else
           return TextScrollEnum.None;
       }
+
+      if ((SkinContext.FrameRenderingStartTime - _scrollInitialized).TotalSeconds < scrollDelay)
+        return mode;
 
       switch (mode)
       {
