@@ -270,7 +270,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       base.Clear();
       _effectTransition = null;
-      DependencyObject.TryDispose(ref _maskBrush);
+      MPF.TryDispose(ref _maskBrush);
     }
 
     #endregion

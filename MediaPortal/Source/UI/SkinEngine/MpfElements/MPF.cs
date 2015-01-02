@@ -586,6 +586,34 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         TryCleanupAndDispose_NoCheckOwner(res);
     }
 
+    public static void TryDispose<T>(ref T maybeDisposable) where T : class
+    {
+      IDisposable d = maybeDisposable as IDisposable;
+      if (d == null)
+        return;
+      maybeDisposable = null;
+      d.Dispose();
+    }
+
+    public static void TryDisposeList<T>(ref T list) where T : class, IList
+    {
+      TryDisposeList(list);
+      list = null;
+    }
+
+    public static void TryDisposeList<T>(T list) where T : class, IList
+    {
+      if (list == null)
+        return;
+      foreach (var element in list)
+      {
+        IDisposable maybeDisposable = element as IDisposable;
+        if (maybeDisposable != null)
+          maybeDisposable.Dispose();
+      }
+      list.Clear();
+    }
+
     #endregion
 
     #region Private/protected methods

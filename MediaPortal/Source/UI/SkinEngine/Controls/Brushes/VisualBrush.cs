@@ -230,7 +230,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void Deallocate()
     {
-      base.Allocate();
+      base.Deallocate();
       FrameworkElement fe = _preparedVisual;
       if (fe != null)
         fe.Deallocate();

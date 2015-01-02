@@ -1177,7 +1177,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           {
             if (obj != null)
               ServiceRegistration.Get<ILogger>().Warn("ScreenManager: XAML file '{0}' is expected to be a screen but the top-level element is a '{1}'. Try using a top-level 'Screen' element.", screenName, obj.GetType().Name);
-            DependencyObject.TryDispose(ref obj);
+            MPF.TryDispose(ref obj);
           }
         }
         catch (Exception e)

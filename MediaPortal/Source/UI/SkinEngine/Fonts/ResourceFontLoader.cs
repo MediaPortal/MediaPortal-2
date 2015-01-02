@@ -50,6 +50,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
 using SharpDX.DirectWrite;
 
@@ -170,19 +171,18 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       return _fontStreams[index];
     }
 
+    public void Unload()
+    {
+      MPF.TryDispose(ref _keyStream);
+      MPF.TryDispose(ref _fontCollection);
+      MPF.TryDisposeList(_fontStreams);
+      MPF.TryDisposeList(_enumerators);
+    }
+
     protected override void Dispose(bool disposing)
     {
       base.Dispose(disposing);
-      if (_keyStream != null)
-        _keyStream.Dispose();
-      if (_fontStreams != null)
-        foreach (var stream in _fontStreams)
-          stream.Dispose();
-      if (_enumerators != null)
-        foreach (var stream in _enumerators)
-          stream.Dispose();
-      if (_fontCollection != null)
-        _fontCollection.Dispose();
+      Unload();
     }
   }
 }

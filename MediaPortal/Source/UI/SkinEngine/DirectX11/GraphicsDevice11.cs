@@ -33,6 +33,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.RenderPipelines;
 using MediaPortal.UI.SkinEngine.DirectX.RenderStrategy;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using SharpDX;
@@ -433,13 +434,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       TryDispose(ref _device2D1);
       TryDispose(ref _deviceDXGI);
 
-      foreach (IRenderPipeline renderPipeline in _renderPipelines)
-      {
-        var pipeline = renderPipeline;
-        TryDispose(ref pipeline);
-      }
-
-      FontManager.ResourceFontLoader.Dispose();
+      MPF.TryDisposeList(ref _renderPipelines);
     }
   }
 }

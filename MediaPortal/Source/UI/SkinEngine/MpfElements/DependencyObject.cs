@@ -334,11 +334,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public static void TryDispose<T>(ref T maybeDisposable) where T : class 
     {
-      IDisposable d = maybeDisposable as IDisposable;
-      if (d == null)
-        return;
-      maybeDisposable = null;
-      d.Dispose();
+      MPF.TryDispose(ref maybeDisposable);
     }
   }
 }
