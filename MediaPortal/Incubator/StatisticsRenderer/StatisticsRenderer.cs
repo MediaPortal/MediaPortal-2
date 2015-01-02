@@ -366,8 +366,8 @@ namespace MediaPortal.Plugins.StatisticsRenderer
     {
       string presentStats = string.Empty;
       glitchCount = 0;
-      if (SkinContext.IsMultiSample)
-        return "Present statistics only available when not using antialiasing.";
+      if (SkinContext.Device11.SwapChain.Description.SwapEffect != SwapEffect.FlipSequential)
+        return "Present statistics only available when using SwapEffect.FlipSequential.";
 
       try
       {
