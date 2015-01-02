@@ -181,23 +181,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
-      base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
+      // We use another order here to make sure boundaries are updated first.
+      // Then the visual is created for new boundaries
+      // The the brush is created and transformation will be done by base.SetupBrush
+      if (!UpdateBounds(ref boundary))
+        return;
       _bitmapAsset2D = ContentManager.Instance.GetRenderTarget2D(_renderTargetKey);
       _screen = parent.Screen;
       PrepareVisual();
-    }
-
-    public override bool RenderContent(RenderContext renderContext)
-    {
-      if (!base.RenderContent(renderContext))
-        return false;
-
-      FrameworkElement fe = _preparedVisual;
-      if (fe == null) return false;
-      ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
-
-      UpdateRenderTarget(fe);
-      return true;
+      Allocate();
+      base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
     }
 
     public override void Allocate()
@@ -220,6 +213,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         };
         SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));
       }
+    }
+
+    public override bool RenderContent(RenderContext renderContext)
+    {
+      if (!base.RenderContent(renderContext))
+        return false;
+
+      FrameworkElement fe = _preparedVisual;
+      if (fe == null) return false;
+      ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget((int)_vertsBounds.Width, (int)_vertsBounds.Height);
+
+      UpdateRenderTarget(fe);
+      return true;
     }
 
     public override void Deallocate()
