@@ -393,6 +393,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       catch (SharpDXException e)
       {
         ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception", e);
+        // D2DERR_RECREATE_TARGET/RecreateTarget
+        if (e.ResultCode == 0x8899000C)
+        {
+          Reset();
+          return true;
+        }
         return false;
       }
       finally
