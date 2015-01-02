@@ -48,6 +48,7 @@ using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Factory = SharpDX.DirectWrite.Factory;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Format = SharpDX.DXGI.Format;
+using InterpolationMode = SharpDX.Direct2D1.InterpolationMode;
 using SwapChain = SharpDX.DXGI.SwapChain;
 using SwapEffect = SharpDX.DXGI.SwapEffect;
 using Usage = SharpDX.DXGI.Usage;
@@ -147,6 +148,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
     public BitmapInterpolationMode InterpolationMode { get; private set; }
 
+    public InterpolationMode ImageInterpolationMode { get; set; }
+
     // Render process related events
     public event EventHandler DeviceSceneBegin;
     public event EventHandler DeviceSceneEnd;
@@ -179,6 +182,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     {
       // Init some performance / quality relevant properties
       InterpolationMode = BitmapInterpolationMode.Linear;
+      ImageInterpolationMode = SharpDX.Direct2D1.InterpolationMode.HighQualityCubic;
     }
 
     public void CreateDevice()

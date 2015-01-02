@@ -213,13 +213,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         {
           _bitmapAsset2D = playerSurface;
 
-          BitmapBrushProperties props = new BitmapBrushProperties
+          BitmapBrushProperties1 props = new BitmapBrushProperties1
           {
             ExtendModeX = ExtendMode.Clamp,
             ExtendModeY = ExtendMode.Clamp,
+            InterpolationMode = GraphicsDevice11.Instance.ImageInterpolationMode
           };
 
-          SetBrush(new BitmapBrush(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));
+          SetBrush(new BitmapBrush1(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));
         }
 
         if (_bitmapAsset2D == null || !_bitmapAsset2D.IsAllocated)
