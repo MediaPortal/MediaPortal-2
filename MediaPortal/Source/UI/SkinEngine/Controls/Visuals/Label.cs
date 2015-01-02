@@ -304,7 +304,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_asset == null)
         return size;
 
-      size = _asset.TextSize(_resourceString, totalWidth);
+      size = _asset.TextSize(_resourceString, false, totalWidth);
 
       // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
       size.Width += 1;
