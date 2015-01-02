@@ -45,7 +45,7 @@
 
 #endregion
 
-using System;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
 using SharpDX.DirectWrite;
 
@@ -113,8 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     protected override void Dispose(bool disposing)
     {
       base.Dispose(disposing);
-      if (_currentFontFile != null)
-        _currentFontFile.Dispose();
+      MPF.TryDispose(ref _currentFontFile);
     }
   }
 }

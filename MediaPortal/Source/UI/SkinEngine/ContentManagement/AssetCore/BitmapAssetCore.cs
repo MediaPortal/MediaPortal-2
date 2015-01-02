@@ -97,6 +97,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateFromStream_NoLock(Stream stream)
     {
+      Bitmap1 bitmap;
       try
       {
         if (stream.CanSeek)
@@ -105,11 +106,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         // open the image file for reading
         using (var inputStream = new WICStream(GraphicsDevice11.Instance.FactoryWIC, stream))
         using (var decoder = new BitmapDecoder(GraphicsDevice11.Instance.FactoryWIC, inputStream, DecodeOptions.CacheOnLoad))
+        using (var formatConverter = new FormatConverter(GraphicsDevice11.Instance.FactoryWIC))
         {
           // decode the loaded image to a format that can be consumed by D2D
-          var formatConverter = new FormatConverter(GraphicsDevice11.Instance.FactoryWIC);
           formatConverter.Initialize(decoder.GetFrame(0), WIC_PIXEL_FORMAT);
-          _bitmap = Bitmap1.FromWicBitmap(GraphicsDevice11.Instance.Context2D1, formatConverter);
+          bitmap = Bitmap1.FromWicBitmap(GraphicsDevice11.Instance.Context2D1, formatConverter);
         }
       }
       catch (Exception e)
@@ -117,8 +118,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading bitmapSource from file data stream", e);
         return;
       }
-      if (_bitmap != null)
-        FinalizeAllocation(_bitmap, (int)_bitmap.Size.Width, (int)_bitmap.Size.Height);
+      if (bitmap != null)
+        FinalizeAllocation(bitmap, (int)bitmap.Size.Width, (int)bitmap.Size.Height);
     }
 
     protected void AllocateFromBuffer_NoLock(byte[] data)

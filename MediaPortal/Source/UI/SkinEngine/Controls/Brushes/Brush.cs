@@ -58,6 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Dispose()
     {
       base.Dispose();
+      Deallocate();
       Detach();
       MPF.TryCleanupAndDispose(RelativeTransform);
       MPF.TryCleanupAndDispose(Transform);

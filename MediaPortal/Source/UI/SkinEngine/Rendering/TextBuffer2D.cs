@@ -443,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           {
             _lastTextBox = textBox;
             _lastScrollDirection = scrollMode;
-            DependencyObject.TryDispose(ref _opacityBrush);
+            MPF.TryDispose(ref _opacityBrush);
 
             // Two different case for opacity mask handling:
             // 1) Text has offsets and might be clipped into viewport, then we use solid color to avoid fading
@@ -646,9 +646,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     void DisposeFont()
     {
-      DependencyObject.TryDispose(ref _textFormat);
-      DependencyObject.TryDispose(ref _textLayout);
-      DependencyObject.TryDispose(ref _opacityBrush);
+      MPF.TryDispose(ref _textFormat);
+      MPF.TryDispose(ref _textLayout);
+      MPF.TryDispose(ref _opacityBrush);
     }
 
     #endregion

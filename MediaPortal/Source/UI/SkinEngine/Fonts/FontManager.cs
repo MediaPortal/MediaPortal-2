@@ -150,6 +150,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
     public static void Unload()
     {
+      _fontResourceLoader.Unload();
       foreach (KeyValuePair<string, FontFamily> fontFamily in _families)
         fontFamily.Value.Dispose();
       _families.Clear();
