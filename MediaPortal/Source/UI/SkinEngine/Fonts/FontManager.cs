@@ -121,8 +121,11 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       string defaultFontWeight = nav.GetAttribute("FontWeight", string.Empty);
       string defaultFontStyle = nav.GetAttribute("FontStyle", string.Empty);
       _defaultFontSize = int.Parse(defaultFontSize);
-      Enum.TryParse(defaultFontWeight, true, out _defaultFontWeight);
-      Enum.TryParse(defaultFontStyle, true, out _defaultFontStyle);
+      if (!Enum.TryParse(defaultFontWeight, true, out _defaultFontWeight))
+        _defaultFontWeight = FontWeight.Normal;
+
+      if (!Enum.TryParse(defaultFontStyle, true, out _defaultFontStyle))
+        _defaultFontStyle = FontStyle.Normal;
 
       // Iterate over font family descriptors
       foreach (string descriptorFilePath in resourcesCollection.GetResourceFilePaths(
