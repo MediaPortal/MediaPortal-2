@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     {
       AdjustClipRect(bitmap, ref textureClip);
       DrawAdjustedToRenderContext(null, renderContext,
-        () => GraphicsDevice11.Instance.Context2D1.DrawBitmap(bitmap, destinationRectangle, opacity, GraphicsDevice11.Instance.InterpolationMode, textureClip));
+        () => GraphicsDevice11.Instance.Context2D1.DrawBitmap(bitmap, destinationRectangle, opacity, BitmapInterpolationMode.Linear, textureClip));
     }
 
     /// <summary>

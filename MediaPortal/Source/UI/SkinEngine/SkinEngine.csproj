@@ -359,6 +359,7 @@
     <Compile Include="ScreenManagement\SuperLayerManager.cs" />
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
+    <Compile Include="Settings\Configuration\Appearance\InterpolationModes.cs" />
     <Compile Include="SharpDX\SharpDXExtensions.cs" />
     <Compile Include="Utils\ImageSourceFactory.cs" />
     <Compile Include="Utils\UIResourcesHelper.cs" />
