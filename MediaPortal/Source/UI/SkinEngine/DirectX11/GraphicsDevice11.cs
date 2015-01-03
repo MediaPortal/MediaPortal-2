@@ -327,12 +327,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       if (_device2D1 == null)
         return true;
 
+      _renderAndResourceAccessLock.EnterReadLock();
+
       IRenderStrategy renderStrategy = RenderStrategy;
       IRenderPipeline pipeline = RenderPipeline;
 
       renderStrategy.BeginRender(doWaitForNextFame);
 
-      _renderAndResourceAccessLock.EnterReadLock();
       try
       {
         Fire(DeviceSceneBegin);
@@ -375,22 +376,31 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     /// </summary>
     public bool Reset()
     {
-      ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Resetting DX11 device...");
-      _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(() =>
+      _renderAndResourceAccessLock.EnterWriteLock();
+
+      try
       {
-        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX");
-        UIResourcesHelper.ReleaseUIResources();
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Resetting DX11 device...");
+        _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(() =>
+        {
+          ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX");
+          UIResourcesHelper.ReleaseUIResources();
 
-        if (ContentManager.Instance.TotalAllocationSize != 0)
-          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: ContentManager.TotalAllocationSize = {0}, should be 0!", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
+          if (ContentManager.Instance.TotalAllocationSize != 0)
+            ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: ContentManager.TotalAllocationSize = {0}, should be 0!", ContentManager.Instance.TotalAllocationSize / (1024 * 1024));
 
-        Dispose();
-        CreateDevice();
+          Dispose();
+          CreateDevice();
 
-        UIResourcesHelper.ReallocUIResources();
-      }));
-      ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device successfully reset");
-      return true;
+          UIResourcesHelper.ReallocUIResources();
+        }));
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device successfully reset");
+        return true;
+      }
+      finally
+      {
+        _renderAndResourceAccessLock.ExitWriteLock();
+      }
     }
 
     #endregion
