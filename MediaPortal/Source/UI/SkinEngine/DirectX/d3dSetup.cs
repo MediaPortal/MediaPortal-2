@@ -481,11 +481,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       PresentParameters result = new PresentParameters();
 
-      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
-
       DeviceCombo dc = configuration.DeviceCombo;
-      MultisampleType mst = settings.MultisampleType;
-      mst = dc.MultisampleTypes.ContainsKey(mst) ? mst : MultisampleType.None;
+      MultisampleType mst = MultisampleType.None;
       result.MultiSampleType = mst;
       result.MultiSampleQuality = 0;
       result.EnableAutoDepthStencil = false;

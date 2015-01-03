@@ -97,6 +97,16 @@
         Text="[Settings.Appearance.System.Antialiasing]"
         HelpText="[Settings.Appearance.System.Antialiasing.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Antialiasing"/>
+    <ConfigSetting
+        Id="InterpolationModeImage"
+        Text="[Settings.Appearance.System.InterpolationModeImage]"
+        HelpText="[Settings.Appearance.System.InterpolationModeImage.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.InterpolationModeImage"/>
+    <ConfigSetting
+        Id="InterpolationModeVideo"
+        Text="[Settings.Appearance.System.InterpolationModeVideo]"
+        HelpText="[Settings.Appearance.System.InterpolationModeVideo.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.InterpolationModeVideo"/>
 
     <ConfigSetting
         Id="ScreenSaverEnabled"

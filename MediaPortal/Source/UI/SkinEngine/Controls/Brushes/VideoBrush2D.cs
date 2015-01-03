@@ -217,7 +217,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           {
             ExtendModeX = ExtendMode.Clamp,
             ExtendModeY = ExtendMode.Clamp,
-            InterpolationMode = GraphicsDevice11.Instance.ImageInterpolationMode
+            InterpolationMode = GraphicsDevice11.Instance.VideoInterpolationMode
           };
 
           SetBrush(new BitmapBrush1(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));

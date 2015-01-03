@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Settings
 {
@@ -36,61 +36,39 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected const bool DEFAULT_CELL_PHONE_INPUT_STYLE = false;
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
     protected const double DEFAULT_SCREEN_SAVER_TIMEOUT_MIN = 5;
-    protected const MultisampleType DEFAULT_MULTISAMPLING_TYPE = MultisampleType.None;
     protected const SuspendLevel DEFAULT_SUSPEND_LEVEL = SuspendLevel.None;
+
+    protected const bool DEFAULT_ANTIALIASING = true;
+    protected const InterpolationMode DEFAULT_IMAGE_INTERPOLATION = InterpolationMode.Linear;
+    protected const InterpolationMode DEFAULT_VIDEO_INTERPOLATION = InterpolationMode.Cubic;
 
     #endregion
 
-    protected bool _fullScreen = DEFAULT_FULL_SCREEN;
-    protected bool _cellPhoneInputStyle = DEFAULT_CELL_PHONE_INPUT_STYLE;
-    protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
-    protected double _screenSaverTimoutMin = DEFAULT_SCREEN_SAVER_TIMEOUT_MIN;
-    protected MultisampleType _multisampleType = DEFAULT_MULTISAMPLING_TYPE;
-    protected SuspendLevel _suspendLevel = DEFAULT_SUSPEND_LEVEL;
+    [Setting(SettingScope.User, DEFAULT_ANTIALIASING)]
+    public bool UseAntialiasing { get; set; }
 
-    [Setting(SettingScope.User, 0)]
-    public MultisampleType MultisampleType
-    {
-      get { return _multisampleType; }
-      set { _multisampleType = value; }
-    }
+    [Setting(SettingScope.User, DEFAULT_IMAGE_INTERPOLATION)]
+    public InterpolationMode ImageInterpolationMode { get; set; }
+
+    [Setting(SettingScope.User, DEFAULT_VIDEO_INTERPOLATION)]
+    public InterpolationMode VideoInterpolationMode { get; set; }
 
     [Setting(SettingScope.User, DEFAULT_FULL_SCREEN)]
-    public bool FullScreen
-    {
-      get { return _fullScreen; }
-      set { _fullScreen = value; }
-    }
+    public bool FullScreen { get; set; }
 
     [Setting(SettingScope.User, DEFAULT_CELL_PHONE_INPUT_STYLE)]
-    public bool CellPhoneInputStyle
-    {
-      get { return _cellPhoneInputStyle; }
-      set { _cellPhoneInputStyle = value; }
-    }
+    public bool CellPhoneInputStyle { get; set; }
 
     [Setting(SettingScope.User, DEFAULT_SCREEN_SAVER_ENABLED)]
-    public bool ScreenSaverEnabled
-    {
-      get { return _screenSaverEnabled; }
-      set { _screenSaverEnabled = value; }
-    }
+    public bool ScreenSaverEnabled { get; set; }
 
     [Setting(SettingScope.User, DEFAULT_SCREEN_SAVER_TIMEOUT_MIN)]
-    public double ScreenSaverTimeoutMin
-    {
-      get { return _screenSaverTimoutMin; }
-      set { _screenSaverTimoutMin = value; }
-    }
+    public double ScreenSaverTimeoutMin { get; set; }
 
     /// <summary>
     /// Gets or sets a value which avoids Windows automatic energy saver.
     /// </summary>
     [Setting(SettingScope.User, DEFAULT_SUSPEND_LEVEL)]
-    public SuspendLevel SuspendLevel
-    {
-      get { return _suspendLevel; }
-      set { _suspendLevel = value; }
-    }
+    public SuspendLevel SuspendLevel { get; set; }
   }
 }

@@ -14,7 +14,12 @@
 
   <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
   <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing improves the visual GUI quality but can decrease video performance</string>
-  <string name="Settings.Appearance.Skin">Skin</string>    <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and theme</string>
+  <string name="Settings.Appearance.System.InterpolationModeImage">Scaling mode images</string>
+  <string name="Settings.Appearance.System.InterpolationModeImage.Help">Sets the preferred scaling mode for image rendering</string>
+  <string name="Settings.Appearance.System.InterpolationModeVideo">Scaling mode videos</string>
+  <string name="Settings.Appearance.System.InterpolationModeVideo.Help">Sets the preferred scaling mode for video playback</string>
+  <string name="Settings.Appearance.Skin">Skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and theme</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Change skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Change theme</string>

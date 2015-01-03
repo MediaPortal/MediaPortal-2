@@ -22,42 +22,26 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.UI.SkinEngine.DirectX;
-using SharpDX.Direct3D9;
+using MediaPortal.UI.SkinEngine.DirectX11;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
-  public class Antialiasing : SingleSelectionList
+  public class Antialiasing : YesNo
   {
-    #region Protected fields
-
-    protected IList<MultisampleType> _multisampleTypes;
-
-    #endregion
-
     #region Base overrides
 
     public override void Load()
     {
-      _multisampleTypes = new List<MultisampleType>(GraphicsDevice.Setup.MultisampleTypes);
-      MultisampleType selectedMsType = SettingsManager.Load<AppSettings>().MultisampleType;
-      Selected = _multisampleTypes.IndexOf(selectedMsType);
-
-      // Fill items
-      _items = _multisampleTypes.Select(mst => LocalizationHelper.CreateStaticString(mst.ToString())).ToList();
+      _yes = SettingsManager.Load<AppSettings>().UseAntialiasing;
     }
 
     public override void Save()
     {
       AppSettings settings = SettingsManager.Load<AppSettings>();
-      int selected = Selected;
-      settings.MultisampleType = selected > -1 && selected < _multisampleTypes.Count ? _multisampleTypes[selected] : MultisampleType.None;
+      settings.UseAntialiasing = _yes;
       SettingsManager.Save(settings);
-      GraphicsDevice.Reset();
+      GraphicsDevice11.Instance.UseAntialiasing = _yes;
     }
 
     #endregion
