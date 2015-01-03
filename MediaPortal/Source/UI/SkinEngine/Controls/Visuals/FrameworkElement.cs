@@ -2003,7 +2003,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="parentRenderContext">Render context</param>
     protected void RenderEffect(Effect effect, RenderContext parentRenderContext)
     {
-      RectangleF bounds = parentRenderContext.OccupiedTransformedBounds;
+      RectangleF bounds = ActualBounds;
 
       // Build a key based on the control size. This allows reusing the render target for controls of same size (which happens quite often)
       string key = string.Format("EffectTarget_{0}_{1}", bounds.Width, bounds.Height);
@@ -2013,11 +2013,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!_effectInput.IsAllocated)
         return;
 
-      RenderToTarget(_effectInput, new RenderContext(Matrix.Identity, bounds) { IsEffectRender = true });
+      // Modify transformation to start at 0;0 because we are rendering to a Bitmap
+      Matrix layoutTransform = Matrix.Translation(-bounds.X, -bounds.Y, 0f);
+      RenderToTarget(_effectInput, new RenderContext(layoutTransform, bounds) { IsEffectRender = true });
 
       effect.Input = _effectInput.Bitmap;
 
-      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, parentRenderContext);
+      // Now add the original position as offset, to make bitmap appear in its right place
+      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, bounds.TopLeft, parentRenderContext);
     }
 
     public override void Render(RenderContext parentRenderContext)
@@ -2097,7 +2100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       LayerParameters1 layerParameters = new LayerParameters1
       {
-        ContentBounds = _lastOccupiedTransformedBounds,
+        ContentBounds = /*localRenderContext.IsEffectRender ? RectangleF.Infinite :*/  _lastOccupiedTransformedBounds,
         LayerOptions = LayerOptions1.None,
         MaskAntialiasMode = AntialiasMode.PerPrimitive,
         MaskTransform = Matrix.Identity,

@@ -105,9 +105,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawImage(image));
     }
 
-    public static void DrawImage(this DeviceContext context, Effect effect, RenderContext renderContext)
+    public static void DrawImage(this DeviceContext context, Effect effect, Vector2 targetOffset, RenderContext renderContext)
     {
-      DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawImage(effect));
+      DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawImage(effect, targetOffset, GraphicsDevice11.Instance.ImageInterpolationMode));
     }
 
     /// <summary>
