@@ -386,6 +386,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (screen != null)
         screen.Animator.StopAll(this);
 
+      // uninitialize triggers, so they detach from the event source, ...
+      UninitializeTriggers();
+
       Dispose(); // First dispose bindings before we can reset our VisualParent
       VisualParent = null;
     }
