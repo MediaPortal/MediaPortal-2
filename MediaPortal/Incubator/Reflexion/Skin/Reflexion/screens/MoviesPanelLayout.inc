@@ -46,7 +46,7 @@
               </TransformGroup>
             </Border.RenderTransform>
             <Border.Effect>
-              <ZoomBlurEffect/>
+              <!--<ZoomBlurEffect/>-->
             </Border.Effect>
           </Border>
 
@@ -84,7 +84,7 @@
               </TransformGroup>
             </Border.RenderTransform>
             <Border.Effect>
-              <ZoomBlurEffect/>
+              <!--<ZoomBlurEffect/>-->
             </Border.Effect>
           </Border>
 
@@ -103,7 +103,7 @@
               </TransformGroup>
             </Border.RenderTransform>
             <Border.Effect>
-              <ZoomBlurEffect BlurAmount="0.1"/>
+              <!--<ZoomBlurEffect BlurAmount="0.1"/>-->
             </Border.Effect>
           </Border>
 

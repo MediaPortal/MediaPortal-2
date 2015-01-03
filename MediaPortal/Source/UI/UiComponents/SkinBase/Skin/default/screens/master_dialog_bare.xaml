@@ -62,7 +62,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <BackgroundEffect>
       <BackgroundEffect.Effect>
-          <SimpleShaderEffect ShaderEffectName="dialogbg"/>
+          <!--<SimpleShaderEffect ShaderEffectName="dialogbg"/>-->
           <!-- We can also use partial effects here: -->
           <!--<SimpleImageEffect PartitialEffectName="sepia"/>-->
       </BackgroundEffect.Effect>
