@@ -36,6 +36,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.InputManagement;
@@ -51,6 +52,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -190,6 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected Matrix? _finalTransform = null;
 
     protected float _lastZIndex = 0;
+    private RenderTarget2DAsset _effectInput;
 
     #endregion
 
@@ -1992,6 +1995,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return ExtortRenderContext().Transform;
     }
 
+    /// <summary>
+    /// Renders the current control using an Effect. Therefor first the control is rendered into a temporary bitmap, which then will be
+    /// used by the Effect as input.
+    /// </summary>
+    /// <param name="effect">Effect to render</param>
+    /// <param name="parentRenderContext">Render context</param>
+    protected void RenderEffect(Effect effect, RenderContext parentRenderContext)
+    {
+      RectangleF bounds = parentRenderContext.OccupiedTransformedBounds;
+
+      // Build a key based on the control size. This allows reusing the render target for controls of same size (which happens quite often)
+      string key = string.Format("EffectTarget_{0}_{1}", bounds.Width, bounds.Height);
+      _effectInput = ContentManager.Instance.GetRenderTarget2D(key);
+      _effectInput.AllocateRenderTarget((int)bounds.Width, (int)bounds.Height);
+
+      if (!_effectInput.IsAllocated)
+        return;
+
+      RenderToTarget(_effectInput, new RenderContext(Matrix.Identity, bounds) { IsEffectRender = true });
+
+      effect.Input = _effectInput.Bitmap;
+
+      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, parentRenderContext);
+    }
+
     public override void Render(RenderContext parentRenderContext)
     {
       if (!IsVisible)
@@ -2000,6 +2028,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF bounds = ActualBounds;
       if (bounds.Width <= 0 || bounds.Height <= 0)
         return;
+
+      // If there is a effect, call another method to render control and then the effect.
+      Effect effect = Effect;
+      if (effect != null && !parentRenderContext.IsEffectRender)
+      {
+        RenderEffect(effect, parentRenderContext);
+        return;
+      }
 
       Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
       Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
@@ -2171,6 +2207,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
+      Effect effect = Effect;
+      if (effect != null)
+        effect.Deallocate();
       PrimitiveBuffer.DisposePrimitiveBuffer(ref _effectContext);
       PrimitiveBuffer.DisposePrimitiveBuffer(ref _opacityMaskContext);
     }

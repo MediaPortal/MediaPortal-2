@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using KeyEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventHandler;

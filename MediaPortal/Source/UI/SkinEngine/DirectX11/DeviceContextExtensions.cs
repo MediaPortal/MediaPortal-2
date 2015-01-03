@@ -100,6 +100,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         () => GraphicsDevice11.Instance.Context2D1.DrawBitmap(bitmap, destinationRectangle, opacity, BitmapInterpolationMode.Linear, textureClip));
     }
 
+    public static void DrawImage(this DeviceContext context, Image image, RenderContext renderContext)
+    {
+      DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawImage(image));
+    }
+
+    public static void DrawImage(this DeviceContext context, Effect effect, RenderContext renderContext)
+    {
+      DrawAdjustedToRenderContext(null, renderContext, () => GraphicsDevice11.Instance.Context2D1.DrawImage(effect));
+    }
+
     /// <summary>
     /// Translates relative rect to real size.
     /// </summary>
@@ -133,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       renderCall();
 
       // Only for debugging: if there were errors they are only visible in EndDraw / Flush. This call is bad for performance.
-      //GraphicsDevice11.Instance.Context2D1.Flush();
+      GraphicsDevice11.Instance.Context2D1.Flush();
 
       GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
       if (brush != null)
