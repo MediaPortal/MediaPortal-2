@@ -1338,7 +1338,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP10GetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-    static UPnPError OnMPnP10GetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       MediaItemAspectMetadata miam = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
       outParams = new List<object> {miam};
