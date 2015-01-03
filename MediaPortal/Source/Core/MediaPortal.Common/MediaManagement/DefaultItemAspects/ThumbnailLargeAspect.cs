@@ -39,10 +39,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Contains a large sized (max. 256x256) thumbnail.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_THUMBNAIL =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Thumbnail", typeof(byte[]), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_THUMBNAIL =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Thumbnail", typeof(byte[]), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ThumbnailLarge", new[] {
             ATTR_THUMBNAIL,

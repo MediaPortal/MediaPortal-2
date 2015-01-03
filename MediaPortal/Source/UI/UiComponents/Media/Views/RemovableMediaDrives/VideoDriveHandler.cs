@@ -68,7 +68,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         _mediaItem = mediaAccessor.CreateLocalMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
       if (_mediaItem == null)
         throw new Exception(string.Format("Could not create media item for drive '{0}'", driveInfo.Name));
-      MediaItemAspect mia = _mediaItem.Aspects[MediaAspect.ASPECT_ID];
+      SingleMediaItemAspect mia = null;
+      MediaItemAspect.TryGetAspect(_mediaItem.Aspects, MediaAspect.Metadata, out mia);
       mia.SetAttribute(MediaAspect.ATTR_TITLE, mia.GetAttributeValue(MediaAspect.ATTR_TITLE) +
           " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")");
     }

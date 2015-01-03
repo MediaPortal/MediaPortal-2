@@ -132,7 +132,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
-    IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode);
 
     /// <summary>
@@ -145,7 +145,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
-    IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode);
 
     /// <summary>

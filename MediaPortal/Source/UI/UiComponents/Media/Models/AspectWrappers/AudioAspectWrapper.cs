@@ -238,8 +238,8 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public void Init(MediaItem mediaItem)
     {
-      MediaItemAspect aspect;
-      if (mediaItem == null || !mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspect))
+      SingleMediaItemAspect aspect;
+      if (mediaItem == null || !MediaItemAspect.TryGetAspect(mediaItem.Aspects, AudioAspect.Metadata, out aspect))
       {
         SetEmpty();
         return;

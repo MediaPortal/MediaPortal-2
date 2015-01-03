@@ -390,7 +390,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           kvp => kvp.Key).ToList();
     }
 
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
@@ -403,10 +403,10 @@ namespace MediaPortal.Common.Services.MediaManagement
       return ExtractMetadata(mediaItemAccessor, extractors, forceQuickMode);
     }
 
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
     {
-      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
+      IDictionary<Guid, IList<MediaItemAspect>> result = new Dictionary<Guid, IList<MediaItemAspect>>();
       bool success = false;
       // Execute all metadata extractors in order of their priority
       foreach (IMetadataExtractor extractor in metadataExtractors.OrderBy(m => m.Metadata.Priority))
@@ -431,10 +431,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       const bool forceQuickMode = true;
-      IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
       if (aspects == null)
         return null;
-      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
+      SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
       return new MediaItem(Guid.Empty, aspects);

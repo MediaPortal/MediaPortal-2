@@ -368,11 +368,11 @@ namespace MediaPortal.Common.Services.MediaManagement
       const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
-      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;
-      resultHandler.UpdateMediaItem(parentDirectoryId, path, aspects.Values);
+      resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects));
       resultHandler.DeleteUnderPath(path);
       return true;
     }
@@ -410,8 +410,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       MediaItem directoryItem = mediaBrowsing.LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
-        MediaItemAspect da;
-        if (!directoryItem.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out da))
+        SingleMediaItemAspect da;
+        if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out da))
         { // This is the case if the path was formerly imported as a non-directory media item; we cannot reuse it
           resultHandler.DeleteMediaItem(directoryPath);
           directoryItem = null;
@@ -419,14 +419,14 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       if (directoryItem == null)
       { // Add directory item to ML
-        MediaItemAspect mia = new MediaItemAspect(MediaAspect.Metadata);
+        MediaItemAspect mia = new SingleMediaItemAspect(MediaAspect.Metadata);
         mia.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
         mia.SetAttribute(MediaAspect.ATTR_MIME_TYPE, null);
         mia.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
         mia.SetAttribute(MediaAspect.ATTR_RATING, 0);
         mia.SetAttribute(MediaAspect.ATTR_COMMENT, null);
         mia.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.MinValue);
-        MediaItemAspect da = new MediaItemAspect(DirectoryAspect.Metadata);
+        MediaItemAspect da = new SingleMediaItemAspect(DirectoryAspect.Metadata);
         IList<MediaItemAspect> aspects = new List<MediaItemAspect>(new[]
           {
               mia,
@@ -471,8 +471,8 @@ namespace MediaPortal.Common.Services.MediaManagement
           foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
               IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION))
           {
-            MediaItemAspect providerResourceAspect;
-            if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerResourceAspect))
+            SingleMediaItemAspect providerResourceAspect;
+            if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
               path2Item[providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
           }
         }
@@ -486,11 +486,11 @@ namespace MediaPortal.Common.Services.MediaManagement
               string serializedFilePath = currentFilePath.Serialize();
               try
               {
-                MediaItemAspect importerAspect;
+                SingleMediaItemAspect importerAspect;
                 MediaItem mediaItem;
                 if (importJob.JobType == ImportJobType.Refresh &&
                     path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
-                    mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
+                    MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImporterAspect.Metadata, out importerAspect) &&
                     importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
                 { // We can skip this file; it was imported after the last change time of the item
                   path2Item.Remove(serializedFilePath);

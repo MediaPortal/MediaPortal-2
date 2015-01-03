@@ -39,8 +39,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MediaItemAspect imageAspect;
-      if (mediaItem.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+      SingleMediaItemAspect imageAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out imageAspect))
       {
         SimpleTitle = Title;
         int? width = (int?)imageAspect[ImageAspect.ATTR_WIDTH];
@@ -52,8 +52,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           Size = width + " x " + height;
         }
       }
-      MediaItemAspect resourceAspect;
-      if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out resourceAspect))
+      SingleMediaItemAspect resourceAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ProviderResourceAspect.Metadata, out resourceAspect))
       {
         ResourcePath rp = ResourcePath.Deserialize((string)resourceAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
         string ext = ProviderPathHelper.GetExtension(rp.FileName);
@@ -62,8 +62,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           ext = ext.Substring(1);
         Extension = ext;
       }
-      MediaItemAspect mediaAspect;
-      if (mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
       {
         MimeType = (string)mediaAspect[MediaAspect.ATTR_MIME_TYPE];
       }

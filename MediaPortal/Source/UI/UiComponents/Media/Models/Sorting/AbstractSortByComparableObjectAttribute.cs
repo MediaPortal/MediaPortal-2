@@ -31,9 +31,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   public abstract class AbstractSortByComparableObjectAttribute<T> : Sorting where T : class, IComparable<T>
   {
     protected string _displayName;
-    protected MediaItemAspectMetadata.AttributeSpecification _sortAttr;
+    protected SingleMediaItemAspectMetadata.SingleAttributeSpecification _sortAttr;
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, MediaItemAspectMetadata.AttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, SingleMediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
       _sortAttr = sortAttr;
@@ -46,10 +46,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
-      Guid aspectId = _sortAttr.ParentMIAM.AspectId;
-      if (x.Aspects.TryGetValue(aspectId, out aspectX) && y.Aspects.TryGetValue(aspectId, out aspectY))
+      SingleMediaItemAspect aspectX;
+      SingleMediaItemAspect aspectY;
+      SingleMediaItemAspectMetadata metadata = _sortAttr.ParentMIAM;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
       {
         T valX = (T) aspectX.GetAttributeValue(_sortAttr);
         T valY = (T) aspectY.GetAttributeValue(_sortAttr);

@@ -27,7 +27,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Exceptions;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -35,17 +39,13 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Exceptions;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
-using RelocationMode=MediaPortal.Backend.MediaLibrary.RelocationMode;
+using RelocationMode = MediaPortal.Backend.MediaLibrary.RelocationMode;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -825,13 +825,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           mediaItemId = AddMediaItem(database, transaction);
 
-          MediaItemAspect pra = new MediaItemAspect(ProviderResourceAspect.Metadata);
+          MediaItemAspect pra = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
           pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
           pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
 
-          importerAspect = new MediaItemAspect(ImporterAspect.Metadata);
+          importerAspect = new SingleMediaItemAspect(ImporterAspect.Metadata);
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
         }
         else
@@ -853,7 +853,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
             continue;
           }
-          if (wasCreated)
+          if (mia.Deleted)
+            _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia);
+          else if (wasCreated)
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
           else
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
@@ -990,7 +992,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
       if (item == null)
         return;
-      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
+      SingleMediaItemAspect mediaAspect;
+	    MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out mediaAspect);
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
       int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);

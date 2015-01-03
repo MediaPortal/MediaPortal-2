@@ -194,6 +194,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return TimeshiftControl.GetChannel(GetMatchingSlotIndex(slotIndex));
     }
 
+    private string GetPath(MediaItem item)
+    {
+      // TODO: Rework this
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(item.Aspects, ProviderResourceAspect.Metadata, out aspect))
+        return null;
+      return aspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+    }
+
     public bool StartTimeshift(int slotIndex, IChannel channel)
     {
       if (TimeshiftControl == null || channel == null)
@@ -206,7 +215,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
       if (result && timeshiftMediaItem != null)
       {
-        string newAccessorPath = (string)timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        string newAccessorPath = GetPath(timeshiftMediaItem);
 
         // if slot was empty, start a new player
         if (_slotContexes[newSlotIndex].AccessorPath == null)
@@ -291,6 +300,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return ((int)oldItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int)newItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX]);
     }
 
+
     /// <summary>
     /// Checks if both <see cref="LiveTvMediaItem"/> are of same type, which includes mimeType and streaming url. This check is used to detected
     /// card changes on server and switching between radio and tv channels.
@@ -300,8 +310,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     /// <returns></returns>
     protected bool IsSameLiveTvItem(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
     {
-      string oldPath = oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
-      string newPath = newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
+	  string oldPath = GetPath(oldItem);
+    string newPath = GetPath(newItem);
       if (oldPath != newPath)
         return false;
 
