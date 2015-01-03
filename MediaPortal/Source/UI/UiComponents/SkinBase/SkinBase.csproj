@@ -103,7 +103,11 @@
     <Compile Include="Settings\Configuration\General\HomeServerSetting.cs" />
     <Compile Include="Settings\Configuration\General\ClientName.cs" />
     <Compile Include="Settings\Configuration\General\ClientDOKANDrive.cs" />
+    <Compile Include="Settings\Configuration\General\HttpServerPortSetting.cs" />
+    <Compile Include="Settings\Configuration\General\IPAddressBindingsSetting.cs" />
     <Compile Include="Settings\Configuration\General\ServerListener.cs" />
+    <Compile Include="Settings\Configuration\General\UseIPv4Setting.cs" />
+    <Compile Include="Settings\Configuration\General\UseIPv6Setting.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesOverviewSetting.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesConfigSetting.cs" />
