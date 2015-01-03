@@ -32,6 +32,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 
 namespace MediaPortal.Test.GUITest
 {
@@ -45,6 +46,9 @@ namespace MediaPortal.Test.GUITest
     #region Protected fields
 
     protected AbstractProperty _triggerTestMouseStateProperty = new SProperty(typeof(string), "Mouse not triggered yet");
+    protected AbstractProperty _mouseCaptureTestMousePosProperty = new SProperty(typeof(string), "?/?");
+    protected AbstractProperty _mouseCaptureTestCaptureSubTreeProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _mouseCaptureTestCaptureOriginalSourceProperty = new SProperty(typeof(bool), false);
 
     #endregion
 
@@ -61,6 +65,42 @@ namespace MediaPortal.Test.GUITest
       set { _triggerTestMouseStateProperty.SetValue(value); }
     }
 
+
+    public AbstractProperty MouseCaptureTestMousePosProperty
+    {
+      get { return _mouseCaptureTestMousePosProperty; }
+    }
+
+    public string MouseCaptureTestMousePos
+    {
+      get { return (string) _mouseCaptureTestMousePosProperty.GetValue(); }
+      set { _mouseCaptureTestMousePosProperty.SetValue(value); }
+    }
+
+
+    public AbstractProperty MouseCaptureTestCaptureSubTreeProperty
+    {
+      get { return _mouseCaptureTestCaptureSubTreeProperty; }
+    }
+
+    public bool MouseCaptureTestCaptureSubTree
+    {
+      get { return (bool) _mouseCaptureTestCaptureSubTreeProperty.GetValue(); }
+      set { _mouseCaptureTestCaptureSubTreeProperty.SetValue(value); }
+    }
+
+
+    public AbstractProperty MouseCaptureTestCaptureOriginalSourceProperty
+    {
+      get { return _mouseCaptureTestCaptureOriginalSourceProperty; }
+    }
+
+    public bool MouseCaptureTestCaptureOriginalSource
+    {
+      get { return (bool) _mouseCaptureTestCaptureOriginalSourceProperty.GetValue(); }
+      set { _mouseCaptureTestCaptureOriginalSourceProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public members
@@ -74,11 +114,11 @@ namespace MediaPortal.Test.GUITest
     public void RoutedEventHandler(object sender, MouseButtonEventArgs e)
     {
       Debug.Print("RoutedEvent:");
-      Debug.Print("  Event=         {0}", e.RoutedEvent.Name);
-      Debug.Print("  sender=        {0}", sender);
-      Debug.Print("  Source=        {0}", e.Source);
-      Debug.Print("  OriginalSource={0}", e.OriginalSource);
-      Debug.Print("  Hit at=        {0}", e.GetPosition(sender as UIElement));
+      Debug.Print("  Event=          {0}", e.RoutedEvent.Name);
+      Debug.Print("  sender=         {0}", sender);
+      Debug.Print("  Source=         {0}", e.Source);
+      Debug.Print("  OriginalSource= {0}", e.OriginalSource);
+      Debug.Print("  Hit at=         {0}", e.GetPosition(sender as UIElement));
     }
 
     public void TriggerTestMouseDown()
@@ -89,6 +129,63 @@ namespace MediaPortal.Test.GUITest
     public void TriggerTestMouseUp()
     {
       TriggerTestMouseState = "Mouse is up";
+    }
+
+    public void MouseCaptureTestMouseMove(object sender, MouseEventArgs e)
+    {
+      UIElement element;
+      if (MouseCaptureTestCaptureOriginalSource)
+      {
+        element = e.OriginalSource as UIElement;
+      }
+      else
+      {
+        element = e.Source as UIElement;
+      }
+      if (element != null)
+      {
+        var pt = e.GetPosition(element);
+        MouseCaptureTestMousePos = String.Format("{0:F1}/{1:F1}", pt.X, pt.Y);
+      }
+    }
+
+    public void MouseCaptureTestMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+      UIElement element;
+      if (MouseCaptureTestCaptureOriginalSource)
+      {
+        element = e.OriginalSource as UIElement;
+      }
+      else
+      {
+        element = e.Source as UIElement;
+      }
+      if (element != null)
+      {
+        if (MouseCaptureTestCaptureSubTree)
+        {
+          element.Screen.CaptureMouse(element, CaptureMode.SubTree);
+        }
+        else
+        {
+          element.CaptureMouse();
+        }
+      }
+    }
+
+    public void MouseCaptureTestMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+      UIElement element;
+      if (MouseCaptureTestCaptureOriginalSource)
+      {
+        element = e.OriginalSource as UIElement;
+      }
+      else
+      {
+        element = e.Source as UIElement;
+      }
+      if (element != null)
+        element.ReleaseMouseCapture();
     }
 
     #endregion

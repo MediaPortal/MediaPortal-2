@@ -299,6 +299,10 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     internal event RoutedInputEventHandler RoutedInputEventFired;
 
+    public event ParameterlessMethod Activated;
+
+    public event ParameterlessMethod Deactivated;
+
     public void Terminate()
     {
       _terminatedEvent.Set();
@@ -513,6 +517,20 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         dlgt(evt.EventArgs, evt.RoutedEvents);
     }
 
+    protected void ExecuteApplicationActivated()
+    {
+      var dlgt = Activated;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    protected void ExecuteApplicationDeactivated()
+    {
+      var dlgt = Deactivated;
+      if (dlgt != null)
+        dlgt();
+    }
+
     internal static TE ToUiEvent<TE>(InputTouchEvent inputEvent) where TE : TouchEvent, new()
     {
       TE uiEvent = new TE
@@ -719,6 +737,16 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       lock (_syncObj)
         _keyBindings.Remove(key);
+    }
+
+    public void ApplicationActivated()
+    {
+      EnqueueCommand(ExecuteApplicationActivated);
+    }
+
+    public void ApplicationDeactivated()
+    {
+      EnqueueCommand(ExecuteApplicationDeactivated);
     }
 
     #endregion

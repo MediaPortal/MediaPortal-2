@@ -156,5 +156,15 @@ namespace MediaPortal.UI.Control.InputManager
     /// </summary>
     /// <param name="key">The key which triggers the command.</param>
     void RemoveKeyBinding(Key key);
+
+    /// <summary>
+    /// The application has been activated
+    /// </summary>
+    void ApplicationActivated();
+
+    /// <summary>
+    /// The application has been deactivated
+    /// </summary>
+    void ApplicationDeactivated();
   }
 }

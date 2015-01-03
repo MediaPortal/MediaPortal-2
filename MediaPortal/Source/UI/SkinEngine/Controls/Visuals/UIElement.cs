@@ -1804,6 +1804,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Capture mouse events for this element
+    /// </summary>
+    /// <returns>Returns <c>true</c> if the mouse was captured successfully.</returns>
+    /// <remarks>
+    /// If you want to capture the mouse for the whole subtree use <see cref="Screen.CaptureMouse(UIElement, CaptureMode)"/> 
+    /// with capture mode set to <see cref="CaptureMode.SubTree"/>.
+    /// </remarks>
+    public bool CaptureMouse()
+    {
+      return Screen.CaptureMouse(this);
+    }
+
+    /// <summary>
+    /// Releases the mouse capture, if it currently belongs to this element.
+    /// </summary>
+    /// <remarks>
+    /// If the mouse capture does not belong to this element, nothing happens. 
+    /// If you want to release the capture for any element se <see cref="Screen.CaptureMouse(UIElement, CaptureMode)"/> 
+    /// with element set to <c>null</c> and/or capture mode set to <see cref="CaptureMode.None"/>.
+    /// </remarks>
+    public void ReleaseMouseCapture()
+    {
+      if (ReferenceEquals(Screen.MouseCaptured, this))
+      {
+        Screen.CaptureMouse(null);
+      }
+    }
+
     #endregion
 
     #region Children management

@@ -786,11 +786,29 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private void MainForm_Activated(object sender, EventArgs e)
     {
       CheckTopMost();
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.ApplicationActivated();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occurred in ApplicationActivated handler", ex);
+      }
     }
 
     private void MainForm_Deactivate(object sender, EventArgs e)
     {
       CheckTopMost();
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.ApplicationDeactivated();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occurred in ApplicationDeactivated handler", ex);
+      }
     }
 
     protected override void WndProc(ref Message m)

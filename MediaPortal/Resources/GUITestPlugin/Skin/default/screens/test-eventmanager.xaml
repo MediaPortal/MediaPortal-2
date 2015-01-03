@@ -65,6 +65,28 @@
                Content="{Binding Source={StaticResource Model}, Path=TriggerTestMouseState, Mode=OneWay}"/>
       </StackPanel>
     </Border>
+
+    <DockPanel Grid.Column="1" Grid.Row="1" Margin="20">
+      <StackPanel DockPanel.Dock="Bottom">
+        <CheckBox Content="Capture sub tree" 
+                  IsChecked="{Binding Source={StaticResource Model}, Path=MouseCaptureTestCaptureSubTree, Mode=TwoWay}"/>
+        <CheckBox Content="Capture original source" 
+                  IsChecked="{Binding Source={StaticResource Model}, Path=MouseCaptureTestCaptureOriginalSource, Mode=TwoWay}"/>
+      </StackPanel>
+      <Border MouseLeftButtonDown="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseLeftButtonDown}"
+              MouseLeftButtonUp="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseLeftButtonUp}"
+              MouseMove="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseMove}"
+              Background="Blue">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Content="Move mouse over blue area to update mouse position"/>
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Content="Click and hold left mouse button to enable mouse capture"/>
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Content="{Binding Source={StaticResource Model}, Path=MouseCaptureTestMousePos, Mode=OneWay}"/>
+        </StackPanel>
+      </Border>
+    </DockPanel>
   </Grid>
 
 </Screen>
