@@ -44,6 +44,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;

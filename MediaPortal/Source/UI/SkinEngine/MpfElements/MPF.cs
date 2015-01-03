@@ -220,10 +220,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSourceExtension));
 
       // Effects
-      // Image effects based on ImageContext
-      _objectClassRegistrations.Add("SimpleImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleImageEffect));
-      _objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
-      _objectClassRegistrations.Add("PixelateEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.PixelateEffect));
+      // Image effects based on Direct2D Effects
+      _objectClassRegistrations.Add("DropShadowEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.DropShadowEffect));
+
+      //_objectClassRegistrations.Add("SimpleImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleImageEffect));
+      //_objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
+      //_objectClassRegistrations.Add("PixelateEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.PixelateEffect));
 
       // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("SimpleShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleShaderEffect));

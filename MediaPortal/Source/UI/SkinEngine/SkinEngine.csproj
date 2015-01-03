@@ -152,6 +152,8 @@
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
     <Compile Include="Controls\Transforms\MatrixTransform.cs" />
+    <Compile Include="Controls\Visuals\Effects2D\DropShadowEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects2D\Effect.cs" />
     <Compile Include="Controls\Visuals\Effects\Effect.cs" />
     <Compile Include="Controls\Visuals\Effects\ImageEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\SimpleShaderEffect.cs" />

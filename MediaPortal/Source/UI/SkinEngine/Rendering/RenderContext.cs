@@ -133,6 +133,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     public bool ClearOccupiedAreaOnly { get; set; }
 
+    /// <summary>
+    /// Indicates if the render call produces a result for Effects.
+    /// </summary>
+    public bool IsEffectRender { get; set; }
+
     #endregion
 
     public void IncludeUntransformedContentsBounds(RectangleF bounds)
