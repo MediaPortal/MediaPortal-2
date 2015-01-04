@@ -64,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected DateTime _lastTimeUsed;
     protected DateTime _scrollInitialized;
     protected TextScrollEnum _lastScrollDirection;
+    protected double _lineHeight;
 
     #endregion
 
@@ -76,12 +77,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="fontWeight">Font weight.</param>
     /// <param name="fontStyle">Font style.</param>
     /// <param name="fontSize">The font size.</param>
-    public TextBuffer2D(string fontName, FontWeight fontWeight, FontStyle fontStyle, float fontSize)
+    /// <param name="lineHeight">Custom line height or <see cref="double.NaN"/> for default.</param>
+    public TextBuffer2D(string fontName, FontWeight fontWeight, FontStyle fontStyle, float fontSize, double lineHeight)
     {
       _fontName = fontName;
       _fontWeight = fontWeight;
       _fontStyle = fontStyle;
       _fontSize = fontSize;
+      _lineHeight = lineHeight;
       SetFont();
 
       _lastTimeUsed = DateTime.MinValue;
@@ -140,6 +143,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         totalHeight = 4096;
       }
       _textLayout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, _text, _textFormat, totalWidth, totalHeight);
+    }
+
+    private void AdjustLineHeights(TextFormat format)
+    {
+      if (!double.IsNaN(_lineHeight))
+        format.SetLineSpacing(LineSpacingMethod.Default, (float)_lineHeight, (float)(_lineHeight * 0.8));
     }
 
     /// <summary>
@@ -252,6 +261,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       DisposeFont();
       _textFormat = new TextFormat(GraphicsDevice11.Instance.FactoryDW, _fontName, _fontWeight, _fontStyle, _fontSize);
+      AdjustLineHeights(_textFormat);
       _textChanged = true;
     }
 

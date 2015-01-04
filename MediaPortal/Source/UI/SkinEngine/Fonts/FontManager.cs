@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.XPath;
 using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX.DirectWrite;
 
@@ -106,9 +107,9 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// </summary>
     public static void Load(IResourceAccessor resourcesCollection)
     {
+      Unload();
       _fontResourceLoader = new ResourceFontLoader();
 
-      Unload();
       string defaultFontFilePath = resourcesCollection.GetResourceFilePath(
           SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + DEFAULT_FONT_FILE);
 
@@ -153,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
     public static void Unload()
     {
-      _fontResourceLoader.Unload();
+      MPF.TryDispose(ref _fontResourceLoader);
       foreach (KeyValuePair<string, FontFamily> fontFamily in _families)
         fontFamily.Value.Dispose();
       _families.Clear();
