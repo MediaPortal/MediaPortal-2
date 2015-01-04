@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DockPanel LastChildFill="False">
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
-        Content="Border test"
+        Content="Effects test"
         Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
         Content="This screen shows a blue rectangle with a yellow border around it and a black Shadow effect"

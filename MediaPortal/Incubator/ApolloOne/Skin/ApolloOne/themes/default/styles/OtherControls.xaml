@@ -429,6 +429,9 @@
         <RowDefinition Height="48"/>
         <RowDefinition Height="32"/>
       </Grid.RowDefinitions>
+      <Grid.Effect>
+        <DropShadowEffect/>
+      </Grid.Effect>
 
       <!-- Light blue background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
@@ -727,6 +730,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.Effect>
+              <DropShadowEffect/>
+            </Grid.Effect>
             <Grid.RowDefinitions>
               <!-- Background -->
               <RowDefinition Height="Auto"/>
@@ -771,6 +777,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.Effect>
+              <DropShadowEffect/>
+            </Grid.Effect>
             <Grid.RowDefinitions>
               <!-- Background -->
               <RowDefinition Height="Auto"/>
