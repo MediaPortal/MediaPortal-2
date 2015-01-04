@@ -443,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (_asset == null)
       {
-        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited());
+        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited(), double.NaN);
       }
       if (_textBrush == null)
       {

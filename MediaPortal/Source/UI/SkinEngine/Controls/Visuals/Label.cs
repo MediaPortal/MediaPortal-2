@@ -30,7 +30,6 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -51,9 +50,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _scrollSpeedProperty;
     protected AbstractProperty _scrollDelayProperty;
     protected AbstractProperty _wrapProperty;
-    //protected TextBuffer _asset = null;
+    protected AbstractProperty _lineHeightProperty;
     protected string _resourceString;
-    private Size2F _totalSize;
     private TextBuffer2D _asset;
     private SolidColorBrush _textBrush;
 
@@ -75,6 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
       _scrollDelayProperty = new SProperty(typeof(double), DEFAULT_SCROLL_DELAY);
       _wrapProperty = new SProperty(typeof(bool), false);
+      _lineHeightProperty = new SProperty(typeof(double), Double.NaN);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
       InitializeResourceString();
@@ -84,6 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty.Attach(OnContentChanged);
       _wrapProperty.Attach(OnLayoutPropertyChanged);
+      _lineHeightProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Attach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Attach(OnLayoutPropertyChanged);
@@ -102,6 +102,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty.Detach(OnContentChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
+      _lineHeightProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Detach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Detach(OnLayoutPropertyChanged);
@@ -129,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollDelay = l.ScrollDelay;
       ScrollSpeed = l.ScrollSpeed;
       Wrap = l.Wrap;
-
+      LineHeight = l.LineHeight;
       InitializeResourceString();
       Attach();
     }
@@ -258,6 +259,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _wrapProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the line height. A value of <see cref="Double.NaN"/> uses default line heights.
+    /// </summary>
+    public double LineHeight
+    {
+      get { return (double)_lineHeightProperty.GetValue(); }
+      set { _lineHeightProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LineHeightProperty
+    {
+      get { return _lineHeightProperty; }
+    }
+
     #endregion
 
     void ReAllocFont()
@@ -280,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (_asset == null)
       {
-        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited());
+        _asset = new TextBuffer2D(GetFontFamilyOrInherited(), GetFontWeightOrInherited(), GetFontStyleOrInherited(), GetFontSizeOrInherited(), LineHeight);
         _asset.Text = _resourceString;
       }
       if (_textBrush == null)
@@ -304,10 +319,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_asset == null)
         return size;
 
-      size = _asset.TextSize(_resourceString, Wrap, totalWidth);
-
-      _totalSize = size;
-      return size;
+      return _asset.TextSize(_resourceString, Wrap, totalWidth);
     }
 
     public override void RenderOverride(RenderContext localRenderContext)
