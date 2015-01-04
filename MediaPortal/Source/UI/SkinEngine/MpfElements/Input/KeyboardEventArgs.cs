@@ -24,40 +24,26 @@
 
 using System;
 
-namespace MediaPortal.UI.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements.Input
 {
   /// <summary>
-  /// Provides data for input related events.
+  /// Provides data for keyboard specific events that are not key related.
   /// </summary>
-  public class InputEventArgs : RoutedEventArgs
+  public class KeyboardEventArgs : InputEventArgs
   {
     /// <summary>
-    /// Creates an new instance of <see cref="InputEventArgs"/>
+    /// Creates a new instance of <see cref="KeyboardEventArgs"/>.
     /// </summary>
     /// <param name="timestamp">Time when the input occurred.</param>
-    public InputEventArgs( /*InputDevice inputDevice, */ int timestamp)
-    {
-      //Device = inputDevice;
-      Timestamp = timestamp;
-    }
-
-    #region public properties
-
-    //TODO: add InputDevice base class and derivatives
-    //public InputDevice Device { get; internal set; }
-
-    /// <summary>
-    /// Gets the time when the input occurred.
-    /// </summary>
-    public int Timestamp { get; private set; }
-
-    #endregion
+    public KeyboardEventArgs( /*KeyboardDevice keyboard,*/ int timestamp)
+      : base( /*keyboard,*/ timestamp)
+    { }
 
     #region base overrides
 
     protected override void InvokeEventHandler(Delegate genericHandler, object genericTarget)
     {
-      var handler = genericHandler as InputEventHandler;
+      var handler = genericHandler as KeyboardEventHandler;
       if (handler != null)
       {
         handler(genericTarget, this);
@@ -72,9 +58,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   }
 
   /// <summary>
-  /// Represents the method that will handle mouse related events that are not mouse or key related.
+  /// Represents the method that will handle keyboard related events that are not key related.
   /// </summary>
   /// <param name="sender">Sender of the event</param>
   /// <param name="e">Event arguments for this event.</param>
-  public delegate void InputEventHandler(object sender, InputEventArgs e);
+  public delegate void KeyboardEventHandler(object sender, KeyboardEventArgs e);
 }

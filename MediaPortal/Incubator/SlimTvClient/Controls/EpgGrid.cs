@@ -46,8 +46,8 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
@@ -644,35 +644,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     #region Focus handling
 
-    public override void OnKeyPressed(ref Key key)
+    protected override void OnKeyPress(KeyEventArgs e)
     {
-      base.OnKeyPressed(ref key);
+      // migration from OnKeyPressed(ref Key key)
+      // - no need the check if already handled, b/c this is done by the invoker
+      // - no need to check if any child has focus, since event was originally invoked on focused element, 
+      //   and the bubbles up the visual tree
+      // - instead of setting key to None, we set e.Handled = true
 
-      if (key == Key.None)
-        // Key event was handeled by child
-        return;
-
-      if (!CheckFocusInScope())
-        return;
-
-      if (key == Key.Down && OnDown())
-        key = Key.None;
-      else if (key == Key.Up && OnUp())
-        key = Key.None;
-      else if (key == Key.Left && OnLeft())
-        key = Key.None;
-      else if (key == Key.Right && OnRight())
-        key = Key.None;
-      else if (key == Key.Home && OnHome())
-        key = Key.None;
-      else if (key == Key.End && OnEnd())
-        key = Key.None;
-      else if (key == Key.PageDown && OnPageDown())
-        key = Key.None;
-      else if (key == Key.PageUp && OnPageUp())
-        key = Key.None;
+      if (e.Key == Key.Down && OnDown())
+        e.Handled = true;
+      else if (e.Key == Key.Up && OnUp())
+        e.Handled = true;
+      else if (e.Key == Key.Left && OnLeft())
+        e.Handled = true;
+      else if (e.Key == Key.Right && OnRight())
+        e.Handled = true;
+      else if (e.Key == Key.Home && OnHome())
+        e.Handled = true;
+      else if (e.Key == Key.End && OnEnd())
+        e.Handled = true;
+      else if (e.Key == Key.PageDown && OnPageDown())
+        e.Handled = true;
+      else if (e.Key == Key.PageUp && OnPageUp())
+        e.Handled = true;
     }
-
 
     public override void OnMouseWheel(int numDetents)
     {
@@ -714,23 +710,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         SlimTvMultiChannelGuideModel model = (SlimTvMultiChannelGuideModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvMultiChannelGuideModel.MODEL_ID);
         return model;
       }
-    }
-
-    /// <summary>
-    /// Checks if the currently focused control is contained in the EpgGrid. We only need to handle focus changes inside the EpgGrid, but not in any other control.
-    /// </summary>
-    bool CheckFocusInScope()
-    {
-      Screen screen = Screen;
-      Visual focusPath = screen == null ? null : screen.FocusedElement;
-      while (focusPath != null)
-      {
-        if (focusPath == this)
-          // Focused control is located in our focus scope
-          return true;
-        focusPath = focusPath.VisualParent;
-      }
-      return false;
     }
 
     private bool OnDown()

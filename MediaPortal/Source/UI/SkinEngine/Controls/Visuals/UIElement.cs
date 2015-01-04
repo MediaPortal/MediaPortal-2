@@ -47,6 +47,8 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
+using KeyEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventHandler;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using MouseEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventHandler;
@@ -1070,9 +1072,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       EventManager.RegisterClassHandler(type, MouseLeftButtonUpEvent, new MouseButtonEventHandler(OnMouseLeftButtonUpThunk), false);
       EventManager.RegisterClassHandler(type, PreviewMouseRightButtonUpEvent, new MouseButtonEventHandler(OnPreviewMouseRightButtonUpThunk), false);
       EventManager.RegisterClassHandler(type, MouseRightButtonUpEvent, new MouseButtonEventHandler(OnMouseRightButtonUpThunk), false);
-      
+
       EventManager.RegisterClassHandler(type, PreviewMouseMoveEvent, new MouseEventHandler(OnPreviewMouseMoveThunk), false);
       EventManager.RegisterClassHandler(type, MouseMoveEvent, new MouseEventHandler(OnMouseMoveThunk), false);
+
+      EventManager.RegisterClassHandler(type, PreviewKeyPressEvent, new KeyEventHandler(OnPreviewKeyPressThunk), false);
+      EventManager.RegisterClassHandler(type, KeyPressEvent, new KeyEventHandler(OnKeyPressThunk), false);
     }
 
 
@@ -1521,6 +1526,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       add { AddHandler(MouseMoveEvent, value); }
       remove { RemoveHandler(MouseMoveEvent, value); }
+    }
+
+
+    private static void OnPreviewKeyPressThunk(object sender, KeyEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewKeyPress(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewKeyPress event reaches this element. This method is called before the PreviewKeyPress event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewKeyPress(KeyEventArgs e)
+    { }
+
+    public static readonly RoutedEvent PreviewKeyPressEvent = EventManager.RegisterRoutedEvent(
+      "PreviewKeyPress", RoutingStrategy.Tunnel, typeof(KeyEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event KeyEventHandler PreviewKeyPress
+    {
+      add { AddHandler(PreviewKeyPressEvent, value); }
+      remove { RemoveHandler(PreviewKeyPressEvent, value); }
+    }
+
+
+    private static void OnKeyPressThunk(object sender, KeyEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnKeyPress(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled KeyPress event reaches this element. This method is called before the KeyPress event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnKeyPress(KeyEventArgs e)
+    { }
+
+    public static readonly RoutedEvent KeyPressEvent = EventManager.RegisterRoutedEvent(
+      "KeyPress", RoutingStrategy.Bubble, typeof(KeyPressEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event KeyPressEventHandler KeyPress
+    {
+      add { AddHandler(KeyPressEvent, value); }
+      remove { RemoveHandler(KeyPressEvent, value); }
     }
 
     #endregion

@@ -37,6 +37,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 
 namespace MediaPortal.UI.SkinEngine.InputManagement
@@ -371,8 +372,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Type eventType = evt.GetType();
       if (eventType == typeof(KeyEvent))
         ExecuteKeyPress((KeyEvent)evt);
-      /*else if (eventType == typeof(MouseMoveEvent))
-        ExecuteMouseMove((MouseMoveEvent)evt);*/
       else if (eventType == typeof(MouseClickEvent))
         ExecuteMouseClick((MouseClickEvent)evt);
       else if (eventType == typeof(MouseWheelEvent))
@@ -451,29 +450,53 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Key key = evt.Key;
       if (KeyPreview != null)
         KeyPreview(ref key);
+
+      var routedKeyEventArgs = new KeyEventArgs(Environment.TickCount, key);
+
+      // invoke routed KeyPress event
+      // if event is already handled, we set Handled to true. By this only handlers registered with handledEventsToo = true will be invoked
       if (key == Key.None)
-        return;
-      // Try key bindings...
-      KeyAction keyAction;
-      lock (_syncObj)
-        if (!_keyBindings.TryGetValue(key, out keyAction))
-          keyAction = null;
-      if (keyAction != null)
-        keyAction.Action();
-      else
+      {
+        routedKeyEventArgs.Handled = true;
+      }
+      ExecuteRoutedInputEvent(new RoutedInputEvent(routedKeyEventArgs, UIElement.PreviewKeyPressEvent));
+      if (routedKeyEventArgs.Handled)
+      {
+        key = null;
+      }
+
+      if (key != Key.None)
+      {
+        // Try key bindings...
+        KeyAction keyAction;
+        lock (_syncObj)
+          if (!_keyBindings.TryGetValue(key, out keyAction))
+            keyAction = null;
+        if (keyAction != null)
+          keyAction.Action();
+      }
+
+      // invoke routed KeyPress event
+      // if event is already handled, we set Handled to true. By this only handlers registered with handledEventsToo = true will be invoked
+      // it is important to invoke routed KeyPressed event before 'internal' OnKeyPressed, 
+      // b/c internal OnKeyPress makes focus handling in Screen as final action if event was not handled
+      if (key == Key.None)
+      {
+        routedKeyEventArgs.Handled = true;
+      }
+      ExecuteRoutedInputEvent(new RoutedInputEvent(routedKeyEventArgs, UIElement.KeyPressEvent));
+      if (routedKeyEventArgs.Handled)
+      {
+        key = null;
+      }
+
+      if (key != Key.None)
       {
         KeyPressedHandler dlgt = KeyPressed;
         if (dlgt != null)
           dlgt(ref key);
       }
     }
-
-    /*protected void ExecuteMouseMove(MouseMoveEvent evt)
-    {
-      MouseMoveHandler dlgt = MouseMoved;
-      if (dlgt != null)
-        dlgt(evt.X, evt.Y);
-    }*/
 
     protected void ExecuteMouseClick(MouseClickEvent evt)
     {

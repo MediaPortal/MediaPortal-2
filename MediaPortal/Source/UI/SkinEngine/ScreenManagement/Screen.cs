@@ -757,7 +757,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             }
             else if (args is InputEventArgs)
             {
-              // all non mouse input events go to focused element
+              // all non mouse input events go to focused element (like key events)
               element = FocusedElement;
             }
             else

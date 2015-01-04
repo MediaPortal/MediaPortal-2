@@ -23,33 +23,38 @@
 #endregion
 
 using System;
+using MediaPortal.UI.Control.InputManager;
 
-namespace MediaPortal.UI.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements.Input
 {
-  /// <summary>
-  /// Provides data for input related events.
-  /// </summary>
-  public class InputEventArgs : RoutedEventArgs
+  public class KeyEventArgs : KeyboardEventArgs
   {
+    #region protected fields
+
+    protected readonly Key _key;
+
+    #endregion
+
     /// <summary>
-    /// Creates an new instance of <see cref="InputEventArgs"/>
+    /// Creates a new instance of <see cref="KeyboardEventArgs"/>.
     /// </summary>
     /// <param name="timestamp">Time when the input occurred.</param>
-    public InputEventArgs( /*InputDevice inputDevice, */ int timestamp)
+    /// <param name="key">Key to associate with this event.</param>
+    public KeyEventArgs( /*KeyboardDevice keyboard,*/ int timestamp, Key key)
+      : base( /*keyboard,*/ timestamp)
     {
-      //Device = inputDevice;
-      Timestamp = timestamp;
+      _key = key;
     }
 
     #region public properties
 
-    //TODO: add InputDevice base class and derivatives
-    //public InputDevice Device { get; internal set; }
-
     /// <summary>
-    /// Gets the time when the input occurred.
+    /// Gets the key of the event
     /// </summary>
-    public int Timestamp { get; private set; }
+    public Key Key
+    {
+      get { return _key; }
+    }
 
     #endregion
 
@@ -57,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     protected override void InvokeEventHandler(Delegate genericHandler, object genericTarget)
     {
-      var handler = genericHandler as InputEventHandler;
+      var handler = genericHandler as KeyEventHandler;
       if (handler != null)
       {
         handler(genericTarget, this);
@@ -72,9 +77,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   }
 
   /// <summary>
-  /// Represents the method that will handle mouse related events that are not mouse or key related.
+  /// Represents the method that will handle key related events.
   /// </summary>
   /// <param name="sender">Sender of the event</param>
   /// <param name="e">Event arguments for this event.</param>
-  public delegate void InputEventHandler(object sender, InputEventArgs e);
+  public delegate void KeyEventHandler(object sender, KeyEventArgs e);
 }

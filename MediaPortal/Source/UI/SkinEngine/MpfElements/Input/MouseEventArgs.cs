@@ -134,6 +134,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Input
     }
 
     #endregion
+
+    #region base overrides
+
+    protected override void InvokeEventHandler(Delegate genericHandler, object genericTarget)
+    {
+      var handler = genericHandler as MouseEventHandler;
+      if (handler != null)
+      {
+        handler(genericTarget, this);
+      }
+      else
+      {
+        base.InvokeEventHandler(genericHandler, genericTarget);
+      }
+    }
+
+    #endregion
   }
 
   /// <summary>

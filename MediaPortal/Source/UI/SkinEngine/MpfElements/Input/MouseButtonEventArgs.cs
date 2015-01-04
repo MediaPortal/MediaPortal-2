@@ -61,6 +61,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Input
     public int ClickCount { get; internal set; }
 
     #endregion
+
+    #region base overrides
+
+    protected override void InvokeEventHandler(Delegate genericHandler, object genericTarget)
+    {
+      var handler = genericHandler as MouseButtonEventHandler;
+      if (handler != null)
+      {
+        handler(genericTarget, this);
+      }
+      else
+      {
+        base.InvokeEventHandler(genericHandler, genericTarget);
+      }
+    }
+
+    #endregion
   }
 
   /// <summary>
