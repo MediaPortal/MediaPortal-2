@@ -461,8 +461,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
               switch (scrollMode)
               {
-                default:
                 case TextScrollEnum.Left:
+                  // If we are scrolling, the max dimension can be larger thant the target rect. To avoid clipping of scrolled text, we increase the limits.
+                  if (_textLayout.Metrics.Width > _textLayout.MaxWidth)
+                    _textLayout.MaxWidth = _textLayout.Metrics.Width;
+                  goto default;
+                default:
                   startPoint = new Vector2(0, 0);
                   endPoint = new Vector2(1, 0);
                   gradientFadeOffset = 1f - (FADE_SIZE / textBox.Width);
@@ -471,16 +475,25 @@ namespace MediaPortal.UI.SkinEngine.Rendering
                   startPoint = new Vector2(1, 0);
                   endPoint = new Vector2(0, 0);
                   gradientFadeOffset = 1f - (FADE_SIZE / textBox.Width);
+                  // If we are scrolling, the max dimension can be larger thant the target rect. To avoid clipping of scrolled text, we increase the limits.
+                  if (_textLayout.Metrics.Width > _textLayout.MaxWidth)
+                    _textLayout.MaxWidth = _textLayout.Metrics.Width;
                   break;
                 case TextScrollEnum.Up:
                   startPoint = new Vector2(0, 0);
                   endPoint = new Vector2(0, 1);
                   gradientFadeOffset = 1f - (FADE_SIZE / textBox.Height);
+                  // If we are scrolling, the max dimension can be larger thant the target rect. To avoid clipping of scrolled text, we increase the limits.
+                  if (_textLayout.Metrics.Height > _textLayout.MaxHeight)
+                    _textLayout.MaxHeight = _textLayout.Metrics.Height;
                   break;
                 case TextScrollEnum.Down:
                   startPoint = new Vector2(0, 1);
                   endPoint = new Vector2(0, 0);
                   gradientFadeOffset = 1f - (FADE_SIZE / textBox.Height);
+                  // If we are scrolling, the max dimension can be larger thant the target rect. To avoid clipping of scrolled text, we increase the limits.
+                  if (_textLayout.Metrics.Height > _textLayout.MaxHeight)
+                    _textLayout.MaxHeight = _textLayout.Metrics.Height;
                   break;
               }
 
