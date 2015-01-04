@@ -22,9 +22,13 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Direct2D1.Effects;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
 {
@@ -35,7 +39,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
   {
     #region Fields
 
+    protected Vector4 _parentControlBounds;
     protected Bitmap1 _input;
+    protected Crop _crop;
     protected AbstractProperty _cacheProperty;
 
     #endregion
@@ -70,6 +76,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
         Deallocate();
         return false;
       }
+
+      _crop = new Crop(GraphicsDevice11.Instance.Context2D1);
+      _crop.SetInput(0, _input, true);
+
       Attach();
       return true;
     }
@@ -77,6 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     public virtual void Deallocate()
     {
       Detach();
+      TryDispose(ref _crop);
     }
 
     public override void Dispose()
@@ -119,13 +130,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       }
     }
 
+    public void SetParentControlBounds(RectangleF parentControlBounds)
+    {
+      // Absolute pixels
+      _parentControlBounds = new Vector4(
+        parentControlBounds.X,
+        parentControlBounds.Y,
+        (parentControlBounds.X + parentControlBounds.Width),
+        (parentControlBounds.Y + parentControlBounds.Width));
+    }
+
     public abstract SharpDX.Direct2D1.Effect Output { get; }
 
     #endregion
 
     #region Protected methods
 
-    protected abstract void EffectChanged(AbstractProperty property, object oldvalue);
+    protected virtual void EffectChanged(AbstractProperty property, object oldvalue)
+    {
+      UpdateEffectParams();
+    }
+
+    protected virtual void UpdateEffectParams()
+    {
+      if (_crop != null)
+        _crop.Rectangle = _parentControlBounds;
+    }
 
     #endregion
   }
