@@ -22,8 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using SharpDX;
 using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
@@ -35,25 +35,72 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
   {
     #region Fields
 
-    protected RectangleF _vertsBounds;
     protected Bitmap1 _input;
+    protected AbstractProperty _cacheProperty;
 
     #endregion
 
     #region (De-)Allocation
+
+    protected Effect()
+    {
+      _cacheProperty = new SProperty(typeof(bool), false);
+      Attach();
+    }
+
+    void Attach()
+    {
+      _cacheProperty.Attach(EffectChanged);
+    }
+
+    void Detach()
+    {
+      _cacheProperty.Detach(EffectChanged);
+    }
 
     public bool IsAllocated
     {
       get { return Output != null; }
     }
 
-    public abstract void Allocate();
-    public abstract void Deallocate();
+    public virtual bool Allocate()
+    {
+      if (_input == null)
+      {
+        Deallocate();
+        return false;
+      }
+      Attach();
+      return true;
+    }
+
+    public virtual void Deallocate()
+    {
+      Detach();
+    }
 
     public override void Dispose()
     {
       base.Dispose();
       Deallocate();
+    }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// Indicates if the output of effect can be cached. This is only possible, if the content control (<see cref="Input"/>) doesn't change.
+    /// </summary>
+    public bool Cache
+    {
+      get { return (bool)_cacheProperty.GetValue(); }
+      set { _cacheProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CacheProperty
+    {
+      get { return _cacheProperty; }
     }
 
     #endregion
@@ -73,6 +120,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     }
 
     public abstract SharpDX.Direct2D1.Effect Output { get; }
+
+    #endregion
+
+    #region Protected methods
+
+    protected abstract void EffectChanged(AbstractProperty property, object oldvalue);
 
     #endregion
   }

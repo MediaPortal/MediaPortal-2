@@ -103,25 +103,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       }
     }
 
-    private void EffectChanged(AbstractProperty property, object oldvalue)
+    protected override void EffectChanged(AbstractProperty property, object oldvalue)
     {
       UpdateEffectParams();
     }
 
-    public override void Allocate()
+    public override bool Allocate()
     {
-      if (_input == null)
-      {
-        Deallocate();
-        return;
-      }
+      if (!base.Allocate())
+        return false;
 
       _blur = new GaussianBlur(GraphicsDevice11.Instance.Context2D1);
       _blur.SetInput(0, _input, true);
 
       UpdateEffectParams();
+      return true;
     }
-
 
     private void UpdateEffectParams()
     {
@@ -129,12 +126,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       {
         _blur.StandardDeviation = Radius;
         _blur.Optimization = GaussianBlurOptimization.Speed;
-        _blur.Cached = true;
+        _blur.Cached = Cache;
       }
     }
 
     public override void Deallocate()
     {
+      base.Deallocate();
       Detach();
       TryDispose(ref _blur);
     }
