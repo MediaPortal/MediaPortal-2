@@ -222,6 +222,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Effects
       // Image effects based on Direct2D Effects
       _objectClassRegistrations.Add("DropShadowEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.DropShadowEffect));
+      _objectClassRegistrations.Add("BlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.BlurEffect));
 
       //_objectClassRegistrations.Add("SimpleImageEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleImageEffect));
       //_objectClassRegistrations.Add("ZoomBlurEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.ZoomBlurEffect));
