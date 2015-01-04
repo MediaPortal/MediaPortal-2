@@ -1935,12 +1935,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RenderToTarget(_effectInput, parentRenderContext);
       parentRenderContext.IsEffectRender = false;
 
+      if (!effect.IsAllocated)
+        effect.Allocate();
       effect.SetParentControlBounds(_renderedBoundingBox ?? bounds);
       effect.Input = _effectInput.Bitmap;
 
       // Now add the original position as offset, to make bitmap appear in its right place
       // no parentRenderContext here, because output is already transformed!
-      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, bounds.TopLeft); //, parentRenderContext
+      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, bounds.TopLeft);
     }
 
     public override void Render(RenderContext parentRenderContext)
