@@ -34,7 +34,6 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
-using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -60,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
     protected RectangleF _lastVertsBounds;
-    protected Texture _texture = null;
+    protected Bitmap1 _videoBitmap;
 
     #endregion
 
@@ -98,12 +97,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Geometry = b.Geometry;
       _refresh = true;
       Attach();
-    }
-
-    public override void Dispose()
-    {
-      base.Dispose();
-      TryDispose(ref _texture);
     }
 
     #endregion
@@ -204,14 +197,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       lock (player.SurfaceLock)
       {
         // Force a refresh of effekt parameters when real brush is set first
-        if (!(_brush2D is BitmapBrush))
+        if (!(_brush2D is BitmapBrush1))
           _refresh = true;
 
         var cropVideoRect = player.CropVideoRect;
         var playerSurface = player.Surface;
-        if (playerSurface != null && _bitmapAsset2D != playerSurface)
+        if (playerSurface != null && _videoBitmap != playerSurface.Bitmap)
         {
           _bitmapAsset2D = playerSurface;
+          _videoBitmap = playerSurface.Bitmap;
 
           BitmapBrushProperties1 props = new BitmapBrushProperties1
           {
@@ -220,13 +214,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             InterpolationMode = GraphicsDevice11.Instance.VideoInterpolationMode
           };
 
-          SetBrush(new BitmapBrush1(GraphicsDevice11.Instance.Context2D1, _bitmapAsset2D.Bitmap, props));
+          SetBrush(new BitmapBrush1(GraphicsDevice11.Instance.Context2D1, _videoBitmap, props));
         }
 
-        if (_bitmapAsset2D == null || !_bitmapAsset2D.IsAllocated)
+        if (_brush2D == null || _videoBitmap == null)
           return false;
 
-        var desc = _bitmapAsset2D.Bitmap.Size;
+        var desc = _videoBitmap.Size;
         _videoTextureClip = new RectangleF(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height, cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
 
         // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
