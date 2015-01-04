@@ -104,9 +104,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           stream.Seek(0, SeekOrigin.Begin);
 
         // open the image file for reading
-        using (var inputStream = new WICStream(GraphicsDevice11.Instance.FactoryWIC, stream))
-        using (var decoder = new BitmapDecoder(GraphicsDevice11.Instance.FactoryWIC, inputStream, DecodeOptions.CacheOnLoad))
-        using (var formatConverter = new FormatConverter(GraphicsDevice11.Instance.FactoryWIC))
+        var factory = GraphicsDevice11.Instance.FactoryWIC;
+        if (factory == null)
+          return;
+        using (var inputStream = new WICStream(factory, stream))
+        using (var decoder = new BitmapDecoder(factory, inputStream, DecodeOptions.CacheOnLoad))
+        using (var formatConverter = new FormatConverter(factory))
         {
           // decode the loaded image to a format that can be consumed by D2D
           formatConverter.Initialize(decoder.GetFrame(0), WIC_PIXEL_FORMAT);
