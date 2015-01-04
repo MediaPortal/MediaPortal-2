@@ -136,18 +136,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       }
     }
 
-    private void EffectChanged(AbstractProperty property, object oldvalue)
+    protected override void EffectChanged(AbstractProperty property, object oldvalue)
     {
       UpdateEffectParams();
     }
 
-    public override void Allocate()
+    public override bool Allocate()
     {
-      if (_input == null)
-      {
-        Deallocate();
-        return;
-      }
+      if (!base.Allocate())
+        return false;
 
       _shadow = new Shadow(GraphicsDevice11.Instance.Context2D1);
       _shadow.SetInput(0, _input, true);
@@ -160,6 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       _composite.SetInput(1, _input, true);
 
       UpdateEffectParams();
+      return true;
     }
 
 
@@ -170,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
         _shadow.BlurStandardDeviation = BlurRadius;
         // If there is an additional Opacity, premultiply Alpha of Color
         _shadow.Color = Opacity != 1f ? new Color4(Color.ToColor3(), Color.A * Opacity) : Color;
-        _shadow.Cached = true;
+        _shadow.Cached = Cache;
       }
       if (_transform != null)
       {
@@ -182,14 +180,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
           var dy = ShadowDepth * Math.Cos(Direction);
           _transform.TransformMatrix *= Matrix3x2.Translation((float)dx, (float)dy);
         }
-
-        _transform.Cached = true;
+        _transform.Cached = Cache;
       }
-
+      if (_composite != null)
+      {
+        _composite.Cached = Cache;
+      }
     }
 
     public override void Deallocate()
     {
+      base.Deallocate();
       Detach();
       TryDispose(ref _composite);
       TryDispose(ref _transform);
