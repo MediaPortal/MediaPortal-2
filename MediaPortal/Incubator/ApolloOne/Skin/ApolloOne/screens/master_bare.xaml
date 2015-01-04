@@ -133,7 +133,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!-- Time -->
         <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="2" Margin="10,-12,0,0"
-             FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+             FontSize="{ThemeResource SmallFontSize}" FontFamily="{ThemeResource DefaultFontBold}"
              Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
       </StackPanel>
