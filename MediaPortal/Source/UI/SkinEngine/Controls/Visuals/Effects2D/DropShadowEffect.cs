@@ -31,7 +31,7 @@ using SharpDX.Direct2D1.Effects;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
 {
   /// <summary>
-  /// Provides a base class for all bitmap effects.
+  /// Drops a shadow behind the control.
   /// </summary>
   public class DropShadowEffect : Effect
   {
