@@ -84,6 +84,7 @@
     <Content Include="Skin\ApolloOne\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
     <Content Include="Skin\ApolloOne\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
     <Content Include="Skin\ApolloOne\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\ApolloOne\images\AudioLarge.png" />
     <Content Include="Skin\ApolloOne\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\ApolloOne\images\Background.jpg" />
     <Content Include="Skin\ApolloOne\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
@@ -92,9 +93,12 @@
     <Content Include="Skin\ApolloOne\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
     <Content Include="Skin\ApolloOne\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\ApolloOne\images\FilterLarge.png" />
+    <Content Include="Skin\ApolloOne\images\ImageLarge.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask_wide.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_Shadow.png" />
+    <Content Include="Skin\ApolloOne\images\NavigationLarge.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\Audio.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\AudioMute.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\ForwardButton.png" />
@@ -179,8 +183,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="Skin\ApolloOne\fonts\DefaultBold.desc" />
-    <None Include="Skin\ApolloOne\fonts\Default.desc" />
+    <None Include="Skin\ApolloOne\fonts\Fira Sans OT.desc" />
+    <None Include="Skin\ApolloOne\fonts\Fira Sans OT Light.desc" />
     <None Include="Skin\ApolloOne\fonts\FiraSansOT-Light.ttf" />
     <None Include="Skin\ApolloOne\fonts\FiraSansOT-Regular.ttf" />
   </ItemGroup>

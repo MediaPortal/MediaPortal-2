@@ -4,6 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
+  <!-- Font names -->
+  <!-- Note: usually it's not needed to specify default, because they are defined by skin -->
+  <ResourceWrapper x:Key="DefaultFont" Resource="Fira Sans OT Light" />
+  <ResourceWrapper x:Key="DefaultFontBold" Resource="Fira Sans OT" />
+
   <!-- Master_Bare layout -->
   <ResourceWrapper x:Key="HeaderPanelHeight" Resource="100" />
   <ResourceWrapper x:Key="FooterPanelHeight" Resource="220" />

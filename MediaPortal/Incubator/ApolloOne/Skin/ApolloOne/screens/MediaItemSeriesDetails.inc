@@ -28,7 +28,7 @@
           </Grid.ColumnDefinitions>
 
           <StackPanel Orientation="Horizontal">
-            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="{ThemeResource DefaultFontBold}">
               <Label.Content>
                 <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
               </Label.Content>
