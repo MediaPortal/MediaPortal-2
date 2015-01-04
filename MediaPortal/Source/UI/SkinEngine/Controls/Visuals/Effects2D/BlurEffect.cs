@@ -103,25 +103,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       }
     }
 
-    protected override void EffectChanged(AbstractProperty property, object oldvalue)
-    {
-      UpdateEffectParams();
-    }
-
     public override bool Allocate()
     {
       if (!base.Allocate())
         return false;
 
       _blur = new GaussianBlur(GraphicsDevice11.Instance.Context2D1);
-      _blur.SetInput(0, _input, true);
+      _blur.SetInput(0, _crop.Output, true);
 
       UpdateEffectParams();
       return true;
     }
 
-    private void UpdateEffectParams()
+    protected override void UpdateEffectParams()
     {
+      base.UpdateEffectParams();
       if (_blur != null)
       {
         _blur.StandardDeviation = Radius;

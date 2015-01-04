@@ -136,18 +136,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       }
     }
 
-    protected override void EffectChanged(AbstractProperty property, object oldvalue)
-    {
-      UpdateEffectParams();
-    }
-
     public override bool Allocate()
     {
       if (!base.Allocate())
         return false;
 
       _shadow = new Shadow(GraphicsDevice11.Instance.Context2D1);
-      _shadow.SetInput(0, _input, true);
+      _shadow.SetInput(0, _crop.Output, true);
 
       _transform = new AffineTransform2D(GraphicsDevice11.Instance.Context2D1);
       _transform.SetInputEffect(0, _shadow);
@@ -161,8 +156,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     }
 
 
-    private void UpdateEffectParams()
+    protected override void UpdateEffectParams()
     {
+      base.UpdateEffectParams();
       if (_shadow != null)
       {
         _shadow.BlurStandardDeviation = BlurRadius;

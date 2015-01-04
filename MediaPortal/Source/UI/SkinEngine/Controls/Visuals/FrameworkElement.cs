@@ -35,8 +35,7 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.InputManagement;
@@ -44,9 +43,10 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using SharpDX;
-//using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
@@ -1921,7 +1921,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="parentRenderContext">Render context</param>
     protected void RenderEffect(Effect effect, RenderContext parentRenderContext)
     {
-      RectangleF bounds = ActualBounds;
+      RectangleF bounds = new RectangleF(0, 0, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight);
 
       // Build a key based on the control size. This allows reusing the render target for controls of same size (which happens quite often)
       string key = string.Format("EffectTarget_{0}_{1}", bounds.Width, bounds.Height);
@@ -1931,14 +1931,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!_effectInput.IsAllocated)
         return;
 
-      // Modify transformation to start at 0;0 because we are rendering to a Bitmap
-      Matrix layoutTransform = Matrix.Translation(-bounds.X, -bounds.Y, 0f);
-      RenderToTarget(_effectInput, new RenderContext(layoutTransform, bounds) { IsEffectRender = true });
+      parentRenderContext.IsEffectRender = true;
+      RenderToTarget(_effectInput, parentRenderContext);
+      parentRenderContext.IsEffectRender = false;
 
+      effect.SetParentControlBounds(_renderedBoundingBox ?? bounds);
       effect.Input = _effectInput.Bitmap;
 
       // Now add the original position as offset, to make bitmap appear in its right place
-      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, bounds.TopLeft, parentRenderContext);
+      // no parentRenderContext here, because output is already transformed!
+      GraphicsDevice11.Instance.Context2D1.DrawImage(effect.Output, bounds.TopLeft); //, parentRenderContext
     }
 
     public override void Render(RenderContext parentRenderContext)
@@ -1958,17 +1960,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       }
 
-      Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
-      Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
-
-      RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix, renderTransformMatrix, RenderTransformOrigin, Opacity);
-      Matrix finalTransform = localRenderContext.Transform;
-      if (finalTransform != _finalTransform)
-      {
-        _finalTransform = finalTransform;
-        _inverseFinalTransform = Matrix.Invert(_finalTransform.Value);
-        _renderedBoundingBox = CalculateBoundingBox(_innerRect, finalTransform);
-      }
+      // Adjust render contexxt
+      var localRenderContext = UpdateRenderContext(parentRenderContext, bounds);
 
       // Begin Opacity Mask
       bool layerPushed = BeginRenderOpacityMask(localRenderContext);
@@ -1983,6 +1976,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
       _lastZIndex = localRenderContext.ZOrder;
+    }
+
+    /// <summary>
+    /// Calculates the final render context and updates the internal fields _renderedBoundingBox and _finalTransform.
+    /// </summary>
+    private RenderContext UpdateRenderContext(RenderContext parentRenderContext, RectangleF bounds)
+    {
+      Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
+      Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
+      RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix, renderTransformMatrix, RenderTransformOrigin, Opacity);
+      Matrix finalTransform = localRenderContext.Transform;
+      if (finalTransform != _finalTransform)
+      {
+        _finalTransform = finalTransform;
+        _inverseFinalTransform = Matrix.Invert(_finalTransform.Value);
+        _renderedBoundingBox = CalculateBoundingBox(_innerRect, finalTransform);
+      }
+      return localRenderContext;
     }
 
     /// <summary>
