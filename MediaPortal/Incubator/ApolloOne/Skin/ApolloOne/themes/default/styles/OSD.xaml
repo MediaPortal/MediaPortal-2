@@ -11,35 +11,47 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Margin="80,0,80,34" Background="#E0000000">
-            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
+          <DockPanel Margin="80,0,80,34">
+            <Rectangle Fill="{ThemeResource DialogBorderBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
+               Margin="-10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.27" DockPanel.Dock="Center">
+              <Rectangle.Effect>
+                <BlurEffect Radius="100" />
+              </Rectangle.Effect>
+            </Rectangle>
 
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="70"/>
-              </Grid.RowDefinitions>
+            <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Background="#E0000000" DockPanel.Dock="Center">
+              <Border.Effect>
+                <DropShadowEffect/>
+              </Border.Effect>
+              <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="150"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-              <Control Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="70"/>
+                </Grid.RowDefinitions>
+
+                <Control Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
                   Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
 
-              <Control Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                <Control Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
 
-              <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
 
-              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding ShowMouseControls}" Height="34" Margin="0,0,50,0">
-                <Control  x:Name="ControlsPresenter" HorizontalAlignment="Center"
+                <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding ShowMouseControls}" Height="34" Margin="0,0,50,0">
+                  <Control  x:Name="ControlsPresenter" HorizontalAlignment="Center"
                      Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+                </Grid>
               </Grid>
-            </Grid>
-          </Border>
+            </Border>
+          </DockPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

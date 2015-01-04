@@ -8,6 +8,10 @@
   Width="680" Height="560"
   Margin="35,10,0,14"
   OpacityMask="{ThemeResource HomeTileOpacityBrush}">
+  <Grid.Effect>
+    <DropShadowEffect/>
+  </Grid.Effect>
+
   <!-- Rounded corners are applied by OpacityMask -->
 
   <Grid.Resources>

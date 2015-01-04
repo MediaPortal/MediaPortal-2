@@ -120,26 +120,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
+          <!-- TODO: Effect result looks different to dialog ?! -->
           <Rectangle Fill="{ThemeResource DialogBorderBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
-               Margin="-40" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9">
-            <!-- TODO: Better blur effect with adjustable Radius -->
+               Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.27">
             <Rectangle.Effect>
-              <!--<ZoomBlurEffect BlurAmount="0.1" />-->
-              <!--<SimpleImageEffect PartitialEffectName="directional_blur"/>-->
+              <BlurEffect Radius="100" Cache="True"/>
             </Rectangle.Effect>
           </Rectangle>
 
-          <Rectangle Fill="{ThemeResource DialogBackgroundBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
-               Margin="-10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7">
-            <!-- TODO: Better blur effect with adjustable Radius -->
-            <!--<Rectangle.Effect>
-              <ZoomBlurEffect BlurAmount="0.1" />
-            </Rectangle.Effect>-->
-          </Rectangle>
-
-          <Border x:Name="DialogBorder"
+          <Border x:Name="DialogBorder" Margin="20"
             Background="{ThemeResource DialogBackgroundBrush}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
             VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Border.Effect>
+              <DropShadowEffect BlurRadius="10"/>
+            </Border.Effect>
             <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
               <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top" Margin="5"
                  VerticalAlignment="Top" HorizontalAlignment="Stretch">
