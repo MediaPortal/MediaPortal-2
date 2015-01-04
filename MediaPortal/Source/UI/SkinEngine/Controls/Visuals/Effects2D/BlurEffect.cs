@@ -73,9 +73,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       get { return _radiusProperty; }
     }
 
-    public float Opacity
+    public GaussianBlurOptimization RenderingBias
     {
-      get { return (float)_renderingBiasProperty.GetValue(); }
+      get { return (GaussianBlurOptimization)_renderingBiasProperty.GetValue(); }
       set { _renderingBiasProperty.SetValue(value); }
     }
 
@@ -121,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       if (_blur != null)
       {
         _blur.StandardDeviation = Radius;
-        _blur.Optimization = GaussianBlurOptimization.Speed;
+        _blur.Optimization = RenderingBias;
         _blur.Cached = Cache;
       }
     }

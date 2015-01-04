@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -71,11 +70,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
 
     public virtual bool Allocate()
     {
+      Deallocate();
       if (_input == null)
-      {
-        Deallocate();
         return false;
-      }
 
       _crop = new Crop(GraphicsDevice11.Instance.Context2D1);
       _crop.SetInput(0, _input, true);
