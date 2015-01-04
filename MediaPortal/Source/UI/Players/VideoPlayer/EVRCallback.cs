@@ -161,7 +161,7 @@ namespace MediaPortal.UI.Players.Video
             using (var texBitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, surface10))
             {
               _bitmapAsset2D = ContentManager.Instance.GetRenderTarget2D(_instanceKey);
-              ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget(cx, cy, BitmapOptions.None);
+              ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget(cx, cy);
               if (!_bitmapAsset2D.IsAllocated)
                 return 0;
 
