@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX11;
+using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1.Effects;
 
@@ -52,6 +53,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       _blurRadiusProperty = new SProperty(typeof(float), 5f);
       _colorProperty = new SProperty(typeof(Color), Color.Black);
       _opacityProperty = new SProperty(typeof(float), 1f);
+      Attach();
+    }
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Detach();
+      base.DeepCopy(source, copyManager);
+      DropShadowEffect b = (DropShadowEffect)source;
+      BlurRadius = b.BlurRadius;
+      Direction = b.Direction;
+      Color = b.Color;
+      Opacity = b.Opacity;
+      ShadowDepth = b.ShadowDepth;
+      // Copy allocated resources?
+      _shadow = b._shadow;
+      _transform = b._transform;
+      _composite = b._composite;
       Attach();
     }
 
@@ -155,7 +172,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       return true;
     }
 
-
     protected override void UpdateEffectParams()
     {
       base.UpdateEffectParams();
@@ -164,7 +180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
         _shadow.BlurStandardDeviation = BlurRadius;
         // If there is an additional Opacity, premultiply Alpha of Color
         _shadow.Color = Opacity != 1f ? new Color4(Color.ToColor3(), Color.A * Opacity) : Color;
-        _shadow.Cached = Cache;
+        _shadow.Cached = ShouldCache;
       }
       if (_transform != null)
       {
@@ -176,11 +192,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
           var dy = ShadowDepth * Math.Cos(Direction);
           _transform.TransformMatrix *= Matrix3x2.Translation((float)dx, (float)dy);
         }
-        _transform.Cached = Cache;
+        _transform.Cached = ShouldCache;
       }
       if (_composite != null)
       {
-        _composite.Cached = Cache;
+        _composite.Cached = ShouldCache;
       }
     }
 

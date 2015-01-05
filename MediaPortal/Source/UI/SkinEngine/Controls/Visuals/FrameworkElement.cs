@@ -2113,10 +2113,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       LayerParameters1 layerParameters = new LayerParameters1
       {
-        ContentBounds = /*localRenderContext.IsEffectRender ? RectangleF.Infinite :*/  _lastOccupiedTransformedBounds,
+        ContentBounds = _lastOccupiedTransformedBounds,
         LayerOptions = LayerOptions1.None,
-        MaskAntialiasMode = AntialiasMode.PerPrimitive,
-        MaskTransform = Matrix.Identity,
         Opacity = 1.0f,
         OpacityBrush = opacityMask.Brush2D
       };

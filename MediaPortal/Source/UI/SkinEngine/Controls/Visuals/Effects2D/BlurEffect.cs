@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX11;
+using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.Direct2D1.Effects;
 
@@ -45,6 +46,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       _radiusProperty = new SProperty(typeof(float), 3f);
       _renderingBiasProperty = new SProperty(typeof(GaussianBlurOptimization), GaussianBlurOptimization.Balanced);
       _borderModeProperty = new SProperty(typeof(BorderMode), BorderMode.Soft);
+      Attach();
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Detach();
+      base.DeepCopy(source, copyManager);
+      BlurEffect b = (BlurEffect)source;
+      Radius = b.Radius;
+      RenderingBias = b.RenderingBias;
+      BorderMode = b.BorderMode;
+      // Copy allocated resources?
+      _blur = b._blur;
       Attach();
     }
 
@@ -122,7 +136,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       {
         _blur.StandardDeviation = Radius;
         _blur.Optimization = RenderingBias;
-        _blur.Cached = Cache;
+        _blur.Cached = ShouldCache;
       }
     }
 
