@@ -81,7 +81,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Rectangle Fill="{ThemeResource DialogBorderBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
                Margin="-30" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.27">
         <Rectangle.Effect>
-          <BlurEffect Radius="100" />
+          <BlurEffect Radius="100" Cache="True" />
         </Rectangle.Effect>
       </Rectangle>
 
@@ -89,7 +89,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         Background="{ThemeResource DialogBackgroundBrush}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
         VerticalAlignment="Center" HorizontalAlignment="Center">
         <Border.Effect>
-          <DropShadowEffect BlurRadius="10"/>
+          <DropShadowEffect BlurRadius="10" />
         </Border.Effect>
 
         <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
