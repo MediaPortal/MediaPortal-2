@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _startsWithIndex = -1;
     }
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
 

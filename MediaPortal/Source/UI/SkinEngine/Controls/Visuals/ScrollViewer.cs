@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
+using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using Size = SharpDX.Size2;
@@ -485,10 +486,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
+    
 
+    /*protected override void OnKeyPress(KeyEventArgs e)
+    {
+      // migration from OnKeyPressed(ref Key key)
+      // - no need the check if already handled, b/c this is done by the invoker
+      // - no need to check if any child has focus, since event was originally invoked on focused element, 
+      //   and the bubbles up the visual tree
+      // - instead of setting key to None, we set e.Handled = true
+      */
       if (key == Key.None)
         // Key event was handeled by child
         return;

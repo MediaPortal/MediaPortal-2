@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #region Base overrides
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
       if (!IsActive || key == Key.None)

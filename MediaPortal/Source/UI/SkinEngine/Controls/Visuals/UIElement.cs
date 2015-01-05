@@ -1840,7 +1840,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Derived classes may override this method to implement special priority key handling code.
     /// </summary>
     /// <param name="key">The key. Should be set to 'Key.None' if handled by child.</param> 
-    public virtual void OnKeyPreview(ref Key key)
+    /// <remarks>For internal use. By default use <see cref="OnPreviewKeyPress(KeyEventArgs)"/>,</remarks>
+    internal virtual void OnKeyPreview(ref Key key)
     {
       foreach (UIElement child in GetChildren())
       {
@@ -1854,8 +1855,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Will be called when a key is pressed. Derived classes may override this method
     /// to implement special key handling code.
     /// </summary>
-    /// <param name="key">The key. Should be set to 'Key.None' if handled by child.</param> 
-    public virtual void OnKeyPressed(ref Key key)
+    /// <param name="key">The key. Should be set to 'Key.None' if handled by child.</param>
+    /// <remarks>For internal use. By default use <see cref="OnKeyPress(KeyEventArgs)"/>,</remarks>
+    internal virtual void OnKeyPressed(ref Key key)
     {
       foreach (UIElement child in GetChildren())
       {
