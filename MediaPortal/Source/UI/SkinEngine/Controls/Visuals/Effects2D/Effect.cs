@@ -25,6 +25,7 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct2D1.Effects;
@@ -42,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     protected Bitmap1 _input;
     protected Crop _crop;
     protected AbstractProperty _cacheProperty;
+    protected bool _invalidateCache;
 
     #endregion
 
@@ -50,6 +52,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     protected Effect()
     {
       _cacheProperty = new SProperty(typeof(bool), false);
+      Attach();
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Detach();
+      base.DeepCopy(source, copyManager);
+      Effect b = (Effect)source;
+      Cache = b.Cache;
+      // Copy allocated resources?
+      _input = b._input;
+      _crop = b._crop;
       Attach();
     }
 
@@ -130,11 +144,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     public void SetParentControlBounds(RectangleF parentControlBounds)
     {
       // Absolute pixels
-      _parentControlBounds = new Vector4(
+      var parentBounds = new Vector4(
         parentControlBounds.X,
         parentControlBounds.Y,
         (parentControlBounds.X + parentControlBounds.Width),
         (parentControlBounds.Y + parentControlBounds.Width));
+      var wasInvalidate = _invalidateCache;
+      _invalidateCache = _parentControlBounds != parentBounds;
+      _parentControlBounds = parentBounds;
+      // Update effects when Cache state changes
+      if (wasInvalidate != _invalidateCache)
+        UpdateEffectParams();
     }
 
     public abstract SharpDX.Direct2D1.Effect Output { get; }
@@ -142,6 +162,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     #endregion
 
     #region Protected methods
+
+    /// <summary>
+    /// Returns the cache flag, considering invalidations of size changes.
+    /// </summary>
+    protected bool ShouldCache
+    {
+      get { return !_invalidateCache && Cache; }
+    }
 
     protected virtual void EffectChanged(AbstractProperty property, object oldvalue)
     {
