@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Windows.Markup;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
@@ -39,6 +38,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   }
 
   /// <summary>
-  /// Screen class respresenting a logical screen represented by a particular skin.
+  /// Screen class representing a logical screen represented by a particular skin.
   /// </summary>
   [ContentProperty("Root")]
   public class Screen : UIElement, INameScope, IAddChild<FrameworkElement>, IUnmodifiableResource
@@ -430,7 +430,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview += HandleKeyPreview;
         inputManager.KeyPressed += HandleKeyPress;
-        inputManager.MouseClicked += HandleMouseClick;
         inputManager.MouseWheeled += HandleMouseWheel;
         inputManager.TouchDown += HandleTouchDown;
         inputManager.TouchUp += HandleTouchUp;
@@ -454,7 +453,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview -= HandleKeyPreview;
         inputManager.KeyPressed -= HandleKeyPress;
-        inputManager.MouseClicked -= HandleMouseClick;
         inputManager.MouseWheeled -= HandleMouseWheel;
         inputManager.TouchDown -= HandleTouchDown;
         inputManager.TouchUp -= HandleTouchUp;
@@ -617,42 +615,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    private void HandleMouseClick(MouseButtons buttons)
-    {
-      if (!HasInputFocus)
-        return;
-      bool handled = false;
-      try
-      {
-        lock (_syncObj)
-          _root.OnMouseClick(buttons, ref handled);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing mouse click event", e, _resourceName);
-      }
-      if (handled)
-        return;
-      // If mouse click was not handled explicitly, map it to an appropriate key event
-      Key key = Key.None;
-      switch (buttons)
-      {
-        case MouseButtons.Left:
-          key = Key.Ok;
-          break;
-        case MouseButtons.Right:
-          key = Key.ContextMenu;
-          break;
-      }
-      if (key != Key.None)
-      {
-        HandleKeyPreview(ref key);
-        if (key == Key.None)
-          return;
-        HandleKeyPress(ref key);
-      }
-    }
-
     private void HandleTouchMove(object sender, TouchMoveEvent touchEvent)
     {
       if (!HasInputFocus)
@@ -726,7 +688,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               var inputManager = InputManager.Instance;
               var pt = inputManager.MousePosition;
 
-              // if an element has mouse capture don't change focus atm, may be if capture mode is SubTree, focus should be changed inside
+              // if an element has mouse capture don't change focus a.t.m., may be if capture mode is SubTree, focus should be changed inside
               if (events.Contains(MouseMoveEvent) && _mouseCaptureMode == CaptureMode.None)
               {
                 // call internal OnMouseMove for focus and IsMouseOver handling
@@ -735,6 +697,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
                 focusCandidates.Sort((f1, f2) => Math.Sign(f2.ZIndex - f1.ZIndex)); // Comparer for sorting in descending order - Sort list from biggest Z-Index to lowest Z-Index
                 if (focusCandidates.Select(candidate => candidate.Candidate).FirstOrDefault(candidate => candidate.TrySetFocus(false)) == null)
                   RemoveCurrentFocus();
+              }
+              else if (events.Contains(MouseClickEvent) && args is MouseButtonEventArgs)
+              {
+                bool handled = false;
+                _root.OnMouseClick((args as MouseButtonEventArgs).WinFormsButton, ref handled);
+                args.Handled = handled;
               }
 
               switch (_mouseCaptureMode)
@@ -772,6 +740,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               {
                 args.RoutedEvent = routedEvent;
                 element.RaiseEvent(args);
+              }
+            }
+
+            if (!args.Handled && events.Contains(MouseClickEvent) && args is MouseButtonEventArgs)
+            {
+               // If mouse click was not handled explicitly, map it to an appropriate key event
+              Key key = Key.None;
+              switch ((args as MouseButtonEventArgs).ChangedButton)
+              {
+                case MouseButton.Left:
+                  key = Key.Ok;
+                  break;
+                case MouseButton.Right:
+                  key = Key.ContextMenu;
+                  break;
+              }
+              if (key != Key.None)
+              {
+                HandleKeyPreview(ref key);
+                if (key == Key.None)
+                  return;
+                HandleKeyPress(ref key);
               }
             }
           }

@@ -42,12 +42,6 @@ using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArg
 
 namespace MediaPortal.UI.SkinEngine.InputManagement
 {
-  /// <summary>
-  /// Delegate for a mouse handler.
-  /// </summary>
-  /// <param name="x">X coordinate of the new mouse position.</param>
-  /// <param name="y">Y coordinate of the new mouse position.</param>
-  //public delegate void MouseMoveHandler(float x, float y);
 
   /// <summary>
   /// Delegate for a mouse click handler.
@@ -104,28 +98,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         get { return _key; }
       }
     }
-
-    /*protected class MouseMoveEvent : InputEvent
-    {
-      protected float _x;
-      protected float _y;
-
-      public MouseMoveEvent(float x, float y)
-      {
-        _x = x;
-        _y = y;
-      }
-
-      public float X
-      {
-        get { return _x; }
-      }
-
-      public float Y
-      {
-        get { return _y; }
-      }
-    }*/
 
     protected class MouseClickEvent : InputEvent
     {
@@ -270,16 +242,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     }
 
     /// <summary>
-    /// Can be registered by classes of the skin engine to be informed about mouse movements.
-    /// </summary>
-    //public event MouseMoveHandler MouseMoved;
-
-    /// <summary>
-    /// Can be registered by classes of the skin engine to be informed about mouse clicks.
-    /// </summary>
-    public event MouseClickHandler MouseClicked;
-
-    /// <summary>
     /// Can be registered by classes of the skin engine to be informed about mouse wheel events.
     /// </summary>
     public event MouseWheelHandler MouseWheeled;
@@ -372,8 +334,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Type eventType = evt.GetType();
       if (eventType == typeof(KeyEvent))
         ExecuteKeyPress((KeyEvent)evt);
-      else if (eventType == typeof(MouseClickEvent))
-        ExecuteMouseClick((MouseClickEvent)evt);
       else if (eventType == typeof(MouseWheelEvent))
         ExecuteMouseWheel((MouseWheelEvent)evt);
       else if (eventType == typeof(InputTouchDownEvent))
@@ -496,13 +456,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         if (dlgt != null)
           dlgt(ref key);
       }
-    }
-
-    protected void ExecuteMouseClick(MouseClickEvent evt)
-    {
-      MouseClickHandler dlgt = MouseClicked;
-      if (dlgt != null)
-        dlgt(evt.Buttons);
     }
 
     protected void ExecuteMouseWheel(MouseWheelEvent evt)
@@ -636,7 +589,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       _mousePosition = new PointF(x, y);
-      //TryEvent_NoLock(new MouseMoveEvent(x, y));
       TryEvent_NoLock(new RoutedInputEvent(
         new MouseEventArgs(Environment.TickCount),
         UIElement.PreviewMouseMoveEvent, UIElement.MouseMoveEvent));
@@ -647,7 +599,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
-      TryEvent_NoLock(new MouseClickEvent(mouseButtons));
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseButtonEventArgs(Environment.TickCount, mouseButtons),
+        UIElement.PreviewMouseClickEvent, UIElement.MouseClickEvent));
     }
 
 
@@ -657,7 +611,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       TryEvent_NoLock(new RoutedInputEvent(
-        new MouseButtonEventArgs(Environment.TickCount, ToMpfMouseButton(mouseButtons))
+        new MouseButtonEventArgs(Environment.TickCount, mouseButtons)
         {
           ClickCount = clicks
         },
@@ -670,30 +624,11 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       TryEvent_NoLock(new RoutedInputEvent(
-        new MouseButtonEventArgs(Environment.TickCount, ToMpfMouseButton(mouseButtons))
+        new MouseButtonEventArgs(Environment.TickCount, mouseButtons)
         {
           ClickCount = clicks
         },
         UIElement.PreviewMouseUpEvent, UIElement.MouseUpEvent));
-    }
-
-    private MouseButton ToMpfMouseButton(MouseButtons button)
-    {
-      switch (button)
-      {
-        case MouseButtons.Left:
-          return MouseButton.Left;
-        case MouseButtons.Right:
-          return MouseButton.Right;
-        case MouseButtons.Middle:
-          return MouseButton.Middle;
-        case MouseButtons.XButton1:
-          return MouseButton.XButton1;
-        case MouseButtons.XButton2:
-          return MouseButton.XButton2;
-      }
-      ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Unsupported WinForms MouseButton: {0}", button);
-      return MouseButton.Left;
     }
 
     public void MouseWheel(int numDetents)

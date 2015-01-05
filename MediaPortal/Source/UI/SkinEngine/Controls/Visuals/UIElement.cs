@@ -1073,6 +1073,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       EventManager.RegisterClassHandler(type, PreviewMouseRightButtonUpEvent, new MouseButtonEventHandler(OnPreviewMouseRightButtonUpThunk), false);
       EventManager.RegisterClassHandler(type, MouseRightButtonUpEvent, new MouseButtonEventHandler(OnMouseRightButtonUpThunk), false);
 
+      EventManager.RegisterClassHandler(type, PreviewMouseClickEvent, new MouseButtonEventHandler(OnPreviewMouseClickThunk), false);
+      EventManager.RegisterClassHandler(type, MouseClickEvent, new MouseButtonEventHandler(OnMouseClickThunk), false);
+
       EventManager.RegisterClassHandler(type, PreviewMouseMoveEvent, new MouseEventHandler(OnPreviewMouseMoveThunk), false);
       EventManager.RegisterClassHandler(type, MouseMoveEvent, new MouseEventHandler(OnMouseMoveThunk), false);
 
@@ -1473,6 +1476,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
 
+    private static void OnPreviewMouseClickThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseClick(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseClick event reaches this element. This method is called before the PreviewMouseLeftClick event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseClick(MouseButtonEventArgs e)
+    { }
+
+    public static readonly RoutedEvent PreviewMouseClickEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseClick", RoutingStrategy.Tunnel, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler PreviewMouseClick
+    {
+      add { AddHandler(PreviewMouseClickEvent, value); }
+      remove { RemoveHandler(PreviewMouseClickEvent, value); }
+    }
+
+
+    private static void OnMouseClickThunk(object sender, MouseButtonEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseClick(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseClick event reaches this element. This method is called before the MouseLeftClick event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseClick(MouseButtonEventArgs e)
+    { }
+
+    public static readonly RoutedEvent MouseClickEvent = EventManager.RegisterRoutedEvent(
+      "MouseClick", RoutingStrategy.Tunnel, typeof(MouseButtonEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseButtonEventHandler MouseClick
+    {
+      add { AddHandler(MouseClickEvent, value); }
+      remove { RemoveHandler(MouseClickEvent, value); }
+    }
+
+
     private static void OnPreviewMouseMoveThunk(object sender, MouseEventArgs e)
     {
       var uiElement = sender as UIElement;
@@ -1757,9 +1816,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Internal mouse move handler for focus and IsMouseOver handling
     /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="focusCandidates"></param>
+    /// <param name="x">Mouse x position</param>
+    /// <param name="y">Mouse y position</param>
+    /// <param name="focusCandidates">List with focus candidates. Add <c>this</c> if it is a focus candidate.</param>
     /// <remarks>
     /// For normal mouse move handling use On(Preview)MouseMove(object, MouseEventArgs) or (Preview)MouseMove events
     /// </remarks>
@@ -1772,7 +1831,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public virtual void OnMouseClick(MouseButtons buttons, ref bool handled)
+    /// <summary>
+    /// Internal mouse move handler for backward compatibility
+    /// </summary>
+    /// <param name="buttons">Mouse button</param>
+    /// <param name="handled"><c>true</c> if handled; else <c>false</c>; Set to <c>true</c> if mouse click was handled.</param>
+    /// <remarks>
+    /// For normal mouse click handling use On(Preview)MouseClick(object, MouseEventArgs) or (Preview)MouseClick events
+    /// </remarks>
+    internal virtual void OnMouseClick(MouseButtons buttons, ref bool handled)
     {
       foreach (UIElement child in GetChildren())
       {

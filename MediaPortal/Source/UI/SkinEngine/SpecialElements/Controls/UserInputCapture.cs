@@ -143,7 +143,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       command.Execute(new object[] {_lastMouseX, _lastMouseY});
     }
 
-    public override void OnMouseClick(MouseButtons buttons, ref bool handled)
+    //TODO: check if we can use routed OnMouseClick handler. This is the only usage of old OnMouseClick!
+    internal override void OnMouseClick(MouseButtons buttons, ref bool handled)
     {
       if (IsActive && buttons == Buttons)
       {

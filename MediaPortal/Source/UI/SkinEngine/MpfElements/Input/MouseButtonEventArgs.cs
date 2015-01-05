@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Windows.Forms;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Input
 {
@@ -41,6 +42,55 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Input
     {
       ChangedButton = button;
       ClickCount = 1;
+    }
+
+    internal MouseButtonEventArgs( /*MouseDevice mouse,*/ int timestamp, MouseButtons button)
+      : base( /*mouse,*/ timestamp)
+    {
+      switch (button)
+      {
+        case MouseButtons.Left:
+          ChangedButton = MouseButton.Left;
+          break;
+        case MouseButtons.Right:
+          ChangedButton = MouseButton.Right;
+          break;
+        case MouseButtons.Middle:
+          ChangedButton = MouseButton.Middle;
+          break;
+        case MouseButtons.XButton1:
+          ChangedButton = MouseButton.XButton1;
+          break;
+        case MouseButtons.XButton2:
+          ChangedButton = MouseButton.XButton2;
+          break;
+        default:
+          ChangedButton = MouseButton.Left;
+          break;
+      }
+      ClickCount = 1;
+    }
+
+    internal MouseButtons WinFormsButton
+    {
+      get
+      {
+        switch (ChangedButton)
+        {
+          case MouseButton.Left:
+            return MouseButtons.Left;
+          case MouseButton.Right:
+            return MouseButtons.Right;
+          case MouseButton.Middle:
+            return MouseButtons.Middle;
+          case MouseButton.XButton1:
+            return MouseButtons.XButton1;
+          case MouseButton.XButton2:
+            return MouseButtons.XButton2;
+          default:
+            return MouseButtons.Left;
+        }
+      }
     }
 
     #region public properties
