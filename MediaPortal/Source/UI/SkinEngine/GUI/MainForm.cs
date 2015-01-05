@@ -677,11 +677,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       if (_renderThreadStopped)
         return;
-      int numDetents = e.Delta / 120;
-      if (numDetents == 0)
+      if (e.Delta == 0)
         return;
 
-      ServiceRegistration.Get<IInputManager>().MouseWheel(numDetents);
+      ServiceRegistration.Get<IInputManager>().MouseWheel(e.Delta);
     }
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)

@@ -324,6 +324,7 @@
     <Compile Include="MpfElements\Input\KeyEventArgs.cs" />
     <Compile Include="MpfElements\Input\MouseButtonEventArgs.cs" />
     <Compile Include="MpfElements\Input\MouseEventArgs.cs" />
+    <Compile Include="MpfElements\Input\MouseWheelEventArgs.cs" />
     <Compile Include="MpfElements\ISkinEngineManagedObject.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
     <Compile Include="MpfElements\RoutedEvent.cs" />

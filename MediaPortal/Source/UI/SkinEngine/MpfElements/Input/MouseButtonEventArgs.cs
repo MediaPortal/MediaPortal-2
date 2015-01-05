@@ -28,7 +28,7 @@ using System.Windows.Forms;
 namespace MediaPortal.UI.SkinEngine.MpfElements.Input
 {
   /// <summary>
-  /// provides data for mouse button related events.
+  /// Provides data for mouse button related events.
   /// </summary>
   public class MouseButtonEventArgs : MouseEventArgs
   {

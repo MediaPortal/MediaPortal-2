@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.Utilities.DeepCopy;
 using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
@@ -392,12 +393,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _canContentScrollProperty.SetValue(value); }
     }
 
-    public override void OnMouseWheel(int numDetents)
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
-      base.OnMouseWheel(numDetents);
-
-      if (!IsMouseOver)
-        return;
+      // migration from OnMouseWheel(int numDetents)
+      // - no need to check if mouse is over
+      // - no need to call base class
 
       IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       if (svfs == null)
@@ -409,7 +409,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (scrollInfo != null && scrollInfo.NumberOfVisibleLines != 0) // If ScrollControl can shown less items, use this as limit.
         scrollByLines = scrollInfo.NumberOfVisibleLines;
 
-      int numLines = numDetents * scrollByLines;
+      int numLines = e.NumDetents * scrollByLines;
 
       if (numLines < 0)
         svfs.ScrollDown(-1 * numLines);

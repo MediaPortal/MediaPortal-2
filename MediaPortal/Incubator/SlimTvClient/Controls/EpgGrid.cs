@@ -670,16 +670,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         e.Handled = true;
     }
 
-    public override void OnMouseWheel(int numDetents)
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
-      base.OnMouseWheel(numDetents);
-
-      if (!IsMouseOver)
-        return;
+      // migration from OnMouseWheel(int numDetents)
+      // - no need to check if mouse is over
+      // - no need to call base class
 
       int scrollByLines = System.Windows.Forms.SystemInformation.MouseWheelScrollLines; // Use the system setting as default.
 
-      int numLines = numDetents * scrollByLines;
+      int numLines = e.NumDetents * scrollByLines;
 
       if (numLines < 0)
         MoveDown(-1 * numLines);

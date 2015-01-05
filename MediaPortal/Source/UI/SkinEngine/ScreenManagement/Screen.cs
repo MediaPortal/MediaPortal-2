@@ -430,7 +430,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview += HandleKeyPreview;
         inputManager.KeyPressed += HandleKeyPress;
-        inputManager.MouseWheeled += HandleMouseWheel;
         inputManager.TouchDown += HandleTouchDown;
         inputManager.TouchUp += HandleTouchUp;
         inputManager.TouchMove += HandleTouchMove;
@@ -453,7 +452,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview -= HandleKeyPreview;
         inputManager.KeyPressed -= HandleKeyPress;
-        inputManager.MouseWheeled -= HandleMouseWheel;
         inputManager.TouchDown -= HandleTouchDown;
         inputManager.TouchUp -= HandleTouchUp;
         inputManager.TouchMove -= HandleTouchMove;
@@ -598,21 +596,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (key != Key.None)
         lock (_syncObj)
           UpdateFocus(ref key);
-    }
-
-    private void HandleMouseWheel(int numberOfDeltas)
-    {
-      if (!HasInputFocus)
-        return;
-      try
-      {
-        lock (_syncObj)
-          _root.OnMouseWheel(numberOfDeltas);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse wheel event", e, _resourceName);
-      }
     }
 
     private void HandleTouchMove(object sender, TouchMoveEvent touchEvent)

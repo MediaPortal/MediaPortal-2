@@ -50,12 +50,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   public delegate void MouseClickHandler(MouseButtons buttons);
 
   /// <summary>
-  /// Delegate for a mouse wheel handler.
-  /// </summary>
-  /// <param name="numDetents">Number of detents which have been scrolled.</param>
-  public delegate void MouseWheelHandler(int numDetents);
-
-  /// <summary>
   /// Delegate for a key handler.
   /// </summary>
   /// <param name="key">The key which was pressed. This parmeter should be set to <see cref="Key.None"/> when the
@@ -111,21 +105,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       public MouseButtons Buttons
       {
         get { return _buttons; }
-      }
-    }
-
-    protected class MouseWheelEvent : InputEvent
-    {
-      protected int _numDetents;
-
-      public MouseWheelEvent(int numDetents)
-      {
-        _numDetents = numDetents;
-      }
-
-      public int NumDetents
-      {
-        get { return _numDetents; }
       }
     }
 
@@ -242,11 +221,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     }
 
     /// <summary>
-    /// Can be registered by classes of the skin engine to be informed about mouse wheel events.
-    /// </summary>
-    public event MouseWheelHandler MouseWheeled;
-
-    /// <summary>
     /// Can be registered by classes of the skin engine to be informed about key events.
     /// </summary>
     public event KeyPressedHandler KeyPressed;
@@ -334,8 +308,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Type eventType = evt.GetType();
       if (eventType == typeof(KeyEvent))
         ExecuteKeyPress((KeyEvent)evt);
-      else if (eventType == typeof(MouseWheelEvent))
-        ExecuteMouseWheel((MouseWheelEvent)evt);
       else if (eventType == typeof(InputTouchDownEvent))
         ExecuteTouchDown(ToUiEvent<TouchDownEvent>((InputTouchDownEvent)evt));
       else if (eventType == typeof(InputTouchUpEvent))
@@ -456,13 +428,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         if (dlgt != null)
           dlgt(ref key);
       }
-    }
-
-    protected void ExecuteMouseWheel(MouseWheelEvent evt)
-    {
-      MouseWheelHandler dlgt = MouseWheeled;
-      if (dlgt != null)
-        dlgt(evt.NumDetents);
     }
 
     internal void ExecuteTouchMove(TouchMoveEvent evt)
@@ -631,12 +596,14 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         UIElement.PreviewMouseUpEvent, UIElement.MouseUpEvent));
     }
 
-    public void MouseWheel(int numDetents)
+    public void MouseWheel(int delta)
     {
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
-      TryEvent_NoLock(new MouseWheelEvent(numDetents));
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseWheelEventArgs(Environment.TickCount, delta),
+        UIElement.PreviewMouseWheelEvent, UIElement.MouseWheelEvent));
     }
 
     public void KeyPress(Key key)

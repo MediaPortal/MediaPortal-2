@@ -31,8 +31,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects;
-using MediaPortal.UI.SkinEngine.GUI;
-using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -47,9 +45,9 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using KeyEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventHandler;
-using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using MouseEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventHandler;
 using Size = SharpDX.Size2;
@@ -1073,6 +1071,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       EventManager.RegisterClassHandler(type, PreviewMouseRightButtonUpEvent, new MouseButtonEventHandler(OnPreviewMouseRightButtonUpThunk), false);
       EventManager.RegisterClassHandler(type, MouseRightButtonUpEvent, new MouseButtonEventHandler(OnMouseRightButtonUpThunk), false);
 
+      EventManager.RegisterClassHandler(type, PreviewMouseWheelEvent, new MouseWheelEventHandler(OnPreviewMouseWheelThunk), false);
+      EventManager.RegisterClassHandler(type, MouseWheelEvent, new MouseWheelEventHandler(OnMouseWheelThunk), false);
+
       EventManager.RegisterClassHandler(type, PreviewMouseClickEvent, new MouseButtonEventHandler(OnPreviewMouseClickThunk), false);
       EventManager.RegisterClassHandler(type, MouseClickEvent, new MouseButtonEventHandler(OnMouseClickThunk), false);
 
@@ -1476,6 +1477,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
 
+    private static void OnPreviewMouseWheelThunk(object sender, MouseWheelEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnPreviewMouseWheel(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled PreviewMouseWheel event reaches this element. This method is called before the PreviewMouseWheel event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnPreviewMouseWheel(MouseWheelEventArgs e)
+    { }
+
+    public static readonly RoutedEvent PreviewMouseWheelEvent = EventManager.RegisterRoutedEvent(
+      "PreviewMouseWheel", RoutingStrategy.Tunnel, typeof(MouseWheelEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseWheelEventHandler PreviewMouseWheel
+    {
+      add { AddHandler(PreviewMouseWheelEvent, value); }
+      remove { RemoveHandler(PreviewMouseWheelEvent, value); }
+    }
+
+
+    private static void OnMouseWheelThunk(object sender, MouseWheelEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnMouseWheel(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled MouseWheel event reaches this element. This method is called before the MouseWheel event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnMouseWheel(MouseWheelEventArgs e)
+    { }
+
+    public static readonly RoutedEvent MouseWheelEvent = EventManager.RegisterRoutedEvent(
+      "MouseWheel", RoutingStrategy.Bubble, typeof(MouseWheelEventHandler), typeof(UIElement));
+
+    // Provide CLR accessors for the event 
+    public event MouseWheelEventHandler MouseWheel
+    {
+      add { AddHandler(MouseWheelEvent, value); }
+      remove { RemoveHandler(MouseWheelEvent, value); }
+    }
+
+
     private static void OnPreviewMouseClickThunk(object sender, MouseButtonEventArgs e)
     {
       var uiElement = sender as UIElement;
@@ -1514,7 +1571,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Invoked when unhandled MouseClick event reaches this element. This method is called before the MouseLeftClick event is fired.
+    /// Invoked when unhandled MouseClick event reaches this element. This method is called before the MouseClick event is fired.
     /// </summary>
     /// <param name="e">The event arguments for the event.</param>
     /// <remarks>This base implementation is empty.</remarks>
@@ -1522,7 +1579,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     { }
 
     public static readonly RoutedEvent MouseClickEvent = EventManager.RegisterRoutedEvent(
-      "MouseClick", RoutingStrategy.Tunnel, typeof(MouseButtonEventHandler), typeof(UIElement));
+      "MouseClick", RoutingStrategy.Bubble, typeof(MouseButtonEventHandler), typeof(UIElement));
 
     // Provide CLR accessors for the event 
     public event MouseButtonEventHandler MouseClick
@@ -1727,7 +1784,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     private static void RaiseEventImpl(UIElement sender, RoutedEventArgs args)
     {
       args.Source = sender;
-      UIElement e;
+      Visual visual;
       switch (args.RoutedEvent.RoutingStrategy)
       {
         case RoutingStrategy.Direct:
@@ -1735,21 +1792,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           break;
 
         case RoutingStrategy.Bubble:
-          e = sender as UIElement;
-          while (e != null)
+          visual = sender;
+          while (visual != null)
           {
-            InvokeEventHandlers(e, args);
-            e = e.LogicalParent as UIElement;
+            var uiElement = visual as UIElement;
+            if (uiElement != null) 
+              InvokeEventHandlers(uiElement, args);
+            visual = visual.VisualParent;
           }
           break;
 
         case RoutingStrategy.Tunnel:
           var stack = new List<UIElement>();
-          e = sender;
-          while (e != null)
+          visual = sender;
+          while (visual != null)
           {
-            stack.Add(e);
-            e = e.LogicalParent as UIElement;
+            var uiElement = visual as UIElement;
+            if (uiElement != null)
+              stack.Add(uiElement);
+            visual = visual.VisualParent;
           }
           for (int n = stack.Count - 1; n >= 0; --n)
           {
@@ -1845,15 +1906,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (!child.IsVisible) continue;
         child.OnMouseClick(buttons, ref handled);
-      }
-    }
-
-    public virtual void OnMouseWheel(int numDetents)
-    {
-      foreach (UIElement child in GetChildren())
-      {
-        if (!child.IsVisible) continue;
-        child.OnMouseWheel(numDetents);
       }
     }
 
