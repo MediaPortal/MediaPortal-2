@@ -430,7 +430,7 @@
         <RowDefinition Height="32"/>
       </Grid.RowDefinitions>
       <Grid.Effect>
-        <DropShadowEffect/>
+        <DropShadowEffect Cache="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}, Path=!HasFocus}"/>
       </Grid.Effect>
 
       <!-- Light blue background fill -->
