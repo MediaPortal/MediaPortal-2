@@ -265,6 +265,55 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Events
+    
+    public static readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent(
+      "SelectionChangedE", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(ItemsControl));
+
+    public event SelectionChangedEventHandler SelectionChangedE
+    {
+      add { AddHandler(SelectionChangedEvent, value); }
+      remove { RemoveHandler(SelectionChangedEvent, value); }
+    }
+
+    protected void InvokeSelectionChanged(object oldItem, object newItem)
+    {
+      InvokeSelectionChanged(
+        oldItem != null ? new[] { oldItem } : null,
+        newItem != null ? new[] { newItem } : null);
+    }
+
+    protected void InvokeSelectionChanged(IList oldItems, IList newItems)
+    {
+      oldItems = oldItems ?? new object[0];
+      newItems = newItems ?? new object[0];
+      var args = new SelectionChangedEventArgs(SelectionChangedEvent, oldItems, newItems);
+      OnSelectionChanged(args);
+      if (!args.Handled)
+      {
+        FireSelectionChanged(newItems.Count > 0 ? newItems[0] : null);
+      }
+    }
+
+    protected void FireSelectionChanged(object newCurrentItem)
+    {
+      ICommandStencil commandStencil = SelectionChanged;
+      if (commandStencil != null)
+        commandStencil.Execute(new object[] { newCurrentItem });
+    }
+
+
+    /// <summary>
+    /// Is called when ever the selection changes
+    /// </summary>
+    /// <param name="args">Selection changed event arguments.</param>
+    /// <remarks>
+    /// When overridden the selection event can be handled internally.
+    /// If the base method is not called, the event will not be fired!
+    /// </remarks>
+    protected virtual void OnSelectionChanged(SelectionChangedEventArgs args)
+    {
+      RaiseEvent(args);
+    }
 
     public AbstractProperty SelectionChangedProperty
     {
@@ -451,15 +500,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (newCurrentItem != lastCurrentItem)
       {
         CurrentItem = newCurrentItem;
-        FireSelectionChanged(newCurrentItem);
+        InvokeSelectionChanged(lastCurrentItem, newCurrentItem);
       }
-    }
-
-    protected void FireSelectionChanged(object newCurrentItem)
-    {
-      ICommandStencil commandStencil = SelectionChanged;
-      if (commandStencil != null)
-        commandStencil.Execute(new object[] { newCurrentItem });
     }
 
     public void UpdateSelectedItem(ISelectableItemContainer container)

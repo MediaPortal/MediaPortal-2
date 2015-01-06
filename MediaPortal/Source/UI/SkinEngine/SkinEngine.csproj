@@ -329,6 +329,7 @@
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
     <Compile Include="MpfElements\RoutedEvent.cs" />
     <Compile Include="MpfElements\RoutedEventArgs.cs" />
+    <Compile Include="MpfElements\SelectionChangedEventArgs.cs" />
     <Compile Include="Players\ISharpDXImagePlayer.cs" />
     <Compile Include="Players\ISharpDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
