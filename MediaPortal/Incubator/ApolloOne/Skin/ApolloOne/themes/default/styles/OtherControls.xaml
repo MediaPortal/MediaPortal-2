@@ -420,35 +420,43 @@
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
     <!-- Rounded corners are applied by OpacityMask -->
-    <Grid x:Name="ItemControl" Margin="0,0,0,0" OpacityMask="{ThemeResource HomeTileOpacityBrush}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="48"/>
-        <RowDefinition Height="32"/>
-      </Grid.RowDefinitions>
-      <Grid.Effect>
+    <Rectangle RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}">
+      <Rectangle.Effect>
         <DropShadowEffect Cache="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}, Path=!HasFocus}"/>
-      </Grid.Effect>
+      </Rectangle.Effect>
+      <Rectangle.Fill>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Grid x:Name="ItemControl" Margin="0,0,0,0" >
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="32"/>
+              </Grid.RowDefinitions>
 
-      <!-- Light blue background fill -->
-      <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
-          x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+              <!-- Light blue background fill -->
+              <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
+                x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-      <!-- Image -->
-      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
-             Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
+              <!-- Image -->
+              <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
+                 Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
 
-      <!-- Darkened band -->
-      <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
+              <!-- Darkened band -->
+              <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
 
-      <!-- Item label -->
-      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}"
-             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
-    </Grid>
+              <!-- Item label -->
+              <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}"
+                 FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
+            </Grid>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Rectangle.Fill>
+    </Rectangle>
   </DataTemplate>
 
   <!-- ***************************** ListView styles ********************************* -->

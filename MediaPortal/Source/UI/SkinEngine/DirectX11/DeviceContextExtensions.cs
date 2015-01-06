@@ -143,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       renderCall();
 
       // Only for debugging: if there were errors they are only visible in EndDraw / Flush. This call is bad for performance.
-      GraphicsDevice11.Instance.Context2D1.Flush();
+      // GraphicsDevice11.Instance.Context2D1.Flush();
 
       GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
       if (brush != null)
