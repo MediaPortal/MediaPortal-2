@@ -82,8 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void Init()
     {
       _gradientStopsProperty = new SProperty(typeof(GradientStopCollection), new GradientStopCollection(this));
-      _colorInterpolationModeProperty = new SProperty(typeof(ColorInterpolationMode),
-          ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
+      _colorInterpolationModeProperty = new SProperty(typeof(ColorInterpolationMode), ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
       _spreadMethodProperty = new SProperty(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
       _mappingModeProperty = new SProperty(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
     }
@@ -124,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public void OnGradientsChanged()
     {
-      OnPropertyChanged(_gradientStopsProperty, null);
+      OnImmutableResourcePropertyChanged(_gradientStopsProperty, null);
     }
 
     #region Public properties
