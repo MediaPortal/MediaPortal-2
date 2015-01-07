@@ -57,6 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
     protected SharpDX.Direct2D1.Geometry _borderGeometry;
     protected StrokeStyle _strokeStyle;
+    protected RectangleF _strokeRect;
 
     #endregion
 
@@ -152,7 +153,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnBorderLineJoinChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
-      ReCreateStrokeStyle();
     }
 
     void OnBackgroundBrushChanged(IObservable observable)
@@ -344,6 +344,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _outerBorderRect.Size.Width - 2 * borderThickness + 0.5f, _outerBorderRect.Size.Height - 2 * borderThickness + 0.5f);
       PerformLayoutBackground(innerBorderRect, context);
       PerformLayoutBorder(innerBorderRect, context);
+
+      var fill = Background;
+      if (fill != null)
+        fill.SetupBrush(this, ref _innerRect, context.ZOrder, true);
+
+      var stroke = BorderBrush;
+      if (stroke != null)
+        stroke.SetupBrush(this, ref _strokeRect, context.ZOrder, true);
+
+      ReCreateStrokeStyle();
     }
 
     protected void PerformLayoutBackground(RectangleF innerBorderRect, RenderContext context)
@@ -366,9 +376,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         innerBorderRect.Width += (float)BorderThickness;
         innerBorderRect.Height += (float)BorderThickness;
         _borderGeometry = CreateBorderRectPath(innerBorderRect);
+        _strokeRect = _borderGeometry.GetWidenedBounds((float)BorderThickness);
       }
       else
+      {
         TryDispose(ref _borderGeometry);
+        _strokeRect = innerBorderRect;
+      }
     }
 
     protected virtual SharpDX.Direct2D1.Geometry CreateBackgroundRectPath(RectangleF innerBorderRect)
