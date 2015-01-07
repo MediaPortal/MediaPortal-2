@@ -87,11 +87,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
+      base.OnPropertyChanged(prop, oldValue);
       _refresh = true;
       UpdateBrush();
-      base.OnPropertyChanged(prop, oldValue);
     }
 
+    protected override void OnImmutableResourcePropertyChanged(AbstractProperty prop, object oldValue)
+    {
+      base.OnPropertyChanged(prop, oldValue);
+      _refresh = true;
+    }
+
+    /// <summary>
+    /// Updates properties of existing brush that can be changed. For immutable properties (DX resources) a full recreation is required.
+    /// </summary>
     protected void UpdateBrush()
     {
       // Forward all property changes to internal brush
@@ -141,7 +150,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Allocate()
     {
       base.Allocate();
-
       LinearGradientBrushProperties props = new LinearGradientBrushProperties
       {
         StartPoint = StartPoint,

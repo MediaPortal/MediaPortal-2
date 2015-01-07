@@ -145,6 +145,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       FireChanged();
     }
 
+    /// <summary>
+    /// Called when a property changed that is bound to an immutable resource.
+    /// </summary>
+    /// <param name="prop">The property.</param>
+    /// <param name="oldValue">The old value of the property.</param>
+    protected virtual void OnImmutableResourcePropertyChanged(AbstractProperty prop, object oldValue)
+    {
+      FireChanged();
+    }
+
     protected virtual void OnRelativeTransformChanged(IObservable trans)
     {
       _finalBrushTransform = null;
