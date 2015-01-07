@@ -60,6 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Init();
       Color = color;
       Offset = offset;
+      UpdateGradientStop2D();
       Attach();
     }
 
