@@ -151,8 +151,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         using (PathGeometry lineRaw = GetLine())
           SetGeometry(CalculateTransformedPath(lineRaw, _innerRect));
-        var bounds = _geometry.GetBounds();
-        Stroke.SetupBrush(this, ref bounds, context.ZOrder, true);
+
+        Stroke.SetupBrush(this, ref _strokeRect, context.ZOrder, true);
       }
       else
         SetGeometry(null);

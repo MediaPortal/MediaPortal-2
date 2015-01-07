@@ -88,14 +88,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         {
           SetGeometry(CalculateTransformedPath(pathRaw, _innerRect));
 
-          var boundaries = _geometry.GetBounds();
+          //var boundaries = _geometry.GetBounds();
           var fill = Fill;
           if (fill != null && !_fillDisabled)
-            fill.SetupBrush(this, ref boundaries, context.ZOrder, true);
+            fill.SetupBrush(this, ref _innerRect, context.ZOrder, true);
 
           var stroke = Stroke;
           if (stroke != null)
-            stroke.SetupBrush(this, ref boundaries, context.ZOrder, true);
+            stroke.SetupBrush(this, ref _strokeRect, context.ZOrder, true);
         }
       }
       else

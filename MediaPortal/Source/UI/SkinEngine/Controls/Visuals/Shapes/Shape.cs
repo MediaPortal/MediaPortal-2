@@ -49,6 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected bool _fillDisabled;
     protected SharpDX.Direct2D1.Geometry _geometry;
     protected StrokeStyle _strokeStyle;
+    protected RectangleF _strokeRect;
     protected readonly object _resourceRenderLock = new object();
 
     #endregion
@@ -293,6 +294,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         TryDispose(ref _geometry);
         _geometry = geometry;
+
+        // Calculate the real occupied area, required for brushes that need exact dimensions
+        _strokeRect = geometry.GetWidenedBounds((float)StrokeThickness);
       }
     }
 

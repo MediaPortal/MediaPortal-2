@@ -39,13 +39,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         var ellipse = new SharpDX.Direct2D1.Ellipse { RadiusX = _innerRect.Width / 2, RadiusY = _innerRect.Height / 2, Point = _innerRect.Center };
         SetGeometry(new EllipseGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, ellipse));
+
         var fill = Fill;
         if (fill != null)
           fill.SetupBrush(this, ref _innerRect, context.ZOrder, true);
 
         var stroke = Stroke;
         if (stroke != null)
-          stroke.SetupBrush(this, ref _innerRect, context.ZOrder, true);
+          stroke.SetupBrush(this, ref _strokeRect, context.ZOrder, true);
       }
       else
         SetGeometry(null);
