@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -44,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     #region Rendering
 
-    protected override bool BeginRenderEffectOverride(Texture texture, RenderContext renderContext)
+    protected override bool BeginRenderEffectOverride(Bitmap1 texture, RenderContext renderContext)
     {
       if (_refresh)
       {
@@ -55,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       RectangleF rect = renderContext.OccupiedTransformedBounds;
       SizeF frameSize = new SizeF(rect.Width, rect.Height);
       _imageContext.FrameSize = frameSize;
-      _imageContext.ExtraParameters = GetShaderParameters();
+      //_imageContext.ExtraParameters = GetShaderParameters();
       _imageContext.ShaderEffect = SkinResources.EFFECTS_SUB_DIRECTORY + '\\' + _partialShaderEffect;
 
       Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
@@ -66,11 +67,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     protected virtual Dictionary<string, object> GetShaderParameters()
     {
       return null;
-    }
-
-    public override void EndRender()
-    {
-      _imageContext.EndRender();
     }
 
     #endregion

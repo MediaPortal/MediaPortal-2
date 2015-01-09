@@ -52,6 +52,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.D3DCompiler">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.D3DCompiler.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.Direct2D1">
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
@@ -155,6 +158,9 @@
     <Compile Include="Controls\Visuals\Effects2D\BlurEffect.cs" />
     <Compile Include="Controls\Visuals\Effects2D\DropShadowEffect.cs" />
     <Compile Include="Controls\Visuals\Effects2D\Effect.cs" />
+    <Compile Include="Controls\Visuals\Effects2D\CustomRenderEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects2D\ImageTransitionEffect.cs" />
+    <Compile Include="Controls\Visuals\Effects2D\ImageEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\Effect.cs" />
     <Compile Include="Controls\Visuals\Effects\ImageEffect.cs" />
     <Compile Include="Controls\Visuals\Effects\SimpleShaderEffect.cs" />
@@ -368,7 +374,6 @@
     <Compile Include="Rendering\TemporaryRenderTarget2D.cs" />
     <Compile Include="Rendering\TemporaryRenderTarget.cs" />
     <Compile Include="Rendering\TextBuffer2D.cs" />
-    <Compile Include="Rendering\TextBuffer.cs" />
     <Compile Include="ScreenManagement\DialogData.cs" />
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />

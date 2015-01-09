@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty = new SProperty(typeof(string), null);
       _colorProperty = new SProperty(typeof(Color), Color.DarkViolet);
-      _scrollProperty = new SProperty(typeof(TextScrollEnum), TextScrollEnum.None);
+      _scrollProperty = new SProperty(typeof(TextBuffer2D.TextScrollEnum), TextBuffer2D.TextScrollEnum.None);
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
       _scrollDelayProperty = new SProperty(typeof(double), DEFAULT_SCROLL_DELAY);
       _wrapProperty = new SProperty(typeof(bool), false);
@@ -205,9 +205,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Determines how to scroll text.
     /// </summary>
-    public TextScrollEnum Scroll
+    public TextBuffer2D.TextScrollEnum Scroll
     {
-      get { return (TextScrollEnum)_scrollProperty.GetValue(); }
+      get { return (TextBuffer2D.TextScrollEnum)_scrollProperty.GetValue(); }
       set { _scrollProperty.SetValue(value); }
     }
 
@@ -329,17 +329,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       AllocFont();
 
       // TODO: add alignment handling to TextBuffer2D
-      HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
+      TextBuffer2D.HorizontalTextAlignEnum horzAlign = TextBuffer2D.HorizontalTextAlignEnum.Left;
       if (HorizontalContentAlignment == HorizontalAlignmentEnum.Right)
-        horzAlign = HorizontalTextAlignEnum.Right;
+        horzAlign = TextBuffer2D.HorizontalTextAlignEnum.Right;
       else if (HorizontalContentAlignment == HorizontalAlignmentEnum.Center)
-        horzAlign = HorizontalTextAlignEnum.Center;
+        horzAlign = TextBuffer2D.HorizontalTextAlignEnum.Center;
 
-      VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
+      TextBuffer2D.VerticalTextAlignEnum vertAlign = TextBuffer2D.VerticalTextAlignEnum.Top;
       if (VerticalContentAlignment == VerticalAlignmentEnum.Bottom)
-        vertAlign = VerticalTextAlignEnum.Bottom;
+        vertAlign = TextBuffer2D.VerticalTextAlignEnum.Bottom;
       else if (VerticalContentAlignment == VerticalAlignmentEnum.Center)
-        vertAlign = VerticalTextAlignEnum.Center;
+        vertAlign = TextBuffer2D.VerticalTextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float)localRenderContext.Opacity;

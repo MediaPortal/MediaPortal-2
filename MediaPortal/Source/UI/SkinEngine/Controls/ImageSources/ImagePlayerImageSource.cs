@@ -25,13 +25,12 @@
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct3D9;
 using RightAngledRotation = MediaPortal.UI.SkinEngine.Rendering.RightAngledRotation;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -129,23 +128,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       lock (player.ImagesLock)
       {
-        Texture texture = player.CurrentImage;
+        Bitmap1 texture = player.CurrentImage;
         // It's a bit stupid because the Image calls Allocate() before Setup() and thus, at the first call of this method,
         // _frameSize is empty and so we cannot calculate a proper size for this image source...
         RectangleF textureClip = player.GetTextureClip(new Size((int) _frameSize.Width, (int) _frameSize.Height));
         // TODO: Interface between DX/D2D
-        //if (texture != null)
-        //{
-        //  if (texture != _lastCopiedTexture)
-        //  {
-        //    _lastCopiedTexture = texture;
-        //    // The SharpDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
-        //    // in horizontal or vertical direction after the rotation. Very few images have those flags; we don't implement them here.
-        //    CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
-        //  }
-        //  else if (textureClip != _currentTextureClip)
-        //    UpdateTextureClip(textureClip);
-        //}
+        if (texture != null)
+        {
+          if (texture != _lastCopiedTexture)
+          {
+            _lastCopiedTexture = texture;
+            // The SharpDX player also supports the FlipX, FlipY values, which which tells us the image should be flipped
+            // in horizontal or vertical direction after the rotation. Very few images have those flags; we don't implement them here.
+            CycleTextures(texture, textureClip, TranslateRotation(player.Rotation));
+          }
+          else if (textureClip != _currentTextureClip)
+            UpdateTextureClip(textureClip);
+        }
       }
     }
 
@@ -193,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       return (RightAngledRotation) rotation; // Enums are compatible
     }
 
-    protected void CycleTextures(Texture nextTexture, RectangleF textureClip, RightAngledRotation nextRotation)
+    protected void CycleTextures(Bitmap1 nextTexture, RectangleF textureClip, RightAngledRotation nextRotation)
     {
       TryDispose(ref _lastTexture);
 
@@ -209,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _currentTextureSize = textureSize;
       UpdateTextureClip(textureClip);
 
-      _imageContext = new ImageContext2D
+      _imageContext = new ImageContext
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect,
@@ -226,22 +225,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _currentTextureClip = textureClip;
     }
 
-    protected static Bitmap1 CreateTextureCopy(Texture sourceTexture, out SizeF textureSize)
+    protected static Bitmap1 CreateTextureCopy(Bitmap1 sourceTexture, out SizeF textureSize)
     {
-      //if (sourceTexture == null)
+      if (sourceTexture == null)
       {
         textureSize = new SizeF();
         return null;
       }
-      // TODO: DX/D2D
-      //SurfaceDescription desc = sourceTexture.GetLevelDescription(0);
-      //textureSize = new SizeF(desc.Width, desc.Height);
-      //DeviceEx device = SkinContext.Device;
-      //Texture result = new Texture(device, desc.Width, desc.Height, 1, Usage.None, Format.A8R8G8B8, Pool.Default);
-      //using(Surface target = result.GetSurfaceLevel(0))
-      //using(Surface source = sourceTexture.GetSurfaceLevel(0))
-      //  device.StretchRectangle(source, target, TextureFilter.None);
-      //return result;
+
+      var desc = new BitmapProperties1(sourceTexture.PixelFormat);
+      var result = new Bitmap1(GraphicsDevice11.Instance.Context2D1, sourceTexture.PixelSize, desc);
+      result.CopyFromBitmap(sourceTexture);
+      textureSize = result.Size;
+      return result;
     }
 
     protected override void FreeData()

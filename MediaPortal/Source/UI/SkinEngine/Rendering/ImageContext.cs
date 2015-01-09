@@ -23,12 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -69,7 +70,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected const string PARAM_FRAME_DATA = "g_framedata";
 
     // Transition parameters
-    protected const string PARAM_TEXTURE_START= "g_textureA";
+    protected const string PARAM_TEXTURE_START = "g_textureA";
     protected const string PARAM_RELATIVE_TRANSFORM_START = "g_relativetransformA";
     protected const string PARAM_BRUSH_TRANSFORM_START = "g_imagetransformA";
     protected const string PARAM_FRAME_DATA_START = "g_framedataA";
@@ -81,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected fields
 
-    protected EffectAsset _effectTransition;
+    protected EffectAsset<EffectAssetCore<ImageTransitionEffect>> _effectTransition;
     protected SizeF _frameSize;
     protected SizeF _rotatedFrameSize;
     protected Vector4 _imageTransform;
@@ -92,7 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected string _shaderTransformName = null;
     protected string _shaderTransitionName = null;
     protected RightAngledRotation _rotation = RightAngledRotation.Zero;
-    
+
     #endregion
 
     #region Public properties
@@ -205,42 +206,37 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-        SizeF targetEndImageSize, Texture endTexture, RectangleF endTextureClip, Color borderColor, Vector4 startFrameData, Vector4 endFrameData)
+        SizeF targetEndImageSize, Bitmap1 endTexture, RectangleF endTextureClip, Color borderColor, Vector4 startFrameData, Vector4 endFrameData)
     {
       RefreshParameters(targetEndImageSize, endTexture, endTextureClip);
       if (_effectTransition == null)
-        _effectTransition = ContentManager.Instance.GetEffect(GetTransitionEffectName());
+        _effectTransition = ContentManager.Instance.GetEffect<ImageTransitionEffect>(GetTransitionEffectName());
       if (_lastTexture == null || _effectTransition == null)
         return false;
 
-      // Apply effect parameters    
-      _effectTransition.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
-      _effectTransition.Parameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
-      _effectTransition.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
-      _effectTransition.Parameters[PARAM_FRAME_DATA] = endFrameData;
-      _effectTransition.Parameters[PARAM_MIX_AB] = mixValue;
+      // Apply effect parameters
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0,0, 1,1));
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, _imageTransform);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
 
-      startContext.ApplyTransitionParametersAsStartingSource(_effectTransition, startFrameData);
+      // TODO 2nd texture
 
-      // Disable antialiasing for image rendering.
-      GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
+      //// Disable antialiasing for image rendering.
+      //GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
 
-      // Set border colour for area outside of texture boundaries
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
-      GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor.ToBgra());
-          
+      //// Set border colour for area outside of texture boundaries
+      //GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
+      //GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor.ToBgra());
+
       // Render
-      _effectTransition.StartRender(_lastTexture, renderContext.Transform);
+      _effectTransition.StartRender(_lastTexture, renderContext);
       return true;
-    }
-
-    /// <summary>
-    /// Completes a transition rendering operation.
-    /// </summary>
-    public void EndRenderTransition()
-    {
-      if (_effectTransition != null)
-        _effectTransition.EndRender();      
     }
 
     /// <summary>
@@ -252,8 +248,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public static SizeF AdjustForSkinAR(SizeF frameSize)
     {
       // Adjust target size to match final Skin scaling
-      frameSize.Width *= GraphicsDevice.Width / (float) SkinContext.SkinResources.SkinWidth;
-      frameSize.Height *= GraphicsDevice.Height / (float) SkinContext.SkinResources.SkinHeight;
+      frameSize.Width *= GraphicsDevice.Width / (float)SkinContext.SkinResources.SkinWidth;
+      frameSize.Height *= GraphicsDevice.Height / (float)SkinContext.SkinResources.SkinHeight;
       return frameSize;
     }
 
@@ -277,28 +273,30 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (_effect == null || _lastTexture == null)
         return false;
 
-      // Apply effect parameters
-      _effect.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
-      _effect.Parameters[PARAM_FRAME_DATA] = frameData;
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
+      if (!_effect.IsAllocated)
+      {
+        _effect.Allocate();
+        if (!_effect.IsAllocated)
+          return false;
+      }
 
-      if (_extraParameters != null)
-        foreach (KeyValuePair<string, object> pair in _extraParameters)
-          _effect.Parameters[pair.Key] = pair.Value;
+      // TODO: When running inside VS2013, the performance decreases a lot due to internal exceptions. Performance is good when running without debugging and attaching VS later.
+      _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
+      _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
+      _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
+      _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
+      _effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
 
-      // Disable antialiasing for image rendering.
-      GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
+      // TODO: D2D version?
+      //// Set border colour for area outside of texture boundaries
+      //GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
 
-      // Set border colour for area outside of texture boundaries
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
-      
       // Render
-      _effect.StartRender(_lastTexture, renderContext.Transform);
+      _effect.StartRender(_lastTexture, renderContext);
       return true;
     }
 
-    protected override void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
+    protected override void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip)
     {
       // If necessary update our image transformation to best fit the frame
       if (_refresh || texture != _lastTexture ||
@@ -310,10 +308,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _lastTextureClip = textureClip;
 
         // Convert image dimensions to texture space
-        
+
         // We're doing the relative transform first in the shader, that's why we just have to rotate the frame size
         Vector4 textureRect = new Vector4(0.0f, 0.0f,
-            (targetImageSize.Width+1.0f) / _rotatedFrameSize.Width, (targetImageSize.Height+1.0f) / _rotatedFrameSize.Height);
+            (targetImageSize.Width + 1.0f) / _rotatedFrameSize.Width, (targetImageSize.Height + 1.0f) / _rotatedFrameSize.Height);
 
         // Center texture
         textureRect.X = (1.0f - textureRect.Z) / 2.0f;
@@ -338,7 +336,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
 
         // Build our effects
-        _effect = ContentManager.Instance.GetEffect(GetEffectName());
+        _effect = ContentManager.Instance.GetEffect<ImageEffect>(GetEffectName());
         // The transition effect will be allocated when required
         _effectTransition = null;
 
@@ -359,27 +357,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       switch (rar)
       {
         case RightAngledRotation.HalfPi:
-          rotation = (float) Math.PI / 2;
+          rotation = (float)Math.PI / 2;
           break;
         case RightAngledRotation.Pi:
-          rotation = (float) Math.PI;
+          rotation = (float)Math.PI;
           break;
         case RightAngledRotation.ThreeHalfPi:
-          rotation = (float) Math.PI * 3 / 2;
+          rotation = (float)Math.PI * 3 / 2;
           break;
       }
       Matrix matrix = Matrix.Translation(-0.5f, -0.5f, 0);
       matrix *= Matrix.RotationZ(rotation);
       matrix *= Matrix.Translation(0.5f, 0.5f, 0);
       return matrix;
-    }
-
-    protected void ApplyTransitionParametersAsStartingSource(EffectAsset effect, Vector4 frameData)
-    {
-      effect.Parameters[PARAM_TEXTURE_START] = _lastTexture;
-      effect.Parameters[PARAM_RELATIVE_TRANSFORM_START] = _inverseRelativeTransformCache;
-      effect.Parameters[PARAM_BRUSH_TRANSFORM_START] = _imageTransform;
-      effect.Parameters[PARAM_FRAME_DATA_START] = frameData;
     }
 
     protected override string GetEffectName()

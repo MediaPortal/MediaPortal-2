@@ -549,17 +549,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.RenderOverride(localRenderContext);
       AllocFont();
 
-      HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
-      if (HorizontalContentAlignment == HorizontalAlignmentEnum.Right)
-        horzAlign = HorizontalTextAlignEnum.Right;
-      else if (HorizontalContentAlignment == HorizontalAlignmentEnum.Center)
-        horzAlign = HorizontalTextAlignEnum.Center;
+      TextBuffer2D.HorizontalTextAlignEnum horzAlign = TextBuffer2D.HorizontalTextAlignEnum.Left;
+      switch (HorizontalContentAlignment)
+      {
+        case HorizontalAlignmentEnum.Right:
+          horzAlign = TextBuffer2D.HorizontalTextAlignEnum.Right;
+          break;
+        case HorizontalAlignmentEnum.Center:
+          horzAlign = TextBuffer2D.HorizontalTextAlignEnum.Center;
+          break;
+      }
 
-      VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
+      TextBuffer2D.VerticalTextAlignEnum vertAlign = TextBuffer2D.VerticalTextAlignEnum.Top;
       if (VerticalContentAlignment == VerticalAlignmentEnum.Bottom)
-        vertAlign = VerticalTextAlignEnum.Bottom;
+        vertAlign = TextBuffer2D.VerticalTextAlignEnum.Bottom;
       else if (VerticalContentAlignment == VerticalAlignmentEnum.Center)
-        vertAlign = VerticalTextAlignEnum.Center;
+        vertAlign = TextBuffer2D.VerticalTextAlignEnum.Center;
 
       // Update text cursor
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
@@ -571,10 +576,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         float textInsetY;
         switch (vertAlign)
         {
-          case VerticalTextAlignEnum.Bottom:
+          case TextBuffer2D.VerticalTextAlignEnum.Bottom:
             textInsetY = _innerRect.Height - textHeight;
             break;
-          case VerticalTextAlignEnum.Center:
+          case TextBuffer2D.VerticalTextAlignEnum.Center:
             textInsetY = (_innerRect.Height - textHeight) / 2;
             break;
           default: // VerticalTextAlignEnum.Top

@@ -285,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastImageContext = _imageContext;
       // Next -> Current
       _currentTexture = _nextTexture;
-      _imageContext = new ImageContext2D
+      _imageContext = new ImageContext
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect,

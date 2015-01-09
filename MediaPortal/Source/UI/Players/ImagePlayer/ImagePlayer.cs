@@ -38,7 +38,7 @@ using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -68,7 +68,7 @@ namespace MediaPortal.UI.Players.Image
     protected bool _flipY = false;
 
     protected IResourceLocator _currentLocator = null;
-    protected TextureAsset _texture = null;
+    protected BitmapAsset _texture = null;
     protected SizeF _textureMaxUV = new SizeF(1, 1);
     protected TimeSpan _slideShowImageDuration = TimeSpan.FromSeconds(10);
     protected Timer _slideShowTimer = null;
@@ -238,7 +238,7 @@ namespace MediaPortal.UI.Players.Image
         using (Stream stream = fsra.OpenRead())
         {
           string key = fsra.CanonicalLocalResourcePath.Serialize();
-          _texture = ContentManager.Instance.GetTexture(stream, key, true);
+          _texture = ContentManager.Instance.GetBitmap(stream, key, true);
           if (_texture == null)
             return;
           if (!_texture.IsAllocated)
@@ -257,7 +257,7 @@ namespace MediaPortal.UI.Players.Image
         _rotation = rotation;
         _flipX = flipX;
         _flipY = flipY;
-        SurfaceDescription desc = _texture.Texture.GetLevelDescription(0);
+        var desc = _texture.Bitmap.PixelSize;
         _textureMaxUV = new SizeF(_texture.Width / (float) desc.Width, _texture.Height / (float) desc.Height);
 
         // Reset animation
@@ -446,12 +446,12 @@ namespace MediaPortal.UI.Players.Image
       get { return _syncObj; }
     }
 
-    public Texture CurrentImage
+    public Bitmap1 CurrentImage
     {
       get
       {
         lock (_syncObj)
-          return _texture != null ? _texture.Texture : null;
+          return _texture != null ? _texture.Bitmap : null;
       }
     }
 

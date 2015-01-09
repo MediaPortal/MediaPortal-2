@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.Presentation.Players;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 
@@ -42,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// <summary>
     /// Returns the texture which contains the current image.
     /// </summary>
-    Texture CurrentImage { get; }
+    Bitmap1 CurrentImage { get; }
 
     /// <summary>
     /// Returns the clipping region which should be taken fron the texture. Values go from 0 to 1.

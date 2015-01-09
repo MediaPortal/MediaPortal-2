@@ -22,12 +22,11 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using SharpDX;
-using SharpDX.Direct3D9;
-using Size = SharpDX.Size2;
+using SharpDX.Direct2D1;
 using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
@@ -45,27 +44,17 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected fields
 
-    protected EffectAsset _effect;
-    protected Texture _lastTexture;
+    protected EffectAsset<EffectAssetCore<ImageEffect>> _effect;
+    protected Bitmap1 _lastTexture;
     protected RectangleF _lastTextureClip;
     protected Matrix _inverseRelativeTransformCache;
     protected bool _refresh = true;
 
     protected string _shaderEffectName = null;
-    protected Dictionary<string, object> _extraParameters;
 
     #endregion
 
     #region Public properties
-
-    /// <summary>
-    /// Gets or sets the extra effect parameters to use when rendering.
-    /// </summary>
-    public Dictionary<string, object> ExtraParameters
-    {
-      get { return _extraParameters; }
-      set { _extraParameters = value; }
-    }
 
     /// <summary>
     /// Gets or sets the partial effect to be used for the image effect.
@@ -84,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Public methods
 
-    public void Update(SizeF targetImageSize, Texture texture, RectangleF textureClip)
+    public void Update(SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip)
     {
       RefreshParameters(targetImageSize, texture, textureClip);
     }
@@ -100,20 +89,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Texture texture, RectangleF textureClip,
+    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip,
         Color borderColor, Vector4 frameData)
     {
       RefreshParameters(targetImageSize, texture, textureClip);
       return StartRender(renderContext, borderColor, frameData);
-    }
-
-    /// <summary>
-    /// Completes a rendering operation.
-    /// </summary>
-    public void EndRender()
-    {
-      if (_effect != null)
-        _effect.EndRender();
     }
 
     /// <summary>
@@ -133,25 +113,20 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (_effect == null || _lastTexture == null)
         return false;
 
-      // Apply effect parameters
-      if (_extraParameters != null)
-        foreach (KeyValuePair<string, object> pair in _extraParameters)
-          _effect.Parameters[pair.Key] = pair.Value;
-
       // Set border colour for area outside of texture boundaries
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
+      //GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
       // Render
-      _effect.StartRender(_lastTexture, renderContext.Transform);
+      _effect.StartRender(_lastTexture, renderContext);
       return true;
     }
 
-    protected virtual void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
+    protected virtual void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip)
     {
       if (_refresh || _lastTexture != texture)
       {
         // Build our effects
         _lastTexture = texture;
-        _effect = ContentManager.Instance.GetEffect(GetEffectName());
+        _effect = ContentManager.Instance.GetEffect<ImageEffect>(GetEffectName());
         _refresh = false;
       }
     }

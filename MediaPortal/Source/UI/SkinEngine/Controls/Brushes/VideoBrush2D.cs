@@ -240,11 +240,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return player != null;
     }
 
-    public void EndRender()
-    {
-      _imageContext.EndRender();
-    }
-
     #endregion
   }
 }

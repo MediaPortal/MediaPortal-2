@@ -29,10 +29,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct3D9;
-using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -51,8 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _effectProperty;
     protected AbstractProperty _effectTimerProperty;
 
-    //protected PrimitiveBuffer _primitiveBuffer;
-    protected ImageContext2D _imageContext = new ImageContext2D();
+    protected ImageContext _imageContext = new ImageContext();
     protected SizeF _frameSize;
     protected RectangleF _targetRect;
 
@@ -160,7 +156,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Deallocate()
     {
-      //PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
       FreeData();
     }
 
@@ -213,18 +208,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         return;
       SizeF rawSourceSize = RawSourceSize;
       SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
-      var target = new RectangleF(
-        _targetRect.X + (_targetRect.Width - modifiedSourceSize.Width) / 2,
-        _targetRect.Y + (_targetRect.Height - modifiedSourceSize.Height) / 2,
-        modifiedSourceSize.Width, modifiedSourceSize.Height);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float)EffectTimer, 0);
       if (_imageContext != null)
-        _imageContext.StartRender(renderContext, target, Texture, TextureClip, BorderColor, frameData);
-      //if (_primitiveBuffer != null && _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData))
-      //{
-      //  _primitiveBuffer.Render(0);
-      //  _imageContext.EndRender();
-      //}
+        _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData);
     }
 
     #endregion

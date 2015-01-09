@@ -29,6 +29,7 @@ using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
@@ -185,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           () => useSyncLoading ?
             new SynchronousStreamTextureAssetCore(stream, key) as TextureAssetCore :
             new StreamTextureAssetCore(stream, key)
-            ) as TextureAsset ;
+            ) as TextureAsset;
     }
 
     /// <summary>
@@ -233,15 +234,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Retrieves an <see cref="EffectAsset"/> (creating it if necessary) from the specified file.
+    /// Retrieves an <see cref="EffectAsset{T}"/> (creating it if necessary) from the specified file.
     /// </summary>
     /// <param name="effectName">Name of the effect file (.fx).</param>
-    /// <returns>An <see cref="EffectAsset"/> object.</returns>
-    public EffectAsset GetEffect(string effectName)
+    /// <returns>An <see cref="EffectAsset{T}"/> object.</returns>
+    public EffectAsset<EffectAssetCore<TE>> GetEffect<TE>(string effectName)
+      where TE : class, ICustomRenderEffect, new()
     {
       return GetCreateAsset(AssetType.Effect, effectName,
-          assetCore => new EffectAsset(assetCore as EffectAssetCore),
-          () => new EffectAssetCore(effectName)) as EffectAsset;
+          assetCore => new EffectAsset<EffectAssetCore<TE>>(assetCore as EffectAssetCore<TE>),
+          () => new EffectAssetCore<TE>(effectName)) as EffectAsset<EffectAssetCore<TE>>;
     }
 
     /// <summary>
@@ -263,10 +265,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
 
       // Round down font size
-      int baseSize = (int) Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
+      int baseSize = (int)Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
       // If this function is called before the window is openned we get 0
       if (baseSize == 0)
-        baseSize = (int) fontSize;
+        baseSize = (int)fontSize;
       // Generate the asset key we'll use to store this font
       string key = family.Name + "::" + baseSize;
 
@@ -411,17 +413,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         // Choose limits based on allocation threshhold
         int dealloc_limit = LOW_DEALLOCATION_LIMIT;
-        int scan_limit = LOW_SCAN_LIMIT; 
+        int scan_limit = LOW_SCAN_LIMIT;
         if (_totalAllocation > HIGH_CLEANUP_THRESHOLD)
         {
           dealloc_limit = HIGH_DEALLOCATION_LIMIT;
-          scan_limit = HIGH_SCAN_LIMIT; 
+          scan_limit = HIGH_SCAN_LIMIT;
         }
         // Loop though assets types until scan limit or deallocation limit is reached
         // This algorthim could use improvement
         int dealloc_remaining = dealloc_limit;
         int type = _lastCleanedAssetType;
-        while (type < _assets.Length) 
+        while (type < _assets.Length)
         {
           lock (_assets[type])
           {
@@ -443,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         ServiceRegistration.Get<ILogger>().Debug("ContentManager: {0} resources deallocated, next cleanup in {1} seconds. {2}/{3} MB", dealloc_limit - dealloc_remaining, _nextCleanupInterval, _totalAllocation / (1024.0 * 1024.0), HIGH_CLEANUP_THRESHOLD / (1024.0 * 1024.0));
       }
 
-      if ((SkinContext.FrameRenderingStartTime - _timerB).TotalSeconds > 60.0) 
+      if ((SkinContext.FrameRenderingStartTime - _timerB).TotalSeconds > 60.0)
       {
         _timerB = SkinContext.FrameRenderingStartTime;
         ServiceRegistration.Get<ILogger>().Debug("ContentManager: Allocation {0}/{1} MB", _totalAllocation / (1024.0 * 1024.0), HIGH_CLEANUP_THRESHOLD / (1024.0 * 1024.0));
@@ -481,7 +483,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       return GetCreateAsset(type, key,
           assetCore => new TextureAsset(assetCore as TextureAssetCore),
-          () => new TextureAssetCore(fileName, width, height) {UseThumbnail = thumb}) as TextureAsset;
+          () => new TextureAssetCore(fileName, width, height) { UseThumbnail = thumb }) as TextureAsset;
     }
 
     private BitmapAsset GetCreateBitmap(string fileName, string key, int width, int height, bool thumb)
@@ -519,14 +521,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       AssetInstance assetInstance;
       IAsset result = null;
-      IDictionary<string, AssetInstance> assetTypeDict = _assets[(int) type];
+      IDictionary<string, AssetInstance> assetTypeDict = _assets[(int)type];
       lock (assetTypeDict)
       {
         if (assetTypeDict.TryGetValue(key, out assetInstance))
           result = assetInstance.asset.Target as IAsset;
         else
           assetInstance = NewAssetInstance(key, type, createAssetCore());
-        
+
         // If the asset instance was just created, create asset wrapper. If the asset wrapper has been garbage collected, re-allocate it.
         if (result == null)
         {
@@ -541,7 +543,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       AssetInstance inst = new AssetInstance { core = newcore };
       newcore.AllocationChanged += OnAssetAllocationChanged;
-      _assets[(int) type].Add(key, inst);
+      _assets[(int)type].Add(key, inst);
       return inst;
     }
 
@@ -551,7 +553,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private void Free(bool checkIfCanBeDeleted)
     {
       foreach (Dictionary<string, AssetInstance> type in _assets)
-        lock(type)
+        lock (type)
           Free(type, checkIfCanBeDeleted, int.MaxValue);
     }
 

@@ -25,7 +25,9 @@
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
+using EffectContext = MediaPortal.UI.SkinEngine.Rendering.EffectContext;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -33,7 +35,7 @@ using PointF = SharpDX.Vector2;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
   /// <summary>
-  /// Provides a custom bitmap effect by using a PixelShader. It uses the <see cref="EffectContext"/> to use any
+  /// Provides a custom bitmap effect by using a PixelShader. It uses the <see cref="Rendering.EffectContext"/> to use any
   /// full shader file (in contrast to <see cref="ImageEffect"/>).
   /// </summary>
   public abstract class ShaderEffect : Effect
@@ -44,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
     #region Rendering
 
-    protected override bool BeginRenderEffectOverride(Texture texture, RenderContext renderContext)
+    protected override bool BeginRenderEffectOverride(Bitmap1 texture, RenderContext renderContext)
     {
       if (_refresh)
       {
@@ -54,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 
       RectangleF rect = renderContext.OccupiedTransformedBounds;
       SizeF frameSize = new SizeF(rect.Width, rect.Height);
-      _effectContext.ExtraParameters = GetShaderParameters();
+      //_effectContext.ExtraParameters = GetShaderParameters();
       _effectContext.ShaderEffect = _shaderEffectName;
 
       Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
@@ -65,11 +67,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
     protected virtual Dictionary<string, object> GetShaderParameters()
     {
       return null;
-    }
-
-    public override void EndRender()
-    {
-      _effectContext.EndRender();
     }
 
     #endregion

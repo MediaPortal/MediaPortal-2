@@ -22,12 +22,11 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
-using SharpDX.Direct3D9;
+using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
@@ -37,19 +36,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
   public abstract class Effect : DependencyObject
   {
     protected RectangleF _vertsBounds;
-    protected EffectAsset _effect;
+    //protected EffectAsset _effect;
     protected readonly RectangleF CROP_FULLSIZE = new RectangleF(0, 0, 1, 1);
 
-    public bool BeginRender(Texture texture, RenderContext renderContext)
+    public bool BeginRender(Bitmap1 texture, RenderContext renderContext)
     {
       if (_vertsBounds.IsEmpty)
         return false;
       return BeginRenderEffectOverride(texture, renderContext);
     }
 
-    protected abstract bool BeginRenderEffectOverride(Texture texture, RenderContext renderContext);
-
-    public abstract void EndRender();
+    protected abstract bool BeginRenderEffectOverride(Bitmap1 texture, RenderContext renderContext);
 
     protected bool UpdateBounds(ref PositionColoredTextured[] verts)
     {

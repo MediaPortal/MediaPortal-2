@@ -23,6 +23,7 @@
       <References Include="$(ProjectDir)References\freetype6.dll" />
       <References Include="$(ProjectDir)References\zlib1.dll" />
       <References Include="$(TargetDir)SharpDX.dll" />
+      <References Include="$(TargetDir)SharpDX.D3DCompiler.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D11.dll" />
       <References Include="$(TargetDir)SharpDX.Direct2D1.dll" />

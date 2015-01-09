@@ -40,6 +40,84 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #endregion
 
+    #region Enums
+    /// <summary>
+    /// An enum used to specify horizontal text-alignment.
+    /// </summary>
+    public enum HorizontalTextAlignEnum
+    {
+      /// <summary>
+      /// Align text to the left.
+      /// </summary>
+      Left,
+      /// <summary>
+      /// Align text to the right.
+      /// </summary>
+      Right,
+      /// <summary>
+      /// Cener align text.
+      /// </summary>
+      Center
+    };
+
+    /// <summary>
+    /// An enum used to specify vertical text-alignment.
+    /// </summary>
+    public enum VerticalTextAlignEnum
+    {
+      /// <summary>
+      /// Align text to the top.
+      /// </summary>
+      Top,
+      /// <summary>
+      /// Align text to the bottom.
+      /// </summary>
+      Bottom,
+      /// <summary>
+      /// Center align text.
+      /// </summary>
+      Center
+    };
+
+
+    /// <summary>
+    /// An enum used to specify text scrolling behaviour.
+    /// </summary>
+    public enum TextScrollEnum
+    {
+      /// <summary>
+      /// Determine scroll direction based on text size, wrapping and available space.
+      /// </summary>
+      Auto,
+
+      /// <summary>
+      /// No scrolling.
+      /// </summary>
+      None,
+
+      /// <summary>
+      /// Force scrolling text to the left.
+      /// </summary>
+      Left,
+
+      /// <summary>
+      /// Force scrolling text to the right.
+      /// </summary>
+      Right,
+
+      /// <summary>
+      /// Force scrolling text to the top.
+      /// </summary>
+      Up,
+
+      /// <summary>
+      /// Force scrolling text to the bottom.
+      /// </summary>
+      Down
+    };
+
+    #endregion
+
     #region Protected fields
 
     // Immutable properties
