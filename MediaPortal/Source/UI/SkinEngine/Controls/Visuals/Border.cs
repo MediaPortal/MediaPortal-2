@@ -412,7 +412,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       var border = BorderBrush;
       if (border != null && _borderGeometry != null && BorderThickness > 0 && border.TryAllocate())
       {
-        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness, _strokeStyle, localRenderContext);
+        GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness, null, localRenderContext);
       }
 
       FrameworkElement content = _initializedContent;
