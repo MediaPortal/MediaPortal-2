@@ -486,73 +486,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    internal override void OnKeyPressed(ref Key key)
-    {
-      base.OnKeyPressed(ref key);
-    
-
-    /*protected override void OnKeyPress(KeyEventArgs e)
+    protected override void OnKeyPress(KeyEventArgs e)
     {
       // migration from OnKeyPressed(ref Key key)
       // - no need the check if already handled, b/c this is done by the invoker
       // - no need to check if any child has focus, since event was originally invoked on focused element, 
-      //   and the bubbles up the visual tree
+      //   and the bubbles up the visual tree. This should also handle the subScroller issue, since the 
+      //   sub scroller is asked 1st if it wants to handle the input
       // - instead of setting key to None, we set e.Handled = true
-      */
-      if (key == Key.None)
-        // Key event was handeled by child
-        return;
 
-      ScrollViewer subScroller;
-      if (!CheckFocusInScope(out subScroller))
-        return;
-
-      if (subScroller != null)
-      {
-        subScroller.OnKeyPressed(ref key);
-        if (key == Key.None)
-          return;
-      }
-
-      if (key == Key.Down && OnDown())
-        key = Key.None;
-      else if (key == Key.Up && OnUp())
-        key = Key.None;
-      else if (key == Key.Left && OnLeft())
-        key = Key.None;
-      else if (key == Key.Right && OnRight())
-        key = Key.None;
-      else if (key == Key.Home && OnHome())
-        key = Key.None;
-      else if (key == Key.End && OnEnd())
-        key = Key.None;
-      else if (key == Key.PageDown && OnPageDown())
-        key = Key.None;
-      else if (key == Key.PageUp && OnPageUp())
-        key = Key.None;
-    }
-
-    /// <summary>
-    /// Checks if the currently focused control is contained in this scrollviewer and
-    /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
-    /// handle the focus scrolling keys in this scope.
-    /// </summary>
-    bool CheckFocusInScope(out ScrollViewer subScroller)
-    {
-      subScroller = null;
-      Screen screen = Screen;
-      Visual focusPath = screen == null ? null : screen.FocusedElement;
-      while (focusPath != null)
-      {
-        if (focusPath == this)
-          // Focused control is located in our focus scope
-          return true;
-        if (focusPath is ScrollViewer)
-          // Focused control is located in another scrollviewer's focus scope
-          subScroller = (ScrollViewer)focusPath; //return false;
-        focusPath = focusPath.VisualParent;
-      }
-      return false;
+      if (e.Key == Key.Down && OnDown())
+        e.Handled = true;
+      else if (e.Key == Key.Up && OnUp())
+        e.Handled = true;
+      else if (e.Key == Key.Left && OnLeft())
+        e.Handled = true;
+      else if (e.Key == Key.Right && OnRight())
+        e.Handled = true;
+      else if (e.Key == Key.Home && OnHome())
+        e.Handled = true;
+      else if (e.Key == Key.End && OnEnd())
+        e.Handled = true;
+      else if (e.Key == Key.PageDown && OnPageDown())
+        e.Handled = true;
+      else if (e.Key == Key.PageUp && OnPageUp())
+        e.Handled = true;
     }
 
     bool OnHome()

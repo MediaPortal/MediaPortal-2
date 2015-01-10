@@ -76,10 +76,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Custom type "Vector2" to be used as "Point"
       MPF._objectClassRegistrations.Add("Point", typeof(Vector2));
 
-      /* uncomment this block to compare automatic class collection with the old manual one. The missing list at the end must be empty.
-      var _objectClassRegistrations = new Dictionary<string, Type>();
+      // uncomment this block to compare automatic class collection with the old manual one. The missing list at the end must be empty.
+      /*var _objectClassRegistrations = new Dictionary<string, Type>();
 
-      // Screen
       _objectClassRegistrations.Add("Screen", typeof(SkinEngine.ScreenManagement.Screen));
 
       // Panels
@@ -242,6 +241,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
       // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("SimpleShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleShaderEffect));
+      // ReSharper restore RedundantNameQualifier
 
       var missig = new List<string>();
       foreach (var key in _objectClassRegistrations.Keys)
@@ -605,21 +605,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           )
         {
           var name = type.Name;
-          //TODO: the following lines (up to next comment) can be removed when latest changes as in Weekly are merged
-          if (name.Equals("GetModelMarkupExtension"))
-          {
-            name = "Model";
-          }
-          else if (name.Equals("ServiceRegistrationMarkupExtension"))
-          {
-            name = "Service";
-          }
-          else if (name.EndsWith("MarkupExtension"))
-          {
-            name = name.Substring(0, name.Length - 15);
-          }
-          // remove code up to HERE (including the next else)
-          else if (name.EndsWith("Extension"))
+          if (name.EndsWith("Extension") && !type.IsAbstract)
           {
             name = name.Substring(0, name.Length - 9);
           }
