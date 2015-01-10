@@ -346,6 +346,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Triggers.Add(copyManager.GetCopy(t));
       _triggersInitialized = false;
 
+      // copy routed events
+      CopyRoutedEvents(source as UIElement);
+
       copyManager.CopyCompleted += (cm =>
         {
           // When copying, the namescopes of our parent objects might not have been initialized yet. This can be the case
@@ -364,6 +367,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.StopAndDispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
+     
+      // clear the routed event handler dictionary to be sure to not keep any other object alive
+      // there is nothing to dispose inside the dictionary
+      _eventHandlerDictionary.Clear();
+
       MPF.TryCleanupAndDispose(RenderTransform);
       MPF.TryCleanupAndDispose(LayoutTransform);
       MPF.TryCleanupAndDispose(Effect);
@@ -1780,7 +1788,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-
     private static void RaiseEventImpl(UIElement sender, RoutedEventArgs args)
     {
       args.Source = sender;
@@ -1833,6 +1840,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         foreach (var handler in handlers)
         {
           handler.InvokeHandler(source, args);
+        }
+      }
+    }
+    
+    private void CopyRoutedEvents(UIElement source)
+    {
+      foreach (var handlerTouple in source._eventHandlerDictionary)
+      {
+        foreach (var handlerInfo in handlerTouple.Value)
+        {
+          AddHandler(handlerTouple.Key, handlerInfo.Handler, handlerInfo.HandledEventsToo);
         }
       }
     }
