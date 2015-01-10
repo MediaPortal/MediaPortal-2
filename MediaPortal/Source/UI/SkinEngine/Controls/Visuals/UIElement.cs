@@ -348,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _triggersInitialized = false;
 
       // copy routed events
-      CopyRoutedEvents(source as UIElement);
+      CopyRoutedEvents(source as UIElement, copyManager);
 
       copyManager.CopyCompleted += (cm =>
         {
@@ -370,7 +370,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         triggerBase.Dispose();
      
       // clear the routed event handler dictionary to be sure to not keep any other object alive
-      // there is nothing to dispose inside the dictionary
+      // if the handler infos contains disposable command stencil, they'll get disposed too
+      foreach (var eventHandlerInfos in _eventHandlerDictionary.Values)
+      {
+        foreach (var eventHandlerInfo in eventHandlerInfos)
+        {
+          var disposable = eventHandlerInfo.CommandStencilHandler as IDisposable;
+          if (disposable != null) disposable.Dispose();
+        }
+      }
       _eventHandlerDictionary.Clear();
 
       MPF.TryCleanupAndDispose(RenderTransform);
@@ -1893,8 +1901,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
       }
     }
-    
-    private void CopyRoutedEvents(UIElement source)
+
+    private void CopyRoutedEvents(UIElement source, ICopyManager copyManager)
     {
       foreach (var handlerTouple in source._eventHandlerDictionary)
       {
@@ -1902,7 +1910,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           if (handlerInfo.CommandStencilHandler != null)
           {
-            AddHandler(handlerTouple.Key, handlerInfo.CommandStencilHandler, handlerInfo.HandledEventsToo);
+            AddHandler(handlerTouple.Key, 
+              copyManager.GetCopy(handlerInfo.CommandStencilHandler), 
+              handlerInfo.HandledEventsToo);
           }
           else
           {
