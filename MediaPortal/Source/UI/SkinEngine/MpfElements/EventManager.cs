@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {
@@ -53,6 +54,37 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if(ownerType == null) throw new ArgumentNullException("ownerType");
 
       return GlobalEventManager.GetRoutedEventsForOwner(ownerType);
+    }
+
+    /// <summary>
+    /// Finds a specific <see cref="RoutedEvent"/> identifier for a specific object type.
+    /// </summary>
+    /// <param name="ownerType">The type to start search with. Base types are included. Must not be null.</param>
+    /// <param name="eventName">Name of the event. Must not be null or empty.</param>
+    /// <param name="checkBaseTypes"><c>true</c> if all base types up to <see cref="UIElement"/> should be checked as well; <c>false</c> if only <param name="ownerType"/> should be checked</param>
+    /// <returns>The routed event identifier or <c>null</c> if not found.</returns>
+    public static RoutedEvent GetRoutedEventForOwner(Type ownerType, string eventName, bool checkBaseTypes)
+    {
+      if (ownerType == null) throw new ArgumentNullException("ownerType");
+      if (eventName == null) throw new ArgumentNullException("eventName");
+      if(String.IsNullOrEmpty(eventName)) throw new ArgumentException(@"Event name must not be an empty string", "eventName");
+
+      do
+      {
+        foreach (var routedEvent in GlobalEventManager.GetRoutedEventsForOwner(ownerType))
+        {
+          if (routedEvent.Name.Equals(eventName))
+          {
+            return routedEvent;
+          }
+        }
+        if (ownerType == typeof(UIElement))
+          break;
+        // ReSharper disable once PossibleNullReferenceException
+        ownerType = ownerType.BaseType;
+        // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+      } while (checkBaseTypes);
+      return null;
     }
 
     /// <summary>

@@ -37,6 +37,7 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
 using SharpDX;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
@@ -1725,12 +1726,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Adds an <see cref="RoutedEvent"/> handler to this element, using a command stencil as handler.
+    /// </summary>
+    /// <param name="routedEvent">Routed event identifier.</param>
+    /// <param name="handler">Handler for the event.</param>
+    public void AddHandler(RoutedEvent routedEvent, ICommandStencil handler)
+    {
+      AddHandler(routedEvent, handler, false);
+    }
+
+    /// <summary>
     /// Adds an <see cref="RoutedEvent"/> handler to this element.
     /// </summary>
     /// <param name="routedEvent">Routed event identifier.</param>
     /// <param name="handler">Handler for the event.</param>
     /// <param name="handledEventsToo"><c>true</c> if the handler should be invoked for events that has been marked as handled; <c>false</c> for the default behavior.</param>
     public void AddHandler(RoutedEvent routedEvent, Delegate handler, bool handledEventsToo)
+    {
+      List<RoutedEventHandlerInfo> handlerList;
+      if (!_eventHandlerDictionary.TryGetValue(routedEvent, out handlerList))
+      {
+        handlerList = new List<RoutedEventHandlerInfo>(1);
+        _eventHandlerDictionary.Add(routedEvent, handlerList);
+      }
+      var handlerInfo = new RoutedEventHandlerInfo(handler, handledEventsToo);
+      handlerList.Add(handlerInfo);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="RoutedEvent"/> handler to this element, using a command stencil as handler.
+    /// </summary>
+    /// <param name="routedEvent">Routed event identifier.</param>
+    /// <param name="handler">Handler for the event.</param>
+    /// <param name="handledEventsToo"><c>true</c> if the handler should be invoked for events that has been marked as handled; <c>false</c> for the default behavior.</param>
+    public void AddHandler(RoutedEvent routedEvent, ICommandStencil handler, bool handledEventsToo)
     {
       List<RoutedEventHandlerInfo> handlerList;
       if (!_eventHandlerDictionary.TryGetValue(routedEvent, out handlerList))
@@ -1755,6 +1784,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         for (var n = 0; n < handlerList.Count; ++n)
         {
           if (handlerList[n].Handler == handler)
+          {
+            handlerList.RemoveAt(n);
+            break;
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Removes an <see cref="RoutedEvent"/> handler from this element, using a command stencil as handler.
+    /// </summary>
+    /// <param name="routedEvent">Routed event identifier.</param>
+    /// <param name="handler">Handler of the event.</param>
+    public void RemoveHandler(RoutedEvent routedEvent, ICommandStencil handler)
+    {
+      List<RoutedEventHandlerInfo> handlerList;
+      if (_eventHandlerDictionary.TryGetValue(routedEvent, out handlerList))
+      {
+        for (var n = 0; n < handlerList.Count; ++n)
+        {
+          if (handlerList[n].CommandStencilHandler == handler)
           {
             handlerList.RemoveAt(n);
             break;
@@ -1850,7 +1900,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         foreach (var handlerInfo in handlerTouple.Value)
         {
-          AddHandler(handlerTouple.Key, handlerInfo.Handler, handlerInfo.HandledEventsToo);
+          if (handlerInfo.CommandStencilHandler != null)
+          {
+            AddHandler(handlerTouple.Key, handlerInfo.CommandStencilHandler, handlerInfo.HandledEventsToo);
+          }
+          else
+          {
+            AddHandler(handlerTouple.Key, handlerInfo.Handler, handlerInfo.HandledEventsToo);
+          }
         }
       }
     }

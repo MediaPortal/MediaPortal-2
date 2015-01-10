@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.Commands;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {
@@ -133,13 +134,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
   internal struct RoutedEventHandlerInfo
   {
-    internal RoutedEventHandlerInfo(Delegate handler, bool handledEventsToo) : this()
+    internal RoutedEventHandlerInfo(Delegate handler, bool handledEventsToo)
+      : this()
     {
       Handler = handler;
       HandledEventsToo = handledEventsToo;
     }
 
+    internal RoutedEventHandlerInfo(ICommandStencil handler, bool handledEventsToo)
+      : this()
+    {
+      CommandStencilHandler = handler;
+      HandledEventsToo = handledEventsToo;
+    }
+
     internal Delegate Handler { get; private set; }
+
+    internal ICommandStencil CommandStencilHandler { get; private set; }
 
     internal bool HandledEventsToo { get; private set; }
 
@@ -148,14 +159,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (routedEventArgs.Handled && !HandledEventsToo)
         return;
 
-      var handler = Handler as RoutedEventHandler;
-      if (handler != null)
+      if (CommandStencilHandler != null)
       {
-        handler(target, routedEventArgs);
+        CommandStencilHandler.Execute(new Object[] { target, routedEventArgs });
       }
       else
       {
-        Handler.DynamicInvoke(target, routedEventArgs);
+        var handler = Handler as RoutedEventHandler;
+        if (handler != null)
+        {
+          handler(target, routedEventArgs);
+        }
+        else
+        {
+          Handler.DynamicInvoke(target, routedEventArgs);
+        }
       }
     }
   }

@@ -28,6 +28,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
+using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -486,10 +487,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
               explicitTargetQualifier, memberName, elementContext.Instance));
           }
           object value = ParseValue(memberDeclarationNode);
-          var cmdExtension = value as CommandBaseMarkupExtension;
-          if (cmdExtension != null)
+          var commandStencil = value as ICommandStencil;
+          if (commandStencil != null)
           {
-            HandleEventAssignment(uiElement, routedEvent, cmdExtension);
+            HandleEventAssignment(uiElement, routedEvent, commandStencil);
           }
           else
           {
@@ -524,6 +525,15 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           { // Member assignment
             if (value != null)
               HandleMemberAssignment(dd, value);
+            return;
+          }
+          var uiElement = elementContext.Instance as UIElement;
+          var commandStencil = value as ICommandStencil;
+          RoutedEvent routedEvent;
+          if (uiElement != null && commandStencil != null && 
+            (routedEvent = EventManager.GetRoutedEventForOwner(uiElement.GetType(), memberName, true)) != null)
+          {
+            HandleEventAssignment(uiElement, routedEvent, commandStencil);
             return;
           }
           EventInfo evt = t.GetEvent(memberName);
@@ -885,21 +895,22 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// Will create an event handler association for the current element, using a command markup extension as handler.
     /// </summary>
     /// <param name="obj"><see cref="UIElement"/> which defines the event to assign the event
-    /// handler specified by <paramref name="cmdExtension"/> to.</param>
+    /// handler specified by <paramref name="commandStencil"/> to.</param>
     /// <param name="evt"><see cref="RoutedEvent"/> which is defined on the class of <paramref name="obj"/>.</param>
-    /// <param name="cmdExtension">Command extension to be used as event handler.</param>
-    protected void HandleEventAssignment(UIElement obj, RoutedEvent evt, CommandBaseMarkupExtension cmdExtension)
+    /// <param name="commandStencil">Command stencil to be used as event handler.</param>
+    protected void HandleEventAssignment(UIElement obj, RoutedEvent evt, ICommandStencil commandStencil)
     {
       try
       {
         // initialize command extension
-        ((IEvaluableMarkupExtension)cmdExtension).Initialize(this);
-
-        // get the delegate from the command extension
-        var dlgt = cmdExtension.GetDelegate(evt.HandlerType);
+        var evaluableMarkupExtension = commandStencil as IEvaluableMarkupExtension;
+        if (evaluableMarkupExtension != null)
+        {
+          evaluableMarkupExtension.Initialize(this);
+        }
 
         // add the event handler to the event
-        obj.AddHandler(evt, dlgt);
+        obj.AddHandler(evt, commandStencil);
       }
       catch (Exception e)
       {
