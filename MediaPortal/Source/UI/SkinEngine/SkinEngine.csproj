@@ -148,6 +148,7 @@
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Panels\StarRatingPanel.cs" />
     <Compile Include="Controls\Visuals\Star.cs" />
+    <Compile Include="Controls\Visuals\Styles\EventSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBaseCollection.cs" />
     <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
     <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />

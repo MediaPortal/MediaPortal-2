@@ -23,8 +23,6 @@
 #endregion
 
 using System.Windows.Markup;
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
@@ -63,6 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       base.DeepCopy(source, copyManager);
       EventTrigger t = (EventTrigger) source;
       RoutedEvent = t.RoutedEvent;
+      _eventManagerEvent = t._eventManagerEvent;
       foreach (TriggerAction action in t._actions)
         _actions.Add(copyManager.GetCopy(action));
     }
@@ -175,20 +174,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       var namespaceHandler = context.GetNamespaceHandler(namespaceUri);
       if (namespaceHandler != null)
       {
-        int n = RoutedEvent.IndexOf('.');
+        int n = localName.IndexOf('.');
         if (n >= 0)
         {
-          var sourceType = namespaceHandler.GetElementType(RoutedEvent.Substring(0, n), true);
-          var eventName = RoutedEvent.Substring(n + 1);
+          var sourceType = namespaceHandler.GetElementType(localName.Substring(0, n), true);
+          var eventName = localName.Substring(n + 1);
 
-          foreach (var routedEvent in EventManager.GetRoutedEventsForOwner(sourceType))
-          {
-            if (eventName.Equals(routedEvent.Name))
-            {
-              _eventManagerEvent = routedEvent;
-              break;
-            }
-          }
+          _eventManagerEvent = EventManager.GetRoutedEventForOwner(sourceType, eventName, true);
         }
       }
     }

@@ -6,6 +6,18 @@
   <Screen.Resources>
     <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/>
     <!-- GUI-Test-Model -->
+    
+    <Style x:Key="EventSetterTestStyle">
+      <EventSetter Event="MouseMove" Handler="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseMove}"/>
+    </Style>
+
+    <Style x:Key="EventTriggerTestStyle">
+      <Style.Triggers>
+        <EventTrigger RoutedEvent="UIElement.MouseUp">
+          <TriggerCommand Command="{Command Source={StaticResource Model}, Path=TriggerTestMouseUp}"/>
+        </EventTrigger>
+      </Style.Triggers>
+    </Style>
   </Screen.Resources>
 
   <Grid x:Name="Grid" 
@@ -48,13 +60,11 @@
       </StackPanel>
     </Border>
     
-    <Border Grid.Column="0" Grid.Row="1" Margin="20" Background="Silver">
+    <Border Grid.Column="0" Grid.Row="1" Margin="20" Background="Silver"
+            Style="{StaticResource EventTriggerTestStyle}">
       <Border.Triggers>
         <EventTrigger RoutedEvent="UIElement.MouseDown">
           <TriggerCommand Command="{Command Source={StaticResource Model}, Path=TriggerTestMouseDown}"/>
-        </EventTrigger>
-        <EventTrigger RoutedEvent="UIElement.MouseUp">
-          <TriggerCommand Command="{Command Source={StaticResource Model}, Path=TriggerTestMouseUp}"/>
         </EventTrigger>
       </Border.Triggers>
 
@@ -73,10 +83,12 @@
         <CheckBox Content="Capture original source" 
                   IsChecked="{Binding Source={StaticResource Model}, Path=MouseCaptureTestCaptureOriginalSource, Mode=TwoWay}"/>
       </StackPanel>
-      <Border MouseLeftButtonDown="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseLeftButtonDown}"
+      <Border Style="{StaticResource EventSetterTestStyle}"
+              MouseLeftButtonDown="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseLeftButtonDown}"
               MouseLeftButtonUp="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseLeftButtonUp}"
-              MouseMove="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseMove}"
+              
               Background="Blue">
+        <!--MouseMove="{CommandStencil Source={StaticResource Model}, Path=MouseCaptureTestMouseMove}"-->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
           <Label HorizontalAlignment="Center" VerticalAlignment="Center"
                  Content="Move mouse over blue area to update mouse position"/>
