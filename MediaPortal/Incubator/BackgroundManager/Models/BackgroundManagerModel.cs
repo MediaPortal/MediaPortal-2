@@ -84,9 +84,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       internal set { _backgroundImageProperty.SetValue(value); }
     }
 
-    //public void SetSelectedItem(ListItem item)
-    //{
-    //  SelectedItem = item;
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       SelectedItem = e.FirstAddedItem as ListItem;

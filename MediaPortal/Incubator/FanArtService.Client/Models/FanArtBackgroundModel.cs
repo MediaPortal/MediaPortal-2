@@ -187,9 +187,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       set { _imageSourceProperty.SetValue(value); }
     }
 
-    //public void SetSelectedItem(ListItem item)
-    //{
-    //  SelectedItem = item;
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       SelectedItem = e.FirstAddedItem as ListItem;

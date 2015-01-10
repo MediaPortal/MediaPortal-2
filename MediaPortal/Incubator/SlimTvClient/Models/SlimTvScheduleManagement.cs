@@ -149,8 +149,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _endTimeProperty; }
     }
 
-    //public void UpdateSchedule(ListItem selectedItem)
-    //{
     public void UpdateSchedule(object sender, SelectionChangedEventArgs e)
     {
       var selectedItem = e.FirstAddedItem as ListItem;
