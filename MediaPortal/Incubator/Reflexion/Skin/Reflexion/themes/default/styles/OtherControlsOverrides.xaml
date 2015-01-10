@@ -199,7 +199,8 @@
 
   <!-- ListView style to be used for main menu -->
   <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <!--Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/-->
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">

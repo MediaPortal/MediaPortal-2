@@ -51,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected AbstractProperty _selectionChangedProperty;
+   // protected AbstractProperty _selectionChangedProperty;
     protected AbstractProperty _itemsSourceProperty;
     protected AbstractProperty _itemTemplateProperty;
     protected AbstractProperty _itemContainerStyleProperty;
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
       _dataStringProviderProperty = new SProperty(typeof(DataStringProvider), null);
       _currentItemProperty = new SProperty(typeof(object), null);
-      _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
+      //_selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
       _isEmptyProperty = new SProperty(typeof(bool), false);
     }
 
@@ -132,7 +132,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (object item in c.Items)
         _items.Add(copyManager.GetCopy(item));
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
-      SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
+      //SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
@@ -162,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(ItemTemplate);
       MPF.TryCleanupAndDispose(ItemContainerStyle);
       MPF.TryCleanupAndDispose(ItemsPanel);
-      MPF.TryCleanupAndDispose(SelectionChanged);
+      //MPF.TryCleanupAndDispose(SelectionChanged);
     }
 
     #endregion
@@ -267,9 +267,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Events
     
     public static readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent(
-      "SelectionChangedE", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(ItemsControl));
+      "SelectionChanged", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(ItemsControl));
 
-    public event SelectionChangedEventHandler SelectionChangedE
+    public event SelectionChangedEventHandler SelectionChanged
     {
       add { AddHandler(SelectionChangedEvent, value); }
       remove { RemoveHandler(SelectionChangedEvent, value); }
@@ -288,18 +288,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       newItems = newItems ?? new object[0];
       var args = new SelectionChangedEventArgs(SelectionChangedEvent, oldItems, newItems);
       OnSelectionChanged(args);
-      if (!args.Handled)
+      /*if (!args.Handled)
       {
         FireSelectionChanged(newItems.Count > 0 ? newItems[0] : null);
-      }
+      }*/
     }
-
-    protected void FireSelectionChanged(object newCurrentItem)
+    
+    /*protected void FireSelectionChanged(object newCurrentItem)
     {
       ICommandStencil commandStencil = SelectionChanged;
       if (commandStencil != null)
         commandStencil.Execute(new object[] { newCurrentItem });
-    }
+    }*/
 
 
     /// <summary>
@@ -315,7 +315,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RaiseEvent(args);
     }
 
-    public AbstractProperty SelectionChangedProperty
+    /*public AbstractProperty SelectionChangedProperty
     {
       get { return _selectionChangedProperty; }
     }
@@ -324,7 +324,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (ICommandStencil)_selectionChangedProperty.GetValue(); }
       set { _selectionChangedProperty.SetValue(value); }
-    }
+    }*/
 
     #endregion
 
@@ -457,7 +457,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Checks if the currently focused element is contained in this items control.
     /// </summary>
-    /// <param name="focusedElement">Currelty focused element.</param>
+    /// <param name="focusedElement">Currently focused element.</param>
     bool CheckFocusInScope(FrameworkElement focusedElement)
     {
       Visual focusPath = focusedElement;

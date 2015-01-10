@@ -33,6 +33,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -148,8 +149,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _endTimeProperty; }
     }
 
-    public void UpdateSchedule(ListItem selectedItem)
+    //public void UpdateSchedule(ListItem selectedItem)
+    //{
+    public void UpdateSchedule(object sender, SelectionChangedEventArgs e)
     {
+      var selectedItem = e.FirstAddedItem as ListItem;
       if (selectedItem == null)
         return;
       ISchedule schedule = (ISchedule)selectedItem.AdditionalProperties["SCHEDULE"];

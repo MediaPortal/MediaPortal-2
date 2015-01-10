@@ -59,6 +59,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     public IList AddedItems { get; private set; }
 
+    /// <summary>
+    /// Gets the 1st added item or <c>null</c> if no item was added.
+    /// </summary>
+    public object FirstAddedItem
+    {
+      get { return AddedItems != null && AddedItems.Count > 0 ? AddedItems[0] : null; }
+    }
+
     #endregion
 
     #region base overrides

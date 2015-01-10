@@ -41,6 +41,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -116,6 +117,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _currentProgramProperty; }
     }
 
+    // this overload is used by MultiChannelGuide in got focus trigger
     public void UpdateProgram(ListItem selectedItem)
     {
       if (selectedItem != null)
@@ -123,6 +125,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
         UpdateProgramStatus(program);
       }
+    }
+
+    // this overload is used by events
+    public void UpdateProgram(object sender, SelectionChangedEventArgs e)
+    {
+      UpdateProgram(e.FirstAddedItem as ListItem);
     }
 
     protected void SetGroupName()

@@ -43,6 +43,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
@@ -367,8 +368,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _isOSDLevel2Property; }
     }
 
-    public void UpdateProgram(ListItem selectedItem)
+    //public void UpdateProgram(ListItem selectedItem)
+    //{
+    public void UpdateProgram(object sender, SelectionChangedEventArgs e)
     {
+      var selectedItem = e.FirstAddedItem as ListItem;
       if (selectedItem != null)
       {
         IChannel channel = (IChannel)selectedItem.AdditionalProperties["CHANNEL"];

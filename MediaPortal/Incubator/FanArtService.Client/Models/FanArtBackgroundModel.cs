@@ -31,6 +31,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
@@ -186,9 +187,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       set { _imageSourceProperty.SetValue(value); }
     }
 
-    public void SetSelectedItem(ListItem item)
+    //public void SetSelectedItem(ListItem item)
+    //{
+    //  SelectedItem = item;
+    public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
-      SelectedItem = item;
+      SelectedItem = e.FirstAddedItem as ListItem;
     }
 
     #endregion
