@@ -213,6 +213,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
         return false;
       }
       ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger.SetDisplayConfig(...): Successfully switched to {0}/{1}", numerator, denominator);
+      Windows7DwmFix.FixDwm();
       _rateChanged = true;
       return true;
     }
