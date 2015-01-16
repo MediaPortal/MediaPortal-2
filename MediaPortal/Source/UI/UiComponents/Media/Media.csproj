@@ -111,6 +111,7 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByDirectorScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
@@ -387,6 +389,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\screens\DialogChooseTitle.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Skin\default\screens\VideoFilterByPlayCount.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
