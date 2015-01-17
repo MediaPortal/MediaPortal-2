@@ -394,7 +394,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       ExecuteRoutedInputEvent(new RoutedInputEvent(routedKeyEventArgs, UIElement.PreviewKeyPressEvent));
       if (routedKeyEventArgs.Handled)
       {
-        key = null;
+        key = Key.None;
       }
 
       if (key != Key.None)
@@ -419,7 +419,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       ExecuteRoutedInputEvent(new RoutedInputEvent(routedKeyEventArgs, UIElement.KeyPressEvent));
       if (routedKeyEventArgs.Handled)
       {
-        key = null;
+        key = Key.None;
       }
 
       if (key != Key.None)
