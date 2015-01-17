@@ -490,6 +490,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    {
+      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+      Schedule tvschedule = ScheduleFactory.CreateSchedule(channel.ChannelId, "Manual", from, to);
+      tvschedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
+      tvschedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
+      tvschedule.ScheduleType = (int)ScheduleRecordingType.Once;
+      scheduleService.SaveSchedule(tvschedule);
+      schedule = tvschedule.ToSchedule();
+      return true;
+    }
+
     public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();

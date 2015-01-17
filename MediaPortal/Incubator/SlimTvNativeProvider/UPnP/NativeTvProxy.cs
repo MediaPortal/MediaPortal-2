@@ -505,6 +505,25 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
+    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_BY_TIME);
+        IList<object> inParameters = new List<object> { channel.ChannelId, from, to };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool result = (bool)outParameters[0];
+        schedule = result ? (ISchedule)outParameters[1] : null;
+        return result;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        schedule = null;
+        return false;
+      }
+    }
+
     public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
     {
       try

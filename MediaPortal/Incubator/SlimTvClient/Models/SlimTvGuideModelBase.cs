@@ -37,6 +37,7 @@ using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
@@ -211,7 +212,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                   Command = new MethodDelegateCommand(() =>
                                                         {
                                                           ISchedule schedule;
-                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule))
+                                                          bool result;
+                                                          // "No Program" placeholder
+                                                          if (program.ProgramId == -1)
+                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, out schedule);
+                                                          else
+                                                            result = _tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
+
+                                                          if (result)
                                                             UpdateRecordingStatus(program, RecordingStatus.Scheduled);
                                                         }
                     )
