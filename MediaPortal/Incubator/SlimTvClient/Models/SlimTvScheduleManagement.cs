@@ -160,6 +160,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void UpdateScheduleDetails(ISchedule schedule)
     {
+      // Clear properties if no schedule is given
+      if (schedule == null)
+      {
+        StartTime = EndTime = DateTime.MinValue;
+        ChannelName = ScheduleName = ScheduleType = string.Empty;
+        return;
+      }
       string channelName = string.Empty;
       IChannel channel;
       if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.GetChannel(schedule.ChannelId, out channel))
@@ -175,6 +182,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void LoadSchedules()
     {
+      UpdateScheduleDetails(null);
       if (_tvHandler.ScheduleControl == null)
         return;
 
