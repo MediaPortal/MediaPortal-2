@@ -8,7 +8,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:apc="clr-namespace:MediaPortal.UiComponents.ApolloOne.Converters;assembly=ApolloOne"
-    DependsOnStyleResources="Colors,Buttons,Consts"
+    DependsOnStyleResources="Colors,Buttons,Consts,Fonts"
     >
 
   <!-- BackgroundManager model -->
@@ -548,7 +548,8 @@
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
     <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}" Margin="20,0,20,0"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource NonSelectedTextColor}"/>
+        Color="{ThemeResource NonSelectedTextColor}"
+        Style="{ThemeResource HomeGroupLabelStyle}"/>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
