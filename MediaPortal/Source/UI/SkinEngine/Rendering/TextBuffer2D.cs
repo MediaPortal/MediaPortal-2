@@ -445,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       {
         Size2F totalTextSize = new Size2F(_textLayout.Metrics.Width, _textLayout.Metrics.Height);
         bool usingMask = false;
-        bool textLargerThanTextbox = totalTextSize.Width > textBox.Width || totalTextSize.Height > textBox.Height;
+        bool textLargerThanTextbox = IsGreater(totalTextSize.Width, textBox.Width) || IsGreater(totalTextSize.Height, textBox.Height);
         bool hasManualOffsets = scrollMode == TextScrollEnum.None && (offsetX != 0f || offsetY != 0f);
         if (textLargerThanTextbox || hasManualOffsets)
         {
@@ -550,6 +550,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
 
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
+    }
+
+    protected static bool IsGreater(float f1, float f2)
+    {
+      const float FLOAT_EQUALITY_LIMIT = 0.001f;
+      return f1 > f2 + FLOAT_EQUALITY_LIMIT;
     }
 
     #endregion
