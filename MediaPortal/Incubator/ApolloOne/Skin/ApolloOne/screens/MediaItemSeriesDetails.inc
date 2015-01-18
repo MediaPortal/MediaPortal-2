@@ -28,25 +28,25 @@
           </Grid.ColumnDefinitions>
 
           <StackPanel Orientation="Horizontal">
-            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="{ThemeResource DefaultFontBold}">
+            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" Style="{ThemeResource DetailHeaderLabelStyle}">
               <Label.Content>
                 <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
               </Label.Content>
             </Label>
 
-            <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}">
+            <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" Style="{ThemeResource DetailLabelStyle}">
               <Label.Content>
                 <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} - S{0} E"/>
               </Label.Content>
             </Label>
 
-            <Label x:Name="EpisodeLabel" Color="{ThemeResource TextColor}">
+            <Label x:Name="EpisodeLabel" Color="{ThemeResource TextColor}" Style="{ThemeResource DetailLabelStyle}">
               <Label.Content>
                 <Binding Path="Episode"/>
               </Label.Content>
             </Label>
 
-            <Label x:Name="EpisodeNameLabel" Color="{ThemeResource TextColor}">
+            <Label x:Name="EpisodeNameLabel" Color="{ThemeResource TextColor}" Style="{ThemeResource DetailLabelStyle}">
               <Label.Content>
                 <Binding Path="EpisodeName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}: {0}"/>
               </Label.Content>
@@ -58,7 +58,8 @@
                 Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
                 HorizontalAlignment="Stretch"
                 Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-                Color="{ThemeResource TextColor}"/>
+                Color="{ThemeResource TextColor}"
+                Style="{ThemeResource DetailLabelStyle}"/>
 
         </Grid>
       </ControlTemplate>

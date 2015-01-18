@@ -93,6 +93,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VerticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
       FontFamilyProperty.Attach(OnFontChanged);
       FontSizeProperty.Attach(OnFontChanged);
+      FontWeightProperty.Attach(OnFontChanged);
+      FontStyleProperty.Attach(OnFontChanged);
 
       HorizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
       VerticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
@@ -112,6 +114,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VerticalAlignmentProperty.Detach(OnLayoutPropertyChanged);
       FontFamilyProperty.Detach(OnFontChanged);
       FontSizeProperty.Detach(OnFontChanged);
+      FontWeightProperty.Detach(OnFontChanged);
+      FontStyleProperty.Detach(OnFontChanged);
 
       HorizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
       VerticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);

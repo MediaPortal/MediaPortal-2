@@ -23,13 +23,14 @@
       HorizontalAlignment="Stretch"
       Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
       Color="{ThemeResource TextColor}"
-      FontFamily="{ThemeResource DefaultFontBold}"/>
+      Style="{ThemeResource DetailHeaderLabelStyle}"/>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Grid.ColumnSpan="3"
         Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
         HorizontalAlignment="Stretch"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Color="{ThemeResource TextColor}"/>
+        Color="{ThemeResource TextColor}"
+        Style="{ThemeResource DetailLabelStyle}"/>
 
   <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="0" Grid.Column="1" Margin="15,-5,0,0">
     <media:MediaAspectWrapper.Template>
