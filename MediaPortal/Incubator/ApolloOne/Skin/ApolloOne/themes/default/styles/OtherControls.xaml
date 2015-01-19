@@ -76,14 +76,14 @@
                     </MultiBinding>
                   </StackPanel.Width>
                 </StackPanel>
-                <Rectangle x:Name="ScrollBarXKnob" Width="18" Height="{ThemeResource ScrollBarKnobWidth}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                <Rectangle x:Name="ScrollBarXKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{ThemeResource ScrollBarKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="{ThemeResource ScrollBarKnobRadius}" RadiusY="{ThemeResource ScrollBarKnobRadius}"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
                 </Rectangle>
               </StackPanel>
             </Grid>
             <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2,2,10,2"
+                Grid.ZIndex="0" Margin="-50,2,0,2"
                 RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
               <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
               <Grid.ColumnDefinitions>
@@ -100,7 +100,7 @@
                   Fill="{ThemeResource ScrollBarBackgroundColor}">
               </Rectangle>
               <!-- Knob -->
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical"> 
                 <StackPanel>
                   <StackPanel.Height>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">
@@ -110,8 +110,8 @@
                   </StackPanel.Height>
                 </StackPanel>
 
-                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="18"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{ThemeResource ScrollBarKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="{ThemeResource ScrollBarKnobRadius}" RadiusY="{ThemeResource ScrollBarKnobRadius}"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
                 </Rectangle>
               </StackPanel>
@@ -165,8 +165,8 @@
                     </MultiBinding>
                   </StackPanel.Width>
                 </StackPanel>
-                <Rectangle x:Name="ScrollBarXKnob" Width="18" Height="{ThemeResource ScrollBarKnobWidth}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                <Rectangle x:Name="ScrollBarXKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{ThemeResource ScrollBarKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="{ThemeResource ScrollBarKnobRadius}" RadiusY="{ThemeResource ScrollBarKnobRadius}"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
                 </Rectangle>
               </StackPanel>
@@ -199,8 +199,8 @@
                   </StackPanel.Height>
                 </StackPanel>
 
-                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="18"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{ThemeResource ScrollBarKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="{ThemeResource ScrollBarKnobRadius}" RadiusY="{ThemeResource ScrollBarKnobRadius}"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
                 </Rectangle>
               </StackPanel>
@@ -524,7 +524,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16"
+          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
 

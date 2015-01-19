@@ -8,9 +8,9 @@
 
   <!-- ***************************** Storyboards ******************************** -->
 
-  <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.1"/>
+  <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.03"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.02"/>
-  <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.1"/>
+  <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.04"/>
 
   <!-- Base storyboard which shows an animation when a button has focus -->
   <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="HoldEnd">
@@ -159,8 +159,8 @@
               IsVisible ="False"
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
-              BorderThickness="2"
-              Margin="-2"/>
+              BorderThickness="3"
+              Margin="-5"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -380,7 +380,7 @@
               IsVisible ="False"
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
-              BorderThickness="2"
+              BorderThickness="0"
               Margin="-1">
           </Border>
         </ControlTemplate>
