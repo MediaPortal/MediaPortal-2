@@ -151,7 +151,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
               </Grid>
 
-              <ListView x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}" DockPanel.Dock="Center" Margin="0,0,0,10"
+              <ListView x:Name="DialogMenu" Style="{ThemeResource PopupMenuListViewStyle}" DockPanel.Dock="Center" Margin="0,0,0,10"
                 ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}" SetFocusPrio="DefaultLow"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListView.Resources>
