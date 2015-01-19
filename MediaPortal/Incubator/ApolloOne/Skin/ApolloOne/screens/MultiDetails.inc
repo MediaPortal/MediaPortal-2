@@ -9,7 +9,7 @@
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.RowDefinitions>
-    <RowDefinition Height="140"/>
+    <RowDefinition Height="210"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
