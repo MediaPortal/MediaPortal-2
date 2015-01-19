@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -279,6 +280,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     private IDictionary<Guid, ICollection<MultipleMediaItemAspect>> GetMultipleMIAs(ISQLDatabase database, ITransaction transaction, IEnumerable<MediaItemAspectMetadata> selectedMIAs, IEnumerable<Guid> ids)
     {
+        ILogger logger = ServiceRegistration.Get<ILogger>();
+
         IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues =
             new Dictionary<Guid, ICollection<MultipleMediaItemAspect>>();
 
@@ -319,7 +322,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                             {
                                 QueryAttribute qa = _mainSelectAttributes[attr];
                                 string alias = qa2a[qa];
-                                Console.WriteLine("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
+                                logger.Debug("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
                                 mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
                             }
                         }
@@ -339,6 +342,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     public IList<MediaItem> Query(bool singleMode)
     {
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
 
@@ -349,7 +353,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IList<Guid> mediaItemIds;
           IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds);
 
-          Console.WriteLine("Got media items " + string.Join(",", mediaItemIds));
+          logger.Debug("Got media items " + string.Join(",", mediaItemIds));
 
           IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
               GetComplexAttributes(database, transaction, mediaItemIds);
@@ -357,6 +361,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             {
                 foreach (SingleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is SingleMediaItemAspectMetadata))
                 {
+                    // Skip complex attributes for this MIA if it's not already in the media item
+                    if(!mediaItem.Aspects.ContainsKey(miam.AspectId)
+                        continue;
                     IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
                     if (!complexAttributeValues.TryGetValue(mediaItem.MediaItemId, out attributeValues))
                         continue;
@@ -373,16 +380,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
           IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues =
             GetMultipleMIAs(database, transaction, selectedMIAs, mediaItemIds);
-          Console.WriteLine("Got multiple MIAs for " + string.Join(",", multipleMiaValues.Keys));
-          foreach (MediaItem mediaItem in mediaItems)
+          if (multipleMiaValues.Count > 0)
           {
-              ICollection<MultipleMediaItemAspect> values;
-              if (!multipleMiaValues.TryGetValue(mediaItem.MediaItemId, out values))
-                  continue;
-              foreach (MultipleMediaItemAspect value in values)
+              logger.Debug("Got multiple MIAs for " + string.Join(",", multipleMiaValues.Keys));
+              foreach (MediaItem mediaItem in mediaItems)
               {
-                  Console.WriteLine("Adding MIA " + value);
-                  MediaItemAspect.AddAspect(mediaItem.Aspects, value);
+                  ICollection<MultipleMediaItemAspect> values;
+                  if (!multipleMiaValues.TryGetValue(mediaItem.MediaItemId, out values))
+                      continue;
+                  foreach (MultipleMediaItemAspect value in values)
+                  {
+                      logger.Debug("Adding MIA " + value);
+                      MediaItemAspect.AddAspect(mediaItem.Aspects, value);
+                  }
               }
           }
 
