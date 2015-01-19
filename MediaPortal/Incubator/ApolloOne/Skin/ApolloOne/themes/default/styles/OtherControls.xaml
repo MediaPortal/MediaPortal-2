@@ -100,7 +100,7 @@
                   Fill="{ThemeResource ScrollBarBackgroundColor}">
               </Rectangle>
               <!-- Knob -->
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical"> 
                 <StackPanel>
                   <StackPanel.Height>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)">

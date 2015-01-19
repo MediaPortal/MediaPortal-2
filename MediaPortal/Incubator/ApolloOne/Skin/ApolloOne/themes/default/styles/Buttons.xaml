@@ -513,7 +513,7 @@
               IsVisible ="False"
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
-              BorderThickness="2"
+              BorderThickness="0"
               Margin="-1">
           </Border>
         </ControlTemplate>
