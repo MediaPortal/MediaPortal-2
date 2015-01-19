@@ -93,6 +93,7 @@
     <Content Include="Skin\ApolloOne\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask.png" />
+    <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask_wide.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_Shadow.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\Audio.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\AudioMute.png" />

@@ -160,16 +160,16 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding SimpleTitle}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="8,0,8,0"/>
+      <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" OpacityMask="{ThemeResource MediaItemsOpacityBrushWide}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SimpleTitle}"
                                     fanart:MaxWidth="{StaticResource FANART_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_BANNER_HEIGHT}"/>
         </Image.Source>
       </Image>
 
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
+      <Label x:Name="NumItems" Grid.Row="1" Grid.Column="2" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
@@ -224,7 +224,7 @@
           </MultiBinding>
         </Label.Opacity>
       </Label>
-
+    
       <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,10,0"
                Template="{ThemeResource GridViewMovieFilterItemTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -256,21 +256,47 @@
   </ControlTemplate>
 
   <!-- Movie -->
-  <ControlTemplate x:Key="GridViewMovieItemTemplate">
+  <ControlTemplate x:Key="MovieCoverTemplate">
     <Grid>
       <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
       <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
-             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+            OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
-              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
+
+      <!-- Alternative for theme: Un-/Watched overlay symbols as alternative to red tabs
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" Width="40" Height="40">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="unwatched_circle.png"/>
+            <Binding Source="watched_circle.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image> -->
+      
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GridViewMovieItemTemplate">
+    <Grid>
+      <!-- GE2301: Unwatched marker added by red tab -->      
+      <Image Source="MediaItem_Unwatched.png" Margin="-7,-4,-8,-4">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+        </Image.IsVisible>
+      </Image>
+      <!-- GE2301: Unwatched marker added by red tab -->      
+      <Control Template="{ThemeResource MovieCoverTemplate}"/>
+    </Grid>
+  </ControlTemplate>
+
+
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Margin="8,0,8,0">
+    <Grid x:Name="ItemControl" Margin="-25,0,8,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -286,13 +312,13 @@
             <!--<Binding Path="PlayCount"/>-->
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.6"/>
+            <Binding Source="0.4"/>
           </MultiBinding>
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,10,0"
-               Template="{ThemeResource GridViewMovieItemTemplate}" RenderTransformOrigin="0.5,0.5"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="10,0,15,0"
+               Template="{ThemeResource MovieCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
           <ScaleTransform>
@@ -316,8 +342,8 @@
         </Control.LayoutTransform>
       </Control>
 
-      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1"
-            HorizontalAlignment="Stretch"
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,0,0"
+            HorizontalAlignment="Stretch" 
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
 
         <Grid.ColumnDefinitions>
@@ -327,7 +353,19 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
+        
+        <!-- GE2301: Unwatched marker added by symbol -->
+        <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24"  >
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="unwatched_icon.png"/>
+              <Binding Source="watched_icon.png"/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+        <!-- GE2301: Unwatched marker added by symbol -->
+        
         <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="0">
           <media:VideoAspectWrapper.Template>
             <ControlTemplate>
@@ -340,7 +378,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+                <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="50,0,0,0"/>
 
               </Grid>
             </ControlTemplate>
@@ -350,14 +388,14 @@
         <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
           <media:MovieAspectWrapper.Template>
             <ControlTemplate>
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"  Margin="0,0,0,0">
 
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                Maximum="10"
                                Value="{Binding TotalRating}">
                   <StarRatingPanel.LayoutTransform>
                     <TransformGroup>
-                      <ScaleTransform ScaleX="1.7" ScaleY="1.7"/>
+                      <ScaleTransform ScaleX="1.6" ScaleY="1.4"/>
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
@@ -382,7 +420,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="8,0,8,0">
+    <Grid x:Name="ItemControl" Margin="-25,0,8,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -392,18 +430,18 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <!--<Binding Path="PlayCount"/>-->
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.6"/>
+            <Binding Source="0.4"/>
           </MultiBinding>
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,10,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="10,0,15,0"
                Template="{ThemeResource GridViewVideoItemTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -428,7 +466,7 @@
         </Control.LayoutTransform>
       </Control>
 
-      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1"
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,0,0"
             HorizontalAlignment="Stretch"
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
 
@@ -440,6 +478,18 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- GE2301: Unwatched marker added by symbol -->
+        <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24"  >
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="unwatched_icon.png"/>
+              <Binding Source="watched_icon.png"/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+        <!-- GE2301: Unwatched marker added by symbol -->
+        
         <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="0">
           <media:VideoAspectWrapper.Template>
             <ControlTemplate>
@@ -452,7 +502,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+                <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="50,0,0,0"/>
 
               </Grid>
             </ControlTemplate>
@@ -469,7 +519,7 @@
                                Value="{Binding TotalRating}">
                   <StarRatingPanel.LayoutTransform>
                     <TransformGroup>
-                      <ScaleTransform ScaleX="1.7" ScaleY="1.7"/>
+                      <ScaleTransform ScaleX="1.6" ScaleY="1.4"/>
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
@@ -488,7 +538,7 @@
                                Value="{Binding TotalRating}">
                   <StarRatingPanel.LayoutTransform>
                     <TransformGroup>
-                      <ScaleTransform ScaleX="1.7" ScaleY="1.7"/>
+                      <ScaleTransform ScaleX="1.6" ScaleY="1.4"/>
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
@@ -1099,7 +1149,7 @@
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  FontSize="{ThemeResource SmallFontSize}"
                                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                 Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}"/>
+                                 Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
                         </Grid>
                       </ControlTemplate>
                     </media:VideoAspectWrapper.Template>
