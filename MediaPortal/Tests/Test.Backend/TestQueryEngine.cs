@@ -22,285 +22,350 @@
 
 #endregion
 
-using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Services.Database;
+using System;
+using System.Collections.Generic;
 using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.Common.Services.PathManager;
-using MediaPortal.Utilities.DB;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Data;
+using NUnit.Framework;
 
 namespace Test.Backend
 {
-  [TestClass]
-  public class TestQueryEngine
-  {
-    [TestMethod]
-    public void TestMediaItemIdFilter()
+    [TestFixture]
+    public class TestQueryEngine
     {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
+        [TestFixtureSetUp]
+        public void OneTimeSetUp()
+        {
+            TestDbUtils.Setup();
+            MIAUtils.Setup();
+        }
 
-        Guid itemId1 = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
-      Guid itemId2 = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
+        [SetUp]
+        public void SetUp()
+        {
+            TestDbUtils.Reset();
+            MIAUtils.Reset();
+        }
 
-      IList<Guid> ids = new List<Guid>();
-      ids.Add(itemId1);
-      ids.Add(itemId2);
-      IFilter filter = new MediaItemIdFilter(ids);
+        private IDictionary<MediaItemAspectMetadata, string> CreateMIAMAliases(params object[] args)
+        {
+            IDictionary<MediaItemAspectMetadata, string> aliases = new Dictionary<MediaItemAspectMetadata, string>();
+            for (int index = 0; index < args.Length; index += 2)
+            {
+                aliases.Add((MediaItemAspectMetadata)args[index], (string)args[index + 1]);
+            }
+            return aliases;
+        }
 
-      IList<object> resultParts = new List<object>();
-      IList<BindVar> resultBindVars = new List<BindVar>();
+        [Test]
+        public void TestMediaItemIdFilter()
+        {
+            Guid itemId1 = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+            Guid itemId2 = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
 
-      TestCompiledFilter compiledFilter = new TestCompiledFilter();
-      compiledFilter.test(MIAUtils.Management, filter, null, "test", null, resultParts, resultBindVars);
+            IList<Guid> ids = new List<Guid>();
+            ids.Add(itemId1);
+            ids.Add(itemId2);
+            IFilter filter = new MediaItemIdFilter(ids);
 
-      Console.WriteLine("Result parts [{0}]", string.Join(",", resultParts));
-      Console.WriteLine("Result bind vars [{0}]", string.Join(",", resultBindVars));
+            IList<object> parts = new List<object>();
+            IList<BindVar> bindVars = new List<BindVar>();
+
+            TestCompiledFilter compiledFilter = new TestCompiledFilter();
+            compiledFilter.test(MIAUtils.Management, filter, null, "test", null, parts, bindVars);
+
+            //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
+            //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual(new List<object> { "test", " IN (@V0, @V1)", "" }, parts, "Parts");
+            Assert.AreEqual(new List<BindVar>
+      {
+        new BindVar("V0", itemId1, typeof(Guid)), 
+        new BindVar("V1", itemId2, typeof(Guid))
+      }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestSingleMIALikeFilter()
+        {
+            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+
+            IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            IList<object> parts = new List<object>();
+            IList<BindVar> bindVars = new List<BindVar>();
+
+            TestCompiledFilter compiledFilter = new TestCompiledFilter();
+            compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", null, parts, bindVars);
+
+            //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
+            //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual(new List<object> { new QueryAttribute(mia1.ATTR_STRING), " LIKE ", "@V0" }, parts, "Parts");
+            Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestMultipleMIALikeFilter()
+        {
+            MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, true);
+
+            IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            IList<object> parts = new List<object>();
+            IList<BindVar> bindVars = new List<BindVar>();
+
+            TestCompiledFilter compiledFilter = new TestCompiledFilter();
+            compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", null, parts, bindVars);
+
+            //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
+            //Console.WriteLine("Part 7 " + parts[7].GetType());
+            //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual(new List<object> { "test", " IN(",
+            "SELECT ", "MEDIA_ITEM_ID", " FROM ", "M_META1", " WHERE ", new QueryAttribute(mia1.ATTR_STRING), " LIKE ", "@V0", ")"
+        }, parts, "Parts");
+            Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestRelationshipFilter()
+        {
+            // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
+            MIAUtils.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
+
+            Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+            Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
+            Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
+            IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+
+            IList<object> parts = new List<object>();
+            IList<BindVar> bindVars = new List<BindVar>();
+            ICollection<TableJoin> tableJoins = new List<TableJoin>();
+
+            TestCompiledFilter compiledFilter = new TestCompiledFilter();
+            compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", tableJoins, parts, bindVars);
+
+            //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
+            //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
+            //Console.WriteLine("Table joins [{0}]", string.Join(",", tableJoins));
+
+            Assert.AreEqual(new List<object> { "test"," IN(",
+          "SELECT V1.", "LINKEDID", " FROM ", "M_RELATIONSHIP", " V1 WHERE V1.", "ROLE", "=@V10", " AND ", "LINKEDROLE", "=@V11", " AND ", "MEDIA_ITEM_ID", "=", "test",
+          " UNION ",
+          "SELECT V2.", "MEDIA_ITEM_ID", " FROM ", "M_RELATIONSHIP", " V2 WHERE V2.", "ROLE", "=@V23", " AND ", "LINKEDROLE", "=@V22", " AND ", "LINKEDID", "=", "test", ")" }, parts, "Parts");
+            Assert.AreEqual(new List<BindVar>
+      {
+         new BindVar("V10", movieType, typeof(Guid)), 
+        new BindVar("V11", actorType, typeof(Guid)),
+        new BindVar("V23", actorType, typeof(Guid)),
+        new BindVar("V22", movieType, typeof(Guid))
+      }, bindVars, "Bind vars");
+            Assert.AreEqual(new List<TableJoin> { }, tableJoins, "Tables joins");
+        }
+
+        [Test]
+        public void TestSingleMIAOnlyLikeQueryBuilder()
+        {
+            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, false);
+            SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, false);
+
+            IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            requiredMIATypes.Add(mia2.Metadata);
+
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+
+            string mediaItemIdAlias = null;
+            IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
+            IDictionary<QueryAttribute, string> attributeAliases = null;
+            string statementStr = null;
+            IList<BindVar> bindVars = null;
+
+            builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
+            Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
+            Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
+            Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
+            Console.WriteLine("statementStr: {0}", statementStr);
+            Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
+            Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
+            Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
+            Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.ATTR_STRING LIKE @V0", statementStr, "Statement");
+            Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestMultipleMIAOnlyLikeQueryBuilder()
+        {
+            MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, false);
+            MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("Meta2", Cardinality.Inline, true, false);
+
+            IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            requiredMIATypes.Add(mia2.Metadata);
+
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+
+            string mediaItemIdAlias = null;
+            IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
+            IDictionary<QueryAttribute, string> attributeAliases = null;
+            string statementStr = null;
+            IList<BindVar> bindVars = null;
+
+            builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
+            //Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
+            //Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
+            //Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
+            //Console.WriteLine("statementStr: {0}", statementStr);
+            //Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
+            Assert.AreEqual(CreateMIAMAliases(), miamAliases, "MIAM aliases");
+            Assert.AreEqual(new string[] { }, attributeAliases, "Attribute aliases");
+            Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0 FROM MEDIA_ITEMS T0  WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_META1 WHERE Meta1.ATTR_STRING LIKE @V0)", statementStr, "Statement");
+            Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestSingleAndMultipleMIAQueryBuilder()
+        {
+            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("single1", Cardinality.Inline, true, false);
+            MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("multi1", Cardinality.Inline, true, false);
+
+            IFilter filter1 = new LikeFilter(mia1.ATTR_STRING, "%", null);
+            IFilter filter2 = new LikeFilter(mia2.ATTR_STRING, "%", null);
+            IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new IFilter[] { filter1, filter2 });
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            requiredMIATypes.Add(mia2.Metadata);
+
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+
+            string mediaItemIdAlias = null;
+            IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
+            IDictionary<QueryAttribute, string> attributeAliases = null;
+            string statementStr = null;
+            IList<BindVar> bindVars = null;
+
+            builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
+            Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
+            Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
+            Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
+            Console.WriteLine("statementStr: {0}", statementStr);
+            Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
+            Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1"), miamAliases, "MIAM aliases");
+            Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
+            Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1 FROM M_SINGLE1 T0  WHERE (T0.ATTR_STRING LIKE @V0 AND T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTI1 WHERE multi1.ATTR_STRING LIKE @V1))", statementStr, "Statement");
+            Assert.AreEqual(new List<BindVar>
+            {
+                new BindVar("V0", "%", typeof(string)),
+                new BindVar("V1", "%", typeof(string))
+            }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestRelationshipQueryBuilder()
+        {
+            // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
+            MIAUtils.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
+
+            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+            SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            requiredMIATypes.Add(mia2.Metadata);
+
+            Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+            Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
+            Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
+            IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
+
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+
+            string mediaItemIdAlias = null;
+            IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
+            IDictionary<QueryAttribute, string> attributeAliases = null;
+            string statementStr = null;
+            IList<BindVar> bindVars = null;
+
+            builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
+            Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
+            Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
+            Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
+            Console.WriteLine("statementStr: {0}", statementStr);
+            Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
+            Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
+            Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
+            Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID IN(SELECT V1.LINKEDID FROM M_RELATIONSHIP V1 WHERE V1.ROLE=@V10 AND LINKEDROLE=@V11 AND MEDIA_ITEM_ID=T0.MEDIA_ITEM_ID UNION SELECT V2.MEDIA_ITEM_ID FROM M_RELATIONSHIP V2 WHERE V2.ROLE=@V23 AND LINKEDROLE=@V22 AND LINKEDID=T0.MEDIA_ITEM_ID)", statementStr, "Statement");
+            Assert.AreEqual(new List<BindVar>
+            {
+                new BindVar("V10", movieType, typeof(Guid)),
+                new BindVar("V11", actorType, typeof(Guid)),
+                new BindVar("V23", actorType, typeof(Guid)),
+                new BindVar("V22", movieType, typeof(Guid)),
+            }, bindVars, "Bind vars");
+        }
+
+        [Test]
+        public void TestAndQueryBuilder()
+        {
+            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+            SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+
+            IList<IFilter> filters = new List<IFilter>();
+            filters.Add(new LikeFilter(mia1.ATTR_STRING, "%", null));
+            filters.Add(new LikeFilter(mia2.ATTR_STRING, "%", null));
+            IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, filters);
+
+            ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
+            requiredMIATypes.Add(mia1.Metadata);
+            requiredMIATypes.Add(mia2.Metadata);
+
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+
+            string mediaItemIdAlias = null;
+            IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
+            IDictionary<QueryAttribute, string> attributeAliases = null;
+            string statementStr = null;
+            IList<BindVar> bindVars = null;
+
+            builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
+            //Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
+            //Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
+            //Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
+            //Console.WriteLine("statementStr: {0}", statementStr);
+            //Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
+
+            Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
+            Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
+            Assert.AreEqual(new string[] { }, attributeAliases, "Attribute aliases");
+            Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE (T0.ATTR_STRING LIKE @V0 AND T1.ATTR_STRING_0 LIKE @V1)", statementStr, "Statement");
+            Assert.AreEqual(new List<BindVar>
+            {
+                new BindVar("V0", "%", typeof(string)),
+                new BindVar("V1", "%", typeof(string))
+            }, bindVars, "Bind vars");
+        }
     }
-
-    [TestMethod]
-    public void TestSingleMIALikeFilter()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-
-      IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
-
-      ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-      requiredMIATypes.Add(mia1.Metadata);
-      IList<object> resultParts = new List<object>();
-      IList<BindVar> resultBindVars = new List<BindVar>();
-
-      TestCompiledFilter compiledFilter = new TestCompiledFilter();
-      compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", null, resultParts, resultBindVars);
-
-      Console.WriteLine("Result parts [{0}]", string.Join(",", resultParts));
-      Console.WriteLine("Result bind vars [{0}]", string.Join(",", resultBindVars));
-    }
-
-    [TestMethod]
-    public void TestMultipleMIALikeFilter()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, true);
-
-        IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
-
-        ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-        requiredMIATypes.Add(mia1.Metadata);
-        IList<object> resultParts = new List<object>();
-        IList<BindVar> resultBindVars = new List<BindVar>();
-
-        TestCompiledFilter compiledFilter = new TestCompiledFilter();
-        compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", null, resultParts, resultBindVars);
-
-        Console.WriteLine("Result parts [{0}]", string.Join(",", resultParts));
-        Console.WriteLine("Result bind vars [{0}]", string.Join(",", resultBindVars));
-    }
-
-    [TestMethod]
-    public void TestRelationshipFilter()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
-        MIAUtils.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
-
-      Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
-      Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
-      Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
-      IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
-
-      ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-
-      IList<object> resultParts = new List<object>();
-      IList<BindVar> resultBindVars = new List<BindVar>();
-      ICollection<TableJoin> tableJoins = new List<TableJoin>();
-
-      TestCompiledFilter compiledFilter = new TestCompiledFilter();
-      compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", tableJoins, resultParts, resultBindVars);
-    }
-
-    [TestMethod]
-    public void TestSingleMIAOnlyLikeQueryBuilder()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, false);
-        SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, false);
-
-        IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
-
-      ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-      requiredMIATypes.Add(mia1.Metadata);
-      requiredMIATypes.Add(mia2.Metadata);
-
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
-
-      string mediaItemIdAlias = null;
-      IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
-      IDictionary<QueryAttribute, string> attributeAliases = null;
-      string statementStr = null;
-      IList<BindVar> bindVars = null;
-
-      builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
-      Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
-      Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
-      Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
-      Console.WriteLine("statementStr: {0}", statementStr);
-      Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
-    }
-
-    [TestMethod]
-    public void TestMultipleMIAOnlyLikeQueryBuilder()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, false);
-        MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("Meta2", Cardinality.Inline, true, false);
-
-        IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
-
-        ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-        requiredMIATypes.Add(mia1.Metadata);
-        requiredMIATypes.Add(mia2.Metadata);
-
-        SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
-
-        string mediaItemIdAlias = null;
-        IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
-        IDictionary<QueryAttribute, string> attributeAliases = null;
-        string statementStr = null;
-        IList<BindVar> bindVars = null;
-
-        builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
-        Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
-        Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
-        Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
-        Console.WriteLine("statementStr: {0}", statementStr);
-        Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
-    }
-
-    [TestMethod]
-    public void TestSingleAndMultipleMIAQueryBuilder()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("single1", Cardinality.Inline, true, false);
-        MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("multi1", Cardinality.Inline, true, false);
-
-        IFilter filter1 = new LikeFilter(mia1.ATTR_STRING, "%", null);
-        IFilter filter2 = new LikeFilter(mia2.ATTR_STRING, "%", null);
-        IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new IFilter[] { filter1, filter2 });
-
-        ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-        requiredMIATypes.Add(mia1.Metadata);
-        requiredMIATypes.Add(mia2.Metadata);
-
-        SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
-
-        string mediaItemIdAlias = null;
-        IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
-        IDictionary<QueryAttribute, string> attributeAliases = null;
-        string statementStr = null;
-        IList<BindVar> bindVars = null;
-
-        builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
-        Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
-        Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
-        Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
-        Console.WriteLine("statementStr: {0}", statementStr);
-        Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
-    }
-
-    [TestMethod]
-    public void TestRelationshipQueryBuilder()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
-        MIAUtils.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
-
-        SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-        SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
-
-        ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-      requiredMIATypes.Add(mia1.Metadata);
-      requiredMIATypes.Add(mia2.Metadata);
-
-      Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
-      Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
-      Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
-      IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
-
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
-
-      string mediaItemIdAlias = null;
-      IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
-      IDictionary<QueryAttribute, string> attributeAliases = null;
-      string statementStr = null;
-      IList<BindVar> bindVars = null;
-
-      builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
-      Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
-      Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
-      Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
-      Console.WriteLine("statementStr: {0}", statementStr);
-      Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
-    }
-
-    [TestMethod]
-    public void TestAndQueryBuilder()
-    {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
-        SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-        SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
-
-      IList<IFilter> filters = new List<IFilter>();
-      filters.Add(new LikeFilter(mia1.ATTR_STRING, "%", null));
-      filters.Add(new LikeFilter(mia2.ATTR_STRING, "%", null));
-      IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, filters);
-
-      ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
-      requiredMIATypes.Add(mia1.Metadata);
-      requiredMIATypes.Add(mia2.Metadata);
-
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
-
-      string mediaItemIdAlias = null;
-      IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
-      IDictionary<QueryAttribute, string> attributeAliases = null;
-      string statementStr = null;
-      IList<BindVar> bindVars = null;
-
-      builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out attributeAliases, out statementStr, out bindVars);
-      Console.WriteLine("mediaItemIdAlias: {0}", mediaItemIdAlias);
-      Console.WriteLine("miamAliases: [{0}]", string.Join(",", miamAliases));
-      Console.WriteLine("attributeAliases: [{0}]", string.Join(",", attributeAliases));
-      Console.WriteLine("statementStr: {0}", statementStr);
-      Console.WriteLine("bindVars: [{0}]", string.Join(",", bindVars));
-    }
-  }
 }
