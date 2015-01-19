@@ -22,27 +22,37 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Test.Backend
 {
-  [TestClass]
+  [TestFixture]
   public class TestLibrary
   {
-    [TestMethod]
+      [TestFixtureSetUp]
+      public void OneTimeSetUp()
+      {
+          TestDbUtils.Setup();
+          MIAUtils.Setup();
+      }
+
+      [SetUp]
+      public void SetUp()
+      {
+          TestDbUtils.Reset();
+          MIAUtils.Reset();
+      }
+
+    [Test]
     public void TestMediaItemAspectStorage()
     {
-      TestDbUtils.Setup();
-      MIAUtils.Setup();
-
-      TestDbUtils.Reset();
       MIAUtils.CreateSingleMIA("SINGLE", Cardinality.Inline, true, true);
       TestCommand singleCommand = TestDbUtils.FindCommand("CREATE TABLE M_SINGLE");
       Assert.IsNotNull(singleCommand, "Single create table command");
@@ -66,12 +76,9 @@ namespace Test.Backend
         */
     }
 
-    [TestMethod]
+    [Test]
     public void TestMediaItemLoader_SingleMIAs_IdFilter()
     {
-      TestDbUtils.Setup();
-      MIAUtils.Setup();
-
       SingleTestMIA single1 = MIAUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
       SingleTestMIA single2 = MIAUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
 
@@ -80,7 +87,7 @@ namespace Test.Backend
       ids.Add(itemId);
       IFilter filter = new MediaItemIdFilter(ids);
 
-      TestReader reader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1 FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A4", "A0", "A1");
+      TestReader reader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1 FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A4", "A0", "A1");
       reader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), "zero", "0");
 
       Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID};
@@ -88,16 +95,13 @@ namespace Test.Backend
       MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
       CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MIAUtils.Management, query);
       MediaItem result = compiledQuery.QueryMediaItem();
-      Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
       Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
+      // TODO: More asserts
     }
 
-    [TestMethod]
+    [Test]
     public void TestMediaItemLoader_SingleMIAs_LikeFilter()
     {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
         SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
         SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
         SingleTestMIA mia3 = MIAUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, true, true);
@@ -108,7 +112,7 @@ namespace Test.Backend
 
         TestReader reader = TestDbUtils.AddReader(
             "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_STRING_0 A2, T2.ATTR_INTEGER_0 A3 " +
-            "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID WHERE T0.ATTR_STRING LIKE @V0",
+            "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.ATTR_STRING LIKE @V0",
             "A4", "A5", "A6", "A7", "A0", "A1", "A2", "A3");
         reader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), itemId.ToString(), "zerozero", "11", "twotwo", "23");
 
@@ -117,25 +121,22 @@ namespace Test.Backend
         MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
         CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MIAUtils.Management, query);
         MediaItem result = compiledQuery.QueryMediaItem();
-        Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
+        //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
 
         Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
         SingleMediaItemAspect value = null;
         Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia1.Metadata, out value), "MIA1");
-        Assert.AreEqual(value.GetAttributeValue(mia1.ATTR_STRING), "zerozero", "MIA1 string attibute");
+        Assert.AreEqual("zerozero", value.GetAttributeValue(mia1.ATTR_STRING), "MIA1 string attibute");
         Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia2.Metadata, out value), "MIA2");
-        Assert.AreEqual(value.GetAttributeValue(mia2.ATTR_INTEGER), 11, "MIA2 integer attibute");
+        Assert.AreEqual(11, value.GetAttributeValue(mia2.ATTR_INTEGER), "MIA2 integer attibute");
         Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia3.Metadata, out value), "MIA3");
-        Assert.AreEqual(value.GetAttributeValue(mia3.ATTR_STRING), "twotwo", "MIA3 string attibute");
-        Assert.AreEqual(value.GetAttributeValue(mia3.ATTR_INTEGER), 23, "MIA3 integer attibute");
+        Assert.AreEqual("twotwo", value.GetAttributeValue(mia3.ATTR_STRING), "MIA3 string attibute");
+        Assert.AreEqual(23, value.GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute");
     }
 
-    [TestMethod]
+    [Test]
     public void TestMediaItemLoader_MultipleMIAs_IdFilter()
     {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
         MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("MULTIPLE1", Cardinality.Inline, true, false);
         MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, false, true);
 
@@ -144,13 +145,13 @@ namespace Test.Backend
         ids.Add(itemId);
         IFilter filter = new MediaItemIdFilter(ids);
 
-        TestReader singleReader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A0 FROM MEDIA_ITEMS T0 WHERE T0.MEDIA_ITEM_ID = @V0", "A0");
+        TestReader singleReader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A0 FROM MEDIA_ITEMS T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A0");
         singleReader.AddResult(itemId.ToString());
 
-        TestReader multipleReader1 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING A0 FROM M_MULTIPLE1 T0 WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
+        TestReader multipleReader1 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING A0 FROM M_MULTIPLE1 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
         multipleReader1.AddResult(itemId.ToString(), itemId.ToString(), "0", "oneone");
 
-        TestReader multipleReader2 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER A0 FROM M_MULTIPLE2 T0 WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
+        TestReader multipleReader2 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
         multipleReader2.AddResult(itemId.ToString(), itemId.ToString(), "0", "21");
         multipleReader2.AddResult(itemId.ToString(), itemId.ToString(), "1", "22");
 
@@ -159,7 +160,7 @@ namespace Test.Backend
         MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
         CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MIAUtils.Management, query);
         MediaItem result = compiledQuery.QueryMediaItem();
-        Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
+        //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
 
         IList<MultipleMediaItemAspect> values;
 
@@ -174,12 +175,9 @@ namespace Test.Backend
         Assert.AreEqual(22, values[1].GetAttributeValue(mia2.ATTR_INTEGER), "MIA2 integer attibute #0");
     }
 
-    [TestMethod]
+    [Test]
     public void TestMediaItemsLoader_SingleAndMultipleMIAs_BooleanLikeFilter()
     {
-        TestDbUtils.Setup();
-        MIAUtils.Setup();
-
         SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
         MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
         MultipleTestMIA mia3 = MIAUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
@@ -189,16 +187,16 @@ namespace Test.Backend
         
         IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new List<IFilter> { new LikeFilter(mia1.ATTR_STRING, "%", null), new LikeFilter(mia2.ATTR_STRING, "%", null) });
 
-        TestReader reader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0 WHERE (T0.ATTR_STRING LIKE @V0 AND T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MULTIPLE2.ATTR_STRING LIKE @V1))", "A2", "A3", "A0", "A1");
+        TestReader reader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0  WHERE (T0.ATTR_STRING LIKE @V0 AND T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MULTIPLE2.ATTR_STRING LIKE @V1))", "A2", "A3", "A0", "A1");
         reader.AddResult(itemId0.ToString(), itemId0.ToString(), "zero", "0");
         reader.AddResult(itemId1.ToString(), itemId1.ToString(), "one", "1");
 
-        TestReader multipleReader2 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING_0 A0 FROM M_MULTIPLE2 T0 WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
+        TestReader multipleReader2 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING_0 A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
         multipleReader2.AddResult(itemId0.ToString(), itemId0.ToString(), "0", "zerozero");
         multipleReader2.AddResult(itemId0.ToString(), itemId0.ToString(), "1", "zeroone");
         multipleReader2.AddResult(itemId1.ToString(), itemId1.ToString(), "0", "onezero");
 
-        TestReader multipleReader3 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER_0 A0 FROM M_MULTIPLE3 T0 WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
+        TestReader multipleReader3 = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER_0 A0 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
         multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "0", "10");
         multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "1", "11");
         multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "2", "12");
@@ -211,10 +209,10 @@ namespace Test.Backend
         MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
         CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MIAUtils.Management, query);
         IList<MediaItem> results = compiledQuery.QueryList();
+        /*
         foreach (MediaItem result in results)
-        {
-            Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects.Values) + ": " + result);
-        }
+            //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects.Values) + ": " + result);
+        */
 
         SingleMediaItemAspect value;
         IList<MultipleMediaItemAspect> values;
@@ -257,11 +255,39 @@ namespace Test.Backend
         Assert.AreEqual(20, values[0].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 0 #1");
     }
 
-    [TestMethod]
+    [Test]
+    public void TestMediaItemLoader_SingleMIAsUnusedOptional_IdFilter()
+    {
+        SingleTestMIA single1 = MIAUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
+        SingleTestMIA single2 = MIAUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
+        SingleTestMIA single3 = MIAUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, false, true);
+        SingleTestMIA single4 = MIAUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, false, true);
+
+        Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+        IList<Guid> ids = new List<Guid>();
+        ids.Add(itemId);
+        IFilter filter = new MediaItemIdFilter(ids);
+
+        TestReader reader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T3.MEDIA_ITEM_ID A8, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_INTEGER_0 A2, T3.ATTR_INTEGER_1 A3 FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE4 T3 ON T3.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A4", "A5", "A6", "A7", "A8", "A0", "A1", "A2", "A3");
+        reader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), itemId.ToString(), null, "zero", "0", "0", null);
+
+        Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID };
+        Guid[] optionalAspects = new Guid[] { single3.ASPECT_ID, single4.ASPECT_ID };
+        MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
+        CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MIAUtils.Management, query);
+        MediaItem result = compiledQuery.QueryMediaItem();
+        Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
+        SingleMediaItemAspect value = null;
+        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single1.Metadata, out value), "MIA1");
+        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single2.Metadata, out value), "MIA2");
+        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single3.Metadata, out value), "MIA3");
+        Assert.IsFalse(MediaItemAspect.TryGetAspect(result.Aspects, single4.Metadata, out value), "MIA4");
+    }
+
+    [Test]
     public void TestAddMediaItem()
     {
-        TestDbUtils.Setup();
-        MIAUtils.Setup(true);
+        MIAUtils.SetupLibrary();
 
         SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
         MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
@@ -306,11 +332,10 @@ namespace Test.Backend
         MIAUtils.Shutdown();
     }
 
-    [TestMethod]
+    [Test]
     public void TestEditMediaItem()
     {
-        TestDbUtils.Setup();
-        MIAUtils.Setup(true);
+        MIAUtils.SetupLibrary();
 
         SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
         MIAUtils.Management.AddMediaItemAspectStorage(mia1.Metadata);
