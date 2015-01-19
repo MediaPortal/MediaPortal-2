@@ -22,6 +22,12 @@
 
 #endregion
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaLibrary;
@@ -31,11 +37,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities.DB;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
 
 namespace Test.Backend
 {
@@ -112,6 +113,9 @@ namespace Test.Backend
       TestReader reader = null;
       if (!READERS.TryGetValue(command, out reader))
       {
+          foreach (string key in READERS.Keys)
+          {
+          }
           throw new NotImplementedException("No DB reader for " + command);
       }
       return reader;
@@ -432,7 +436,7 @@ namespace Test.Backend
       get { throw new NotImplementedException(); }
     }
 
-    public System.Collections.IEnumerator GetEnumerator()
+    public IEnumerator GetEnumerator()
     {
       return _parameters.GetEnumerator();
     }
@@ -511,7 +515,7 @@ namespace Test.Backend
         if (param.Value != null)
           pv = param.Value.ToString().Replace("{", "{{").Replace("}", "}}");
 
-        if (param.DbType == System.Data.DbType.String)
+        if (param.DbType == DbType.String)
           quoting = "'";
 
         pv = String.Format("{0}{1}{2}", quoting, pv, quoting);
@@ -754,9 +758,8 @@ namespace Test.Backend
         int ordinal = _columns.IndexOf(name);
         if (ordinal == -1)
         {
-            Console.Error.WriteLine("No ordinal for " + name);
+            throw new KeyNotFoundException(string.Format("No ordinal for {0}", name));
         }
-        //Console.WriteLine("Ordinal for " + name + " -> " + ordinal);
         return ordinal;
     }
 

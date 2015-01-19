@@ -1,4 +1,8 @@
-﻿using MediaPortal.Backend.Services.MediaLibrary;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Backend.Services.SystemResolver;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -8,10 +12,6 @@ using MediaPortal.Common.Services.Messaging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 namespace Test.Backend
 {
@@ -52,9 +52,20 @@ namespace Test.Backend
         }
     }
 
+    class TestMIA_Management : MIA_Management
+    {
+        public void Reset()
+        {
+            _nameAliases.Clear();
+            _managedMIATypes.Clear();
+            _MIACreationDates.Clear();
+            _lockedAttrs.Clear();
+        }
+    }
+
     class MIAUtils
     {
-        private static MIA_Management MANAGEMENT;
+        private static TestMIA_Management MANAGEMENT;
         private static TestML LIBRARY;
         private static TestMessageBroker BROKER;
 
@@ -70,7 +81,7 @@ namespace Test.Backend
             get { return LIBRARY; }
         }
 
-        public static void Setup(bool initLibrary = false)
+        public static void Setup()
         {
             Base.Setup();
 
@@ -82,15 +93,22 @@ namespace Test.Backend
             logger.Debug("Registering ISystemResolver service");
             ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
 
-            MANAGEMENT = new MIA_Management();
+            logger.Debug("Creating MIA management");
+            MANAGEMENT = new TestMIA_Management();
+        }
 
-            if (initLibrary)
-            {
-                logger.Debug("Registering IMessageBroker service");
-                ServiceRegistration.Set<IMessageBroker>(BROKER = new TestMessageBroker());
+        public static void SetupLibrary()
+        {
+            logger.Debug("Registering IMessageBroker service");
+            ServiceRegistration.Set<IMessageBroker>(BROKER = new TestMessageBroker());
 
-                LIBRARY = new TestML();
-            }
+            logger.Debug("Creating test media library");
+            LIBRARY = new TestML();
+        }
+
+        public static void Reset()
+        {
+            MANAGEMENT.Reset();
         }
 
         public static void Shutdown()
