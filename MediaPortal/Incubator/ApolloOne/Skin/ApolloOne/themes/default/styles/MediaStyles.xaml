@@ -296,7 +296,7 @@
 
 
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Margin="-25,0,8,0">
+    <Grid x:Name="ItemControl" Margin="8,0,8,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -420,7 +420,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="-25,0,8,0">
+    <Grid x:Name="ItemControl" Margin="8,0,8,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
