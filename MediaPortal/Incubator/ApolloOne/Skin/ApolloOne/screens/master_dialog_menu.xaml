@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a dialog with a menu item list.
+It uses the standard dialog template "master_dialog.xaml".
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_dialog_menu.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Dialog_Header_Text">
+        [Header text to be displayed as dialog title]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Menu_Items">
+        [Collection of ListItem instances]
+      </ResourceWrapper>
+
+      <Command to be executed with the selected item as parameter>
+      <Command x:Key="Menu_Command" .../>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Dialog_Header_Text (String): The text to be displayed as dialog title
+ - Menu_Items (Collection of ListItem): Items to be displayed as menu items
+ - Menu_Command (ICommand): Command which will be executed with the currently selected
+   ListItem as single parameter
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    <!-- Header has to be defined by the includer: "Dialog_Header_Text" -->
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <ListView x:Name="DialogMenu" Style="{ThemeResource PopupMenuListViewStyle}"
+          ItemsSource="{DynamicResource ResourceKey=Menu_Items}" SetFocusPrio="DefaultLow"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
