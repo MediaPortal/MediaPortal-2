@@ -49,5 +49,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       return _attr.ParentMIAM.Name + "." + _attr.AttributeName;
     }
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is QueryAttribute))
+            return false;
+
+        QueryAttribute qa = (QueryAttribute)obj;
+        return Attr.Equals(qa.Attr);
+    }
   }
 }

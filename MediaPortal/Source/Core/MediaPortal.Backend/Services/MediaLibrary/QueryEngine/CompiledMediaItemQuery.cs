@@ -362,7 +362,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 foreach (SingleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is SingleMediaItemAspectMetadata))
                 {
                     // Skip complex attributes for this MIA if it's not already in the media item
-                    if(!mediaItem.Aspects.ContainsKey(miam.AspectId)
+                    if(!mediaItem.Aspects.ContainsKey(miam.AspectId))
                         continue;
                     IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
                     if (!complexAttributeValues.TryGetValue(mediaItem.MediaItemId, out attributeValues))
