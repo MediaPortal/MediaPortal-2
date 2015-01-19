@@ -24,7 +24,6 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,14 +31,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using NUnit.Framework;
 
 namespace Test.Common
 {
-  [TestClass]
+  [TestFixture]
   public class TestMediaItemQuery
   {
-    [TestMethod]
-    public void TestFilter()
+    [Test]
+    public void TestRelationshipFilter()
     {
       Guid itemId = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
       Guid itemType = new Guid("22222222-bbbb-bbbb-bbbb-222222222222");
@@ -51,7 +51,7 @@ namespace Test.Common
       XmlWriter serialiser = new XmlTextWriter(writer);
       query1.Serialize(serialiser);
 
-      Console.WriteLine("XML: {0}", writer.ToString());
+      //Console.WriteLine("XML: {0}", writer.ToString());
 
       XmlReader reader = XmlReader.Create(new StringReader(writer.ToString()));
       MediaItemQuery query2 = MediaItemQuery.Deserialize(reader);

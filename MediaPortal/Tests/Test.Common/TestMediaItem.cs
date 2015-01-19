@@ -25,11 +25,11 @@
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using NUnit.Framework;
 
 namespace Test.Common
 {
@@ -57,10 +57,11 @@ namespace Test.Common
     }
   }
 
-  [TestClass]
+  [TestFixture]
   public class TestMediaItem
   {
-    public TestMediaItem()
+    [TestFixtureSetUp]
+    public void OneTimeSetUp()
     {
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
     }
@@ -74,7 +75,20 @@ namespace Test.Common
       MediaItemAspect.AddAspect(aspects, relationship);
     }
 
-    [TestMethod]
+      [Test]
+      public void TestItemIds()
+      {
+          Guid id1 = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
+          Guid id2 = new Guid("11111111-AAAA-AAAA-AAAA-111111111111");
+
+          Console.WriteLine("{0} -vs- {1}", id1, id2);
+
+          Assert.AreEqual(id1, id2, "GUID");
+          Assert.AreEqual(id1.ToString(), id2.ToString(), "GUID string");
+          Assert.AreEqual(id1.ToString().ToLower(), id2.ToString().ToLower(), "GUID string");
+      }
+
+    [Test]
     public void TestSimpleItem()
     {
       Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
@@ -129,7 +143,7 @@ namespace Test.Common
       reader.Read(); // Test
     }
 
-    [TestMethod]
+    [Test]
     public void TestComplexItem()
     {
       Guid trackId = new Guid("11111111-aaaa-aaaa-aaaa-100000000000");
@@ -165,7 +179,7 @@ namespace Test.Common
       track1.Serialize(serialiser);
       serialiser.WriteEndElement();
 
-      Console.WriteLine("XML: {0}", writer.ToString());
+      //Console.WriteLine("XML: {0}", writer.ToString());
       //Assert.AreEqual("<MI Id=\"" + trackId + "\"><Relationship ItemType=\"" + AudioAspect.RELATIONSHIP_TRACK + "\" RelationshipType=\"" + AlbumAspect.RELATIONSHIP_ALBUM + "\" RelationshipId=\"" + albumId + "\" /></MI>", trackText.ToString(), "Track XML");
 
       XmlReader reader = XmlReader.Create(new StringReader(writer.ToString()));
