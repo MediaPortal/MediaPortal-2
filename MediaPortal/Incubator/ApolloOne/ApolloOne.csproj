@@ -96,6 +96,7 @@
     <Content Include="Skin\ApolloOne\images\FilterLarge.png" />
     <Content Include="Skin\ApolloOne\images\ImageLarge.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask.png" />
+    <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask_wide.png" />
     <Content Include="Skin\ApolloOne\images\MediaItem_Shadow.png" />
     <Content Include="Skin\ApolloOne\images\NavigationLarge.png" />
     <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\Audio.png" />

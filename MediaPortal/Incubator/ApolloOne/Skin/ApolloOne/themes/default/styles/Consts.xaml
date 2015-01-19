@@ -53,4 +53,10 @@
 
   <ResourceWrapper x:Key="FocusedButtonAnimationTime1" Resource="00:00:00.300"/>
 
+  <!-- ScrollViewer -->
+  <ResourceWrapper x:Key="ScrollBarKnobRadius" Resource="7"/>
+  <!-- Must be 2x ScrollBarKnobRadius to get circle ! -->
+  <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="14"/>
+  <ResourceWrapper x:Key="ScrollBarKnobHeight" Resource="14"/>
+
 </ResourceDictionary>
