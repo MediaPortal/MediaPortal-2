@@ -32,6 +32,8 @@
 
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF404040"/>
 
+  <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#FFFFFF"/>
+
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
   <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00A0C0FF" />
