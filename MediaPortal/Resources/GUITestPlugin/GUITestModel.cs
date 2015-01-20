@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -45,10 +46,10 @@ namespace MediaPortal.Test.GUITest
 
     #region Protected fields
 
-    protected AbstractProperty _triggerTestMouseStateProperty = new SProperty(typeof(string), "Mouse not triggered yet");
-    protected AbstractProperty _mouseCaptureTestMousePosProperty = new SProperty(typeof(string), "?/?");
-    protected AbstractProperty _mouseCaptureTestCaptureSubTreeProperty = new SProperty(typeof(bool), false);
-    protected AbstractProperty _mouseCaptureTestCaptureOriginalSourceProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _triggerTestMouseStateProperty = new WProperty(typeof(string), "Mouse not triggered yet");
+    protected AbstractProperty _mouseCaptureTestMousePosProperty = new WProperty(typeof(string), "?/?");
+    protected AbstractProperty _mouseCaptureTestCaptureSubTreeProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _mouseCaptureTestCaptureOriginalSourceProperty = new WProperty(typeof(bool), false);
 
     #endregion
 
@@ -113,12 +114,12 @@ namespace MediaPortal.Test.GUITest
 
     public void RoutedEventHandler(object sender, MouseButtonEventArgs e)
     {
-      Debug.Print("RoutedEvent:");
-      Debug.Print("  Event=          {0}", e.RoutedEvent.Name);
-      Debug.Print("  sender=         {0}", sender);
-      Debug.Print("  Source=         {0}", e.Source);
-      Debug.Print("  OriginalSource= {0}", e.OriginalSource);
-      Debug.Print("  Hit at=         {0}", e.GetPosition(sender as UIElement));
+      ServiceRegistration.Get<ILogger>().Debug("RoutedEvent:");
+      ServiceRegistration.Get<ILogger>().Debug("  Event=          {0}", e.RoutedEvent.Name);
+      ServiceRegistration.Get<ILogger>().Debug("  sender=         {0}", sender);
+      ServiceRegistration.Get<ILogger>().Debug("  Source=         {0}", e.Source);
+      ServiceRegistration.Get<ILogger>().Debug("  OriginalSource= {0}", e.OriginalSource);
+      ServiceRegistration.Get<ILogger>().Debug("  Hit at=         {0}", e.GetPosition(sender as UIElement));
     }
 
     public void TriggerTestMouseDown()
