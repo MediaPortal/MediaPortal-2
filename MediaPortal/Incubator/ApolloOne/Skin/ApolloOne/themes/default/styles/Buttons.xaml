@@ -233,7 +233,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="SelectionBorder" IsVisible="False" BorderBrush="Yellow" BorderThickness="{TemplateBinding BorderThickness}"/>
+          <Rectangle x:Name="ButtonControlRectangle" StrokeThickness="1.5" Opacity="0" Margin="-2">
+            <Rectangle.Stroke>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#00A0A0A0" Offset="0.05"/>
+                <GradientStop Color="White" Offset="0.5"/>
+                <GradientStop Color="#00A0A0A0" Offset="0.95"/>
+              </LinearGradientBrush>
+            </Rectangle.Stroke>
+          </Rectangle>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -255,15 +263,6 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Rectangle StrokeThickness="1.5" IsVisible="{Binding Path=Selected}" Margin="-2">
-              <Rectangle.Stroke>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                  <GradientStop Color="#00A0A0A0" Offset="0.05"/>
-                  <GradientStop Color="White" Offset="0.5"/>
-                  <GradientStop Color="#00A0A0A0" Offset="0.95"/>
-                </LinearGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
             <Control Style="{ThemeResource GroupTabHeaderButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
