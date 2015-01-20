@@ -51,8 +51,6 @@
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#001B7EE6"/>
 
   <!-- Text colors -->
-  <ResourceWrapper x:Key="NonSelectedTextColor" Resource="#FF808080"/>
-
   <ResourceWrapper x:Key="WatchedTextColor" Resource="#00A7FF"/>
 
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="#D1FFED"/>

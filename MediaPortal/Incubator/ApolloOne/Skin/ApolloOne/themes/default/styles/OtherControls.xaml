@@ -578,12 +578,6 @@
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-              </Trigger>
-            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -593,8 +587,16 @@
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
     <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}" Margin="20,0,20,0"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        Color="{ThemeResource NonSelectedTextColor}"
-        Style="{ThemeResource HomeGroupLabelStyle}"/>
+        Color="{ThemeResource TextColor}"
+        Style="{ThemeResource HomeGroupLabelStyle}">
+      <Label.Opacity>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
+          <Binding Path="Selected"/>
+          <Binding Source="1" />
+          <Binding Source="0.5"/>
+        </MultiBinding>
+      </Label.Opacity>
+    </Label>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
