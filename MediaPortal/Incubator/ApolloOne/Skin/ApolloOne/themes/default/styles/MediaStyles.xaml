@@ -957,10 +957,10 @@
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
           <BindingWrapper.Binding>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-              <Binding Source="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>
               <Binding Source="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
+              <Binding Source="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>
             </MultiBinding>
           </BindingWrapper.Binding>
         </BindingWrapper>
