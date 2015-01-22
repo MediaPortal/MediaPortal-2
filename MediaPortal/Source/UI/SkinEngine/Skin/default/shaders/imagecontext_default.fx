@@ -47,9 +47,6 @@ struct PS_Output
 void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.clipSpaceOutput = IN.clipSpaceOutput;
-  // Test: pass-through
-  //OUT.Position = IN.Position;
-  //OUT.Texcoord = IN.Texcoord;
 
   OUT.Position = mul(IN.Position, worldViewProj);
 

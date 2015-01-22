@@ -215,13 +215,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return false;
 
       // Apply effect parameters
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
       //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0,0, 1,1));
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, _imageTransform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
 
@@ -235,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       //GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor.ToBgra());
 
       // Render
-      _effectTransition.StartRender(_lastTexture, renderContext);
+      _effectTransition.StartRender(_lastTexture, renderContext, endTexture);
       return true;
     }
 
@@ -284,6 +285,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
       _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
       _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
+
+      // TODO: temporary workaround, correct calculation below in RefreshParameters is not yet working again
+      var bounds = renderContext.OccupiedTransformedBounds;
+      _imageTransform = new Vector4(
+        0, 0, /* Translation */
+        1 * (_lastTexture.PixelSize.Width / bounds.Width), 1 * (_lastTexture.PixelSize.Height / bounds.Height) /* Scale */
+        );
+
       _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
       _effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
 
@@ -333,7 +342,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
         _inverseRelativeTransformCache = TranslateRotation(_rotation);
         _inverseRelativeTransformCache.Invert();
-        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
+        //_imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
+        //_imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, textureRect.Z, textureRect.W);
+        _imageTransform = new Vector4(0,0, textureRect.Z, textureRect.W);
+
+        //_imageTransform = new Vector4(
+        //  0,0,
+        //  //targetRect.X, targetRect.Y, /* Translation */
+        //  texture.PixelSize.Width / targetImageSize.Width, texture.PixelSize.Height / targetImageSize.Height /* Scale */
+        //  );
 
         // Build our effects
         _effect = ContentManager.Instance.GetEffect<ImageEffect>(GetEffectName());

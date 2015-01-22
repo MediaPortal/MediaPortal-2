@@ -190,11 +190,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       if (texture2 != null && _effect.InputCount == 2)
         _effect.SetInput(1, texture2, true);
 
-      _effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
       _lastTransform = renderContext.Transform;
 
       //var oldTransform = GraphicsDevice11.Instance.Context2D1.Transform;
       //GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform;
+      //GraphicsDevice11.Instance.Context2D1.DrawImage(_effect);
       GraphicsDevice11.Instance.Context2D1.DrawImage(_effect, renderContext.OccupiedTransformedBounds.TopLeft);
       //GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
       KeepAlive();

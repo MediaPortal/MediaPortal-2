@@ -8,20 +8,26 @@
 	float4 Transition(in float mixAB, in float2 relativePos, in float4 colorA, in float4 colorB);
 */
 
-float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
-float     g_opacity;
-// Parameters for 'old' frame A
-texture   g_textureA; 
-float4x4  g_relativetransformA;
-float4    g_imagetransformA;
-float4    g_framedataA; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
-// Parameters for 'new' frame B
-texture   g_texture; 
-float4x4  g_relativetransform;
-float4    g_imagetransform;
-float4    g_framedata; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
-// Transition control value 0.0 = A, 1.0 = B.
-float     g_mixAB; 
+Texture2D    g_textureA   : register(t0);
+Texture2D    g_texture    : register(t1);
+
+cbuffer constants : register(b0)
+{
+  float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
+  // Parameters for 'new' frame B
+  float4x4  g_relativetransform;
+  float4    g_imagetransform;
+  float4    g_framedata; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
+
+  // Parameters for 'old' frame A
+  float4x4  g_relativetransformA;
+  float4    g_imagetransformA;
+  float4    g_framedataA; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
+
+  float     g_opacity;
+  // Transition control value 0.0 = A, 1.0 = B.
+  float     g_mixAB;
+}
 
 sampler TextureSamplerA = sampler_state
 {
@@ -46,14 +52,16 @@ sampler TextureSamplerB = sampler_state
 // application to vertex structure
 struct VS_Input
 {
-  float4 Position  : POSITION0;
-  float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
+  float4 clipSpaceOutput : SV_POSITION;
+  float4 Position : SCENE_POSITION;
+  float2 Texcoord : TEXCOORD0; // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
 struct VS_Output
 {
-  float4 Position   : POSITION;
+  float4 clipSpaceOutput : SV_POSITION;
+  float4 Position : SCENE_POSITION;
   float2 TexcoordA : TEXCOORD0;
   float2 TexcoordB : TEXCOORD1;
   float2 OriginalTexcoord : TEXCOORD2;
@@ -62,11 +70,12 @@ struct VS_Output
 // pixel shader to frame
 struct PS_Output
 {
-  float4 Color : COLOR0;
+  float4 Color : SV_TARGET;
 };
 
 void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
+  OUT.clipSpaceOutput = IN.clipSpaceOutput;
   OUT.Position = mul(IN.Position, worldViewProj);
 
   // Apply relative transform

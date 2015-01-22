@@ -42,28 +42,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     public Vector4 FrameDataA;
     public float Opacity;
     public float MixAB;
-
-    public override bool Equals(object obj)
-    {
-      if (obj == null)
-        return false;
-      var other = (ImageTransitionEffectParams)obj;
-      return
-        Equals(WorldTransform, other.WorldTransform) &&
-        Equals(RelativeTransform, other.RelativeTransform) &&
-        Equals(Opacity, other.Opacity) &&
-        Equals(ImageTransform, other.ImageTransform) &&
-        Equals(FrameData, other.FrameData) &&
-        Equals(RelativeTransformA, other.RelativeTransformA) &&
-        Equals(ImageTransformA, other.ImageTransformA) &&
-        Equals(FrameDataA, other.FrameDataA) &&
-        Equals(MixAB, other.MixAB);
-    }
   }
 
   public enum ParamIndexIT
   {
-    WorldTransfor = 0,
+    WorldTransform = 0,
     RelativeTransform = 1,
     ImageTransform = 2,
     FrameData = 3,
@@ -105,15 +88,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.Opacity, "0.0", "1.0", "1.0")]
     public float Opacity
     {
-      get
-      {
-        return _effectParams.Opacity;
-      }
-      set
-      {
-        _effectParams.Opacity = MathUtil.Clamp(value, 0.0f, 1.0f);
-        UpdateConstants();
-      }
+      get { return _effectParams.Opacity; }
+      set { _effectParams.Opacity = MathUtil.Clamp(value, 0.0f, 1.0f); }
     }
 
     /// <summary>
@@ -122,15 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.RelativeTransform, "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", Type = PropertyType.Matrix4x4)]
     public Matrix RelativeTransform
     {
-      get
-      {
-        return _effectParams.RelativeTransform;
-      }
-      set
-      {
-        _effectParams.RelativeTransform = value;
-        UpdateConstants();
-      }
+      get { return _effectParams.RelativeTransform; }
+      set { _effectParams.RelativeTransform = value; }
     }
 
     /// <summary>
@@ -139,15 +108,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.ImageTransform, "(0,0,0,0)", "(1,1,1,1)", "(0,0,0,0)")]
     public Vector4 ImageTransform
     {
-      get
-      {
-        return _effectParams.ImageTransform;
-      }
-      set
-      {
-        _effectParams.ImageTransform = value;
-        UpdateConstants();
-      }
+      get { return _effectParams.ImageTransform; }
+      set { _effectParams.ImageTransform = value; }
     }
 
     /// <summary>
@@ -156,15 +118,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.FrameData, "(0,0,0,0)", "(1,1,1,1)", "(0,0,0,0)")]
     public Vector4 FrameData
     {
-      get
-      {
-        return _effectParams.FrameData;
-      }
-      set
-      {
-        _effectParams.FrameData = value;
-        UpdateConstants();
-      }
+      get { return _effectParams.FrameData; }
+      set { _effectParams.FrameData = value; }
     }
 
     /// <summary>
@@ -173,15 +128,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.RelativeTransformA, "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", Type = PropertyType.Matrix4x4)]
     public Matrix RelativeTransformA
     {
-      get
-      {
-        return _effectParams.RelativeTransformA;
-      }
-      set
-      {
-        _effectParams.RelativeTransformA = value;
-        UpdateConstants();
-      }
+      get { return _effectParams.RelativeTransformA; }
+      set { _effectParams.RelativeTransformA = value; }
     }
 
     /// <summary>
@@ -190,15 +138,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.ImageTransformA, "(0,0,0,0)", "(1,1,1,1)", "(0,0,0,0)")]
     public Vector4 ImageTransformA
     {
-      get
-      {
-        return _effectParams.ImageTransformA;
-      }
-      set
-      {
-        _effectParams.ImageTransformA = value;
-        UpdateConstants();
-      }
+      get { return _effectParams.ImageTransformA; }
+      set { _effectParams.ImageTransformA = value; }
     }
 
     /// <summary>
@@ -207,30 +148,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     [PropertyBinding((int)ParamIndexIT.FrameDataA, "(0,0,0,0)", "(1,1,1,1)", "(0,0,0,0)")]
     public Vector4 FrameDataA
     {
-      get
-      {
-        return _effectParams.FrameDataA;
-      }
-      set
-      {
-        _effectParams.FrameData = value;
-        UpdateConstants();
-      }
+      get { return _effectParams.FrameDataA; }
+      set { _effectParams.FrameData = value; }
     }
+
     /// <summary>
     /// Gets or sets the mix factor for transition of both textures.
     /// </summary>
     [PropertyBinding((int)ParamIndexIT.MixAB, "0.0", "1.0", "1.0")]
     public float MixAB
     {
-      get
-      {
-        return _effectParams.MixAB;
-      }
-      set
-      {
-        _effectParams.MixAB = MathUtil.Clamp(value, 0.0f, 1.0f);
-      }
+      get { return _effectParams.MixAB; }
+      set { _effectParams.MixAB = MathUtil.Clamp(value, 0.0f, 1.0f); }
     }
 
     #endregion
