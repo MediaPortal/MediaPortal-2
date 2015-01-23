@@ -61,6 +61,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                  {
                                    DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
+                                   AudioAspect.ASPECT_ID,
+                                   ImageAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
                                  };
 
