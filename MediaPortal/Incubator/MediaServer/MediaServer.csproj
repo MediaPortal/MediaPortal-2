@@ -146,7 +146,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UPnPMediaServerDevice.cs" />
     <Compile Include="Search.cs" />
-    <Compile Include="VersionInfo.cs" />
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\HttpServer\HttpServer.csproj">
