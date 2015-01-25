@@ -24,11 +24,8 @@
 
 using System;
 using System.IO;
-using System.IO.Compression;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.PluginManager.Discovery;
-using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.PluginManager.Models;
+using MediaPortal.PackageManager.Core.Package;
 using MediaPortal.PackageManager.Options.Authors;
 using MediaPortal.PackageManager.Options.Shared;
 
@@ -63,13 +60,10 @@ namespace MediaPortal.PackageManager.Core
     {
       VerifyOptions(options);
 
-      // parse plugin definition file
-      PluginMetadata pluginMetadata;
-      if (!options.SourceFolder.TryParsePluginDefinition(out pluginMetadata))
-        throw new PluginInvalidMetadataException("Unable to parse the plugin definition file.");
+      var packageRoot = PackageRoot.ParsePackage(options.SourceFolder, true);
 
       // verify that output file doesn't exist
-      var packageFileName = string.Format("{0}-{1}{2}", pluginMetadata.Name, pluginMetadata.PluginVersion, PACKAGE_EXTENSION);
+      var packageFileName = string.Format("{0}-{1}{2}", packageRoot.PluginMetaData.Name, packageRoot.ReleaseMetaData.Version, PACKAGE_EXTENSION);
       var packageFilePath = Path.Combine(options.TargetFolder, packageFileName);
       if (File.Exists(packageFilePath))
       {
@@ -79,12 +73,8 @@ namespace MediaPortal.PackageManager.Core
           throw new InvalidOperationException(string.Format("The target directory already contains a package named '{0}'.", packageFileName));
       }
 
-      // TODO additional verification steps here
-      // check package conventions (folder names and content types)
-      // anything else we can think of?
-
       // create package archive
-      ZipFile.CreateFromDirectory(options.SourceFolder, packageFilePath, CompressionLevel.Optimal, includeBaseDirectory: true);
+      packageRoot.CreatePackage(packageFilePath);
 
       #region TODOs for the future
 
@@ -123,7 +113,7 @@ namespace MediaPortal.PackageManager.Core
         throw new ArgumentException("The target folder cannot be inside the source folder.");
 
       // make sure plugin descriptor file exists
-      options.SourceFolder.VerifyIsPluginDirectory();
+      //options.SourceFolder.VerifyIsPluginDirectory();
     }
   }
 }

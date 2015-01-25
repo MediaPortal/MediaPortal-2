@@ -76,6 +76,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Package\BasicPackageActions.cs" />
+    <Compile Include="Core\Package\PackageAction.cs" />
+    <Compile Include="Core\Package\PackageExceptions.cs" />
+    <Compile Include="Core\Package\PackageImage.cs" />
+    <Compile Include="Core\Package\PackageLink.cs" />
+    <Compile Include="Core\Package\PackageMetaData.cs" />
+    <Compile Include="Core\Package\PackagePluginMetaData.cs" />
+    <Compile Include="Core\Package\PackageReleaseMetaData.cs" />
+    <Compile Include="Core\Package\PackageRoot.cs" />
+    <Compile Include="Core\Package\PackageRootDirectory.cs" />
     <Compile Include="Core\ProcessManager.cs" />
     <Compile Include="Core\RequestExecutionHelper.cs" />
     <Compile Include="Core\Requestor.cs" />
