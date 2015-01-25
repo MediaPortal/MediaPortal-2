@@ -23,10 +23,18 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DIDL;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Search;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -314,15 +322,17 @@ namespace MediaPortal.Extensions.MediaServer
 
     private static UPnPError OnGetSearchCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // Current implementation doesn't support searching
-      outParams = new List<object> { "" };
+      Logger.Debug("MediaServer - OnGetSearchCapabilities");
+      // TODO: I don't know what upnp:class and res@size are but the UPnP spec had them in the example response
+      outParams = new List<object>(1) { "dc:title,dc:creator,upnp:class,res@size" };
       return null;
     }
 
     private static UPnPError OnGetSortCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // Current implementation doesn't support sorting
-      outParams = new List<object> { "" };
+      Logger.Debug("MediaServer - OnGetSortCapabilities");
+      // TODO: I don't know what res@size is but the UPnP spec had them in the example response
+      outParams = new List<object>(1) { "dc:title,dc:creator,res@size" };
       return null;
     }
 
@@ -342,34 +352,45 @@ namespace MediaPortal.Extensions.MediaServer
       var requestedCount = Convert.ToInt32(inParams[4]);
       var sortCriteria = (string)inParams[5];
 
+      Logger.Debug(
+        "MediaServer - OnSearch(containerId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
+        containerId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
+
       // Out parameters
       int numberReturned = 0;
       int totalMatches = 0;
       int containterUpdateId = 0;
-      /*
-            UPnPContentDirectorySearch query = new UPnPContentDirectorySearch();
-            StringWriter sw = new StringWriter();
-            query.Construct(searchCriteria, sw);
-            query.searchCrit();
-            PegNode pn = query.GetRoot();
 
-            string xml = ParserHelper.PegNodeToXml(pn, searchCriteria);
-            Logger.Debug("MediaServer - Parsed: \"{0}\" to make \"{1}\"", searchCriteria, xml);
-            
-            var parentDirectoryId = containerId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(containerId);
-            var necessaryMIATypes = new List<Guid> {DirectoryAspect.ASPECT_ID};
-            
-            var searchQuery = new MediaItemQuery(necessaryMIATypes, null);
-            //searchQuery.Filter
+      SearchExp exp = SearchParser.Parse(searchCriteria);
 
-            var searchItems = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true);
-            /*
-            foreach (var item in browseItems)
-            {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(DlnaItemAspect.ASPECT_ID);
+      IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
 
-            }
-            */
-      outParams = new List<object>(3) { numberReturned, totalMatches, containterUpdateId };
+      Logger.Debug("MediaServer - OnSearch query {0}", searchQuery);
+      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true);
+
+      var msgBuilder = new GenericDidlMessageBuilder();
+
+        foreach (MediaItem item in items)
+        {
+            Logger.Debug("MediaServer - OnSearch adding media item {0}", item.MediaItemId);
+            msgBuilder.Build(filter, MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
+        }
+
+        numberReturned = items.Count;
+        totalMatches = items.Count;
+
+        var xml = msgBuilder.ToString();
+        outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
+		
+        Logger.Debug(
+          "MediaServer - OnSearch((numberReturned=\"{0}\",totalMatches=\"{1}\",containerUpdateId=\"{2}\") {3}",
+          numberReturned, totalMatches, containterUpdateId, xml);
+
+      // This upnp action doesn't have a return type.
       return null;
     }
 
