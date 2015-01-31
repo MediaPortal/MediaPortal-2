@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -22,28 +22,17 @@
 
 #endregion
 
-using System.Collections.Generic;
-
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
 {
   /// <summary>
-  /// Settings class for the <see cref="NfoMovieMetadataExtractor"/>
+  /// This stub class is used to store inforation about a subtitle stream
   /// </summary>
-  /// <remarks>
-  /// Also contains all properties defined in <see cref="NfoMetadataExtractorSettingsBase"/>
-  /// </remarks>
-  public class NfoMovieMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
+  public class SubtitleStreamDetailsStub
   {
-    #region Ctor
-
     /// <summary>
-    /// Sets the default values specific to the <see cref="NfoMovieMetadataExtractor"/>
+    /// Language of the subtitle
     /// </summary>
-    public NfoMovieMetadataExtractorSettings()
-    {
-      NfoFileNames = new HashSet<string> { "movie" };
-    }
-
-    #endregion
+    /// <example>"French"</example>
+    public string Language { get; set; }
   }
 }

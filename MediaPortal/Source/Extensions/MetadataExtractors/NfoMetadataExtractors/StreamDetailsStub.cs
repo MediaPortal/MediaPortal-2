@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -24,26 +24,26 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
 {
   /// <summary>
-  /// Settings class for the <see cref="NfoMovieMetadataExtractor"/>
+  /// This stub class is used to store inforation about the streams contained in a media file
   /// </summary>
-  /// <remarks>
-  /// Also contains all properties defined in <see cref="NfoMetadataExtractorSettingsBase"/>
-  /// </remarks>
-  public class NfoMovieMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
+  public class StreamDetailsStub
   {
-    #region Ctor
+    /// <summary>
+    /// Details of the video stream(s)
+    /// </summary>
+    public HashSet<VideoStreamDetailsStub> VideoStreams { get; set; }
 
     /// <summary>
-    /// Sets the default values specific to the <see cref="NfoMovieMetadataExtractor"/>
+    /// Details of the audio stream(s)
     /// </summary>
-    public NfoMovieMetadataExtractorSettings()
-    {
-      NfoFileNames = new HashSet<string> { "movie" };
-    }
+    public HashSet<AudioStreamDetailsStub> AudioStreams { get; set; }
 
-    #endregion
+    /// <summary>
+    /// Details of the subtitle stream(s)
+    /// </summary>
+    public HashSet<SubtitleStreamDetailsStub> SubtitleStreams { get; set; }
   }
 }

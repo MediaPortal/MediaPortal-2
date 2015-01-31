@@ -9,6 +9,7 @@
 
   <Runtime>
     <Assembly FileName="NfoMetadataExtractors.dll"/>
+    <Assembly FileName="NewtonSoft.Json.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">

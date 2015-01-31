@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -22,28 +22,28 @@
 
 #endregion
 
-using System.Collections.Generic;
-
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
 {
   /// <summary>
-  /// Settings class for the <see cref="NfoMovieMetadataExtractor"/>
+  /// This stub class is used to store inforation about an audio stream
   /// </summary>
-  /// <remarks>
-  /// Also contains all properties defined in <see cref="NfoMetadataExtractorSettingsBase"/>
-  /// </remarks>
-  public class NfoMovieMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
+  public class AudioStreamDetailsStub
   {
-    #region Ctor
+    /// <summary>
+    /// Audiocodec
+    /// </summary>
+    /// <example>"ac3"</example>
+    public string Codec { get; set; }
 
     /// <summary>
-    /// Sets the default values specific to the <see cref="NfoMovieMetadataExtractor"/>
+    /// Language of the audio stream
     /// </summary>
-    public NfoMovieMetadataExtractorSettings()
-    {
-      NfoFileNames = new HashSet<string> { "movie" };
-    }
+    /// <example>"deutsch"</example>
+    public string Language { get; set; }
 
-    #endregion
+    /// <summary>
+    /// Number of channels in the audio stream
+    /// </summary>
+    public int? Channels { get; set; }
   }
 }
