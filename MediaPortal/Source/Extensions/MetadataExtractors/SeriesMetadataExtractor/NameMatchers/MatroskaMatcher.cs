@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -62,6 +64,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);
+
+      foreach(KeyValuePair<string, IList<string>> tag in tagsToExtract)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MatchSeries: MKV-Tag {0} Values are:", tag.Key);
+        if (tag.Value != null)
+        {
+          foreach (string s in tag.Value)
+            ServiceRegistration.Get<ILogger>().Debug("   {0}", s);
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Debug("---NULL---");
+        }
+      }
 
       string title = string.Empty;
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
@@ -105,8 +121,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         string imdbId;
         foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID])
           if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
+          { 
+            seriesInfo.ImdbId = imdbId; 
+            break;
+          }
+      }
+
+      // On Series, the counting tag is "TVDB"
+      if (extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID] != null)
+      {
+        int tmp;
+        foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID])
+          if(int.TryParse(candidate, out tmp) == true)
           {
-            seriesInfo.ImdbId = imdbId;
+            seriesInfo.TvdbId = tmp;
             break;
           }
       }
