@@ -35,7 +35,7 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
-  internal class ZipResourceAccessor : ILocalFsResourceAccessor
+  internal class ZipResourceAccessor : ILocalFsResourceAccessor, IUncachableResource
   {
     #region Protected fields
 
