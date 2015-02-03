@@ -49,10 +49,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         if (genreObj != null)
           CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
         var actorObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
-        if (genreObj != null)
+        if (actorObj != null)
           CollectionUtils.AddAll(Actor, actorObj.Cast<string>());
         var directorsObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_DIRECTORS);
-        if (genreObj != null)
+        if (directorsObj != null)
           CollectionUtils.AddAll(Director, directorsObj.Cast<string>());
       }
       var resource = new MediaLibraryResource(item);
