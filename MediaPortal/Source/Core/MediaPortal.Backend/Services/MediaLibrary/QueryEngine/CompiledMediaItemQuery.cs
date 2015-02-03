@@ -396,7 +396,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IList<Guid> mediaItemIds;
           IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds);
 
-          logger.Debug("Got media items " + string.Join(",", mediaItemIds));
+          logger.Debug("CompiledMediaItemQuery::Query got media items IDs [{0}]", string.Join(",", mediaItemIds));
 
           IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
               GetComplexAttributes(database, transaction, mediaItemIds);
