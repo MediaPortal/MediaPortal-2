@@ -1495,7 +1495,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // priority 1:
       if (_movieStub.Rating.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, _movieStub.Rating.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)_movieStub.Rating.Value);
         return true;
       }
       // priority 2:
@@ -1504,7 +1504,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         decimal rating;
         if (!_movieStub.Ratings.TryGetValue("imdb", out rating))
           rating = _movieStub.Ratings.First().Value;
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, rating);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)rating);
         return true;
       }
       return false;
