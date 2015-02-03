@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Antlr4.Runtime;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.Parser;
+using MediaPortal.Extensions.MediaServer.ANTLR;
+using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MediaServer.Search
+namespace MediaPortal.Extensions.MediaServer.Parser
 {
     public enum LogOp
     {
@@ -79,6 +81,16 @@ namespace MediaPortal.Extensions.MediaServer.Search
         public SearchException(string msg) : base(msg) { }
 
         public SearchException(string msg, Exception e) : base(msg, e) { }
+    }
+
+    class PropertyClassFilter : IFilter
+    {
+        public PropertyClass propertyClass;
+
+        public PropertyClassFilter(PropertyClass propertyClass)
+        {
+            this.propertyClass = propertyClass;
+        }
     }
 
     public class SearchParser
@@ -256,7 +268,7 @@ namespace MediaPortal.Extensions.MediaServer.Search
 
             public override void ExitQuotedVal(UPnPParser.QuotedValContext context)
             {
-                val = context.GetText().Substring(1, context.GetText().Length - 2);
+                val = context.GetText().Substring(1, context.GetText().Length - 2).Replace("\\\"", "\"");
                 //Console.WriteLine("Quote val " + context.GetText() + " -> " + val);
             }
         }
@@ -312,6 +324,7 @@ namespace MediaPortal.Extensions.MediaServer.Search
         {
             if (exp.property == Property.CLASS)
             {
+                // Container property classes cause title searches to change attribute (see later)
                 if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.AUDIO_ITEM)
                 {
                     types.Add(AudioAspect.ASPECT_ID);
@@ -320,17 +333,21 @@ namespace MediaPortal.Extensions.MediaServer.Search
                 else if (exp.op == Op.EQUALS && exp.propertyClass == PropertyClass.MUSIC_ALBUM)
                 {
                     types.Add(AudioAspect.ASPECT_ID);
-                    return null;
+                    return new PropertyClassFilter(exp.propertyClass.Value);
                 }
                 else if (exp.op == Op.EQUALS && exp.propertyClass == PropertyClass.MUSIC_ARTIST)
                 {
                     types.Add(AudioAspect.ASPECT_ID);
-                    return null;
+                    return new PropertyClassFilter(exp.propertyClass.Value);
                 }
                 else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.VIDEO_ITEM)
                 {
                     types.Add(VideoAspect.ASPECT_ID);
                     return null;
+                }
+                else
+                {
+                    throw new SearchException("Unable tpo convert property class " + exp.propertyClass);
                 }
             }
             else if(exp.property == Property.TITLE)
@@ -349,13 +366,28 @@ namespace MediaPortal.Extensions.MediaServer.Search
                 return new LikeFilter(AudioAspect.ATTR_ARTISTS, "%" + exp.val + "%", null);
             }
 
-            IList<IFilter> childFilters = new List<IFilter>();
-            foreach (SearchExp childExp in exp.children)
+            IList<IFilter> childFilters = exp.children.Select(childExp => Convert(childExp, types)).Where(filter => filter != null).ToList();
+
+            // Now do the check for container property classes
+            int index = 0;
+            while (index < childFilters.Count)
             {
-                IFilter filter = Convert(childExp, types);
-                if (filter != null)
+                PropertyClassFilter pcf = childFilters[index] as PropertyClassFilter;
+                if (pcf != null)
                 {
-                    childFilters.Add(filter);
+                    if (pcf.propertyClass == PropertyClass.MUSIC_ALBUM)
+                    {
+                        ChangeAttribute(childFilters, MediaAspect.ATTR_TITLE, AudioAspect.ATTR_ALBUM);
+                    }
+                    else if (pcf.propertyClass == PropertyClass.MUSIC_ARTIST)
+                    {
+                        ChangeAttribute(childFilters, MediaAspect.ATTR_TITLE, AudioAspect.ATTR_ARTISTS);
+                    }
+                    childFilters.RemoveAt(index);
+                }
+                else
+                {
+                    index++;
                 }
             }
 
@@ -369,6 +401,24 @@ namespace MediaPortal.Extensions.MediaServer.Search
             }
 
             return new BooleanCombinationFilter(exp.logOp == LogOp.AND ? BooleanOperator.And : BooleanOperator.Or, childFilters);
+        }
+
+        private static void ChangeAttribute(IList<IFilter> filters, MediaItemAspectMetadata.SingleAttributeSpecification from, MediaItemAspectMetadata.SingleAttributeSpecification to)
+        {
+            foreach (IFilter filter in filters)
+            {
+                AbstractAttributeFilter af = filter as AbstractAttributeFilter;
+                if (af != null && af.AttributeType == from)
+                {
+                    af.AttributeType = to;
+                }
+
+                BooleanCombinationFilter bcf = filter as BooleanCombinationFilter;
+                if (bcf != null)
+                {
+                    ChangeAttribute(bcf.Operands.ToList(), from, to);
+                }
+            }
         }
     }
 }

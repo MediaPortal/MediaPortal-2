@@ -25,16 +25,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DIDL;
+using MediaPortal.Extensions.MediaServer.Objects;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Search;
+using MediaPortal.Extensions.MediaServer.Parser;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -365,7 +366,6 @@ namespace MediaPortal.Extensions.MediaServer
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(DlnaItemAspect.ASPECT_ID);
       IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
 
@@ -374,11 +374,8 @@ namespace MediaPortal.Extensions.MediaServer
 
       var msgBuilder = new GenericDidlMessageBuilder();
 
-        foreach (MediaItem item in items)
-        {
-            Logger.Debug("MediaServer - OnSearch adding media item {0}", item.MediaItemId);
-            msgBuilder.Build(filter, MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
-        }
+        IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
+        msgBuilder.BuildAll(filter, objects);
 
         numberReturned = items.Count;
         totalMatches = items.Count;
