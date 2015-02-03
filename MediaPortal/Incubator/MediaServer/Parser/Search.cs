@@ -403,7 +403,7 @@ namespace MediaPortal.Extensions.MediaServer.Parser
             return new BooleanCombinationFilter(exp.logOp == LogOp.AND ? BooleanOperator.And : BooleanOperator.Or, childFilters);
         }
 
-        private static void ChangeAttribute(IList<IFilter> filters, MediaItemAspectMetadata.SingleAttributeSpecification from, MediaItemAspectMetadata.SingleAttributeSpecification to)
+        private static void ChangeAttribute(IList<IFilter> filters, MediaItemAspectMetadata.AttributeSpecification from, MediaItemAspectMetadata.AttributeSpecification to)
         {
             foreach (IFilter filter in filters)
             {
