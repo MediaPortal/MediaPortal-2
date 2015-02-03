@@ -212,7 +212,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var nfoReader = new NfoMovieReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
         using (nfoFsra)
         {
-          if (!await nfoReader.TryReadAsync(nfoFsra))
+          if (!await nfoReader.TryReadMetadataAsync(nfoFsra))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
@@ -221,9 +221,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
         // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
         // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
-        if (!nfoReader.TrySetAspects(extractedAspectData))
+        if (!nfoReader.TryWriteMetadata(extractedAspectData))
         {
-          _debugLogger.Warn("[#{0}]: No metadata was stored into MediaItemsAspects", miNumber);
+          _debugLogger.Warn("[#{0}]: No metadata was written into MediaItemsAspects", miNumber);
           return false;
         }
 

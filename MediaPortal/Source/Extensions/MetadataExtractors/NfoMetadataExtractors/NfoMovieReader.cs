@@ -24,12 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using Newtonsoft.Json;
@@ -63,11 +65,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     private readonly MovieStub _movieStub = new MovieStub();
     
-    /// <summary>
-    /// Settings of the <see cref="NfoMovieMetadataExtractor"/>
-    /// </summary>
-    private readonly NfoMovieMetadataExtractorSettings _settings;
-
     #endregion
 
     #region Ctor
@@ -83,8 +80,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public NfoMovieReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
-      _settings = settings;
-      
+      InitializeSupportedElements();
+      InitializeSupportedAttributes();
+    }
+
+    #endregion
+
+    #region Private methods
+
+    #region Ctor helpers
+
+    /// <summary>
+    /// Adds a delegate for each xml element in a movie nfo-file that is understood by this MetadataExtractor to <see cref="NfoReaderBase.SupportedElements"/>
+    /// </summary>
+    private void InitializeSupportedElements()
+    {
       SupportedElements.Add("id", new TryReadElementDelegate(TryReadId));
       SupportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
       SupportedElements.Add("tmdbid", new TryReadElementDelegate(TryReadTmdbId));
@@ -154,9 +164,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       SupportedElements.Add("filenameandpath", new TryReadElementDelegate(Ignore));
     }
 
-    #endregion
+    /// <summary>
+    /// Adds a delegate for each Attribute in a MediaItemAspect into which this MetadataExtractor can write metadata to <see cref="NfoReaderBase.SupportedAttributes"/>
+    /// </summary>
+    private void InitializeSupportedAttributes()
+    {
+      SupportedAttributes.Add(TryWriteMediaAspectTitle);
+      SupportedAttributes.Add(TryWriteMediaAspectRecordingTime);
+      SupportedAttributes.Add(TryWriteMediaAspectPlayCount);
+      SupportedAttributes.Add(TryWriteMediaAspectLastPlayed);
 
-    #region Private methods
+      SupportedAttributes.Add(TryWriteVideoAspectGenres);
+      SupportedAttributes.Add(TryWriteVideoAspectActors);
+      SupportedAttributes.Add(TryWriteVideoAspectDirectors);
+      SupportedAttributes.Add(TryWriteVideoAspectStoryPlot);
+
+      SupportedAttributes.Add(TryWriteMovieAspectMovieName);
+      SupportedAttributes.Add(TryWriteMovieAspectOrigName);
+      SupportedAttributes.Add(TryWriteMovieAspectTmdbId);
+      SupportedAttributes.Add(TryWriteMovieAspectImdbId);
+      SupportedAttributes.Add(TryWriteMovieAspectCollectionName);
+      SupportedAttributes.Add(TryWriteMovieAspectRuntime);
+      SupportedAttributes.Add(TryWriteMovieAspectCertification);
+      SupportedAttributes.Add(TryWriteMovieAspectTagline);
+      SupportedAttributes.Add(TryWriteMovieAspectTotalRating);
+      SupportedAttributes.Add(TryWriteMovieAspectRatingCount);
+
+      SupportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+    }
+
+    #endregion
 
     #region Reader methods for direct child elements of the root element
 
@@ -193,8 +230,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadTmdbId(XElement element)
     {
-      // Example of a valid element:
+      // Examples of valid elements:
       // <tmdbId>52913<tmdbId>
+      // <tmdbid>52913<tmdbid>
       return ((_movieStub.TmdbId = ParseSimpleInt(element)) != null);
     }
 
@@ -1141,6 +1179,378 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
+    #region writer methods to store metadata in MediaItemAspects
+
+    #region MediaAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectTitle(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Title != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _movieStub.Title);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_RECORDINGTIME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      // priority 1:
+      if (_movieStub.Premiered.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _movieStub.Premiered.Value);
+        return true;
+      }
+      //priority 2:
+      if (_movieStub.Year.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _movieStub.Year.Value);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_PLAYCOUNT"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectPlayCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      //priority 1:
+      if (_movieStub.PlayCount.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_PLAYCOUNT, _movieStub.PlayCount.Value);
+        return true;
+      }
+      //priority 2:
+      if (_movieStub.Watched.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_PLAYCOUNT, _movieStub.Watched.Value ? 1 : 0);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_LASTPLAYED"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectLastPlayed(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.LastPlayed.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_LASTPLAYED, _movieStub.LastPlayed.Value);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region VideoAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_GENRES"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteVideoAspectGenres(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Genres != null && _movieStub.Genres.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _movieStub.Genres.ToList());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteVideoAspectActors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Actors != null && _movieStub.Actors.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _movieStub.Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_DIRECTORS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteVideoAspectDirectors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Director != null)
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _movieStub.Director });
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_STORYPLOT"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteVideoAspectStoryPlot(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      // priority 1:
+      if (_movieStub.Plot != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _movieStub.Plot);
+        return true;
+      }
+      // priority 2:
+      if (_movieStub.Outline != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _movieStub.Outline);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region MovieAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_MOVIE_NAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectMovieName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Title != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_MOVIE_NAME, _movieStub.Title);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_ORIG_MOVIE_NAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectOrigName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.OriginalTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, _movieStub.OriginalTitle);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TMDB_ID"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectTmdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      //priority 1:
+      if (_movieStub.TmdbId.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _movieStub.TmdbId.Value);
+        return true;
+      }
+      //priority 2:
+      if (_movieStub.Thmdb.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _movieStub.Thmdb.Value);
+        return true;
+      }
+      //priority 3:
+      if (_movieStub.IdsTmdbId.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _movieStub.IdsTmdbId.Value);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_IMDB_ID"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectImdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      //priority 1:
+      if (_movieStub.Id != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _movieStub.Id);
+        return true;
+      }
+      //priority 2:
+      if (_movieStub.Imdb != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _movieStub.Imdb);
+        return true;
+      }
+      //priority 3:
+      if (_movieStub.IdsImdbId != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _movieStub.Imdb);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_COLLECTION_NAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectCollectionName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Sets != null && _movieStub.Sets.Any())
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_NAME, _movieStub.Sets.OrderBy(set => set.Order).First().Name);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_RUNTIME_M"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectRuntime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Runtime.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RUNTIME_M, (int)_movieStub.Runtime.Value.TotalMinutes);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_CERTIFICATION"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectCertification(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      // priority 1:
+      if (_movieStub.Certification != null && _movieStub.Certification.Any())
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, _movieStub.Certification.First());
+        return true;
+      }
+      // priority 2:
+      if (_movieStub.Mpaa != null && _movieStub.Mpaa.Any())
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, _movieStub.Mpaa.First());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TAGLINE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectTagline(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Tagline != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TAGLINE, _movieStub.Tagline);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TOTAL_RATING"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectTotalRating(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      // priority 1:
+      if (_movieStub.Rating.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, _movieStub.Rating.Value);
+        return true;
+      }
+      // priority 2:
+      if (_movieStub.Ratings != null && _movieStub.Ratings.Any())
+      {
+        decimal rating;
+        if (!_movieStub.Ratings.TryGetValue("imdb", out rating))
+          rating = _movieStub.Ratings.First().Value;
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, rating);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_RATING_COUNT"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Votes.HasValue)
+      {
+        if (_movieStub.Rating.HasValue || (_movieStub.Ratings != null && _movieStub.Ratings.Count == 1))
+        {
+          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, _movieStub.Votes.Value);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region ThumbnailLargeAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ThumbnailLargeAspect.ATTR_THUMBNAIL"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_movieStub.Thumb != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _movieStub.Thumb);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #endregion
+
     #region General helper methods
 
     /// <summary>
@@ -1186,15 +1596,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
-    /// Tries to store the available metadata into the <see cref="MediaItemAspect"/>s for movies
+    /// Writes the <see cref="_movieStub"/> object including its metadata into the debug log in Json form
     /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>a in which the metadata should be stored</param>
-    /// <returns><c>true</c> if any metadata was stored in <param name="extractedAspectData"></param>; else <c>false</c></returns>
-    public override bool TrySetAspects(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    protected override void LogStubObjects()
     {
-      if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
-        DebugLogger.Debug("[#{0}]: MovieStub: {1}{2}", MiNumber, Environment.NewLine, JsonConvert.SerializeObject(_movieStub, Formatting.Indented, new JsonSerializerSettings{ Converters = { new JsonByteArrayConverter() } }));
-      return true;
+      DebugLogger.Debug("[#{0}]: MovieStub: {1}{2}", MiNumber, Environment.NewLine, JsonConvert.SerializeObject(_movieStub, Formatting.Indented, new JsonSerializerSettings { Converters = { new JsonByteArrayConverter() } }));
     }
 
     #endregion

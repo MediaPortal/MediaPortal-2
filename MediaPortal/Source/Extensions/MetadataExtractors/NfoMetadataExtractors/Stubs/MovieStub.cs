@@ -163,6 +163,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// </summary>
     public HashSet<string> Credits { get; set; }
 
+    /// <summary>
+    /// Official runtime of the movie; does not have to be the same as the runtime of the movie file
+    /// </summary>
+    public TimeSpan? Runtime { get; set; }
+
     #endregion
 
     #region Content information
@@ -259,11 +264,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     #endregion
 
     #region Media file information
-
-    /// <summary>
-    /// Runtime of the specific movie file
-    /// </summary>
-    public TimeSpan? Runtime { get; set; }
 
     /// <summary>
     /// Frames per second in the movie file
