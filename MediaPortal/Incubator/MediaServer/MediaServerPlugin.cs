@@ -30,7 +30,6 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
@@ -61,7 +60,7 @@ namespace MediaPortal.Extensions.MediaServer
       var videoContainer = new BasicContainer("V") { Title = "Video" };
       RootContainer.Add(videoContainer);
       videoContainer.Add(new MediaLibraryGenreContainer("VG") { Title = "Genres" });
-      RootContainer.Add(new MediaLibraryShareContainer("S") { Title = "Shares" });
+      RootContainer.Add(new MediaLibraryShareContainer("M") { Title = "Media" });
     }
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -114,10 +113,6 @@ namespace MediaPortal.Extensions.MediaServer
 
     protected void RegisterWithServices()
     {
-      // All non-default media item aspects must be registered
-      ServiceRegistration.Get<ILogger>().Info("MediaServerPlugin: Registering Media Aspects");
-      ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().RegisterLocallyKnownMediaItemAspectType(DlnaItemAspect.Metadata);
-
       Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");
       ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
     }

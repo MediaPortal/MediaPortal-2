@@ -79,13 +79,11 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aspects\DlnaItemAspect.cs" />
     <Compile Include="Database\MediaServer_SubSchema.cs" />
     <Compile Include="DIDL\PropertyFilter.cs" />
     <Compile Include="DLNA\DlnaProtocolInfo.cs" />
     <Compile Include="DLNA\DlnaProtocolInfoFactory.cs" />
     <Compile Include="MediaServerUPnPDeviceInformation.cs" />
-    <Compile Include="MetadataExtractors\DlnaMetadataExtractor.cs" />
     <Compile Include="Objects\Basic\BasicContainer.cs" />
     <Compile Include="Objects\Basic\BasicItem.cs" />
     <Compile Include="Objects\Basic\BasicObject.cs" />
@@ -145,7 +143,7 @@
     <Compile Include="UPnPContentDirectoryServiceImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UPnPMediaServerDevice.cs" />
-    <Compile Include="Search.cs" />
+    <Compile Include="Parser\Search.cs" />
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
