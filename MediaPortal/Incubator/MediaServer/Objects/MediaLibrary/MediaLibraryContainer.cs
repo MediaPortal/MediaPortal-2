@@ -29,7 +29,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
@@ -61,7 +60,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   };
       var optionalMIATypeIDs = new Guid[]
                                  {
-                                   DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
                                    AudioAspect.ASPECT_ID,
@@ -83,7 +81,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error(e);
+          ServiceRegistration.Get<ILogger>().Error("Search failed", e);
         }
       }
       return result;

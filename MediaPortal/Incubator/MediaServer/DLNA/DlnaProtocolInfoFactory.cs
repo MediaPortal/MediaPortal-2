@@ -22,8 +22,9 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.Aspects;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MediaServer.DLNA
 {
@@ -31,15 +32,15 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
   {
     public DlnaProtocolInfo GetProtocolInfo(MediaItem item)
     {
-      string dlnaMediaType;
-      if (!MediaItemAspect.TryGetAttribute(item.Aspects, DlnaItemAspect.ATTR_MIME_TYPE, out dlnaMediaType))
+      string mediaType = GetDLNAMimeType(item);
+      if (mediaType == null)
         return null;
 
       var info = new DlnaProtocolInfo
                    {
                      Protocol = "http-get",
                      Network = "*",
-                     MediaType = dlnaMediaType,
+                     MediaType = mediaType,
                      AdditionalInfo = new DlnaForthField()
                    };
 
@@ -83,6 +84,28 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
     {
       var factory = new DlnaProtocolInfoFactory();
       return factory.GetProtocolInfo(item);
+    }
+
+    public static string GetDLNAMimeType(MediaItem item)
+    {
+      string mimeType;
+      if (!MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_MIME_TYPE, out mimeType))
+        return null;
+
+      // TODO: Add other types here
+      switch (mimeType)
+      {
+        case "audio/mp3":
+          return "audio/mpeg";
+
+        case "video/mpeg":
+          return "video/mpeg";
+
+        case "image/jpeg":
+          return "image/jpeg";
+      }
+
+      return null;
     }
   }
 }

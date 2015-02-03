@@ -36,7 +36,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Utilities.FileSystem;
@@ -235,10 +234,9 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
           // Grab the mimetype from the media item and set the Content Type header.
-          var mimeType = item.Aspects[DlnaItemAspect.ASPECT_ID].GetAttributeValue(DlnaItemAspect.ATTR_MIME_TYPE);
-          if (mimeType == null)
-            throw new InternalServerException("Media item has bad mime type, re-import media item");
-          response.ContentType = mimeType.ToString();
+          response.ContentType = DlnaProtocolInfoFactory.GetDLNAMimeType(item);
+          if (response.ContentType == null)
+            throw new InternalServerException(string.Format("Media item {0} has bad mime type, re-import media item", item.MediaItemId));
 
           // Grab the resource path for the media item.
           var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);

@@ -30,7 +30,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Tree;
 
@@ -97,7 +96,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                   };
       var optionalMiaTypeIDs = new Guid[]
                                  {
-                                   DlnaItemAspect.ASPECT_ID,
                                    DirectoryAspect.ASPECT_ID,
                                  };
 
