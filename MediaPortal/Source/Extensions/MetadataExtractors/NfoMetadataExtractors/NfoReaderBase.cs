@@ -72,6 +72,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if metadata could be read successfully from <paramref name="element"/>; else <c>false</c></returns>
     protected delegate Task<bool> TryReadElementAsyncDelegate(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra);
 
+    /// <summary>
+    /// Delegate used to write metadata into a specific Attribute of a MediaItemAspect
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the Attribute to</param>
+    /// <returns><c>true</c> if metadata was written to the Attribute; else <c>false</c></returns>
+    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, MediaItemAspect> extractedAspectData);
+
     #endregion
 
     #region Protected fields
@@ -98,6 +105,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Dictionary used to find the appropriate <see cref="TryReadElementDelegate"/> or <see cref="TryReadElementAsyncDelegate"/> by element name
     /// </summary>
     protected readonly Dictionary<XName, Delegate> SupportedElements = new Dictionary<XName, Delegate>();
+
+    /// <summary>
+    /// List of <see cref="TryWriteAttributeDelegate"/>s used to write metadata into a specific Attribute of a MediaItemAspect
+    /// </summary>
+    protected readonly List<TryWriteAttributeDelegate> SupportedAttributes = new List<TryWriteAttributeDelegate>();
 
     /// <summary>
     /// <see cref="HttpClient"/> used to download from http URLs contained in nfo-files
@@ -148,7 +160,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
-    public async Task<bool> TryReadAsync(IFileSystemResourceAccessor nfoFsra)
+    public async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
       byte[] nfoBytes;
       var nfoFileWrittenToDebugLog = false;
@@ -208,6 +220,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
         return false;
       }
+    }
+
+    /// <summary>
+    /// Tries to write the available metadata into the respective MediaItemsAspects
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary with MediaItemAspects into which the metadata should be written</param>
+    /// <returns><c>true</c> if any metadata was written in the <param name="extractedAspectData"></param>; otherwise <c>false</c></returns>
+    /// <remarks>
+    /// This method was designed as a Try...-method for later, when our MDEs support priorities on Attribute level.
+    /// Currently this method only returns <c>false</c>, if not metadata was found that could be written to any supported Attribute of a MediaItemAspect
+    /// <param name="extractedAspectData"></param> must not be <c>null</c>. If it does not contain a MediaItemAspect, in which this method wants
+    /// to store metadata, this MediaItemAspect is added to <param name="extractedAspectData"></param>.
+    /// </remarks>
+    public bool TryWriteMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      var stubObjectsLogged = false;
+      var result = false;
+      if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
+      {
+        LogStubObjects();
+        stubObjectsLogged = true;
+      }
+      foreach (var writeDelegate in SupportedAttributes)
+      {
+        try
+        {
+          result = writeDelegate.Invoke(extractedAspectData) || result;
+        }
+        catch (Exception e)
+        {
+          DebugLogger.Error("[#{0}]: Error writing metadata into the MediaItemAspects (delegate: {1})", e, MiNumber, writeDelegate);
+          if (stubObjectsLogged)
+            continue;
+          LogStubObjects();
+          stubObjectsLogged = true;
+        }
+      }
+      return result;
     }
 
     #endregion
@@ -669,17 +719,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     protected abstract bool CanReadNfoDocument(XDocument nfoDocument);
 
     /// <summary>
-    /// Tries to store the available metadata into the respective MediaItemsAspects
+    /// Writes all StubObjects including their metadata into the debug log
     /// </summary>
-    /// <param name="extractedAspectData">Dictionary with MediaItemAspects in which the metadata should be stored</param>
-    /// <returns><c>true</c> if any metadata was stored in the <param name="extractedAspectData"></param>; otherwise <c>false</c></returns>
-    /// <remarks>
-    /// This method was designed as a Try...-method for later, when our MDEs support priorities on Attribute level.
-    /// Currently the metadata is always stored (potentially overriding prior metadata) and true is always returned.
-    /// <param name="extractedAspectData"></param> must not be <c>null</c>. If it does not contain a MIA, in which this method wants
-    /// to store metadata, this MIA is added to <param name="extractedAspectData"></param>.
-    /// </remarks>
-    public abstract bool TrySetAspects(IDictionary<Guid, MediaItemAspect> extractedAspectData);
+    protected abstract void LogStubObjects();
 
     #endregion
   }

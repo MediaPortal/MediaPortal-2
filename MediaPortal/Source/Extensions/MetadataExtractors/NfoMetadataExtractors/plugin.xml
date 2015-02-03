@@ -5,7 +5,7 @@
     Author = "MJGraf"
     Copyright="GPL"
     Description="Metadata extractors reading metadata from local nfo-files"
-    PluginVersion="0.01">
+    PluginVersion="0.02">
 
   <Runtime>
     <Assembly FileName="NfoMetadataExtractors.dll"/>
