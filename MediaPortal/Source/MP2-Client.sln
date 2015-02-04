@@ -184,6 +184,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NfoMetadataExtractors", "Extensions\MetadataExtractors\NfoMetadataExtractors\NfoMetadataExtractors.csproj", "{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -470,6 +472,10 @@ Global
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.Build.0 = Release|x86
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}.Debug|x86.ActiveCfg = Debug|x86
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}.Release|x86.ActiveCfg = Release|x86
+		{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}.Debug|x86.ActiveCfg = Debug|x86
+		{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}.Debug|x86.Build.0 = Debug|x86
+		{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}.Release|x86.ActiveCfg = Release|x86
+		{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -555,5 +561,6 @@ Global
 		{E73C038E-FD47-40AD-9256-4457316F8A97} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4} = {D7E79601-A62E-4193-892F-033F8E7C90BD}
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 	EndGlobalSection
 EndGlobal
