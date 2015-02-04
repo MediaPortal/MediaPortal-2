@@ -101,6 +101,9 @@ namespace MediaPortal.UI.Players.Video
     protected AspectRatioMode _arMode = AspectRatioMode.Stretched;
     protected DvdVideoAttributes _videoAttr;
 
+    private readonly object _dvdStopSyncObj = new object();
+    private bool _stopping = false;
+
     #endregion
 
     #region Constructor
@@ -423,11 +426,24 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public override void Stop()
     {
+      lock (_dvdStopSyncObj)
+      {
+        if (_stopping == false)
+          _stopping = true;
+        else
+          return;
+      }
+
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Stop");
       if (_dvdCtrl != null)
         _dvdCtrl.Stop();
 
       base.Stop();
+      
+      lock(_dvdStopSyncObj)
+      {
+        _stopping = false;
+      }
     }
 
     #endregion
@@ -504,7 +520,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     private void OnDvdEvent()
     {
-      if (_mediaEvt == null || _dvdCtrl == null)
+      if (_mediaEvt == null || _dvdCtrl == null || _stopping)
         return;
 
       int p1, p2;
@@ -513,6 +529,8 @@ namespace MediaPortal.UI.Players.Video
         int hr;
         do
         {
+          bool needStop = false;
+
           IMediaEventEx eventEx = (IMediaEventEx) _graphBuilder;
           EventCode code;
           hr = eventEx.GetEvent(out code, out p1, out p2, 0);
@@ -615,7 +633,7 @@ namespace MediaPortal.UI.Players.Video
                     break;
                   case DvdDomain.Stop:
                     ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=Stop");
-                    Stop();
+                    needStop = true;
                     break;
                   case DvdDomain.VideoManagerMenu:
                     ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=VideoManagerMenu (menu)");
@@ -635,8 +653,13 @@ namespace MediaPortal.UI.Players.Video
                 break;
               }
           }
-
           eventEx.FreeEventParams(code, p1, p2);
+
+          if(needStop)
+          {
+            Stop();
+            break;
+          }
         } while (hr == 0);
       }
       catch (Exception ex)
