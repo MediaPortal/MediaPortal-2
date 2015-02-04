@@ -22,26 +22,44 @@
 
 #endregion
 
+#define TVE3
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Timers;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
+using MediaPortal.Utilities;
+using TvControl;
+using TvDatabase;
+using TvEngine.Events;
+using TvLibrary.Interfaces;
+using TvLibrary.Interfaces.Integration;
+using TvService;
+using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
+using ILogger = MediaPortal.Common.Logging.ILogger;
+using IPathManager = MediaPortal.Common.PathManager.IPathManager;
+using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
+using Timer = System.Timers.Timer;
+#if !TVE3
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Service.Helpers;
 using Mediaportal.TV.Server.TVControl;
 using Mediaportal.TV.Server.TVControl.Events;
@@ -59,10 +77,9 @@ using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using Mediaportal.TV.Server.TVService.Interfaces.Services;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
-using ILogger = MediaPortal.Common.Logging.ILogger;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
-using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
+#endif
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -77,6 +94,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected DbProviderFactory _dbProviderFactory;
     protected string _cloneConnection;
 
+#if TVE3
+    protected IController _tvControl;
+    protected TvBusinessLayer _tvBusiness;
+    protected Thread _serviceThread;
+#endif
 
     public string Name
     {
@@ -110,29 +132,107 @@ namespace MediaPortal.Plugins.SlimTv.Service
         // Prepare TV database if required.
         PrepareTvDatabase(transaction);
 
+#if !TVE3
         if (transaction.Connection.GetCloneFactory(TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
         {
           EntityFrameworkHelper.AssureKnownFactory(_dbProviderFactory);
           // Register our factory to create new cloned connections
           ObjectContextManager.SetDbConnectionCreator(ClonedConnectionFactory);
         }
+#endif
       }
 
       IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service", @"Plugins\SlimTv.Service\castle.config");
-      _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
-      _tvServiceThread.Start();
+      var pm = GlobalServiceProvider.Instance.Get<IIntegrationProvider>().PathManager;
 
+      // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
+      PrepareProgramData();
+
+      _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
+#if TVE3
+      InitializeGentle();
+      Start();
+#else
+      _tvServiceThread.Start();
+#endif
       if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to start TV service thread within {0} seconds.", MAX_WAIT_MS / 1000);
       }
 
-      // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
-      PrepareProgramData();
-
+#if TVE3
+      InitializeTVE();
+#endif
       // Handle events from TvEngine
       RegisterEvents();
     }
+
+#if TVE3
+
+    public void Start()
+    {
+      var tvServiceThreadStart = new ThreadStart(() =>
+      {
+        try
+        {
+          _tvServiceThread.OnStart();
+        }
+        catch
+        {
+          // Only exit the process if the caller forces this behavior.
+        }
+      });
+      _serviceThread = new Thread(tvServiceThreadStart) { IsBackground = false };
+      _serviceThread.Start();
+    }
+
+    public void Stop(int maxWaitMsecs)
+    {
+      if (_serviceThread != null && _serviceThread.IsAlive)
+      {
+        bool joined = _serviceThread.Join(maxWaitMsecs);
+        if (!joined)
+        {
+          _serviceThread.Abort();
+          _serviceThread.Join();
+        }
+        _tvServiceThread = null;
+      }
+    }
+
+    private void InitializeGentle()
+    {
+      try
+      {
+        // Use the same Gentle.config as the TVEngine
+        string gentleConfigFile = Path.Combine(ServiceRegistration.Get<IPathManager>().GetPath("<TVCORE>"), "Gentle.config");
+        // but be quiet when it doesn't exists, as not everyone has the TV Engine installed
+        if (!File.Exists(gentleConfigFile))
+        {
+          ServiceRegistration.Get<ILogger>().Info("Cannot find Gentle.config file, assuming TVEngine isn't installed...");
+          return;
+        }
+        Gentle.Common.Configurator.AddFileHandler(gentleConfigFile);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Failed to connect to TVEngine", ex);
+      }
+    }
+
+    private void InitializeTVE()
+    {
+      try
+      {
+        _tvControl = _tvServiceThread.Controller;
+        _tvBusiness = new TvBusinessLayer();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Failed to connect to TVEngine", ex);
+      }
+    }
+#endif
 
     /// <summary>
     /// Prepares the required data folders for first run. The required tuningdetails and other files are extracted to [TVCORE] path.
@@ -205,6 +305,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
     }
 
+#if !TVE3
     /// <summary>
     /// Creates a new <see cref="DbConnection"/> on each request. This is used by the Tve35 EF model handling.
     /// </summary>
@@ -217,14 +318,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
       connection.ConnectionString = _cloneConnection;
       return connection;
     }
+#endif
 
     public bool DeInit()
     {
+#if TVE3
+      Stop(MAX_WAIT_MS);
+#else
       if (_tvServiceThread != null)
       {
-        _tvServiceThread.Stop(MAX_WAIT_MS);
+        _tvServiceThread.OnStop();
         _tvServiceThread = null;
       }
+#endif
       return true;
     }
 
@@ -245,7 +351,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         if (tvEvent.EventType == TvServerEventType.RecordingEnded)
         {
+#if TVE3
+          var recording = Recording.Retrieve(tvEvent.Recording.IdRecording);
+#else
           var recording = ServiceAgents.Instance.RecordingServiceAgent.GetRecording(tvEvent.Recording);
+#endif
           if (recording != null)
           {
             ServiceRegistration.Get<ILogger>().Info("SlimTvService: Recording ended: {0}", recording.FileName);
@@ -273,7 +383,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       if (possibleShares.Count == 0)
       {
-        ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Received notifaction of new recording but could not find a media source. Have you added recordings folder as media source? File: {0}", fileName); 
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Received notifaction of new recording but could not find a media source. Have you added recordings folder as media source? File: {0}", fileName);
         return;
       }
 
@@ -303,20 +413,42 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+#if TVE3
+    private IUser GetUserByUserName(string userName)
+    {
+      return Card.ListAll()
+        .Where(c => c != null && c.Enabled)
+        .SelectMany(c => { var users = _tvControl.GetUsersForCard(c.IdCard); return users ?? new IUser[] { }; })
+        .FirstOrDefault(u => u.Name == userName);
+    }
+#endif
+
     public bool StopTimeshift(string userName, int slotIndex)
     {
       IUser user;
-      IInternalControllerService control = GlobalServiceProvider.Get<IInternalControllerService>();
+#if TVE3
+      user = GetUserByUserName(GetUserName(userName, slotIndex));
+      if (user == null)
+        return false;
+      return _tvControl.StopTimeShifting(ref user);
+#else
+      IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
       return control.StopTimeShifting(GetUserName(userName, slotIndex), out user);
+#endif
     }
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
       // Channel is usually only passed as placeholder with ID only, so query the details here
-      IChannelService channelService = GlobalServiceProvider.Get<IChannelService>();
+#if TVE3
+      TvDatabase.Channel fullChannel = TvDatabase.Channel.Retrieve(channel.ChannelId);
+      bool isTv = fullChannel.IsTv;
+#else
+      IChannelService channelService = GlobalServiceProvider.Instance.Get<IChannelService>();
       Channel fullChannel = channelService.GetChannel(channel.ChannelId);
-
       bool isTv = fullChannel.MediaType == 0;
+#endif
+
       LiveTvMediaItem tvStream = isTv
         ? SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, fullChannel.ToChannel())
         : SlimTvMediaItemBuilder.CreateRadioMediaItem(slotIndex, streamUrl, fullChannel.ToChannel());
@@ -344,16 +476,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
     {
-      programNow = null;
-      programNext = null;
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+#if TVE3
+      var tvChannel = TvDatabase.Channel.Retrieve(channel.ChannelId);
+      programNow = tvChannel.CurrentProgram.ToProgram();
+      programNext = tvChannel.NextProgram.ToProgram();
+#else
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
       var count = programs.Count;
       if (count >= 1)
         programNow = programs[0];
       if (count >= 2)
         programNext = programs[1];
-
+#endif
       return programNow != null || programNext != null;
     }
 
@@ -376,9 +511,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+#if TVE3
+      programs = _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.ChannelId), from, to)
+#else
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+#endif
+.Select(tvProgram => tvProgram.ToProgram(true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       return programs.Count > 0;
@@ -386,9 +525,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+#if TVE3
+      programs = _tvBusiness.SearchPrograms(title).Where(p => p.StartTime >= from && p.StartTime <= to || p.EndTime >= from && p.EndTime <= to)
+#else
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       programs = programService.GetProgramsByTitleAndStartEndTimes(title, from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+#endif
+.Select(tvProgram => tvProgram.ToProgram(true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       return programs.Count > 0;
@@ -396,25 +539,35 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
-      IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
+#if TVE3
+      programs = new List<IProgram>();
+      foreach (var channel in _tvBusiness.GetTVGuideChannelsForGroup(channelGroup.ChannelGroupId))
+        CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
+#else
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
+      IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
 
       var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
       IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
 
       programs = programEntities.Values.SelectMany(x => x).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+#endif
       return programs.Count > 0;
     }
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
-      programs = null;
+#if TVE3
+      programs = new List<IProgram>();
+      return false;
+#else
       Schedule scheduleEntity = ScheduleManagement.GetSchedule(schedule.ScheduleId);
       if (scheduleEntity == null)
         return false;
       IList<Program> programEntities = ProgramManagement.GetProgramsForSchedule(scheduleEntity);
       programs = programEntities.Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
       return true;
+#endif
     }
 
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
@@ -424,44 +577,69 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetChannel(IProgram program, out IChannel channel)
     {
-      IChannelService channelService = GlobalServiceProvider.Get<IChannelService>();
+#if TVE3
+      channel = TvDatabase.Channel.Retrieve(program.ChannelId).ToChannel();
+#else
+      IChannelService channelService = GlobalServiceProvider.Instance.Get<IChannelService>();
       channel = channelService.GetChannel(program.ChannelId).ToChannel();
+#endif
       return true;
     }
 
     public bool GetProgram(int programId, out IProgram program)
     {
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+#if TVE3
+      program = TvDatabase.Program.Retrieve(programId).ToProgram();
+#else
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       program = programService.GetProgram(programId).ToProgram();
+#endif
       return program != null;
     }
 
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
-      IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
+#if TVE3
+      // TODO: only TV groups affected here
+      groups = TvDatabase.ChannelGroup.ListAll()
+        .OrderBy(tvGroup => tvGroup.SortOrder)
+#else
+      IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
       groups = channelGroupService.ListAllChannelGroups()
         .OrderBy(tvGroup => tvGroup.MediaType)
         .ThenBy(tvGroup => tvGroup.SortOrder)
-        .Select(tvGroup => tvGroup.ToChannelGroup())
+#endif
+.Select(tvGroup => tvGroup.ToChannelGroup())
         .ToList();
       return true;
     }
 
     public bool GetChannel(int channelId, out IChannel channel)
     {
-      IChannelService channelGroupService = GlobalServiceProvider.Get<IChannelService>();
+#if TVE3
+      channel = TvDatabase.Channel.Retrieve(channelId).ToChannel();
+#else
+      IChannelService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelService>();
       channel = channelGroupService.GetChannel(channelId).ToChannel();
+#endif
       return true;
     }
 
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
-      IChannelGroupService channelGroupService = GlobalServiceProvider.Get<IChannelGroupService>();
+#if TVE3
+      channels = _tvBusiness.GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
+        .OrderBy(c => c.SortOrder)
+        .Select(c => c.ToChannel())
+        .ToList();
+#else
+      IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
       channels = channelGroupService.GetChannelGroup(group.ChannelGroupId).GroupMaps
         .Where(groupMap => groupMap.Channel.VisibleInGuide)
         .OrderBy(groupMap => groupMap.SortOrder)
         .Select(groupMap => groupMap.Channel.ToChannel())
         .ToList();
+#endif
       return true;
     }
 
@@ -473,14 +651,28 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetSchedules(out IList<ISchedule> schedules)
     {
-      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+#if TVE3
+      schedules = TvDatabase.Schedule.ListAll().Select(s => s.ToSchedule()).ToList();
+#else
+      IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       schedules = scheduleService.ListAllSchedules().Select(s => s.ToSchedule()).ToList();
+#endif
       return true;
     }
 
     public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
-      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+#if TVE3
+      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (int)recordingType);
+      tvSchedule.ScheduleType = (int)recordingType;
+      tvSchedule.PreRecordInterval = Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
+      tvSchedule.PostRecordInterval = Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
+      tvSchedule.Persist();
+      _tvControl.OnNewSchedule();
+      schedule = tvSchedule.ToSchedule();
+      return true;
+#else
+      IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       Schedule tvschedule = ScheduleFactory.CreateSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime);
       tvschedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
       tvschedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
@@ -488,12 +680,34 @@ namespace MediaPortal.Plugins.SlimTv.Service
       scheduleService.SaveSchedule(tvschedule);
       schedule = tvschedule.ToSchedule();
       return true;
+#endif
     }
 
     public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
     {
-      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+#if TVE3
+      var canceledProgram = TvDatabase.Program.Retrieve(program.ProgramId);
+      if (canceledProgram == null)
+        return false;
+      foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsRecordingProgram(canceledProgram, true)))
+      {
+        switch (schedule.ScheduleType)
+        {
+          case (int)ScheduleRecordingType.Once:
+            schedule.Delete();
+            _tvControl.OnNewSchedule();
+            break;
+          default:
+            CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, schedule.StartTime);
+            canceledSchedule.Persist();
+            _tvControl.OnNewSchedule();
+            break;
+        }
+      }
+      return true;
+#else
+      IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var canceledProgram = programService.GetProgram(program.ProgramId);
       if (canceledProgram == null)
         return false;
@@ -520,21 +734,33 @@ namespace MediaPortal.Plugins.SlimTv.Service
         }
       }
       return true;
+#endif
     }
 
     public bool RemoveSchedule(ISchedule schedule)
     {
-      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+#if TVE3
+      TvDatabase.Schedule tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
+      _tvControl.StopRecordingSchedule(tvSchedule.IdSchedule);
+      // delete canceled schedules first
+      foreach (var cs in CanceledSchedule.ListAll().Where(x => x.IdSchedule == tvSchedule.IdSchedule))
+        cs.Remove();
+      tvSchedule.Remove();
+      _tvControl.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
+#else
+      IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       if (scheduleService == null)
         return false;
 
       scheduleService.DeleteSchedule(schedule.ScheduleId);
+#endif
       return true;
     }
 
+#if !TVE3
     private static void CancelSingleSchedule(Schedule schedule, Program canceledProgram)
     {
-      ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Get<ICanceledScheduleService>();
+      ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Instance.Get<ICanceledScheduleService>();
 
       CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, canceledProgram.IdChannel, canceledProgram.StartTime);
       canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
@@ -603,12 +829,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       ServiceAgents.Instance.ScheduleServiceAgent.DeleteSchedule(schedule.IdSchedule);
       return true;
     }
+#endif
 
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
-      IProgramService programService = GlobalServiceProvider.Get<IProgramService>();
+#if TVE3
+      var tvProgram = (IProgramRecordingStatus)TvDatabase.Program.Retrieve(program.ProgramId).ToProgram(true);
+      recordingStatus = tvProgram.RecordingStatus;
+#else
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       IProgramRecordingStatus recProgram = (IProgramRecordingStatus)programService.GetProgram(program.ProgramId).ToProgram(true);
       recordingStatus = recProgram.RecordingStatus;
+#endif
       return true;
     }
 
@@ -625,8 +857,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private static bool GetRecording(IProgram program, out Recording recording)
     {
-      IRecordingService recordingService = GlobalServiceProvider.Get<IRecordingService>();
+#if TVE3
+      recording = TvDatabase.Recording.ListAll().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+#else
+      IRecordingService recordingService = GlobalServiceProvider.Instance.Get<IRecordingService>();
       recording = recordingService.GetActiveRecordingByTitleAndChannel(program.Title, program.ChannelId);
+#endif
       return recording != null;
     }
 
@@ -641,7 +877,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IUser currentUser = UserFactory.CreateBasicUser(userName, -1);
       ServiceRegistration.Get<ILogger>().Debug("Starting timeshifiting with username {0} on channel id {1}", userName, channelId);
 
-      IInternalControllerService control = GlobalServiceProvider.Get<IInternalControllerService>();
+#if TVE3
+      // actually start timeshifting
+      VirtualCard card;
+      TvResult result = _tvControl.StartTimeShifting(ref currentUser, channelId, out card);
+      // make sure result is correct and return
+      if (result != TvResult.Succeeded)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Starting timeshifting failed with result {0}", result);
+        return null;
+      }
+      if (card == null)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Couldn't get virtual card");
+        return null;
+      }
+#else
+      IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
 
       IVirtualCard card;
       IUser user;
@@ -654,6 +906,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ServiceRegistration.Get<ILogger>().Error("Starting timeshifting failed with result {0}", result);
         throw new Exception("Failed to start tv stream: " + result);
       }
+#endif
       return userName.StartsWith(LOCAL_USERNAME + "-") ? card.TimeShiftFileName : card.RTSPUrl;
     }
 
@@ -668,9 +921,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (!_tvUsers.ContainsKey(userName) && !create)
         return null;
 
+#if TVE3
+      if (!_tvUsers.ContainsKey(userName) && create)
+        _tvUsers.Add(userName, new User(userName, false));
+#else
       if (!_tvUsers.ContainsKey(userName) && create)
         _tvUsers.Add(userName, new User(userName, UserType.Normal));
-
+#endif
       return _tvUsers[userName];
     }
 
