@@ -629,7 +629,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
 #if TVE3
       channels = _tvBusiness.GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
-        .OrderBy(c => c.SortOrder)
+        // Bug? SortOrder contains logical channel number, not the group sort order?
+        // .OrderBy(c => c.SortOrder)
+        .Where(c=> c.VisibleInGuide)
         .Select(c => c.ToChannel())
         .ToList();
 #else
