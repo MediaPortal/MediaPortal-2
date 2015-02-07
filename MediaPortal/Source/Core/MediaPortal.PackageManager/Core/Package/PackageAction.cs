@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -173,12 +174,28 @@ namespace MediaPortal.PackageManager.Core.Package
   public class PackageActionCollection : Collection<PackageAction>
   { }
 
+  /// <summary>
+  /// Delegate for printing action messages.
+  /// </summary>
+  /// <param name="text">Text to print.</param>
+  public delegate void PrintDelegate(string text);
 
   /// <summary>
   /// Context for execution of package actions.
   /// </summary>
   public class ActionContext
   {
+    private readonly PrintDelegate _printCallback;
+    private readonly IDictionary<string, string> _registredPaths;
+
+    public ActionContext(PackageRoot packageRoot, PackageInstallType installyType, PrintDelegate printCallback, IDictionary<string, string> registredPaths)
+    {
+      _printCallback = printCallback;
+      _registredPaths = registredPaths;
+      PackageRoot = packageRoot;
+      InstallType = installyType;
+    }
+
     /// <summary>
     /// Prints a message to the log, console or whatever print target is attached
     /// </summary>
@@ -186,7 +203,11 @@ namespace MediaPortal.PackageManager.Core.Package
     /// <param name="args">Arguments for the format string.</param>
     public void Print(string format, params string[] args)
     {
-      //TODO: implement
+      if (format == null) throw new ArgumentNullException("format");
+      if (args == null) throw new ArgumentNullException("args");
+
+      if (_printCallback != null) 
+        _printCallback(String.Format(format, args));
     }
 
     /// <summary>
@@ -206,7 +227,9 @@ namespace MediaPortal.PackageManager.Core.Package
     /// <returns>Returns the full path or <c>null</c> if the name is unknown.</returns>
     public string GetPath(string name)
     {
-      //TODO: implement
+      string path;
+      if (_registredPaths.TryGetValue(name, out path))
+        return path;
       return null;
     }
   }

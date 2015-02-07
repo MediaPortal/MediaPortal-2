@@ -51,13 +51,41 @@ namespace MediaPortal.PackageManager.Core.Package
     #region parsing methods
 
     /// <summary>
+    /// Extracts and parses a MP2 package file.
+    /// </summary>
+    /// <param name="path">Full or relative path tho the package file.</param>
+    /// <param name="targetDirectory">Full or relative path to the target directory into which the package is extracted.
+    /// If <c>null</c> is specified the package is extracted to a temporary folder.
+    /// This folder must be deleted manually by calling the <see cref="DeletePackage"/> method.</param>
+    /// <returns>Returns the parsed package object.</returns>
+    public static PackageRoot ExtractPackage(string path, string targetDirectory = null)
+    {
+      if (path == null) throw new ArgumentNullException("path");
+
+      if (targetDirectory == null)
+      {
+        targetDirectory = Path.GetTempPath();
+      }
+
+      var packageName = Path.GetFileNameWithoutExtension(path);
+      if (String.IsNullOrEmpty(packageName))
+        throw new ArgumentException("The package file name is invalid");
+
+      var targetPath = Path.Combine(targetDirectory, packageName);
+      ZipFile.ExtractToDirectory(path, targetPath);
+      return ParsePackage(targetPath);
+    }
+
+    /// <summary>
     /// Parses an extracted package
     /// </summary>
     /// <param name="path">Path to the root directory of the package.</param>
-    /// <param name="createPackageInfoFile"><c>true</c> if the PAckageInfo.xml file should be create, <c>false</c> if it should be parsed.</param>
+    /// <param name="createPackageInfoFile"><c>true</c> if the PackageInfo.xml file should be create, <c>false</c> if it should be parsed.</param>
     /// <returns>Returns an instance of the package.</returns>
     public static PackageRoot ParsePackage(string path, bool createPackageInfoFile = false)
     {
+      if (path == null) throw new ArgumentNullException("path");
+
       var package = new PackageRoot();
       package.Parse(path, createPackageInfoFile);
       return package;
@@ -73,14 +101,7 @@ namespace MediaPortal.PackageManager.Core.Package
 
       PackagePath = path;
 
-      if (createPackageInfoFile)
-      {
-        PackageInfo = PackageMetaData.DefaultInfo;
-      }
-      else
-      {
-        PackageInfo = ParsePackageInfoFile(PackageInfoPath);
-      }
+      PackageInfo = createPackageInfoFile ? PackageMetaData.DefaultInfo : ParsePackageInfoFile(PackageInfoPath);
 
       // parse root directories 1st, so anyone can mark directories as used
       RootDirectories = ReadRootDirectories(path);
@@ -240,14 +261,7 @@ namespace MediaPortal.PackageManager.Core.Package
     /// <returns>Returns a collection with all directories in the package root path.</returns>
     public static ICollection<PackageRootDirectory> ReadRootDirectories(string path)
     {
-      var rootDirectories = new List<PackageRootDirectory>();
-
-      foreach (var directory in Directory.GetDirectories(path))
-      {
-        rootDirectories.Add(new PackageRootDirectory(directory));
-      }
-
-      return rootDirectories;
+      return Directory.GetDirectories(path).Select(directory => new PackageRootDirectory(directory)).ToList();
     }
 
     #endregion
@@ -325,15 +339,7 @@ namespace MediaPortal.PackageManager.Core.Package
       int n = path.LastIndexOfAny(new[] { '\\', '/' });
       if (n == 0) // rooted path
         return;
-      string directory;
-      if (n < 0)
-      {
-        directory = path;
-      }
-      else
-      {
-        directory = path.Substring(0, n);
-      }
+      var directory = n < 0 ? path : path.Substring(0, n);
       var rootDirectory = FindRootDirectory(directory);
       if (rootDirectory != null)
       {
@@ -351,14 +357,7 @@ namespace MediaPortal.PackageManager.Core.Package
     /// </remarks>
     public PackageRootDirectory FindRootDirectory(string realName)
     {
-      foreach (var rootDirectory in RootDirectories)
-      {
-        if (rootDirectory.RealName.Equals(realName, StringComparison.OrdinalIgnoreCase))
-        {
-          return rootDirectory;
-        }
-      }
-      return null;
+      return RootDirectories.FirstOrDefault(rootDirectory => rootDirectory.RealName.Equals(realName, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -369,14 +368,8 @@ namespace MediaPortal.PackageManager.Core.Package
     /// <returns>Returns the <see cref="PackageRootDirectory"/> or <c>null</c> if not matching directory was found.</returns>
     public PackageRootDirectory FindRootDirectory(string name, bool isAutoCopyDirectory)
     {
-      foreach (var rootDirectory in RootDirectories)
-      {
-        if (rootDirectory.IsAutoCopyDirectory == isAutoCopyDirectory && rootDirectory.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-        {
-          return rootDirectory;
-        }
-      }
-      return null;
+      return RootDirectories.FirstOrDefault(rootDirectory => 
+        rootDirectory.IsAutoCopyDirectory == isAutoCopyDirectory && rootDirectory.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -390,6 +383,76 @@ namespace MediaPortal.PackageManager.Core.Package
     {
       // do not include base directory, since it might have any name
       ZipFile.CreateFromDirectory(PackagePath, packageFilePath, CompressionLevel.Optimal, false);
+    }
+
+    /// <summary>
+    /// Deletes the package path.
+    /// </summary>
+    /// <remarks>This method can be used to delete a temporary target directory where a package file was extracted to.</remarks>
+    public void DeletePackage()
+    {
+      if (Directory.Exists(PackagePath))
+      {
+        Directory.Delete(PackagePath, true);
+      }
+    }
+
+    /// <summary>
+    /// Installs a package.
+    /// </summary>
+    /// <param name="installType">Type of install.</param>
+    /// <param name="registredPaths">Dictionary with registered path.</param>
+    /// <remarks>
+    /// This overload does not make any outputs during the installation process.
+    /// </remarks>
+    public void InstallPackage(PackageInstallType installType, IDictionary<string, string> registredPaths)
+    {
+      var context = new ActionContext(this, installType, null, registredPaths);
+      InstallPackage(context);
+    }
+
+    /// <summary>
+    /// Installs a package.
+    /// </summary>
+    /// <param name="installType">Type of install.</param>
+    /// <param name="registredPaths">Dictionary with registered path.</param>
+    /// <remarks>
+    /// This overload prints all outputs during the installation process to the console.
+    /// </remarks>
+    public void InstallPackageConsoleOut(PackageInstallType installType, IDictionary<string, string> registredPaths)
+    {
+      var context = new ActionContext(this, installType,
+        text =>
+        {
+          Console.Out.WriteLine(text);
+        }, registredPaths);
+      InstallPackage(context);
+    }
+
+    private void InstallPackage(ActionContext context)
+    {
+      // get the action list
+      PackageActionCollection actions;
+      switch (context.InstallType)
+      {
+        case PackageInstallType.Install:
+          actions = ReleaseMetaData.InstallActions;
+          break;
+        case PackageInstallType.Update:
+          actions = ReleaseMetaData.UpdateActions;
+          break;
+        case PackageInstallType.Uninstall:
+          actions = ReleaseMetaData.UninstallActions;
+          break;
+        default:
+          throw new InvalidOperationException("Invalid install type");
+      }
+
+      // execute actions one after the other.
+      foreach (var action in actions)
+      {
+        action.Execute(context);
+      }
     }
   }
 }

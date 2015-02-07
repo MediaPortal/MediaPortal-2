@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 
 namespace MediaPortal.PackageManager.Core.Package
 {
@@ -113,7 +114,47 @@ namespace MediaPortal.PackageManager.Core.Package
           }
 
           // delete all files and directories on target that exists in the package
-          //TODO: do
+          foreach (var filePath in Directory.GetFiles(rootDirectory.FullPath))
+          {
+            var fileName = Path.GetFileName(filePath);
+            if (String.IsNullOrEmpty(fileName))
+              continue;
+            var targetFilePath = Path.Combine(target, fileName);
+            if (File.Exists(targetFilePath))
+            {
+              context.Print("Deleting file {0}\\{1} at {2}", rootDirectory.RealName, fileName, targetFilePath);
+              try
+              {
+                File.Delete(targetFilePath);
+              }
+              catch (IOException)
+              {
+                // in case of an IOException try again half a second later, sometimes this helps, if the file was locked by an ending process
+                File.Delete(targetFilePath);
+              }
+            }
+          }
+
+          foreach (var dirPath in Directory.GetDirectories(rootDirectory.FullPath))
+          {
+            var dirName = Path.GetFileName(dirPath);
+            if (String.IsNullOrEmpty(dirName))
+              continue;
+            var targetDirPath = Path.Combine(target, dirName);
+            if (File.Exists(targetDirPath))
+            {
+              context.Print("Deleting directory {0}\\{1} at {2}", rootDirectory.RealName, dirName, targetDirPath);
+              try
+              {
+                Directory.Delete(targetDirPath, true);
+              }
+              catch (IOException)
+              {
+                // in case of an IOException try again half a second later, sometimes this helps, if the file was locked by an ending process
+                Directory.Delete(targetDirPath, true);
+              }
+            }
+          }
         }
       }
     }
