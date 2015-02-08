@@ -294,6 +294,74 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="CoverViewMovieItemTemplate">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="550"  />
+      </Grid.RowDefinitions>
+
+      <Image Width="355" Height="459" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Margin="-17,-12,-17,-12">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="MediaItem_focus.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Image Width="349" Height="452" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Margin="-15,-7,-13,-14">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source=""/>
+            <Binding Source="MediaItem_shadow.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Image Width="310" Height="430" Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0"
+       Source="{Binding MediaItem}" OpacityMask="{ThemeResource MediaItemsOpacityBrush}" />
+
+      <!--Image Width="310" Height="400" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Row="0" Margin="-17,-12,-17,-12">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="MediaItem_focus.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Image Width="304" Height="394" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Row="0" Margin="-15,-7,-13,-14">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source=""/>
+            <Binding Source="MediaItem_shadow.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Image Width="270" Height="375" Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Row="0"
+       Source="{Binding MediaItem}" OpacityMask="{ThemeResource MediaItemsOpacityBrush}" /-->
+
+      <!-- Unwatched indicator -->
+      <!--Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" Width="35" Height="32" Opacity="1" Margin="5,5,0,0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source=""/>
+            <Binding Source="watched_circle.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image-->
+    </Grid>
+  </ControlTemplate>
+  
 
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
     <Grid x:Name="ItemControl" Margin="8,0,8,0">
@@ -795,7 +863,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewMovieItemTemplate}"/>
           <Binding Source="{StaticResource GridViewMovieItemTemplate}"/>
-          <!--<Binding Source="{StaticResource CoverViewMovieItemTemplate}"/>-->
+          <Binding Source="{StaticResource CoverViewMovieItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -948,6 +1016,28 @@
     </Setter>
   </Style>
 
+  <Style x:Key="MediaItemCoverFlowWithContextMenuContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MediaItemButtonCoverFlowStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemTemplate"/>
@@ -957,10 +1047,11 @@
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
           <BindingWrapper.Binding>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
               <Binding Source="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>
+              <Binding Source="{ThemeResource MediaItemCoverFlowWithContextMenuContainerStyle}"/>
             </MultiBinding>
           </BindingWrapper.Binding>
         </BindingWrapper>
@@ -994,7 +1085,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True"/>
+                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="8,0,0,0"/>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
@@ -1002,7 +1093,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+                    <VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Margin="8,0,-30,0" Orientation="Horizontal"/>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
