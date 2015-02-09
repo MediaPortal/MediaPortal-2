@@ -559,7 +559,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
 #if TVE3
       programs = new List<IProgram>();
-      return false;
+      var tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
+      if (tvSchedule == null)
+        return false;
+
+      programs = TvDatabase.Schedule.GetProgramsForSchedule(tvSchedule).Select(p => p.ToProgram()).ToList();
+      return programs.Count > 0;
 #else
       Schedule scheduleEntity = ScheduleManagement.GetSchedule(schedule.ScheduleId);
       if (scheduleEntity == null)
