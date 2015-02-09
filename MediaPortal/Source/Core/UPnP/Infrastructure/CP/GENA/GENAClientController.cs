@@ -250,8 +250,9 @@ namespace UPnP.Infrastructure.CP.GENA
 
     internal void RenewAllEventSubscriptions()
     {
-      foreach (EventSubscription subscription in _subscriptions.Values)
-        RenewEventSubscription(subscription);
+      lock (_cpData.SyncObj) 
+        foreach (EventSubscription subscription in _subscriptions.Values)
+          RenewEventSubscription(subscription);
     }
 
     protected void RenewEventSubscription(EventSubscription subscription)
