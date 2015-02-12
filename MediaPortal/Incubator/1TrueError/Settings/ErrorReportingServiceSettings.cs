@@ -37,12 +37,19 @@ namespace MediaPortal.Plugins.OneTrueError.Settings
     /// </summary>
     private static readonly List<string> EXCEPTION_EXCLUDE_FILTERS = new List<string>
     {
+      // TVE 3.5 names
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionNoPMT",
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionNoSignal",
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionSWEncoderMissing",
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionServiceNotRunning",
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionTuneCancelled",
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionTunerLoadFailed",
+
+      // TVE 3 names
+      "TVLibrary.Interfaces.TvExceptionNoPMT",
+      "TVLibrary.Interfaces.TvExceptionNoSignal",
+      "TVLibrary.Interfaces.TvExceptionSWEncoderMissing",
+      "TVLibrary.Interfaces.TvExceptionTuneCancelled",
     };
 
     private List<string> _exceptionExcludedList = new List<string>();
