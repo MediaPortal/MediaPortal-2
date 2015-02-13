@@ -180,7 +180,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
       }
       inParameters.Add(relocationModeStr);
       IList<object> outParameters = action.InvokeAction(inParameters);
-      return (int) outParameters[0];
+      return (int)(uint) outParameters[0];
     }
 
     public ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter)
@@ -322,7 +322,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         searchText,
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
-        filter, searchModeStr, onlineStateStr, capitalizationMode
+        filter, searchModeStr, onlineStateStr, capitalizationMode, offset, limit
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];
@@ -370,7 +370,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
       string onlineStateStr = SerializeOnlineState(onlyOnline);
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
-      return (int) outParameters[0];
+      return (int)(uint) outParameters[0];
     }
 
     #endregion
@@ -415,7 +415,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
       IList<object> inParameters = new List<object> {
             MarshallingHelper.SerializeGuidEnumerationToCsv(mediaItemIds),
             MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
-            MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
+            MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+            offset, limit};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
