@@ -101,7 +101,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       // Try to get extended information out of matroska files)
       MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-      matroskaMatcher.MatchSeries(localFsResourcePath, out seriesInfo, ref extractedAspectData);
+      if (matroskaMatcher.MatchSeries(localFsResourcePath, out seriesInfo, ref extractedAspectData))
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found SeriesInformation by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
+          seriesInfo.Series, seriesInfo.ImdbId, seriesInfo.TvdbId, seriesInfo.IsCompleteMatch);
+      }
 
       // If no information from mkv were found, try name matching
       if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
