@@ -164,7 +164,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       InitializeTVE();
 #endif
       // Handle events from TvEngine
-      RegisterEvents();
+      if (!RegisterEvents())
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register events. This happens only if startup failed. Stopping plugin now.");
+        DeInit();
+      }
     }
 
 #if TVE3
@@ -258,8 +262,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       string dataPath = ServiceRegistration.Get<IPathManager>().GetPath("<TVCORE>");
       string tuningDetails = Path.Combine(dataPath, "TuningParameters");
+#if TVE3
+      string gentleConfigFile = Path.Combine(ServiceRegistration.Get<IPathManager>().GetPath("<TVCORE>"), "Gentle.config");
+      if (File.Exists(gentleConfigFile) && Directory.Exists(tuningDetails))
+        return;
+#else
       if (Directory.Exists(tuningDetails))
         return;
+#endif
 
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Tuningdetails folder does not exist yet, extracting default items.");
       try
@@ -338,9 +348,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     #region Recordings / MediaLibrary synchronization
 
-    protected void RegisterEvents()
+    protected bool RegisterEvents()
     {
-      GlobalServiceProvider.Instance.Get<ITvServerEvent>().OnTvServerEvent += OnTvServerEvent;
+      ITvServerEvent tvServerEvent = GlobalServiceProvider.Instance.TryGet<ITvServerEvent>();
+      if (tvServerEvent == null)
+        return false;
+      tvServerEvent.OnTvServerEvent += OnTvServerEvent;
+      return true;
     }
 
     protected void OnTvServerEvent(object sender, EventArgs eventArgs)
