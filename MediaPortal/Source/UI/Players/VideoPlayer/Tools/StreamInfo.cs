@@ -39,6 +39,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       StreamIndex = streamIndex;
       Name = name;
       LCID = lcid;
+      IsAutoSubtitle = false;
     }
 
     #endregion
@@ -69,6 +70,11 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// Gets or Sets the channel count. This property is used only for audio streams.
     /// </summary>
     public int ChannelCount { get; set; }
+
+    /// <summary>
+    /// Gets or Sets, if the current subtitle-stream is a standard-subtitle or an auto-subtitle. This property is used only for subtitle streams.
+    /// </summary>
+    public bool IsAutoSubtitle { get; set; }
 
     #endregion
 

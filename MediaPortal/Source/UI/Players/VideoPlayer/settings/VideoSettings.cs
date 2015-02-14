@@ -196,7 +196,7 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// Gets or sets the preferred subtitle stream name for video playback.
     /// </summary>
     [Setting(SettingScope.User)]
-    public string PreferredSubtitleSteamName { get; set; }
+    public string PreferredSubtitleStreamName { get; set; }
 
     /// <summary>
     /// Gets or sets the preferred subtitle language.

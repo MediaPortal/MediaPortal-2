@@ -291,7 +291,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void SaveSubtitlePreference()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      settings.PreferredSubtitleSteamName = _selectedSubtitleIndex != NO_STREAM_INDEX
+      settings.PreferredSubtitleStreamName = _selectedSubtitleIndex != NO_STREAM_INDEX
         ? Subtitles[_selectedSubtitleIndex] : String.Empty;
 
       // If selected stream is "No subtitles", we disable the setting
@@ -309,7 +309,7 @@ namespace MediaPortal.UI.Players.Video
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleSteamName);
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableSubtitles)
         // Tell the renderer it should not render subtitles
         _subtitleRenderer.RenderSubtitles = false;

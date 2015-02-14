@@ -179,6 +179,16 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
 
     /// <summary>
+    /// Returns a (cached) array of all stream names, but without the forced subtitles.
+    /// </summary>
+    /// <returns>String array containing the names of all streams (except forced subtitles).</returns>
+    public string[] GetStreamNamesWithoutForcedSubtitles()
+    {
+      lock (_syncObj)
+        return _streamNamesCache ?? (_streamNamesCache = _streamInfos.FindAll(s => s.IsAutoSubtitle == false).Select(streamInfo => streamInfo.Name).ToArray());
+    }
+
+    /// <summary>
     /// Enables a selected stream name by calling it associated StreamSelector.
     /// </summary>
     /// <param name="selectedStream"></param>
@@ -230,6 +240,16 @@ namespace MediaPortal.UI.Players.Video.Tools
     {
       lock (_syncObj)
         return String.IsNullOrEmpty(selectedStream) ? null : _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
+    }
+
+    /// <summary>
+    /// Finds the first stream that is a forced stream
+    /// </summary>
+    /// <returns>StreamInfo or null.</returns>
+    public StreamInfo FindForcedStream()
+    {
+      lock (_syncObj)
+        return _streamInfos.Find(s => s.IsAutoSubtitle == true);
     }
 
     #endregion

@@ -86,6 +86,7 @@ namespace MediaPortal.UI.Players.Video
 
     // The default name for "No subtitles available" or "Subtitles disabled".
     protected const string NO_SUBTITLES = "No subtitles";
+    protected const string FORCED_SUBTITLES = "forced subtitles";
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
@@ -358,6 +359,11 @@ namespace MediaPortal.UI.Players.Video
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
+      SetPreferedAudio_intern(ref audioStreams, useFirstAsDefault);
+    }
+
+    private void SetPreferedAudio_intern(ref StreamInfoHandler audioStreams, bool useFirstAsDefault)
+    {
       if (audioStreams == null || audioStreams.Count == 0)
         return;
 
@@ -554,6 +560,13 @@ namespace MediaPortal.UI.Players.Video
                 }
                 break;
               case StreamGroup.Subtitle:
+                {                  
+                  currentStream.IsAutoSubtitle = currentStream.Name.ToLowerInvariant().Contains(FORCED_SUBTITLES);
+                  subtitleStreams.AddUnique(currentStream, true);
+                }                
+                break;
+              case StreamGroup.VsFilterSubtitle:
+              case StreamGroup.VsFilterSubtitleOptions:
               case StreamGroup.DirectVobSubtitle:
                 subtitleStreams.AddUnique(currentStream, true);
                 break;
@@ -573,6 +586,8 @@ namespace MediaPortal.UI.Players.Video
           }
         }
 
+        SetPreferedAudio_intern(ref audioStreams, false);
+        SetPreferredSubtitle_intern(ref subtitleStreams);
         lock (SyncObj)
         {
           _streamInfoAudio = audioStreams;
@@ -709,15 +724,30 @@ namespace MediaPortal.UI.Players.Video
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 
+      SetPreferredSubtitle_intern(ref subtitleStreams);
+    }
+
+    private void SetPreferredSubtitle_intern(ref StreamInfoHandler subtitleStreams)
+    {
       if (subtitleStreams == null)
         return;
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleSteamName);
+      StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableSubtitles)
-        subtitleStreams.EnableStream(NO_SUBTITLES);
+      {
+        // auto-activate forced subtitles
+        StreamInfo forced = subtitleStreams.FindForcedStream();
+        if (forced != null)
+        {
+          subtitleStreams.EnableStream(forced.Name);
+        }else
+        {
+          subtitleStreams.EnableStream(NO_SUBTITLES);
+        }        
+      }
       else
         subtitleStreams.EnableStream(streamInfo.Name);
     }
@@ -772,14 +802,15 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      settings.PreferredSubtitleSteamName = subtitleStreams.CurrentStreamName;
+      settings.PreferredSubtitleStreamName = subtitleStreams.CurrentStreamName;
       // if the subtitle stream has proper LCID, remember it.
-      int lcid = subtitleStreams.CurrentStream.LCID;
+      int lcid = subtitleStreams.CurrentStream.IsAutoSubtitle ? 0 : subtitleStreams.CurrentStream.LCID;
       if (lcid != 0)
         settings.PreferredSubtitleLanguage = lcid;
 
-      // if selected stream is "No subtitles", we disable the setting
-      settings.EnableSubtitles = subtitleStreams.CurrentStreamName != NO_SUBTITLES;
+      // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
+      settings.EnableSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+        subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
