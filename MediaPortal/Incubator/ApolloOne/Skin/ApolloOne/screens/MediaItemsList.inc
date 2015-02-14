@@ -22,7 +22,7 @@
     </Grid.ColumnDefinitions>
 
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}">
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="-40,0,-10,0">
       <ListView.Resources>
         <!--<ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
           <TranslateTransform X="40" />

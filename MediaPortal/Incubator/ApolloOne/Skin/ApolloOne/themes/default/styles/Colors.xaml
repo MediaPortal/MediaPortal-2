@@ -32,6 +32,8 @@
 
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF404040"/>
 
+  <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#FFFFFF"/>
+
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
   <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00A0C0FF" />
@@ -49,8 +51,6 @@
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#001B7EE6"/>
 
   <!-- Text colors -->
-  <ResourceWrapper x:Key="NonSelectedTextColor" Resource="#FF808080"/>
-
   <ResourceWrapper x:Key="WatchedTextColor" Resource="#00A7FF"/>
 
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="#D1FFED"/>
