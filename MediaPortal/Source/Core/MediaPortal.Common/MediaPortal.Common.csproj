@@ -62,6 +62,7 @@
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
+    <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
@@ -80,6 +81,10 @@
     <Compile Include="Services\MediaManagement\ImportJobController.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
     <Compile Include="Services\MediaManagement\PendingResourcesSettings.cs" />
+    <Compile Include="Services\ResourceAccess\ImpersonationService\ImpersonationService.cs" />
+    <Compile Include="Services\ResourceAccess\ImpersonationService\LogonHelper.cs" />
+    <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
+    <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
