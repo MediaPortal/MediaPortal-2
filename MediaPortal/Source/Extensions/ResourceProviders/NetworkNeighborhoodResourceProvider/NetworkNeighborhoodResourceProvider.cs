@@ -23,10 +23,16 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
+using System.Net;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
@@ -49,6 +55,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected ResourceProviderMetadata _metadata;
     protected LocalFsResourceProvider _localFsProvider;
     protected readonly INeighborhoodBrowserSerivce _browserService;
+    protected readonly SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings> _settings;
+    protected readonly ConcurrentBag<ResourcePath> _registeredPaths;
 
     #endregion
 
@@ -58,6 +66,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       _metadata = new ResourceProviderMetadata(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false, true, DEFAULT_SYSTEM_AFFINITY);
       _browserService = new NeighborhoodBrowserService();
+      _settings =  new SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings>();
+      _registeredPaths = new ConcurrentBag<ResourcePath>();
+      RegisterCredentials();
+      _settings.SettingsChanged += (sender, args) =>
+      {
+        UnregisterCredentials();
+        RegisterCredentials();
+      };
     }
 
     #endregion
@@ -76,6 +92,27 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public INeighborhoodBrowserSerivce BrowserService
     {
       get { return _browserService; }
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private void RegisterCredentials()
+    {
+      if (!_settings.Settings.UseCredentials)
+        return;
+      var credential = new NetworkCredential { UserName = _settings.Settings.NetworkUserName, Password = _settings.Settings.NetworkPassword };
+      var path = ExpandResourcePathFromString("/");
+      if(ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(path, credential))
+        _registeredPaths.Add(path);
+    }
+
+    private void UnregisterCredentials()
+    {
+      ResourcePath path;
+      while(_registeredPaths.TryTake(out path))
+        ServiceRegistration.Get<IImpersonationService>().TryUnregisterCredential(path);
     }
 
     #endregion
@@ -135,11 +172,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     #endregion
 
-    #region IDisposeable implementation
+    #region IDisposable implementation
 
     public void Dispose()
     {
       _browserService.Dispose();
+      _settings.Dispose();
+      UnregisterCredentials();
     }
 
     #endregion
