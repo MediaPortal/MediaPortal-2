@@ -35,7 +35,7 @@
           </Control.IsVisible>
         </Control>
 
-        <Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,0,10">
+        <Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-10,0,0,10">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsListHeader.inc"/>
           </Control.TemplateControl>
