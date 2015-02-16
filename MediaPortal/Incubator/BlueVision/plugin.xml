@@ -1,0 +1,32 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="BlueVision² Skin"
+    PluginId="{344C49F3-F7D7-49fa-B023-DA6F7E49DE3E}"
+    Author="Ge2301,Morpheus_xx"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="BlueVision² for MediaPortal 2."
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="BlueVision.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- BackgroundManager -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177" Name="HomeMenuModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.HomeMenuModel"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="BlueVisionLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="BlueVisionSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

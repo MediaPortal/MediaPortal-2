@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Images</string>
+  <string name="Menu.MediaHub">Mediahub</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">News</string>
+  <string name="Menu.Weather">Weather</string>
+  <string name="Menu.Settings">Settings</string>
+  <string name="Menu.Others">Others</string>
+
+  <string name="Menu.Main">Main Menu</string>
+</resources>
