@@ -245,14 +245,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       // Morpheus_xx, 2014-09-01: As soon as our extension installer is able to place files in different target folders, this code can be removed.
       const string ini = "MPIPTVSource.ini";
+      string iniPath = Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\" + ini);
       string mp2DataPath = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>");
       try
       {
         var destFileName = Path.Combine(mp2DataPath, ini);
-        if (!File.Exists(destFileName))
+        if (!File.Exists(destFileName) && File.Exists(iniPath))
         {
           ServiceRegistration.Get<ILogger>().Info("SlimTvService: {0} does not exist yet, copy file.", destFileName);
-          File.Copy(Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\" + ini), destFileName);
+          File.Copy(iniPath, destFileName);
         }
       }
       catch (Exception ex)
