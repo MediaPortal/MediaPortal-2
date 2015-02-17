@@ -387,6 +387,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public virtual void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
+      InitModel();
     }
 
     public virtual void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)

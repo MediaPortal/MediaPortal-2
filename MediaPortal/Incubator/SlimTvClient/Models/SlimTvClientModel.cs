@@ -611,7 +611,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       CloseOSD();
 
-      if (_zapChannelIndex != ChannelContext.Channels.CurrentIndex)
+      if (!IsSameChannel(ChannelContext.Channels[_zapChannelIndex], _lastTunedChannel))
       {
         ChannelContext.Channels.SetIndex(_zapChannelIndex);
         Tune(ChannelContext.Channels[_zapChannelIndex]);
@@ -701,6 +701,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Update current programs for all channels of current group (visible inside MiniGuide).
       UpdateAllCurrentPrograms();
 
+      _zapChannelIndex = ChannelContext.Channels.CurrentIndex;
+
       if (_tvHandler.NumberOfActiveSlots < 1)
       {
         PiPAvailable = false;
@@ -784,6 +786,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         item.AdditionalProperties["CHANNEL"] = channel;
         _channelList.Add(item);
       }
+      // Adjust channel list position
+      ChannelContext.Channels.MoveTo(c => IsSameChannel(c, _lastTunedChannel));
+
       // If the current watched channel is not part of the channel group, set the "selected" property to first list item to make sure focus will be set to the list view
       if (!isOneSelected && _channelList.Count > 0)
         _channelList.First().Selected = true;
