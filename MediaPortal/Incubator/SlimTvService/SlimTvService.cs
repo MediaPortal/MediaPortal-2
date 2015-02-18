@@ -30,7 +30,6 @@ using System.Data.Common;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Timers;
 using MediaPortal.Backend.Database;
@@ -46,18 +45,19 @@ using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using MediaPortal.Utilities;
+using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
+using ILogger = MediaPortal.Common.Logging.ILogger;
+using IPathManager = MediaPortal.Common.PathManager.IPathManager;
+using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
+using Timer = System.Timers.Timer;
+#if TVE3
 using TvControl;
 using TvDatabase;
 using TvEngine.Events;
 using TvLibrary.Interfaces;
 using TvLibrary.Interfaces.Integration;
 using TvService;
-using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
-using ILogger = MediaPortal.Common.Logging.ILogger;
-using IPathManager = MediaPortal.Common.PathManager.IPathManager;
-using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
-using Timer = System.Timers.Timer;
-#if !TVE3
+#else
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Service.Helpers;
@@ -245,14 +245,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       // Morpheus_xx, 2014-09-01: As soon as our extension installer is able to place files in different target folders, this code can be removed.
       const string ini = "MPIPTVSource.ini";
+      string iniPath = Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\" + ini);
       string mp2DataPath = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>");
       try
       {
         var destFileName = Path.Combine(mp2DataPath, ini);
-        if (!File.Exists(destFileName))
+        if (!File.Exists(destFileName) && File.Exists(iniPath))
         {
           ServiceRegistration.Get<ILogger>().Info("SlimTvService: {0} does not exist yet, copy file.", destFileName);
-          File.Copy(Utilities.FileSystem.FileUtils.BuildAssemblyRelativePath("ProgramData\\" + ini), destFileName);
+          File.Copy(iniPath, destFileName);
         }
       }
       catch (Exception ex)
@@ -337,7 +338,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 #else
       if (_tvServiceThread != null)
       {
-        _tvServiceThread.OnStop();
+        _tvServiceThread.Stop(MAX_WAIT_MS);
         _tvServiceThread = null;
       }
 #endif
@@ -350,7 +351,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected bool RegisterEvents()
     {
+#if TVE3
       ITvServerEvent tvServerEvent = GlobalServiceProvider.Instance.TryGet<ITvServerEvent>();
+#else
+      ITvServerEvent tvServerEvent = GlobalServiceProvider.Instance.Get<ITvServerEvent>();
+#endif
       if (tvServerEvent == null)
         return false;
       tvServerEvent.OnTvServerEvent += OnTvServerEvent;
@@ -495,6 +500,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       programNow = tvChannel.CurrentProgram.ToProgram();
       programNext = tvChannel.NextProgram.ToProgram();
 #else
+      programNow = null;
+      programNext = null; 
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
       var count = programs.Count;
@@ -571,8 +578,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {
-#if TVE3
       programs = new List<IProgram>();
+#if TVE3
       var tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
       if (tvSchedule == null)
         return false;
@@ -715,11 +722,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       _tvControl.OnNewSchedule();
 #else
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
-      Schedule tvschedule = ScheduleFactory.CreateSchedule(channel.ChannelId, "Manual", from, to);
-      tvschedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
-      tvschedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
-      tvschedule.ScheduleType = (int)ScheduleRecordingType.Once;
-      scheduleService.SaveSchedule(tvschedule);
+      Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, "Manual", from, to);
+      tvSchedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
+      tvSchedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
+      tvSchedule.ScheduleType = (int)ScheduleRecordingType.Once;
+      scheduleService.SaveSchedule(tvSchedule);
 #endif
       schedule = tvSchedule.ToSchedule();
       return true;
