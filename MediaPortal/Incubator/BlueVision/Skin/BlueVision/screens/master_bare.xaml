@@ -28,7 +28,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    xmlns:apc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
@@ -126,12 +126,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Button.Triggers>
         </Button>
 
-        <!--Label x:Name="SelectedItem" Grid.Column="1" Margin="20,0,200,0" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}" 
+        <!--Label x:Name="SelectedItem" Grid.Column="1" Margin="20,0,200,0" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}" 
                VerticalAlignment="Center" HorizontalAlignment="Center">       
         </Label-->
 
         <Label x:Name="SelectedItem" Grid.Row="0" Grid.Column="1" Margin="5,3,25,-3" 
-              Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}"
+              Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
               VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BigFontSize}" FontFamily="DefaultBold"
               Color="{ThemeResource TextColor}">
         </Label>

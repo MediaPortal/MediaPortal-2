@@ -61,7 +61,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </TransformGroup>
     </Grid.RenderTransform>
     <Grid.Resources>
-      <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
+      <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
     </Grid.Resources>
 
     <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
