@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    xmlns:ap="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
+    xmlns:bv="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     >
   <Include.Resources>
 
@@ -13,16 +13,16 @@
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
         <DockPanel.Resources>
-          <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
+          <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
 
-        <ap:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
+        <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
             VerticalAlignment="Stretch" SetFocusPrio="Fallback"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}">
-          <ap:GridListView.Resources>
+          <bv:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </ap:GridListView.Resources>
-        </ap:GridListView>
+          </bv:GridListView.Resources>
+        </bv:GridListView>
       </DockPanel>
     </ControlTemplate>
 

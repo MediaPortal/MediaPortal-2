@@ -7,7 +7,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
-    xmlns:apc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
     DependsOnStyleResources="Colors,Buttons,Consts"
     >
 
@@ -16,7 +16,7 @@
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
 
   <!-- ***************************** Converters ********************************* -->
-  <apc:StringCaseConverter x:Key="StringCaseConverter"/>
+  <bvc:StringCaseConverter x:Key="StringCaseConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
@@ -616,7 +616,7 @@
         </Label.Content>
       </Label-->
 
-    <!--Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}" Margin="20,0,20,0"
+    <!--Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}" Margin="20,0,20,0"
         HorizontalAlignment="Center" VerticalAlignment="Center"
         FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}">
       <Label.Opacity>
@@ -642,7 +642,7 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeGroupDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeGroupMenuItemContainerStyle}"/>
     <!--Trigger Property="IsSelected" Value="true">
-      <Setter x:Name="SelectedItem" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}"/>
+      <Setter x:Name="SelectedItem" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"/>
     </Trigger-->
   </Style>
 
@@ -917,7 +917,7 @@
 
   <!-- Data template for contents of workflow navigation bar entries -->
   <DataTemplate x:Key="WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Label x:Name="ItemLabel" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static apc:StringConversion.LowerCase}}"
+    <Label x:Name="ItemLabel" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
              Margin="0,4,0,0"
              FontSize="{ThemeResource SmallFontSize}"
              VerticalAlignment="Center">
