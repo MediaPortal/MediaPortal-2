@@ -331,6 +331,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Append(StringUtils.Join(", ", sortCriteria));
         }
       }
+
+
       statementStr = result.ToString();
     }
 
