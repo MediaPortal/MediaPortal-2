@@ -16,12 +16,12 @@
   </xsl:template>
 
   <!-- Create searches for the directories to remove. -->
-  <xsl:key name="slimtvservice30-search" match="wix:Directory[@Name = 'SlimTvService30']" use="@Id" />
-  <xsl:key name="slimtvservice35-search" match="wix:Directory[@Name = 'SlimTvService35']" use="@Id" />
+  <xsl:key name="slimtvservice30-search" match="wix:Directory[@Name = 'SlimTv.Service30']" use="@Id" />
+  <xsl:key name="slimtvservice35-search" match="wix:Directory[@Name = 'SlimTv.Service35']" use="@Id" />
 
   <!-- Remove directories. -->
-  <xsl:template match="wix:Directory[@Name='SlimTvService30']" />
-  <xsl:template match="wix:Directory[@Name='SlimTvService35']" />
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.Service30']" />
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.Service35']" />
 
   <!-- Remove Components referencing those directories. -->
   <xsl:template match="wix:Component[key('slimtvservice30-search', @Directory)]" />
