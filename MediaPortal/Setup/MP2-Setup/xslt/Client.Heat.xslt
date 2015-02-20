@@ -15,26 +15,6 @@
     </xsl:copy>
   </xsl:template>
   
-  <!-- Create searches for the directories to remove. -->
-  <xsl:key name="slimtvclient-search" match="wix:Directory[@Name = 'SlimTv.Client']" use="@Id" />
-  <xsl:key name="slimtvmpe-search" match="wix:Directory[@Name = 'SlimTv.MPExtendedProvider']" use="@Id" />
-  <xsl:key name="slimtvnative-search" match="wix:Directory[@Name = 'SlimTv.NativeProvider']" use="@Id" />
-
-  <!-- Remove directories. -->
-  <xsl:template match="wix:Directory[@Name = 'SlimTv.Client']" />
-  <xsl:template match="wix:Directory[@Name = 'SlimTv.MPExtendedProvider']" />
-  <xsl:template match="wix:Directory[@Name = 'SlimTv.NativeProvider']" />
-
-  <!-- Remove Components referencing those directories. -->
-  <xsl:template match="wix:Component[key('slimtvclient-search', @Directory)]" />
-  <xsl:template match="wix:Component[key('slimtvmpe-search', @Directory)]" />
-  <xsl:template match="wix:Component[key('slimtvnative-search', @Directory)]" />
-
-  <!-- Remove DirectoryRefs (and their parent Fragments) referencing those directories. -->
-  <xsl:template match="wix:Fragment[wix:DirectoryRef[key('slimtvclient-search', @Id)]]" />
-  <xsl:template match="wix:Fragment[wix:DirectoryRef[key('slimtvmpe-search', @Id)]]" />
-  <xsl:template match="wix:Fragment[wix:DirectoryRef[key('slimtvnative-search', @Id)]]" />
-	
   <!-- Add comment to the beginning of the file and continue applying. -->
   <xsl:template match="wix:Wix">
     <Wix>
