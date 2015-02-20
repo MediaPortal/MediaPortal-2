@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
                 xmlns="http://schemas.microsoft.com/wix/2006/wi"
                 xmlns:wix="http://schemas.microsoft.com/wix/2006/wi"
@@ -14,7 +14,7 @@
       <xsl:apply-templates select="node()|@*"/>
     </xsl:copy>
   </xsl:template>
-  
+
   <!-- Add comment to the beginning of the file and continue applying. -->
   <xsl:template match="wix:Wix">
     <Wix>
