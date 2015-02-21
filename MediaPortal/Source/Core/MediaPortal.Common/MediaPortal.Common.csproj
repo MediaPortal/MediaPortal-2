@@ -81,8 +81,12 @@
     <Compile Include="Services\MediaManagement\ImportJobController.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
     <Compile Include="Services\MediaManagement\PendingResourcesSettings.cs" />
+    <Compile Include="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Services\ResourceAccess\ImpersonationService\ImpersonationService.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\LogonHelper.cs" />
+    <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />

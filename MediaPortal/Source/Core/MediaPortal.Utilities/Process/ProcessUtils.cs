@@ -27,15 +27,109 @@ using System.Diagnostics;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Utilities.Process
 {
   public class ProcessUtils
   {
-    private static readonly Encoding CONSOLE_ENCODING = Encoding.UTF8;
+    public static readonly Encoding CONSOLE_ENCODING = Encoding.UTF8;
     private static readonly string CONSOLE_ENCODING_PREAMBLE = CONSOLE_ENCODING.GetString(CONSOLE_ENCODING.GetPreamble());
 
-    private const int INFINITE = -1;
+    public const int INFINITE = -1;
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> asynchronously and waits a maximum time of <paramref name="maxWaitMs"/> for completion.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns>> <see cref="ProcessExecutionResult"/> object that respresents the result of executing the Program</returns>
+    /// <remarks>
+    /// This method throws an exception only if process.Start() fails (in partiular, if the <paramref name="executable"/> doesn't exist).
+    /// Any other error in managed code is signaled by the returned task being set to Faulted state.
+    /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
+    /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
+    /// </remarks>
+    public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    {
+      var tcs = new TaskCompletionSource<ProcessExecutionResult>();
+      var process = new System.Diagnostics.Process
+      {
+        StartInfo = new ProcessStartInfo(executable, arguments)
+        {
+          UseShellExecute = false,
+          CreateNoWindow = true,
+          RedirectStandardOutput = true,
+          RedirectStandardError = true,
+          StandardOutputEncoding = CONSOLE_ENCODING,
+          StandardErrorEncoding = CONSOLE_ENCODING
+        },
+        EnableRaisingEvents = true
+      };
+      
+      // The Exited event is raised in any case when the process has finished, i.e. when it gracefully
+      // finished (ExitCode = 0), finished with an error (ExitCode != 0) and when it was killed below.
+      // That ensures disposal of the process object.
+      process.Exited += (sender, args) =>
+      {
+        try
+        {
+          // We need to read one of the two standard streams asynchronously to avoid a potential deadlock.
+          var standardErrorTask = process.StandardError.ReadToEndAsync();
+          tcs.TrySetResult(new ProcessExecutionResult
+          {
+            ExitCode = process.ExitCode,
+            StandardOutput = process.StandardOutput.ReadToEnd(),
+            StandardError = standardErrorTask.Result
+          });
+        }
+        catch (Exception e)
+        {
+          tcs.TrySetException(e);
+        }
+        finally
+        {
+          process.Dispose();
+        }
+      };
+
+      process.Start();
+      try
+      {
+        // This call may throw an exception if the process has already exited when we get here.
+        // In that case the Exited event has already set tcs to RanToCompletion state so that
+        // the TrySetException call below does not change the state of tcs anymore. This is correct
+        // as it doesn't make sense to change the priority of the process if it is already finished.
+        // Any other "real" error sets the state of tcs to Faulted below.
+        process.PriorityClass = priorityClass;
+      }
+      catch (Exception e)
+      {
+        tcs.TrySetException(e);
+      }
+
+      // Here we take care of the maximum time to wait for the process if such was requested.
+      if (maxWaitMs != INFINITE)
+        Task.Delay(maxWaitMs).ContinueWith(task =>
+        {
+          try
+          {
+            // We only kill the process if the state of tcs was not set to Faulted or
+            // RanToCompletion before.
+            if (tcs.TrySetCanceled())
+              process.Kill();
+          }
+          // ReSharper disable once EmptyGeneralCatchClause
+          // An exception is thrown in process.Kill() when the external process exits
+          // while we set tcs to canceled. In that case there is nothing to do anymore.
+          // This is not an error.
+          catch
+          { }
+        });
+      return tcs.Task;
+    }
 
     /// <summary>
     /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion. If the process doesn't end in 

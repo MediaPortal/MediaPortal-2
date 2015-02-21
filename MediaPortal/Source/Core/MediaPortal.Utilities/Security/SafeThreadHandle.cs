@@ -26,18 +26,26 @@ using System;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security;
+using MediaPortal.Utilities.Exceptions;
 using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.Security
 {
   /// <summary>
-  /// Helper class to safely store an access token and close it if this class is diposed
+  /// Helper class to safely store a thread handle and close it if this class is diposed
   /// </summary>
-  public sealed class SafeTokenHandle : SafeHandleZeroOrMinusOneIsInvalid
+  public sealed class SafeThreadHandle : SafeHandleZeroOrMinusOneIsInvalid
   {
-    private SafeTokenHandle()
+    public SafeThreadHandle()
       : base(true)
     {
+    }
+
+    public void InitialSetHandle(IntPtr h)
+    {
+      if (!IsInvalid)
+        throw new IllegalCallException("Safe handle can only be set once");
+      handle = h;
     }
 
     [DllImport("kernel32.dll")]
@@ -45,7 +53,7 @@ namespace MediaPortal.Utilities.Security
     [SuppressUnmanagedCodeSecurity]
     private static extern bool CloseHandle(IntPtr handle);
 
-    protected override bool ReleaseHandle()
+    override protected bool ReleaseHandle()
     {
       return CloseHandle(handle);
     }

@@ -32,7 +32,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
   /// <summary>
   /// Wrapper class for a <see cref="WindowsIdentity"/> object and the corresponding <see cref="NetworkCredential"/>
   /// object. It ensures that the <see cref="WindowsIdentity"/> can be impersonated safely multiple times in a
-  /// multithreaded environment.
+  /// multithreaded environment. Same goes for using the underlying user token for starting impersonated external processes.
   /// </summary>
   internal sealed class WindowsIdentityWrapper : IDisposable
   {
@@ -72,7 +72,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// If <see cref="Dispose"/> has not yet been called:
     ///   >  0: indicates the number of active <see cref="WindowsImpersonationContext"/>s
     ///   == 0: indicates that <see cref="_identity"/> is currently not impersonated
-    /// If <see cref="Dispose"/> has not yet been called:
+    /// If <see cref="Dispose"/> has been called:
     ///   >=  0: indicates the number of active <see cref="WindowsImpersonationContext"/>s minus one
     ///   == -1: indicates that <see cref="_identity"/> can actually be disposed.
     /// </remarks>
@@ -89,7 +89,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <param name="credential">Corresponding <see cref="NetworkCredential"/></param>
     /// <exception cref="ArgumentNullException"></exception> if <paramref name="identity"/>
     /// or <paramref name="credential"/> is <c>null</c>.
-    public WindowsIdentityWrapper(WindowsIdentity identity, NetworkCredential credential)
+    internal WindowsIdentityWrapper(WindowsIdentity identity, NetworkCredential credential)
     {
       if(identity == null)
         throw new ArgumentNullException("identity");
@@ -103,21 +103,39 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     #endregion
 
-    #region Public properties
+    #region Internal properties
 
     /// <summary>
     /// <see cref="_credential"/>.UserName
     /// </summary>
-    public String UserName { get { return _credential.UserName; } }
+    internal String UserName { get { return _credential.UserName; } }
 
     /// <summary>
     /// <see cref="_credential"/>.Domain
     /// </summary>
-    public String Domain { get { return _credential.Domain; } }
+    internal String Domain { get { return _credential.Domain; } }
+
+    /// <summary>
+    /// Token of the underlying <see cref="WindowsIdentity"/> wrapped in a <see cref="TokenWrapper"/>
+    /// </summary>
+    /// <remarks>
+    /// Do not manually close the contained token. It will be closed automatically when disposing this object.
+    /// The <see cref="TokenWrapper"/> ensures that this object is not disposed before all <see cref="TokenWrapper"/>s
+    /// and <see cref="WindowsImpersonationContextWrapper"/>s are disposed.
+    /// </remarks>
+    internal TokenWrapper TokenWrapper
+    {
+      get
+      {
+        if (Interlocked.Increment(ref _usageCount) > 0)
+          return new TokenWrapper(_identity.Token, DecrementUsageCount);
+        return new TokenWrapper(IntPtr.Zero, null);
+      }
+    }
 
     #endregion
 
-    #region Public methods
+    #region Internal methods
 
     /// <summary>
     /// Impersonates the underlying <see cref="WindowsIdentity"/>
@@ -130,12 +148,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// A call to this method is only successful, if <see cref="_usageCount"/> >= 0 before calling, i.e. it is not
     /// successful, if <see cref="Dispose"/> was called and there are no other <see cref="WindowsImpersonationContextWrapper"/>s in use.
     /// </remarks>
-    public WindowsImpersonationContextWrapper Impersonate()
+    internal WindowsImpersonationContextWrapper Impersonate()
     {
       WindowsImpersonationContext ctx = null;
       if(Interlocked.Increment(ref _usageCount) > 0)
         ctx = _identity.Impersonate();
-      return new WindowsImpersonationContextWrapper(ctx, WindowsImpersonationContextDisposed);
+      return new WindowsImpersonationContextWrapper(ctx, DecrementUsageCount);
     }
 
     #endregion
@@ -143,9 +161,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Private methods
 
     /// <summary>
-    /// Used as <see cref="Action"/> to let <see cref="WindowsImpersonationContextWrapper"/> signal that they were disposed.
+    /// Used as <see cref="Action"/> to let <see cref="WindowsImpersonationContextWrapper"/> and
+    /// <see cref="TokenWrapper"/> signal that they were disposed.
     /// </summary>
-    private void WindowsImpersonationContextDisposed()
+    private void DecrementUsageCount()
     {
       if (Interlocked.Decrement(ref _usageCount) < 0)
         _identity.Dispose();

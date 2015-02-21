@@ -23,31 +23,33 @@
 #endregion
 
 using System;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
-using System.Security;
-using Microsoft.Win32.SafeHandles;
 
-namespace MediaPortal.Utilities.Security
+namespace MediaPortal.Utilities.Process
 {
   /// <summary>
-  /// Helper class to safely store an access token and close it if this class is diposed
+  /// Represents the result of running an external process
   /// </summary>
-  public sealed class SafeTokenHandle : SafeHandleZeroOrMinusOneIsInvalid
+  public class ProcessExecutionResult
   {
-    private SafeTokenHandle()
-      : base(true)
-    {
-    }
+    /// <summary>
+    /// Convenience method to check the <see cref="ExitCode"/> of a process
+    /// Returns <c>true</c> if the <see cref="ExitCode"/> is 0; otherwise false
+    /// </summary>
+    public bool Success { get { return ExitCode == 0; } }
 
-    [DllImport("kernel32.dll")]
-    [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-    [SuppressUnmanagedCodeSecurity]
-    private static extern bool CloseHandle(IntPtr handle);
+    /// <summary>
+    /// Contains the ExitCode of the process
+    /// </summary>
+    public int ExitCode { get; set; }
 
-    protected override bool ReleaseHandle()
-    {
-      return CloseHandle(handle);
-    }
+    /// <summary>
+    /// Contains the StandardOutput of the process
+    /// </summary>
+    public String StandardOutput { get; set; }
+
+    /// <summary>
+    /// Contains the StandardError output of the process
+    /// </summary>
+    public String StandardError { get; set; }
   }
 }
