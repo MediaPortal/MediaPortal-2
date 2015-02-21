@@ -917,8 +917,134 @@
   </ControlTemplate> 
   
   <!-- Audio Album -->
+
+  <ControlTemplate x:Key="AudioAlbumCoverTemplate">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Margin="0,0,0,0"/>
+      <Image Stretch="Fill" OpacityMask="{ThemeResource MediaItemsOpacityBrush}"
+             HorizontalAlignment="Center" VerticalAlignment="Center"
+              FallbackSource="Audio_square.png"
+        Width="{StaticResource MEDIA_THUMB_WIDTH}" Height="{StaticResource MEDIA_THUMB_HEIGHT}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+                  fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+
   <ControlTemplate x:Key="ListViewAlbumItemTemplate">
-    <Grid x:Name="ItemControl">
+      <Grid x:Name="ItemControl" Margin="0,0,43,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
+               Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Margin="0,0,10,0">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <!--<Binding Path="PlayCount"/>-->
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.4"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+
+        <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="0"/>
+              <Binding Source="0.15"/>
+            </MultiBinding>
+          </Image.Opacity>
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="watched_icon.png"/>
+              <Binding Source=""/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+
+        <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+                Template="{ThemeResource AudioAlbumCoverTemplate}" RenderTransformOrigin="0.5,0.5"
+                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+          <Control.LayoutTransform>
+            <ScaleTransform>
+              <ScaleTransform.ScaleX>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                  <Binding Source="0.5"/>
+                  <Binding Source="0.8"/>
+                  <Binding Source="1"/>
+                </MultiBinding>
+              </ScaleTransform.ScaleX>
+              <ScaleTransform.ScaleY>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                  <Binding Source="0.5"/>
+                  <Binding Source="0.8"/>
+                  <Binding Source="1"/>
+                </MultiBinding>
+              </ScaleTransform.ScaleY>
+            </ScaleTransform>
+          </Control.LayoutTransform>
+        </Control>
+
+        <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
+              HorizontalAlignment="Stretch"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="40"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="60,0,-60,0"  >
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding Path="PlayCount"/>
+                <Binding Source="watched_icon.png"/>
+                <Binding Source="unwatched_icon.png"/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+
+          <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+            <media:AudioAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Label x:Name="Album" Grid.Row="1" Grid.Column="0" Content="{Binding Album}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="0,0,0,0"/>
+                  <Label x:Name="Duration" Grid.Row="1" Grid.Column="1" Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="30,0,-30,0"/>
+                </Grid>
+              </ControlTemplate>
+            </media:AudioAspectWrapper.Template>
+          </media:AudioAspectWrapper>
+        </Grid>
+      </Grid>
+
+
+    <!--Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -958,7 +1084,7 @@
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
       <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-    </Grid>
+    </Grid-->
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewAlbumItemTemplate">
