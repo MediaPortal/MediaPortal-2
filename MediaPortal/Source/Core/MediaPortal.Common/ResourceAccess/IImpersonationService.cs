@@ -25,6 +25,8 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading.Tasks;
+using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Common.ResourceAccess
 {
@@ -84,23 +86,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="arguments">Program arguments</param>
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
-    /// <returns><c>true</c> if the external process was executed and finished gracefully; otherwise <c>false</c></returns>
-    bool TryExecuteWithResourceAccess(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000);
-
-    /// <summary>
-    /// Executes the <paramref name="executable"/> and waits a maximum of <paramref name="maxWaitMs"/> miliseconds for completion.
-    /// If the process does not end in this time, it is aborted. This method automatically decides if impersonation is  necessary
-    /// so that the external process can access the specified resource based on the given <paramref name="path"/> and the
-    /// previously registered credentials.
-    /// The method returns the contents of <see cref="Process.StandardOutput"/> in <paramref name="result"/>
-    /// </summary>
-    /// <param name="path"><see cref="ResourcePath"/> to which the external process should have access</param>
-    /// <param name="executable">Program to execute</param>
-    /// <param name="arguments">Program arguments</param>
-    /// <param name="result">Returns the content of standard output</param>
-    /// <param name="priorityClass">Process priority</param>
-    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
-    /// <returns><c>true</c> if the external process was executed and finished gracefully; otherwise <c>false</c></returns>
-    bool TryExecuteWithResourceAccess(ResourcePath path, string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000);
+    /// <returns>A task representing the result of executing the process</returns>
+    Task<ProcessExecutionResult> TryExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.INFINITE);
   }
 }

@@ -27,10 +27,12 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 {
@@ -201,7 +203,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     }
 
     /// <summary>
-    /// Finds the best registered credential for <paramref name="path"/> and impersonates it
+    /// Finds the best matching registered credential for <paramref name="path"/> and impersonates it
     /// </summary>
     /// <param name="path"><see cref="ResourcePath"/> for which impersonation must be checked</param>
     /// <returns>
@@ -222,14 +224,22 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       return new WindowsImpersonationContextWrapper(null, null);
     }
 
-    public bool TryExecuteWithResourceAccess(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    /// <summary>
+    /// Finds the best matching registered credential for <paramref name="path"/>
+    /// and executes an external program with this credential
+    /// </summary>
+    /// <param name="path"><see cref="ResourcePath"/> to which the external program shall have access</param>
+    /// <param name="executable">External program to execute</param>
+    /// <param name="arguments">Arguments for the external program</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns>A <see cref="Task"/> representing the result of executing the external program</returns>
+    public Task<ProcessExecutionResult> TryExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
     {
-      throw new NotImplementedException();
-    }
-
-    public bool TryExecuteWithResourceAccess(ResourcePath path, string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
-    {
-      throw new NotImplementedException();
+      WindowsIdentityWrapper bestMatchingIdentity;
+      return TryGetBestMatchingIdentityForPath(path, out bestMatchingIdentity) ?
+        AsyncImpersonationProcess.ExecuteAsync(executable, arguments, bestMatchingIdentity, _debugLogger, priorityClass, maxWaitMs) :
+        ProcessUtils.ExecuteAsync(executable, arguments, priorityClass, maxWaitMs);
     }
 
     #endregion

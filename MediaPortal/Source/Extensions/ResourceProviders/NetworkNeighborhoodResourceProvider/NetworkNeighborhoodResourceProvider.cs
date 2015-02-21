@@ -26,7 +26,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
@@ -150,15 +149,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       // 2) A resource path in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
       // 3) A dos path
       if (IsResource(pathStr))
-        return new ResourcePath(new ProviderPathSegment[]
+        return new ResourcePath(new[]
           {
-              new ProviderPathSegment(_metadata.ResourceProviderId, pathStr, true), 
+              new ProviderPathSegment(_metadata.ResourceProviderId, pathStr, true)
           });
       string providerPath = LocalFsResourceProviderBase.ToProviderPath(pathStr);
       if (IsResource(providerPath))
-        return new ResourcePath(new ProviderPathSegment[]
+        return new ResourcePath(new[]
           {
-              new ProviderPathSegment(_metadata.ResourceProviderId, providerPath, true), 
+              new ProviderPathSegment(_metadata.ResourceProviderId, providerPath, true)
           });
       try
       {
