@@ -76,7 +76,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected readonly string _effectName;
     protected volatile Effect _effect;
     protected T _instance;
-    private Matrix _lastTransform;
 
     public EffectAssetCore()
     { }
@@ -192,11 +191,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       _lastTransform = renderContext.Transform;
 
-      //var oldTransform = GraphicsDevice11.Instance.Context2D1.Transform;
-      //GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform;
-      //GraphicsDevice11.Instance.Context2D1.DrawImage(_effect);
-      GraphicsDevice11.Instance.Context2D1.DrawImage(_effect, renderContext.OccupiedTransformedBounds.TopLeft);
-      //GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
+      // Effect output is always located at (0, 0), so we need to adjust both size and position of render output to screen coordinates
+      var oldTransform = GraphicsDevice11.Instance.Context2D1.Transform;
+      var newTransform = Matrix3x2.Scaling(renderContext.OccupiedTransformedBounds.Width / texture.Surface.Description.Width, renderContext.OccupiedTransformedBounds.Height / texture.Surface.Description.Height);
+      newTransform *= Matrix3x2.Translation(renderContext.OccupiedTransformedBounds.TopLeft);
+
+      GraphicsDevice11.Instance.Context2D1.Transform = newTransform;
+      GraphicsDevice11.Instance.Context2D1.DrawImage(_effect);
+      GraphicsDevice11.Instance.Context2D1.Transform = oldTransform;
+
       KeepAlive();
     }
   }

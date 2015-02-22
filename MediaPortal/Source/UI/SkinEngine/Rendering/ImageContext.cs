@@ -27,9 +27,11 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Direct3D11;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -87,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected SizeF _rotatedFrameSize;
     protected Vector4 _imageTransform;
     protected SizeF _lastImageSize;
+    protected SamplerState _samplerState;
 
     protected string _shaderBaseName = null;
     protected string _shaderTransitionBaseName = null;
@@ -219,7 +222,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
       //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
       //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0,0, 1,1));
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0, 0, 1, 1));
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
       //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
@@ -285,20 +288,22 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
       _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
       _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
-
-      // TODO: temporary workaround, correct calculation below in RefreshParameters is not yet working again
-      var bounds = renderContext.OccupiedTransformedBounds;
-      _imageTransform = new Vector4(
-        0, 0, /* Translation */
-        1 * (_lastTexture.PixelSize.Width / bounds.Width), 1 * (_lastTexture.PixelSize.Height / bounds.Height) /* Scale */
-        );
-
       _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
       _effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
 
       // TODO: D2D version?
       //// Set border colour for area outside of texture boundaries
-      //GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
+      //if (_samplerState == null)
+      //{
+      //  var samplerStateDesc = SamplerStateDescription.Default();
+      //  samplerStateDesc.AddressU = TextureAddressMode.Mirror;
+      //  samplerStateDesc.AddressV = TextureAddressMode.Mirror;
+      //  samplerStateDesc.AddressW = TextureAddressMode.Mirror;
+      //  samplerStateDesc.BorderColor = borderColor;
+      //  _samplerState = new SamplerState(GraphicsDevice11.Instance.Device3D1, samplerStateDesc);
+      //}
+      //// Doesn't seem to have any effect at all :(
+      //GraphicsDevice11.Instance.Device3D1.ImmediateContext1.PixelShader.SetSampler(0, _samplerState);
 
       // Render
       _effect.StartRender(_lastTexture, renderContext);
@@ -342,15 +347,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
         _inverseRelativeTransformCache = TranslateRotation(_rotation);
         _inverseRelativeTransformCache.Invert();
-        //_imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
-        //_imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, textureRect.Z, textureRect.W);
-        _imageTransform = new Vector4(0,0, textureRect.Z, textureRect.W);
-
-        //_imageTransform = new Vector4(
-        //  0,0,
-        //  //targetRect.X, targetRect.Y, /* Translation */
-        //  texture.PixelSize.Width / targetImageSize.Width, texture.PixelSize.Height / targetImageSize.Height /* Scale */
-        //  );
+        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
 
         // Build our effects
         _effect = ContentManager.Instance.GetEffect<ImageEffect>(GetEffectName());
