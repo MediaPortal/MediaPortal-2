@@ -30,20 +30,8 @@
       <SetupTvIntegration Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
     </ItemGroup>
 
-    <!--TVE4 based -->
-    <!--<ItemGroup>
-      <SetupTvIntegration Include="$(ProjectDir)References\SetupTv\Defaults\**\*.*" />
-      <SetupTvIntegration Include="$(TargetDir)MediaPortal.Common.dll" />
-      <SetupTvIntegration Include="$(TargetDir)MediaPortal.Utilities.dll" />
-      <SetupTvIntegration Include="$(TargetDir)SlimTv.Interfaces.dll" />
-      <SetupTvIntegration Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
-    </ItemGroup>-->
-
     <ItemGroup>
-      <!--TVE3 based -->
       <DatabaseFiles Include="$(ProjectDir)Database\MP2TVE_3.s3db" />
-      <!--TVE4 based -->
-      <!--<DatabaseFiles Include="$(ProjectDir)Database\MP2TVE.s3db" />-->
     </ItemGroup>
 
     <ItemGroup>
@@ -55,8 +43,6 @@
     <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
-    <!--TVE4 based -->
-    <!--<Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />-->
   </Target>
 
 </Project>
