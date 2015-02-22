@@ -25,13 +25,10 @@
 using CommandLine;
 using CommandLine.Text;
 
-namespace MediaPortal.Package.UpdateService
+namespace MediaPortal.PackageService
 {
   public class CommandLineOptions
   {
-    [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
-    public string DataDirectory { get; set; }
-
     [Option('c', "console", Required = false, HelpText = "Run MP2 Server as Console Application.")]
     public bool RunAsConsoleApp { get; set; }
 

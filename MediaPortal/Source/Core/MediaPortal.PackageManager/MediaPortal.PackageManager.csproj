@@ -59,15 +59,8 @@
     <Reference Include="CommandLine">
       <HintPath>..\..\..\Packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Packages\Newtonsoft.Json.6.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -76,24 +69,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Package\BasicPackageActions.cs" />
-    <Compile Include="Core\Package\PackageAction.cs" />
-    <Compile Include="Core\Package\PackageExceptions.cs" />
-    <Compile Include="Core\Package\PackageImage.cs" />
-    <Compile Include="Core\Package\PackageLink.cs" />
-    <Compile Include="Core\Package\PackageMetaData.cs" />
-    <Compile Include="Core\Package\PackagePluginMetaData.cs" />
-    <Compile Include="Core\Package\PackageReleaseMetaData.cs" />
-    <Compile Include="Core\Package\PackageRoot.cs" />
-    <Compile Include="Core\Package\PackageRootDirectory.cs" />
-    <Compile Include="Core\ProcessManager.cs" />
-    <Compile Include="Core\RequestExecutionHelper.cs" />
-    <Compile Include="Core\Requestor.cs" />
-    <Compile Include="Core\PackageInstaller.cs" />
-    <Compile Include="Core\PackageAdmin.cs" />
-    <Compile Include="Core\PackagePublisher.cs" />
     <Compile Include="Core\BasicConsoleLogger.cs" />
-    <Compile Include="Core\PackageBuilder.cs" />
+    <Compile Include="Core\PackageAdminCmd.cs" />
+    <Compile Include="Core\PackageBuilderCmd.cs" />
+    <Compile Include="Core\PackageInstallerCmd.cs" />
+    <Compile Include="Core\PackagePublisherCmd.cs" />
     <Compile Include="Options\Admin\CreateUserOptions.cs" />
     <Compile Include="Options\Admin\RevokeUserOptions.cs" />
     <Compile Include="Options\Authors\CreateOptions.cs" />
@@ -104,10 +84,7 @@
     <Compile Include="Options\Users\ListOptions.cs" />
     <Compile Include="Options\Users\InstallOptions.cs" />
     <Compile Include="Options\Shared\Operation.cs" />
-    <Compile Include="Options\Users\RemoveOptions.cs" />
-    <Compile Include="Options\Users\PackageOptions.cs" />
     <Compile Include="Options\Users\SharedOptions.cs" />
-    <Compile Include="Options\Users\UpdateOptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -116,6 +93,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\MediaPortal.PackageCore\MediaPortal.PackageCore.csproj">
+      <Project>{4a14f525-b1db-4a58-a3d6-708d34099e8e}</Project>
+      <Name>MediaPortal.PackageCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>

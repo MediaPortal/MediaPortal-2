@@ -36,7 +36,7 @@ namespace MediaPortal.PackageManager.Options.Shared
     // user operations
     List,
     Install,
-    Update,
-    Remove,
+    //Update,
+    //Remove,
   }
 }

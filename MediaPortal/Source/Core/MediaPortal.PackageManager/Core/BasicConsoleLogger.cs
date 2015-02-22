@@ -39,7 +39,10 @@ namespace MediaPortal.PackageManager.Core
     public void Debug(string format, params object[] args)
     {
       if (_logLevel >= (int)LogLevel.Debug)
+      {
         Console.WriteLine(format, args);
+        System.Diagnostics.Debug.Print(format, args);
+      }
     }
 
     public void Debug(string format, Exception ex, params object[] args)
@@ -48,13 +51,18 @@ namespace MediaPortal.PackageManager.Core
       {
         Console.WriteLine(format, args);
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(format, args);
+        System.Diagnostics.Debug.Print(ex.ToString());
       }
     }
 
     public void Info(string format, params object[] args)
     {
       if (_logLevel >= (int)LogLevel.Information)
+      {
         Console.WriteLine(format, args);
+        System.Diagnostics.Debug.Print(format, args);
+      }
     }
 
     public void Info(string format, Exception ex, params object[] args)
@@ -63,13 +71,18 @@ namespace MediaPortal.PackageManager.Core
       {
         Console.WriteLine(format, args);
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(format, args);
+        System.Diagnostics.Debug.Print(ex.ToString());
       }
     }
 
     public void Warn(string format, params object[] args)
     {
       if (_logLevel >= (int)LogLevel.Warning)
+      {
         Console.WriteLine(format, args);
+        System.Diagnostics.Debug.Print(format, args);
+      }
     }
 
     public void Warn(string format, Exception ex, params object[] args)
@@ -78,13 +91,18 @@ namespace MediaPortal.PackageManager.Core
       {
         Console.WriteLine(format, args);
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(format, args);
+        System.Diagnostics.Debug.Print(ex.ToString());
       }
     }
 
     public void Error(string format, params object[] args)
     {
       if (_logLevel >= (int)LogLevel.Error)
+      {
         Console.WriteLine(format, args);
+        System.Diagnostics.Debug.Print(format, args);
+      }
     }
 
     public void Error(string format, Exception ex, params object[] args)
@@ -93,19 +111,27 @@ namespace MediaPortal.PackageManager.Core
       {
         Console.WriteLine(format, args);
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(format, args);
+        System.Diagnostics.Debug.Print(ex.ToString());
       }
     }
 
     public void Error(Exception ex)
     {
       if (_logLevel >= (int)LogLevel.Error)
+      {
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(ex.ToString());
+      }
     }
 
     public void Critical(string format, params object[] args)
     {
       if (_logLevel >= (int)LogLevel.Critical)
+      {
         Console.WriteLine(format, args);
+        System.Diagnostics.Debug.Print(format, args);
+      }
     }
 
     public void Critical(string format, Exception ex, params object[] args)
@@ -114,13 +140,18 @@ namespace MediaPortal.PackageManager.Core
       {
         Console.WriteLine(format, args);
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(format, args);
+        System.Diagnostics.Debug.Print(ex.ToString());
       }
     }
 
     public void Critical(Exception ex)
     {
       if (_logLevel >= (int)LogLevel.Critical)
+      {
         Console.WriteLine(ex);
+        System.Diagnostics.Debug.Print(ex.ToString());
+      }
     }
   }
 }

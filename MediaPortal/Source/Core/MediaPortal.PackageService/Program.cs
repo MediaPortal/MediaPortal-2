@@ -23,15 +23,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.Logging;
+using System.Threading;
 
-namespace MediaPortal.Package.UpdateService
+namespace MediaPortal.PackageService
 {
   internal static class Program
   {
@@ -46,18 +41,39 @@ namespace MediaPortal.Package.UpdateService
         var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
         parser.ParseArgumentsStrict(args, options, () => Environment.Exit(1));
 
-        //if (options.RunAsConsoleApp)
-        //	new ApplicationLauncher(options.DataDirectory).RunAsConsole();
-        //else
-        //{
-        //	ServiceBase[] servicesToRun = new ServiceBase[] { new WindowsService() };
-        //	ServiceBase.Run(servicesToRun);
-        //}				
+        if (options.RunAsConsoleApp)
+        {
+          // run as command line program, makes debugging way easier
+          Elevator.Start(Log);
+          // keep running, is for debugging purpose only anyway
+          Thread.Sleep(Timeout.Infinite);
+        }
+        else
+        {
+          // run as windows service
+          ServiceBase[] servicesToRun = { new ElevatorService() };
+          ServiceBase.Run(servicesToRun);
+        }				
       }
       catch (Exception ex)
       {
-        var log = new ConsoleLogger(LogLevel.All, false);
-        log.Error(ex);
+        Log(true, "Startup exception: {0}", ex.Message);
+      }
+      finally
+      {
+        Elevator.Stop();
+      }
+    }
+
+    private static void Log(bool error, string format, params object[] args)
+    {
+      if (error)
+      {
+        Console.Out.WriteLine("Error: " + String.Format(format, args));
+      }
+      else
+      {
+        Console.Out.WriteLine(format, args);
       }
     }
   }

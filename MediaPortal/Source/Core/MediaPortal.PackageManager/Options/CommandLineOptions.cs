@@ -57,14 +57,8 @@ namespace MediaPortal.PackageManager.Options
 
     #region User Actions
 
-    [VerbOption("install", HelpText = "Install a package.")]
+    [VerbOption("install", HelpText = "Install, update or remove packages.")]
     public InstallOptions InstallVerb { get; set; }
-
-    [VerbOption("update", HelpText = "Update one or more packages.")]
-    public UpdateOptions UpdateVerb { get; set; }
-
-    [VerbOption("remove", HelpText = "Remove a package.")]
-    public RemoveOptions RemoveVerb { get; set; }
 
     [VerbOption("list", HelpText = "List packages.")]
     public ListOptions ListVerb { get; set; }
