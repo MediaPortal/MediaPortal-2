@@ -22,8 +22,6 @@
 
 #endregion
 
-#define TVE3
-
 using System;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
