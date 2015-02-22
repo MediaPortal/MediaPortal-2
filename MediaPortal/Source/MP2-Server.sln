@@ -116,7 +116,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "..\Incubator\SlimTvService30\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "..\Incubator\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "..\Incubator\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
 EndProject
