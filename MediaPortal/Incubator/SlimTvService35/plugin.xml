@@ -1,0 +1,16 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="SlimTv Service Plugin (TVE3.5)"
+    PluginId="{14E7757A-F7D7-4F61-933B-91E948083A11}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides TV service with integrated TV Engine 3.5"
+    AutoActivate="true"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="SlimTv.Service35.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Service.SlimTvServicePlugin"/>
+  </Runtime>
+</Plugin>
+
