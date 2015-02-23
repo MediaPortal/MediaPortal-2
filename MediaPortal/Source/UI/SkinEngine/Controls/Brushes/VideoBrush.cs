@@ -27,26 +27,26 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Geometries;
-using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 using SharpDX;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
+using Transform = MediaPortal.UI.SkinEngine.Controls.Transforms.Transform;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   /// <summary>
   /// Brush which paints the video image of a player of type <see cref="ISharpDXVideoPlayer"/> provided by the <see cref="IPlayerManager"/>.
   /// </summary>
-  public class VideoBrush : Brush
+  public class VideoBrush : Brush, IRenderBrush
   {
     #region Consts
 
@@ -80,6 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected RectangleF _lastVertsBounds;
     protected Texture _texture = null;
     protected volatile bool _refresh = true;
+    private Bitmap1 _videoBitmap;
 
     #endregion
 
@@ -97,11 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _geometryProperty = new SProperty(typeof(string), null);
       _borderColorProperty = new SProperty(typeof(Color), Color.Black);
 
-      _imageContext = new ImageContext
-        {
-          OnRefresh = OnImagecontextRefresh,
-          ExtraParameters = new System.Collections.Generic.Dictionary<string, object>()
-        };
+      _imageContext = new ImageContext { OnRefresh = OnImagecontextRefresh };
     }
 
     void Attach()
@@ -118,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      VideoBrush b = (VideoBrush) source;
+      VideoBrush b = (VideoBrush)source;
       Stream = b.Stream;
       Geometry = b.Geometry;
       BorderColor = b.BorderColor;
@@ -201,15 +198,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       lock (sdvPlayer.SurfaceLock)
       {
-        Surface surface = sdvPlayer.Surface;
+        var surface = sdvPlayer.Surface;
         if (surface == null)
         {
           _refresh = true;
           return false;
         }
-        SurfaceDescription desc = surface.Description;
-        _videoTextureClip = new RectangleF(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
-            cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
+
+        _videoTextureClip = new RectangleF(cropVideoRect.X / (float)surface.Width, cropVideoRect.Y / (float)surface.Height,
+            cropVideoRect.Width / (float)surface.Width, cropVideoRect.Height / (float)surface.Height);
       }
       _scaledVideoSize = cropVideoRect.Size.ToSize2F();
 
@@ -251,8 +248,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void OnImagecontextRefresh()
     {
-      _imageContext.ExtraParameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
-      _imageContext.ExtraParameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+      _imageContext.RelativeTransform = _inverseRelativeTransformCache;
+      _imageContext.Transform = GetCachedFinalBrushTransform();
     }
 
     #endregion
@@ -269,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public int Stream
     {
-      get { return (int) _streamProperty.GetValue(); }
+      get { return (int)_streamProperty.GetValue(); }
       set { _streamProperty.SetValue(value); }
     }
 
@@ -283,7 +280,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public string Geometry
     {
-      get { return (string) _geometryProperty.GetValue(); }
+      get { return (string)_geometryProperty.GetValue(); }
       set { _geometryProperty.SetValue(value); }
     }
 
@@ -297,7 +294,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public Color BorderColor
     {
-      get { return (Color) _borderColorProperty.GetValue(); }
+      get { return (Color)_borderColorProperty.GetValue(); }
       set { _borderColorProperty.SetValue(value); }
     }
 
@@ -312,7 +309,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         ServiceRegistration.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
     }
 
-    protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    //protected bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    public bool RenderContent(RenderContext renderContext)
     {
       ISharpDXVideoPlayer player;
       if (!GetPlayer(out player))
@@ -321,27 +319,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (!RefreshEffectParameters(player))
         return false;
 
+
       lock (player.SurfaceLock)
       {
-        Surface playerSurface = player.Surface;
-        if (playerSurface == null)
-          return false;
-        DeviceEx device = SkinContext.Device;
-        SurfaceDescription desc = playerSurface.Description;
-        SurfaceDescription? textureDesc = _texture == null ? new SurfaceDescription?() : _texture.GetLevelDescription(0);
-        if (!textureDesc.HasValue || textureDesc.Value.Width != desc.Width || textureDesc.Value.Height != desc.Height)
+        // Force a refresh of effekt parameters when real brush is set first
+        if (!(_brush2D is BitmapBrush1))
+          _refresh = true;
+
+        var playerSurface = player.Surface;
+        if (playerSurface != null && _videoBitmap != playerSurface.Bitmap)
         {
-          TryDispose(ref _texture);
-          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
+          _videoBitmap = playerSurface.Bitmap;
         }
-        using(Surface target = _texture.GetSurfaceLevel(0))
-          device.StretchRectangle(playerSurface, target, TextureFilter.None);
       }
-      
+
+      if (_videoBitmap == null)
+        return false;
+
       // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
       RectangleF tranformedRect;
       GraphicsDevice11.Instance.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor, _lastFrameData);
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, _videoBitmap, tranformedRect, BorderColor, _lastFrameData);
     }
 
     protected virtual bool GetPlayer(out ISharpDXVideoPlayer player)
@@ -357,7 +355,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public void EndRender()
     {
-      _imageContext.EndRender();
+      //_imageContext.EndRender();
     }
 
     #endregion

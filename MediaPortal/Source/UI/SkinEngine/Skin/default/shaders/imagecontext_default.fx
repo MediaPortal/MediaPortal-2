@@ -48,7 +48,7 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
   // Apply relative transform
   float2 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform).xy;
 
-    // Transform vertex coords to place brush texture
+  // Transform vertex coords to place brush texture
   pos = pos * g_imagetransform.zw - g_imagetransform.xy;
   OUT.Texcoord = float4(pos.x, pos.y, 0.0, 1.0);
 }

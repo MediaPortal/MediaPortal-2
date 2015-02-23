@@ -23,12 +23,16 @@
 #endregion
 
 using System;
+using System.CodeDom.Compiler;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Reflection;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Microsoft.CSharp;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
@@ -188,6 +192,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _refresh = true;
       }
     }
+
+    public Matrix RelativeTransform { get; set; }
+    public Matrix Transform { get; set; }
 
     #endregion
 
@@ -349,6 +356,28 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _refresh = false;
       }
     }
+
+    protected static Type GetOrCreate(string effectName)
+    {
+      if (DynamicTypes.ContainsKey(effectName))
+        return DynamicTypes[effectName];
+
+      Type dynamicType = CreateDummyEffectClass(DynamicTypes.Keys.Count);
+      DynamicTypes[effectName] = dynamicType;
+      return dynamicType;
+    }
+
+    public static Type CreateDummyEffectClass(int index)
+    {
+      string code = @"namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D { class ImageEffect"+index+" : ImageEffect { } }";
+
+      CSharpCodeProvider provider = new CSharpCodeProvider();
+      CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), code);
+
+      Type binaryFunction = results.CompiledAssembly.GetType("MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.ImageEffect"+index);
+      return binaryFunction;
+    }
+    protected static IDictionary<string, Type> DynamicTypes = new ConcurrentDictionary<string, Type>();
 
     protected static Matrix TranslateRotation(RightAngledRotation rar)
     {

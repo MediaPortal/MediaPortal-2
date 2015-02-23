@@ -37,7 +37,7 @@ using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class VideoBrush : TileBrush
+  public class VideoBrush2D : TileBrush
   {
     #region Protected fields
 
@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public VideoBrush()
+    public VideoBrush2D()
     {
       Init();
       Attach();
@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      VideoBrush b = (VideoBrush)source;
+      VideoBrush2D b = (VideoBrush2D)source;
       Stream = b.Stream;
       Geometry = b.Geometry;
       _refresh = true;

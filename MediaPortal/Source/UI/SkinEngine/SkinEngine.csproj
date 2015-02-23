@@ -132,7 +132,7 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
-    <Compile Include="Controls\Brushes\VideoBrush2D.cs" />
+    <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\ImageSources\ResourceAccessorTextureImageSource.cs" />
     <Compile Include="Controls\Brushes\Animation\AbstractKenBurnsEffect.cs" />
     <Compile Include="Controls\Brushes\Animation\IImageAnimator.cs" />
@@ -367,6 +367,7 @@
     <Compile Include="Rendering\EffectContext.cs" />
     <Compile Include="Rendering\ImageContext2D.cs" />
     <Compile Include="Rendering\ImageContext.cs" />
+    <Compile Include="Rendering\ImageEffectExt.cs" />
     <Compile Include="Rendering\PrimitiveBuffer.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\RotationTranslator.cs" />
