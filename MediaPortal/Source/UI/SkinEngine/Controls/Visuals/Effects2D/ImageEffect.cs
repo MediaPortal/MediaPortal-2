@@ -37,21 +37,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     public Matrix RelativeTransform;
     public Vector4 ImageTransform;
     public Vector4 FrameData;
+    public Color4 BorderColor;
     public float Opacity;
-
-    public override bool Equals(object obj)
-    {
-      if (obj == null)
-        return false;
-      var other = (ImageEffectParams)obj;
-      return
-        Equals(WorldTransform, other.WorldTransform) &&
-        Equals(RelativeTransform, other.RelativeTransform) &&
-        Equals(Opacity, other.Opacity) &&
-        Equals(ImageTransform, other.ImageTransform) &&
-        Equals(FrameData, other.FrameData);
-    }
-  }
+ }
 
   public enum ParamIndexI
   {
@@ -59,7 +47,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     RelativeTransform = 1,
     ImageTransform = 2,
     FrameData = 3,
-    Opacity = 4
+    BorderColor = 4,
+    Opacity = 5
   }
 
   #endregion
@@ -76,6 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
         Opacity = 1.0f,
         RelativeTransform = Matrix.Identity,
         ImageTransform = new Vector4(0f, 0f, 1f, 1f),
+        BorderColor = Color4.Black,
         FrameData = new Vector4(0f, 0f, 1f, 1f)
       };
     }
@@ -134,6 +124,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     {
       get { return _effectParams.ImageTransform; }
       set { _effectParams.ImageTransform = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the ImageTransform.
+    /// </summary>
+    [PropertyBinding((int)ParamIndexI.BorderColor, "(0,0,0,0)", "(1,1,1,1)", "(0,0,0,0)")]
+    public Color4 BorderColor
+    {
+      get { return _effectParams.BorderColor; }
+      set { _effectParams.BorderColor = value; }
     }
 
     /// <summary>

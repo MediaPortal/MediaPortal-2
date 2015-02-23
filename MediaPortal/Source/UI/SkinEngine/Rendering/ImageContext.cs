@@ -290,20 +290,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
       _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
       _effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
-
-      // TODO: D2D version?
-      //// Set border colour for area outside of texture boundaries
-      //if (_samplerState == null)
-      //{
-      //  var samplerStateDesc = SamplerStateDescription.Default();
-      //  samplerStateDesc.AddressU = TextureAddressMode.Mirror;
-      //  samplerStateDesc.AddressV = TextureAddressMode.Mirror;
-      //  samplerStateDesc.AddressW = TextureAddressMode.Mirror;
-      //  samplerStateDesc.BorderColor = borderColor;
-      //  _samplerState = new SamplerState(GraphicsDevice11.Instance.Device3D1, samplerStateDesc);
-      //}
-      //// Doesn't seem to have any effect at all :(
-      //GraphicsDevice11.Instance.Device3D1.ImmediateContext1.PixelShader.SetSampler(0, _samplerState);
+      _effect.Effect.SetValue((int)ParamIndexI.BorderColor, (Color4)borderColor);
 
       // Render
       _effect.StartRender(_lastTexture, renderContext);

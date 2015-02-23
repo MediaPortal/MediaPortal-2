@@ -189,8 +189,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       if (texture2 != null && _effect.InputCount == 2)
         _effect.SetInput(1, texture2, true);
 
-      _lastTransform = renderContext.Transform;
-
       // Effect output is always located at (0, 0), so we need to adjust both size and position of render output to screen coordinates
       var oldTransform = GraphicsDevice11.Instance.Context2D1.Transform;
       var newTransform = Matrix3x2.Scaling(renderContext.OccupiedTransformedBounds.Width / texture.Surface.Description.Width, renderContext.OccupiedTransformedBounds.Height / texture.Surface.Description.Height);
