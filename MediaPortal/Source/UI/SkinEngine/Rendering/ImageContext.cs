@@ -357,28 +357,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
     }
 
-    protected static Type GetOrCreate(string effectName)
-    {
-      if (DynamicTypes.ContainsKey(effectName))
-        return DynamicTypes[effectName];
-
-      Type dynamicType = CreateDummyEffectClass(DynamicTypes.Keys.Count);
-      DynamicTypes[effectName] = dynamicType;
-      return dynamicType;
-    }
-
-    public static Type CreateDummyEffectClass(int index)
-    {
-      string code = @"namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D { class ImageEffect"+index+" : ImageEffect { } }";
-
-      CSharpCodeProvider provider = new CSharpCodeProvider();
-      CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), code);
-
-      Type binaryFunction = results.CompiledAssembly.GetType("MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.ImageEffect"+index);
-      return binaryFunction;
-    }
-    protected static IDictionary<string, Type> DynamicTypes = new ConcurrentDictionary<string, Type>();
-
     protected static Matrix TranslateRotation(RightAngledRotation rar)
     {
       if (rar == RightAngledRotation.Zero)

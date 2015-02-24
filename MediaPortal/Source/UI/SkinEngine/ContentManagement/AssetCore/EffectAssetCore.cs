@@ -23,10 +23,14 @@
 #endregion
 
 using System;
+using System.CodeDom.Compiler;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
+using Microsoft.CSharp;
 using SharpDX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX.Direct2D1;
@@ -72,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     where T : class, ICustomRenderEffect, new()
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
-
+    protected static IDictionary<string, Guid> EffectIds = new ConcurrentDictionary<string, Guid>();
     protected readonly string _effectName;
     protected volatile Effect _effect;
     protected T _instance;
@@ -96,23 +100,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       if (string.IsNullOrEmpty(_effectName))
         return false;
 
+      Guid effectId = GetOrCreate(_effectName);
       if (_instance == null)
       {
-        Guid effectId;
-        // We create a temporary effect to retrieve the actual effect ID, which depends on the given _effectName
-        using (var tmpEffect = new T())
-        {
-          tmpEffect.Init(_effectName);
-          effectId = tmpEffect.EffectId;
-        }
         // We can only register an effect once by its Guid.
         if (!GraphicsDevice11.Instance.Factory2D.RegisteredEffects.Contains(effectId))
         {
-          // TODO: is it possible to register same class with different internal IDs?
-          GraphicsDevice11.Instance.Factory2D.RegisterEffect<T>(CreateInstance);
+          GraphicsDevice11.Instance.Factory2D.RegisterEffect<T>(CreateInstance, effectId);
         }
       }
-      _effect = new Effect<T>(GraphicsDevice11.Instance.Context2D1);
+      _effect = new Effect<T>(GraphicsDevice11.Instance.Context2D1, effectId);
       return true;
     }
 
@@ -121,6 +118,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _instance = new T();
       _instance.Init(_effectName);
       return _instance;
+    }
+
+    protected static Guid GetOrCreate(string effectName)
+    {
+      if (EffectIds.ContainsKey(effectName))
+        return EffectIds[effectName];
+
+      Guid newId = Guid.NewGuid();
+      EffectIds[effectName] = newId;
+      return newId;
     }
 
     #region Public properties

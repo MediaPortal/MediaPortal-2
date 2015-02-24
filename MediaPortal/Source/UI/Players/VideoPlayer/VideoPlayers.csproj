@@ -17,7 +17,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>b9e6528e</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>8da08f0e</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,22 +46,20 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    <Reference Include="SharpDX">
+      <HintPath>..\..\..\..\Lib\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct2D1">
-      <HintPath>..\..\..\..\Packages\SharpDX.2.6.3\Bin\DirectX11_2-Signed-net40\SharpDX.Direct2D1.dll</HintPath>
+      <HintPath>..\..\..\..\Lib\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D11">
-      <HintPath>..\..\..\..\Packages\SharpDX.2.6.3\Bin\DirectX11_2-Signed-net40\SharpDX.Direct3D11.dll</HintPath>
+      <HintPath>..\..\..\..\Lib\SharpDX.Direct3D11.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
+    <Reference Include="SharpDX.Direct3D9">
+      <HintPath>..\..\..\..\Lib\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI">
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.DXGI.dll</HintPath>
+      <HintPath>..\..\..\..\Lib\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -166,11 +164,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets'))" />
   </Target>
   <Import Project="..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.3.0.83.1\build\MediaPortal.TsReader.targets')" />
-  <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
   <Import Project="..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets" Condition="Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" />
 </Project>
