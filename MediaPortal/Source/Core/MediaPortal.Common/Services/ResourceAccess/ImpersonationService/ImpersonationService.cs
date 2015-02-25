@@ -234,7 +234,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns>A <see cref="Task"/> representing the result of executing the external program</returns>
-    public Task<ProcessExecutionResult> TryExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
+    public Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
     {
       WindowsIdentityWrapper bestMatchingIdentity;
       return TryGetBestMatchingIdentityForPath(path, out bestMatchingIdentity) ?
