@@ -94,9 +94,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
     private readonly ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
     private bool _useAntialiasing;
+    
+    private bool _resetRequired;
 
     #endregion
-    
+
     #region Static properties
 
     private static GraphicsDevice11 _instance;
@@ -344,6 +346,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
       try
       {
+        CheckReset();
+
         Fire(DeviceSceneBegin);
 
         pipeline.BeginRender();
@@ -364,7 +368,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       {
         ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception", e);
         // D2DERR_RECREATE_TARGET/RecreateTarget
-        if (e.ResultCode == 0x8899000C)
+        // DXGI_ERROR_DEVICE_REMOVED/DeviceRemoved
+        if (e.ResultCode == 0x8899000C || e.ResultCode == 0x887A0005)
         {
           Reset();
           return true;
@@ -379,12 +384,33 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     }
 
     /// <summary>
+    /// Sets a flag the DX device needs to be reset in next render cycle.
+    /// </summary>
+    public void SetResetRequired()
+    {
+      _resetRequired = true;
+    }
+
+    protected void CheckReset()
+    {
+      if (_resetRequired)
+        Reset();
+    }
+
+    /// <summary>
     /// Resets the DirectX device. This will release all screens, other UI resources and our back buffer, reset the DX device and realloc
     /// all resources.
     /// </summary>
     public bool Reset()
     {
-      _renderAndResourceAccessLock.EnterWriteLock();
+      try
+      {
+        _renderAndResourceAccessLock.EnterWriteLock();
+      }
+      catch (LockRecursionException)
+      {
+        return false;
+      }
 
       try
       {
@@ -407,6 +433,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       }
       finally
       {
+        _resetRequired = false;
         _renderAndResourceAccessLock.ExitWriteLock();
       }
     }

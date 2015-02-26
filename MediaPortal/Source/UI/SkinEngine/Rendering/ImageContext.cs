@@ -291,7 +291,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           return false;
       }
 
-      // TODO: When running inside VS2013, the performance decreases a lot due to internal exceptions. Performance is good when running without debugging and attaching VS later.
       _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
       _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
       _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);

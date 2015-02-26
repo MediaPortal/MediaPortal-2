@@ -57,7 +57,7 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 
   // Apply other transformation
   //OUT.Texcoord = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
-  OUT.Texcoord = float4(pos, 0, 1);
+  OUT.Texcoord = float4(pos.x, pos.y, 0.0, 1.0);
 }
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
