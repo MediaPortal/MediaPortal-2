@@ -40,6 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     public Matrix RelativeTransformA;
     public Vector4 ImageTransformA;
     public Vector4 FrameDataA;
+    public Color4 BorderColor;
     public float Opacity;
     public float MixAB;
   }
@@ -53,8 +54,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     RelativeTransformA = 4,
     ImageTransformA = 5,
     FrameDataA = 6,
-    Opacity = 7,
-    MixAB = 8
+    BorderColor = 7,
+    Opacity = 8,
+    MixAB = 9
   }
 
   #endregion
@@ -76,11 +78,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
         RelativeTransformA = Matrix.Identity,
         ImageTransformA = new Vector4(0f, 0f, 1f, 1f),
         FrameDataA = new Vector4(0f, 0f, 1f, 1f),
-        MixAB = 0f
+        BorderColor = Color4.Black,
+        MixAB = 0f,
       };
     }
 
     #region Parameters wrapper properties
+
+    /// <summary>
+    /// Gets or sets the RelativeTransform.
+    /// </summary>
+    [PropertyBinding((int)ParamIndexIT.WorldTransform, "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", "(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)", Type = PropertyType.Matrix4x4)]
+    public Matrix WorldTransform
+    {
+      get { return _effectParams.WorldTransform; }
+      set { _effectParams.WorldTransform = value; }
+    }
 
     /// <summary>
     /// Gets or sets the Opacity.
@@ -153,6 +166,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     }
 
     /// <summary>
+    /// Gets or sets the ImageTransform.
+    /// </summary>
+    [PropertyBinding((int)ParamIndexIT.BorderColor, "(0,0,0,0)", "(1,1,1,1)", "(0,0,0,0)")]
+    public Color4 BorderColor
+    {
+      get { return _effectParams.BorderColor; }
+      set { _effectParams.BorderColor = value; }
+    }
+
+    /// <summary>
     /// Gets or sets the mix factor for transition of both textures.
     /// </summary>
     [PropertyBinding((int)ParamIndexIT.MixAB, "0.0", "1.0", "1.0")]
@@ -165,6 +188,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     #endregion
 
     #region Overrides
+
+    public override void SetDrawInformation(DrawInformation drawInfo)
+    {
+      base.SetDrawInformation(drawInfo);
+      _drawInformation.SetInputDescription(1, new InputDescription(Filter.MinimumMagLinearMipPoint, 1));
+    }
 
     /// <summary>
     /// The transition effect has two inputs.

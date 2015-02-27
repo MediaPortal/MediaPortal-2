@@ -227,23 +227,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Apply effect parameters
       _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
-      //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
-      //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0, 0, 1, 1));
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
-      //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, _imageTransform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
-
-      // TODO 2nd texture
-
-      //// Disable antialiasing for image rendering.
-      //GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
-
-      //// Set border colour for area outside of texture boundaries
-      //GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor.ToBgra());
-      //GraphicsDevice.Device.SetSamplerState(1, SamplerState.BorderColor, borderColor.ToBgra());
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.BorderColor, borderColor.ToColor4());
 
       // Render
       _effectTransition.StartRender(_lastTexture, renderContext, endTexture);

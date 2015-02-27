@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
         effectContext.LoadPixelShader(_effectId, pshader.Bytecode);
         transformGraph.SetSingleTransformNode(this);
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", ex, _effectName);
       }
@@ -161,8 +161,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
 
     public virtual Rectangle MapInputRectanglesToOutputRectangle(Rectangle[] inputRects, Rectangle[] inputOpaqueSubRects, out Rectangle outputOpaqueSubRect)
     {
-      if (inputRects.Length != 1)
-        throw new ArgumentException("InputRects must be length of 1", "inputRects");
+      if (inputRects.Length != InputCount)
+        throw new ArgumentException("InputRects must be length of " + InputCount, "inputRects");
       outputOpaqueSubRect = default(Rectangle);
       return inputRects[0];
     }
@@ -170,12 +170,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
     public virtual void MapOutputRectangleToInputRectangles(Rectangle outputRect, Rectangle[] inputRects)
     {
       int expansion = 0;
-      if (inputRects.Length != 1)
-        throw new ArgumentException("InputRects must be length of 1", "inputRects");
-      inputRects[0].Left = outputRect.Left - expansion;
-      inputRects[0].Top = outputRect.Top - expansion;
-      inputRects[0].Right = outputRect.Right + expansion;
-      inputRects[0].Bottom = outputRect.Bottom + expansion;
+      if (inputRects.Length != InputCount)
+        throw new ArgumentException("InputRects must be length of " + InputCount, "inputRects");
+      for (int idx = 0; idx < inputRects.Length; idx++)
+      {
+        inputRects[idx].Left = outputRect.Left - expansion;
+        inputRects[idx].Top = outputRect.Top - expansion;
+        inputRects[idx].Right = outputRect.Right + expansion;
+        inputRects[idx].Bottom = outputRect.Bottom + expansion;
+      }
     }
 
     public virtual int InputCount

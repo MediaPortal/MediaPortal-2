@@ -2,7 +2,7 @@
  * Default. Just sample the texture.
 */ 
 
-float4 PixelEffect(in float2 texcoord, in sampler TextureSampler, in float4 framedata) : COLOR
+float4 PixelEffect(in float2 texcoord, in Texture2D InputTexture, in sampler TextureSampler, in float4 framedata) : COLOR
 {
-	return tex2D(TextureSampler, texcoord);
+  return InputTexture.Sample(TextureSampler, texcoord);
 }

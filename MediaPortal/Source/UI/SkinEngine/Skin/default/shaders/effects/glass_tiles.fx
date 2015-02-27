@@ -34,17 +34,17 @@
 ///<defaultValue>1</defaultValue>
 #define GroutColor (0x000000)
 
-float4 PixelEffect(in float2 texcoord, in sampler TextureSampler, in float4 framedata) : COLOR
+float4 PixelEffect(in float2 texcoord, in Texture2D InputTexture, in sampler TextureSampler, in float4 framedata) : COLOR
 {
-	float2 newUV1;
-	newUV1.xy = texcoord.xy + tan((Tiles*2.5)*texcoord.xy + Offset)*(BevelWidth/100);
-	
-	float4 c1 = tex2D(TextureSampler, newUV1); 
-	if(newUV1.x<0 || newUV1.x>1 || newUV1.y<0 || newUV1.y>1)
-	{	
-	  c1 = GroutColor;
-	}
-	c1.a=1;
-	return c1;
+  float2 newUV1;
+  newUV1.xy = texcoord.xy + tan((Tiles*2.5)*texcoord.xy + Offset)*(BevelWidth / 100);
+
+  float4 c1 = InputTexture.Sample(TextureSampler, newUV1);
+  if (newUV1.x < 0 || newUV1.x>1 || newUV1.y < 0 || newUV1.y>1)
+  {
+    c1 = GroutColor;
+  }
+  c1.a = 1;
+  return c1;
 }
 

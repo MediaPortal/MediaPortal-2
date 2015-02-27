@@ -4,7 +4,7 @@
 ** with other files containing definitions for:
 
 	float2 PixelTransform(in float2 texcoord);
-	float4 PixelEffect(in float2 texcoord, in sampler TextureSampler, in float4 framedata) : COLOR;
+	float4 PixelEffect(in float2 texcoord, in Texture2D InputTexture, in sampler TextureSampler, in float4 framedata) : COLOR;
 */
 
 Texture2D    InputTexture   : register(t0);
@@ -64,7 +64,7 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   float2 texcoord = PixelTransform(IN.Texcoord);
 
-  float4 color = PixelEffect(texcoord, TextureSampler, g_framedata);;
+  float4 color = PixelEffect(texcoord, InputTexture, TextureSampler, g_framedata);
   color.a *= g_opacity;
 
   // Remember to pre-multiply alpha
