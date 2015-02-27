@@ -34,15 +34,14 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 
 namespace MediaPortal.UI.SkinEngine.InputManagement
 {
-  /// <summary>
-  /// Delegate for a mouse handler.
-  /// </summary>
-  /// <param name="x">X coordinate of the new mouse position.</param>
-  /// <param name="y">Y coordinate of the new mouse position.</param>
-  public delegate void MouseMoveHandler(float x, float y);
 
   /// <summary>
   /// Delegate for a mouse click handler.
@@ -51,17 +50,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   public delegate void MouseClickHandler(MouseButtons buttons);
 
   /// <summary>
-  /// Delegate for a mouse wheel handler.
-  /// </summary>
-  /// <param name="numDetents">Number of detents which have been scrolled.</param>
-  public delegate void MouseWheelHandler(int numDetents);
-
-  /// <summary>
   /// Delegate for a key handler.
   /// </summary>
   /// <param name="key">The key which was pressed. This parmeter should be set to <see cref="Key.None"/> when the
   /// key was consumed.</param>
   public delegate void KeyPressedHandler(ref Key key);
+
+  internal delegate void RoutedInputEventHandler(RoutedEventArgs args, RoutedEvent[] events);
 
   /// <summary>
   /// Input manager class which provides the public <see cref="IInputManager"/> interface and some other
@@ -98,28 +93,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       }
     }
 
-    protected class MouseMoveEvent : InputEvent
-    {
-      protected float _x;
-      protected float _y;
-
-      public MouseMoveEvent(float x, float y)
-      {
-        _x = x;
-        _y = y;
-      }
-
-      public float X
-      {
-        get { return _x; }
-      }
-
-      public float Y
-      {
-        get { return _y; }
-      }
-    }
-
     protected class MouseClickEvent : InputEvent
     {
       protected MouseButtons _buttons;
@@ -132,21 +105,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       public MouseButtons Buttons
       {
         get { return _buttons; }
-      }
-    }
-
-    protected class MouseWheelEvent : InputEvent
-    {
-      protected int _numDetents;
-
-      public MouseWheelEvent(int numDetents)
-      {
-        _numDetents = numDetents;
-      }
-
-      public int NumDetents
-      {
-        get { return _numDetents; }
       }
     }
 
@@ -191,6 +149,18 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     internal class InputTouchDownEvent : InputTouchEvent { }
     internal class InputTouchUpEvent : InputTouchEvent { }
     internal class InputTouchMoveEvent : InputTouchEvent { }
+
+    protected class RoutedInputEvent : InputEvent
+    {
+      public RoutedInputEvent(RoutedEventArgs args, params RoutedEvent[] events)
+      {
+        EventArgs = args;
+        RoutedEvents = events;
+      }
+
+      public RoutedEventArgs EventArgs { get; private set; }
+      public RoutedEvent[] RoutedEvents { get; private set; }
+    }
 
     #endregion
 
@@ -251,21 +221,6 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     }
 
     /// <summary>
-    /// Can be registered by classes of the skin engine to be informed about mouse movements.
-    /// </summary>
-    public event MouseMoveHandler MouseMoved;
-
-    /// <summary>
-    /// Can be registered by classes of the skin engine to be informed about mouse clicks.
-    /// </summary>
-    public event MouseClickHandler MouseClicked;
-
-    /// <summary>
-    /// Can be registered by classes of the skin engine to be informed about mouse wheel events.
-    /// </summary>
-    public event MouseWheelHandler MouseWheeled;
-
-    /// <summary>
     /// Can be registered by classes of the skin engine to be informed about key events.
     /// </summary>
     public event KeyPressedHandler KeyPressed;
@@ -278,6 +233,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     public event EventHandler<TouchDownEvent> TouchDown;   // touch down event handler
     public event EventHandler<TouchUpEvent> TouchUp;       // touch up event handler
     public event EventHandler<TouchMoveEvent> TouchMove;   // touch move event handler
+
+    internal event RoutedInputEventHandler RoutedInputEventFired;
+
+    public event ParameterlessMethod Activated;
+
+    public event ParameterlessMethod Deactivated;
 
     public void Terminate()
     {
@@ -347,18 +308,14 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Type eventType = evt.GetType();
       if (eventType == typeof(KeyEvent))
         ExecuteKeyPress((KeyEvent)evt);
-      else if (eventType == typeof(MouseMoveEvent))
-        ExecuteMouseMove((MouseMoveEvent)evt);
-      else if (eventType == typeof(MouseClickEvent))
-        ExecuteMouseClick((MouseClickEvent)evt);
-      else if (eventType == typeof(MouseWheelEvent))
-        ExecuteMouseWheel((MouseWheelEvent)evt);
       else if (eventType == typeof(InputTouchDownEvent))
         ExecuteTouchDown(ToUiEvent<TouchDownEvent>((InputTouchDownEvent)evt));
       else if (eventType == typeof(InputTouchUpEvent))
         ExecuteTouchUp(ToUiEvent<TouchUpEvent>((InputTouchUpEvent)evt));
       else if (eventType == typeof(InputTouchMoveEvent))
         ExecuteTouchMove(ToUiEvent<TouchMoveEvent>((InputTouchMoveEvent)evt));
+      else if (eventType == typeof(RoutedInputEvent))
+        ExecuteRoutedInputEvent((RoutedInputEvent)evt);
     }
 
     protected void Dispatch(object o)
@@ -425,42 +382,52 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       Key key = evt.Key;
       if (KeyPreview != null)
         KeyPreview(ref key);
+
+      var routedKeyEventArgs = new KeyEventArgs(Environment.TickCount, key);
+
+      // invoke routed KeyPress event
+      // if event is already handled, we set Handled to true. By this only handlers registered with handledEventsToo = true will be invoked
       if (key == Key.None)
-        return;
-      // Try key bindings...
-      KeyAction keyAction;
-      lock (_syncObj)
-        if (!_keyBindings.TryGetValue(key, out keyAction))
-          keyAction = null;
-      if (keyAction != null)
-        keyAction.Action();
-      else
+      {
+        routedKeyEventArgs.Handled = true;
+      }
+      ExecuteRoutedInputEvent(new RoutedInputEvent(routedKeyEventArgs, UIElement.PreviewKeyPressEvent));
+      if (routedKeyEventArgs.Handled)
+      {
+        key = Key.None;
+      }
+
+      if (key != Key.None)
+      {
+        // Try key bindings...
+        KeyAction keyAction;
+        lock (_syncObj)
+          if (!_keyBindings.TryGetValue(key, out keyAction))
+            keyAction = null;
+        if (keyAction != null)
+          keyAction.Action();
+      }
+
+      // invoke routed KeyPress event
+      // if event is already handled, we set Handled to true. By this only handlers registered with handledEventsToo = true will be invoked
+      // it is important to invoke routed KeyPressed event before 'internal' OnKeyPressed, 
+      // b/c internal OnKeyPress makes focus handling in Screen as final action if event was not handled
+      if (key == Key.None)
+      {
+        routedKeyEventArgs.Handled = true;
+      }
+      ExecuteRoutedInputEvent(new RoutedInputEvent(routedKeyEventArgs, UIElement.KeyPressEvent));
+      if (routedKeyEventArgs.Handled)
+      {
+        key = Key.None;
+      }
+
+      if (key != Key.None)
       {
         KeyPressedHandler dlgt = KeyPressed;
         if (dlgt != null)
           dlgt(ref key);
       }
-    }
-
-    protected void ExecuteMouseMove(MouseMoveEvent evt)
-    {
-      MouseMoveHandler dlgt = MouseMoved;
-      if (dlgt != null)
-        dlgt(evt.X, evt.Y);
-    }
-
-    protected void ExecuteMouseClick(MouseClickEvent evt)
-    {
-      MouseClickHandler dlgt = MouseClicked;
-      if (dlgt != null)
-        dlgt(evt.Buttons);
-    }
-
-    protected void ExecuteMouseWheel(MouseWheelEvent evt)
-    {
-      MouseWheelHandler dlgt = MouseWheeled;
-      if (dlgt != null)
-        dlgt(evt.NumDetents);
     }
 
     internal void ExecuteTouchMove(TouchMoveEvent evt)
@@ -482,6 +449,27 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       var dlgt = TouchUp;
       if (dlgt != null)
         dlgt(this, evt);
+    }
+
+    protected void ExecuteRoutedInputEvent(RoutedInputEvent evt)
+    {
+      var dlgt = RoutedInputEventFired;
+      if (dlgt != null)
+        dlgt(evt.EventArgs, evt.RoutedEvents);
+    }
+
+    protected void ExecuteApplicationActivated()
+    {
+      var dlgt = Activated;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    protected void ExecuteApplicationDeactivated()
+    {
+      var dlgt = Deactivated;
+      if (dlgt != null)
+        dlgt();
     }
 
     internal static TE ToUiEvent<TE>(InputTouchEvent inputEvent) where TE : TouchEvent, new()
@@ -566,7 +554,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       _mousePosition = new PointF(x, y);
-      TryEvent_NoLock(new MouseMoveEvent(x, y));
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseEventArgs(Environment.TickCount),
+        UIElement.PreviewMouseMoveEvent, UIElement.MouseMoveEvent));
     }
 
     public void MouseClick(MouseButtons mouseButtons)
@@ -574,15 +564,46 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
-      TryEvent_NoLock(new MouseClickEvent(mouseButtons));
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseButtonEventArgs(Environment.TickCount, mouseButtons),
+        UIElement.PreviewMouseClickEvent, UIElement.MouseClickEvent));
     }
 
-    public void MouseWheel(int numDetents)
+
+    public void MouseDown(MouseButtons mouseButtons, int clicks)
     {
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
-      TryEvent_NoLock(new MouseWheelEvent(numDetents));
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseButtonEventArgs(Environment.TickCount, mouseButtons)
+        {
+          ClickCount = clicks
+        },
+        UIElement.PreviewMouseDownEvent, UIElement.MouseDownEvent));
+    }
+
+    public void MouseUp(MouseButtons mouseButtons, int clicks)
+    {
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseButtonEventArgs(Environment.TickCount, mouseButtons)
+        {
+          ClickCount = clicks
+        },
+        UIElement.PreviewMouseUpEvent, UIElement.MouseUpEvent));
+    }
+
+    public void MouseWheel(int delta)
+    {
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
+      TryEvent_NoLock(new RoutedInputEvent(
+        new MouseWheelEventArgs(Environment.TickCount, delta),
+        UIElement.PreviewMouseWheelEvent, UIElement.MouseWheelEvent));
     }
 
     public void KeyPress(Key key)
@@ -641,6 +662,16 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       lock (_syncObj)
         _keyBindings.Remove(key);
+    }
+
+    public void ApplicationActivated()
+    {
+      EnqueueCommand(ExecuteApplicationActivated);
+    }
+
+    public void ApplicationDeactivated()
+    {
+      EnqueueCommand(ExecuteApplicationDeactivated);
     }
 
     #endregion

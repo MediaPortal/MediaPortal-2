@@ -768,7 +768,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Keyboard handling
 
-    public override void OnKeyPreview(ref Key key)
+    internal override void OnKeyPreview(ref Key key)
     {
       base.OnKeyPreview(ref key);
       if (!HasFocus)
@@ -781,6 +781,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           InputManager.Instance.ExecuteCommand(cmd.Execute);
         key = Key.None;
       }
+    }
+
+    #endregion
+
+    #region hit testing
+
+    public override UIElement InputHitTest(PointF point)
+    {
+      if (!IsVisible)
+        return null;
+
+      if (IsInArea(point.X, point.Y))
+      {
+        // since we know the z-order here, lets use it, everything other is identical to UIElement implementation.
+        foreach (var uiElement in GetChildren().OrderByDescending(e => (e is FrameworkElement) ? ((FrameworkElement)e)._lastZIndex : 0f))
+        {
+          var hitElement = uiElement.InputHitTest(point);
+          if (hitElement != null)
+          {
+            return hitElement;
+          }
+        }
+        if (IsInVisibleArea(point.X, point.Y))
+        {
+          return this;
+        }
+      }
+      return null;
     }
 
     #endregion
@@ -803,7 +831,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return _inverseFinalTransform.HasValue;
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       if (IsVisible)
       {
@@ -1749,6 +1777,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #endif
       // Ignore the measured size - arrange with screen size
       Arrange(SharpDXExtensions.CreateRectangleF(new PointF(0, 0), skinSize));
+    }
+
+    /// <summary>
+    /// Transforms a screen point to local element space. The <see cref="UIElement.ActualPosition"/> is also taken into account.
+    /// </summary>
+    /// <param name="point">Screen point</param>
+    /// <returns>Returns the transformed point in element coordinates.</returns>
+    public override PointF TransformScreenPoint(PointF point)
+    {
+      float x = point.X;
+      float y = point.Y;
+      if (TransformMouseCoordinates(ref x, ref y))
+      {
+        return base.TransformScreenPoint(new PointF(x, y));
+      }
+      return base.TransformScreenPoint(point);
     }
 
     #endregion

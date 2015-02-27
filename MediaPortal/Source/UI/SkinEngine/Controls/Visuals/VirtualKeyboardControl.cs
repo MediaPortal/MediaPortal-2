@@ -818,7 +818,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       templateControl.Arrange(keyboardRect);
     }
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
       FrameworkElement templateControl = TemplateControl;

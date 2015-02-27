@@ -35,16 +35,22 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     public const string NS_MEDIAPORTAL_MPF_URI = "www.team-mediaportal.com/2008/mpf/directx";
 
-    public override Type GetElementType(string typeName)
+    public override Type GetElementType(string typeName, bool includeAbstractTypes)
     {
+      Type type;
       try
       {
-        return MPF.ObjectClassRegistrations[typeName];
+        type = MPF.ObjectClassRegistrations[typeName];
       }
       catch
       {
         throw new XamlParserException("Element type '{0}' is not present in MpfNamespaceHandler", typeName);
       }
+      if (!includeAbstractTypes && type.IsAbstract)
+      {
+        throw new XamlParserException("Element type '{0}' is abstract", typeName);
+      }
+      return type;
     }
   }
 }

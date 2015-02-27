@@ -25,8 +25,11 @@
 using System;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+#if TVE3
+#else
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
+#endif
 using Channel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
 using ChannelGroup = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.ChannelGroup;
 using KeepMethodType = MediaPortal.Plugins.SlimTv.Interfaces.Items.KeepMethodType;
@@ -38,6 +41,65 @@ namespace MediaPortal.Plugins.SlimTv.Service
 {
   public static class TvEntityExtensions
   {
+#if TVE3
+    public static IProgram ToProgram(this TvDatabase.Program tvProgram, bool includeRecordingStatus = false)
+    {
+      if (tvProgram == null)
+        return null;
+      Program program = new Program
+      {
+        ChannelId = tvProgram.IdChannel,
+        ProgramId = tvProgram.IdProgram,
+        Title = tvProgram.Title,
+        Description = tvProgram.Description,
+        StartTime = tvProgram.StartTime,
+        EndTime = tvProgram.EndTime,
+      };
+
+      program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
+      if (tvProgram.IsRecordingOncePending)
+        program.RecordingStatus |= RecordingStatus.Scheduled;
+      if (tvProgram.IsRecordingSeriesPending)
+        program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+
+      return program;
+    }
+
+    public static IChannel ToChannel(this TvDatabase.Channel tvChannel)
+    {
+      if (tvChannel == null)
+        return null;
+      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = tvChannel.IsTv ? MediaType.TV : MediaType.Radio };
+    }
+
+    public static IChannelGroup ToChannelGroup(this TvDatabase.ChannelGroup tvGroup)
+    {
+      if (tvGroup == null)
+        return null;
+      return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
+    }
+
+    public static ISchedule ToSchedule(this TvDatabase.Schedule schedule)
+    {
+      if (schedule == null)
+        return null;
+      return new Schedule
+      {
+        ChannelId = schedule.IdChannel,
+        Name = schedule.ProgramName,
+        KeepDate = schedule.KeepDate,
+        KeepMethod = (KeepMethodType)schedule.KeepMethod,
+        PreRecordInterval = TimeSpan.FromMinutes(schedule.PreRecordInterval),
+        PostRecordInterval = TimeSpan.FromMinutes(schedule.PostRecordInterval),
+        Priority = (PriorityType)schedule.Priority,
+        StartTime = schedule.StartTime,
+        EndTime = schedule.EndTime,
+        ScheduleId = schedule.IdSchedule,
+        ParentScheduleId = schedule.IdParentSchedule,
+        RecordingType = (ScheduleRecordingType)schedule.ScheduleType
+      };
+    }
+#else
     public static IProgram ToProgram(this Mediaportal.TV.Server.TVDatabase.Entities.Program tvProgram, bool includeRecordingStatus = false)
     {
       if (tvProgram == null)
@@ -90,12 +152,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
         RecordingType = (ScheduleRecordingType)schedule.ScheduleType
       };
     }
+#endif
 
     //public static IProgram[] ToPrograms(this NowAndNext nowAndNext)
     //{
     //  if (nowAndNext == null)
     //    return null;
-      
+
     //  IProgram[] programs = new IProgram[2]; // 0: now; 1: next
     //  programs[0] = new Program
     //  {

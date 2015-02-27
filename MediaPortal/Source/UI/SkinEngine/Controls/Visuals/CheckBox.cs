@@ -106,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _uncheckedProperty.SetValue(value); }
     }
 
-    public override void OnKeyPreview(ref Key key)
+    internal override void OnKeyPreview(ref Key key)
     {
       bool checkedChanged = false;
       if (HasFocus && key == Key.Ok)

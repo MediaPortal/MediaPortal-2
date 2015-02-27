@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void OnKeyPreview(ref Key key)
+    internal override void OnKeyPreview(ref Key key)
     {
       base.OnKeyPreview(ref key);
       if (!HasFocus)
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnKeyPressed(ref Key key)
     {
       // We handle the "Default" event here, "normal" events will be handled in the KeyPreview event
       base.OnKeyPressed(ref key);

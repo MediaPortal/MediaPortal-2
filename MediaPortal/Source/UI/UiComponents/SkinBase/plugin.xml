@@ -305,6 +305,26 @@
         Text="[Settings.General.Connectivity.ClientName]"
         HelpText="[Settings.General.Connectivity.ClientName.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.ClientName"/>
+    <ConfigSetting
+        Id="HttpServerPort"
+        Text="[Settings.General.Connectivity.HttpServerPort]"
+        HelpText="[Settings.General.Connectivity.HttpServerPort.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.HttpServerPortSetting"/>
+    <ConfigSetting
+        Id="UseIPv4"
+        Text="[Settings.General.Connectivity.UseIPv4]"
+        HelpText="[Settings.General.Connectivity.UseIPv4.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.UseIPv4Setting"/>
+    <ConfigSetting
+        Id="UseIPv6"
+        Text="[Settings.General.Connectivity.UseIPv6]"
+        HelpText="[Settings.General.Connectivity.UseIPv6.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.UseIPv6Setting"/>
+    <ConfigSetting
+        Id="IPAddressBindings"
+        Text="[Settings.General.Connectivity.IPAddressBindings]"
+        HelpText="[Settings.General.Connectivity.IPAddressBindings.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.IPAddressBindingsSetting"/>
   </Register>
 
   <!-- Contents of '/General/System' group -->

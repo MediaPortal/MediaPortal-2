@@ -37,7 +37,7 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
-  class IsoResourceAccessor : IFileSystemResourceAccessor
+  class IsoResourceAccessor : IFileSystemResourceAccessor, IUncachableResource
   {
     #region Protected fields
 

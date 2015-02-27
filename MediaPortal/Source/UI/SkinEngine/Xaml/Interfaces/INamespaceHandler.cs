@@ -50,6 +50,13 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
     Type GetElementType(string typeName);
 
     /// <summary>
+    /// Returns the type of the specified <paramref name="typeName"/> for the namespace handled by this namespace handler.
+    /// </summary>
+    /// <param name="typeName">XAML element name.</param>
+    /// <param name="includeAbstractTypes"><c>true</c> if abstract types should be included; else <c>false</c>.</param>
+    Type GetElementType(string typeName, bool includeAbstractTypes);
+
+    /// <summary>
     /// Returns the information, if the attached property with name <paramref name="propertyName"/> of the specified
     /// <paramref name="propertyProvider"/> for the specified <paramref name="targetObject"/> exists.
     /// </summary>

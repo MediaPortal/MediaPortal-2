@@ -677,11 +677,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       if (_renderThreadStopped)
         return;
-      int numDetents = e.Delta / 120;
-      if (numDetents == 0)
+      if (e.Delta == 0)
         return;
 
-      ServiceRegistration.Get<IInputManager>().MouseWheel(numDetents);
+      ServiceRegistration.Get<IInputManager>().MouseWheel(e.Delta);
     }
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
@@ -710,7 +709,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_KeyDown(object sender, KeyEventArgs e)
+    private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
       try
       {
@@ -729,7 +728,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+    private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
     {
       try
       {
@@ -748,7 +747,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_MouseClick(object sender, MouseEventArgs e)
+    private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
       try
       {
@@ -786,11 +785,29 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private void MainForm_Activated(object sender, EventArgs e)
     {
       CheckTopMost();
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.ApplicationActivated();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occurred in ApplicationActivated handler", ex);
+      }
     }
 
     private void MainForm_Deactivate(object sender, EventArgs e)
     {
       CheckTopMost();
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.ApplicationDeactivated();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occurred in ApplicationDeactivated handler", ex);
+      }
     }
 
     protected override void WndProc(ref Message m)
@@ -924,6 +941,32 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnLostFocus(e);
       _hasFocus = false;
+    }
+
+    private void MainForm_MouseDown(object sender, MouseEventArgs e)
+    {
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.MouseDown(e.Button, e.Clicks);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
+      }
+    }
+
+    private void MainForm_MouseUp(object sender, MouseEventArgs e)
+    {
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.MouseUp(e.Button, e.Clicks);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
+      }
     }
   }
 }

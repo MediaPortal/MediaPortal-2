@@ -82,14 +82,28 @@ namespace MediaPortal.UI.Control.InputManager
     /// <summary>
     /// Called to handle mouse wheel events.
     /// </summary>
-    /// <param name="numDetents">Number of mousewheel detents. A detent is one notch of the mouse wheel.</param>
-    void MouseWheel(int numDetents);
+    /// <param name="delta">How much the wheel turned.</param>
+    void MouseWheel(int delta);
 
     /// <summary>
     /// Called to handle a mouse click event.
     /// </summary>
     /// <param name="mouseButtons">The buttons which were pressed.</param>
     void MouseClick(MouseButtons mouseButtons);
+
+    /// <summary>
+    /// Called to handle a mouse down event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    /// <param name="clicks">Number of times the mouse button was pressed an released</param>
+    void MouseDown(MouseButtons mouseButtons, int clicks);
+
+    /// <summary>
+    /// Called to handle a mouse up event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    /// <param name="clicks">Number of times the mouse button was pressed an released</param>
+    void MouseUp(MouseButtons mouseButtons, int clicks);
 
     /// <summary>
     /// Called to handle a key event. The key event can come from a mapped keyboard input or from any other
@@ -142,5 +156,15 @@ namespace MediaPortal.UI.Control.InputManager
     /// </summary>
     /// <param name="key">The key which triggers the command.</param>
     void RemoveKeyBinding(Key key);
+
+    /// <summary>
+    /// The application has been activated
+    /// </summary>
+    void ApplicationActivated();
+
+    /// <summary>
+    /// The application has been deactivated
+    /// </summary>
+    void ApplicationDeactivated();
   }
 }

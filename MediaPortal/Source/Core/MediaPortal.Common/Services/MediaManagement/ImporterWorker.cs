@@ -469,7 +469,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (importJob.JobType == ImportJobType.Refresh)
         {
           foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
-              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION))
+              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, null))
           {
             SingleMediaItemAspect providerResourceAspect;
             if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))

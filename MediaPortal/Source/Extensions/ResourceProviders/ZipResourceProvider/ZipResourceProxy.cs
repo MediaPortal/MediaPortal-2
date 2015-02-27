@@ -164,6 +164,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
           lock (_syncObj)
             StreamUtils.Copy(_zipFile.GetInputStream(entry), streamWriter, buffer);
         }
+        _tempFilePaths.Add(new KeyValuePair<string, string>(entry.Name, result));
         return result;
       }
     }

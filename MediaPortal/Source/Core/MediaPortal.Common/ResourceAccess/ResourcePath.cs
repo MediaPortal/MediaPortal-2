@@ -113,6 +113,8 @@ namespace MediaPortal.Common.ResourceAccess
 
     protected static void AddToCache(ResourcePath path, IResourceAccessor ra)
     {
+      if (ra is IUncachableResource)
+        return; // not cacheable
       lock (_cachedResourceAccessors.SyncObj)
       {
         if (!_cachedResourceAccessors.Contains(path))

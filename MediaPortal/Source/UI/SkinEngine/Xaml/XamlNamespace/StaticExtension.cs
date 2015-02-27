@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
       string localName;
       string namespaceURI;
       context.LookupNamespace(_typeName, out localName, out namespaceURI);
-      Type type = context.GetNamespaceHandler(namespaceURI).GetElementType(localName);
+      Type type = context.GetNamespaceHandler(namespaceURI).GetElementType(localName, true); // static classes are labeled as IsAbstract
       IDataDescriptor result;
       try
       {

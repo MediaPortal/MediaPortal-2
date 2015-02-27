@@ -131,6 +131,14 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Enable notification in detached state, when a MediaPortal 2 server becomes available in the network</string>
   <string name="Settings.General.Connectivity.ClientName">Client name</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Set the name of this MediaPortal 2 client</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">HTTP server port</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Set the port of the HTTP Server</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Use IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Set if this MediaPortal 2 client should use IPv4 connections to the Home server</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Use IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Set if this MediaPortal 2 client should use IPv6 connections to the Home server</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">IP address bindings</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Set a list of IP addresses which should be used by this MediaPortal 2 client for connections to the Home server</string>
 
   <string name="Settings.Regional">Regional</string>
   <string name="Settings.Regional.Language">Language</string>

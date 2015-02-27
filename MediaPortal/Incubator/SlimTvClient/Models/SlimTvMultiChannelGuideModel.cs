@@ -228,6 +228,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ProgramProperties programProperties = new ProgramProperties();
       Program placeholderProgram = new Program
                               {
+                                ProgramId = -1,
                                 ChannelId = channel.ChannelId,
                                 Title = loc.ToString("[SlimTvClient.NoProgram]"),
                                 StartTime = startTime.HasValue ? startTime.Value : today,

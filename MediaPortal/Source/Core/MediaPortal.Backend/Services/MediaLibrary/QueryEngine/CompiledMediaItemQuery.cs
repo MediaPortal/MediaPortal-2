@@ -268,7 +268,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                                 new Dictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>();
                         ICollection<object> attrValues;
                         if (!attributeValues.TryGetValue(attr, out attrValues))
-                            attrValues = attributeValues[attr] = new List<object>();
+                            attrValues = attributeValues[attr] = new HashSet<object>();
                         attrValues.Add(value);
                     }
                 }

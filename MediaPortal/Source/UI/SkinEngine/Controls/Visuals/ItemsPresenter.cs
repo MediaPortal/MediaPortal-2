@@ -24,16 +24,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
-  /// Used within the template of an item control to specify the place in the control�s visual tree 
+  /// Used within the template of an item control to specify the place in the controls visual tree 
   /// where the ItemsPanel defined by the ItemsControl is to be added.
   /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemspresenter.aspx
   /// </summary>
@@ -122,35 +122,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _itemsHostPanel; }
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
       base.OnMouseMove(x, y, focusCandidates);
       _startsWithIndex = -1;
     }
 
-    public override void OnKeyPressed(ref Key key)
+    protected override void OnKeyPress(KeyEventArgs e)
     {
-      base.OnKeyPressed(ref key);
+      // migration from OnKeyPressed:
+      // - no need to call base class
+      // - no need to check if focus is in scope, since bubbling event is only raised from inside
 
-      if (key == Key.None)
-        // Key event was handeled by child
-        return;
       int updatedStartsWithIndex = -1;
       try
       {
-        if (!CheckFocusInScope())
-          return;
-
-        if (key.IsPrintableKey)
+        if (e.Key.IsPrintableKey)
         {
-          if (_startsWithIndex == -1 || _startsWith != key.RawCode)
+          if (e.Key.RawCode.HasValue &&  (_startsWithIndex == -1 || _startsWith != e.Key.RawCode))
           {
-            _startsWith = key.RawCode.Value;
+            _startsWith = e.Key.RawCode.Value;
             updatedStartsWithIndex = 0;
           }
           else
             updatedStartsWithIndex = _startsWithIndex + 1;
-          key = Key.None;
+          e.Handled = true;
           if (!FocusItemWhichStartsWith(_startsWith, updatedStartsWithIndex))
             updatedStartsWithIndex = -1;
         }
@@ -160,28 +156,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Will reset the startsWith function if no char was pressed
         _startsWithIndex = updatedStartsWithIndex;
       }
-    }
-
-    /// <summary>
-    /// Checks if the currently focused control is contained in this scrollviewer and
-    /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
-    /// handle the focus scrolling keys in this scope.
-    /// </summary>
-    private bool CheckFocusInScope()
-    {
-      Screen screen = Screen;
-      Visual focusPath = screen == null ? null : screen.FocusedElement;
-      while (focusPath != null)
-      {
-        if (focusPath == this)
-          // Focused control is located in our focus scope
-          return true;
-        if (focusPath is ItemsPresenter)
-          // Focused control is located in another itemspresenter's focus scope
-          return false;
-        focusPath = focusPath.VisualParent;
-      }
-      return false;
     }
 
     public void SetDataStrings(IList<string> dataStrings)

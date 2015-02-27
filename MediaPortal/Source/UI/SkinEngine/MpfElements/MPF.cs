@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Localization;
@@ -63,8 +64,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     protected static IDictionary<string, Type> _objectClassRegistrations = new Dictionary<string, Type>();
     static MPF()
     {
-      // ReSharper disable RedundantNameQualifier
-      // Screen
+      // dependency objects with abstract base classes (needed for Qualified event names in XAML)
+      RegisterObjectClasses(typeof(DependencyObject).Assembly, typeof(DependencyObject), true);
+      // markup extensions 
+      //TODO: add the next line when merged with latest changes as in Weekly
+      //RegisterObjectClasses(typeof(MPFExtensionBase).Assembly, typeof(MPFExtensionBase), false);
+      // this covers several more types
+      RegisterObjectClasses(typeof(ISkinEngineManagedObject).Assembly, typeof(ISkinEngineManagedObject), false);
+      // remaining types
+      MPF._objectClassRegistrations.Add("Thickness", typeof(Thickness));
+      // Custom type "Vector2" to be used as "Point"
+      MPF._objectClassRegistrations.Add("Point", typeof(Vector2));
+
+      // uncomment this block to compare automatic class collection with the old manual one. The missing list at the end must be empty.
+      /*var _objectClassRegistrations = new Dictionary<string, Type>();
+
       _objectClassRegistrations.Add("Screen", typeof(SkinEngine.ScreenManagement.Screen));
 
       // Panels
@@ -228,6 +242,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Generic shader effects based on EffectContext
       _objectClassRegistrations.Add("SimpleShaderEffect", typeof(MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.SimpleShaderEffect));
       // ReSharper restore RedundantNameQualifier
+
+      var missig = new List<string>();
+      foreach (var key in _objectClassRegistrations.Keys)
+      {
+        if (!MPF._objectClassRegistrations.ContainsKey(key))
+        {
+          missig.Add(key);
+        }
+      }
+      var m = missig;
+      */
     }
 
     #endregion
@@ -564,6 +589,33 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     #endregion
 
     #region Private/protected methods
+
+    private static void RegisterObjectClasses(Assembly assembly, Type baseType, bool addAbstractClasses)
+    {
+      var baseTypeFullName = baseType.FullName;
+      foreach (var type in assembly.GetTypes())
+      {
+        if (type.IsClass &&
+            (addAbstractClasses || !type.IsAbstract) &&
+            (
+              type == baseType ||
+              (baseType.IsClass && type.IsSubclassOf(baseType)) ||
+              (baseType.IsInterface && type.GetInterface(baseTypeFullName) != null)
+            )
+          )
+        {
+          var name = type.Name;
+          if (name.EndsWith("Extension") && !type.IsAbstract)
+          {
+            name = name.Substring(0, name.Length - 9);
+          }
+          if (!_objectClassRegistrations.ContainsKey(name))
+          {
+            _objectClassRegistrations.Add(name, type);
+          }
+        }
+      }
+    }
 
     /// <summary>
     /// Converts a string to a <see cref="Vector2"/>.

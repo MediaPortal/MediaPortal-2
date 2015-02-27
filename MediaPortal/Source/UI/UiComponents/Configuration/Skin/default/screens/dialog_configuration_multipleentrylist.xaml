@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_dialog_wb.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <ControlTemplate x:Key="Config_Contents_Template">
+	  <DockPanel LastChildFill="True">
+	    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+		  <Button Style="{ThemeResource DefaultButtonStyle}" Margin="0,3,3,0"
+		      IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsAddRemoveEnabled}"
+              Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Add}"
+			  Width="{Binding RelativeSource={RelativeSource Mode=Self},Path=ActualHeight}"
+			  HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+			  Content="+"/>
+		  <Button Style="{ThemeResource DefaultButtonStyle}" Margin="0,3,3,0"
+		      IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsAddRemoveEnabled}"
+              Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Remove}"
+			  Width="{Binding RelativeSource={RelativeSource Mode=Self},Path=ActualHeight}"
+			  HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+			  Content="-"/>
+		  <Button Style="{ThemeResource ArrowButtonUpStyle}" Margin="3,3,3,0"
+              IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpDownEnabled}"
+              Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Up}"
+			  Width="{Binding RelativeSource={RelativeSource Mode=Self},Path=ActualHeight}"
+			  HorizontalContentAlignment="Center"/>
+          <Button Style="{ThemeResource ArrowButtonDownStyle}" Margin="0,3,0,0"
+              IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpDownEnabled}"
+              Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Down}"
+			  Width="{Binding RelativeSource={RelativeSource Mode=Self},Path=ActualHeight}"
+			  HorizontalContentAlignment="Center"/>
+		</StackPanel>
+		
+		<!--PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"-->
+	    <TextBox x:Name="EntryContent" DockPanel.Dock="Bottom" Margin="0,4,0,0"
+            IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsEntrySelected}"
+            Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
+            HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+	  
+        <ListView x:Name="SingleSelectionListBox"
+            DockPanel.Dock="Center" Height="150"
+			Style="{ThemeResource SingleMarkableListViewStyle}"
+            ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items,Mode=OneWay}"/>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

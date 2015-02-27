@@ -24,6 +24,7 @@
 
 using System.Windows.Markup;
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
@@ -38,6 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     protected TriggerActionCollection _actions;
 
     protected UIElement _registeredUIElement = null;
+    protected RoutedEvent _eventManagerEvent;
 
     #endregion
 
@@ -59,6 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       base.DeepCopy(source, copyManager);
       EventTrigger t = (EventTrigger) source;
       RoutedEvent = t.RoutedEvent;
+      _eventManagerEvent = t._eventManagerEvent;
       foreach (TriggerAction action in t._actions)
         _actions.Add(copyManager.GetCopy(action));
     }
@@ -99,8 +102,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       if (_element == null)
         return;
       if (_registeredUIElement != null)
-        _registeredUIElement.EventOccured -= OnUIEvent;
-      _element.EventOccured += OnUIEvent;
+      {
+        if (_eventManagerEvent != null)
+        {
+          _registeredUIElement.RemoveHandler(_eventManagerEvent, new RoutedEventHandler(OnRoutedEvent));
+        }
+        else
+        {
+          _registeredUIElement.EventOccured -= OnUIEvent;
+        }
+      }
+
+      if (_eventManagerEvent != null)
+      {
+        // attach to routed event from event manager
+        _element.AddHandler(_eventManagerEvent, new RoutedEventHandler(OnRoutedEvent));
+      }
+      else
+      {
+        // MPF specific routed event strategy
+        _element.EventOccured += OnUIEvent;
+      }
       _registeredUIElement = _element;
     }
 
@@ -109,7 +131,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       if (_element == null)
         return;
       if (_registeredUIElement != null)
-        _registeredUIElement.EventOccured -= OnUIEvent;
+      {
+        if (_eventManagerEvent != null)
+        {
+          _registeredUIElement.RemoveHandler(_eventManagerEvent, new RoutedEventHandler(OnRoutedEvent));
+        }
+        else
+        {
+          _registeredUIElement.EventOccured -= OnUIEvent;
+        }
+      }
       _registeredUIElement = null;
     }
 
@@ -120,9 +151,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
           ta.Execute(_element);
     }
 
+    private void OnRoutedEvent(object sender, RoutedEventArgs e)
+    {
+      foreach (TriggerAction ta in _actions)
+      {
+        ta.Execute(_element);
+      }
+    }
+
     #endregion
 
     #region Base overrides
+
+    public override void FinishInitialization(IParserContext context)
+    {
+      base.FinishInitialization(context);
+
+      // check if RoutedEvent is from EventManager
+      string localName;
+      string namespaceUri;
+      context.LookupNamespace(RoutedEvent, out localName, out namespaceUri);
+      var namespaceHandler = context.GetNamespaceHandler(namespaceUri);
+      if (namespaceHandler != null)
+      {
+        int n = localName.IndexOf('.');
+        if (n >= 0)
+        {
+          var sourceType = namespaceHandler.GetElementType(localName.Substring(0, n), true);
+          var eventName = localName.Substring(n + 1);
+
+          _eventManagerEvent = EventManager.GetRoutedEventForOwner(sourceType, eventName, true);
+        }
+      }
+    }
 
     public override void Setup(UIElement element)
     {

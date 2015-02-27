@@ -105,8 +105,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         string imdbId;
         foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID])
           if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
+          { 
+            seriesInfo.ImdbId = imdbId; 
+            break;
+          }
+      }
+
+      // On Series, the counting tag is "TVDB"
+      if (extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID] != null)
+      {
+        int tmp;
+        foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID])
+          if(int.TryParse(candidate, out tmp))
           {
-            seriesInfo.ImdbId = imdbId;
+            seriesInfo.TvdbId = tmp;
             break;
           }
       }

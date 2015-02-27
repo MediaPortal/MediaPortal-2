@@ -45,6 +45,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Windows7DwmFix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RefreshRateChanger.cs" />
     <Compile Include="Settings\Configuration\IsEnabled.cs" />

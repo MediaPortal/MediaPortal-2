@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Windows.Markup;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
@@ -39,6 +38,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
 using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -90,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   }
 
   /// <summary>
-  /// Screen class respresenting a logical screen represented by a particular skin.
+  /// Screen class representing a logical screen represented by a particular skin.
   /// </summary>
   [ContentProperty("Root")]
   public class Screen : UIElement, INameScope, IAddChild<FrameworkElement>, IUnmodifiableResource
@@ -194,7 +195,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected WeakReference _lastFocusedElement = new WeakReference(null);
 
     protected FrameworkElement _root;
-    protected PointF? _mouseMovePending = null;
+    protected Tuple<RoutedEventArgs, RoutedEvent[]> _pendingRoutedEvent;
     protected PendingScreenEvent _pendingScreenEvent = null;
     protected Animator _animator = new Animator();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
@@ -202,6 +203,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected RenderContext _renderContext;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected object _syncObj = new object();
+
+    protected UIElement _mouseCaptured;
+    protected CaptureMode _mouseCaptureMode = CaptureMode.None;
 
     #endregion
 
@@ -400,12 +404,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         if (pass == RenderPassType.SingleOrFirstPass)
         {
-          if (_mouseMovePending.HasValue)
+          if (_pendingRoutedEvent != null)
           {
-            float x = _mouseMovePending.Value.X;
-            float y = _mouseMovePending.Value.Y;
-            _mouseMovePending = null;
-            DoHandleMouseMove(x, y);
+            var pre = _pendingRoutedEvent;
+            _pendingRoutedEvent = null;
+            HandleRoutedInputEvent(pre.Item1, pre.Item2);
           }
           if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
             _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
@@ -421,15 +424,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
       {
+        _mouseCaptured = null;
+        _mouseCaptureMode = CaptureMode.None;
+
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview += HandleKeyPreview;
         inputManager.KeyPressed += HandleKeyPress;
-        inputManager.MouseMoved += HandleMouseMove;
-        inputManager.MouseClicked += HandleMouseClick;
-        inputManager.MouseWheeled += HandleMouseWheel;
         inputManager.TouchDown += HandleTouchDown;
         inputManager.TouchUp += HandleTouchUp;
         inputManager.TouchMove += HandleTouchMove;
+        inputManager.RoutedInputEventFired += HandleRoutedInputEvent;
+        inputManager.Deactivated += HandleDeactivated;
         HasInputFocus = true;
       }
       FrameworkElement lastFocusElement = (FrameworkElement)_lastFocusedElement.Target;
@@ -441,15 +446,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (HasInputFocus)
       {
+        _mouseCaptured = null;
+        _mouseCaptureMode = CaptureMode.None;
+
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview -= HandleKeyPreview;
         inputManager.KeyPressed -= HandleKeyPress;
-        inputManager.MouseMoved -= HandleMouseMove;
-        inputManager.MouseClicked -= HandleMouseClick;
-        inputManager.MouseWheeled -= HandleMouseWheel;
         inputManager.TouchDown -= HandleTouchDown;
         inputManager.TouchUp -= HandleTouchUp;
         inputManager.TouchMove -= HandleTouchMove;
+        inputManager.RoutedInputEventFired -= HandleRoutedInputEvent;
+        inputManager.Deactivated -= HandleDeactivated;
         HasInputFocus = false;
         RemoveCurrentFocus();
       }
@@ -538,33 +545,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       if (inputManager.IsMouseUsed)
       {
-        DoHandleMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
+        HandleRoutedInputEvent(new MouseEventArgs(Environment.TickCount), new[] { PreviewMouseMoveEvent, MouseMoveEvent });
         return true;
       }
       return false;
     }
 
-    protected void DoHandleMouseMove(float x, float y)
-    {
-      try
-      {
-        lock (_syncObj)
-          if (_root.CanHandleMouseMove() && GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass)
-          {
-            List<FocusCandidate> focusCandidates = new List<FocusCandidate>(10);
-            _root.OnMouseMove(x, y, focusCandidates);
-            focusCandidates.Sort((f1, f2) => Math.Sign(f2.ZIndex - f1.ZIndex)); // Comparer for sorting in descending order - Sort list from biggest Z-Index to lowest Z-Index
-            if (focusCandidates.Select(candidate => candidate.Candidate).FirstOrDefault(candidate => candidate.TrySetFocus(false)) == null)
-              RemoveCurrentFocus();
-          }
-          else
-            _mouseMovePending = new PointF(x, y);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse move event", e, _resourceName);
-      }
-    }
 
     private void OnWindowSizeChanged(AbstractProperty property, object oldVal)
     {
@@ -610,64 +596,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (key != Key.None)
         lock (_syncObj)
           UpdateFocus(ref key);
-    }
-
-    private void HandleMouseWheel(int numberOfDeltas)
-    {
-      if (!HasInputFocus)
-        return;
-      try
-      {
-        lock (_syncObj)
-          _root.OnMouseWheel(numberOfDeltas);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse wheel event", e, _resourceName);
-      }
-    }
-
-    private void HandleMouseMove(float x, float y)
-    {
-      if (!HasInputFocus)
-        return;
-      DoHandleMouseMove(x, y);
-    }
-
-    private void HandleMouseClick(MouseButtons buttons)
-    {
-      if (!HasInputFocus)
-        return;
-      bool handled = false;
-      try
-      {
-        lock (_syncObj)
-          _root.OnMouseClick(buttons, ref handled);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing mouse click event", e, _resourceName);
-      }
-      if (handled)
-        return;
-      // If mouse click was not handled explicitly, map it to an appropriate key event
-      Key key = Key.None;
-      switch (buttons)
-      {
-        case MouseButtons.Left:
-          key = Key.Ok;
-          break;
-        case MouseButtons.Right:
-          key = Key.ContextMenu;
-          break;
-      }
-      if (key != Key.None)
-      {
-        HandleKeyPreview(ref key);
-        if (key == Key.None)
-          return;
-        HandleKeyPress(ref key);
-      }
     }
 
     private void HandleTouchMove(object sender, TouchMoveEvent touchEvent)
@@ -722,6 +650,121 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing touch down event", e, _resourceName);
       }
+    }
+
+    private void HandleRoutedInputEvent(RoutedEventArgs args, RoutedEvent[] events)
+    {
+      try
+      {
+        lock (_syncObj)
+        {
+          if (_root.CanHandleMouseMove() && GraphicsDevice.RenderPass == RenderPassType.SingleOrFirstPass)
+          {
+            if(args is InputEventArgs && !HasInputFocus)
+              return;
+
+            UIElement element;
+
+            //TODO: add specific element selection logic for all RoutedEvent types, fall back is screen
+            if (args is MouseEventArgs)
+            {
+              var inputManager = InputManager.Instance;
+              var pt = inputManager.MousePosition;
+
+              // if an element has mouse capture don't change focus a.t.m., may be if capture mode is SubTree, focus should be changed inside
+              if (events.Contains(MouseMoveEvent) && _mouseCaptureMode == CaptureMode.None)
+              {
+                // call internal OnMouseMove for focus and IsMouseOver handling
+                List<FocusCandidate> focusCandidates = new List<FocusCandidate>(10);
+                _root.OnMouseMove(pt.X, pt.Y, focusCandidates);
+                focusCandidates.Sort((f1, f2) => Math.Sign(f2.ZIndex - f1.ZIndex)); // Comparer for sorting in descending order - Sort list from biggest Z-Index to lowest Z-Index
+                if (focusCandidates.Select(candidate => candidate.Candidate).FirstOrDefault(candidate => candidate.TrySetFocus(false)) == null)
+                  RemoveCurrentFocus();
+              }
+              else if (events.Contains(MouseClickEvent) && args is MouseButtonEventArgs)
+              {
+                bool handled = false;
+                _root.OnMouseClick((args as MouseButtonEventArgs).WinFormsButton, ref handled);
+                args.Handled = handled;
+              }
+
+              switch (_mouseCaptureMode)
+              {
+                case CaptureMode.Element:
+                  // the captured element gets all mouse events
+                  element = _mouseCaptured;
+                  break;
+
+                case CaptureMode.SubTree:
+                  // the hovered element inside the captured element gets the event; fall back is the captured element
+                  element = _mouseCaptured.InputHitTest(new PointF(pt.X, pt.Y)) ?? _mouseCaptured;
+                  break;
+
+                default:
+                  // mouse events go to where mouse hovers over
+                  element = _root.InputHitTest(new PointF(pt.X, pt.Y));
+                  break;
+              }
+            }
+            else if (args is InputEventArgs)
+            {
+              // all non mouse input events go to focused element (like key events)
+              element = FocusedElement;
+            }
+            else
+            {
+              // fall back is screen
+              element = this;
+            }
+
+            if (element != null)
+            {
+              foreach (var routedEvent in events)
+              {
+                args.RoutedEvent = routedEvent;
+                element.RaiseEvent(args);
+              }
+            }
+
+            if (!args.Handled && events.Contains(MouseClickEvent) && args is MouseButtonEventArgs)
+            {
+               // If mouse click was not handled explicitly, map it to an appropriate key event
+              Key key = Key.None;
+              switch ((args as MouseButtonEventArgs).ChangedButton)
+              {
+                case MouseButton.Left:
+                  key = Key.Ok;
+                  break;
+                case MouseButton.Right:
+                  key = Key.ContextMenu;
+                  break;
+              }
+              if (key != Key.None)
+              {
+                HandleKeyPreview(ref key);
+                if (key == Key.None)
+                  return;
+                HandleKeyPress(ref key);
+              }
+            }
+          }
+          else
+          {
+            _pendingRoutedEvent = new Tuple<RoutedEventArgs, RoutedEvent[]>(args, events);
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing mouse down event", e, _resourceName);
+      }
+    }
+
+    private void HandleDeactivated()
+    {
+      // if the application gets deactivated, we discard any mouse captures
+      _mouseCaptured = null;
+      _mouseCaptureMode = CaptureMode.None;
     }
 
     public override bool IsInArea(float x, float y)
@@ -1015,5 +1058,84 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     #endregion
+
+    #region input capture
+
+    /// <summary>
+    /// Gets the element which currently has the mouse capture or <c>null</c> if none has the capture.
+    /// </summary>
+    public UIElement MouseCaptured
+    {
+      get { return _mouseCaptured; }
+    }
+
+    /// <summary>
+    /// Gets the current mouse capture mode.
+    /// </summary>
+    public CaptureMode MouseCaptureMode
+    {
+      get { return _mouseCaptureMode; }
+    }
+
+    /// <summary>
+    /// Captures or releases the mouse for a specific element.
+    /// </summary>
+    /// <param name="element">Element to capture mouse for or <c>null</c> to release mouse capture.</param>
+    /// <returns></returns>
+    public bool CaptureMouse(UIElement element)
+    {
+      return CaptureMouse(element, CaptureMode.Element);
+    }
+
+    /// <summary>
+    /// Captures or releases the mouse capture.
+    /// </summary>
+    /// <param name="element">Element to capture mouse for or <c>null</c> to release mouse capture.</param>
+    /// <param name="captureMode">Capture mode.</param>
+    /// <returns>Returns true if the capture or release was successful.</returns>
+    public bool CaptureMouse(UIElement element, CaptureMode captureMode)
+    {
+      if (element == null)
+      {
+        captureMode = CaptureMode.None;
+      }
+      if (captureMode == CaptureMode.None)
+      {
+        element = null;
+      }
+
+      if (element != null && (!element.IsVisible || !element.IsEnabled))
+      {
+        return false;
+      }
+
+      _mouseCaptured = element;
+      _mouseCaptureMode = captureMode;
+
+      return true;
+    }
+
+    #endregion
+  }
+
+  /// <summary>
+  /// Capture mode for mouse, touch or stencil inputs
+  /// </summary>
+  public enum CaptureMode
+  {
+    /// <summary>
+    /// No capture
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// Capture for specified element only
+    /// </summary>
+    Element,
+
+    /// <summary>
+    /// Capture for specified element and its subtree.
+    /// </summary>
+    SubTree,
   }
 }

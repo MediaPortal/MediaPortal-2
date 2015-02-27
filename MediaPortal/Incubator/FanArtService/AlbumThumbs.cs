@@ -67,6 +67,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
           SortInformation = new List<SortInformation> { new SortInformation(AudioAspect.ATTR_ALBUM, SortDirection.Ascending) }
         };
 
+
       var items = mediaLibrary.Search(query, false);
       result = new List<FanArtImage>();
       foreach (var mediaItem in items)
