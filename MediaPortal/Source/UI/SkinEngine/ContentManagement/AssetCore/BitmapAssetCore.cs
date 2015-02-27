@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -35,6 +36,7 @@ using MediaPortal.Utilities.Network;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using SharpDX.Direct2D1;
 using SharpDX.WIC;
+using BitmapInterpolationMode = SharpDX.WIC.BitmapInterpolationMode;
 using PixelFormat = SharpDX.WIC.PixelFormat;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -109,10 +111,41 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           return;
         using (var inputStream = new WICStream(factory, stream))
         using (var decoder = new BitmapDecoder(factory, inputStream, DecodeOptions.CacheOnLoad))
+        using (var scaler = new BitmapScaler(factory))
         using (var formatConverter = new FormatConverter(factory))
         {
           // decode the loaded image to a format that can be consumed by D2D
-          formatConverter.Initialize(decoder.GetFrame(0), WIC_PIXEL_FORMAT);
+          BitmapSource source = decoder.GetFrame(0);
+
+          // Scale down larger images
+          int resizeWidth = MAX_TEXTURE_DIMENSION;
+          int resizeHeight = MAX_TEXTURE_DIMENSION;
+
+          if (_decodeWidth > 0)
+            resizeWidth = Math.Min(_decodeWidth, MAX_TEXTURE_DIMENSION);
+
+          if (_decodeHeight > 0)
+            resizeHeight = Math.Min(_decodeHeight, MAX_TEXTURE_DIMENSION);
+
+          int width = source.Size.Width;
+          int height = source.Size.Height;
+          if (width > resizeWidth || height > resizeHeight)
+          {
+            if (width <= resizeWidth)
+              resizeWidth = width;
+
+            int newHeight = height * resizeHeight / width;
+            if (newHeight > resizeHeight)
+            {
+              // Resize with height instead
+              resizeWidth = width * resizeHeight / height;
+              newHeight = resizeHeight;
+            }
+
+            scaler.Initialize(source, resizeWidth, newHeight, BitmapInterpolationMode.Fant);
+            source = scaler;
+          }
+          formatConverter.Initialize(source, WIC_PIXEL_FORMAT);
           bitmap = Bitmap1.FromWicBitmap(GraphicsDevice11.Instance.Context2D1, formatConverter);
         }
       }
