@@ -21,9 +21,9 @@
   </Grid.RowDefinitions>
 
   <!-- Image -->
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="0,0,0,0"
-      FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1000;600}">
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="0,0,0,0"
+      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;720;560}"   
+      FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
   </Image>
      
     <!--Image.OpacityMask>
