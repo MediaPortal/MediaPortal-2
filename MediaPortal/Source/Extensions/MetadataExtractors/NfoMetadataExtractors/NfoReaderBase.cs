@@ -46,15 +46,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
   /// </remarks>
   public abstract class NfoReaderBase
   {
-    #region Consts
-
-    /// <summary>
-    /// Buffer size used for the FileStream that (asynchronously) reads the nfo-files
-    /// </summary>
-    private const int BUFFER_SIZE = 4096;
-
-    #endregion
-
     #region Delegates
 
     /// <summary>
@@ -166,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var nfoFileWrittenToDebugLog = false;
       try
       {
-        using (var nfoStream = GetAsyncStream(nfoFsra))
+        using (var nfoStream = await nfoFsra.OpenReadAsync())
         {
           // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
           // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
@@ -314,25 +305,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
       }
       return metadataFound;
-    }
-
-    /// <summary>
-    /// Opens a stream for an <see cref="IFileSystemResourceAccessor"/> (if possible in async mode)
-    /// </summary>
-    /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> to open the stream for</param>
-    /// <returns>Opened stream</returns>
-    /// <remarks>
-    /// Our IResourceAccessor does not support opening a stream for async access, yet.
-    /// We therefore use a workaround and directly access the file and open it in async mode,
-    /// if nfoFsra is a ILocalFsResourceAccessor, otherwise we just use OpenRead()
-    /// ToDo: Remove this when IResourceAccessor supports opening streams in async mode
-    /// </remarks>
-    private static Stream GetAsyncStream(IFileSystemResourceAccessor nfoFsra)
-    {
-      var lfsra = nfoFsra as ILocalFsResourceAccessor;
-      return lfsra != null ?
-        new FileStream(lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE, true) :
-        nfoFsra.OpenRead();
     }
 
     #endregion
@@ -488,7 +460,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var imageFsra = nfoDirectoryFsra.GetResource(imageFileString);
         if (imageFsra != null)
           using (imageFsra)
-            using (var imageStream = GetAsyncStream(imageFsra))
+            using (var imageStream = await imageFsra.OpenReadAsync())
             {
               var result = new byte[imageStream.Length];
               await imageStream.ReadAsync(result, 0, (int)imageStream.Length);

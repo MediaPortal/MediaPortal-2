@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using DiscUtils;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -225,6 +226,14 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         }
         return new SynchronizedMasterStreamClient(_stream, _isoProxy.SyncObj);
       }
+    }
+
+    public Task<Stream> OpenReadAsync()
+    {
+      // In this implementation there is no preparational work to do. We therefore return a
+      // completed Task; there is no need for any async operation.
+      // ToDo: Implement the async virtual methods of SynchronizedMasterStreamClient
+      return System.Threading.Tasks.Task.FromResult(OpenRead());
     }
 
     public Stream OpenWrite()

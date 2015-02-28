@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -205,6 +206,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         return null;
       using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
         return _underlayingResource.OpenRead();
+    }
+
+    public async Task<Stream> OpenReadAsync()
+    {
+      if (_underlayingResource == null)
+        return null;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
+        return await _underlayingResource.OpenReadAsync();
     }
 
     public Stream OpenWrite()
