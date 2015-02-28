@@ -52,15 +52,15 @@
   <ItemGroup>
     <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Lib\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.SharpDX.2.6.3\lib\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct2D1, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Lib\SharpDX.Direct2D1.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.SharpDX.Direct2D1.2.6.3\lib\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Lib\SharpDX.DXGI.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.SharpDX.DXGI.2.6.3\lib\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="packages.config" />
   </ItemGroup>
   <!--Required for selecting the correct SharpDX version that supports D2D Effects-->
   <PropertyGroup>

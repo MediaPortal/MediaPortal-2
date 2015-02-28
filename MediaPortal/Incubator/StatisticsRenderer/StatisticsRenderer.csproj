@@ -42,13 +42,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SharpDX">
-      <HintPath>..\..\Lib\SharpDX.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.SharpDX.2.6.3\lib\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct2D1">
-      <HintPath>..\..\Lib\SharpDX.Direct2D1.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.SharpDX.Direct2D1.2.6.3\lib\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI">
-      <HintPath>..\..\Lib\SharpDX.DXGI.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.SharpDX.DXGI.2.6.3\lib\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

@@ -221,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       RefreshParameters(targetEndImageSize, endTexture, endTextureClip);
       if (_effectTransition == null)
         _effectTransition = ContentManager.Instance.GetEffect<ImageTransitionEffect>(GetTransitionEffectName());
-      if (_lastTexture == null || _effectTransition == null)
+      if (startContext._lastTexture == null || _effectTransition == null)
         return false;
 
       // Apply effect parameters
@@ -232,13 +232,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0, 0, 1, 1));
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, _inverseRelativeTransformCache);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, _imageTransform);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, startContext._inverseRelativeTransformCache);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, startContext._imageTransform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.BorderColor, borderColor.ToColor4());
 
       // Render
-      _effectTransition.StartRender(_lastTexture, renderContext, endTexture);
+      _effectTransition.StartRender(startContext._lastTexture, renderContext, endTexture);
       return true;
     }
 

@@ -50,27 +50,27 @@
     </Reference>
     <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Lib\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\Packages\MediaPortal.SharpDX.2.6.3\lib\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.D3DCompiler, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Lib\SharpDX.D3DCompiler.dll</HintPath>
+      <HintPath>..\..\..\Packages\MediaPortal.SharpDX.D3DCompiler.2.6.3\lib\SharpDX.D3DCompiler.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct2D1, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Lib\SharpDX.Direct2D1.dll</HintPath>
+      <HintPath>..\..\..\Packages\MediaPortal.SharpDX.Direct2D1.2.6.3\lib\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Lib\SharpDX.Direct3D11.dll</HintPath>
+      <HintPath>..\..\..\Packages\MediaPortal.SharpDX.Direct3D11.2.6.3\lib\SharpDX.Direct3D11.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Lib\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\Packages\MediaPortal.SharpDX.Direct3D9.2.6.3\lib\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Lib\SharpDX.DXGI.dll</HintPath>
+      <HintPath>..\..\..\Packages\MediaPortal.SharpDX.DXGI.2.6.3\lib\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
