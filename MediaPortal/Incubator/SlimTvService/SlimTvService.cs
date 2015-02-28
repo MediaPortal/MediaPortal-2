@@ -140,7 +140,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
 #endif
       }
 
-      IntegrationProviderHelper.Register(@"Plugins\SlimTv.Service", @"Plugins\SlimTv.Service\castle.config");
+      // TODO: Get this from project config somehow
+#if TVE3
+      string servicename = "SlimTv.Service3";
+#else
+      string servicename = "SlimTv.Service35";
+#endif
+
+      IntegrationProviderHelper.Register(@"Plugins\" + servicename, "Plugins\\" + servicename + "\\castle.config");
       var pm = GlobalServiceProvider.Instance.Get<IIntegrationProvider>().PathManager;
 
       // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.

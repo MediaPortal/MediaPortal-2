@@ -9,7 +9,7 @@
     PluginVersion="1.0">
 
   <Runtime>
-    <Assembly FileName="SlimTv.Service.dll"/>
+    <Assembly FileName="SlimTv.Service3.dll"/>
     <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Service.SlimTvServicePlugin"/>
   </Runtime>
 </Plugin>
