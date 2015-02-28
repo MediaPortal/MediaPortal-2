@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -37,7 +38,9 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
   internal class ZipResourceAccessor : ILocalFsResourceAccessor, IUncachableResource
   {
-    #region Protected fields
+    #region Protected consts and fields
+
+    protected const int ASYNC_STREAM_BUFFER_SIZE = 4096;
 
     protected ZipResourceProvider _zipProvider;
     protected ZipResourceProxy _zipProxy;
@@ -256,6 +259,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
      PrepareStreamAccess();
       // We need to operate on a temporary file because the underlaying ZIP library doesn't support seeking in the returned entry stream
      return File.OpenRead(_tempFileName);
+    }
+
+    public async Task<Stream> OpenReadAsync()
+    {
+      // ToDo: Implement PrepareStreamAccess in an async way
+      await Task.Run(() => PrepareStreamAccess());
+      return new FileStream(_tempFileName, FileMode.Open, FileAccess.Read, FileShare.Read, ASYNC_STREAM_BUFFER_SIZE, true);
     }
 
     public Stream OpenWrite()
