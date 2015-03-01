@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 
@@ -147,7 +148,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       {
         bool success;
         lock (FFMPEG_THROTTLE_LOCK)
-          success = ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS);
+          success = lfsra.ExecuteWithResourceAccessAsync(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result.Success;
         if (success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);

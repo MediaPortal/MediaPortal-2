@@ -28,6 +28,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 
@@ -40,7 +42,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
   {
     #region Fields
 
-    private readonly string _fileName;
+    private readonly ILocalFsResourceAccessor _lfsra;
     private List<MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
     private static readonly object MKVINFO_THROTTLE_LOCK = new object();
@@ -82,10 +84,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <summary>
     /// Constructs a new <see cref="MatroskaInfoReader"/>.
     /// </summary>
-    /// <param name="fileName">MKV file to extract information from.</param>
-    public MatroskaInfoReader(string fileName)
+    /// <param name="lfsra">
+    /// <see cref="ILocalFsResourceAccessor"/> pointing to the MKV file to extract information from; The caller
+    /// is responsible that it is valid while this class is used and that it is disposed afterwards.
+    /// </param>
+    public MatroskaInfoReader(ILocalFsResourceAccessor lfsra)
     {
-      _fileName = fileName;
+      _lfsra = lfsra;
       _mkvInfoPath = FileUtils.BuildAssemblyRelativePath("mkvinfo.exe");
       _mkvExtractPath = FileUtils.BuildAssemblyRelativePath("mkvextract.exe");
     }
@@ -100,13 +105,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <param name="tagsToExtract">Dictionary with tag names as keys.</param>
     public void ReadTags(IDictionary<string, IList<string>> tagsToExtract)
     {
-      String output;
-      bool success;
+      ProcessExecutionResult executionResult;
       lock (MKVEXTRACT_THROTTLE_LOCK)
-        success = ProcessUtils.TryExecuteReadString_AutoImpersonate(_mkvExtractPath, string.Format("tags \"{0}\"", _fileName), out output, _priorityClass);
-      if (success && !string.IsNullOrEmpty(output))
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath), _priorityClass).Result;
+      if (executionResult.Success && !string.IsNullOrEmpty(executionResult.StandardOutput))
       {
-        XDocument doc = XDocument.Parse(output);
+        XDocument doc = XDocument.Parse(executionResult.StandardOutput);
 
         foreach (string key in new List<string>(tagsToExtract.Keys))
         {
@@ -141,7 +145,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 
       _attachments = new List<MatroskaAttachment>();
 
-      String output;
       // Structure of mkvinfo attachment output
       // |+ Attachments
       // | + Attached
@@ -149,12 +152,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       // |  + Mime type: image/jpeg
       // |  + File data, size: 132908
       // |  + File UID: 1495003044
-      bool success;
+      ProcessExecutionResult executionResult;
       lock (MKVINFO_THROTTLE_LOCK)
-        success = ProcessUtils.TryExecuteReadString_AutoImpersonate(_mkvInfoPath, string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _fileName), out output, _priorityClass);
-      if (success)
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath), _priorityClass).Result;
+      if (executionResult.Success)
       {
-        StringReader reader = new StringReader(output);
+        StringReader reader = new StringReader(executionResult.StandardOutput);
         string line;
         while ((line = reader.ReadLine()) != null)
         {
@@ -235,7 +238,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       string tempFileName = Path.GetTempFileName();
       bool success;
       lock (MKVEXTRACT_THROTTLE_LOCK)
-        success = ProcessUtils.TryExecute_AutoImpersonate(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName), _priorityClass);
+        success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _lfsra, attachmentIndex + 1, tempFileName), _priorityClass).Result.Success;
       if (!success)
         return false;
 

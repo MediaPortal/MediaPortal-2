@@ -105,12 +105,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
           {
-            fileSystemPath = fsra.LocalFileSystemPath;
-            var ext = Path.GetExtension(fileSystemPath);
+            var ext = Path.GetExtension(fsra.LocalFileSystemPath);
             if (!SUPPORTED_EXTENSIONS.Contains(ext))
               return false;
 
-            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fileSystemPath);
+            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fsra);
             byte[] binaryData = null;
             if (patterns.Any(pattern => mkvReader.GetAttachmentByName(pattern, out binaryData)))
             {
