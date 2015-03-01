@@ -270,14 +270,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToLower();
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(lfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
         return;
 
       // Try to get extended information out of matroska files)
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(localFsResourcePath);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);
@@ -458,8 +458,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (lfsra != null)
             {
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, lfsra.Size);
+              ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
               string localFsPath = lfsra.LocalFileSystemPath;
-              ExtractMatroskaTags(localFsPath, extractedAspectData, forceQuickMode);
               ExtractMp4Tags(localFsPath, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
             }

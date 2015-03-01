@@ -84,6 +84,7 @@
     <Compile Include="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Services\ResourceAccess\ImpersonationService\ILocalFsResourceAccessorExtensions.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\ImpersonationService.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\LogonHelper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
