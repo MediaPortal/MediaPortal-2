@@ -118,8 +118,9 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       // Timeshift contexes
       _timeshiftContexes.SerializeXml(writer);
 
-      foreach (MediaItemAspect mia in _aspects.Values)
-        mia.Serialize(writer);
+      foreach (IList<MediaItemAspect> list in _aspects.Values)
+        foreach (MediaItemAspect mia in list)
+          mia.Serialize(writer);
     }
 
     public new void Serialize(XmlWriter writer)
