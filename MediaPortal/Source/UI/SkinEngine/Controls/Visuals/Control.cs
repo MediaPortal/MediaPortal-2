@@ -261,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.RenderOverride(localRenderContext);
 
       Brush background = Background;
-      if (background != null && background.TryAllocate() && _backgroundGeometry != null)
+      if (background != null && background.RenderBrush(localRenderContext) && background.TryAllocate() && _backgroundGeometry != null)
       {
         GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background, localRenderContext);
       }

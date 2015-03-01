@@ -404,13 +404,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PerformLayout(localRenderContext);
 
       var background = Background;
-      if (background != null && _backgroundGeometry != null && background.TryAllocate())
+      if (background != null && background.RenderBrush(localRenderContext) && _backgroundGeometry != null && background.TryAllocate())
       {
         GraphicsDevice11.Instance.Context2D1.FillGeometry(_backgroundGeometry, background, localRenderContext);
       }
 
       var border = BorderBrush;
-      if (border != null && _borderGeometry != null && BorderThickness > 0 && border.TryAllocate())
+      if (border != null && _borderGeometry != null && BorderThickness > 0 && border.RenderBrush(localRenderContext) && border.TryAllocate())
       {
         GraphicsDevice11.Instance.Context2D1.DrawGeometry(_borderGeometry, border.Brush2D, (float)BorderThickness, null, localRenderContext);
       }

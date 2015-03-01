@@ -47,6 +47,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="targetSurface">Target surface to render on</param>
     public TemporaryRenderTarget2D(Bitmap1 targetSurface)
     {
+      // Make sure to flush all drawing calls to current target before restoring old values
+      _context.Flush();
+
       // Remember old RenderTarget
       _backBuffer = _context.Target;
       _transform = _context.Transform;

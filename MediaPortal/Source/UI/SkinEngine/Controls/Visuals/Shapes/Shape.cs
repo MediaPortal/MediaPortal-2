@@ -245,12 +245,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           return;
 
         var fill = Fill;
-        if (fill != null && fill.TryAllocate())
+        if (fill != null && fill.RenderBrush(localRenderContext) && fill.TryAllocate())
         {
           GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, fill, localRenderContext); // TODO: Opacity brush?
         }
         var stroke = Stroke;
-        if (stroke != null && stroke.TryAllocate())
+        if (stroke != null && stroke.RenderBrush(localRenderContext) && stroke.TryAllocate())
         {
           GraphicsDevice11.Instance.Context2D1.DrawGeometry(geometry, stroke.Brush2D, (float)StrokeThickness, _strokeStyle, localRenderContext);
         }

@@ -149,5 +149,23 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       if (brush != null)
         brush.Opacity = oldOpacity;
     }
+
+    /// <summary>
+    /// Renders the <paramref name="brush"/>'s content if required. This is needed for brushes with dynamic content, like the <see cref="Controls.Brushes.VideoBrush"/>.
+    /// </summary>
+    /// <param name="brush"></param>
+    /// <param name="localRenderContext"></param>
+    /// <returns></returns>
+    public static bool RenderBrush(this Controls.Brushes.Brush brush, RenderContext localRenderContext)
+    {
+      if (brush == null)
+        return false;
+
+      IRenderBrush renderBrush = brush as IRenderBrush;
+      if (renderBrush == null)
+        return true;
+
+      return renderBrush.RenderContent(localRenderContext);
+    }
   }
 }
