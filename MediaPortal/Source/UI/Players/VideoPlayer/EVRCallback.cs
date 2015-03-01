@@ -151,6 +151,7 @@ namespace MediaPortal.UI.Players.Video
       try
       {
         lock (_lock)
+        {
           if (sharedHandle != IntPtr.Zero && cx != 0 && cy != 0)
           {
             if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
@@ -159,20 +160,19 @@ namespace MediaPortal.UI.Players.Video
             _aspectRatio.Width = arx;
             _aspectRatio.Height = ary;
 
-            using (Texture2D tex = GraphicsDevice11.Instance.Device3D1.OpenSharedResource<Texture2D>(sharedHandle))
-            using (SharpDX.DXGI.Surface surface10 = tex.QueryInterface<SharpDX.DXGI.Surface>())
+            using (var tex = GraphicsDevice11.Instance.Device3D1.OpenSharedResource<Texture2D>(sharedHandle))
+            using (var surface = tex.QueryInterface<SharpDX.DXGI.Surface>())
+            using (var texBitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, surface))
             {
-              using (var texBitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, surface10))
-              {
-                _bitmapAsset2D = ContentManager.Instance.GetRenderTarget2D(_instanceKey);
-                ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget(cx, cy);
-                if (!_bitmapAsset2D.IsAllocated)
-                  return 0;
+              _bitmapAsset2D = ContentManager.Instance.GetRenderTarget2D(_instanceKey);
+              ((RenderTarget2DAsset)_bitmapAsset2D).AllocateRenderTarget(cx, cy);
+              if (!_bitmapAsset2D.IsAllocated)
+                return 0;
 
-                _bitmapAsset2D.Bitmap.CopyFromBitmap(texBitmap);
-              }
+              _bitmapAsset2D.Bitmap.CopyFromBitmap(texBitmap);
             }
           }
+        }
 
         VideoSizePresentDlgt vsp = VideoSizePresent;
         if (vsp != null)
