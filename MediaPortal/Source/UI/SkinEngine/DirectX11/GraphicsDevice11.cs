@@ -492,7 +492,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       _device3D1 = _device3D.QueryInterface<Device1>(); // get a reference to the Direct3D 11.1 device
       _deviceDXGI = _device3D1.QueryInterface<SharpDX.DXGI.Device>(); // get a reference to DXGI device
 
-      _factory2D = new Factory1();
+      _factory2D = new Factory1(FactoryType.MultiThreaded);
       _device2D1 = new SharpDX.Direct2D1.Device(_factory2D, _deviceDXGI); // initialize the D2D device
 
       _context2D = new DeviceContext(_device2D1, DeviceContextOptions.EnableMultithreadedOptimizations);
