@@ -94,7 +94,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
     private readonly ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
     private bool _useAntialiasing;
-    
+
     private bool _resetRequired;
 
     #endregion
@@ -367,13 +367,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       catch (SharpDXException e)
       {
         ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception", e);
-        // D2DERR_RECREATE_TARGET/RecreateTarget
-        // DXGI_ERROR_DEVICE_REMOVED/DeviceRemoved
-        if (e.ResultCode == 0x8899000C || e.ResultCode == 0x887A0005)
-        {
-          Reset();
-          return true;
-        }
+        HandleDeviceLost(e);
         return false;
       }
       finally
@@ -381,6 +375,20 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         _renderAndResourceAccessLock.ExitReadLock();
       }
       return false;
+    }
+
+    public void HandleDeviceLost(SharpDXException e, bool deferReset = false)
+    {
+      // D2DERR_RECREATE_TARGET/RecreateTarget
+      // DXGI_ERROR_DEVICE_REMOVED/DeviceRemoved
+      if (e.ResultCode == 0x8899000C || e.ResultCode == 0x887A0005)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DeviceRemovedReason: {0}", Device3D1.DeviceRemovedReason);
+        if (deferReset)
+          _resetRequired = true;
+        else
+          Reset();
+      }
     }
 
     /// <summary>
@@ -405,15 +413,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
     {
       try
       {
-        _renderAndResourceAccessLock.EnterWriteLock();
-      }
-      catch (LockRecursionException)
-      {
-        return false;
-      }
-
-      try
-      {
         ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Resetting DX11 device...");
         _screenManager.ExecuteWithTempReleasedResources(() => ExecuteInMainThread(() =>
         {
@@ -434,7 +433,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
       finally
       {
         _resetRequired = false;
-        _renderAndResourceAccessLock.ExitWriteLock();
       }
     }
 

@@ -192,11 +192,7 @@ namespace MediaPortal.UI.Players.Video
       catch (SharpDXException e)
       {
         ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception", e);
-        // D2DERR_RECREATE_TARGET/RecreateTarget || DXGI_ERROR_DEVICE_REMOVED/DeviceRemoved
-        if (e.ResultCode == 0x8899000C || e.ResultCode == 0x887A0005)
-        {
-          GraphicsDevice11.Instance.SetResetRequired();
-        }
+        GraphicsDevice11.Instance.HandleDeviceLost(e, true);
         return 0;
       }
     }
