@@ -24,13 +24,14 @@
 
 using System;
 using MediaPortal.UI.SkinEngine.DirectX11;
+using SharpDX;
 using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
   /// <summary>
   /// <see cref="TemporaryRenderTarget2D"/> allows rendering to a custom render target. It automatically sets
-  /// the RenderTarget of the GraphicsDevice and restores all changes at the end (in Dispose).
+  /// the RenderTarget and the Transform of the GraphicsDevice and restores all changes at the end (in Dispose).
   /// </summary>
   public class TemporaryRenderTarget2D : IDisposable
   {
@@ -38,6 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     private readonly DeviceContext _context = GraphicsDevice11.Instance.Context2D1;
 
     private readonly Image _backBuffer;
+    private readonly Matrix3x2 _transform;
 
     /// <summary>
     /// Constructs a <see cref="TemporaryRenderTarget"/> instance.
@@ -47,6 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       // Remember old RenderTarget
       _backBuffer = _context.Target;
+      _transform = _context.Transform;
 
       // Set new target
       _context.Target = targetSurface;
@@ -54,7 +57,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     public void Dispose()
     {
+      // Make sure to flush all drawing calls to current target before restoring old values
+      _context.Flush();
       _context.Target = _backBuffer;
+      _context.Transform = _transform;
     }
   }
 }

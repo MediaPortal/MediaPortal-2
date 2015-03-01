@@ -334,8 +334,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void PostProcessTexture(IBitmapAsset2D targetSurface)
     {
-      // TODO:
-      //_subtitleRenderer.DrawOverlay(targetSurface);
+      _subtitleRenderer.DrawOverlay(targetSurface);
     }
 
     public override TimeSpan CurrentTime

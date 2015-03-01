@@ -24,9 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -35,12 +32,15 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
-using SharpDX.Direct3D9;
-using Color = System.Drawing.Color;
-using Rectangle = System.Drawing.Rectangle;
+using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
+using SharpDX.DXGI;
+using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -129,14 +129,12 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   public class Subtitle : IDisposable
   {
     public static int IdCount = 0;
-    protected DeviceEx _device;
 
-    public Subtitle(DeviceEx device)
+    public Subtitle()
     {
-      _device = device;
       Id = IdCount++;
     }
-    public Bitmap SubBitmap;
+
     public uint Width;
     public uint Height;
     public double PresentTime;  // NOTE: in seconds
@@ -146,41 +144,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public bool ShouldDraw;
     public Int32 ScreenWidth; // Required for aspect ratio correction
     public Int32 HorizontalPosition;
-    public Texture SubTexture;
-
-    /// <summary>
-    /// Update the subtitle texture from a Bitmap.
-    /// </summary>
-    public bool Allocate()
-    {
-      if (SubTexture != null)
-        return true;
-
-      try
-      {
-        if (SubBitmap != null)
-        {
-          using (MemoryStream stream = new MemoryStream())
-          {
-            ImageInformation imageInformation;
-            SubBitmap.Save(stream, ImageFormat.Bmp);
-            stream.Position = 0;
-            SubTexture = Texture.FromStream(_device, stream, (int)stream.Length, (int)Width,
-              (int)Height, 1,
-              Usage.Dynamic, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0,
-              out imageInformation);
-          }
-          // Free bitmap
-          FilterGraphTools.TryDispose(ref SubBitmap);
-        }
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: Failed to create subtitle texture!!!", e);
-        return false;
-      }
-      return true;
-    }
+    public Bitmap1 SubTexture;
 
     public override string ToString()
     {
@@ -236,7 +200,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     #region Fields
 
     // DirectX DeviceEx to handle graphic operations
-    protected DeviceEx _device;
+    // protected DeviceEx _device;
     protected IDVBSubtitleSource _subFilter = null;
 
     /// <summary>
@@ -312,7 +276,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
       _resetCallBack = Reset;
       _updateTimeoutCallBack = UpdateTimeout;
-      _device = SkinContext.Device;
     }
 
     public void SetPlayer(IMediaPlaybackControl p)
@@ -473,15 +436,20 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         }
         ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
 
-        Subtitle subtitle = new Subtitle(_device)
+        Subtitle subtitle = new Subtitle
                               {
-                                SubBitmap = RenderText(sub.LineContents),
+                                SubTexture = RenderText(sub.LineContents),
                                 TimeOut = sub.TimeOut,
                                 PresentTime = sub.TimeStamp / 90000.0f + _startPos,
-                                Height = (uint)SkinContext.SkinResources.SkinHeight,
-                                Width = (uint)SkinContext.SkinResources.SkinWidth,
-                                FirstScanLine = 0
                               };
+
+        if (subtitle.SubTexture != null)
+        {
+          subtitle.Height = (uint)subtitle.SubTexture.PixelSize.Height;
+          subtitle.Width = (uint)subtitle.SubTexture.PixelSize.Width;
+          subtitle.FirstScanLine = (int)(SkinContext.SkinResources.SkinHeight - 50 - subtitle.Height);
+          subtitle.HorizontalPosition = (int)((SkinContext.SkinResources.SkinWidth - subtitle.Width) / 2);
+        }
 
         lock (_subtitles)
         {
@@ -604,9 +572,11 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected virtual Subtitle ToSubtitle(IntPtr nativeSubPtr)
     {
       NativeSubtitle nativeSub = (NativeSubtitle)Marshal.PtrToStructure(nativeSubPtr, typeof(NativeSubtitle));
-      Subtitle subtitle = new Subtitle(_device)
+      PixelFormat format = new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied);
+      BitmapProperties1 properties = new BitmapProperties1(format);
+      Subtitle subtitle = new Subtitle
       {
-        SubBitmap = new Bitmap(nativeSub.Width, nativeSub.Height, PixelFormat.Format32bppArgb),
+        SubTexture = new Bitmap1(GraphicsDevice11.Instance.Context2D1, new Size2(nativeSub.Width, nativeSub.Height), properties),
         TimeOut = nativeSub.TimeOut,
         PresentTime = ((double)nativeSub.TimeStamp / 1000.0f) + _startPos,
         Height = (uint)nativeSub.Height,
@@ -616,47 +586,27 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         HorizontalPosition = nativeSub.HorizontalPosition,
         Id = _subCounter++
       };
-      CopyBits(nativeSub.Bits, ref subtitle.SubBitmap, nativeSub.Width, nativeSub.Height, nativeSub.WidthBytes);
+      subtitle.SubTexture.CopyFromMemory(nativeSub.Bits, nativeSub.WidthBytes);
+      //subtitle.SubTexture.Save("subtitle" + (si++) + ".png");
       return subtitle;
     }
-
-    protected static void CopyBits(IntPtr srcBits, ref Bitmap destBitmap, int width, int height, int widthBytes)
-    {
-      // get bits of allocated image
-      BitmapData bmData = destBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-      int newSize = bmData.Stride * height;
-      int size = widthBytes * height;
-
-      if (newSize != size)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
-      }
-      // Copy to new bitmap
-      //Marshal.Copy(sub.Bits,bmData.Scan0, 0, newSize);
-      byte[] srcData = new byte[size];
-
-
-      // could be done in one copy, but no IntPtr -> IntPtr Marshal.Copy method exists?
-      Marshal.Copy(srcBits, srcData, 0, size);
-      Marshal.Copy(srcData, 0, bmData.Scan0, newSize);
-
-      destBitmap.UnlockBits(bmData);
-    }
+    //private static int si = 0;
 
     #endregion
 
     #region Subtitle rendering
 
-    public void DrawOverlay(Surface targetSurface)
+    public void DrawOverlay(IBitmapAsset2D targetSurface)
     {
       Subtitle currentSubtitle;
+      Bitmap1 subTexture;
       lock (_syncObj)
       {
         currentSubtitle = _subtitles.ToList().FirstOrDefault(s => s.ShouldDraw);
         if (currentSubtitle == null)
           return;
-
-        if (targetSurface == null || targetSurface.IsDisposed || currentSubtitle.SubTexture == null || currentSubtitle.SubTexture.IsDisposed)
+        subTexture = currentSubtitle.SubTexture;
+        if (targetSurface == null || !targetSurface.IsAllocated || subTexture == null || subTexture.IsDisposed)
         {
           if (_drawCount > 0)
             ServiceRegistration.Get<ILogger>().Debug("Draw count for last sub: {0}", _drawCount);
@@ -668,36 +618,23 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
       try
       {
-        // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
-        using (new TemporaryRenderTarget(targetSurface))
-        using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
-        using (Sprite sprite = new Sprite(_device))
+        // Check the target texture dimensions and adjust scaling and translation
+        var desc = targetSurface.Bitmap.Size;
+        Matrix transform = Matrix.Identity;
+        transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
+
+        // TODO: Check scaling requirements for SD and HD sources
+        // Subtitle could be smaller for 16:9 anamorphic video (subtitle width: 720, video texture: 1024)
+        // then we need to scale the subtitle width also.
+        if (currentSubtitle.ScreenWidth != desc.Width)
+          transform *= Matrix.Scaling((float)desc.Width / currentSubtitle.ScreenWidth, 1, 1);
+
+        using (new TemporaryRenderTarget2D(targetSurface.Bitmap))
         {
-          sprite.Begin(SpriteFlags.AlphaBlend);
-          // No alpha test here, allow all values
-          temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
-
-          // Use the SourceAlpha channel and InverseSourceAlpha for destination
-          temporaryRenderState.SetTemporaryRenderState(RenderState.BlendOperation, (int)BlendOperation.Add);
-          temporaryRenderState.SetTemporaryRenderState(RenderState.SourceBlend, (int)Blend.SourceAlpha);
-          temporaryRenderState.SetTemporaryRenderState(RenderState.DestinationBlend, (int)Blend.InverseSourceAlpha);
-
-          // Check the target texture dimensions and adjust scaling and translation
-          SurfaceDescription desc = targetSurface.Description;
-          Matrix transform = Matrix.Identity;
-          transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
-
-          // TODO: Check scaling requirements for SD and HD sources
-          // Subtitle could be smaller for 16:9 anamorphic video (subtitle width: 720, video texture: 1024)
-          // then we need to scale the subtitle width also.
-          if (currentSubtitle.ScreenWidth != desc.Width)
-            transform *= Matrix.Scaling((float)desc.Width / currentSubtitle.ScreenWidth, 1, 1);
-
-          sprite.Transform = transform;
-          sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
-          sprite.End();
+          GraphicsDevice11.Instance.Context2D1.Transform = transform;
+          GraphicsDevice11.Instance.Context2D1.DrawBitmap(subTexture, 1f, InterpolationMode.Linear);
+          GraphicsDevice11.Instance.Context2D1.Flush();
         }
-
         if (_onTextureInvalidated != null)
           _onTextureInvalidated();
       }
@@ -707,35 +644,34 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
     }
 
-    public static Bitmap RenderText(LineContent[] lc)
+    public static Bitmap1 RenderText(LineContent[] lc)
     {
-      int w = SkinContext.SkinResources.SkinWidth;
-      int h = SkinContext.SkinResources.SkinHeight;
+      if (lc.Length == 0)
+        return null;
 
-      Bitmap bmp = new Bitmap(w, h);
+      // Concat all text into one block and let DirectWrite do the layouting
+      string textBlock = lc.Select(l => l.line).Aggregate((a, b) => string.Format("{0}\r\n{1}", a, b));
 
-      using (Graphics gBmp = Graphics.FromImage(bmp))
-      using (SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255)))
-      using (SolidBrush blackBrush = new SolidBrush(Color.FromArgb(0, 0, 0)))
+      using (SolidColorBrush shadowBrush = new SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color.Black))
+      using (SolidColorBrush textBrush = new SolidColorBrush(GraphicsDevice11.Instance.Context2D1, Color.White))
       {
-        gBmp.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-        for (int i = 0; i < lc.Length; i++)
+        using (var format = new TextFormat(GraphicsDevice11.Instance.FactoryDW, "Calibri", FontWeight.Bold, FontStyle.Normal, lc[0].doubleHeight ? 48 : 36))
+        using (var layout = new TextLayout(GraphicsDevice11.Instance.FactoryDW, textBlock, format, GraphicsDevice11.Instance.BackBuffer.Description.Width, GraphicsDevice11.Instance.BackBuffer.Description.Height))
         {
-          using (System.Drawing.Font fnt = new System.Drawing.Font("Courier", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
+          Size2 size = new Size2((int)layout.Metrics.Width, (int)layout.Metrics.Height);
+          BitmapProperties1 props = new BitmapProperties1(GraphicsDevice11.Instance.Context2D1.PixelFormat) { BitmapOptions = BitmapOptions.Target };
+          Bitmap1 bmp = new Bitmap1(GraphicsDevice11.Instance.Context2D1, size, props);
+          using (new TemporaryRenderTarget2D(bmp))
           {
-            int vertOffset = (h / lc.Length) * i;
-
-            SizeF size = gBmp.MeasureString(lc[i].line, fnt);
-            int horzOffset = (int)((w - size.Width) / 2); // center based on actual text width
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 1, vertOffset + 0));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset + 1));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset - 1, vertOffset + 0));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset - 1));
-            gBmp.DrawString(lc[i].line, fnt, brush, new PointF(horzOffset, vertOffset));
+            GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(1, 0), layout, shadowBrush);
+            GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(0, 1), layout, shadowBrush);
+            GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(-1, 0), layout, shadowBrush);
+            GraphicsDevice11.Instance.Context2D1.DrawTextLayout(new Vector2(0, -1), layout, shadowBrush);
+            GraphicsDevice11.Instance.Context2D1.DrawTextLayout(Vector2.Zero, layout, textBrush);
+            return bmp;
           }
         }
       }
-      return bmp;
     }
 
     #endregion
@@ -761,13 +697,12 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           return;
 
         bool shouldOneDraw = false;
-        // Enumarate from back of list, later subtitles will remove former
+        // Enumerate from back of list, later subtitles will remove former
         foreach (Subtitle subtitle in _subtitles.Reverse())
         {
           subtitle.ShouldDraw = !shouldOneDraw && subtitle.PresentTime <= currentTime && currentTime <= subtitle.PresentTime + subtitle.TimeOut;
           if (subtitle.ShouldDraw)
           {
-            subtitle.Allocate();
             shouldOneDraw = true;
           }
         }
