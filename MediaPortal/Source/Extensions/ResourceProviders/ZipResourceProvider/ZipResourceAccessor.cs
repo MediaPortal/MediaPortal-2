@@ -338,6 +338,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       }
     }
 
+    public IDisposable EnsureLocalFileSystemAccess()
+    {
+      // Nothing to do here; access to the resource is ensured as of accessing the
+      // LocalFileSystemPath property at the latest.
+      return null;
+    }
+
     #endregion
 
     #region Base overrides

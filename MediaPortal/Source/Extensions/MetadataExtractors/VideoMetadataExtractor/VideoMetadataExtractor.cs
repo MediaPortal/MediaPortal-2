@@ -141,7 +141,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
       else
       {
-        result.Open(localFsResourceAccessor.LocalFileSystemPath);
+        using (localFsResourceAccessor.EnsureLocalFileSystemAccess())
+          result.Open(localFsResourceAccessor.LocalFileSystemPath);
       }
 
       return result;
@@ -272,6 +273,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(lfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
         return;
@@ -333,35 +335,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, tags);
     }
 
-    protected void ExtractMp4Tags(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(localFsResourcePath)).ToUpper();
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+      string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(lfsra.LocalFileSystemPath)).ToUpper();
 
       // Try to get extended information out of MP4 files)
       if (extensionUpper != ".MP4") return;
 
-      TagLib.File mp4File = TagLib.File.Create(localFsResourcePath);
-      if (ReferenceEquals(mp4File, null) || ReferenceEquals(mp4File.Tag, null))
-        return;
+      using (lfsra.EnsureLocalFileSystemAccess())
+      {
+        TagLib.File mp4File = TagLib.File.Create(lfsra.LocalFileSystemPath);
+        if (ReferenceEquals(mp4File, null) || ReferenceEquals(mp4File.Tag, null))
+          return;
 
-      TagLib.Tag tag = mp4File.Tag;
+        TagLib.Tag tag = mp4File.Tag;
 
-      string title = tag.Title;
-      if (!string.IsNullOrEmpty(title))
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+        string title = tag.Title;
+        if (!string.IsNullOrEmpty(title))
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
 
-      int year = (int) tag.Year;
-      if (year != 0)
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+        int year = (int)tag.Year;
+        if (year != 0)
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
 
-      if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tag.Genres);
+        if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, tag.Genres);
 
-      if (!ReferenceEquals(tag.Performers, null) && tag.Performers.Length > 0)
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, tag.Performers);
+        if (!ReferenceEquals(tag.Performers, null) && tag.Performers.Length > 0)
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, tag.Performers);
+      }
     }
 
-    protected void ExtractThumbnailData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       // In quick mode only allow thumbs taken from cache.
       bool cachedOnly = forceQuickMode;
@@ -370,8 +376,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
       byte[] thumbData;
       ImageType imageType;
-      if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
-        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+      using (lfsra.EnsureLocalFileSystemAccess())
+        if (generator.GetThumbnail(lfsra.LocalFileSystemPath, 256, 256, cachedOnly, out thumbData, out imageType))
+          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
     }
 
     /// <summary>
@@ -459,9 +466,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             {
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, lfsra.Size);
               ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
-              string localFsPath = lfsra.LocalFileSystemPath;
-              ExtractMp4Tags(localFsPath, extractedAspectData, forceQuickMode);
-              ExtractThumbnailData(localFsPath, extractedAspectData, forceQuickMode);
+              ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
+              ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
             }
             return true;
           }

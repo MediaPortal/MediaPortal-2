@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Runtime.InteropServices;
 using DirectShow;
 using DirectShow.Helper;
@@ -98,8 +99,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, sourcePathOrUrl);
 
-        int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
-        new HRESULT(hr).Throw();
+        IDisposable accessEnsurer = null;
+        if (IsLocalFilesystemResource)
+          accessEnsurer = ((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess();
+        using (accessEnsurer)
+        {
+          int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
+          new HRESULT(hr).Throw();
+        }
       }
       else
       {
@@ -109,9 +116,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         if (localFileSystemResourceAccessor == null)
           throw new IllegalCallException("The LiveRadioPlayer can only play file resources of type ILocalFsResourceAccessor");
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
-
-        fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+        using (localFileSystemResourceAccessor.EnsureLocalFileSystemAccess())
+        {
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
+          fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+        }
       }
     }
 

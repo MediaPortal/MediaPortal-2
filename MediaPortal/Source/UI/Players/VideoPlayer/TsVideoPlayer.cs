@@ -134,8 +134,14 @@ namespace MediaPortal.UI.Players.Video
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, sourcePathOrUrl);
 
-        int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
-        new HRESULT(hr).Throw();
+        IDisposable accessEnsurer = null;
+        if (IsLocalFilesystemResource)
+          accessEnsurer = ((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess();
+        using (accessEnsurer)
+        {
+          int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
+          new HRESULT(hr).Throw();
+        }
       }
       else
       {
@@ -146,10 +152,12 @@ namespace MediaPortal.UI.Players.Video
         if (localFileSystemResourceAccessor == null)
           throw new IllegalCallException("The TsVideoPlayer can only play file resources of type ILocalFsResourceAccessor");
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
-
-        int hr = fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
-        new HRESULT(hr).Throw();
+        using (localFileSystemResourceAccessor.EnsureLocalFileSystemAccess())
+        {
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
+          int hr = fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+          new HRESULT(hr).Throw();
+        }
       }
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
