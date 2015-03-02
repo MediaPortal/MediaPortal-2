@@ -33,7 +33,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 {
@@ -141,6 +140,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
       string arguments = string.Format("-ss {0} -i \"{1}\" -vframes 1 -an -dn -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1/1,scale=iw/2:-1\" -y \"{2}\"",
         defaultVideoOffset,
+        // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
         lfsra.LocalFileSystemPath,
         tempFileName);
 
@@ -153,9 +153,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
+          // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
         }
         else
+          // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
       }
       finally

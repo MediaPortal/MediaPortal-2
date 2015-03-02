@@ -146,6 +146,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           {
             fsra.PrepareStreamAccess();
             using (var fileStream = fsra.OpenRead())
+              // Calling EnsureLocalFileSystemAccess not necessary; only string operation
               return FromStream(fileStream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fsra.LocalFileSystemPath);
           }
         }

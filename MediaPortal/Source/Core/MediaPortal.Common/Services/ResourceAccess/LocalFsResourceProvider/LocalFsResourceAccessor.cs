@@ -68,6 +68,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       get { return StringUtils.TrimToNull(LocalFsResourceProviderBase.ToDosPath(_path)); }
     }
 
+    public IDisposable EnsureLocalFileSystemAccess()
+    {
+      // Nothing to do here; access is ensured as of the instantiation of this class
+      return null;
+    }
+
     public ResourcePath CanonicalLocalResourcePath
     {
       get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, _path); }

@@ -121,7 +121,8 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       }
       else
         // Optimize access to local filesystem resource
-        handle = Bass.BASS_MusicLoad(lfra.LocalFileSystemPath, 0, 0, flags, 0);
+        using (lfra.EnsureLocalFileSystemAccess())
+          handle = Bass.BASS_MusicLoad(lfra.LocalFileSystemPath, 0, 0, flags, 0);
 
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_MusicLoad");

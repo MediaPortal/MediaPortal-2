@@ -104,30 +104,34 @@ namespace MediaPortal.UI.Players.Video
     {
       if (!IsLocalFilesystemResource)
         throw new IllegalCallException("The BDPlayer can only play local file system resources");
-      string strFile = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
-      // Render the file
-      strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
-
-      // only continue with playback if a feature was selected or the extension was m2ts.
-      if (DoFeatureSelection(ref strFile))
+      using (((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess())
       {
-        // find the SourceFilter
-        CodecInfo sourceFilter = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>().BDSourceFilter;
+        string strFile = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
-        // load the SourceFilter
-        if (TryAdd(sourceFilter))
+        // Render the file
+        strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
+
+        // only continue with playback if a feature was selected or the extension was m2ts.
+        if (DoFeatureSelection(ref strFile))
         {
-          IFileSourceFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder);
-          // load the file
-          int hr = fileSourceFilter.Load(strFile, null);
-          Marshal.ReleaseComObject(fileSourceFilter);
-          new HRESULT(hr).Throw();
-        }
-        else
-        {
-          BDPlayerBuilder.LogError("Unable to load DirectShowFilter: {0}", sourceFilter.Name);
-          throw new Exception("Unable to load DirectShowFilter");
+          // find the SourceFilter
+          CodecInfo sourceFilter = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>().BDSourceFilter;
+
+          // load the SourceFilter
+          if (TryAdd(sourceFilter))
+          {
+            IFileSourceFilter fileSourceFilter = FilterGraphTools.FindFilterByInterface<IFileSourceFilter>(_graphBuilder);
+            // load the file
+            int hr = fileSourceFilter.Load(strFile, null);
+            Marshal.ReleaseComObject(fileSourceFilter);
+            new HRESULT(hr).Throw();
+          }
+          else
+          {
+            BDPlayerBuilder.LogError("Unable to load DirectShowFilter: {0}", sourceFilter.Name);
+            throw new Exception("Unable to load DirectShowFilter");
+          }
         }
       }
     }

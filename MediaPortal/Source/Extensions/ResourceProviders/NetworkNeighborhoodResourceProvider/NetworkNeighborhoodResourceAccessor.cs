@@ -282,6 +282,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       get { return _path.Replace('/', '\\'); }
     }
 
+    public IDisposable EnsureLocalFileSystemAccess()
+    {
+      // Impersonation required
+      return ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath);
+    }
+
     /// <summary>
     /// Returns a UNC representation of the resource.
     /// </summary>

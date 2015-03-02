@@ -85,43 +85,46 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
           {
-            fileSystemPath = fsra.LocalFileSystemPath;
-            var path = Path.GetDirectoryName(fileSystemPath);
-            var file = Path.GetFileNameWithoutExtension(fileSystemPath);
-
-            if (fanArtType == FanArtConstants.FanArtType.Poster || fanArtType == FanArtConstants.FanArtType.Thumbnail)
+            using (fsra.EnsureLocalFileSystemAccess())
             {
-              localPatterns.Add(Path.ChangeExtension(fileSystemPath, ".jpg"));
-              localPatterns.Add(Path.Combine(path, file + "-poster.jpg"));
-              localPatterns.Add(Path.Combine(path, "folder.jpg"));
-            }
-            if (fanArtType == FanArtConstants.FanArtType.FanArt)
-            {
-              localPatterns.Add(Path.Combine(path, "backdrop.jpg"));
-              localPatterns.Add(Path.Combine(path, file + "-fanart*.jpg"));
-              localPatterns.Add(Path.Combine(path, "ExtraFanArt\\*.jpg"));
-            }
+              fileSystemPath = fsra.LocalFileSystemPath;
+              var path = Path.GetDirectoryName(fileSystemPath);
+              var file = Path.GetFileNameWithoutExtension(fileSystemPath);
 
-            // Copy all patterns for .jpg -> .png + .tbn
-            localPatterns.AddRange(new List<string>(localPatterns).Select(p => p.Replace(".jpg", ".png")));
-            localPatterns.AddRange(new List<string>(localPatterns).Select(p => p.Replace(".jpg", ".tbn")));
-
-            foreach (var pattern in localPatterns)
-            {
-              try
+              if (fanArtType == FanArtConstants.FanArtType.Poster || fanArtType == FanArtConstants.FanArtType.Thumbnail)
               {
-                var pathPart = Path.GetDirectoryName(pattern);
-                var filePart = Path.GetFileName(pattern);
-                DirectoryInfo directoryInfo = new DirectoryInfo(pathPart);
-                if (directoryInfo.Exists)
-                {
-                  files.AddRange(directoryInfo.GetFiles(filePart)
-                    .Select(f => f.FullName)
-                    .Select(fileName => new ResourceLocator(resourceLocator.NativeSystemId, ResourcePath.BuildBaseProviderPath(resourceLocator.NativeResourcePath.LastPathSegment.ProviderId, fileName))));
-                }
+                localPatterns.Add(Path.ChangeExtension(fileSystemPath, ".jpg"));
+                localPatterns.Add(Path.Combine(path, file + "-poster.jpg"));
+                localPatterns.Add(Path.Combine(path, "folder.jpg"));
               }
-              catch
+              if (fanArtType == FanArtConstants.FanArtType.FanArt)
               {
+                localPatterns.Add(Path.Combine(path, "backdrop.jpg"));
+                localPatterns.Add(Path.Combine(path, file + "-fanart*.jpg"));
+                localPatterns.Add(Path.Combine(path, "ExtraFanArt\\*.jpg"));
+              }
+
+              // Copy all patterns for .jpg -> .png + .tbn
+              localPatterns.AddRange(new List<string>(localPatterns).Select(p => p.Replace(".jpg", ".png")));
+              localPatterns.AddRange(new List<string>(localPatterns).Select(p => p.Replace(".jpg", ".tbn")));
+
+              foreach (var pattern in localPatterns)
+              {
+                try
+                {
+                  var pathPart = Path.GetDirectoryName(pattern);
+                  var filePart = Path.GetFileName(pattern);
+                  DirectoryInfo directoryInfo = new DirectoryInfo(pathPart);
+                  if (directoryInfo.Exists)
+                  {
+                    files.AddRange(directoryInfo.GetFiles(filePart)
+                      .Select(f => f.FullName)
+                      .Select(fileName => new ResourceLocator(resourceLocator.NativeSystemId, ResourcePath.BuildBaseProviderPath(resourceLocator.NativeResourcePath.LastPathSegment.ProviderId, fileName))));
+                  }
+                }
+                catch
+                {
+                }
               }
             }
           }

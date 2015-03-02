@@ -107,6 +107,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     {
       ProcessExecutionResult executionResult;
       lock (MKVEXTRACT_THROTTLE_LOCK)
+        // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
         executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath), _priorityClass).Result;
       if (executionResult.Success && !string.IsNullOrEmpty(executionResult.StandardOutput))
       {
@@ -154,6 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       // |  + File UID: 1495003044
       ProcessExecutionResult executionResult;
       lock (MKVINFO_THROTTLE_LOCK)
+        // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
         executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath), _priorityClass).Result;
       if (executionResult.Success)
       {

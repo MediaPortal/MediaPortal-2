@@ -73,6 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     {
       foreach (Regex matcher in _matchers)
       {
+        // Calling EnsureLocalFileSystemAccess not necessary; only string operation
         Match ma = matcher.Match(folderOrFileLfsra.LocalFileSystemPath);
         seriesInfo = ParseSeries(ma);
         if (seriesInfo.IsCompleteMatch)

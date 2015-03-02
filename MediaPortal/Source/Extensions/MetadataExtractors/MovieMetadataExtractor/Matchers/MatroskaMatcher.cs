@@ -39,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
   {
     public static bool TryMatchImdbId(ILocalFsResourceAccessor folderOrFileLfsra, out string imdbId)
     {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
       {

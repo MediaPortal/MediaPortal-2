@@ -53,6 +53,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// <returns><c>true</c> if successful.</returns>
     public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo, ref IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
 
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
