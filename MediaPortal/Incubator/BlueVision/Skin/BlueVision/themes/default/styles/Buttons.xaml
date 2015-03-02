@@ -268,12 +268,15 @@
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="Selected" Value="True">
-              <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+              <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
             </Trigger>
             <Trigger Property="HasFocus" Value="False">
-              <!-- Added following code to make only the focused menu item having full opacity, changed value=true to false-->
+              <!-- Added following code to make only the focused menu item heving full opacity-->
               <Setter Property="Opacity" Value="0.4"/>
-              <!-- Added above code to make only the focused menu item having full opacity, changed value=true to false-->
+              <!-- Added following code to make only the focused menu item heving full opacity-->
+            </Trigger>
+
+            <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
