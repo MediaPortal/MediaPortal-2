@@ -228,12 +228,12 @@
     </Setter>
   </Style>
 
-  <!-- Group tab header button style -->
+  <!-- Group tab header button style -Removed code below adds top and under bar to visualize the focused item- -->
   <Style x:Key="GroupTabHeaderButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="ButtonControlRectangle" StrokeThickness="1.5" Opacity="0" Margin="-2">
+          <!--Rectangle x:Name="ButtonControlRectangle" StrokeThickness="1.5" Opacity="0" Margin="-2">
             <Rectangle.Stroke>
               <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                 <GradientStop Color="#00A0A0A0" Offset="0.05"/>
@@ -241,7 +241,7 @@
                 <GradientStop Color="#00A0A0A0" Offset="0.95"/>
               </LinearGradientBrush>
             </Rectangle.Stroke>
-          </Rectangle>
+          </Rectangle-->
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -270,7 +270,10 @@
             <Trigger Property="Selected" Value="True">
               <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
             </Trigger>
-            <Trigger Property="HasFocus" Value="True">
+            <Trigger Property="HasFocus" Value="False">
+              <!-- Added following code to make only the focused menu item having full opacity, changed value=true to false-->
+              <Setter Property="Opacity" Value="0.4"/>
+              <!-- Added above code to make only the focused menu item having full opacity, changed value=true to false-->
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>

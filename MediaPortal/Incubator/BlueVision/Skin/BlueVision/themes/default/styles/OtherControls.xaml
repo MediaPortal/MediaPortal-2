@@ -587,13 +587,13 @@
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
     <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="56" Height="54" Stretch="Fill" Margin="20,0,20,0">
-      <Image.Opacity>
+      <!--Image.Opacity>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
           <Binding Path="Selected"/>
           <Binding Source="1" />
           <Binding Source="0.4"/>
         </MultiBinding>
-      </Image.Opacity>
+      </Image.Opacity-->
 
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
@@ -601,33 +601,7 @@
           <Binding Source=".png"/>
         </MultiBinding>
       </Image.Source>
-    </Image>
-
-    <!--Label x:Name="ItemLabel" DockPanel.Dock="Center"
-         
-             Margin="20,0,20,0"
-          HorizontalAlignment="Center" VerticalAlignment="Center"
-          FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}">
-        <Label.Content>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
-            <Binding Path="AdditionalProperties[Id]"/>
-            <Binding Source=".png"/>
-          </MultiBinding>
-        </Label.Content>
-      </Label-->
-
-    <!--Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}" Margin="20,0,20,0"
-        HorizontalAlignment="Center" VerticalAlignment="Center"
-        FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}">
-      <Label.Opacity>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
-          <Binding Path="Selected"/>
-          <Binding Source="1" />
-          <Binding Source="0.5"/>
-        </MultiBinding>
-      </Label.Opacity>
-    </Label-->
-    
+    </Image>    
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
