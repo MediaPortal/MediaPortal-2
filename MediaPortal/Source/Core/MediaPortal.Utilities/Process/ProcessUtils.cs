@@ -37,6 +37,7 @@ namespace MediaPortal.Utilities.Process
     private static readonly string CONSOLE_ENCODING_PREAMBLE = CONSOLE_ENCODING.GetString(CONSOLE_ENCODING.GetPreamble());
 
     public const int INFINITE = -1;
+    public const int DEFAULT_TIMEOUT = 10000;
 
     /// <summary>
     /// Executes the <paramref name="executable"/> asynchronously and waits a maximum time of <paramref name="maxWaitMs"/> for completion.
@@ -52,7 +53,7 @@ namespace MediaPortal.Utilities.Process
     /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
     /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
     /// </remarks>
-    public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
       var process = new System.Diagnostics.Process
@@ -140,7 +141,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
-    public static bool TryExecute(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    public static bool TryExecute(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       string unused;
       return TryExecute(executable, arguments, false, out unused, priorityClass, maxWaitMs);
@@ -156,7 +157,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
-    public static bool TryExecute_AutoImpersonate(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    public static bool TryExecute_AutoImpersonate(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       return IsImpersonated ?
         TryExecute_Impersonated(executable, arguments, priorityClass, maxWaitMs) :
@@ -172,7 +173,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
-    public static bool TryExecute_Impersonated(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    public static bool TryExecute_Impersonated(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       IntPtr userToken;
       if (!ImpersonationHelper.GetTokenByProcess(out userToken, true))
@@ -198,7 +199,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns></returns>
-    public static bool TryExecuteReadString(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    public static bool TryExecuteReadString(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       return TryExecute(executable, arguments, true, out result, priorityClass, maxWaitMs);
     }
@@ -213,7 +214,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns></returns>
-    public static bool TryExecuteReadString_AutoImpersonate(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    public static bool TryExecuteReadString_AutoImpersonate(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       return IsImpersonated ?
         TryExecuteReadString_Impersonated(executable, arguments, out result, priorityClass, maxWaitMs) :
@@ -231,7 +232,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
-    public static bool TryExecuteReadString_Impersonated(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    public static bool TryExecuteReadString_Impersonated(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       IntPtr userToken;
       if (!ImpersonationHelper.GetTokenByProcess(out userToken, true))
@@ -274,7 +275,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns></returns>
-    private static bool TryExecute(string executable, string arguments, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = 1000)
+    private static bool TryExecute(string executable, string arguments, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       StringBuilder outputBuilder = new StringBuilder();
       using (System.Diagnostics.Process process = new System.Diagnostics.Process())
@@ -314,7 +315,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
-    private static bool TryExecute_Impersonated(string executable, string arguments, IntPtr token, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = INFINITE)
+    private static bool TryExecute_Impersonated(string executable, string arguments, IntPtr token, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       // Note: Althought the code is nearly identical as TryExecute, it cannot be easily refactored, as the ImpersonationProcess implements many methods and properties with "new".
       // If such an instance is assigned to "Process" base class, any access will fail here. 

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -159,6 +160,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         else
           // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='{0}', Arguments='{1}', Timeout='{2}'", executable, arguments, PROCESS_TIMEOUT_MS);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {
