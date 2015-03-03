@@ -190,7 +190,7 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
     }

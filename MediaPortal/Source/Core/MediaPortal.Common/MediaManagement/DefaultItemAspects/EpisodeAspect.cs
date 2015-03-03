@@ -27,12 +27,12 @@ using System;
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata specification of the "Series" media item aspect which is assigned to series media items (i.e. videos, recordings).
+  /// Contains the metadata specification of the "Episode" media item aspect which is assigned to episode media items (i.e. videos, recordings).
   /// </summary>
-  public static class SeriesAspect
+  public static class EpisodeAspect
   {
     /// <summary>
-    /// Media item aspect id of the series aspect.
+    /// Media item aspect id of the episode aspect.
     /// </summary>
     public static readonly Guid ASPECT_ID = new Guid("287A2809-D38D-4F98-B613-E9C09904392D");
 
@@ -106,7 +106,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
-        ASPECT_ID, "SeriesItem", new[] {
+        ASPECT_ID, "EpisodeItem", new[] {
             ATTR_IMDB_ID,
             ATTR_TVDB_ID,
             ATTR_SERIESNAME,

@@ -43,15 +43,15 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       base.Update(mediaItem);
       SeriesInfo seriesInfo = new SeriesInfo();
       SingleMediaItemAspect seriesAspect;
-      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, SeriesAspect.Metadata, out seriesAspect)) 
+      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out seriesAspect)) 
         return;
 
-      Series = seriesInfo.Series = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME] ?? string.Empty;
-      EpisodeName = seriesInfo.Episode = (string)seriesAspect[SeriesAspect.ATTR_EPISODENAME] ?? string.Empty;
-      seriesInfo.SeasonNumber = (int)(seriesAspect[SeriesAspect.ATTR_SEASON] ?? 0);
+      Series = seriesInfo.Series = (string)seriesAspect[EpisodeAspect.ATTR_SERIESNAME] ?? string.Empty;
+      EpisodeName = seriesInfo.Episode = (string)seriesAspect[EpisodeAspect.ATTR_EPISODENAME] ?? string.Empty;
+      seriesInfo.SeasonNumber = (int)(seriesAspect[EpisodeAspect.ATTR_SEASON] ?? 0);
       Season = seriesInfo.SeasonNumber.ToString();
 
-      IList<int> episodes = seriesAspect[SeriesAspect.ATTR_EPISODE] as IList<int>;
+      IList<int> episodes = seriesAspect[EpisodeAspect.ATTR_EPISODE] as IList<int>;
       if (episodes != null)
       {
         foreach (int episode in episodes.OrderBy(e => e))

@@ -205,21 +205,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIESNAME, Series);
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_EPISODENAME, Episode);
-      if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SEASON, SeasonNumber.Value);
-      if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_FIRSTAIRED, FirstAired.Value);
-      MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_EPISODE, EpisodeNumbers);
-      MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
-      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_IMDB_ID, ImdbId);
-      if (TvdbId > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_TVDB_ID, TvdbId);
-      if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_TOTAL_RATING, TotalRating);
-      if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, RatingCount);
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIESNAME, Series);
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODENAME, Episode);
+      if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
+      if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_FIRSTAIRED, FirstAired.Value);
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_IMDB_ID, ImdbId);
+      if (TvdbId > 0) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_TVDB_ID, TvdbId);
+      if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_TOTAL_RATING, TotalRating);
+      if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_RATING_COUNT, RatingCount);
 
       // Construct a "Series Season" string, which will be used for filtering and season banner retrieval.
       int season = SeasonNumber ?? 0;
       string seriesSeason = string.Format(SERIES_SEASON_FORMAT_STR, Series, season.ToString().PadLeft(2, '0'));
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_SEASON, seriesSeason);
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_SEASON, seriesSeason);
 
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
       if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors);

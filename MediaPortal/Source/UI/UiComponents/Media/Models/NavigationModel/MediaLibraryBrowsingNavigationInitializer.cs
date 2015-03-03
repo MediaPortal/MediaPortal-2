@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       var optionalMias = new[]
       {
         MovieAspect.ASPECT_ID,
-        SeriesAspect.ASPECT_ID,
+        EpisodeAspect.ASPECT_ID,
         AudioAspect.ASPECT_ID,
         VideoAspect.ASPECT_ID,
         ImageAspect.ASPECT_ID
