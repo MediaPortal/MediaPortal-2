@@ -69,7 +69,14 @@ namespace MediaPortal.Utilities.Process
         },
         EnableRaisingEvents = true
       };
-      
+
+      // We need to read standardOutput and standardError asynchronously to avoid a deadlock
+      // when the buffer is not big enough to receive all the respective output. Otherwise the
+      // process may block because the buffer is full and the Exited event below is never raised.
+      Task<string> standardOutputTask = null;
+      Task<string> standardErrorTask = null;
+      var standardStreamTasksReady = new ManualResetEventSlim();
+
       // The Exited event is raised in any case when the process has finished, i.e. when it gracefully
       // finished (ExitCode = 0), finished with an error (ExitCode != 0) and when it was killed below.
       // That ensures disposal of the process object.
@@ -77,13 +84,24 @@ namespace MediaPortal.Utilities.Process
       {
         try
         {
-          // We need to read one of the two standard streams asynchronously to avoid a potential deadlock.
-          var standardErrorTask = process.StandardError.ReadToEndAsync();
+          // standardStreamTasksReady is only disposed when starting the process was not successful,
+          // in which case the Exited event is never raised.
+          // ReSharper disable once AccessToDisposedClosure
+          standardStreamTasksReady.Wait();
           tcs.TrySetResult(new ProcessExecutionResult
           {
             ExitCode = process.ExitCode,
-            StandardOutput = process.StandardOutput.ReadToEnd(),
+            // standardStreamTasksReady makes sure that we do not access the standard stream tasks before they are initialized.
+            // For the same reason it is intended that these tasks (as closures) are modified (i.e. initialized).
+            // We need to take this cumbersome way because it is not possible to access the standard streams before the process
+            // is started. If on the other hand the Exited event is raised before the tasks are initialized, we need to make
+            // sure that this method waits until the tasks are initialized before they are accessed.
+            // ReSharper disable PossibleNullReferenceException
+            // ReSharper disable AccessToModifiedClosure
+            StandardOutput = standardOutputTask.Result,
             StandardError = standardErrorTask.Result
+            // ReSharper restore AccessToModifiedClosure
+            // ReSharper restore PossibleNullReferenceException
           });
         }
         catch (Exception e)
@@ -110,6 +128,10 @@ namespace MediaPortal.Utilities.Process
       {
         tcs.TrySetException(e);
       }
+
+      standardOutputTask = process.StandardOutput.ReadToEndAsync();
+      standardErrorTask = process.StandardError.ReadToEndAsync();
+      standardStreamTasksReady.Set();
 
       // Here we take care of the maximum time to wait for the process if such was requested.
       if (maxWaitMs != INFINITE)
