@@ -262,7 +262,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
     /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
     /// </remarks>
-    internal static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, WindowsIdentityWrapper idWrapper, ILogger debugLogger, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.INFINITE)
+    internal static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, WindowsIdentityWrapper idWrapper, ILogger debugLogger, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT)
     {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
       var process = new AsyncImpersonationProcess(debugLogger)

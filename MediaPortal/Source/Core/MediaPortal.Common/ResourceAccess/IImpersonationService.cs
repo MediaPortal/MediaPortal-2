@@ -87,6 +87,6 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns>A task representing the result of executing the process</returns>
-    Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.INFINITE);
+    Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT);
   }
 }

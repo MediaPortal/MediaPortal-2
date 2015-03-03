@@ -27,7 +27,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
@@ -105,11 +108,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <param name="tagsToExtract">Dictionary with tag names as keys.</param>
     public void ReadTags(IDictionary<string, IList<string>> tagsToExtract)
     {
-      ProcessExecutionResult executionResult;
-      lock (MKVEXTRACT_THROTTLE_LOCK)
-        // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
-        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath), _priorityClass).Result;
-      if (executionResult.Success && !string.IsNullOrEmpty(executionResult.StandardOutput))
+      ProcessExecutionResult executionResult = null;
+      // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
+      var arguments = string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath);
+      try
+      {
+        lock (MKVEXTRACT_THROTTLE_LOCK)
+          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass).Result;
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadTags: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+            return true;
+          }
+          return false;
+        });
+      }
+      if (executionResult != null && executionResult.Success && !string.IsNullOrEmpty(executionResult.StandardOutput))
       {
         XDocument doc = XDocument.Parse(executionResult.StandardOutput);
 
@@ -153,11 +172,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       // |  + Mime type: image/jpeg
       // |  + File data, size: 132908
       // |  + File UID: 1495003044
-      ProcessExecutionResult executionResult;
-      lock (MKVINFO_THROTTLE_LOCK)
-        // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
-        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath), _priorityClass).Result;
-      if (executionResult.Success)
+      ProcessExecutionResult executionResult = null;
+      // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
+      var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
+      try
+      {
+        lock (MKVINFO_THROTTLE_LOCK)
+          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass).Result;
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
+            return true;
+          }
+          return false;
+        });
+      }
+      if (executionResult != null && executionResult.Success)
       {
         StringReader reader = new StringReader(executionResult.StandardOutput);
         string line;
@@ -238,9 +273,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     {
       binaryData = null;
       string tempFileName = Path.GetTempFileName();
-      bool success;
-      lock (MKVEXTRACT_THROTTLE_LOCK)
-        success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _lfsra, attachmentIndex + 1, tempFileName), _priorityClass).Result.Success;
+      bool success = false;
+      // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
+      var arguments = string.Format("attachments \"{0}\" {1}:\"{2}\"", _lfsra.LocalFileSystemPath, attachmentIndex + 1, tempFileName);
+      try
+      {
+        lock (MKVEXTRACT_THROTTLE_LOCK)
+          success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass).Result.Success;
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ExtractAttachment: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+            return true;
+          }
+          return false;
+        });
+      }
+
       if (!success)
         return false;
 

@@ -49,7 +49,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// access to a resource - not executing programs which is why this method is implemented as an extension method instead of
     /// a method directly on the interface.
     /// </remarks>
-    public static Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(this ILocalFsResourceAccessor lfsra, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.INFINITE)
+    public static Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(this ILocalFsResourceAccessor lfsra, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT)
     {
       return ServiceRegistration.Get<IImpersonationService>().ExecuteWithResourceAccessAsync(lfsra.CanonicalLocalResourcePath, executable, arguments, priorityClass, maxWaitMs);
     }
