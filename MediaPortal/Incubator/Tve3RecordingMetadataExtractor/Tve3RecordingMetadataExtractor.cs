@@ -129,7 +129,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
                 RecordingAspect.Metadata,
-                SeriesAspect.Metadata
+                EpisodeAspect.Metadata
               });
     }
 

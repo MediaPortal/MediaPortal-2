@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesFilterByNameScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
-        Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_SERIESNAME))
+        Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(EpisodeAspect.ATTR_SERIESNAME))
     {
     }
 

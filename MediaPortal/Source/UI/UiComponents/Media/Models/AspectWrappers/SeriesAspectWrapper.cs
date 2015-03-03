@@ -227,23 +227,23 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     public void Init(MediaItem mediaItem)
     {
       SingleMediaItemAspect aspect;
-      if (mediaItem == null || !MediaItemAspect.TryGetAspect(mediaItem.Aspects, SeriesAspect.Metadata, out aspect))
+      if (mediaItem == null || !MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out aspect))
       {
         SetEmpty();
         return;
       }
 
-      TVDBID = (int?)aspect[SeriesAspect.ATTR_TVDB_ID];
-      IMDBID = (string)aspect[SeriesAspect.ATTR_IMDB_ID];
-      SeriesName = (string)aspect[SeriesAspect.ATTR_SERIESNAME];
-      Season = (int?)aspect[SeriesAspect.ATTR_SEASON];
-      SeriesSeasonName = (string)aspect[SeriesAspect.ATTR_SERIES_SEASON];
-      Episode = (IEnumerable<int>)aspect[SeriesAspect.ATTR_EPISODE];
-      DvdEpisode = (IEnumerable<double>)aspect[SeriesAspect.ATTR_DVDEPISODE];
-      EpisodeName = (string)aspect[SeriesAspect.ATTR_EPISODENAME];
-      FirstAired = (DateTime?)aspect[SeriesAspect.ATTR_FIRSTAIRED];
-      TotalRating = (double?)aspect[SeriesAspect.ATTR_TOTAL_RATING];
-      RatingCount = (int?)aspect[SeriesAspect.ATTR_RATING_COUNT];
+      TVDBID = (int?)aspect[EpisodeAspect.ATTR_TVDB_ID];
+      IMDBID = (string)aspect[EpisodeAspect.ATTR_IMDB_ID];
+      SeriesName = (string)aspect[EpisodeAspect.ATTR_SERIESNAME];
+      Season = (int?)aspect[EpisodeAspect.ATTR_SEASON];
+      SeriesSeasonName = (string)aspect[EpisodeAspect.ATTR_SERIES_SEASON];
+      Episode = (IEnumerable<int>)aspect[EpisodeAspect.ATTR_EPISODE];
+      DvdEpisode = (IEnumerable<double>)aspect[EpisodeAspect.ATTR_DVDEPISODE];
+      EpisodeName = (string)aspect[EpisodeAspect.ATTR_EPISODENAME];
+      FirstAired = (DateTime?)aspect[EpisodeAspect.ATTR_FIRSTAIRED];
+      TotalRating = (double?)aspect[EpisodeAspect.ATTR_TOTAL_RATING];
+      RatingCount = (int?)aspect[EpisodeAspect.ATTR_RATING_COUNT];
     }
 
     public void SetEmpty()

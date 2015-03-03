@@ -61,7 +61,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       // Create a generic delegate that knows all kind of our inbuilt media item types.
       _genericPlayableItemCreatorDelegate = mi =>
       {
-        if (mi.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        if (mi.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
           return new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
           return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
