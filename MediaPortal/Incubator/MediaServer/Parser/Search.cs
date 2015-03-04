@@ -40,6 +40,7 @@ namespace MediaPortal.Extensions.MediaServer.Parser
         MUSIC_ARTIST,
 
         VIDEO_ITEM,
+        PLAYLIST_CONTAINER,
     }
 
     public enum Op
@@ -133,6 +134,7 @@ namespace MediaPortal.Extensions.MediaServer.Parser
                 PROPERTY_CLASSES["object.container.album.musicAlbum"] = PropertyClass.MUSIC_ALBUM;
                 PROPERTY_CLASSES["object.container.person.musicArtist"] = PropertyClass.MUSIC_ARTIST;
                 PROPERTY_CLASSES["object.item.videoItem"] = PropertyClass.VIDEO_ITEM;
+                PROPERTY_CLASSES["object.container.playlistContainer"] = PropertyClass.PLAYLIST_CONTAINER;
 
                 OPS["="] = Op.EQUALS;
                 OPS["!="] = Op.NOT_EQUAL;
@@ -345,9 +347,14 @@ namespace MediaPortal.Extensions.MediaServer.Parser
                     types.Add(VideoAspect.ASPECT_ID);
                     return null;
                 }
+                else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.PLAYLIST_CONTAINER)
+                {
+                    types.Add(VideoAspect.ASPECT_ID);
+                    return null;
+                }
                 else
                 {
-                    throw new SearchException("Unable tpo convert property class " + exp.propertyClass);
+                    throw new SearchException("Unable to convert property " + exp.op + " " + exp.propertyClass);
                 }
             }
             else if(exp.property == Property.TITLE)

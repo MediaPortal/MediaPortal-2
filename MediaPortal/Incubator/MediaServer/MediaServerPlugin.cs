@@ -53,13 +53,19 @@ namespace MediaPortal.Extensions.MediaServer
     private static void InitialiseContainerTree()
     {
       RootContainer = new BasicContainer("0") { Title = "MediaPortal Media Library" };
+
       var audioContainer = new BasicContainer("A") { Title = "Audio" };
+      audioContainer.Add(new MediaLibraryAlbumContainer("AA") { Title = "Albums" });
       RootContainer.Add(audioContainer);
+
       var pictureContainer = new BasicContainer("P") { Title = "Picture" };
       RootContainer.Add(pictureContainer);
+
       var videoContainer = new BasicContainer("V") { Title = "Video" };
       RootContainer.Add(videoContainer);
+
       videoContainer.Add(new MediaLibraryGenreContainer("VG") { Title = "Genres" });
+
       RootContainer.Add(new MediaLibraryShareContainer("M") { Title = "Media" });
     }
 

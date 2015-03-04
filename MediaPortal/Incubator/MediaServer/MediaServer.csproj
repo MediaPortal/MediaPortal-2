@@ -119,6 +119,7 @@
     <Compile Include="DIDL\GenericDidlMessageBuilder.cs" />
     <Compile Include="MediaServerPlugin.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArt.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAudioItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryContainer.cs" />
     <Compile Include="DIDL\ObjectRenderer.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="Objects\MediaLibrary\MediaLibraryItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMusicTrack.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryResource.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryShareContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryVideoItem.cs" />
     <Compile Include="DLNA\DlnaForthField.cs" />
