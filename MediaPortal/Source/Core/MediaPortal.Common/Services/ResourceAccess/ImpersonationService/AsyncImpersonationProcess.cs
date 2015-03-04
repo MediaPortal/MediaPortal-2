@@ -606,7 +606,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           writeHandle = new SafeFileHandle(IntPtr.Zero, false);
           readHandle = GetStdHandle(standardHandle);
           var error = Marshal.GetLastWin32Error();
-          if (error != 0)
+          // Error code 1008 means "An attempt was made to reference a token that does not exist". This is the case
+          // in particular in the server process because a Windows service does not have a standard output or standard error stream.
+          // This is expected behaviour - not an error.
+          if (error != 0 && error != 1008)
             _debugLogger.Error("AsyncImpersonationProcess ({0}): GetStdHandle failed. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
         }
         else
@@ -614,7 +617,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           readHandle = new SafeFileHandle(IntPtr.Zero, false);
           writeHandle = GetStdHandle(standardHandle);
           var error = Marshal.GetLastWin32Error();
-          if (error != 0)
+          // Error code 1008 means "An attempt was made to reference a token that does not exist". This is the case
+          // in particular in the server process because a Windows service does not have a standard output or standard error stream.
+          // This is expected behaviour - not an error.
+          if (error != 0 && error != 1008)
             _debugLogger.Error("AsyncImpersonationProcess ({0}): GetStdHandle failed. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
         }
       }
