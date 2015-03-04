@@ -42,16 +42,16 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       SeriesInfo seriesInfo = new SeriesInfo();
-      SingleMediaItemAspect seriesAspect;
-      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out seriesAspect)) 
+      SingleMediaItemAspect episodeAspect;
+      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out episodeAspect)) 
         return;
 
-      Series = seriesInfo.Series = (string)seriesAspect[EpisodeAspect.ATTR_SERIESNAME] ?? string.Empty;
-      EpisodeName = seriesInfo.Episode = (string)seriesAspect[EpisodeAspect.ATTR_EPISODENAME] ?? string.Empty;
-      seriesInfo.SeasonNumber = (int)(seriesAspect[EpisodeAspect.ATTR_SEASON] ?? 0);
+      Series = seriesInfo.Series = (string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME] ?? string.Empty;
+      EpisodeName = seriesInfo.Episode = (string)episodeAspect[EpisodeAspect.ATTR_EPISODENAME] ?? string.Empty;
+      seriesInfo.SeasonNumber = (int)(episodeAspect[EpisodeAspect.ATTR_SEASON] ?? 0);
       Season = seriesInfo.SeasonNumber.ToString();
 
-      IList<int> episodes = seriesAspect[EpisodeAspect.ATTR_EPISODE] as IList<int>;
+      IList<int> episodes = episodeAspect[EpisodeAspect.ATTR_EPISODE] as IList<int>;
       if (episodes != null)
       {
         foreach (int episode in episodes.OrderBy(e => e))

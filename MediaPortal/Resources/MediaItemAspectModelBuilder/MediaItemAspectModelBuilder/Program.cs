@@ -37,7 +37,7 @@ namespace MediaItemAspectModelBuilder
       const bool createAsControl = true;
       const bool exposeNullables = true;
 
-      List<Type> typeList = new List<Type> { typeof(MediaAspect), typeof(VideoAspect), typeof(AudioAspect), typeof(ImageAspect), typeof(MovieAspect), typeof(SeriesAspect) };
+      List<Type> typeList = new List<Type> { typeof(MediaAspect), typeof(VideoAspect), typeof(AudioAspect), typeof(ImageAspect), typeof(MovieAspect), typeof(EpisodeAspect) };
 
       foreach (Type aspectType in typeList)
       {
