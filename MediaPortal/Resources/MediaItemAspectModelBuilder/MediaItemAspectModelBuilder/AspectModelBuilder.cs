@@ -154,7 +154,7 @@ namespace MediaItemAspectModelBuilder
       // Construct source file
       StringBuilder result = new StringBuilder();
 
-      AppendRegion(result, "Copyright (C) 2007-2014 Team MediaPortal", _copyright, false);
+      AppendRegion(result, "Copyright (C) 2007-2015 Team MediaPortal", _copyright, false);
 
       AppendRegion(result, null, _usings, false);
 
@@ -195,8 +195,8 @@ namespace MediaItemAspectModelBuilder
     {
       string methodStub = @"public void Init(MediaItem mediaItem)
 {{
-  MediaItemAspect aspect;
-  if (mediaItem == null ||!mediaItem.Aspects.TryGetValue({1}.ASPECT_ID, out aspect))
+  SingleMediaItemAspect aspect;
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, {1}.Metadata, out aspect))
   {{
      SetEmpty();
      return;

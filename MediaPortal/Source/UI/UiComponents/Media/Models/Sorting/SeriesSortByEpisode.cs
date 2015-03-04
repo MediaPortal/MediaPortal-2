@@ -39,18 +39,18 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem item1, MediaItem item2)
     {
-      SingleMediaItemAspect seriesAspectX;
-      SingleMediaItemAspect seriesAspectY;
-      if (MediaItemAspect.TryGetAspect(item1.Aspects, EpisodeAspect.Metadata, out seriesAspectX) && MediaItemAspect.TryGetAspect(item2.Aspects, EpisodeAspect.Metadata, out seriesAspectY))
+      SingleMediaItemAspect episodeAspectX;
+      SingleMediaItemAspect episodeAspectY;
+      if (MediaItemAspect.TryGetAspect(item1.Aspects, EpisodeAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(item2.Aspects, EpisodeAspect.Metadata, out episodeAspectY))
       {
-        int seasonX = (int) (seriesAspectX.GetAttributeValue(EpisodeAspect.ATTR_SEASON) ?? 0);
-        int seasonY = (int) (seriesAspectY.GetAttributeValue(EpisodeAspect.ATTR_SEASON) ?? 0);
+        int seasonX = (int) (episodeAspectX.GetAttributeValue(EpisodeAspect.ATTR_SEASON) ?? 0);
+        int seasonY = (int) (episodeAspectY.GetAttributeValue(EpisodeAspect.ATTR_SEASON) ?? 0);
         int seasonRes = seasonX.CompareTo(seasonY);
         if (seasonRes != 0)
           return seasonRes;
 
-        IEnumerable<int> episodesX = seriesAspectX.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
-        IEnumerable<int> episodesY = seriesAspectY.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+        IEnumerable<int> episodesX = episodeAspectX.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+        IEnumerable<int> episodesY = episodeAspectY.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
         
         int episodeX = 0;
         int episodeY = 0;
