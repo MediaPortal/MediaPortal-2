@@ -75,12 +75,23 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       return new DefaultNamespaceHandler(AssemblyHelper.LoadAssembly(assemblyName), namespaceName);
     }
 
-    public override Type GetElementType(string typeName)
+    public override Type GetElementType(string typeName, bool includeAbstractTypes)
     {
       string fullName = String.Format("{0}.{1}", _namespaceName, typeName);
+      Type type;
       if (_assembly == null)
-        return Type.GetType(fullName);
-      return _assembly.GetType(fullName);
+      {
+        type = Type.GetType(fullName);
+      }
+      else
+      {
+        type = _assembly.GetType(fullName);
+      }
+      if (type != null && (!includeAbstractTypes && type.IsAbstract))
+      {
+        throw new XamlParserException("Element type '{0}' is abstract", typeName);
+      }
+      return type;
     }
   }
 }

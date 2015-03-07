@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     public override bool IsAvailable(MediaItem mediaItem)
     {
       int playCount;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, out playCount))
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out playCount))
         return false;
       if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
         return false;

@@ -23,13 +23,20 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
@@ -45,12 +52,11 @@ namespace MediaPortal.Database.SQLite
   /// (such as MSSQLCE with a maximum database size of 2GB). The limitations of SQLite are much less
   /// restrictive (e.g. a maximum database size of about 140TB, for details see http://www.sqlite.org/limits.html)
   /// </remarks>
-  public class SQLiteDatabase : ISQLDatabase, IDisposable
+  public class SQLiteDatabase : ISQLDatabasePaging, IDisposable
   {
     #region Constants
 
     private const string DATABASE_TYPE_STRING = "SQLite"; // Name of this Database
-    private const string DATABASE_VERSION_STRING = "1.0.89.0"; // Version of the sytem.data.sqlite wrapper
 
     #endregion
 
@@ -60,6 +66,8 @@ namespace MediaPortal.Database.SQLite
     private ConnectionPool<SQLiteConnection> _connectionPool;
     private readonly SQLiteSettings _settings;
     private readonly FileLogger _sqliteDebugLogger;
+    private readonly AsynchronousMessageQueue _messageQueue;
+    private readonly ActionBlock<bool> _maintenanceScheduler;
 
     #endregion
 
@@ -69,9 +77,16 @@ namespace MediaPortal.Database.SQLite
     {
       try
       {
+        _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
+        _messageQueue = new AsynchronousMessageQueue(this, new[] { ContentDirectoryMessaging.CHANNEL });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        _messageQueue.Start();
+
         _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
         _settings.LogSettings();
         ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+
+        LogVersionInformation();
 
         if (_settings.EnableTraceLogging)
         {
@@ -183,13 +198,13 @@ namespace MediaPortal.Database.SQLite
         // although we issue "PRAGMA locking_mode=EXCLUSIVE" at this point.
         // For details see here: http://sqlite.org/wal.html#noshm
         // Avoiding the creation of an "-shm"-file materially improves the database performance.
-        if (SQLiteSettings.USE_EXCLUSIVE_MODE)
+        if (_settings.UseExclusiveMode)
         {
           connBuilder.JournalMode = SQLiteJournalModeEnum.Off;
           using (var connection = new SQLiteConnection(connBuilder.ToString()))
           {
             connection.Open();
-            using (var command = new SQLiteCommand("PRAGMA locking_mode=EXCLUSIVE;", connection))
+            using (var command = new SQLiteCommand(SQLiteSettings.EXCLUSIVE_MODE_COMMAND, connection))
               command.ExecuteNonQuery();
             connection.Close();
           }
@@ -231,11 +246,17 @@ namespace MediaPortal.Database.SQLite
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
+      connection.SetChunkSize(_settings.ChunkSizeInMegabytes * 1024 * 1024);
       using (var command = new SQLiteCommand(_settings.InitializationCommand, connection))
         command.ExecuteNonQuery();
       return connection;
     }
 
+    /// <summary>
+    /// Log event handler for trace logging
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void MPSQLiteLogEventHandler(object sender, LogEventArgs e)
     {
       if (_sqliteDebugLogger == null || e == null)
@@ -254,6 +275,90 @@ namespace MediaPortal.Database.SQLite
       _sqliteDebugLogger.Debug("SQLite ({0}): {1}", e.ErrorCode, logText);
     }
 
+    /// <summary>
+    /// Processes system messages
+    /// </summary>
+    /// <param name="queue">MessagQueue that has received the message</param>
+    /// <param name="message">Message received</param>
+    /// <remarks>
+    /// We only listen to the <see cref="ContentDirectoryMessaging.CHANNEL"/> and react on <see cref="ContentDirectoryMessaging.MessageType.ShareImportCompleted"/> messages.
+    /// They are sent whenever a server or client share import is finished (<see cref="ImporterWorkerMessaging.MessageType.ImportCompleted"/> messages
+    /// are only sent for server shares).
+    /// When an import is completed, we schedule a <see cref="PerformDatabaseMaintenanceAsync"/> call. The execution of these calls
+    /// is serialized by the <see cref="_maintenanceScheduler"/>. It has a BoundedCapacity of 2, i.e. one run that is currently
+    /// executed and one run that is scheduled. In case that another run is scheduled while one is processed and another one is
+    /// waiting to be executed, we do not schedule a third run as the maintenance that is waiting to be executed will perform
+    /// everthing we need; we only log that this was the case.
+    /// Currently, we do not react on the deletion of shares, which would also be a good time to schedule a maintenance. However,
+    /// the <see cref="ContentDirectoryMessaging.MessageType.RegisteredSharesChanged"/> message is not only sent when a share is
+    /// deleted, but also when it is added. In the latter case we would schedule a maintenance twice, the first time (too early)
+    /// when the share was added and the second time when the share's import finished.
+    /// ToDo: Maybe change the RegisteredSharesChanged message to carry an argument signaling what exactly changed
+    /// </remarks>
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      var messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+      switch (messageType)
+      {
+        case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+          if (!_maintenanceScheduler.Post(true))
+            ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Runs the "ANALYZE;" SQL command on the database to update the statistics tables for better query performance
+    /// </summary>
+    /// <returns>Task that completes when the "ANALYZE;" command has finished</returns>
+    private async Task PerformDatabaseMaintenanceAsync()
+    {
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Performing database maintenance...");
+      try
+      {
+        using (var connection = new SQLiteConnection(_connectionString))
+        {
+          await connection.OpenAsync();
+          using (var command = connection.CreateCommand())
+          {
+            command.CommandText = "ANALYZE;";
+            await command.ExecuteNonQueryAsync();
+          }
+          connection.Close();
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Error while performing database maintenance:", e);
+      }
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database maintenance finished");
+      LogStatistics();
+    }
+
+    /// <summary>
+    /// Logs statistical data of the SQLite engine
+    /// </summary>
+    private void LogStatistics()
+    {
+      IDictionary<String, long> statistics = new Dictionary<string, long>();
+      SQLiteConnection.GetMemoryStatistics(ref statistics);
+      var statisticsString = String.Join("; ", statistics.Select(kvp => String.Format("{0}={1:N0}", kvp.Key, kvp.Value)));
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: Memory Statistics: {0}", statisticsString);
+    }
+
+    /// <summary>
+    /// Logs version information about the used SQLite libraries
+    /// </summary>
+    private void LogVersionInformation()
+    {
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: ProviderVersion={0} (SourceID: {1})", SQLiteConnection.ProviderVersion, SQLiteConnection.ProviderSourceId);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: InteropVersion: {0} (SourceID: {1})", SQLiteConnection.InteropVersion, SQLiteConnection.InteropSourceId);
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: InteropCompileOptions: {0}", SQLiteConnection.InteropCompileOptions);
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: InteropDefineConstants: {0}", SQLiteConnection.DefineConstants);
+      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: SQLiteVersion: {0} (SourceID: {1})", SQLiteConnection.SQLiteVersion, SQLiteConnection.SQLiteSourceId);
+      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: SQLiteCompileOptions: {0}", SQLiteConnection.SQLiteCompileOptions);
+    }
+
     #endregion
 
     #region ISQLDatabase implementation
@@ -265,7 +370,7 @@ namespace MediaPortal.Database.SQLite
 
     public string DatabaseVersion
     {
-      get { return DATABASE_VERSION_STRING; }
+      get { return SQLiteConnection.ProviderVersion; }
     }
 
     public uint MaxObjectNameLength
@@ -355,12 +460,12 @@ namespace MediaPortal.Database.SQLite
       // so we override any requested IsolationLevel other than Serializable
       // As per the code here: http://system.data.sqlite.org/index.html/vpatch?from=ed229ff2b0076a39&to=de60415f960244d7
       // IsolationLevel.Serializable is the same as the obsolete parameter DeferredLock=false
-      return new SQLiteTransaction(this, IsolationLevel.Serializable);
+      return new SQLiteTransaction(this, IsolationLevel.Serializable, _settings);
     }
 
     public ITransaction BeginTransaction()
     {
-      return new SQLiteTransaction(this, IsolationLevel.Serializable);
+      return new SQLiteTransaction(this, IsolationLevel.Serializable, _settings);
     }
 
     public bool TableExists(string tableName)
@@ -399,12 +504,28 @@ namespace MediaPortal.Database.SQLite
       return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
     }
 
+    public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit)
+    {
+      if (!offset.HasValue && !limit.HasValue)
+        return false;
+
+      string limitClause = string.Format(" LIMIT {0}, {1}", offset ?? 0, limit);
+      statementStr += limitClause;
+      offset = null; // To avoid manual processing by caller
+      limit = null; // To avoid manual processing by caller
+      return true;
+    }
+
     #endregion
 
     #region IDisposable implementation
 
     public void Dispose()
     {
+      _messageQueue.Shutdown();
+      _maintenanceScheduler.Complete();
+      _maintenanceScheduler.Completion.Wait();
+
       if (_connectionPool != null)
       {
         _connectionPool.Dispose();

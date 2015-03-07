@@ -352,7 +352,7 @@ namespace MediaPortal.UiComponents.Media.Controls
       base.RenderOverride(localRenderContext);
     }
 
-    protected ISpectrumPlayer ActiveSpectrumPlayer
+    protected IAudioPlayerAnalyze ActiveSpectrumPlayer
     {
       get
       {
@@ -363,17 +363,18 @@ namespace MediaPortal.UiComponents.Media.Controls
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerContext);
         if (playerContext == null)
           return null;
-        return playerContext.CurrentPlayer as ISpectrumPlayer;
+        return playerContext.CurrentPlayer as IAudioPlayerAnalyze;
       }
     }
 
     private void UpdateSpectrum()
     {
-      ISpectrumPlayer player = ActiveSpectrumPlayer;
-      if (!_refreshValues || player == null || _spectrumCanvas == null)
+      IAudioPlayerAnalyze player = ActiveSpectrumPlayer;
+      IAudioPlayer audioPlayer = player as IAudioPlayer;
+      if (!_refreshValues || audioPlayer == null || player == null || _spectrumCanvas == null)
         return;
 
-      if (player.State != PlayerState.Active || !player.GetFFTData(_channelData))
+      if (audioPlayer.State != PlayerState.Active || !player.GetFFTData(_channelData))
         return;
 
       UpdateSpectrumShapes(player);
@@ -383,7 +384,7 @@ namespace MediaPortal.UiComponents.Media.Controls
 
     private void InitializeBars()
     {
-      ISpectrumPlayer player = ActiveSpectrumPlayer;
+      IAudioPlayerAnalyze player = ActiveSpectrumPlayer;
 
       if (player == null)
       {
@@ -471,7 +472,7 @@ namespace MediaPortal.UiComponents.Media.Controls
       _refreshShapes = false;
     }
 
-    private void UpdateSpectrumShapes(ISpectrumPlayer player)
+    private void UpdateSpectrumShapes(IAudioPlayerAnalyze player)
     {
       double fftBucketHeight = 0f;
       double barHeight = 0f;
@@ -480,13 +481,14 @@ namespace MediaPortal.UiComponents.Media.Controls
       int barIndex = 0;
       double peakDotHeight = Math.Max(_barWidth / 2.0f, 1);
       double barHeightScale = (height - peakDotHeight);
-
       int minIndex = Math.Max(0, Math.Min(_minimumFrequencyIndex, _channelData.Length));
       int maxIndex = Math.Max(0, Math.Min(_maximumFrequencyIndex, _channelData.Length));
+
+      IAudioPlayer audioPlayer = player as IAudioPlayer;
       for (int i = minIndex; i <= maxIndex; i++)
       {
         // If we're paused, keep drawing, but set the current height to 0 so the peaks fall.
-        if (player == null || player.State != PlayerState.Active)
+        if (player == null || audioPlayer != null && audioPlayer.State != PlayerState.Active)
           barHeight = 0f;
         else // Draw the maximum value for the bar's band
         {

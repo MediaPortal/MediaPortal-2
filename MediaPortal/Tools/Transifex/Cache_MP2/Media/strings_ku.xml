@@ -49,6 +49,7 @@
   <!--Playlists-->
   <string name="Media.AddToPlaylistProgressDialogHeader">ئەنجامدان</string>
   <string name="Media.StopAddToPlaylistButton">وەستاندن</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">دەنگ</string>

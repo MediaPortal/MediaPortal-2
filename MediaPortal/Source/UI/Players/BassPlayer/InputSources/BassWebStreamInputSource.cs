@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;

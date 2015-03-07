@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
         finalTransform = transform * finalTransform;
       }
-      RenderContext result = new RenderContext(finalTransform, _opacity * localOpacity, bounds, _zOrder - 0.001f);
+      RenderContext result = new RenderContext(finalTransform, _opacity * localOpacity, bounds, _zOrder - 0.001f) { ClearOccupiedAreaOnly = ClearOccupiedAreaOnly };
       return result;
     }
 
@@ -126,6 +126,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       get { return _transformedRenderBounds; }
     }
+
+    /// <summary>
+    /// If set to <c>true</c>, only the area of <see cref="OccupiedTransformedBounds"/> will be cleared on render target. This gives
+    /// a better performance, but can only be used if no Effect which affects a larger area then the actual bounds.
+    /// </summary>
+    public bool ClearOccupiedAreaOnly { get; set; }
 
     #endregion
 

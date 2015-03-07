@@ -13,7 +13,11 @@
   <ResourceWrapper x:Key="NewsItemDateWidth" Resource="56"/>
   <ResourceWrapper x:Key="NewsItemTitleMargin" Resource="5,0,5,1"/>
   <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
-  
+
+  <!-- Default no transformation for scrollbars -->
+  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+  </ResourceWrapper>
+
   <!-- Style for a single feed item -->
   <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="{ThemeResource NewsItemHeight}" Margin="5,0,5,0">

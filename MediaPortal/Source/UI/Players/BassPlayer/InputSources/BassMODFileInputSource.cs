@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;

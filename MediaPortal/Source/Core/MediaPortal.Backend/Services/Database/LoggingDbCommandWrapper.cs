@@ -62,7 +62,7 @@ namespace MediaPortal.Backend.Services.Database
       DumpCommand(false, 0);
     }
 
-    protected void DumpCommand(bool includeParameters, int timeSpanMs)
+    protected void DumpCommand(bool includeParameters, double timeSpanMs)
     {
       StringBuilder sbLogText = new StringBuilder();
       sbLogText.Append("\r\n-------------------------------------------------------");
@@ -72,7 +72,7 @@ namespace MediaPortal.Backend.Services.Database
         sbLogText.Append("\r\n-------------------------------------------------------");
         sbLogText.Append(SqlUtils.FormatSQLParameters(_command.Parameters));
       }
-      sbLogText.AppendFormat("\r\n Query time {0} ms", timeSpanMs);
+      sbLogText.AppendFormat("\r\n Query time {0:0.00} ms", timeSpanMs);
       sbLogText.Append("\r\n=======================================================");
       sqlDebugLog.Debug(StringUtils.EscapeCurlyBraces(sbLogText.ToString()));
     }
@@ -117,54 +117,38 @@ namespace MediaPortal.Backend.Services.Database
 
     public int ExecuteNonQuery()
     {
-      DateTime start = DateTime.Now;
-      try
-      {
-        return _command.ExecuteNonQuery();
-      }
-      finally
-      {
-        DumpCommand(true, (DateTime.Now - start).Milliseconds);
-      }
+      var sw = System.Diagnostics.Stopwatch.StartNew();
+      var result = _command.ExecuteNonQuery();
+      sw.Stop();
+      DumpCommand(true, sw.Elapsed.TotalMilliseconds);
+      return result;
     }
 
     public IDataReader ExecuteReader(CommandBehavior behavior)
     {
-      DateTime start = DateTime.Now;
-      try
-      {
-        return _command.ExecuteReader(behavior);
-      }
-      finally
-      {
-        DumpCommand(true, (DateTime.Now - start).Milliseconds);
-      }
+      var sw = System.Diagnostics.Stopwatch.StartNew();
+      var result = _command.ExecuteReader(behavior);
+      sw.Stop();
+      DumpCommand(true, sw.Elapsed.TotalMilliseconds);
+      return result;
     }
 
     public IDataReader ExecuteReader()
     {
-      DateTime start = DateTime.Now;
-      try
-      {
-        return _command.ExecuteReader();
-      }
-      finally
-      {
-        DumpCommand(true, (DateTime.Now - start).Milliseconds);
-      }
+      var sw = System.Diagnostics.Stopwatch.StartNew();
+      var result = _command.ExecuteReader();
+      sw.Stop();
+      DumpCommand(true, sw.Elapsed.TotalMilliseconds);
+      return result;
     }
 
     public object ExecuteScalar()
     {
-      DateTime start = DateTime.Now;
-      try
-      {
-        return _command.ExecuteScalar();
-      }
-      finally
-      {
-        DumpCommand(true, (DateTime.Now - start).Milliseconds);
-      }
+      var sw = System.Diagnostics.Stopwatch.StartNew();
+      var result =  _command.ExecuteScalar();
+      sw.Stop();
+      DumpCommand(true, sw.Elapsed.TotalMilliseconds);
+      return result;
     }
 
     public IDataParameterCollection Parameters

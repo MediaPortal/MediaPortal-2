@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Trakt.Enable">Habilitar scrobbling</string>
+  <string name="Trakt.UsernamePasswordGroup">Detalles de la cuenta</string>
+  <string name="Trakt.Username">Usuario</string>
+  <string name="Trakt.Password">Contraseña</string>
+  <string name="Trakt.TestAccount">Probar cuenta</string>
+  <string name="Trakt.SyncMovies">Sincronizando películas...</string>
+  <string name="Trakt.SyncSeries">Sincronizando series...</string>
+  <string name="Trakt.SyncFinished">¡Sincronización completa!</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">Configurar Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configurar detalles de la cuenta para el servicio Trakt.tv</string>
+</resources>

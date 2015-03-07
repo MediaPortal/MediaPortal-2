@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
     >
 
@@ -22,7 +22,7 @@
     
   <!-- ListView style to be used for main menu -->
   <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>

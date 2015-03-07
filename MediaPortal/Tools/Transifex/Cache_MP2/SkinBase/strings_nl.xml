@@ -28,6 +28,7 @@
   <string name="Media.MyMusic">Muziek</string>
   <string name="Media.MyVideos">Video\'s</string>
   <string name="Media.MyPictures">Afbeeldingen</string>
+  <string name="Media.InvalidShareName">Verkeerde mediabron</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2-server is niet beschikbaar</string>
   <string name="ServerConnection.NotificationServerAvailableText">Er is ten minste een MediaPortal 2 server beschikbaar in het netwerk. Maak verbinding met deze server om alle mogelijkheden van MediaPortal 2 te benutten.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' op host \'{1}\'</string>
@@ -65,8 +66,10 @@
   <string name="ImporterMessages.ImportStartedText">Het importeren van \'{0}\' is gestart.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importeren voltooid</string>
   <string name="ImporterMessages.ImportCompletedText">Het importeren van \'{0}\' is klaar.</string>
+  <string name="LocalFsResourceProvider.Name">Lokaal bestandssysteem</string>
   <string name="LocalFsResourceProvider.Description">Toegang tot het lokale bestandssysteem</string>
   <string name="RemoteResourceProvider.Description">Toegang tot bronnen op een ander MediaPortal 2-systeem</string>
+  <string name="RawUrlResourceProvider.Name">Ruwe Url</string>
   <string name="RawUrlResourceProvider.Description">Toegang onbewerkte Uri bronnen</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -119,13 +122,22 @@
   <string name="Settings.Regional.Language">Taal</string>
   <string name="Settings.Regional.Language.Main">Taal</string>
   <string name="Settings.Regional.Language.Main.Help">Stel de gebruikte hoofdtaal in voor de applicatie</string>
+  <string name="Settings.Shares">Mediabronnen</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Configureer mediabronnen</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Mediabronnen configuratie</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configureer alle mediabronen</string>
   <string name="Settings.Shares.Overview">Overzicht</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Overzicht mediabronnen</string>
   <!--Setting-->
+  <string name="Settings.Shares.Imports.ReImportAllShares">Herimporteer alle mediabronnen</string>
   <string name="Settings.Plugins">Plug-ins</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Overzicht mediabronnen</string>
+  <string name="SharesOverview.Title">Overzicht mediabronnen</string>
+  <string name="SharesOverview.ReImportAllShares">Herimporteer alle mediabronnen</string>
   <string name="Shares.InvalidPath">ONGELDIG PAD: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -133,25 +145,38 @@
   <string name="Shares.ReImport">Opnieuw importeren</string>
   <string name="Shares.Importing">Bezig met importeren...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Mediabronnen configuratie</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Verwijder mediabronnen</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informatie mediabronnen</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Selecteer bron</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Bewerk pad</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Selecteer pad</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Bewerk naam</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Selecteer categorieën</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Mediabronnen configuratie</string>
   <string name="SharesConfig.ShareNameInfo">Naam:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Basis bron:</string>
   <string name="SharesConfig.ShareSystem">Systeem:</string>
   <string name="SharesConfig.SharePathInfo">Pad:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technisch pad:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Media categorieën:</string>
+  <string name="SharesConfig.RemoveShares">Verwijder mediabronnen</string>
   <string name="SharesConfig.ChooseSystem">Selecteer systeem</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Geef een geldig pad voor de geselecteerde bron. Je kunt een eenvoudig pad opgeven dat begrijpelijk is voor de bron. Je kunt ook een complex pad opgeven met de volgende notatie {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.MenuAddShare">Mediabron toevoegen</string>
   <string name="SharesConfig.MenuEditShares">Bewerken</string>
+  <string name="SharesConfig.MenuRemoveShares">Verwijder mediabronnen</string>
+  <string name="SharesConfig.AddServerShare">Server mediabron toevoegen</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Server mediabron bewerken</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Client mediabron toevoegen</string>
+  <string name="SharesConfig.EditLocalShare">Client mediabron bewerken</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Mediabron bijwerken</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Wil je verplaatsen of wissen en opnieuw importeren?</string>
   <string name="SharesConfig.Relocate">Verplaatsen</string>
   <string name="SharesConfig.ReImport">Opnieuw importeren</string>
+  <string name="SharesConfig.ManualPathInput">Handmatige invoer</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

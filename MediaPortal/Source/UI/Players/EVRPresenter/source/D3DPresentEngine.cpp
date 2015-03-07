@@ -15,16 +15,16 @@
 
 
 // Constructor
-D3DPresentEngine::D3DPresentEngine(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr) : 
-  m_hwnd(hwnd),
-  m_DeviceResetToken(0),
-  m_pD3D9(NULL),
-  m_pDevice(d3DDevice),
-  m_pDeviceManager(NULL),
-  m_pSurfaceRepaint(NULL),
-  m_EVRCallback(callback),
-  m_Width(0),
-  m_Height(0)
+D3DPresentEngine::D3DPresentEngine(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr) :
+m_hwnd(hwnd),
+m_DeviceResetToken(0),
+m_pD3D9(NULL),
+m_pDevice(d3DDevice),
+m_pDeviceManager(NULL),
+m_pSurfaceRepaint(NULL),
+m_EVRCallback(callback),
+m_Width(0),
+m_Height(0)
 {
   SetRectEmpty(&m_rcDestRect);
 
@@ -93,12 +93,12 @@ HRESULT D3DPresentEngine::CheckFormat(D3DFORMAT format)
     uAdapter = params.AdapterOrdinal;
     type = params.DeviceType;
   }
-    
+
   hr = m_pD3D9->GetAdapterDisplayMode(uAdapter, &mode);
   CHECK_HR(hr, "D3DPresentEngine::CheckFormat IDirect3D9Ex::GetAdapterDisplayMode() failed");
 
   hr = m_pD3D9->CheckDeviceType(uAdapter, type, mode.Format, format, TRUE);
-  CHECK_HR(hr, "D3DPresentEngine::CheckFormat IDirect3D9Ex::CheckDeviceType() failed"); 
+  CHECK_HR(hr, "D3DPresentEngine::CheckFormat IDirect3D9Ex::CheckDeviceType() failed");
 
   return hr;
 }
@@ -112,21 +112,21 @@ HRESULT GetAspectRatio(IMFMediaType* pFormat, UINT32& arX, UINT32& arY)
   {
     switch (u32)
     {
-      case MFVideoSrcContentHintFlag_None:
-        Log("Aspect ratio ('MediaFoundation style') is unknown");
-        break;
-      case MFVideoSrcContentHintFlag_16x9:
-        Log("Aspect ratio ('MediaFoundation style') is 16:9 within 4:3!");
-        arX = 16;
-        arY = 9;
-        break;
-      case MFVideoSrcContentHintFlag_235_1:
-        Log("Aspect ratio ('MediaFoundation style') is 2.35:1 within 16:9 or 4:3");
-        arX = 47;
-        arY = 20;
-        break;
-      default:
-        Log("Aspect ratio ('MediaFoundation style') is unknown. Flag: %d", u32);
+    case MFVideoSrcContentHintFlag_None:
+      Log("Aspect ratio ('MediaFoundation style') is unknown");
+      break;
+    case MFVideoSrcContentHintFlag_16x9:
+      Log("Aspect ratio ('MediaFoundation style') is 16:9 within 4:3!");
+      arX = 16;
+      arY = 9;
+      break;
+    case MFVideoSrcContentHintFlag_235_1:
+      Log("Aspect ratio ('MediaFoundation style') is 2.35:1 within 16:9 or 4:3");
+      arX = 47;
+      arY = 20;
+      break;
+    default:
+      Log("Aspect ratio ('MediaFoundation style') is unknown. Flag: %d", u32);
     }
   }
   else
@@ -147,7 +147,7 @@ HRESULT GetAspectRatio(IMFMediaType* pFormat, UINT32& arX, UINT32& arY)
     }
     else
     {
-      Log( "Could not get DirectShow representation.");
+      Log("Could not get DirectShow representation.");
     }
   }
   return hr;
@@ -167,7 +167,7 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
   D3DFORMAT d3dFormat = D3DFMT_UNKNOWN;
 
   IMFSample *pVideoSample = NULL;
-    
+
   AutoLock lock(m_ObjectLock);
 
   ReleaseResources();
@@ -188,13 +188,13 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
   hr = videoType.GetFourCC((DWORD*)&d3dFormat);
   CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFourCC() failed");
 
-  for (int i=0; i < NUM_PRESENTER_BUFFERS; i++) 
+  for (int i = 0; i < NUM_PRESENTER_BUFFERS; i++)
   {
     CComPtr<IDirect3DTexture9> texture;
     hr = m_pDevice->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_RENDERTARGET, d3dFormat, D3DPOOL_DEFAULT, &texture, NULL);
     if (FAILED(hr))
     {
-      Log("D3DPresentEngine::CreateVideoSamples Could not create texture %d. Error 0x%x",i, hr);
+      Log("D3DPresentEngine::CreateVideoSamples Could not create texture %d. Error 0x%x", i, hr);
       break;
     }
     CComPtr<IDirect3DSurface9> surface;
@@ -204,9 +204,9 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
       Log("D3DPresentEngine::CreateVideoSamples Could not get surface from texture. Error 0x%x", hr);
       break;
     }
-  
+
     hr = MFCreateVideoSampleFromSurface(surface, &pVideoSample);
-    if (FAILED(hr)) 
+    if (FAILED(hr))
     {
       Log("D3DPresentEngine::CreateVideoSamples CreateVideoSampleFromSurface failed: 0x%x", hr);
       break;
@@ -253,7 +253,7 @@ HRESULT D3DPresentEngine::CheckDeviceState(DeviceState *pState)
   case S_PRESENT_MODE_CHANGED:
     // state is DeviceOK
     hr = S_OK;
-  break;
+    break;
 
   case D3DERR_DEVICELOST:
   case D3DERR_DEVICEHUNG:
@@ -263,19 +263,19 @@ HRESULT D3DPresentEngine::CheckDeviceState(DeviceState *pState)
     // pState to DeviceReset the next time the device is ok again?
     *pState = DeviceReset;
     hr = S_OK;
-  break;
+    break;
 
   case D3DERR_DEVICEREMOVED:
     // This is a fatal error.
     *pState = DeviceRemoved;
-  break;
+    break;
 
   case E_INVALIDARG:
     // CheckDeviceState can return E_INVALIDARG if the window is not valid
     // We'll assume that the window was destroyed; we'll recreate the device 
     // if the application sets a new window.
     hr = S_OK;
-  break;
+    break;
   }
 
   return hr;
@@ -315,7 +315,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
     pSurface->AddRef();
   }
 
-  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD) &pSurface); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
+  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&pSurface); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
 
   SAFE_RELEASE(pSurface);
   SAFE_RELEASE(pBuffer);
@@ -323,7 +323,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
   return hr;
 }
 
- 
+
 // Initializes Direct3D and the Direct3D device manager.
 HRESULT D3DPresentEngine::InitializeD3D()
 {

@@ -25,13 +25,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public delegate void FrameworkElementCollectionChangedDlgt(FrameworkElementCollection collection);
 
-  public class FrameworkElementCollection : IEnumerable<FrameworkElement>, IDisposable, ISynchronizable
+  public class FrameworkElementCollection : IEnumerable<FrameworkElement>, IDisposable, ISynchronizable, ICollection
   {
     protected FrameworkElement _parent;
     protected IList<FrameworkElement> _elements;
@@ -43,6 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _parent = parent;
       _elements = new List<FrameworkElement>();
+      IsSynchronized = true;
     }
 
     public void Dispose()
@@ -57,6 +59,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return _syncObj; }
     }
+
+    public bool IsSynchronized { get; private set; }
 
     public void FireCollectionChanged()
     {
@@ -197,6 +201,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Clear()
     {
       Clear(true);
+    }
+
+    public void CopyTo(Array array, int index)
+    {
+      lock (_syncObj)
+        _elements.ToArray().CopyTo(array, index);
     }
 
     public int Count

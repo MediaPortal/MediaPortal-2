@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
-                SeriesAspect.Metadata
+                ThumbnailLargeAspect.Metadata
               });
     }
 

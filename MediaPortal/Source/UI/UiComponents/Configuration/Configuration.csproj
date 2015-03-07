@@ -52,6 +52,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigurationControllers\AbstractEntryController.cs" />
+    <Compile Include="ConfigurationControllers\MultipleEntryListController.cs" />
     <Compile Include="ConfigurationControllers\PathSelectionController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -101,6 +102,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_configuration_multipleentrylist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

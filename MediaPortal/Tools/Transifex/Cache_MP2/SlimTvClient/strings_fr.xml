@@ -23,6 +23,7 @@
   <string name="SlimTvClient.DeleteSchedule">Effacer l\'enregistrement programmé</string>
   <string name="SlimTvClient.CreateSchedule">Programmer un enregistrement</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Enregistrement en cours</string>
   <string name="SlimTvClient.StopCurrentRecording">Arrêtez l\'enregistrement en cours \'{0}\'</string>
   <string name="SlimTvClient.RecordCurrentProgram">Programme d\'enregistrement \'{0}\'</string>
   <string name="SlimTvClient.RecordManual">Enregistrer jusqu\'à l\'arrêt manuel</string>

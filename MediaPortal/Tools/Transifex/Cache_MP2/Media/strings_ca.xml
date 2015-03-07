@@ -186,6 +186,7 @@
   <string name="Media.PlaylistIdInfoLabel">Identificació interna de llista</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Defecte</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Conserva el vídeo PiP</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reprodueix l\'element</string>
   <string name="Media.PlayAudioItems">Reprodueix els elements audio</string>

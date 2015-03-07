@@ -15,7 +15,7 @@
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>333800b1</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>2ec480f7</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -86,9 +86,9 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\Packages\mkvextract.6.9.1\build\mkvextract.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvextract.6.9.1\build\mkvextract.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\Packages\mkvinfo.6.9.1\build\mkvinfo.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvinfo.6.9.1\build\mkvinfo.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets'))" />
   </Target>
-  <Import Project="..\..\..\..\Packages\mkvextract.6.9.1\build\mkvextract.targets" Condition="Exists('..\..\..\..\Packages\mkvextract.6.9.1\build\mkvextract.targets')" />
-  <Import Project="..\..\..\..\Packages\mkvinfo.6.9.1\build\mkvinfo.targets" Condition="Exists('..\..\..\..\Packages\mkvinfo.6.9.1\build\mkvinfo.targets')" />
+  <Import Project="..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets" Condition="Exists('..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets')" />
+  <Import Project="..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets" Condition="Exists('..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets')" />
 </Project>

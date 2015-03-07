@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:ap="clr-namespace:MediaPortal.UiComponents.ApolloOne.Models;assembly=ApolloOne"
+    >
+  <Include.Resources>
+
+    <!-- Header has to be defined by the includer: "Header_Text" -->
+
+    <ControlTemplate x:Key="Client_Template">
+      <DockPanel LastChildFill="True">
+        <DockPanel.Resources>
+          <Model x:Key="MenuModel" Id="EBA16B93-B669-4162-9CA2-CB1D5E267EC3"/>
+        </DockPanel.Resources>
+
+        <ap:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
+            VerticalAlignment="Stretch" SetFocusPrio="Fallback"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}">
+          <ap:GridListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ap:GridListView.Resources>
+        </ap:GridListView>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Penyedia media file Zip</string>
   <string name="ZipMediaProvider.Description">Akses file dan direktori di dalam file ZIP</string>
 </resources>

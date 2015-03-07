@@ -36,14 +36,16 @@ namespace MediaPortal.Database.SQLite
       private System.Data.SQLite.SQLiteTransaction _transaction;
       private readonly SQLiteDatabase _database;
       private SQLiteConnection _connection;
+      private readonly SQLiteSettings _settings;
 
       #endregion
 
       #region Constructors/Destructors
 
-      public SQLiteTransaction(SQLiteDatabase database, IsolationLevel level)
+      public SQLiteTransaction(SQLiteDatabase database, IsolationLevel level, SQLiteSettings settings)
       {
         _database = database;
+        _settings = settings;
         _connection = _database.ConnectionPool.GetConnection();
         _transaction = _connection.BeginTransaction(level);
       }
@@ -101,10 +103,9 @@ namespace MediaPortal.Database.SQLite
       {
         IDbCommand result = _connection.CreateCommand();
 
-#if DEBUG
-        // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-        result = new LoggingDbCommandWrapper(result);
-#endif
+        if (_settings.EnableDebugLogging)
+          result = new LoggingDbCommandWrapper(result);
+
         result.Transaction = _transaction;
         return result;
       }

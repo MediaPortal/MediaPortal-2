@@ -77,12 +77,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public ICollection<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      public IList<MediaItem> Browse(Guid parentDirectoryId,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, offset, limit);
         }
         catch (Exception)
         {
@@ -515,22 +515,46 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       lock (_syncObj)
       {
+        // The following lines are a temporary workaround for the fact that our MainQueryBuilder doesn't like
+        // queries without necessary requested MIAs. We therefore add the ProviderResourceAspect as necessary
+        // requested MIA, which doesn't hurt, because in LoadItem we have the ProviderResourceAspect in the
+        // WHERE clause anyway to check for PATH and SYSTEM_ID. We only do this of course, if the ProvierResourceAspect
+        // wasn't included in necessaryRequestedMIATypeIDs anyway, and if we did it, we remove the ProvierResourceAspect
+        // from the result before returning it. This improves the query performance for SQLite by a factor of up to 400.
+        // For details see: http://forum.team-mediaportal.com/threads/speed-improvements-for-the-medialibrary-with-very-large-databases.127220/page-17#post-1097294
+        // ToDo: Rework the MainQueryBuilder to make this happen automatically.
+        var removeProviderResourceAspect = false;
+        var necessaryRequestedMIATypeIDsWithProvierResourceAspect = (necessaryRequestedMIATypeIDs == null) ? new List<Guid>() : necessaryRequestedMIATypeIDs.ToList();
+        if (!necessaryRequestedMIATypeIDsWithProvierResourceAspect.Contains(ProviderResourceAspect.ASPECT_ID))
+        {
+          removeProviderResourceAspect = true;
+          necessaryRequestedMIATypeIDsWithProvierResourceAspect.Add(ProviderResourceAspect.ASPECT_ID);
+        }
+        
         MediaItemQuery loadItemQuery = BuildLoadItemQuery(systemId, path);
-        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDsWithProvierResourceAspect);
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
-        return cmiq.QueryMediaItem();
+        var result = cmiq.QueryMediaItem();
+        
+        // This is the second part of the rework as decribed above (remove ProviderResourceAspect if it wasn't requested)
+        if (removeProviderResourceAspect && result != null)
+          result.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
+        
+        return result;
       }
     }
 
-    public ICollection<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    public IList<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
         MediaItemQuery browseQuery = BuildBrowseQuery(parentDirectoryId);
         browseQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+        browseQuery.Limit = limit;
+        browseQuery.Offset = offset;
         return Search(browseQuery, false);
       }
     }
@@ -541,6 +565,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemQuery executeQuery = filterOnlyOnline ? new MediaItemQuery(
               query.NecessaryRequestedMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}),
               query.OptionalRequestedMIATypeIDs, AddOnlyOnlineFilter(query.Filter)) : query;
+      executeQuery.Limit = query.Limit;
+      executeQuery.Offset = query.Offset;
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = cmiq.QueryList();
       IList<MediaItem> result = new List<MediaItem>(items.Count);
@@ -764,10 +790,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset = null, uint? limit = null)
     {
       IFilter filter = new MediaItemIdFilter(mediaItemIds);
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);
+      query.Limit = limit;
+      query.Offset = offset;
       // Sort media items
       IDictionary<Guid, MediaItem> searchResult = new Dictionary<Guid, MediaItem>();
       foreach (MediaItem item in Search(query, false))

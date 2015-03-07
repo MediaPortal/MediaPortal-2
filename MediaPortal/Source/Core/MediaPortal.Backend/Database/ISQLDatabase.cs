@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Data;
+using MediaPortal.Backend.Services.MediaLibrary;
 
 namespace MediaPortal.Backend.Database
 {
@@ -215,5 +217,23 @@ namespace MediaPortal.Backend.Database
     string CreateSubstringExpression(string str1, string posExpr);
     string CreateSubstringExpression(string str1, string posExpr, string lenExpr);
     string CreateDateToYearProjectionExpression(string selectExpression);
+  }
+
+  /// <summary>
+  /// Extension interface for processing SQL side paging clauses.
+  /// </summary>
+  public interface ISQLDatabasePaging : ISQLDatabase
+  {
+    /// <summary>
+    /// Modifies the given <paramref name="statementStr"/> and <paramref name="bindVars"/> to add paging clause if required.
+    /// If <paramref name="offset"/> or <paramref name="limit"/> was processed by this method, their values will be set to <c>null</c>
+    /// to avoid handling those parameters twice.
+    /// </summary>
+    /// <param name="statementStr">Reference to SQL query.</param>
+    /// <param name="bindVars">Reference to list of BindVars.</param>
+    /// <param name="offset">Reference to offset.</param>
+    /// <param name="limit">Reference to limit.</param>
+    /// <returns></returns>
+    bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit);
   }
 }

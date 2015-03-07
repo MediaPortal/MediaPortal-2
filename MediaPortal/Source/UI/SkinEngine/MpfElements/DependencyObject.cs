@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -36,9 +38,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// Represents an object which can contain foreign attached properties.
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
   /// which is needed for
-  /// <see cref="MediaPortal.UI.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
+  /// <see cref="BindingExtension">bindings</see>.
   /// </summary>
-  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
+  [TypeConverter(typeof(MPFConverter<DependencyObject>))]
+  public class DependencyObject : IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
   {
     #region Protected fields
 
@@ -60,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     void Init()
     {
-      _dataContextProperty = new SProperty(typeof(BindingMarkupExtension), null);
+      _dataContextProperty = new SProperty(typeof(BindingExtension), null);
       _logicalParentProperty = new SProperty(typeof(DependencyObject), null);
     }
 
@@ -115,9 +118,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <summary>
     /// Gets or sets the data context binding.
     /// </summary>
-    public BindingMarkupExtension DataContext
+    public BindingExtension DataContext
     {
-      get { return (BindingMarkupExtension) _dataContextProperty.GetValue(); }
+      get { return (BindingExtension) _dataContextProperty.GetValue(); }
       set { _dataContextProperty.SetValue(value); }
     }
 
@@ -160,8 +163,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     protected void DisposeBindings()
     {
       if (_bindings != null)
-        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
-          _binding.Dispose();
+        foreach (BindingBase binding in new List<BindingBase>(_bindings))
+          binding.Dispose();
       _bindings = null;
       _deferredBindings = null;
     }
@@ -180,9 +183,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
     }
 
-    public BindingMarkupExtension GetOrCreateDataContext()
+    public BindingExtension GetOrCreateDataContext()
     {
-      return DataContext ?? (DataContext = new BindingMarkupExtension(this));
+      return DataContext ?? (DataContext = new BindingExtension(this));
     }
 
     public ICollection<BindingBase> GetOrCreateBindingCollection()

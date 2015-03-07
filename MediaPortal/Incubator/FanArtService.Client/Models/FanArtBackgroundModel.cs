@@ -25,14 +25,17 @@
 using System;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
-  public class FanArtBackgroundModel
+  public class FanArtBackgroundModel: IDisposable
   {
     #region Consts
 
@@ -44,9 +47,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _selectedItemProperty;
     protected AbstractProperty _fanArtMediaTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
+    protected AbstractProperty _simpleTitleProperty;
     protected AbstractProperty _itemDescriptionProperty;
     protected AbstractProperty _mediaItemProperty;
     protected AbstractProperty _imageSourceProperty;
+
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     public FanArtBackgroundModel()
     {
@@ -54,11 +60,47 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       _selectedItemProperty.Attach(SetFanArtType);
       _fanArtMediaTypeProperty = new WProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
       _fanArtNameProperty = new WProperty(typeof(string), string.Empty);
+      _simpleTitleProperty = new WProperty(typeof(string), string.Empty);
       _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
       _mediaItemProperty = new WProperty(typeof(MediaItem), null);
       _imageSourceProperty = new WProperty(typeof(ImageSource), null);
       SetFanArtType();
       SetImageSource();
+      SubscribeToMessages();
+    }
+
+    public void Dispose()
+    {
+      DisposeMessageQueue();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new[]{WorkflowManagerMessaging.CHANNEL});
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void DisposeMessageQueue()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            SelectedItem = null; // Clear current data for new screen
+            break;
+        }
+      }
     }
 
     public Guid ModelId
@@ -75,7 +117,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public ListItem SelectedItem
     {
-      get { return (ListItem) _selectedItemProperty.GetValue(); }
+      get { return (ListItem)_selectedItemProperty.GetValue(); }
       set { _selectedItemProperty.SetValue(value); }
     }
 
@@ -86,7 +128,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       set { _mediaItemProperty.SetValue(value); }
     }
 
@@ -97,7 +139,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public FanArtConstants.FanArtMediaType FanArtMediaType
     {
-      get { return (FanArtConstants.FanArtMediaType) _fanArtMediaTypeProperty.GetValue(); }
+      get { return (FanArtConstants.FanArtMediaType)_fanArtMediaTypeProperty.GetValue(); }
       internal set { _fanArtMediaTypeProperty.SetValue(value); }
     }
 
@@ -108,8 +150,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public string FanArtName
     {
-      get { return (string) _fanArtNameProperty.GetValue(); }
+      get { return (string)_fanArtNameProperty.GetValue(); }
       internal set { _fanArtNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SimpleTitleProperty
+    {
+      get { return _simpleTitleProperty; }
+    }
+
+    public string SimpleTitle
+    {
+      get { return (string)_simpleTitleProperty.GetValue(); }
+      internal set { _simpleTitleProperty.SetValue(value); }
     }
 
     public AbstractProperty ItemDescriptionProperty
@@ -119,7 +172,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public string ItemDescription
     {
-      get { return (string) _itemDescriptionProperty.GetValue(); }
+      get { return (string)_itemDescriptionProperty.GetValue(); }
       internal set { _itemDescriptionProperty.SetValue(value); }
     }
 
@@ -130,13 +183,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public ImageSource ImageSource
     {
-      get { return (ImageSource) _imageSourceProperty.GetValue(); }
+      get { return (ImageSource)_imageSourceProperty.GetValue(); }
       set { _imageSourceProperty.SetValue(value); }
     }
 
-    public void SetSelectedItem(ListItem item)
+    public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
-      SelectedItem = item;
+      SelectedItem = e.FirstAddedItem as ListItem;
     }
 
     #endregion
@@ -163,13 +216,21 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     {
       PlayableMediaItem playableMediaItem = SelectedItem as PlayableMediaItem;
       if (playableMediaItem != null)
+      {
         MediaItem = playableMediaItem.MediaItem;
+        SimpleTitle = playableMediaItem.SimpleTitle;
+      }
+      else
+      {
+        MediaItem = null;
+        SimpleTitle = string.Empty;
+      }
 
       SeriesFilterItem series = SelectedItem as SeriesFilterItem;
       if (series != null)
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
-        FanArtName = series.SimpleTitle;
+        SimpleTitle = FanArtName = series.SimpleTitle;
         ItemDescription = null;
         return;
       }
@@ -177,7 +238,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (episode != null)
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
-        FanArtName = episode.Series;
+        SimpleTitle = FanArtName = episode.Series;
         ItemDescription = episode.StoryPlot;
         return;
       }
@@ -185,7 +246,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (movieCollection != null)
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.MovieCollection;
-        FanArtName = movieCollection.SimpleTitle;
+        SimpleTitle = FanArtName = movieCollection.SimpleTitle;
         ItemDescription = null;
         return;
       }
@@ -195,6 +256,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
         // Fanart loading now depends on the MediaItemId to support local fanart
         FanArtName = movie.MediaItem.MediaItemId.ToString();
+        SimpleTitle = movie.SimpleTitle;
         ItemDescription = movie.StoryPlot;
         return;
       }
@@ -204,6 +266,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
         // Fanart loading now depends on the MediaItemId to support local fanart
         FanArtName = video.MediaItem.MediaItemId.ToString();
+        SimpleTitle = video.SimpleTitle;
         ItemDescription = video.StoryPlot;
         return;
       }

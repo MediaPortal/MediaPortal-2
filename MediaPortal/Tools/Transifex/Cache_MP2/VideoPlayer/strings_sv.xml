@@ -32,11 +32,11 @@
   <string name="Playback.CaptionChildren">Liten Text</string>
   <string name="Playback.CCNormal">Normal text</string>
   <string name="Playback.CCBig">Stor text</string>
-  <string name="Playback.CCChildren">Liten Text</string>
+  <string name="Playback.CCChildren">Text för barn</string>
   <string name="Playback.Forced">Alltid på</string>
   <string name="Playback.DirectorCommentsNormal">Normala filmregissörskommentarer </string>
   <string name="Playback.DirectorCommentsBig">Stora filmregissörskommentarer </string>
-  <string name="Playback.DirectorCommentsChildren">Små filmregissörskommentarer</string>
+  <string name="Playback.DirectorCommentsChildren">Filmregissörskommentarer för barn</string>
   <string name="Playback.VisuallyImpaired">Synsvaga</string>
   <string name="Playback.DirectorComments1">Filmregissörskommentarer</string>
   <string name="Playback.DirectorComments2">Filmregissörskommentarer (2)</string>

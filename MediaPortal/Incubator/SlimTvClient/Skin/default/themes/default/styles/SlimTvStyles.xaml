@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:navitems="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.Navigation;assembly=SlimTv.Client"
     xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
@@ -286,6 +286,29 @@
     </Grid>
   </DataTemplate>
 
+  <!-- ScheduleDataTemplate contains channel logo, title, recording type -->
+  <DataTemplate x:Key="ScheduleDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Image x:Name="ChannelLogo" Grid.Column="0" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <StackPanel Grid.Column="2">
+        <Label x:Name="TypeLabel" Content="{Binding [ScheduleType]}" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Right"/>
+        <Label x:Name="StartTimeLabel" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Right"/>
+      </StackPanel>
+    </Grid>
+  </DataTemplate>
+
   <Style x:Key="VirtualizingHorizontalListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemsPanel">
       <Setter.Value>
@@ -418,6 +441,12 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
   </Style>
 
+  <!-- ScheduleListViewStyle is used for schedule list, including channel, program and recording type -->
+  <Style x:Key="ScheduleListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ScheduleDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
+  </Style>
+
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
   
@@ -529,7 +558,7 @@
   </DataTemplate>
 
   <!-- ChannelWithLogoAndProgramListViewStyle is used inside main screen and for miniguide -->
-  <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
+  <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <!--<Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>-->
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithCurrentProgramDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
@@ -704,7 +733,7 @@
                 </TransformGroup>
               </Grid.RenderTransform>
 
-              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
+              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
                 <Image.Source>
                   <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>

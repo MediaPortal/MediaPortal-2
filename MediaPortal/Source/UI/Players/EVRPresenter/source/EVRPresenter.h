@@ -1,18 +1,20 @@
-// Copyright (C) 2005-2010 Team MediaPortal
+// Copyright (C) 2007-2014 Team MediaPortal
 // http://www.team-mediaportal.com
 // 
-// MediaPortal is free software: you can redistribute it and/or modify
+// This file is part of MediaPortal 2
+// 
+// MediaPortal 2 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// MediaPortal is distributed in the hope that it will be useful,
+// MediaPortal 2 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with MediaPortal. If not, see <http://www.gnu.org/licenses/>.
+// along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -83,7 +85,7 @@ bool AreComObjectsEqual(T1 *p1, T2 *p2)
     // One is NULL and one is not
     bResult = false;
   }
-  else 
+  else
   {
     // Both are not NULL. Compare IUnknowns.
     IUnknown *pUnk1 = NULL;
@@ -98,7 +100,7 @@ bool AreComObjectsEqual(T1 *p1, T2 *p2)
       pUnk1->Release();
     }
   }
- 
+
   return bResult;
 }
 
@@ -113,13 +115,13 @@ inline float MFOffsetToFloat(const MFOffset& offset)
 //
 // Version number for the video samples. When the presenter increments the version number, 
 // all samples with the previous version number are stale and should be discarded.
-static const GUID MFSamplePresenter_SampleCounter = {0xb0bb83cc, 0xf10f, 0x4e2e, {0xaa, 0x2b, 0x29, 0xea, 0x5e, 0x92, 0xef, 0x85}};
+static const GUID MFSamplePresenter_SampleCounter = { 0xb0bb83cc, 0xf10f, 0x4e2e, { 0xaa, 0x2b, 0x29, 0xea, 0x5e, 0x92, 0xef, 0x85 } };
 
 // MFSamplePresenter_SampleSwapChain
 // Data type: IUNKNOWN
 // 
 // Pointer to a Direct3D swap chain.
-static const GUID MFSamplePresenter_SampleSwapChain = {0xad885bd1, 0x7def, 0x414a, {0xb5, 0xb0, 0xd3, 0xd2, 0x63, 0xd6, 0xe9, 0x6d}};
+static const GUID MFSamplePresenter_SampleSwapChain = { 0xad885bd1, 0x7def, 0x414a, { 0xb5, 0xb0, 0xd3, 0xd2, 0x63, 0xd6, 0xe9, 0x6d } };
 
 #pragma warning(disable: 4995)
 // write message to EVR Log.

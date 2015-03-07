@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -38,12 +39,18 @@ namespace MediaPortal.UI.SkinEngine.Commands
   /// order. This class itself implements the <see cref="IExecutableCommand"/> interface, hence it
   /// can be executed as a whole.
   /// </summary>
-  public class CommandList : DependencyObject, IAddChild<object>,
-      IEnumerable<object>, IExecutableCommand
+  [ContentProperty("Commands")]
+  public class CommandList : DependencyObject, IAddChild<object>, IEnumerable<object>, IExecutableCommand
   {
     #region Protected fields
 
-    protected IList<object> _commands = new List<object>();
+    protected List<object> _commands = new List<object>();
+
+    #endregion
+
+    #region Properties
+
+    public List<object> Commands { get { return _commands; } }
 
     #endregion
 

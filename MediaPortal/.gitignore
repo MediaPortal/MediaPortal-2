@@ -25,7 +25,7 @@ _ReSharper*/
 # =========================
 
 # NuGet packages are not required, because NuGet Package Restore is enabled
-[Pp]ackages/
+/[Pp]ackages
 
 # NuGet.exe will be downloaded by NuGet.targets if missing
 nuget.exe

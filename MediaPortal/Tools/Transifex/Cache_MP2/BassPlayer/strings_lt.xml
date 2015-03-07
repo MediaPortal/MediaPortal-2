@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Grotuvai</string>
+  <string name="Settings.Players.AudioPlayer">Audio grotuvas</string>
+  <string name="Settings.Players.BassPlayer.Setup">Konfigūruoti išvesties įrenginius</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Konfigūruoja BassPlayer išvesties įrenginį ir pasirinkimus</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">DirectSound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exclusive režimas</string>
   <string name="Settings.Players.Rendering">Generuojama</string>
   <string name="Settings.Players.Rendering.CrossFading">Suliejimas</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Suliejimas įgalintas</string>

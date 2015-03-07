@@ -188,6 +188,11 @@
   <string name="Media.PlaylistIdInfoLabel">Interna številka seznama</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Privzeto</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Ohrani PiP video</string>
+  <!--MediaItemAction dialog-->
+  <string name="Media.MediaItemsActionDialogHeader">Dejanja medijskega elementa</string>
+  <string name="Media.SetWatched">Nastavi ogledano</string>
+  <string name="Media.SetUnwatched">Nastavi neogledano</string>
+  <string name="Media.DeleteFromStorage">Izbriši iz shrambe</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Predvajaj vsebino</string>
   <string name="Media.PlayAudioItems">Predvajaj audio vsebine</string>
@@ -211,6 +216,7 @@
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">Informacije o trenutnem videu</string>
+  <string name="Media.Rating">Ocena:</string>
   <string name="Media.VideoTitleLabel">Naslov: </string>
   <string name="Media.VideoGenreLabel">Žanr: </string>
   <string name="Media.VideoCollectionLabel">Zbirka:</string>

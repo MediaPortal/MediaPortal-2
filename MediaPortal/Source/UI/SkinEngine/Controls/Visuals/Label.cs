@@ -265,11 +265,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalWidth = (float) Width;
 
       SizeF size = new SizeF();
-      string[] lines = _asset.GetLines(totalWidth, Wrap);
+      var textBuffer = _asset;
+      if (textBuffer == null)
+        return size;
+      string[] lines = textBuffer.GetLines(totalWidth, Wrap);
       size.Width = 0;
       foreach (string line in lines)
-        size.Width = Math.Max(size.Width, _asset.TextWidth(line));
-      size.Height = _asset.TextHeight(Math.Max(lines.Length, 1));
+        size.Width = Math.Max(size.Width, textBuffer.TextWidth(line));
+      size.Height = textBuffer.TextHeight(Math.Max(lines.Length, 1));
 
       // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
       size.Width += 1;

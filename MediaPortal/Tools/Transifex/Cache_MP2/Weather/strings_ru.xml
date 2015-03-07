@@ -76,10 +76,11 @@
   <string name="Settings.Plugins.Weather">Погода</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Настройка местоположения</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Настройка городов, отображаемых на экране</string>
-  <string name="WeatherSetup.Title">Настройка города</string>
-  <string name="WeatherSetup.ConfiguredCities">Настройка города</string>
-  <string name="WeatherSetup.EnterCity">Пожалуйста, введите имя города, чтобы добавить:</string>
+  <string name="WeatherSetup.Title">Настроить города</string>
+  <string name="WeatherSetup.ConfiguredCities">Настроенные города</string>
+  <string name="WeatherSetup.EnterCity">Пожалуйста, введите название города, чтобы добавить:</string>
   <string name="WeatherSetup.SearchCity">Поиск города</string>
   <string name="WeatherSetup.AddCity">Добавить город</string>
   <string name="WeatherSetup.RemoveCity">Удалить город</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Не удалось автоматически определить Ваше местоположение</string>
 </resources>

@@ -35,17 +35,10 @@ namespace MediaPortal.UI.Players.BassPlayer
 {
   public class BassPlayerPlugin : IPluginStateTracker, IPlayerBuilder
   {
-    #region Protected fields
-
-    protected string _pluginDirectory = null;
-
-    #endregion
-
     #region IPluginStateTracker implementation
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      _pluginDirectory = pluginRuntime.Metadata.GetAbsolutePath(string.Empty);
     }
 
     public bool RequestEnd()
@@ -72,7 +65,7 @@ namespace MediaPortal.UI.Players.BassPlayer
       IResourceLocator locator = mediaItem.GetResourceLocator();
       if (InputSourceFactory.CanPlay(locator, mimeType))
       {
-        BassPlayer player = new BassPlayer(_pluginDirectory);
+        BassPlayer player = new BassPlayer();
         try
         {
           player.SetMediaItemLocator(locator, mimeType, title);

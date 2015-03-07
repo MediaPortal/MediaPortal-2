@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -31,7 +32,8 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
-  public class TriggerBase: DependencyObject
+  [ContentProperty("Setters")]
+  public class TriggerBase : DependencyObject
   {
     #region Protected fields
 
@@ -51,9 +53,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _enterActionsProperty = new SProperty(typeof(IList<TriggerAction>), new List<TriggerAction>());
-      _exitActionsProperty = new SProperty(typeof(IList<TriggerAction>), new List<TriggerAction>());
-      _settersProperty = new SProperty(typeof(IList<Setter>), new List<Setter>());
+      _enterActionsProperty = new SProperty(typeof(TriggerActionCollection), new TriggerActionCollection());
+      _exitActionsProperty = new SProperty(typeof(TriggerActionCollection), new TriggerActionCollection());
+      _settersProperty = new SProperty(typeof(List<Setter>), new List<Setter>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -114,9 +116,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _enterActionsProperty; }
     }
 
-    public IList<TriggerAction> EnterActions
+    public TriggerActionCollection EnterActions
     {
-      get { return (IList<TriggerAction>) _enterActionsProperty.GetValue(); }
+      get { return (TriggerActionCollection) _enterActionsProperty.GetValue(); }
     }
 
     public AbstractProperty ExitActionsProperty
@@ -124,9 +126,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _exitActionsProperty; }
     }
 
-    public IList<TriggerAction> ExitActions
+    public TriggerActionCollection ExitActions
     {
-      get { return (IList<TriggerAction>) _exitActionsProperty.GetValue(); }
+      get { return (TriggerActionCollection) _exitActionsProperty.GetValue(); }
     }
 
     public AbstractProperty SettersProperty
@@ -134,9 +136,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _settersProperty; }
     }
 
-    public IList<Setter> Setters
+    public List<Setter> Setters
     {
-      get { return (IList<Setter>) _settersProperty.GetValue(); }
+      get { return (List<Setter>) _settersProperty.GetValue(); }
     }
 
     #endregion

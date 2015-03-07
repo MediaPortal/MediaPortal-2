@@ -208,6 +208,7 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Ar norite perkelti ar išvalyti ir vėl įkelti?</string>
   <string name="SharesConfig.Relocate">Perkelti</string>
   <string name="SharesConfig.ReImport">Vėl įkelti</string>
+  <string name="SharesConfig.ManualPathInput">Rankinė įvestis</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 klientas</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

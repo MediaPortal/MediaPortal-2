@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Spelare</string>
+  <string name="Settings.Players.AudioPlayer">Ljudspelare</string>
+  <string name="Settings.Players.BassPlayer.Setup">Konfigurera ljudutgång</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Konfigurera BassPlayer ljudutgång och alternativ</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exklusivt läge</string>
   <string name="Settings.Players.Rendering">Uppspelning</string>
   <string name="Settings.Players.Rendering.CrossFading">Tonade övergångar</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Aktivera tonade övergångar</string>

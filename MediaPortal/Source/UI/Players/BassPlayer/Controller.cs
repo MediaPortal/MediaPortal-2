@@ -28,6 +28,7 @@ using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Settings;
@@ -103,14 +104,12 @@ namespace MediaPortal.UI.Players.BassPlayer
     /// Initializes a new instance of the BASS player controller.
     /// </summary>
     /// <param name="player">BASS player instance which contains this controller instance.</param>
-    /// <param name="playerMainDirectory">Directory where the BASS player is located. Plugins will be searched relative
-    /// to this directory.</param>
-    public Controller(BassPlayer player, string playerMainDirectory)
+    public Controller(BassPlayer player)
     {
       Log.Debug("Initializing BASS controller");
       _player = player;
 
-      _bassLibraryManager = BassLibraryManager.Get(Path.Combine(playerMainDirectory, InternalSettings.PluginsPath));
+      _bassLibraryManager = BassLibraryManager.Get();
 
       _playbackProcessor = new PlaybackProcessor(this);
       _outputDeviceManager = new OutputDeviceManager(this);

@@ -23,20 +23,23 @@
 #endregion
 
 using System.Collections.Generic;
+using System.ComponentModel;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   // Need to be a dedicated type because of special type conversion
+  [TypeConverter(typeof(MPFConverter<PointCollection>))]
   public class PointCollection : List<Point>
   {
     public PointCollection()
     {
     }
 
-    public PointCollection(IEnumerable<Point> points )
+    public PointCollection(IEnumerable<Point> points)
     {
-     AddRange(points); 
+      AddRange(points);
     }
   }
 }

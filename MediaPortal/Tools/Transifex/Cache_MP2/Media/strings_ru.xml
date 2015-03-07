@@ -154,6 +154,7 @@
   <string name="Media.PlaylistNumItemsLabel">Число элементов</string>
   <string name="Media.PlaylistIdInfoLabel">Плейлист id</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Стандарт</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Играть</string>
   <string name="Media.PlayAudioItems">Играть всё</string>

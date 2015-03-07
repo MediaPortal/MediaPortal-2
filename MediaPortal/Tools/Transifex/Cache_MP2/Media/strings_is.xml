@@ -183,6 +183,7 @@
   <string name="Media.PlaylistIdInfoLabel">Innra kenni spilunarlista</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Sjálfgefið</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Varðveita MíM myndband</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spila atriði</string>
   <string name="Media.PlayAudioItems">Spila hljóðskrá</string>

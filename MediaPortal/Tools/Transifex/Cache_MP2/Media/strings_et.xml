@@ -171,6 +171,7 @@
   <string name="Media.PlaylistIdInfoLabel">Sisemine esitusloendi id</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Vaikimisi</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Säilita PiP video</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Esita</string>
   <string name="Media.PlayAudioItems">Esita audio</string>

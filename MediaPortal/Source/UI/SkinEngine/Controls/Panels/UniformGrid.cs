@@ -170,8 +170,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected SizeF CalculateDesiredSize(SizeF totalSize, bool measureChildren,
         out float desiredColumnWidth, out float desiredRowHeight)
     {
-      desiredColumnWidth = totalSize.Width / _actualColumns; // Can be float.NaN
-      desiredRowHeight = totalSize.Height / _actualRows; // Can be float.NaN
+      desiredColumnWidth = _actualColumns == 0 ? float.NaN : (int)totalSize.Width / _actualColumns; // Can be float.NaN
+      desiredRowHeight = _actualRows == 0 ? float.NaN : (int)totalSize.Height / _actualRows; // Can be float.NaN
       SizeF childSize;
       foreach (FrameworkElement child in GetVisibleChildren())
       {
@@ -506,6 +506,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (IsViewPortAtTop)
         return false;
       SetScrollIndex(_scrollIndexX, _scrollIndexY - numLines);
+      return true;
+    }
+
+    public bool Scroll(float deltaX, float deltaY)
+    {
+      return false;
+    }
+
+    public bool BeginScroll()
+    {
+      return true;
+    }
+
+    public bool EndScroll()
+    {
       return true;
     }
 

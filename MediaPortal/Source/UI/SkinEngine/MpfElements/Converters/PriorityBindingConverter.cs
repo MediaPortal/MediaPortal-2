@@ -30,7 +30,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
   /// <see cref="PriorityBindingConverter"/> will use the first valid binding that can be evaluated. 
-  /// It requires <see cref="MultiBindingMarkupExtension.AllowEmptyBinding"/> set to <c>true</c>, otherwise the markup extension
+  /// It requires <see cref="MultiBindingExtension.AllowEmptyBinding"/> set to <c>true</c>, otherwise the markup extension
   /// won't evaluate other bindings.
   /// </summary>
   public class PriorityBindingConverter : IMultiValueConverter

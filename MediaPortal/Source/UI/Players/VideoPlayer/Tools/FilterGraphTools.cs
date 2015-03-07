@@ -1160,9 +1160,10 @@ namespace MediaPortal.UI.Players.Video.Tools
         int remainingReferences;
         do
         {
+          string strFilterToRelease = filterToRelease.ToString();
           remainingReferences = Marshal.ReleaseComObject(filterToRelease);
           if (remainingReferences > 0)
-            ServiceRegistration.Get<ILogger>().Info("Releasing filter {0}, remaining references: {1}", filterToRelease, remainingReferences);
+            ServiceRegistration.Get<ILogger>().Info("Releasing filter {0}, remaining references: {1}", strFilterToRelease, remainingReferences);
 
         } while (remainingReferences > 0 && releaseAllReferences);
         filterToRelease = default(TE);

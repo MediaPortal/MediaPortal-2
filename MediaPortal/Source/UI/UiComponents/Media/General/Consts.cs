@@ -39,6 +39,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT = "30F57CBA-459C-4202-A587-09FFF5098251";
     public const string STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT = "312016AA-3DF6-4C1D-B8F7-44D34C456FFE";
 
+    public const string STR_WF_STATE_ID_LATEST_MEDIA = "60CD1874-1752-4486-9DF1-82B7BDF635A6";
+
     public const string STR_WF_STATE_ID_ADD_TO_PLAYLIST = "76CDF664-F49C-40a4-8108-E478AB199595";
 
     public const string STR_WF_STATE_ID_AUDIO_CURRENTLY_PLAYING = "4596B758-CE2B-4e31-9CB9-6C30215831ED";
@@ -76,6 +78,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_IMAGES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_SERIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_MOVIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT);
+
+    public static readonly Guid WF_STATE_ID_LATEST_MEDIA = new Guid(STR_WF_STATE_ID_LATEST_MEDIA);
 
     public static readonly Guid WF_STATE_ID_CURRENTLY_PLAYING_VIDEO = new Guid(STR_WF_STATE_ID_CURRENTLY_PLAYING_VIDEO);
     public static readonly Guid WF_STATE_ID_FULLSCREEN_VIDEO = new Guid(STR_WF_STATE_ID_FULLSCREEN_VIDEO);
@@ -150,6 +154,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_DECADE_MENU_ITEM = "[Media.FilterByDecadeMenuItem]";
     public const string RES_FILTER_BY_IMAGE_YEAR_MENU_ITEM = "[Media.FilterByImageYearMenuItem]";
     public const string RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM = "[Media.FilterByVideoYearMenuItem]";
+    public const string RES_FILTER_BY_VIDEO_PLAYCOUNT_MENU_ITEM = "[Media.FilterByVideoPlayCountMenuItem]";
     public const string RES_FILTER_BY_ACTOR_MENU_ITEM = "[Media.FilterByActorMenuItem]";
     public const string RES_FILTER_BY_DIRECTOR_MENU_ITEM = "[Media.FilterByDirectorMenuItem]";
     public const string RES_FILTER_BY_WRITER_MENU_ITEM = "[Media.FilterByWriterMenuItem]";
@@ -184,6 +189,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterDirectorNavbarDisplayLabel]";
     public const string RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL = "[Media.FilterWriterNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoGenreNavbarDisplayLabel]";
+    public const string RES_FILTER_VIDEO_PLAYCOUNT_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoPlayCountDisplayLabel]";
     public const string RES_FILTER_IMAGE_SIZE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageSizeNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
@@ -200,6 +206,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesCollectionNavbarDisplayLabel]";
 
     public const string RES_VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
+
+    public const string RES_VALUE_UNWATCHED = "[Media.Unwatched]";
+    public const string RES_VALUE_WATCHED = "[Media.Watched]";
 
     public const string RES_IMAGE_FILTER_SMALL = "[Media.ImageFilterSmall]";
     public const string RES_IMAGE_FILTER_MEDIUM = "[Media.ImageFilterMedium]";
@@ -235,6 +244,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGES_MENU_ITEM = "[Media.ImagesMenuItem]";
     public const string RES_SERIES_MENU_ITEM = "[Media.SeriesMenuItem]";
     public const string RES_SERIES_SEASON_MENU_ITEM = "[Media.SeriesSeasonMenuItem]";
+    public const string RES_LATEST_MEDIA_MENU_ITEM = "[Media.LatestMediaMenuItem]";
+
     public const string RES_ADD_TO_PLAYLIST_MENU_ITEM = "[Media.ManagePlaylists]";
     public const string RES_SAVE_PLAYLIST = "[Media.SavePlaylistAction]";
     public const string RES_SAVE_CURRENT_PLAYLIST = "[Media.SaveCurrentPlaylistAction]";
@@ -340,6 +351,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOS_FILTER_BY_YEAR = "VideoFilterByYear";
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";
     public const string SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG = "VideoFilterByLanguage";
+    public const string SCREEN_VIDEOS_FILTER_BY_PLAYCOUNT = "VideoFilterByPlayCount";
     public const string SCREEN_MOVIES_SHOW_ITEMS = "MoviesShowItems";
     public const string SCREEN_MOVIES_FILTER_BY_COLLECTION = "MoviesFilterByCollection";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";

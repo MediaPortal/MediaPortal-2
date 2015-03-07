@@ -236,17 +236,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       bool success;
       lock (MKVEXTRACT_THROTTLE_LOCK)
         success = ProcessUtils.TryExecute_AutoImpersonate(_mkvExtractPath, string.Format("attachments \"{0}\" {1}:\"{2}\"", _fileName, attachmentIndex + 1, tempFileName), _priorityClass);
-      if (success)
-      {
-        int fileSize = _attachments[attachmentIndex].FileSize;
-        FileInfo fileInfo = new FileInfo(tempFileName);
-        if (!fileInfo.Exists || fileInfo.Length != fileSize)
-          return false;
+      if (!success)
+        return false;
 
-        binaryData = FileUtils.ReadFile(tempFileName);
-        fileInfo.Delete();
-      }
-      return false;
+      int fileSize = _attachments[attachmentIndex].FileSize;
+      FileInfo fileInfo = new FileInfo(tempFileName);
+      if (!fileInfo.Exists || fileInfo.Length != fileSize)
+        return false;
+
+      binaryData = FileUtils.ReadFile(tempFileName);
+      fileInfo.Delete();
+      return true;
     }
 
     #endregion

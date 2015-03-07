@@ -43,6 +43,11 @@ namespace MediaPortal.Common.Configuration
     string Location { get; }
 
     /// <summary>
+    /// Gets a custom sort string.
+    /// </summary>
+    string Sort { get; }
+
+    /// <summary>
     /// Gets the setting related to the node.
     /// </summary>
     ConfigBase ConfigObj { get; }

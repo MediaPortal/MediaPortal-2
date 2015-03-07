@@ -186,6 +186,7 @@
   <string name="Media.PlaylistIdInfoLabel">Сопствени плејлист идентификациони број</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Подразумевано</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Задржи видео као слику у слици</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Пусти ставку</string>
   <string name="Media.PlayAudioItems">Пусти аудио ставку</string>

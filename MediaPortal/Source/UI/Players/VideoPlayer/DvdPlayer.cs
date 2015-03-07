@@ -101,6 +101,9 @@ namespace MediaPortal.UI.Players.Video
     protected AspectRatioMode _arMode = AspectRatioMode.Stretched;
     protected DvdVideoAttributes _videoAttr;
 
+    private readonly object _dvdStopSyncObj = new object();
+    private bool _stopping = false;
+
     #endregion
 
     #region Constructor
@@ -124,6 +127,15 @@ namespace MediaPortal.UI.Players.Video
       _streamCount = 3; // Allow Video, CC, and Subtitle
     }
 
+    protected override void CreateResourceAccessor()
+    {
+      // DvdPlayer needs an ILocalFSResourceAccessor
+      ILocalFsResourceAccessor lfsra;
+      if(!_resourceLocator.TryCreateLocalFsAccessor(out lfsra))
+        throw new IllegalCallException("The DVDPlayer can only play local file system resources");
+      _resourceAccessor = lfsra;
+    }
+
     /// <summary>
     /// Adds the DVDNavigator filter to the graph and sets the input path.
     /// </summary>
@@ -133,22 +145,24 @@ namespace MediaPortal.UI.Players.Video
       _pendingCmd = true;
 
       _dvdbasefilter = (IBaseFilter) new DVDNavigator();
-      _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
 
       if (_dvdbasefilter == null)
         throw new Exception("Failed to add DVD Navigator!");
 
+      _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
+
       _dvdInfo = _dvdbasefilter as IDvdInfo2;
+      if (_dvdInfo == null)
+        throw new Exception("Failed to get IDvdInfo2 from DVDNavigator!");
+
       _dvdCtrl = _dvdbasefilter as IDvdControl2;
 
       if (_dvdCtrl == null)
-        throw new Exception("Failed to access DVD Control!");
+        throw new Exception("Failed to get IDvdControl2 from DVDNavigator!");
 
-      // get a local file system path - will mount via DOKAN when resource is not on the local system
-      ILocalFsResourceAccessor lfsr;
-      if (!_resourceLocator.TryCreateLocalFsAccessor(out lfsr))
-        throw new IllegalCallException("The DvDPlayer can only play file system resources");
-      string path = lfsr.LocalFileSystemPath;
+      if (!IsLocalFilesystemResource)
+        throw new IllegalCallException("The DVDPlayer can only play local file system resources");
+      string path = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
       // check if path is a drive root (like D:), otherwise append VIDEO_TS 
       // MediaItem always contains the parent folder. Add the required VIDEO_TS subfolder.
@@ -412,11 +426,24 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public override void Stop()
     {
+      lock (_dvdStopSyncObj)
+      {
+        if (_stopping == false)
+          _stopping = true;
+        else
+          return;
+      }
+
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Stop");
       if (_dvdCtrl != null)
         _dvdCtrl.Stop();
 
       base.Stop();
+      
+      lock(_dvdStopSyncObj)
+      {
+        _stopping = false;
+      }
     }
 
     #endregion
@@ -493,7 +520,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     private void OnDvdEvent()
     {
-      if (_mediaEvt == null || _dvdCtrl == null)
+      if (_mediaEvt == null || _dvdCtrl == null || _stopping)
         return;
 
       int p1, p2;
@@ -502,6 +529,8 @@ namespace MediaPortal.UI.Players.Video
         int hr;
         do
         {
+          bool needStop = false;
+
           IMediaEventEx eventEx = (IMediaEventEx) _graphBuilder;
           EventCode code;
           hr = eventEx.GetEvent(out code, out p1, out p2, 0);
@@ -604,7 +633,7 @@ namespace MediaPortal.UI.Players.Video
                     break;
                   case DvdDomain.Stop:
                     ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=Stop");
-                    Stop();
+                    needStop = true;
                     break;
                   case DvdDomain.VideoManagerMenu:
                     ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=VideoManagerMenu (menu)");
@@ -624,8 +653,13 @@ namespace MediaPortal.UI.Players.Video
                 break;
               }
           }
-
           eventEx.FreeEventParams(code, p1, p2);
+
+          if(needStop)
+          {
+            Stop();
+            break;
+          }
         } while (hr == 0);
       }
       catch (Exception ex)

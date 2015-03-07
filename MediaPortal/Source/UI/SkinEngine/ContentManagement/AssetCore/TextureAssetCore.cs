@@ -141,22 +141,22 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           if (_decodeHeight > 0)
             resizeHeight = Math.Min(_decodeHeight, MAX_TEXTURE_DIMENSION);
 
-          image = ResizeImage(image, resizeWidth, resizeHeight);
-          FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
-          Stream loadStream = memoryStream;
-          if (loadStream.Length == 0)
+          Stream loadStream = dataStream;
+          if (!image.IsNull)
           {
-            loadStream = dataStream;
-            ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: FreeImage was not able to save image as bitmap into MemoryStream. Using source stream as fallback.");
+            image = ResizeImage(image, resizeWidth, resizeHeight);
+            FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
+            loadStream = memoryStream;
           }
+
           loadStream.Position = 0;
           texture = Texture.FromStream(GraphicsDevice.Device, loadStream, (int)loadStream.Length, _decodeWidth, _decodeHeight, 1,
             Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
         }
       }
-      catch (Exception e)
+      catch (Exception)
       {
-        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage", e);
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage and DirectX");
       }
       finally
       {

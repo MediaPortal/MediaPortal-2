@@ -104,9 +104,12 @@
   <string name="Settings.Appearance">Utseende</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datumformat</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datumformat som används. Använd format enligt .NET DateTime-klassen.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datumformat som används. Använd format enligt .NET DateTimeFormatInfo-klassen.
+\"d\"=kort datum. \"D\"=långt datum.
+</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tidsformat</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat som används. Använd format enligt .NET DateTime-klassen.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat som används. Använd format enligt .NET DateTimeFormatInfo-klassen.
+\"t\"=kort tidpunkt. \"T\" lång tidpunkt.</string>
   <string name="Settings.General">Allmänt</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -186,7 +189,7 @@
   <string name="SharesConfig.EditResourceProviderPathForShare">Redigera sökvägen till mediakällan</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Redigera en giltig sökväg till den valda resursförsörjaren. Du kan redigera en enkel sökväg som förstås av resursförsörjaren. Du kan också redigera en komplex sökväg med formatet {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Välj sökväg till mediakälla</string>
-  <string name="SharesConfig.EditShareName">Redigera mediakällan visningsnamn</string>
+  <string name="SharesConfig.EditShareName">Redigera mediakällans visningsnamn</string>
   <string name="SharesConfig.ChooseShareCategories">Välj kategorier för mediainnehållet i mediakällan</string>
   <string name="SharesConfig.SharePathExists">Det finns redan en mediakälla med den sökvägen</string>
   <string name="SharesConfig.ShareNameExists">Det finns redan en mediakälla med det namnet</string>
@@ -208,6 +211,7 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Vill du flytta eller ta bort och återimportera?</string>
   <string name="SharesConfig.Relocate">Flytta</string>
   <string name="SharesConfig.ReImport">Återimportera</string>
+  <string name="SharesConfig.ManualPathInput">Manuell inmatning</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2-klient</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

@@ -159,7 +159,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null)
         return;
-      result.Add(patc.DataDescriptor, patc.OriginalValue);
+      // Morpheus_xx, 2014-11-16: TODO: there can be multiple animations affection same property. This is not yet handled correctly!
+      result[patc.DataDescriptor] = patc.OriginalValue;
     }
 
     public override void Setup(TimelineContext context,

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Zip-tiedoston mediatoimittaja</string>
   <string name="ZipMediaProvider.Description">Avaa tiedostoja ja kansioita ZIP-tiedostoista</string>
 </resources>

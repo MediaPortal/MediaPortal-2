@@ -1,5 +1,5 @@
 <Plugin
-    DescriptorVersion="1.0" 
+    DescriptorVersion="1.0"
     Name="RefreshRateChanger"
     PluginId="{EE2CCBD2-8ACC-418B-9219-3C24C3FFD801}"
     Author="Morpheus_xx"
@@ -14,6 +14,44 @@
   </Runtime>
 
   <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
   </DependsOn>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="RefreshRateChangerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/">
+    <ConfigSection
+        Id="VideoPlayer"
+        Redundant="true"
+        Text="[Settings.Players.VideoPlayer]"/>
+  </Register>
+
+  <!-- Contents of '/Players/VideoPlayer' section -->
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
+
+    <ConfigSetting
+      Id="IsEnabled"
+      Text="[RefreshRateChanger.IsEnabled]"
+      HelpText="[RefreshRateChanger.IsEnabled.Help]"
+      ClassName="MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration.IsEnabled"/>
+
+    <ConfigSetting
+      Id="NoChangeForRate"
+      Text="[RefreshRateChanger.NoChangeForRate]"
+      HelpText="[RefreshRateChanger.NoChangeForRate.Help]"
+      ClassName="MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration.NoChangeForRate"/>
+
+  </Register>
 </Plugin>

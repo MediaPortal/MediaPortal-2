@@ -170,7 +170,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           MEDIA_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
-                AudioAspect.Metadata
+                AudioAspect.Metadata,
+                ThumbnailLargeAspect.Metadata
               });
     }
 
@@ -326,7 +327,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)

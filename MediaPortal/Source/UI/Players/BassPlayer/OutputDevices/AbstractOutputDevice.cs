@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Utils;
@@ -51,7 +52,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     protected BassStream _inputStream = null;
     protected BassStreamFader _fader = null;
-    protected bool _outputStreamEnded = false;
+    protected volatile bool _outputStreamEnded = false;
 
     #endregion
 

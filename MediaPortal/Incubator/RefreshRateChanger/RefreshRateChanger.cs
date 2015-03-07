@@ -26,23 +26,34 @@ using System;
 using System.Runtime.InteropServices;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.Plugins.RefreshRateChanger
 {
   public class TemporaryRefreshRateChanger : RefreshRateChanger
   {
     private readonly double _originalRate;
+    private string _renderMode;
 
-    public TemporaryRefreshRateChanger(uint displayIndex)
+    public TemporaryRefreshRateChanger(uint displayIndex, bool forceVsync = false)
       : base(displayIndex)
     {
       _originalRate = GetRefreshRate();
+      if (forceVsync)
+      {
+        _renderMode = SkinContext.RenderStrategy.Name;
+        while (!SkinContext.RenderStrategy.Name.Contains("VSync"))
+          SkinContext.NextRenderStrategy();
+      }
     }
 
     public override void Dispose()
     {
       if (_rateChanged)
         SetRefreshRate(_originalRate);
+      if (!string.IsNullOrEmpty(_renderMode))
+        while (SkinContext.RenderStrategy.Name != _renderMode)
+          SkinContext.NextRenderStrategy();
       base.Dispose();
     }
   }
@@ -202,6 +213,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
         return false;
       }
       ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger.SetDisplayConfig(...): Successfully switched to {0}/{1}", numerator, denominator);
+      Windows7DwmFix.FixDwm();
       _rateChanged = true;
       return true;
     }

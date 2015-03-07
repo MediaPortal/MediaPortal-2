@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Brskalnik ZIP datotek</string>
   <string name="ZipMediaProvider.Description">Dostopaj do imenikov in datotek v ZIP arhivih</string>
 </resources>

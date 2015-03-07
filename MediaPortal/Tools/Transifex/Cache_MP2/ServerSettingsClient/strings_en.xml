@@ -10,7 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Username and password</string>
   <string name="Settings.ServerSettings.Username">Username:</string>
   <string name="Settings.ServerSettings.Password">Password:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Share importer configuration</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Media source importer configuration</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configure automatic refreshes of shares</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Enable automatic refresh</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Run at hour of day (24h base)</string>

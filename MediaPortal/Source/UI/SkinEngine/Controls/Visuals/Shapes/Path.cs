@@ -44,6 +44,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   {
     #region Protected fields
 
+    static readonly Regex PARSE_REGEX = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
+
     protected AbstractProperty _dataProperty;
 
     #endregion
@@ -162,8 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       GraphicsPath result = new GraphicsPath(FillMode.Alternate);
       PointF lastPoint = new PointF();
-      Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
-      MatchCollection matches = regex.Matches(Data);
+      MatchCollection matches = PARSE_REGEX.Matches(Data);
 
       foreach (Match match in matches)
       {

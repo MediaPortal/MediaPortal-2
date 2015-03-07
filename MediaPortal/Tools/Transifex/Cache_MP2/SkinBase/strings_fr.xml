@@ -46,6 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est fermé</string>
   <string name="ServerConnection.DetachMenu">Déconnexion</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Déconnexion du serveur local</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Si vous quitter le serveur local, toutes les données concernant les partages locaux et les fichiers multimédias seront supprimés de la bibliothèque du serveur. Vous pourrez joindre à nouveau, plus tard, le serveur local. Voulez-vous vraiment quitter le serveur local \"{0} \'sur l\'hôte\' {1} \'?</string>
   <string name="ServerConnection.SearchForServers">Recherche de serveurs</string>
   <string name="ServerConnection.DetachFromServer">Déconnexion du serveur local</string>
   <string name="ServerConnection.AttachToServerHeader">Se connecter au serveur MediaPortal 2</string>
@@ -66,6 +67,7 @@
   <string name="ImporterMessages.ImportStartedText">L\'importation de \'{0}\' a débuté</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importation terminée</string>
   <string name="ImporterMessages.ImportCompletedText">L\'importation de \'{0}\' est terminée</string>
+  <string name="LocalFsResourceProvider.Name">système de fichiers  local</string>
   <string name="LocalFsResourceProvider.Description">Accéder aux fichiers locaux</string>
   <string name="RemoteResourceProvider.Description">Accéder aux contenus situés sur un autre système MediaPortal 2</string>
   <string name="RawUrlResourceProvider.Name">Url RAW</string>
@@ -123,15 +125,23 @@
   <string name="Settings.Regional.Language.Main.Help">Définir la langue  utilisée par l\'application</string>
   <string name="Settings.Shares">Sources de médias</string>
   <!--Section name-->
-  <string name="Settings.Shares.Configure">Configurez des sources de médias</string>
+  <string name="Settings.Shares.Configure">Configurez les sources de médias</string>
   <!--Group name-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configuration des sources de médias</string>
   <!--Setting-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configurer toutes les sources des médias</string>
   <string name="Settings.Shares.Overview">Aperçu</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Présentation des sources des médias</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Aperçu global sur les sources des médias</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Re-importer toutes les  sources de médias</string>
   <string name="Settings.Plugins">Plugins</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Présentation des sources des médias</string>
+  <string name="SharesOverview.Title">Présentation des sources des médias</string>
+  <string name="SharesOverview.ReImportAllShares">Re-importer toutes les  sources de médias</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">Le serveur local est déconnecté, les informations relatives aux sources de médiaq ne peuvent être récupérées</string>
+  <string name="Shares.NoSharesInThisView">- Aucune source de médias dans cette vue -</string>
   <string name="Shares.InvalidPath">CHEMIN D\'ACCES INVALIDE : \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Connecté</string>
@@ -148,7 +158,9 @@
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel"> Afficher le nom</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Choisir des catégories</string>
   <string name="SharesConfig.CannotAddSharesTitle">Impossible d\'ajouter une source de médias</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Le serveur local est situé sur le même ordinateur, donc toutes les actions doivent être enregistrées au niveau du serveur. Mais le serveur n\'est pas connecté en ce moment. SVP, démarrez le serveur local et essayez à nouveau.</string>
   <string name="SharesConfig.SharesConfiguration.Title">Configuration des sources de médias</string>
+  <string name="SharesConfig.NoSharesAvailable">Aucune source de médias disponible</string>
   <string name="SharesConfig.ShareInformationHeader">Informations concernant les sources de médias</string>
   <string name="SharesConfig.ShareNameInfo">Nom : </string>
   <string name="SharesConfig.ShareResourceProviderInfo">Fournisseur de contenus par défaut :</string>
@@ -157,27 +169,44 @@
   <string name="SharesConfig.ShareResourcePathInfo">Chemin d\'accès :</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Catégories de fichiers multimédia :</string>
   <string name="SharesConfig.ReImportShare">Re-importer une source de médias</string>
-  <string name="SharesConfig.RemoveShares">Supprimer une source de médias</string>
+  <string name="SharesConfig.RemoveShares">Supprimer les sources de médias</string>
   <string name="SharesConfig.EditShare">Modifier une source de médias</string>
   <string name="SharesConfig.ChooseSystem">Choisir le type de réseau</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">SVP, choisissez la source de médias à supprimer</string>
   <string name="SharesConfig.ChooseSystemForShare">Choisissez une source de médias</string>
+  <string name="SharesConfig.LocalShare">client de source de médias</string>
+  <string name="SharesConfig.LocalShares">client de sources de médias</string>
+  <string name="SharesConfig.GlobalShare">Serveur de source de médias</string>
+  <string name="SharesConfig.GlobalShares">Serveur de sources de médias</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Le serveur local est actuellement déconnecté, de fait les sources de médias ne peuvent pas être géré pour le moment.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Le serveur local est située sur la même machine, seuls les partages réseaux globaux peuvent être configurés.</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">SVP choisissez un fournisseur de contenus comme source de médias</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Choisir le chemin d\'accès vers la source de médias</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Définir un chemin d\'accès valide vers le  fournisseur de contenus.  Vous pouvez définir un chemin d\'accès simple compréhensible vers le fournisseur de contenus. Vous pouvez également modifier un chemin complexe selon le format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;..</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Choisir le chemin d\'accès à la source de médias</string>
+  <string name="SharesConfig.SharePathExists">Une souce de médias avec ce chemin existe déjà</string>
+  <string name="SharesConfig.ShareNameExists">Une source de médias avec ce nom existe déjà</string>
+  <string name="SharesConfig.ShareNameEmpty">Choisir un nom pour la source de médias</string>
+  <string name="SharesConfig.EditShareProblemHeader">Problème de configuration de la source de médias</string>
+  <string name="SharesConfig.EditShareProblemText">Il y a eu une erreur interne lors de la configuration de la source de médias</string>
   <string name="SharesConfig.MenuAddShare">Ajouter une source de médias</string>
   <string name="SharesConfig.MenuEditShares">Éditer</string>
-  <string name="SharesConfig.MenuRemoveShares">Supprimer une source de médias</string>
+  <string name="SharesConfig.MenuRemoveShares">Supprimer les sources de médias</string>
   <string name="SharesConfig.AddServerShare">Ajouter un seveur de source de médias</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare">Ajouter un client  de source de médias</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Mise à jour de la source de médias</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Le fournisseur de ressource et/ou le chemin d\'accès ont été mis à jour.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La bibliothèque d\'informations sur les fichiers multimédias concernant cette source de médias peut être mise à jour (déplacée) effacée ou ré-importée.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Voulez vous déplacer ou effacer et ré-importer ?</string>
   <string name="SharesConfig.Relocate">Déplacer</string>
   <string name="SharesConfig.ReImport">Ré-importer</string>
+  <string name="SharesConfig.ManualPathInput">Saisie manuelle</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">Client MediaPortal 2 - l\'interface graphique MediaPortal. lit les fichiers multimédias, abrite les partages réseau locaux et donne accès à l\'interface utilisateur.</string>
   <string name="UPnPFrontendServer.ModelName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

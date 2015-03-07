@@ -188,6 +188,9 @@
   <string name="Media.PlaylistIdInfoLabel">Vidinis grojaraščio ID</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standartinis</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Saugoti PiP video</string>
+  <!--MediaItemAction dialog-->
+  <string name="Media.MediaItemsActionDialogHeader">Media įrašo veiksmai</string>
+  <string name="Media.DeleteFromStorage">Ištrinti iš saugyklos</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Atkurti įrašą</string>
   <string name="Media.PlayAudioItems">Groti audio įrašus</string>

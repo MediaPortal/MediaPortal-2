@@ -28,7 +28,7 @@
   <string name="SlimTvClient.RecordCurrentProgram">Spela in \'{0}\'</string>
   <string name="SlimTvClient.RecordManual">Spela in tills manuellt stopp</string>
   <string name="SlimTvClient.ManualRecordingTitle">Manuell inspelning</string>
-  <string name="SlimTvClient.RecordProgram">Spela program</string>
+  <string name="SlimTvClient.RecordProgram">Spela in program</string>
   <string name="SlimTvClient.DontRecordProgram">Spela inte in</string>
   <string name="SlimTvClient.RecordSeries">Spela in TV-serier</string>
   <string name="SlimTvClient.ChooseScheduleType">Välj typ av planerad inspelning</string>

@@ -5,50 +5,23 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- BASS extensions -->
-    <PlayerPlugins Include="$(TargetDir)bassmix.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_fx.dll" />
-    <PlayerPlugins Include="$(TargetDir)tags.dll" />
-
-    <!-- BASS audio decoders extensions -->
-    <PlayerPlugins Include="$(TargetDir)bass_aac.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_ac3.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_adx.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_aix.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_alac.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_ape.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_mpc.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_spx.dll" />
-    <PlayerPlugins Include="$(TargetDir)bass_tta.dll" />
-    <PlayerPlugins Include="$(TargetDir)basscd.dll" />
-    <PlayerPlugins Include="$(TargetDir)bassflac.dll" />
-    <PlayerPlugins Include="$(TargetDir)bassmidi.dll" />
-    <PlayerPlugins Include="$(TargetDir)basswma.dll" />
-    <PlayerPlugins Include="$(TargetDir)basswv.dll" />
-
-    <PlayerPlugins Include="$(TargetDir)bass_ofr.dll" />
-    <PlayerPlugins Include="$(TargetDir)OptimFROG.dll" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
+    </ItemGroup>
+  
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(PlayerPlugins)" DestinationFolder="$(PluginDestination)Plugins\" />
   </Target>
 
 </Project>

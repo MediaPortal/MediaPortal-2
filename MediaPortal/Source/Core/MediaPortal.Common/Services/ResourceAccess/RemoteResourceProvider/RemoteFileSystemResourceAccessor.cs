@@ -100,10 +100,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       return true;
     }
 
-    protected ICollection<IFileSystemResourceAccessor> WrapResourcePathsData(ICollection<ResourcePathMetadata> resourcesData)
+    protected ICollection<IFileSystemResourceAccessor> WrapResourcePathsData(ICollection<ResourcePathMetadata> resourcesData, bool files)
     {
       return new List<IFileSystemResourceAccessor>(resourcesData.Select(fileData => new RemoteFileSystemResourceAccessor(
-          _nativeSystemId, fileData.ResourcePath, true, fileData.HumanReadablePath,
+          _nativeSystemId, fileData.ResourcePath, files, fileData.HumanReadablePath,
           fileData.ResourceName)));
     }
 
@@ -214,14 +214,14 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       ICollection<ResourcePathMetadata> filesData = rris.GetFiles(_nativeSystemId, _nativeResourcePath);
-      return WrapResourcePathsData(filesData);
+      return WrapResourcePathsData(filesData, true);
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       ICollection<ResourcePathMetadata> directoriesData = rris.GetChildDirectories(_nativeSystemId, _nativeResourcePath);
-      return WrapResourcePathsData(directoriesData);
+      return WrapResourcePathsData(directoriesData, false);
     }
 
     public void PrepareStreamAccess()

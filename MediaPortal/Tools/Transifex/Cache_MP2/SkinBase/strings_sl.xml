@@ -28,6 +28,7 @@
   <string name="Media.MyMusic">Glasba</string>
   <string name="Media.MyVideos">Filmi</string>
   <string name="Media.MyPictures">Slike</string>
+  <string name="Media.InvalidShareName">Neveljavni izvor medija</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">MP2 strežnik na voljo</string>
   <string name="ServerConnection.NotificationServerAvailableText">Na omrežju je na voljo vsaj eden MediaPortal 2 strežnik. Prijavi se nanj, da izkoristiš njegove storitve.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' pri strežniku \'{1}\'</string>
@@ -65,7 +66,9 @@
   <string name="ImporterMessages.ImportStartedText">Uvoz \"{0}\" pričet</string>
   <string name="ImporterMessages.ImportCompletedTitle">Uvoz zaključen</string>
   <string name="ImporterMessages.ImportCompletedText">Uvoz \"{0}\" zaključen</string>
+  <string name="LocalFsResourceProvider.Name">Lokalni datotečni sistem</string>
   <string name="LocalFsResourceProvider.Description">Dostopaj do lokalnih datotek</string>
+  <string name="RemoteResourceProvider.Name">Oddaljeni izvori</string>
   <string name="RemoteResourceProvider.Description">Dostopaj do virov na drugem MediaPortal računalniku</string>
   <string name="RawUrlResourceProvider.Description">Uporabi surove URI vire</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
@@ -119,6 +122,7 @@
   <string name="Settings.Regional.Language">Jezik</string>
   <string name="Settings.Regional.Language.Main">Jezik</string>
   <string name="Settings.Regional.Language.Main.Help">Nastavi glavni jezik za aplikacijo</string>
+  <string name="Settings.Shares">Izvori medijev</string>
   <!--Section name-->
   <!--Group name-->
   <!--Setting-->
@@ -133,22 +137,31 @@
   <string name="Shares.ReImport">Ponovno uvozi</string>
   <string name="Shares.Importing">Uvažam...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Odstrani izvore medija</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Izberi ponudnika virov</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Uredi pot</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Izberi pot</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Uredi ime</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Izberi kategorije</string>
+  <string name="SharesConfig.ShareInformationHeader">Informacije izvorov medija</string>
   <string name="SharesConfig.ShareNameInfo">Ime:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Osnovni ponudnik vira:</string>
   <string name="SharesConfig.ShareSystem">Sistem:</string>
   <string name="SharesConfig.SharePathInfo">Pot:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Tehnična pot:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Kategorije medija:</string>
+  <string name="SharesConfig.SetupDefaultShares">Nastavi privzete izvore</string>
+  <string name="SharesConfig.RemoveShares">Odstrani izvor medija</string>
+  <string name="SharesConfig.EditShare">Uredi izvor medija</string>
   <string name="SharesConfig.ChooseSystem">Izberi sistem</string>
+  <string name="SharesConfig.ChooseSystemForShare">Izberi izvor medija</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Uredi pot za izbranega ponudnika vsebin. Urediš lahko preprosto pot, ki jo ponudnik razume ali pa zapleteno pot v formatu {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.MenuAddShare">Dodaj izvor medija</string>
   <string name="SharesConfig.MenuEditShares">Uredi</string>
+  <string name="SharesConfig.MenuRemoveShares">Odstrani izvore medijev</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Posodobi izvor medija</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Želiš premestiti ali izbrisati in ponovno uvoziti?</string>
   <string name="SharesConfig.Relocate">Premesti</string>
   <string name="SharesConfig.ReImport">Ponovno uvozi</string>

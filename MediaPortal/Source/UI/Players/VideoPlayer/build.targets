@@ -5,24 +5,25 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-    <PluginFiles Include="$(TargetDir)DirectShowWrapper.dll" />
-    <PluginFiles Include="$(TargetDir)DotNetStreamSource.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)TsReader.ax" />
-    <References Include="$(TargetDir)DVBSub3.ax" />
-    <References Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\EVRPresenter.dll" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+      <PluginFiles Include="$(TargetDir)DirectShowWrapper.dll" />
+      <PluginFiles Include="$(TargetDir)DotNetStreamSource.dll" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <References Include="$(TargetDir)TsReader.ax" />
+      <References Include="$(TargetDir)DVBSub3.ax" />
+      <References Include="$(TargetDir)VSFilter.dll" />
+      <References Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\EVRPresenter.dll" />
+    </ItemGroup>
+  
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />

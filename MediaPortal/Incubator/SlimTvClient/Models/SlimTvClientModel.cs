@@ -43,6 +43,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
@@ -367,8 +368,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _isOSDLevel2Property; }
     }
 
-    public void UpdateProgram(ListItem selectedItem)
+    public void UpdateProgram(object sender, SelectionChangedEventArgs e)
     {
+      var selectedItem = e.FirstAddedItem as ListItem;
       if (selectedItem != null)
       {
         IChannel channel = (IChannel)selectedItem.AdditionalProperties["CHANNEL"];
@@ -460,14 +462,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SlotPlayer.Pause();
 
       // Set the current index of the tuned channel
-      _webChannelIndex = 0;
-      foreach (IChannel currentChannel in _channels)
-        if (currentChannel != channel)
-          _webChannelIndex++;
-        else
-          break;
-
-      _zapChannelIndex = _webChannelIndex; // Needs to be the same to start zapping from current offset
+      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Needs to be the same to start zapping from current offset
 
       BeginZap();
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
@@ -479,10 +474,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    protected override void SetChannel(int webChannelIndex)
+    protected override void SetChannel()
     {
-      base.SetChannel(webChannelIndex);
-      _zapChannelIndex = _webChannelIndex; // Use field, as parameter might be changed by base method
+      base.SetChannel();
+      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Use field, as parameter might be changed by base method
     }
 
     private void BeginZap()
@@ -506,11 +501,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void ZapNextChannel()
     {
-      if (_channels == null)
-        return;
-
       _zapChannelIndex++;
-      if (_zapChannelIndex >= _channels.Count)
+      if (_zapChannelIndex >= ChannelContext.Channels.Count)
         _zapChannelIndex = 0;
 
       ReSetSkipTimer();
@@ -521,12 +513,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void ZapPrevChannel()
     {
-      if (_channels == null)
-        return;
-
       _zapChannelIndex--;
       if (_zapChannelIndex < 0)
-        _zapChannelIndex = _channels.Count - 1;
+        _zapChannelIndex = ChannelContext.Channels.Count - 1;
 
       ReSetSkipTimer();
     }
@@ -603,7 +592,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IsOSDLevel1 = false;
       IsOSDLevel2 = false;
 
-      UpdateRunningChannelPrograms(_channels[_zapChannelIndex]);
+      UpdateRunningChannelPrograms(ChannelContext.Channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
       {
@@ -622,8 +611,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       CloseOSD();
 
-      if (_zapChannelIndex != _webChannelIndex)
-        Tune(_channels[_zapChannelIndex]);
+      if (!IsSameChannel(ChannelContext.Channels[_zapChannelIndex], _lastTunedChannel))
+      {
+        ChannelContext.Channels.SetIndex(_zapChannelIndex);
+        Tune(ChannelContext.Channels[_zapChannelIndex]);
+      }
 
       _zapTimer.Close();
       _zapTimer = null;
@@ -709,6 +701,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Update current programs for all channels of current group (visible inside MiniGuide).
       UpdateAllCurrentPrograms();
 
+      _zapChannelIndex = ChannelContext.Channels.CurrentIndex;
+
       if (_tvHandler.NumberOfActiveSlots < 1)
       {
         PiPAvailable = false;
@@ -729,7 +723,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
           IProgram currentProgram = null;
           IProgram nextProgram = null;
-          if (context != null)
+          if (context != null && context.Channel != null)
           {
             ChannelName = context.Channel.Name;
             if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out currentProgram, out nextProgram))
@@ -774,23 +768,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         CurrentGroupName = CurrentChannelGroup.Name;
       }
       _channelList.Clear();
-      if (_channels == null)
-        return;
 
-      foreach (IChannel channel in _channels)
+      bool isOneSelected = false;
+      foreach (IChannel channel in ChannelContext.Channels)
       {
         // Use local variable, otherwise delegate argument is not fixed
         IChannel currentChannel = channel;
 
+        bool isCurrentSelected = IsSameChannel(currentChannel, _lastTunedChannel);
+        isOneSelected |= isCurrentSelected;
         ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
         {
           Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
           Command = new MethodDelegateCommand(() => Tune(currentChannel)),
-          Selected = IsSameChannel(currentChannel, _lastTunedChannel)
+          Selected = isCurrentSelected
         };
         item.AdditionalProperties["CHANNEL"] = channel;
         _channelList.Add(item);
       }
+      // Adjust channel list position
+      ChannelContext.Channels.MoveTo(c => IsSameChannel(c, _lastTunedChannel));
+
+      // If the current watched channel is not part of the channel group, set the "selected" property to first list item to make sure focus will be set to the list view
+      if (!isOneSelected && _channelList.Count > 0)
+        _channelList.First().Selected = true;
+
       // Load programs asynchronously, this increases performance of list building
       GetNowAndNextProgramsList_Async();
       CurrentGroupChannels.FireChange();

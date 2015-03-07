@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <summary>
     /// Creates a new <see cref="BindingBase"/>, targeted at the specified
     /// <paramref name="contextObject"/>. This will be used for
-    /// <see cref="BindingMarkupExtension"/>s which are used as data context,
+    /// <see cref="BindingExtension"/>s which are used as data context,
     /// for example.
     /// </summary>
     protected BindingBase(DependencyObject contextObject)

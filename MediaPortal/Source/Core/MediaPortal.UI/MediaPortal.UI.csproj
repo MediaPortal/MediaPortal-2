@@ -53,6 +53,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Control\InputManager\IClipboardManager.cs" />
+    <Compile Include="Control\InputManager\Touch.cs" />
     <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
     <Compile Include="PluginItemBuilders\BackgroundBuilder.cs" />
     <Compile Include="PluginItemBuilders\StaticBackgroundManager.cs" />
@@ -60,8 +61,8 @@
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
     <Compile Include="Presentation\Players\IResumablePlayer.cs" />
-    <Compile Include="Presentation\Players\ISpectrumPlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
+    <Compile Include="Presentation\Players\IAudioPlayerAnalyze.cs" />
     <Compile Include="Presentation\Players\ResumeState\ResumeStateBase.cs" />
     <Compile Include="Presentation\Players\ResumeState\BinaryResumeState.cs" />
     <Compile Include="Presentation\Players\ResumeState\PositionResumeState.cs" />

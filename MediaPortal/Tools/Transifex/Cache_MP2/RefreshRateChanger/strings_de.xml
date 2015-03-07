@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Änderung der Bildwiederholrate aktivieren</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Wenn diese Option aktiviert ist, wird eine Anpassung der Bildschirmaktualisierungsrate an die Videorate vorgenommen.</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Bildraten ausschließen</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Schließt bestimmte Videoraten von Änderungen aus. Gib Ganzzahlen getrennt durch Komma ein (z.B. 23,25,50).</string>
+</resources>

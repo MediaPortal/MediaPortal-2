@@ -62,6 +62,16 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule);
 
     /// <summary>
+    /// Creates a single or extended series schedule.
+    /// </summary>
+    /// <param name="channel">Channel to record.</param>
+    /// <param name="from">Recording time from.</param>
+    /// <param name="to">Recording time to.</param>
+    /// <param name="schedule">Returns the schedule instance.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule);
+
+    /// <summary>
     /// Deletes a schedule for the given <paramref name="program"/>. If the <paramref name="recordingType"/> is set to <see cref="ScheduleRecordingType.Once"/>,
     /// only the actual program schedule will be removed. If any other series type is used, the full schedule will be removed (including all single schedules).
     /// </summary>

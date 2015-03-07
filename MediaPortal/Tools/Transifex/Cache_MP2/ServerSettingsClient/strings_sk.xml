@@ -10,6 +10,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Meno a heslo</string>
   <string name="Settings.ServerSettings.Username">Meno:</string>
   <string name="Settings.ServerSettings.Password">Heslo:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Nastavenie importéra zdrojov médií</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Nastavenie automatického obnovovania vzdialených zložiek</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Povoliť automatické obnovovanie</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Spustiť v danú hodinu dňa (24h)</string>

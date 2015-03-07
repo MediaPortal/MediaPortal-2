@@ -180,6 +180,7 @@
   <string name="Media.PlaylistIdInfoLabel">Interní ID seznamu stop</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Výchozí</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Zachovat video PiP</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Přehrát položku</string>
   <string name="Media.PlayAudioItems">Přehrát položky audia</string>

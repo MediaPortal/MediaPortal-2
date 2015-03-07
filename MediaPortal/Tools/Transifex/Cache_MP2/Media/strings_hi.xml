@@ -28,6 +28,7 @@
   <string name="Media.AddToPlaylistProgressDialogHeader">प्रगति</string>
   <string name="Media.StopAddToPlaylistButton">रोकें</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">तयशुदा</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->

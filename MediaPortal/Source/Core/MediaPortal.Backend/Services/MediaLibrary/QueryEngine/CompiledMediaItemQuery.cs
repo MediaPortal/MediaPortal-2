@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2013 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2013 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,6 +49,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected readonly IFilter _filter;
+    protected uint? _offset;
+    protected uint? _limit;
+
     protected readonly IList<SortInformation> _sortInformation;
 
     public CompiledMediaItemQuery(
@@ -57,7 +60,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         ICollection<MediaItemAspectMetadata> optionalRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
-        IFilter filter, IList<SortInformation> sortInformation)
+        IFilter filter, IList<SortInformation> sortInformation,
+        uint? limit = null,
+        uint? offset = null)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -66,6 +71,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _explicitSelectAttributes = explicitSelectedAttributes;
       _filter = filter;
       _sortInformation = sortInformation;
+      _limit = limit;
+      _offset = offset;
     }
 
     public IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> MainSelectAttributes
@@ -86,6 +93,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public ICollection<SortInformation> SortInformation
     {
       get { return _sortInformation; }
+    }
+
+    /// <summary>
+    /// Optional offset to return items from a specific starting position from query.
+    /// </summary>
+    public uint? Offset
+    {
+      get { return _offset; }
+    }
+
+    /// <summary>
+    /// Optional limit to return only a specific number of items from query.
+    /// </summary>
+    public uint? Limit
+    {
+      get { return _limit; }
     }
 
     public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query)
@@ -111,16 +134,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       // Maps (all selected main) MIAM.Attributes to QueryAttributes
-      IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes =
-          new Dictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute>();
+      IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes = new Dictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute>();
 
       // Attributes selected in explicit queries
-      ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectAttributes =
-          new List<MediaItemAspectMetadata.AttributeSpecification>();
+      ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectAttributes = new List<MediaItemAspectMetadata.AttributeSpecification>();
 
       // Allocate selected attributes to main query and explicit selects
-      ICollection<Guid> requestedMIATypeIDs = CollectionUtils.UnionSet(
-          query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs);
+      ICollection<Guid> requestedMIATypeIDs = CollectionUtils.UnionSet(query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs);
       foreach (Guid miaTypeID in requestedMIATypeIDs)
       {
         MediaItemAspectMetadata miam;
@@ -137,8 +157,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
       }
 
-      return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes,
-          mainSelectedAttributes, explicitSelectAttributes, query.Filter, query.SortInformation);
+      return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes, mainSelectedAttributes, explicitSelectAttributes,
+        query.Filter, query.SortInformation, query.Limit, query.Offset);
     }
 
     public IList<MediaItem> QueryList()
@@ -180,7 +200,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                       new Dictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>();
                 ICollection<object> attrValues;
                 if (!attributeValues.TryGetValue(attr, out attrValues))
-                  attrValues = attributeValues[attr] = new List<object>();
+                  attrValues = attributeValues[attr] = new HashSet<object>();
                 attrValues.Add(value);
               }
             }
@@ -189,7 +209,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
         // 2. Main query
         MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-            _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+            _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation, _limit, _offset);
 
         using (IDbCommand command = transaction.CreateCommand())
         {
@@ -199,17 +219,30 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IDictionary<QueryAttribute, string> qa2a;
           mainQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
               out statementStr, out bindVars);
+
+          // Try to use SQL side paging, which gives best performance if supported
+          ISQLDatabasePaging paging = database as ISQLDatabasePaging;
+          if (paging != null)
+            paging.Process(ref statementStr, ref bindVars, ref _offset, ref _limit);
+
           command.CommandText = statementStr;
+
           foreach (BindVar bindVar in bindVars)
             database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
           IEnumerable<MediaItemAspectMetadata> selectedMIAs = _necessaryRequestedMIAs.Union(_optionalRequestedMIAs);
 
           ICollection<Guid> mediaItems = new HashSet<Guid>();
-          using (IDataReader reader = command.ExecuteReader())
+          using (IDataReader fullReader = command.ExecuteReader())
           {
             IList<MediaItem> result = new List<MediaItem>();
-            while (reader.Read())
+
+            var records = fullReader.AsEnumerable();
+            if (_offset.HasValue)
+              records = records.Skip((int)_offset.Value);
+            if (_limit.HasValue)
+              records = records.Take((int)_limit.Value);
+            foreach (var reader in records)
             {
               Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
               if (mediaItems.Contains(mediaItemId))
@@ -218,7 +251,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               mediaItems.Add(mediaItemId);
               IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
               if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
-                  attributeValues = null;
+                attributeValues = null;
               MediaItem mediaItem = new MediaItem(mediaItemId);
               foreach (MediaItemAspectMetadata miam in selectedMIAs)
               {
@@ -367,14 +400,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(".");
         result.Append(attr.AttributeName);
         result.Append(":\r\n");
-        result.Append(complexAttributeQueryBuilder.ToString());
+        result.Append(complexAttributeQueryBuilder);
         result.Append("\r\n\r\n");
       }
       result.Append("Main query:\r\n");
       MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
-      result.Append(mainQueryBuilder.ToString());
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation, _limit, _offset);
+      result.Append(mainQueryBuilder);
       return result.ToString();
     }
   }
+
+  public static class DataReaderExtensions
+  {
+    public static IEnumerable<IDataReader> AsEnumerable(this IDataReader reader)
+    {
+      while (reader.Read())
+        yield return reader;
+    }
+  }
 }
+

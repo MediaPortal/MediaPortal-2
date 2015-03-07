@@ -3,6 +3,7 @@
   <string name="SlimTvClient.Title">Slim TV Client</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV-gids</string>
+  <string name="SlimTvClient.SingleChannelGuide">Programmagids</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programma-informatie</string>
   <string name="SlimTvClient.ChannelLabel">Zender</string>
   <string name="SlimTvClient.ProgramLabel">Programma</string>
@@ -17,11 +18,39 @@
   <string name="SlimTvClient.ChooseChannelGroup">Kies zendergroep...</string>
   <string name="SlimTvClient.ProgramOver">Programma is reeds afgelopen</string>
   <string name="SlimTvClient.WatchNow">Programma nu bekijken</string>
+  <string name="SlimTvClient.WatchFromBeginning">Bekijk opname vanaf het begin</string>
   <string name="SlimTvClient.RecordNow">Nu opnemen</string>
   <string name="SlimTvClient.DeleteSchedule">Verwijder geplande opname</string>
   <string name="SlimTvClient.CreateSchedule">Plan een opname</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Opname acties</string>
+  <string name="SlimTvClient.StopCurrentRecording">Stop huidige opname \'{0}\'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Opnemen programma \'{0}\'</string>
+  <string name="SlimTvClient.RecordManual">Opnemen tot handmatige stop</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Handmatige opname</string>
+  <string name="SlimTvClient.RecordProgram">Opnemen programma</string>
+  <string name="SlimTvClient.DontRecordProgram">Niet opnemen</string>
+  <string name="SlimTvClient.RecordSeries">Series opnemen</string>
+  <string name="SlimTvClient.ChooseScheduleType">Kies type geplande opname</string>
+  <string name="SlimTvClient.DeleteScheduleType">Hoe een geplande opname verwijderen?</string>
+  <string name="SlimTvClient.DeleteSingle">Verwijder enkel programma</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Gehele geplande series opname verwijderen</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Verwijder enkele programma\'s uit geplande opnames</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">1 keer</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Dagelijks</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Wekelijks </string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Iedere keer op deze zender</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Iedere keer op alle zenders</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekeinden</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Werkdagen</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Iedere keer wekelijks op deze zender</string>
   <!--Schedule management-->
+  <string name="SlimTvClient.ScheduleDetails">Details geplande opname</string>
+  <string name="SlimTvClient.ScheduleName">Geplande opnamenaam</string>
+  <string name="SlimTvClient.ScheduleType">Geplande opnametype</string>
+  <string name="SlimTvClient.Schedules">Geplande opnames</string>
+  <string name="SlimTvClient.ExtendedSchedule">Uitgebreide geplande opnames</string>
+  <string name="SlimTvClient.ScheduleManagement">Beheer geplande opnames</string>
   <string name="SlimTvClient.ErrorNoTvProvider">TV aanbieder (nog) niet beschikbaar</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Aantal rijen in EPG</string>

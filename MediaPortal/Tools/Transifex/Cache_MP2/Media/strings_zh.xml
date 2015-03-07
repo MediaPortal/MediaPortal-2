@@ -188,6 +188,7 @@
   <string name="Media.PlaylistIdInfoLabel">内部播放列表ID</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">默认</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">保留画中画视频</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">播放条目</string>
   <string name="Media.PlayAudioItems">播放音频条目</string>

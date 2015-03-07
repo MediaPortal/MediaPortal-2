@@ -21,7 +21,8 @@
   <string name="Settings.Players.VideoPlayer">Spilari fyrir myndskeið</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Margrása hljóðrásir í forgangi</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Ef virkt, 6 rásir í forgangi (þ.e. AC3, AAC)</string>
-  <string name="Settings.Players.DVDPlayer">DVD spilari\n</string>
+  <string name="Settings.Players.DVDPlayer">DVD spilari
+</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Myndtextar</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Veljið ef myndtexta á virkja sjálfvirkt</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Textun</string>

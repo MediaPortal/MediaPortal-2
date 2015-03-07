@@ -564,15 +564,17 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     {
       outParams = new List<object>();
       IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
-      if (scheduleControl == null)
-        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      if (scheduleControl == null || channelAndGroupInfo == null)
+        return new UPnPError(500, "IChannelAndGroupInfo or IScheduleControl service not available");
 
       int channelId = (int)inParams[0];
       DateTime startTime = (DateTime)inParams[1];
       DateTime endTime = (DateTime)inParams[2];
-      IProgram program = new Program { ChannelId = channelId, StartTime = startTime, EndTime = endTime, Title = "Manual" }; // TODO: localize
       ISchedule schedule = null;
-      bool result = scheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
+
+      IChannel channel;
+      bool result = channelAndGroupInfo.GetChannel(channelId, out channel) && scheduleControl.CreateScheduleByTime(channel, startTime, endTime, out schedule);
 
       outParams = new List<object> { result, schedule };
       return null;

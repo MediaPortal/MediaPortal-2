@@ -4,7 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:latestmedia="clr-namespace:MediaPortal.UiComponents.Media.Models;assembly=Media"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
@@ -1523,4 +1524,35 @@
       </BindingSetter.BindingWrapper>
     </BindingSetter>
   </Style>
+
+  <!-- Latest media styles -->
+  <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+  <Style x:Key="LatestMediaListViewStyle" BasedOn="{ThemeResource MediaItemsListListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <UniformGrid x:Name="ListItemsHost" Columns="{x:Static latestmedia:LatestMediaModel.QUERY_LIMIT}" IsItemsHost="True" />
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="NestedMediaListDataTemplate" DataType="{x:Type collections:ListItem}">
+    <StackPanel>
+      <Label Content="{Binding [Name]}" Color="{ThemeResource TextColor}" />
+
+      <ListView x:Name="MediaItemsList" Style="{ThemeResource LatestMediaListViewStyle}" ItemsSource="{Binding Items}"
+                HorizontalAlignment="Stretch">
+        <ListView.Resources>
+          <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+        </ListView.Resources>
+      </ListView>
+    </StackPanel>
+  </DataTemplate>
+
+  <Style x:Key="NestedMediaListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NestedMediaListDataTemplate}"/>
+  </Style>
+
 </ResourceDictionary>

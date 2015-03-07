@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Consts,Brushes"
+    >
+
+  <!-- *************************** Play control graphics ****************************** -->
+  <ControlTemplate x:Key="AudioActiveControlTemplate">
+    <Image Source="PlayerControls.Large\Audio.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="AudioInactiveControlTemplate">
+    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="MuteOnOffControlTemplate">
+    <Canvas>
+      <Path Data="F1M1137.8418,600.5068L1130.2018,606.9598L1054.1758,516.9818L1061.8148,510.5278z" Fill="#A0FF0000" Stretch="Fill"
+            Height="{ThemeResource PlayerControlHeight}" Width="{ThemeResource PlayerControlHeight}"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PlayControlTemplate">
+    <Image Source="PlayerControls.Large\PlayButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PauseControlTemplate">
+    <Image Source="PlayerControls.Large\PauseButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="StopControlTemplate">
+    <Image Source="PlayerControls.Large\StopButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ForwardControlTemplate">
+    <Image Source="PlayerControls.Large\ForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="RewindControlTemplate">
+    <Image Source="PlayerControls.Large\RewindButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipForwardControlTemplate">
+    <Image Source="PlayerControls.Large\SkipForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipBackControlTemplate">
+    <Image Source="PlayerControls.Large\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <!-- Dark version -->
+  <ControlTemplate x:Key="AudioActiveDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\Audio.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="AudioInactiveDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="MuteOnOffDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PlayDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\PlayButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PauseDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\PauseButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="StopDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\StopButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ForwardDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\ForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="RewindDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\RewindButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipForwardDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SkipForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipBackDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PowerControlTemplate">
+    <Image Source="ShutdownIcon.png" Width="39" Height="30" Margin="5" Stretch="Uniform" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowCloseControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="X" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowMinimizeControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="M" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SuspendControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="S" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="NavigateBackControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,5"
+          Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
+    </Grid>
+  </ControlTemplate>
+
+
+  <!-- Star shape for rating control -->
+  <!-- Empty style for non selected stars, it's intended to show only the selection (actual value)-->
+  <ControlTemplate x:Key="StarPolygonTemplate">
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="StarPolygonSelectedTemplate">
+    <!--Polygon x:Name="Star" Width="18" Height="18" Stretch="Fill" Points="9,2 11,7 17,7 12,10 14,15 9,12 4,15 6,10 1,7 7,7" Fill="{ThemeResource StarRatingSelectedColor}" StrokeThickness="0.5" /-->
+    <!--Canvas x:Name="Star">
+      <Path Width="18" Height="18"  Stretch="Fill" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1 M 4,1.77845C 3.94553,1.59922 3.64562,1.55844 3.32778,1.51433C 3.15376,1.48995 2.95616,1.46266 2.89632,1.41622C 2.83647,1.37022 2.7525,1.17982 2.67817,1.01205C 2.54345,0.706425 2.4159,0.418503 2.23761,0.417919L 2.2343,0.417339C 2.05711,0.420677 1.92832,0.705265 1.79098,1.00741C 1.71555,1.17474 1.62937,1.36398 1.56966,1.4094C 1.50927,1.45526 1.31112,1.4808 1.13655,1.50286C 0.819259,1.54379 0.518794,1.58166 0.462672,1.76031C 0.406688,1.93823 0.625935,2.15766 0.858696,2.38957C 0.985694,2.51713 1.13007,2.66167 1.15323,2.73598C 1.17585,2.81013 1.1371,3.01592 1.10373,3.19732C 1.04237,3.52791 0.984177,3.84022 1.128,3.95182C 1.16247,3.97794 1.20549,3.991 1.25665,3.98984C 1.40323,3.98767 1.61489,3.86736 1.81897,3.75068C 1.97203,3.66273 2.1455,3.56362 2.22244,3.56245C 2.29732,3.56245 2.47134,3.66448 2.62481,3.7546C 2.83385,3.8765 3.04979,4.0029 3.19692,4C 3.2427,3.99957 3.282,3.98709 3.31371,3.9627C 3.45864,3.85328 3.40376,3.54083 3.34557,3.20922C 3.31316,3.02782 3.27772,2.82087 3.30034,2.74672C 3.3235,2.67241 3.46939,2.53019 3.59818,2.40364C 3.83246,2.17406 4.05378,1.95811 4,1.77845 Z"/>
+    </Canvas-->
+  <Canvas x:Name="star">
+    <Path Width="18" Height="18" Stretch="Fill" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+  </Canvas> 
+  
+  </ControlTemplate>
+
+</ResourceDictionary>

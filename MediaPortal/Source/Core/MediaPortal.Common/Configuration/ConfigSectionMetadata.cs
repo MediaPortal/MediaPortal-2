@@ -32,8 +32,8 @@ namespace MediaPortal.Common.Configuration
     protected string _iconSmallFilePath;
     protected string _iconLargeFilePath;
 
-    public ConfigSectionMetadata(string location, string text, string iconSmall, string iconLarge)
-      : base(location, text)
+    public ConfigSectionMetadata(string location, string text, string sort, string iconSmall, string iconLarge)
+      : base(location, text, sort)
     {
       _iconSmallFilePath = iconSmall;
       _iconLargeFilePath = iconLarge;

@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Παροχέας αρχείων ZIP</string>
   <string name="ZipMediaProvider.Description">Πρόσβαση σε αρχεία και καταλόγους μέσα σε αρχεία ZIP</string>
 </resources>

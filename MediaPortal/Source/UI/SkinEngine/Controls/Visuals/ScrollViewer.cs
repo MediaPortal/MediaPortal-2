@@ -23,15 +23,20 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.Utilities.DeepCopy;
-using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
+using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
+using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
+using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
-
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -63,6 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _horizontalScrollBarVisibilityProperty;
 
     protected IScrollInfo _attachedScrollInfo = null;
+    protected TouchEvent _lastTouchEvent;
 
     #endregion
 
@@ -110,7 +116,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ScrollViewer sv = (ScrollViewer) source;
+      ScrollViewer sv = (ScrollViewer)source;
       ScrollBarXKnobPos = sv.ScrollBarXKnobPos;
       ScrollBarXKnobWidth = sv.ScrollBarXKnobWidth;
       ScrollBarYKnobPos = sv.ScrollBarYKnobPos;
@@ -180,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float scrollAreaWidth = ScrollBarXSize;
       float w = Math.Min(scrollAreaWidth, Math.Max(
           scrollInfo.ViewPortWidth / totalWidthNN * scrollAreaWidth, SCROLLBAR_MINLENGTH));
-      float x = Math.Min(scrollAreaWidth-w,
+      float x = Math.Min(scrollAreaWidth - w,
           scrollInfo.ViewPortStartX / totalWidthNN * scrollAreaWidth);
 
       ScrollBarXKnobWidth = w;
@@ -270,10 +276,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return _verticalScrollBarVisibilityProperty; }
     }
-    
+
     public ScrollBarVisibility VerticalScrollBarVisibility
     {
-      get { return (ScrollBarVisibility) _verticalScrollBarVisibilityProperty.GetValue(); }
+      get { return (ScrollBarVisibility)_verticalScrollBarVisibilityProperty.GetValue(); }
       set { _verticalScrollBarVisibilityProperty.SetValue(value); }
     }
 
@@ -281,10 +287,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return _horizontalScrollBarVisibilityProperty; }
     }
-    
+
     public ScrollBarVisibility HorizontalScrollBarVisibility
     {
-      get { return (ScrollBarVisibility) _horizontalScrollBarVisibilityProperty.GetValue(); }
+      get { return (ScrollBarVisibility)_horizontalScrollBarVisibilityProperty.GetValue(); }
       set { _horizontalScrollBarVisibilityProperty.SetValue(value); }
     }
 
@@ -295,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float ScrollBarXSize
     {
-      get { return (float) _scrollBarXSizeProperty.GetValue(); }
+      get { return (float)_scrollBarXSizeProperty.GetValue(); }
       set { _scrollBarXSizeProperty.SetValue(value); }
     }
 
@@ -306,7 +312,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float ScrollBarYSize
     {
-      get { return (float) _scrollBarYSizeProperty.GetValue(); }
+      get { return (float)_scrollBarYSizeProperty.GetValue(); }
       set { _scrollBarYSizeProperty.SetValue(value); }
     }
 
@@ -317,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float ScrollBarXKnobPos
     {
-      get { return (float) _scrollBarXKnobPosProperty.GetValue(); }
+      get { return (float)_scrollBarXKnobPosProperty.GetValue(); }
       set { _scrollBarXKnobPosProperty.SetValue(value); }
     }
 
@@ -328,13 +334,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float ScrollBarXKnobWidth
     {
-      get { return (float) _scrollBarXKnobWidthProperty.GetValue(); }
+      get { return (float)_scrollBarXKnobWidthProperty.GetValue(); }
       set { _scrollBarXKnobWidthProperty.SetValue(value); }
     }
 
     public bool ScrollBarXVisible
     {
-      get { return (bool) _scrollBarXVisibleProperty.GetValue(); }
+      get { return (bool)_scrollBarXVisibleProperty.GetValue(); }
       set { _scrollBarXVisibleProperty.SetValue(value); }
     }
 
@@ -350,7 +356,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float ScrollBarYKnobPos
     {
-      get { return (float) _scrollBarYKnobPosProperty.GetValue(); }
+      get { return (float)_scrollBarYKnobPosProperty.GetValue(); }
       set { _scrollBarYKnobPosProperty.SetValue(value); }
     }
 
@@ -361,7 +367,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float ScrollBarYKnobHeight
     {
-      get { return (float) _scrollBarYKnobHeightProperty.GetValue(); }
+      get { return (float)_scrollBarYKnobHeightProperty.GetValue(); }
       set { _scrollBarYKnobHeightProperty.SetValue(value); }
     }
 
@@ -372,7 +378,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool ScrollBarYVisible
     {
-      get { return (bool) _scrollBarYVisibleProperty.GetValue(); }
+      get { return (bool)_scrollBarYVisibleProperty.GetValue(); }
       set { _scrollBarYVisibleProperty.SetValue(value); }
     }
 
@@ -383,84 +389,128 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool CanContentScroll
     {
-      get { return (bool) _canContentScrollProperty.GetValue(); }
+      get { return (bool)_canContentScrollProperty.GetValue(); }
       set { _canContentScrollProperty.SetValue(value); }
     }
 
-    public override void OnMouseWheel(int numDetents)
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
-      base.OnMouseWheel(numDetents);
-
-      if (!IsMouseOver)
-        return;
+      // migration from OnMouseWheel(int numDetents)
+      // - no need to check if mouse is over
+      // - no need to call base class
 
       IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       if (svfs == null)
         return;
 
       int scrollByLines = SystemInformation.MouseWheelScrollLines; // Use the system setting as default.
-      
+
       IScrollInfo scrollInfo = svfs as IScrollInfo;
       if (scrollInfo != null && scrollInfo.NumberOfVisibleLines != 0) // If ScrollControl can shown less items, use this as limit.
         scrollByLines = scrollInfo.NumberOfVisibleLines;
 
-      int numLines = numDetents * scrollByLines;
-      
+      int numLines = e.NumDetents * scrollByLines;
+
       if (numLines < 0)
-        svfs.ScrollDown(-1*numLines);
+        svfs.ScrollDown(-1 * numLines);
       else if (numLines > 0)
         svfs.ScrollUp(numLines);
     }
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
-      base.OnKeyPressed(ref key);
-
-      if (key == Key.None)
-        // Key event was handeled by child
-        return;
-
-      if (!CheckFocusInScope())
-        return;
-
-      if (key == Key.Down && OnDown())
-        key = Key.None;
-      else if (key == Key.Up && OnUp())
-        key = Key.None;
-      else if (key == Key.Left && OnLeft())
-        key = Key.None;
-      else if (key == Key.Right && OnRight())
-        key = Key.None;
-      else if (key == Key.Home && OnHome())
-        key = Key.None;
-      else if (key == Key.End && OnEnd())
-        key = Key.None;
-      else if (key == Key.PageDown && OnPageDown())
-        key = Key.None;
-      else if (key == Key.PageUp && OnPageUp())
-        key = Key.None;
+      // Only handle mouse moves if no touch event happens
+      if (_lastTouchEvent == null)
+        base.OnMouseMove(x, y, focusCandidates);
     }
 
-    /// <summary>
-    /// Checks if the currently focused control is contained in this scrollviewer and
-    /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
-    /// handle the focus scrolling keys in this scope.
-    /// </summary>
-    bool CheckFocusInScope()
+    protected override void OnPreviewMouseMove(MouseEventArgs e)
     {
-      Screen screen = Screen;
-      Visual focusPath = screen == null ? null : screen.FocusedElement;
-      while (focusPath != null)
+      // consume event if touch is down
+      if (_lastTouchEvent != null)
       {
-        if (focusPath == this)
-          // Focused control is located in our focus scope
-          return true;
-        if (focusPath is ScrollViewer)
-          // Focused control is located in another scrollviewer's focus scope
-          return false;
-        focusPath = focusPath.VisualParent;
+        e.Handled = true;
       }
-      return false;
+    }
+
+    public override void OnTouchDown(TouchDownEvent touchEventArgs)
+    {
+      var isInArea = IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY);
+      base.OnTouchDown(touchEventArgs);
+      // Only start handling touch if it happened inside control's area
+      if (!touchEventArgs.IsPrimaryContact || !isInArea)
+        return;
+
+      _lastTouchEvent = touchEventArgs;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
+      if (svfs != null)
+        svfs.BeginScroll();
+    }
+
+    public override void OnTouchUp(TouchUpEvent touchEventArgs)
+    {
+      base.OnTouchUp(touchEventArgs);
+      if (!touchEventArgs.IsPrimaryContact)
+        return;
+
+      _lastTouchEvent = null;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
+      if (svfs != null)
+        svfs.EndScroll();
+    }
+
+    public override void OnTouchMove(TouchMoveEvent touchEventArgs)
+    {
+      base.OnTouchMove(touchEventArgs);
+      if (!touchEventArgs.IsPrimaryContact)
+        return;
+
+      if (_lastTouchEvent != null)
+      {
+        // Transform screen (i.e. 720p) to skin coordinates (i.e. 1080p)
+        float lastX = _lastTouchEvent.LocationX;
+        float lastY = _lastTouchEvent.LocationY;
+        float currX = touchEventArgs.LocationX;
+        float currY = touchEventArgs.LocationY;
+        if (!TransformMouseCoordinates(ref lastX, ref lastY) || !TransformMouseCoordinates(ref currX, ref currY))
+          return;
+
+        var scrollX = currX - lastX;
+        var scrollY = currY - lastY;
+
+        IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
+        if (svfs == null)
+          return;
+
+        svfs.Scroll(scrollX, scrollY);
+      }
+    }
+
+    protected override void OnKeyPress(KeyEventArgs e)
+    {
+      // migration from OnKeyPressed(ref Key key)
+      // - no need the check if already handled, b/c this is done by the invoker
+      // - no need to check if any child has focus, since event was originally invoked on focused element, 
+      //   and the bubbles up the visual tree. This should also handle the subScroller issue, since the 
+      //   sub scroller is asked 1st if it wants to handle the input
+      // - instead of setting key to None, we set e.Handled = true
+
+      if (e.Key == Key.Down && OnDown())
+        e.Handled = true;
+      else if (e.Key == Key.Up && OnUp())
+        e.Handled = true;
+      else if (e.Key == Key.Left && OnLeft())
+        e.Handled = true;
+      else if (e.Key == Key.Right && OnRight())
+        e.Handled = true;
+      else if (e.Key == Key.Home && OnHome())
+        e.Handled = true;
+      else if (e.Key == Key.End && OnEnd())
+        e.Handled = true;
+      else if (e.Key == Key.PageDown && OnPageDown())
+        e.Handled = true;
+      else if (e.Key == Key.PageUp && OnPageUp())
+        e.Handled = true;
     }
 
     bool OnHome()

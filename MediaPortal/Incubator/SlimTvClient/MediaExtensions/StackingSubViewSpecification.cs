@@ -48,6 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
     {
       _mediaItems = mediaItems;
       _absNumItems = _mediaItems.Count;
+      SortedSubViews = true;
     }
 
     #endregion

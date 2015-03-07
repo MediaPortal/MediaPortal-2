@@ -54,6 +54,7 @@
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
   <string name="Media.AddToPlaylistProgressDialogHeader">Napredak</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Audio</string>

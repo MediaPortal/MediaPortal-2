@@ -186,6 +186,7 @@
   <string name="Media.PlaylistIdInfoLabel">Intern spilleliste-id</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standard</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">PiP</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spill element</string>
   <string name="Media.PlayAudioItems">Spill av lydelementer</string>

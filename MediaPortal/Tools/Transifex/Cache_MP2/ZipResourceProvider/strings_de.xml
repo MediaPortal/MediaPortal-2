@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">ZIP-Datei-Medienanbieter</string>
+  <string name="ZipMediaProvider.Name">ZIP-Datei</string>
   <string name="ZipMediaProvider.Description">Zugriff auf Dateien und Verzeichnisse in ZIP-Dateien</string>
 </resources>

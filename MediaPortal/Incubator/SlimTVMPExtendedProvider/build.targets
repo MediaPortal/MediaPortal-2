@@ -5,23 +5,23 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)SlimTv.Interfaces.dll" />
-    <References Include="$(TargetDir)MPExtended.Services.Common.Interfaces.dll" />
-    <References Include="$(TargetDir)MPExtended.Services.TVAccessService.Interfaces.dll" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
-    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <References Include="$(TargetDir)SlimTv.Interfaces.dll" />
+      <References Include="$(TargetDir)MPExtended.Services.Common.Interfaces.dll" />
+      <References Include="$(TargetDir)MPExtended.Services.TVAccessService.Interfaces.dll" />
+    </ItemGroup>
+  
+      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>

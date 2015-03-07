@@ -226,7 +226,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (systemId == scm.HomeServerSystemId)
           {
             systemName = scm.LastHomeServerName;
-            hostName = scm.LastHomeServerSystem.HostName;
+            SystemName system = scm.LastHomeServerSystem;
+            hostName = system != null ? system.HostName : null;
           }
           else
           {
@@ -239,7 +240,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             else
             {
               systemName = clientMetadata.LastClientName;
-              hostName = clientMetadata.LastSystem.HostName;
+              SystemName system = clientMetadata.LastSystem;
+              hostName = system != null ? system.HostName : null;
             }
           }
           ListItem systemSharesItem = new ListItem(Consts.KEY_NAME, systemName);

@@ -188,6 +188,7 @@
   <string name="Media.PlaylistIdInfoLabel">קוד רשימת ניגון פנימי</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">ברירת מחדל</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">שמור על וידאו במצב PIP</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">נגן פריט</string>
   <string name="Media.PlayAudioItems">נגן פריטי אודיו</string>

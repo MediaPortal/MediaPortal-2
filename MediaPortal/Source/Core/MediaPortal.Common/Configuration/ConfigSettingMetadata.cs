@@ -38,8 +38,8 @@ namespace MediaPortal.Common.Configuration
     protected IDictionary<string, string> _additionalData = null;
     protected IDictionary<string, Type> _additionalTypes = null;
 
-    public ConfigSettingMetadata(string location, string text, string className,
-        string helpText, ICollection<string> listenTo) : base(location, text)
+    public ConfigSettingMetadata(string location, string text, string sort, string className,
+        string helpText, ICollection<string> listenTo) : base(location, text, sort)
     {
       _className = className;
       _helpText = helpText;

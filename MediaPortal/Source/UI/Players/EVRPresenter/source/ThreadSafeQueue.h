@@ -47,7 +47,7 @@ public:
   }
 
 
-  void Clear() 
+  void Clear()
   {
     AutoLock lock(m_lock);
     m_list.Clear();
@@ -61,7 +61,7 @@ public:
   }
 
 private:
-  CritSec         m_lock; 
+  CritSec         m_lock;
   ComPtrList<T>   m_list;
 };
 

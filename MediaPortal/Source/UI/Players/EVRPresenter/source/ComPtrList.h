@@ -76,7 +76,7 @@ public:
   private:
     const Node *pNode;
 
-    POSITION(Node *p) : pNode(p) 
+    POSITION(Node *p) : pNode(p)
     {
     }
   };
@@ -109,7 +109,7 @@ protected:
     }
 
     Node *pAfter = pBefore->next;
-    
+
     pBefore->next = pNode;
     pAfter->prev = pNode;
 
@@ -315,12 +315,12 @@ public:
 
 
   HRESULT GetItemPos(POSITION pos, T *ppItem)
-  {   
+  {
     if (pos.pNode)
     {
       return GetItem(pos.pNode, ppItem);
     }
-    else 
+    else
     {
       return E_FAIL;
     }
@@ -368,7 +368,7 @@ public:
 // ComAutoRelease: Releases COM pointers.
 class ComAutoRelease
 {
-public: 
+public:
   void operator()(IUnknown *p)
   {
     if (p)
@@ -382,7 +382,7 @@ public:
 // MemDelete: Deletes pointers to new'd memory.
 class MemDelete
 {
-public: 
+public:
   void operator()(void *p)
   {
     if (p)

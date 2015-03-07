@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #region Base overrides
 
-    public override void OnKeyPressed(ref Key key)
+    internal override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
       if (!IsActive || key == Key.None)
@@ -123,8 +123,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       command.Execute(new object[] {key});
     }
 
-    public override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
+    internal override void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
+      //TODO: check if this could also be done in routed event OnMouseMove or OnPreviewMouseMove
+      // The only difference should be that routed events get not called if mouse is not over this or a child element
       base.OnMouseMove(x, y, focusCandidates);
       float xTrans = x;
       float yTrans = y;
@@ -141,7 +143,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       command.Execute(new object[] {_lastMouseX, _lastMouseY});
     }
 
-    public override void OnMouseClick(MouseButtons buttons, ref bool handled)
+    //TODO: check if we can use routed OnMouseClick handler. This is the only usage of old OnMouseClick!
+    internal override void OnMouseClick(MouseButtons buttons, ref bool handled)
     {
       if (IsActive && buttons == Buttons)
       {

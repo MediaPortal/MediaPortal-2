@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -30,6 +31,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
+  [ContentProperty("KeyFrames")]
   public class DoubleAnimationUsingKeyFrames: PropertyAnimationTimeline, IAddChild<DoubleKeyFrame>
   {
     #region Protected fields
@@ -47,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _keyFramesProperty = new SProperty(typeof(IList<DoubleKeyFrame>), new List<DoubleKeyFrame>());
+      _keyFramesProperty = new SProperty(typeof(DoubleKeyFrameCollection), new DoubleKeyFrameCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -75,9 +77,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _keyFramesProperty; }
     }
 
-    public IList<DoubleKeyFrame> KeyFrames
+    public DoubleKeyFrameCollection KeyFrames
     {
-      get { return _keyFramesProperty.GetValue() as IList<DoubleKeyFrame>; }
+      get { return (DoubleKeyFrameCollection)_keyFramesProperty.GetValue(); }
     }
 
     public override double ActualDurationInMilliseconds

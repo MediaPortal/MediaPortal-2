@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2013 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2013 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -84,6 +84,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly IFilter _filter;
     protected readonly IList<SortInformation> _sortInformation;
+    protected readonly uint? _offset;
+    protected readonly uint? _limit;
 
     /// <summary>
     /// Creates a new <see cref="MainQueryBuilder"/> instance.
@@ -104,7 +106,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public MainQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
         SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        IFilter filter, IList<SortInformation> sortInformation) : base(miaManagement)
+        IFilter filter, IList<SortInformation> sortInformation, uint? limit = null, uint? offset = null)
+      : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _optionalRequestedMIAs = optionalRequestedMIAs;
@@ -112,6 +115,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _selectProjectionFunction = selectProjectionFunction;
       _filter = filter;
       _sortInformation = sortInformation;
+      _limit = limit;
+      _offset = offset;
     }
 
     protected void GenerateSqlStatement(bool groupByValues,
@@ -305,7 +310,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       if (!string.IsNullOrEmpty(whereStr))
       {
-        result.Append("WHERE ");
+        result.Append(" WHERE ");
         result.Append(whereStr);
       }
       if (groupByValues)
@@ -322,11 +327,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (compiledSortInformation != null && compiledSortInformation.Count > 0)
         {
           IEnumerable<string> sortCriteria = compiledSortInformation.Select(csi => csi.GetSortDeclaration(ns));
-          result.Append("ORDER BY ");
+          result.Append(" ORDER BY ");
           result.Append(StringUtils.Join(", ", sortCriteria));
         }
       }
-
       statementStr = result.ToString();
     }
 
@@ -374,3 +378,4 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     }
   }
 }
+

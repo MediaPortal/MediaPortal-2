@@ -17,7 +17,8 @@
   <string name="Settings.Appearance.Skin">Apvalkalas</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Apvalkalas ir tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Keisti apvalkalą</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Keisti MediaPortal 2 išvaizdą&amp;patirtį\n</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Keisti MediaPortal 2 išvaizdą&amp;patirtį
+</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Keisti temą</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Keisti esamo apvalkalo pateikimą</string>
   <string name="Settings.Players">Grotuvai</string>

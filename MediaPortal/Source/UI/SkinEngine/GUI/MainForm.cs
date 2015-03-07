@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 {
   public delegate void SwitchModeDelegate(ScreenMode mode);
 
-  public partial class MainForm : Form, IScreenControl
+  public partial class MainForm : TouchForm, IScreenControl
   {
     protected delegate void Dlgt();
 
@@ -162,6 +162,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _adaptToSizeEnabled = true;
 
       VideoPlayerSynchronizationStrategy = new SynchronizeToPrimaryPlayer();
+
+      // Register touch events
+      TouchDown += MainForm_OnTouchDown;
+      TouchMove += MainForm_OnTouchMove;
+      TouchUp += MainForm_OnTouchUp;
     }
 
     /// <summary>
@@ -343,16 +348,19 @@ namespace MediaPortal.UI.SkinEngine.GUI
         _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
-        ISharpDXVideoPlayer SharpDXVideoPlayer = videoPlayer as ISharpDXVideoPlayer;
-        if (SharpDXVideoPlayer != null)
-          if (SharpDXVideoPlayer.SetRenderDelegate(VideoPlayerRender))
-          {
-            _synchronizedVideoPlayer = SharpDXVideoPlayer;
-            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", SharpDXVideoPlayer);
-          }
-          else
-            ServiceRegistration.Get<ILogger>().Info(
-                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", SharpDXVideoPlayer);
+        ISharpDXVideoPlayer newPlayer = videoPlayer as ISharpDXVideoPlayer;
+        if (newPlayer == null)
+        {
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: SynchronizeToVideoPlayerFramerate: Restore default rendering, no new Player!");
+          return;
+        }
+        if (newPlayer.SetRenderDelegate(VideoPlayerRender))
+        {
+          _synchronizedVideoPlayer = newPlayer;
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", newPlayer);
+        }
+        else
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", newPlayer);
       }
     }
 
@@ -619,15 +627,60 @@ namespace MediaPortal.UI.SkinEngine.GUI
       Application.ExitThread();
     }
 
+    private void MainForm_OnTouchUp(object sender, TouchUpEvent uiTouchEventArgs)
+    {
+      if (_renderThreadStopped)
+        return;
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.TouchUp(uiTouchEventArgs);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in TouchDown handler", ex);
+      }
+
+    }
+
+    private void MainForm_OnTouchMove(object sender, TouchMoveEvent uiTouchEventArgs)
+    {
+      if (_renderThreadStopped)
+        return;
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.TouchMove(uiTouchEventArgs);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in TouchDown handler", ex);
+      }
+    }
+
+    private void MainForm_OnTouchDown(object sender, TouchDownEvent uiTouchEventArgs)
+    {
+      if (_renderThreadStopped)
+        return;
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.TouchDown(uiTouchEventArgs);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in TouchDown handler", ex);
+      }
+    }
+
     private void MainForm_MouseWheel(object sender, MouseEventArgs e)
     {
       if (_renderThreadStopped)
         return;
-      int numDetents = e.Delta / 120;
-      if (numDetents == 0)
+      if (e.Delta == 0)
         return;
 
-      ServiceRegistration.Get<IInputManager>().MouseWheel(numDetents);
+      ServiceRegistration.Get<IInputManager>().MouseWheel(e.Delta);
     }
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
@@ -656,7 +709,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_KeyDown(object sender, KeyEventArgs e)
+    private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
       try
       {
@@ -675,7 +728,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+    private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
     {
       try
       {
@@ -694,7 +747,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private static void MainForm_MouseClick(object sender, MouseEventArgs e)
+    private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
       try
       {
@@ -732,11 +785,29 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private void MainForm_Activated(object sender, EventArgs e)
     {
       CheckTopMost();
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.ApplicationActivated();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occurred in ApplicationActivated handler", ex);
+      }
     }
 
     private void MainForm_Deactivate(object sender, EventArgs e)
     {
       CheckTopMost();
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.ApplicationDeactivated();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occurred in ApplicationDeactivated handler", ex);
+      }
     }
 
     protected override void WndProc(ref Message m)
@@ -870,6 +941,32 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnLostFocus(e);
       _hasFocus = false;
+    }
+
+    private void MainForm_MouseDown(object sender, MouseEventArgs e)
+    {
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.MouseDown(e.Button, e.Clicks);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
+      }
+    }
+
+    private void MainForm_MouseUp(object sender, MouseEventArgs e)
+    {
+      try
+      {
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        inputManager.MouseUp(e.Button, e.Clicks);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
+      }
     }
   }
 }

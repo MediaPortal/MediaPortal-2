@@ -1,18 +1,20 @@
-// Copyright (C) 2005-2010 Team MediaPortal
+// Copyright (C) 2007-2014 Team MediaPortal
 // http://www.team-mediaportal.com
 // 
-// MediaPortal is free software: you can redistribute it and/or modify
+// This file is part of MediaPortal 2
+// 
+// MediaPortal 2 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// MediaPortal is distributed in the hope that it will be useful,
+// MediaPortal 2 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with MediaPortal. If not, see <http://www.gnu.org/licenses/>.
+// along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 
 #include <mfapi.h>
 
@@ -50,7 +52,7 @@ void EVRCustomPresenter::ProcessOutputLoop()
 HRESULT EVRCustomPresenter::ProcessOutput()
 {
   // Method is called if mixer has a new input sample (m_bSampleNotiy) or on a repaint request (m_bRepaint)
-  assert(m_bSampleNotify || m_bRepaint);  
+  assert(m_bSampleNotify || m_bRepaint);
 
   HRESULT     hr = S_OK;
   DWORD       dwStatus = 0;
@@ -129,7 +131,7 @@ HRESULT EVRCustomPresenter::ProcessOutput()
       SAFE_RELEASE(pSample);
       return hr;
     }
-   
+
     // Handle some known error codes from ProcessOutput.
 
     if (hr == MF_E_TRANSFORM_TYPE_NOT_SET)
@@ -145,7 +147,7 @@ HRESULT EVRCustomPresenter::ProcessOutput()
     else if (hr == MF_E_TRANSFORM_NEED_MORE_INPUT)
     {
       // The mixer needs more input.  We have to wait for the mixer to get more input.
-      m_bSampleNotify = FALSE; 
+      m_bSampleNotify = FALSE;
     }
   }
   else
@@ -252,7 +254,7 @@ HRESULT EVRCustomPresenter::TrackSample(IMFSample *pSample)
     SAFE_RELEASE(pTracked);
     return hr;
   }
-  
+
   hr = pTracked->SetAllocator(&m_SampleFreeCB, NULL);
   if (FAILED(hr))
   {
@@ -318,10 +320,10 @@ HRESULT EVRCustomPresenter::ClearDesiredSampleTime(IMFSample *pSample)
   CheckPointer(pSample, E_POINTER);
 
   HRESULT hr = S_OK;
-    
+
   IMFDesiredSample *pDesired = NULL;
   IUnknown *pUnkSwapChain = NULL;
-    
+
   // We store some custom attributes on the sample, so we need to cache them and reset them.
   // This works around the fact that IMFDesiredSample::Clear() removes all of the attributes from the sample. 
 
@@ -334,7 +336,7 @@ HRESULT EVRCustomPresenter::ClearDesiredSampleTime(IMFSample *pSample)
   {
     // This method has no return value.
     (void)pDesired->Clear();
-    
+
     hr = pSample->SetUINT32(MFSamplePresenter_SampleCounter, counter);
     if (FAILED(hr))
     {
@@ -343,7 +345,7 @@ HRESULT EVRCustomPresenter::ClearDesiredSampleTime(IMFSample *pSample)
       SAFE_RELEASE(pDesired);
       return hr;
     }
-      
+
     if (pUnkSwapChain)
     {
       hr = pSample->SetUnknown(MFSamplePresenter_SampleSwapChain, pUnkSwapChain);
@@ -357,10 +359,10 @@ HRESULT EVRCustomPresenter::ClearDesiredSampleTime(IMFSample *pSample)
     }
   }
 
- SAFE_RELEASE(pUnkSwapChain);
- SAFE_RELEASE(pDesired);
+  SAFE_RELEASE(pUnkSwapChain);
+  SAFE_RELEASE(pDesired);
 
- return hr;
+  return hr;
 }
 
 
@@ -397,7 +399,7 @@ BOOL EVRCustomPresenter::IsSampleTimePassed(IMFClock *pClock, IMFSample *pSample
   {
     if (hnsSampleStart + hnsSampleDuration < hnsTimeNow)
     {
-      return TRUE; 
+      return TRUE;
     }
   }
 
@@ -434,7 +436,7 @@ HRESULT EVRCustomPresenter::OnSampleFree(IMFAsyncResult *pResult)
   }
 
   // If this sample was submitted for a frame-step, then the frame step is complete.
-  if (m_FrameStep.state == FRAMESTEP_SCHEDULED) 
+  if (m_FrameStep.state == FRAMESTEP_SCHEDULED)
   {
     // QI the sample for IUnknown and compare it to our cached value.
     hr = pSample->QueryInterface(__uuidof(IMFSample), (void**)&pUnk);
@@ -447,7 +449,7 @@ HRESULT EVRCustomPresenter::OnSampleFree(IMFAsyncResult *pResult)
       NotifyEvent(EC_ERRORABORT, hr, 0);
       return hr;
     }
- 
+
     if (m_FrameStep.pSampleNoRef == (DWORD_PTR)pUnk)
     {
       // Notify the EVR. 
@@ -469,7 +471,7 @@ HRESULT EVRCustomPresenter::OnSampleFree(IMFAsyncResult *pResult)
 
   {
     CAutoLock lock(this);
-    
+
     if (MFGetAttributeUINT32(pSample, MFSamplePresenter_SampleCounter, (UINT32)-1) == m_TokenCounter)
     {
       // Return the sample to the sample pool.
@@ -488,7 +490,7 @@ HRESULT EVRCustomPresenter::OnSampleFree(IMFAsyncResult *pResult)
       (void)ProcessOutputLoop();
     }
   }
- 
+
   SAFE_RELEASE(pObject);
   SAFE_RELEASE(pSample);
   SAFE_RELEASE(pUnk);

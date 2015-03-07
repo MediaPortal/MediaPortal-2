@@ -1,18 +1,20 @@
-// Copyright (C) 2005-2010 Team MediaPortal
+// Copyright (C) 2007-2014 Team MediaPortal
 // http://www.team-mediaportal.com
 // 
-// MediaPortal is free software: you can redistribute it and/or modify
+// This file is part of MediaPortal 2
+// 
+// MediaPortal 2 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// MediaPortal is distributed in the hope that it will be useful,
+// MediaPortal 2 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with MediaPortal. If not, see <http://www.gnu.org/licenses/>.
+// along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 
 #include "EVRCustomPresenter.h"
 
@@ -30,7 +32,7 @@ HRESULT EVRCustomPresenter::PrepareFrameStep(DWORD cSteps)
   // If the clock is are already running, we can start frame-stepping now. Otherwise, we will start when the clock starts.
   if (m_RenderState == RENDER_STATE_STARTED)
   {
-    hr = StartFrameStep();       
+    hr = StartFrameStep();
   }
 
   return hr;
@@ -58,14 +60,14 @@ HRESULT EVRCustomPresenter::StartFrameStep()
       hr = m_FrameStep.samples.RemoveFront(&pSample);
       if (FAILED(hr))
       {
-        SAFE_RELEASE(pSample)
+        SAFE_RELEASE(pSample);
         CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep VideoSampleList::RemoveFront() failed");
       }
 
       hr = DeliverFrameStepSample(pSample);
       if (FAILED(hr))
       {
-        SAFE_RELEASE(pSample)
+        SAFE_RELEASE(pSample);
         CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep EVRCustomPresenter::DeliverFrameStepSample() failed");
       }
 
@@ -88,7 +90,7 @@ HRESULT EVRCustomPresenter::StartFrameStep()
       if (FAILED(hr))
       {
         SAFE_RELEASE(pSample)
-        CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep EVRCustomPresenter::DeliverSample() failed");
+          CHECK_HR(hr, "EVRCustomPresenter::StartFrameStep EVRCustomPresenter::DeliverSample() failed");
       }
 
       SAFE_RELEASE(pSample);

@@ -186,6 +186,7 @@
   <string name="Media.PlaylistIdInfoLabel">Intern afspilningsliste id</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">normal</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Bibehold PiP video</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Afspil emne</string>
   <string name="Media.PlayAudioItems">Afspil lyd emne</string>

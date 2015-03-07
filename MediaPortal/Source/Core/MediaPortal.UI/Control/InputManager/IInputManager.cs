@@ -75,15 +75,15 @@ namespace MediaPortal.UI.Control.InputManager
     /// <summary>
     /// Called to handle a mouse move event.
     /// </summary>
-    /// <param name="x">The x corrdinate.</param>
+    /// <param name="x">The x coordinate.</param>
     /// <param name="y">The y coordinate.</param>
     void MouseMove(float x, float y);
 
     /// <summary>
     /// Called to handle mouse wheel events.
     /// </summary>
-    /// <param name="numDetents">Number of mousewheel detents. A detent is one notch of the mouse wheel.</param>
-    void MouseWheel(int numDetents);
+    /// <param name="delta">How much the wheel turned.</param>
+    void MouseWheel(int delta);
 
     /// <summary>
     /// Called to handle a mouse click event.
@@ -92,11 +92,43 @@ namespace MediaPortal.UI.Control.InputManager
     void MouseClick(MouseButtons mouseButtons);
 
     /// <summary>
+    /// Called to handle a mouse down event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    /// <param name="clicks">Number of times the mouse button was pressed an released</param>
+    void MouseDown(MouseButtons mouseButtons, int clicks);
+
+    /// <summary>
+    /// Called to handle a mouse up event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    /// <param name="clicks">Number of times the mouse button was pressed an released</param>
+    void MouseUp(MouseButtons mouseButtons, int clicks);
+
+    /// <summary>
     /// Called to handle a key event. The key event can come from a mapped keyboard input or from any other
     /// input service.
     /// </summary>
     /// <param name="key">The key which was pressed or generated.</param>
     void KeyPress(Key key);
+
+    /// <summary>
+    /// Called to handle touch down events. The arguments contain the position where the event was raised.
+    /// </summary>
+    /// <param name="touchDownEvent">The touch event.</param>
+    void TouchDown(TouchDownEvent touchDownEvent);
+
+    /// <summary>
+    /// Called to handle touch up events. The arguments contain the position where the event was raised.
+    /// </summary>
+    /// <param name="touchUpEvent">The touch event.</param>
+    void TouchUp(TouchUpEvent touchUpEvent);
+
+    /// <summary>
+    /// Called to handle touch move events. The arguments contain the position where the event was raised.
+    /// </summary>
+    /// <param name="touchMoveEvent">The touch event.</param>
+    void TouchMove(TouchMoveEvent touchMoveEvent);
 
     /// <summary>
     /// Called to execute the given command in the input manager thread.
@@ -124,5 +156,15 @@ namespace MediaPortal.UI.Control.InputManager
     /// </summary>
     /// <param name="key">The key which triggers the command.</param>
     void RemoveKeyBinding(Key key);
+
+    /// <summary>
+    /// The application has been activated
+    /// </summary>
+    void ApplicationActivated();
+
+    /// <summary>
+    /// The application has been deactivated
+    /// </summary>
+    void ApplicationDeactivated();
   }
 }

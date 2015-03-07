@@ -5,11 +5,11 @@
     <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\</AppDestination>
   </PropertyGroup>
 
-  <ItemGroup>
-    <BaseFiles Include="$(SolutionDir)Base\ServiceMonitor\**\*.*" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <BaseFiles Include="$(SolutionDir)Base\ServiceMonitor\**\*.*" />
+    </ItemGroup>
+  
     <Copy SourceFiles="@(BaseFiles)"
           DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 

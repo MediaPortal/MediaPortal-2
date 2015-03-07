@@ -155,6 +155,7 @@
   <string name="Media.PlaylistTypeInfoLabel">Tipo de playlist</string>
   <string name="Media.PlaylistNumItemsLabel">Quantidade de ítens</string>
   <string name="Media.PlaylistIdInfoLabel">Identificação interna da playlist</string>
+  <!--MediaItemAction dialog-->
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Executar o ítem</string>
   <string name="Media.PlayAudioItems">Tocar ítens de áudio</string>

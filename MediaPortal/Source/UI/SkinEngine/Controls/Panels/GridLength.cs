@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.ComponentModel;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
@@ -35,6 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     Star,
   }
 
+  [TypeConverter(typeof(MPFConverter<GridLength>))]
   public class GridLength : IDeepCopyable, ISkinEngineManagedObject
   {
     #region Private fields

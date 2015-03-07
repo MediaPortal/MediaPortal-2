@@ -15,9 +15,28 @@
     <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
   </ItemGroup>
 
+  <ItemGroup>
+    <SQLiteInterop64 Include="$(TargetDir)x64\SQLite.Interop.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <SQLiteInterop86 Include="$(TargetDir)x86\SQLite.Interop.dll" />
+  </ItemGroup>
+
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(SQLiteInterop64)" DestinationFolder="$(PluginDestination)x64\" />
+    <Copy SourceFiles="@(SQLiteInterop86)" DestinationFolder="$(PluginDestination)x86\" />
   </Target>
+
+  <!-- The following target is necessary fo copy the SQLite interop binaries into the
+       project folder after nuget restore when they have not been committed to nuget -->
+  <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
+    <Copy SourceFiles="%(Content.Identity)" 
+          DestinationFiles="%(Content.Link)" 
+          SkipUnchangedFiles='true' 
+          OverwriteReadOnlyFiles='true' 
+          Condition="'%(Content.Link)' != ''" />
+ </Target>  
 
 </Project>

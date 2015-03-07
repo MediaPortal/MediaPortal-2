@@ -55,7 +55,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _attributeType = value; }
     }
 
-    [XmlIgnore]
     public SortDirection Direction
     {
       get { return _sortDirection; }
@@ -134,6 +133,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     protected HashSet<Guid> _necessaryRequestedMIATypeIDs;
     protected HashSet<Guid> _optionalRequestedMIATypeIDs = null;
     protected List<SortInformation> _sortInformation = null;
+    protected uint? _offset = null;
+    protected uint? _limit = null;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
@@ -164,6 +165,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       _necessaryRequestedMIATypeIDs = new HashSet<Guid>(other._necessaryRequestedMIATypeIDs);
       _optionalRequestedMIATypeIDs = new HashSet<Guid>(other._optionalRequestedMIATypeIDs);
       _sortInformation = other._sortInformation;
+      _limit = other.Limit;
+      _offset = other.Offset;
     }
 
     #endregion
@@ -196,6 +199,24 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _sortInformation; }
       set { _sortInformation = new List<SortInformation>(value); }
+    }
+
+    /// <summary>
+    /// Optional offset to return items from a specific starting position from query.
+    /// </summary>
+    public uint? Offset
+    {
+      get { return _offset; }
+      set { _offset = value; }
+    }
+
+    /// <summary>
+    /// Optional limit to return only a specific number of items from query.
+    /// </summary>
+    public uint? Limit
+    {
+      get { return _limit; }
+      set { _limit = value; }
     }
 
     #endregion
@@ -250,6 +271,10 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       result.Append("], SortInformation: [");
       result.Append(StringUtils.Join(", ", _sortInformation));
       result.Append("]");
+      if (Limit.HasValue)
+        result.AppendFormat(" LIMIT {0}", Limit.Value);
+      if (Offset.HasValue)
+        result.AppendFormat(" OFFSET {0}", Offset.Value);
       return result.ToString();
     }
 

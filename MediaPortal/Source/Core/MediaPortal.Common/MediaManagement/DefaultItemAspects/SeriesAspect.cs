@@ -72,14 +72,14 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The numbers start at 1.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Episode", typeof(int), Cardinality.ManyToMany, false);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Episode", typeof(int), Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains the number(s) of the episode(s) as they are published on DVD. The number can be different to <see cref="ATTR_EPISODE"/>.
     /// If a file contains multiple episodes, all episode numbers are added separately. The numbers start at 1.
     /// </summary>
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DVDEPISODE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DvdEpisode", typeof(double), Cardinality.ManyToMany, false);
+        MediaItemAspectMetadata.CreateAttributeSpecification("DvdEpisode", typeof(double), Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Name of the episode. We only store the first episode name (or combined name) if the file contains multiple episodes.

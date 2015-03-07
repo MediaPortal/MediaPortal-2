@@ -27,11 +27,10 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
-using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
-using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.UI.Players.BassPlayer
@@ -54,7 +53,7 @@ namespace MediaPortal.UI.Players.BassPlayer
   /// Multithreading: This "external" player interface class is safe for multithreading.
   /// </para>
   /// </remarks>
-  public class BassPlayer : IDisposable, ISpectrumPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer, ITagSource
+  public class BassPlayer : IDisposable, IAudioPlayer, IAudioPlayerAnalyze, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer, ITagSource
   {
     #region Protected fields
 
@@ -70,7 +69,6 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected string _mediaItemTitle = string.Empty;
 
     // Spectrum related fields
-    protected readonly int _maxFFT = (int) (BASSData.BASS_DATA_AVAILABLE | BASSData.BASS_DATA_FFT4096);
     protected int _sampleFrequency = 0;
 
     // Data and events for the communication with the player manager.
@@ -83,9 +81,14 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     #endregion
 
+    [Obsolete("Player plugins are now located in BassLibraries plugin. Setting other folder is no longer supported.")]
     public BassPlayer(string playerMainDirectory)
+      : this()
+    { }
+
+    public BassPlayer()
     {
-      _controller = new Controller(this, playerMainDirectory);
+      _controller = new Controller(this);
       _inputSourceFactory = new InputSourceFactory();
       _externalState = PlayerState.Stopped;
     }
@@ -428,30 +431,46 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     #endregion
 
-    #region ISpectrumPlayer Member
+    #region IAudioPlayerAnalyze Member
+
+    /// <summary>
+    /// Provides access to valid source for analyze: if the OutputDevice implements own techniques to retrieve data, it will be preferred (WASAPI).
+    /// Otherwise the PlaybackBuffer's VizStream will be used (DirectSound).
+    /// </summary>
+    private IAudioPlayerAnalyze AudioPlayerAnalyze
+    {
+      get { return _controller.OutputDeviceManager.OutputDevice as IAudioPlayerAnalyze ?? _controller.PlaybackProcessor.AudioPlayerAnalyze; }
+    }
+
+    public bool GetWaveData32(int length, out float[] waveData32)
+    {
+      waveData32 = null;
+      var analyze = AudioPlayerAnalyze;
+      return analyze != null && analyze.GetWaveData32(length, out waveData32);
+    }
 
     public bool GetFFTData(float[] fftDataBuffer)
     {
-      BassStream vizStream = _controller.PlaybackProcessor.VizStream;
-      if (vizStream == null)
-        return false;
-
-      return Bass.BASS_ChannelGetData(vizStream.Handle, fftDataBuffer, _maxFFT) > 0;
+      var analyze = AudioPlayerAnalyze;
+      return analyze != null && analyze.GetFFTData(fftDataBuffer);
     }
 
     public bool GetFFTFrequencyIndex(int frequency, out int frequencyIndex)
     {
       frequencyIndex = 0;
-      BassStream vizStream = _controller.PlaybackProcessor.VizStream;
-      if (vizStream == null)
-        return false;
-      if (_sampleFrequency == 0)
-        _sampleFrequency = vizStream.SampleRate;
+      var analyze = AudioPlayerAnalyze;
+      return analyze != null && analyze.GetFFTFrequencyIndex(frequency, out frequencyIndex);
+    }
 
-      frequencyIndex = Un4seen.Bass.Utils.FFTFrequency2Index(frequency, 4096, _sampleFrequency);
-      return true;
+    public bool GetChannelLevel(out double dbLevelL, out double dbLevelR)
+    {
+      dbLevelL = 0;
+      dbLevelR = 0;
+      var analyze = AudioPlayerAnalyze;
+      return analyze != null && analyze.GetChannelLevel(out dbLevelL, out dbLevelR);
     }
 
     #endregion
   }
+
 }

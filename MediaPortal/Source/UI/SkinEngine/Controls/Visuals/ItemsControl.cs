@@ -26,7 +26,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.General;
-using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
@@ -51,7 +50,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected AbstractProperty _selectionChangedProperty;
     protected AbstractProperty _itemsSourceProperty;
     protected AbstractProperty _itemTemplateProperty;
     protected AbstractProperty _itemContainerStyleProperty;
@@ -91,7 +89,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
       _dataStringProviderProperty = new SProperty(typeof(DataStringProvider), null);
       _currentItemProperty = new SProperty(typeof(object), null);
-      _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
       _isEmptyProperty = new SProperty(typeof(bool), false);
     }
 
@@ -132,7 +129,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (object item in c.Items)
         _items.Add(copyManager.GetCopy(item));
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
-      SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
@@ -162,7 +158,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(ItemTemplate);
       MPF.TryCleanupAndDispose(ItemContainerStyle);
       MPF.TryCleanupAndDispose(ItemsPanel);
-      MPF.TryCleanupAndDispose(SelectionChanged);
     }
 
     #endregion
@@ -265,16 +260,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Events
+    
+    public static readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent(
+      "SelectionChanged", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(ItemsControl));
 
-    public AbstractProperty SelectionChangedProperty
+    public event SelectionChangedEventHandler SelectionChanged
     {
-      get { return _selectionChangedProperty; }
+      add { AddHandler(SelectionChangedEvent, value); }
+      remove { RemoveHandler(SelectionChangedEvent, value); }
     }
 
-    public ICommandStencil SelectionChanged
+    protected void InvokeSelectionChanged(object oldItem, object newItem)
     {
-      get { return (ICommandStencil)_selectionChangedProperty.GetValue(); }
-      set { _selectionChangedProperty.SetValue(value); }
+      InvokeSelectionChanged(
+        oldItem != null ? new[] { oldItem } : null,
+        newItem != null ? new[] { newItem } : null);
+    }
+
+    protected void InvokeSelectionChanged(IList oldItems, IList newItems)
+    {
+      oldItems = oldItems ?? new object[0];
+      newItems = newItems ?? new object[0];
+      var args = new SelectionChangedEventArgs(SelectionChangedEvent, oldItems, newItems);
+      OnSelectionChanged(args);
+    }
+
+
+    /// <summary>
+    /// Is called when ever the selection changes
+    /// </summary>
+    /// <param name="args">Selection changed event arguments.</param>
+    /// <remarks>
+    /// When overridden the selection event can be handled internally.
+    /// If the base method is not called, the event will not be fired!
+    /// </remarks>
+    protected virtual void OnSelectionChanged(SelectionChangedEventArgs args)
+    {
+      RaiseEvent(args);
     }
 
     #endregion
@@ -408,7 +430,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Checks if the currently focused element is contained in this items control.
     /// </summary>
-    /// <param name="focusedElement">Currelty focused element.</param>
+    /// <param name="focusedElement">Currently focused element.</param>
     bool CheckFocusInScope(FrameworkElement focusedElement)
     {
       Visual focusPath = focusedElement;
@@ -451,15 +473,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (newCurrentItem != lastCurrentItem)
       {
         CurrentItem = newCurrentItem;
-        FireSelectionChanged(newCurrentItem);
+        InvokeSelectionChanged(lastCurrentItem, newCurrentItem);
       }
-    }
-
-    protected void FireSelectionChanged(object newCurrentItem)
-    {
-      ICommandStencil commandStencil = SelectionChanged;
-      if (commandStencil != null)
-        commandStencil.Execute(new object[] { newCurrentItem });
     }
 
     public void UpdateSelectedItem(ISelectableItemContainer container)

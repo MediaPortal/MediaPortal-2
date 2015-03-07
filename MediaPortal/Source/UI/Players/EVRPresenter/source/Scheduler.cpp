@@ -24,26 +24,26 @@
 // Messages for the scheduler thread.
 enum ScheduleEvent
 {
-  eTerminate  =  WM_USER,
-  eSchedule   =  WM_USER + 1,
-  eFlush      =  WM_USER + 2
+  eTerminate = WM_USER,
+  eSchedule = WM_USER + 1,
+  eFlush = WM_USER + 2
 };
 
 const DWORD SCHEDULER_TIMEOUT = 5000;
 
 
 // Constructor
-Scheduler::Scheduler() : 
-  m_pCB(NULL),
-  m_pClock(NULL), 
-  m_dwThreadID(0),
-  m_hSchedulerThread(NULL),
-  m_hThreadReadyEvent(NULL),
-  m_hFlushEvent(NULL),
-  m_fRate(1.0f),
-  m_LastSampleTime(0), 
-  m_PerFrameInterval(0), 
-  m_PerFrame_1_4th(0)
+Scheduler::Scheduler() :
+m_pCB(NULL),
+m_pClock(NULL),
+m_dwThreadID(0),
+m_hSchedulerThread(NULL),
+m_hThreadReadyEvent(NULL),
+m_hFlushEvent(NULL),
+m_fRate(1.0f),
+m_LastSampleTime(0),
+m_PerFrameInterval(0),
+m_PerFrame_1_4th(0)
 {
 }
 
@@ -178,7 +178,7 @@ HRESULT Scheduler::StopScheduler()
 
   // Ask the scheduler thread to exit.
   PostThreadMessage(m_dwThreadID, eTerminate, 0, 0);
-  
+
   // Wait for the thread to exit.
   WaitForSingleObject(m_hSchedulerThread, INFINITE);
 
@@ -210,13 +210,13 @@ HRESULT Scheduler::Flush()
   if (m_hSchedulerThread)
   {
     // Ask the scheduler thread to flush.
-    PostThreadMessage(m_dwThreadID, eFlush, 0 , 0);
+    PostThreadMessage(m_dwThreadID, eFlush, 0, 0);
 
     // Wait for the scheduler thread to signal the flush event,
     // OR for the thread to terminate.
     HANDLE objects[] = { m_hFlushEvent, m_hSchedulerThread };
 
-    WaitForMultipleObjects(ARRAY_SIZE(objects), objects, FALSE, SCHEDULER_TIMEOUT); 
+    WaitForMultipleObjects(ARRAY_SIZE(objects), objects, FALSE, SCHEDULER_TIMEOUT);
   }
 
   return S_OK;
@@ -276,7 +276,7 @@ HRESULT Scheduler::ProcessSamplesInQueue(LONG *plNextSleep)
 
   // Process samples until the queue is empty or until the wait time > 0.
 
-  while (true) 
+  while (true)
   {
     // Process the next sample in the queue. If the sample is not ready
     // for presentation. the value returned in lWait is > 0, which
@@ -328,7 +328,7 @@ bool Scheduler::ProcessSample(LONG *plNextSleep)
     // Get the sample's time stamp. It is valid for a sample to
     // have no time stamp.
     hr = pSample->GetSampleTime(&hnsPresentationTime);
-  
+
     // Get the clock time. (But if the sample does not have a time stamp, 
     // we don't need the clock time.)
     if (SUCCEEDED(hr))
@@ -408,7 +408,7 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
   // Signal to the scheduler that the thread is ready.
   SetEvent(m_hThreadReadyEvent);
 
-  while(!bExitThread)
+  while (!bExitThread)
   {
     // Wait for a thread message OR until the wait time expires.
     DWORD dwResult = MsgWaitForMultipleObjects(0, NULL, FALSE, lWait, QS_POSTMESSAGE);
@@ -427,18 +427,18 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
     {
       BOOL bProcessSamples = TRUE;
 
-      switch (msg.message) 
+      switch (msg.message)
       {
       case eTerminate:
         bExitThread = TRUE;
-      break;
+        break;
 
       case eFlush:
         // Flushing: Clear the sample queue and set the event.
         m_ScheduledSamples.Clear();
         lWait = INFINITE;
         SetEvent(m_hFlushEvent);
-      break;
+        break;
 
       case eSchedule:
         // Process as many samples as we can.
@@ -449,11 +449,11 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
           {
             bExitThread = TRUE;
           }
-          bProcessSamples = (lWait != INFINITE); 
+          bProcessSamples = (lWait != INFINITE);
         }
-      break;
+        break;
       }
-     }
+    }
   }
 
   return (SUCCEEDED(hr) ? 0 : 1);

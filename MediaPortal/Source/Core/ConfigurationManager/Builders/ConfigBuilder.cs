@@ -40,6 +40,7 @@ namespace MediaPortal.Configuration.Builders
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
+      string sort = null;
       string iconSmallPath = null;
       string iconLargePath = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
@@ -48,6 +49,9 @@ namespace MediaPortal.Configuration.Builders
         {
           case "Text":
             text = attr.Value;
+            break;
+          case "Sort":
+            sort = attr.Value;
             break;
           case "IconSmallPath":
             iconSmallPath = attr.Value;
@@ -61,7 +65,7 @@ namespace MediaPortal.Configuration.Builders
       }
       if (text == null)
         throw new ArgumentException("'ConfigSection' item needs an attribute 'Text'");
-      return new ConfigSectionMetadata(location, text,
+      return new ConfigSectionMetadata(location, text, sort,
                                        plugin.Metadata.GetAbsolutePath(iconSmallPath),
                                        plugin.Metadata.GetAbsolutePath(iconLargePath));
     }
@@ -71,6 +75,7 @@ namespace MediaPortal.Configuration.Builders
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
+      string sort = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -78,13 +83,16 @@ namespace MediaPortal.Configuration.Builders
           case "Text":
             text = attr.Value;
             break;
+          case "Sort":
+            sort = attr.Value;
+            break;
           default:
             throw new ArgumentException("'ConfigGroup' builder doesn't define an attribute '" + attr.Key + "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigGroup' item needs an attribute 'Text'");
-      return new ConfigGroupMetadata(location, text);
+      return new ConfigGroupMetadata(location, text, sort);
     }
 
     protected static ConfigSettingMetadata BuildSetting(
@@ -92,6 +100,7 @@ namespace MediaPortal.Configuration.Builders
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
+      string sort = null;
       string className = null;
       string helpText = null;
       ICollection<string> listenTo = null;
@@ -101,6 +110,9 @@ namespace MediaPortal.Configuration.Builders
         {
           case "Text":
             text = attr.Value;
+            break;
+          case "Sort":
+            sort = attr.Value;
             break;
           case "ClassName":
             className = attr.Value;
@@ -117,7 +129,7 @@ namespace MediaPortal.Configuration.Builders
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      return new ConfigSettingMetadata(location, text, className, helpText, listenTo);
+      return new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo);
     }
 
     protected static ConfigSettingMetadata BuildCustomSetting(
@@ -125,6 +137,7 @@ namespace MediaPortal.Configuration.Builders
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
+      string sort = null;
       string className = null;
       string helpText = null;
       IDictionary<string, string> additionalData = null;
@@ -136,6 +149,9 @@ namespace MediaPortal.Configuration.Builders
         {
           case "Text":
             text = attr.Value;
+            break;
+          case "Sort":
+            sort = attr.Value;
             break;
           case "ClassName":
             className = attr.Value;
@@ -158,7 +174,7 @@ namespace MediaPortal.Configuration.Builders
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, className, helpText, listenTo)
+      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo)
         {
             AdditionalData = additionalData,
             AdditionalTypes = additionalTypes

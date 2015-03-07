@@ -31,7 +31,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     >
   <Include.Resources>
     <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>

@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
@@ -1742,7 +1742,7 @@
   </Style>
 
   <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemTemplate"/>
     <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>

@@ -1,18 +1,20 @@
-// Copyright (C) 2005-2010 Team MediaPortal
+// Copyright (C) 2007-2014 Team MediaPortal
 // http://www.team-mediaportal.com
 // 
-// MediaPortal is free software: you can redistribute it and/or modify
+// This file is part of MediaPortal 2
+// 
+// MediaPortal 2 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// MediaPortal is distributed in the hope that it will be useful,
+// MediaPortal 2 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with MediaPortal. If not, see <http://www.gnu.org/licenses/>.
+// along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 
 #include <mfapi.h>
 
@@ -37,7 +39,7 @@ HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
   HRESULT hr = S_OK;
   MFRatio fps = { 0, 0 };
   VideoSampleList sampleQueue;
-  
+
   IMFSample *pSample = NULL;
 
   // Cannot set the media type after shutdown.
@@ -50,7 +52,7 @@ HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
 
   // Check if the new type is actually different.
   // Note: This function safely handles NULL input parameters.
-  if (AreMediaTypesEqual(m_pMediaType, pMediaType))  
+  if (AreMediaTypesEqual(m_pMediaType, pMediaType))
   {
     return S_OK; // Nothing more to do.
   }
@@ -125,7 +127,7 @@ HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
 HRESULT EVRCustomPresenter::IsMediaTypeSupported(IMFMediaType *pMediaType)
 {
   Log("EVRCustomPresenter::IsMediaTypeSupported");
-  
+
   HRESULT                 hr = S_OK;
   D3DFORMAT               d3dFormat = D3DFMT_UNKNOWN;
   BOOL                    bCompressed = FALSE;
@@ -192,7 +194,7 @@ HRESULT EVRCustomPresenter::CreateOptimalVideoType(IMFMediaType* pProposedType, 
   Log("EVRCustomPresenter::CreateOptimalVideoType");
 
   HRESULT hr = S_OK;
-    
+
   RECT rcOutput;
   ZeroMemory(&rcOutput, sizeof(rcOutput));
 
@@ -277,7 +279,7 @@ HRESULT EVRCustomPresenter::CalculateOutputRectangle(IMFMediaType *pProposedType
 
   MFRatio inputPAR = { 0, 0 };
   MFRatio outputPAR = { 0, 0 };
-  RECT    rcOutput = { 0, 0, 0, 0};
+  RECT    rcOutput = { 0, 0, 0, 0 };
 
   MFVideoArea displayArea;
   ZeroMemory(&displayArea, sizeof(displayArea));
@@ -303,9 +305,9 @@ HRESULT EVRCustomPresenter::CalculateOutputRectangle(IMFMediaType *pProposedType
     offsetX + displayArea.Area.cx <= (LONG)(srcWidth) &&
     offsetY + displayArea.Area.cy <= (LONG)(srcHeight))
   {
-    rcOutput.left   = offsetX;
-    rcOutput.right  = offsetX + displayArea.Area.cx;
-    rcOutput.top    = offsetY;
+    rcOutput.left = offsetX;
+    rcOutput.right = offsetX + displayArea.Area.cx;
+    rcOutput.top = offsetY;
     rcOutput.bottom = offsetY + displayArea.Area.cy;
   }
   else

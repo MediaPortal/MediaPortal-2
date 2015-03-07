@@ -23,9 +23,11 @@
 #endregion
 
 using System;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.InputSources;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.Utils;
+using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 {
@@ -337,14 +339,14 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       }
     }
 
-    public BassStream VizStream
+    public IAudioPlayerAnalyze AudioPlayerAnalyze
     {
       get
       {
         PlaybackSession playbackSession = _playbackSession;
         if (playbackSession == null)
           return null;
-        return playbackSession.PlaybackBuffer.VizStream;
+        return playbackSession.PlaybackBuffer;
       }
     }
 

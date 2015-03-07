@@ -27,6 +27,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
@@ -83,9 +84,9 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       internal set { _backgroundImageProperty.SetValue(value); }
     }
 
-    public void SetSelectedItem(ListItem item)
+    public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
-      SelectedItem = item;
+      SelectedItem = e.FirstAddedItem as ListItem;
     }
 
     #endregion

@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider;
 using MediaPortal.UI.Players.BassPlayer.InputSources;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;

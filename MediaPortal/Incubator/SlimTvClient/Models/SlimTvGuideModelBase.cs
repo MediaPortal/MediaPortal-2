@@ -37,10 +37,12 @@ using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -116,6 +118,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _currentProgramProperty; }
     }
 
+    // this overload is used by MultiChannelGuide in got focus trigger
     public void UpdateProgram(ListItem selectedItem)
     {
       if (selectedItem != null)
@@ -123,6 +126,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
         UpdateProgramStatus(program);
       }
+    }
+
+    // this overload is used by events
+    public void UpdateProgram(object sender, SelectionChangedEventArgs e)
+    {
+      UpdateProgram(e.FirstAddedItem as ListItem);
     }
 
     protected void SetGroupName()
@@ -162,7 +171,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                         SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
                         if (model != null)
+                        {
                           model.Tune(channel);
+                          // Always switch to fullscreen
+                          workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+                        }
                       }
                     })
               });
@@ -199,7 +212,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                   Command = new MethodDelegateCommand(() =>
                                                         {
                                                           ISchedule schedule;
-                                                          if (_tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule))
+                                                          bool result;
+                                                          // "No Program" placeholder
+                                                          if (program.ProgramId == -1)
+                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, out schedule);
+                                                          else
+                                                            result = _tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
+
+                                                          if (result)
                                                             UpdateRecordingStatus(program, RecordingStatus.Scheduled);
                                                         }
                     )

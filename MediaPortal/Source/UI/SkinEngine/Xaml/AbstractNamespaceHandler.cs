@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -70,6 +71,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       try
       {
         Type t = GetElementType(typeName);
+        // Special case for structs: they cannot be created like classes. So we use another way...
+        if (t.IsValueType)
+          return FormatterServices.GetUninitializedObject(t);
+
+        // Regular class types
         ConstructorInfo constructorInfo;
         object[] convertedParameters;
         if (!FindBestConstructor(t, parameters, out constructorInfo, out convertedParameters))
@@ -84,7 +90,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       }
     }
 
-    public abstract Type GetElementType(string typeName);
+    public virtual Type GetElementType(string typeName)
+    {
+      return GetElementType(typeName, false);
+    }
+
+    public abstract Type GetElementType(string typeName, bool includeAbstractTypes);
 
     public bool HasAttachedProperty(string propertyProvider, string propertyName, object targetObject)
     {

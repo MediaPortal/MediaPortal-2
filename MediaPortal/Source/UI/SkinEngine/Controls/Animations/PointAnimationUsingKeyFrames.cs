@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _keyFramesProperty = new SProperty(typeof(IList<PointKeyFrame>), new List<PointKeyFrame>());
+      _keyFramesProperty = new SProperty(typeof(PointKeyFrameCollection), new PointKeyFrameCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -69,9 +69,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _keyFramesProperty; }
     }
 
-    public IList<PointKeyFrame> KeyFrames
+    public PointKeyFrameCollection KeyFrames
     {
-      get { return _keyFramesProperty.GetValue() as IList<PointKeyFrame>; }
+      get { return (PointKeyFrameCollection)_keyFramesProperty.GetValue(); }
     }
 
     public override double ActualDurationInMilliseconds

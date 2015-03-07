@@ -27,11 +27,13 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -147,8 +149,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _endTimeProperty; }
     }
 
-    public void UpdateSchedule(ListItem selectedItem)
+    public void UpdateSchedule(object sender, SelectionChangedEventArgs e)
     {
+      var selectedItem = e.FirstAddedItem as ListItem;
       if (selectedItem == null)
         return;
       ISchedule schedule = (ISchedule)selectedItem.AdditionalProperties["SCHEDULE"];
@@ -157,6 +160,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void UpdateScheduleDetails(ISchedule schedule)
     {
+      // Clear properties if no schedule is given
+      if (schedule == null)
+      {
+        StartTime = EndTime = DateTime.MinValue;
+        ChannelName = ScheduleName = ScheduleType = string.Empty;
+        return;
+      }
       string channelName = string.Empty;
       IChannel channel;
       if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.GetChannel(schedule.ChannelId, out channel))
@@ -172,6 +182,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void LoadSchedules()
     {
+      UpdateScheduleDetails(null);
       if (_tvHandler.ScheduleControl == null)
         return;
 
@@ -187,6 +198,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
         };
+        IChannel channel;
+        if(_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
+          item.SetLabel("ChannelName", channel.Name);
+        item.SetLabel("StartTime", schedule.StartTime.FormatProgramTime());
+        item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
         item.AdditionalProperties["SCHEDULE"] = currentSchedule;
         _schedulesList.Add(item);
       }

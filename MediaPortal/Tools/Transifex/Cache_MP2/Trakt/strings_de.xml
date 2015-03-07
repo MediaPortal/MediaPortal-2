@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Trakt.Enable">Aufzeichnung aktivieren</string>
+  <string name="Trakt.UsernamePasswordGroup">Konto-Details</string>
+  <string name="Trakt.Username">Benutzername</string>
+  <string name="Trakt.Password">Passwort</string>
+  <string name="Trakt.TestAccount">Konto testen</string>
+  <string name="Trakt.SyncMovies">Gleiche Filme ab...</string>
+  <string name="Trakt.SyncSeries">Gleiche Serien ab...</string>
+  <string name="Trakt.SyncFinished">Abgleich komplett!</string>
+  <string name="Trakt.MediaLibraryNotConnected">Der Server ist gerade nicht verbunden, keine Synchronisation möglich!</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">Trakt.tv einrichten</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Legt Konto für Trakt.tv fest</string>
+</resources>

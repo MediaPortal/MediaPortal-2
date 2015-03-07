@@ -210,7 +210,7 @@ namespace MediaPortal.UI.Players.Video
       {
         _resourceLocator = locator;
         _mediaItemTitle = mediaItemTitle;
-        _resourceAccessor = _resourceLocator.CreateAccessor();
+        CreateResourceAccessor();
 
         // Create a DirectShow FilterGraph
         CreateGraphBuilder();
@@ -376,6 +376,14 @@ namespace MediaPortal.UI.Players.Video
     protected virtual void CreateGraphBuilder()
     {
       _graphBuilder = (IFilterGraph2) new FilterGraph();
+    }
+
+    /// <summary>
+    /// Creates _resourceAccessor from the _resourceLocator which can be used by the specific player.
+    /// </summary>
+    protected virtual void CreateResourceAccessor()
+    {
+      _resourceAccessor = _resourceLocator.CreateAccessor();
     }
 
     /// <summary>

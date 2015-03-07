@@ -3,7 +3,8 @@
   <string name="Settings.Players.Codecs">Koodekit</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Videokoodekit</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 videokoodekki</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Aseta videokoodekki MPEG2:lle (DVD, DVB-SD)\n</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Aseta videokoodekki MPEG2:lle (DVD, DVB-SD)
+</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 videokoodekki</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Aseta videokoodekki MPEG4:lle (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC videokoodekki</string>
@@ -19,8 +20,10 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Äänilähtö</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Aseta äänilähtö</string>
   <string name="Settings.Players.VideoPlayer">Videosoitin</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Suosi monikanavaisia ääniraitoja\n</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Jos käytössä, suositaan 6-kanavaisia virtoja (esim. AC3, AAC)\n</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Suosi monikanavaisia ääniraitoja
+</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Jos käytössä, suositaan 6-kanavaisia virtoja (esim. AC3, AAC)
+</string>
   <string name="Settings.Players.DVDPlayer">DVD Soitin</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Kuvatekstit</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Valitse ovatko kuvatekstit oletuksena päällä</string>

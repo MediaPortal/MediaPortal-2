@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="ZipMediaProvider.Name">Програм за ЗИП фајлове</string>
   <string name="ZipMediaProvider.Description">Приступи фајловима и директоријумима у ЗИП фајловима</string>
 </resources>

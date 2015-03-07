@@ -37,7 +37,7 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
-  class IsoResourceAccessor : IFileSystemResourceAccessor
+  class IsoResourceAccessor : IFileSystemResourceAccessor, IUncachableResource
   {
     #region Protected fields
 
@@ -48,7 +48,6 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     protected bool _isDirectory;
     protected DateTime _lastChanged;
     protected long _size;
-    protected object _syncObj = new object();
     protected Stream _stream = null;
 
     #endregion
@@ -215,7 +214,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public Stream OpenRead()
     {
-      lock (_syncObj)
+      lock (_isoProxy.SyncObj)
       {
         if (_stream == null)
         {
@@ -224,7 +223,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
             throw new IllegalCallException ("Resource '{0}' is not a file", isoPath);
           _stream = _isoProxy.DiskFileSystem.OpenFile(isoPath, FileMode.Open, FileAccess.Read);
         }
-        return new SynchronizedMasterStreamClient(_stream, _syncObj);
+        return new SynchronizedMasterStreamClient(_stream, _isoProxy.SyncObj);
       }
     }
 
@@ -235,7 +234,8 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public bool ResourceExists(string path)
     {
-      return path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase) || IsResource(_isoProxy.DiskFileSystem, ExpandPath(path));
+      lock(_isoProxy.SyncObj)
+        return path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase) || IsResource(_isoProxy.DiskFileSystem, ExpandPath(path));
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
@@ -249,8 +249,9 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       string isoPath = ToIsoPath(_pathToDirOrFile);
       try
       {
-        return _isoProxy.DiskFileSystem.GetFiles(isoPath).Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
-            ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
+        lock(_isoProxy.SyncObj)
+          return _isoProxy.DiskFileSystem.GetFiles(isoPath).Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+              ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
       }
       catch (Exception e)
       {
@@ -264,7 +265,8 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       string isoPath = ToIsoPath(_pathToDirOrFile);
       try
       {
-        return _isoProxy.DiskFileSystem.GetDirectories(isoPath).Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+        lock (_isoProxy.SyncObj)
+          return _isoProxy.DiskFileSystem.GetDirectories(isoPath).Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
             ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
       }
       catch (Exception e)

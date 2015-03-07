@@ -460,6 +460,7 @@ namespace MediaPortal.UI.Players.Image
       // TODO: Execute animation in own timer
       lock (_syncObj)
       {
+        _animator = _animator ?? STILL_IMAGE_ANIMATION;
         DateTime displayTime = _pauseTime.HasValue ? _pauseTime.Value : DateTime.Now;
         RectangleF textureClip = _animator.GetZoomRect(ImageSize.ToSize2(), outputSize, displayTime);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);

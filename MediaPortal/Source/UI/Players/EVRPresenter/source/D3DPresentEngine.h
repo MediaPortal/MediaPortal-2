@@ -37,7 +37,7 @@ public:
   void    ReleaseResources();
 
   HRESULT CheckDeviceState(DeviceState *pState);
-  HRESULT PresentSample(IMFSample* pSample, LONGLONG llTarget); 
+  HRESULT PresentSample(IMFSample* pSample, LONGLONG llTarget);
 
   UINT    RefreshRate() const { return m_DisplayMode.RefreshRate; }
 

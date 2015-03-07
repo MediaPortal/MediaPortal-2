@@ -51,6 +51,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new MovieFilterByCollectionScreenData(),
+          new VideosFilterByPlayCountScreenData(),
           new VideosFilterByActorScreenData(),
           new VideosFilterByDirectorScreenData(),
           new VideosFilterByWriterScreenData(),
