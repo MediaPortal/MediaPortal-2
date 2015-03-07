@@ -36,6 +36,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.BlueVision.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
@@ -220,15 +221,24 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           string groupName = group.Name;
           var groupItem = new ListItem(Consts.KEY_NAME, groupName)
           {
-            Command = new MethodDelegateCommand(() => SetGroup(groupName)),
             Selected = idx == _menuSettings.DefaultIndex
           };
           groupItem.AdditionalProperties["Id"] = group.Id.ToString();
+          groupItem.AdditionalProperties.Add("NameKey", groupName);
           _mainMenuGroupList.Add(groupItem);
           idx++;
         }
       }
       _mainMenuGroupList.FireChange();
+    }
+
+    public void OnGroupItemSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      var item = e.FirstAddedItem as ListItem;
+      if (item != null)
+      {
+        SetGroup((string) item.AdditionalProperties["NameKey"]);
+      }
     }
 
     protected void CreatePositionedItems()
@@ -294,6 +304,8 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         if (menuGroupName.Name == groupName)
         {
+          if (_menuSettings.DefaultIndex == idx)
+            return;
           _menuSettings.DefaultIndex = idx;
           break;
         }
