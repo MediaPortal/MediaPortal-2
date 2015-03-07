@@ -120,7 +120,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error(e);
+          ServiceRegistration.Get<ILogger>().Error("Share search failed", e);
         }
       }
       return result;
