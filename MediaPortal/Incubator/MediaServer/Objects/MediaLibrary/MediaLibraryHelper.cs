@@ -43,6 +43,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     public static string GetBaseKey(string key)
     {
+      if(key == null)
+        return null;
       var split = key.IndexOf(':');
       return split > 0 ? key.Substring(0, split) : key;
     }
@@ -94,8 +96,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       }
       else
       {
-        obj = null;
+	    Logger.Warn("MediaServer item {0} {1} contains no valid aspects", item.MediaItemId, title);
+        return null;
       }
+      //Logger.Debug("MediaServer converted {0}:[{1}] into {2}", item.MediaItemId, string.Join(",", item.Aspects.Keys), obj.GetType().Name);
 
       // Assign the parent
       if (parent != null)
@@ -112,15 +116,16 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       {
         ((MediaLibraryItem)obj).Initialise();
       }
-      if (obj != null)
+      if (title != null)
       {
-        ServiceRegistration.Get<ILogger>().Info("Created object of type {0} for MediaItem {1}", obj.GetType().Name, item.MediaItemId);
-        if (title != null)
-        {
-          obj.Title = title;
-        }
+        obj.Title = title;
       }
       return obj;
+    }
+
+    internal static ILogger Logger
+    {
+        get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }

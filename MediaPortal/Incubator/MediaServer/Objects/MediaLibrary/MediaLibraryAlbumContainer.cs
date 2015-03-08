@@ -49,31 +49,13 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       ObjectId = MediaLibraryHelper.GetObjectId(id);
     }
 
-    private List<IDirectoryObject> GetAlbums()
-    {
-        var necessaryMiaTypeIDs = new Guid[]
-                                  {
-                                    MediaAspect.ASPECT_ID,
-                                    AudioAspect.ASPECT_ID,
-                                  };
-        var library = ServiceRegistration.Get<IMediaLibrary>();
-
-        List<IDirectoryObject> result = new List<IDirectoryObject>();
-
-        HomogenousMap groups = library.GetValueGroups(AudioAspect.ATTR_ALBUM, null, ProjectionFunction.None, necessaryMiaTypeIDs, null, true);
-        foreach (KeyValuePair<object, object> group in groups)
-        {
-            ServiceRegistration.Get<ILogger>().Info("Group {0}={1}", group.Key, group.Value);
-            MediaLibraryAlbumItem item = new MediaLibraryAlbumItem(group.Key as string);
-            result.Add(item);
-        }
-
-        return result;
-    }
-
     public override int ChildCount
     {
-      get { return 0; }
+      get
+      {
+        // This is some what inefficient
+        return ChildCount = Albums().Count;
+      }
       set { }
     }
 
@@ -86,18 +68,41 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       return null;
     }
 
+    private HomogenousMap Albums()
+    {
+        var necessaryMiaTypeIDs = new Guid[]
+                                  {
+                                    MediaAspect.ASPECT_ID,
+                                    AudioAspect.ASPECT_ID,
+                                  };
+        var library = ServiceRegistration.Get<IMediaLibrary>();
+
+        return library.GetValueGroups(AudioAspect.ATTR_ALBUM, null, ProjectionFunction.None, necessaryMiaTypeIDs, null, true);
+    }
+
     public override List<IDirectoryObject> Search(string filter, string sortCriteria)
     {
-      try
-      {
-        return GetAlbums();
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Cannot search for album " + ObjectId, e);
-      }
-
-      return null;
+      var parent = new BasicContainer(Id);
+	  HomogenousMap items = Albums();
+      var result = new List<IDirectoryObject>();
+	  foreach(var item in items)
+	  {
+	      try
+	      {
+              //ServiceRegistration.Get<ILogger>().Info("Item {0}={1}", item.Key, item.Value);
+              object title = item.Key;
+              if (title == null)
+                  title = "<no name>";
+              MediaLibraryAlbumItem album = new MediaLibraryAlbumItem(item.Key as string, title as string);
+              album.Initialise();
+              result.Add(album);
+	      }
+	      catch (Exception e)
+	      {
+	        ServiceRegistration.Get<ILogger>().Error("Album search failed", e);
+	      }
+	  }
+	  return result;
     }
   }
 }

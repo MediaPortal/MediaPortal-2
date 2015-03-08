@@ -36,30 +36,40 @@ using MediaPortal.Extensions.MediaServer.Tree;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryAlbumItem : BasicContainer, IDirectoryAlbum
+  public class MediaLibraryAlbumItem : BasicContainer, IDirectoryMusicAlbum
   {
     protected string ObjectId { get; set; }
     protected string BaseKey { get; set; }
 
-    public MediaLibraryAlbumItem(string id)
+    private readonly string _title;
+
+    public MediaLibraryAlbumItem(string id, string title)
       : base(id)
     {
-      BaseKey = MediaLibraryHelper.GetBaseKey(id);
-      //ObjectId = MediaLibraryHelper.GetObjectId(id);
-      var split = id.IndexOf(':');
-      ObjectId = split > 0 ? id.Substring(split + 1) : "";
+      ServiceRegistration.Get<ILogger>().Debug("Create album {0}={1}", id, title);
+      _title = title;
+    }
+
+    public override string Class
+    {
+        get { return "object.container.album.musicAlbum"; }
+    }
+
+    public override void Initialise()
+    {
+      Title = _title;
     }
 
     private IList<MediaItem> GetTracks()
     {
-      var necessaryMiaTypeIDs = new Guid[]
-                                  {
-                                    MediaAspect.ASPECT_ID,
-                                    AudioAspect.ASPECT_ID,
-                                  };
-      var library = ServiceRegistration.Get<IMediaLibrary>();
+      Guid[] necessaryMiaTypeIDs = {
+        MediaAspect.ASPECT_ID,
+        AudioAspect.ASPECT_ID
+      };
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
 
-      IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, ObjectId);
+      ServiceRegistration.Get<ILogger>().Debug("Looking for album " + _title);
+      IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, _title);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMiaTypeIDs, null, searchFilter);
 
       return library.Search(searchQuery, true);
@@ -95,103 +105,22 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         ServiceRegistration.Get<ILogger>().Error("Cannot search for album " + ObjectId, e);
       }
 
-    return result;
+      return result;
     }
 
-    public string StorageMedium
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
+    public string StorageMedium { get; set; }
+    public string LongDescription { get; set; }
+    public string Description { get; set; }
+    public IList<string> Publisher { get; set; }
+    public IList<string> Contributor { get; set; }
+    public string Date { get; set; }
+    public string Relation { get; set; }
+    public IList<string> Rights { get; set; }
 
-    public string LongDescription
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public string Description
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public IList<string> Publisher
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public IList<string> Contributor
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public string Date
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public string Relation
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public IList<string> Rights
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-        set
-        {
-            throw new NotImplementedException();
-        }
-    }
+      public IList<string> Artist { get; set; }
+      public IList<string> Genre { get; set; }
+      public IList<string> Producer { get; set; }
+      public string AlbumArtUrl { get; set; }
+      public string Toc { get; set; }
   }
 }

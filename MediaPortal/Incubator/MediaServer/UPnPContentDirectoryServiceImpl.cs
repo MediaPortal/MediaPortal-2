@@ -349,12 +349,12 @@ namespace MediaPortal.Extensions.MediaServer
       var containerId = (string)inParams[0];
       var searchCriteria = inParams[1].ToString();
       var filter = inParams[2].ToString();
-      var startingIndex = Convert.ToInt32(inParams[3]);
-      var requestedCount = Convert.ToInt32(inParams[4]);
+      var startingIndex = Convert.ToUInt32(inParams[3]);
+      var requestedCount = Convert.ToUInt32(inParams[4]);
       var sortCriteria = (string)inParams[5];
 
       Logger.Debug(
-        "MediaServer - OnSearch(containerId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
+        "MediaServer - entry OnSearch(containerId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
         containerId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
 
       // Out parameters
@@ -368,6 +368,8 @@ namespace MediaPortal.Extensions.MediaServer
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
+      searchQuery.Offset = startingIndex;
+      searchQuery.Limit = requestedCount;
 
       Logger.Debug("MediaServer - OnSearch query {0}", searchQuery);
       IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true);
@@ -384,7 +386,7 @@ namespace MediaPortal.Extensions.MediaServer
         outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
 		
         Logger.Debug(
-          "MediaServer - OnSearch((numberReturned=\"{0}\",totalMatches=\"{1}\",containerUpdateId=\"{2}\") {3}",
+          "MediaServer - exit OnSearch((numberReturned=\"{0}\",totalMatches=\"{1}\",containerUpdateId=\"{2}\") {3}",
           numberReturned, totalMatches, containterUpdateId, xml);
 
       // This upnp action doesn't have a return type.
