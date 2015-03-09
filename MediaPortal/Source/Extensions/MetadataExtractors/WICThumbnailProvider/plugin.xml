@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="WICThumbnailProvider"
+    PluginId="{FF0F8B29-881E-48A9-9A47-4EF04C6C56E0}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Thumbnail creator based on Windows Imaging Components."
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="WICThumbnailProvider.dll"/>
+    <Assembly FileName="..\..\MediaPortal.Common.dll"/>
+  </Runtime>
+
+  <Builder Name="WICThumbnailProviderBuilder" ClassName="MediaPortal.Common.Services.ThumbnailGenerator.ThumbnailProviderBuilder"/>
+  <Register Location="/Thumbnails/Providers">
+    <WICThumbnailProviderBuilder
+      Id="{A0FA05F7-BC05-4611-B96C-5409832D67EA}"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider.WICThumbnailProvider"
+      ProviderName="WICThumbnailProvider"
+      Priority="50"/>
+  </Register>
+</Plugin>

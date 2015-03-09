@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -115,6 +115,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WICThumbnailProvider", "Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj", "{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "..\Incubator\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
 EndProject
@@ -291,6 +293,10 @@ Global
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Debug|x86.Build.0 = Debug|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.ActiveCfg = Release|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.Build.0 = Release|x86
+		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Debug|x86.ActiveCfg = Debug|x86
+		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Debug|x86.Build.0 = Debug|x86
+		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.ActiveCfg = Release|x86
+		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.Build.0 = Release|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Debug|x86.ActiveCfg = Debug|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Debug|x86.Build.0 = Debug|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Release|x86.ActiveCfg = Release|x86
@@ -353,6 +359,7 @@ Global
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{C239225E-CA92-4482-AFE7-F54006C48922} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
+		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 	EndGlobalSection
 EndGlobal
