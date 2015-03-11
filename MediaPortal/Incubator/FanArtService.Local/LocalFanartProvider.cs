@@ -95,7 +95,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
                 where potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension ||
-                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "poster" ||
+                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster" ||
                       potentialFanArtFileNameWithoutExtension == "folder"
                 select potentialFanArtFile);
 
