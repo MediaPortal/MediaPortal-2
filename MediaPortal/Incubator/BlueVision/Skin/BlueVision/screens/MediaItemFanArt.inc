@@ -5,8 +5,8 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails"
-  Width="720" Height="560"
-  Margin="-100,5,-15,17"
+
+  Margin="-20,10,-15,15"
   OpacityMask="{ThemeResource HomeTileOpacityBrush}">
   <!-- Rounded corners are applied by OpacityMask -->
 
@@ -21,18 +21,11 @@
   </Grid.RowDefinitions>
 
   <!-- Image -->
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="0,0,0,0"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;720;560}"   
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="0,0,0,0"
+      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;810;560}"   
       FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
   </Image>
      
-    <!--Image.OpacityMask>
-        <LinearGradientBrush StartPoint="0.6,0" EndPoint="0.9,0">
-          <GradientStop Offset="0.0" Color="#60000000" />
-          <GradientStop Offset="1.0" Color="#00000000" />
-        </LinearGradientBrush>
-    </Image.OpacityMask>
-  </Image-->
 
   <!-- Darkened band -->
   <!--Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
