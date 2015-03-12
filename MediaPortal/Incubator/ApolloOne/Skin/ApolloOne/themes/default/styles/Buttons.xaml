@@ -682,6 +682,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <!-- *************************** Play control buttons ****************************** -->
 
   <Style x:Key="BaseWindowButtonStyle" TargetType="{x:Type Button}">
