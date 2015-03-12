@@ -28,7 +28,7 @@
           </Control.TemplateControl>
         </Control>
 
-        <Control Grid.Column="1" VerticalAlignment="Stretch" Width="720"
+        <Control Grid.Column="1" VerticalAlignment="Stretch" Width="{DynamicResource Cover_Width}"
           Template="{Binding Source={DynamicResource Media_Details_Template}}">
           <Control.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
