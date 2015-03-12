@@ -76,6 +76,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// </summary>
     private TheMovieDbWrapper _movieDb;
 
+    private bool _disposed;
+
     #endregion
 
     /// <summary>
@@ -171,15 +173,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       if (!string.IsNullOrEmpty(movieInfo.ImdbId) && _movieDb.GetMovie(movieInfo.ImdbId, out movieDetails))
       {
-        // Add this match to cache
-        MovieMatch onlineMatch = new MovieMatch
-        {
-          Id = movieDetails.Id,
-          ItemName = movieDetails.Title,
-          MovieDBName = movieDetails.Title
-        };
-        // Save cache
-        _storage.TryAddMatch(onlineMatch);
+        SaveMatchToPersistentCache(movieDetails, movieDetails.Title);
         return true;
       }
       movieDetails = null;
@@ -245,29 +239,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Found unique online match for \"{0}\": \"{1}\"", movieName, movieResult.Title);
           if (_movieDb.GetMovie(movies[0].Id, out movieDetail))
           {
-            // Add this match to cache
-            MovieMatch onlineMatch = new MovieMatch
-              {
-                Id = movieDetail.Id,
-                ItemName = movieName,
-                MovieDBName = movieDetail.Title
-              };
-
-            // Save collection mapping, if available
-            if (movieDetail.Collection != null)
-            {
-              MovieCollectionMatch collectionMatch = new MovieCollectionMatch
-                {
-                  Id = movieDetail.Collection.Id,
-                  ItemName = movieDetail.Collection.Name
-                };
-              _collectionStorage.TryAddMatch(collectionMatch);
-            }
-
-            // Save cache
-            _storage.TryAddMatch(onlineMatch);
+            SaveMatchToPersistentCache(movieDetail, movieName);
+            return true;
           }
-          return true;
         }
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: No unique match found for \"{0}\"", movieName);
         // Also save "non matches" to avoid retrying
@@ -283,6 +257,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         if (movieDetail != null)
           _memoryCache.TryAdd(movieName, movieDetail);
+      }
+    }
+
+    private void SaveMatchToPersistentCache(Movie movieDetails, string movieName)
+    {
+      var onlineMatch = new MovieMatch
+      {
+        Id = movieDetails.Id,
+        ItemName = movieName,
+        MovieDBName = movieDetails.Title
+      };
+      _storage.TryAddMatch(onlineMatch);
+
+      // Save collection mapping, if available
+      if (movieDetails.Collection != null)
+      {
+        var collectionMatch = new MovieCollectionMatch
+        {
+          Id = movieDetails.Collection.Id,
+          ItemName = movieDetails.Collection.Name
+        };
+        _collectionStorage.TryAddMatch(collectionMatch);
       }
     }
 
@@ -369,6 +365,20 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Saved {0} {1}", idx, category);
       return idx;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+      if (disposing)
+      {
+        // We need to call EndDownloads here (as well as in base.Dispose)
+        // to make sure the downloads have stopped before we dispose _collectionStorage.
+        EndDownloads();
+        _collectionStorage.Dispose();
+      }
+      base.Dispose(disposing);
     }
   }
 }
