@@ -264,8 +264,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         if (IsServerPath(_path))
           return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//"))
-            // Allow all filesystems, but exclude "Special" shares (IPC, Admin$)
-            .Where(share => share.IsFileSystem && !share.ShareType.HasFlag(ShareType.Special))
+            // Allow all filesystems, but exclude "Special" shares (IPC$, Admin$) and all other "hidden" shares (ending with "$" such as print$)
+            .Where(share => share.IsFileSystem && !share.ShareType.HasFlag(ShareType.Special) && !share.UNCPath.EndsWith("$"))
             .Select(
               share =>
               {
