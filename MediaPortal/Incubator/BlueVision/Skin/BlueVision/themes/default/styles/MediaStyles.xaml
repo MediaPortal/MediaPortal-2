@@ -226,22 +226,46 @@
       
     </Grid>    
   </ControlTemplate>
-  
 
-  <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
-    <Grid>
-      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
-      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
-             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+  <ControlTemplate x:Key="SeriesFilterCoverTemplate">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Margin="0,0,0,0"/>
+      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png"
+            OpacityMask="{ThemeResource MediaItemsOpacityBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
+      <Image Width="135" Height="185" Stretch="Fill" Margin="-3,-3,-7,-7" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source=""/>
+            <Binding Source="MediaItem_shadow.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Control Template="{ThemeResource SeriesFilterCoverTemplate}"/>
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" Width="25" Height="23" Opacity="1" Margin="1,1,0,0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source=""/>
+            <Binding Source="watched_circle.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+  
   <!-- Movie Collection Filter -->
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
     <Grid>
