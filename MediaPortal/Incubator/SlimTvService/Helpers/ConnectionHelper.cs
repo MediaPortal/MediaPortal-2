@@ -29,7 +29,7 @@ using System.Text.RegularExpressions;
 
 namespace MediaPortal.Plugins.SlimTv.Service.Helpers
 {
-  static class ConnectionExtentson
+  static class ConnectionExtension
   {
     static readonly Regex REGEX_SQLITE_REPLACE = new Regex(@"(\/)([^\/]*)(.s3db)");
 
