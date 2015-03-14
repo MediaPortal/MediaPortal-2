@@ -69,88 +69,102 @@
     </media:SeriesAspectWrapper.Template>
   </media:SeriesAspectWrapper>
           
-  <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Margin="10,0,-20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <StackPanel Grid.Column="1" Grid.Row="0"  Margin="15,24,-20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="310"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+         <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+          <media:SeriesAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Label x:Name="FirstAired" 
+                    Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=dd.MM.yyyy}" Color="{ThemeResource TextColor}"/>
+              </Grid>
+            </ControlTemplate>
+          </media:SeriesAspectWrapper.Template>
+        </media:SeriesAspectWrapper> 
+      </Grid>
+
+      <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Margin="-5,0,15,0" >
+                  <Image.Source>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding Path="PlayCount"/>
+                      <Binding Source="watched_icon.png"/>
+                      <Binding Source="unwatched_icon.png"/>
+                    </MultiBinding>
+                  </Image.Source>
+                </Image>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+      </Grid>
+
+      <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
+        <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:VideoAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Label x:Name="Genre"  Margin="0,0,-10,0"
+                       Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
+              </Grid>
+            </ControlTemplate>
+          </media:VideoAspectWrapper.Template>
+        </media:VideoAspectWrapper>
+      </Grid>
+
+      <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">
+        <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:VideoAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Label x:Name="Duration" 
+                       Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm}" Color="{ThemeResource TextColor}"/>
+              </Grid>
+            </ControlTemplate>
+          </media:VideoAspectWrapper.Template>
+        </media:VideoAspectWrapper>
+      </Grid>
+
+      <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">
+        <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:SeriesAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <StackPanel Orientation="Horizontal"  Margin="0,6,0,5">
+                  <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                                               Maximum="10"
+                                               Value="{Binding TotalRating}">
+                    <StarRatingPanel.LayoutTransform>
+                      <TransformGroup>
+                        <ScaleTransform ScaleX="1.7" ScaleY="1.5"/>
+                      </TransformGroup>
+                    </StarRatingPanel.LayoutTransform>
+                  </StarRatingPanel>
+                </StackPanel>
+              </Grid>
+            </ControlTemplate>
+          </media:SeriesAspectWrapper.Template>
+         </media:SeriesAspectWrapper>
+        
+      </Grid>
+    </Grid>
     
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-      <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label x:Name="Year" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
-              Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="1" Margin="0,0,20,0" >
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source="watched_icon.png"/>
-                <Binding Source="unwatched_icon.png"/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-        </Grid>
-      </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper>
-
-  <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:VideoAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="340"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-
-          <Label x:Name="Genre"  Grid.Column="0" Grid.Row="1" Margin="0,0,-10,0"
-              Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
-        </Grid>
-      </ControlTemplate>
-    </media:VideoAspectWrapper.Template>
-  </media:VideoAspectWrapper>
-
-  <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:SeriesAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-
-          <Label x:Name="Duration" Grid.Column="0" Grid.Row="2"
-                  Content="{Binding Path=Runtime, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm}" Color="{ThemeResource TextColor}"/>
-
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="3" Margin="0,6,0,5">
-            <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                         Maximum="10"
-                                         Value="{Binding TotalRating}">
-              <StarRatingPanel.LayoutTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1.7" ScaleY="1.5"/>
-                </TransformGroup>
-              </StarRatingPanel.LayoutTransform>
-            </StarRatingPanel>
-          </StackPanel>
-
-        </Grid>
-      </ControlTemplate>
-    </media:SeriesAspectWrapper.Template>
-  </media:SeriesAspectWrapper>
-
   </StackPanel>
-
+  
 </Grid>
