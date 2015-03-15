@@ -10,4 +10,11 @@
   <string name="Menu.Others">Others</string>
 
   <string name="Menu.Main">Main Menu</string>
+
+  <string name="Media.AudioAlbumArtistsLabel">Album Artists:</string>
+  <string name="Media.AudioTrackLabel">Track:</string>
+  <string name="Media.AudioBitRateLabel">Bitrate:</string>
+  <string name="Media.AudioComposersLabel">Composers:</string>
+  <string name="Media.AudioMimeTypeLabel">Type:</string>
+
 </resources>
