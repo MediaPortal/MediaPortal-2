@@ -646,9 +646,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       if (mode == TextScrollEnum.Auto)
       {
-        if (_textLayout.Metrics.Height > textBox.Height)
+        if (IsGreater(_textLayout.Metrics.Height, textBox.Height))
           mode = TextScrollEnum.Up;
-        else if (_textLayout.Metrics.LineCount == 1 && _textLayout.Metrics.Width > textBox.Width)
+        else if (_textLayout.Metrics.LineCount == 1 && IsGreater(_textLayout.Metrics.Width, textBox.Width))
           mode = TextScrollEnum.Left;
         else
           return TextScrollEnum.None;
