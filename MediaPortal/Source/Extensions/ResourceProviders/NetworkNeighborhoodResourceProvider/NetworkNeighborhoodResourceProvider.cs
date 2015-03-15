@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Net;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
@@ -41,6 +41,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public const string NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID_STR = "{03DD2DA6-4DA8-4D3E-9E55-80E3165729A3}";
     public static readonly Guid NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID = new Guid(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID_STR);
+
+    internal const string ROOT_PROVIDER_PATH = "/";
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[NetworkNeighborhoodResourceProvider.Name]";
     protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[NetworkNeighborhoodResourceProvider.Description]";
@@ -93,18 +95,32 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       get { return _browserService; }
     }
 
+    public static ResourcePath RootPath
+    {
+      get { return ResourcePath.BuildBaseProviderPath(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, ROOT_PROVIDER_PATH); }
+    }
+
     #endregion
 
     #region Private methods
 
     private void RegisterCredentials()
     {
-      if (!_settings.Settings.UseCredentials)
-        return;
-      var credential = new NetworkCredential { UserName = _settings.Settings.NetworkUserName, Password = _settings.Settings.NetworkPassword };
-      var path = ExpandResourcePathFromString("/");
-      if(ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(path, credential))
-        _registeredPaths.Add(path);
+      foreach (var kvp in _settings.Settings.NetworkCredentials)
+      {
+        ResourcePath path;
+        try
+        {
+          path = ResourcePath.Deserialize(kvp.Key);
+        }
+        catch (Exception)
+        {
+          ServiceRegistration.Get<ILogger>().Error("NetworkNeighborhoodResourceProvider: Malformed ResourcePath in NetworkNeighborhoodResourceProviderSettings: '{0}'", kvp.Key);
+          continue;
+        }
+        if(ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(path, kvp.Value))
+          _registeredPaths.Add(path);
+      }
     }
 
     private void UnregisterCredentials()
