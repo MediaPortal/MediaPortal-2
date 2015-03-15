@@ -88,7 +88,7 @@
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                   <Label x:Name="FirstAired" 
-                    Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=dd.MM.yyyy}" Color="{ThemeResource TextColor}"/>
+                    Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
               </Grid>
             </ControlTemplate>
           </media:SeriesAspectWrapper.Template>
@@ -134,7 +134,7 @@
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <Label x:Name="Duration" 
-                       Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm}" Color="{ThemeResource TextColor}"/>
+                       Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}"/>
               </Grid>
             </ControlTemplate>
           </media:VideoAspectWrapper.Template>
