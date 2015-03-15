@@ -24,11 +24,11 @@
       </Image.Source>
     </Image>
 
-    <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
+    <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Margin="5,0,5,0"
         Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
         Color="{ThemeResource TextColor}"/>
 
-    <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="2" Scroll="Auto" Margin="5,0,0,0"
+    <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="2" Margin="5,0,5,0"
         Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
         Color="{ThemeResource TextColor}"/>
 
@@ -39,6 +39,7 @@
     <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" Scroll="Auto"
            Content="{Binding Path=CurrentProgram.Description}"
+           Style="{ThemeResource DetailLabelStyle}"
            Color="{ThemeResource TextColor}"/>
   </Grid>
 </DockPanel>
