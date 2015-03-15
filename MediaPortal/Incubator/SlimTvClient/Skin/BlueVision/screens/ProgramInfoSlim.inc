@@ -39,6 +39,6 @@
     <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" Scroll="Auto"
            Content="{Binding Path=CurrentProgram.Description}"
-           Color="{ThemeResource TextColor}"/>
+           Color="{ThemeResource TextColor}" Margin="0,0,0,25" />
   </Grid>
 </DockPanel>
