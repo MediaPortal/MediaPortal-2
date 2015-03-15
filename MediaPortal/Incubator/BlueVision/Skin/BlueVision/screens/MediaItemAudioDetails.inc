@@ -78,7 +78,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="AlbumArtistsLabel" Grid.Row="0" Grid.Column="0"
-                Content="Album Artists:" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+                Content="[Media.AudioAlbumArtistsLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="AlbumArtists" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=AlbumArtists}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -95,7 +95,7 @@
               <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TrackLabel" Grid.Row="0" Grid.Column="0"
-                Content="Track:" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+                Content="[Media.AudioTrackLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Track" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=Track}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -163,7 +163,7 @@
               <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>           
             <Label x:Name="BitrateLabel" Grid.Row="0" Grid.Column="0"
-                Content="Bitrate:" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+                Content="[Media.AudioBitRateLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Bitrate" Grid.Row="0" Grid.Column="1" Color="{ThemeResource TextColor}">
               <Label.Content>
                   <Binding Path="BitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} Bit"/>
@@ -183,7 +183,7 @@
               <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ComposersLabel" Grid.Row="0" Grid.Column="0"
-                Content="Composers:" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+                Content="[Media.AudioComposersLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Composers" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=Composers}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -200,7 +200,7 @@
               <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TypeLabel" Grid.Row="0" Grid.Column="0"
-                Content="Type:" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+                Content="[Media.AudioMimeTypeLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="MimeType" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=MimeType}" Color="{ThemeResource TextColor}"/>
           </Grid>
