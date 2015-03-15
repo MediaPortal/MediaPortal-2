@@ -226,7 +226,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     private void AdjustLineHeights(TextFormat format)
     {
       if (!double.IsNaN(_lineHeight))
-        format.SetLineSpacing(LineSpacingMethod.Default, (float)_lineHeight, (float)(_lineHeight * 0.8));
+        format.SetLineSpacing(LineSpacingMethod.Uniform, (float)_lineHeight, (float)(_lineHeight * 0.8));
     }
 
     /// <summary>
