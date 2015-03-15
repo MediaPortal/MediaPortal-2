@@ -38,6 +38,10 @@
     <ImageBrush ImageSource="MediaItem_OpacityMask_wide.png" />
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="MediaItemsOpacityBrushNormal">
+    <ImageBrush ImageSource="MediaItem_OpacityMask_normal.png" />
+  </ResourceWrapper>
+
   <ResourceWrapper x:Key="MediaItemsFocusedBorderBrush">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
       <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0"/>

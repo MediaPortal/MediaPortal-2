@@ -583,8 +583,8 @@
   <ControlTemplate x:Key="VideoCoverTemplate">
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Image Margin="0,0,0,0"/>
-      <Image Width="193" Height="128" Stretch="UniformToFill" FallbackSource="VideoLarge.png"
-            OpacityMask="{ThemeResource AudioItemsOpacityBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
+      <Image Width="193" Height="128" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
+            OpacityMask="{ThemeResource MediaItemsOpacityBrushNormal}" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
       </Image>
     </Grid>
   </ControlTemplate>
