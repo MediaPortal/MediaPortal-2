@@ -63,8 +63,17 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   float2 texcoord = PixelTransform(IN.Texcoord);
-
-  float4 color = PixelEffect(texcoord, InputTexture, TextureSampler, g_framedata);
+  float4 color;
+  // Workaround for missing sampler state control when using Direct2D. This methods implements a "border" kind sampling, returning constant color
+  [flatten]
+  if (IN.Texcoord[0] < 0 || IN.Texcoord[0] > 1 || IN.Texcoord[1] < 0 || IN.Texcoord[1] > 1)
+  {
+    color = g_borderColor;
+  }
+  else
+  {
+    color = PixelEffect(texcoord, InputTexture, TextureSampler, g_framedata);
+  }
   color.a *= g_opacity;
 
   // Remember to pre-multiply alpha

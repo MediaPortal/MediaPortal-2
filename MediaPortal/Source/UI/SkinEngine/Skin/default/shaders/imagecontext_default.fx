@@ -57,6 +57,7 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   float4 color;
   // Workaround for missing sampler state control when using Direct2D. This methods implements a "border" kind sampling, returning constant color
+  [flatten]
   if (IN.Texcoord[0] < 0 || IN.Texcoord[0] > 1 || IN.Texcoord[1] < 0 || IN.Texcoord[1] > 1)
   {
     color = g_borderColor;
