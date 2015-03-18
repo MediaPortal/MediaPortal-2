@@ -262,6 +262,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// Any other error in managed code is signaled by the returned task being set to Faulted state.
     /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
     /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
+    /// This method is nearly identical to <see cref="ProcessUtils.ExecuteAsync"/>; it is necessary to have this code duplicated
+    /// because AsyncImpersonationProcess hides several methods of the Process class and executing these methods on the base class does
+    /// therefore not work. If this method is changed it is likely that <see cref="ProcessUtils.ExecuteAsync"/> also
+    /// needs to be changed.
     /// </remarks>
     internal static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, WindowsIdentityWrapper idWrapper, ILogger debugLogger, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT)
     {

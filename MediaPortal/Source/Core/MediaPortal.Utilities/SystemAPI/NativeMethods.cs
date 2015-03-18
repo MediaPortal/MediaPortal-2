@@ -24,7 +24,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.SystemAPI
@@ -94,6 +93,7 @@ namespace MediaPortal.Utilities.SystemAPI
     public static extern int FreeLibrary(IntPtr hLibModule);
 
     // Group type enum
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum SecurityImpersonationLevel
     {
       Anonymous = 0,
@@ -102,6 +102,7 @@ namespace MediaPortal.Utilities.SystemAPI
       Delegation = 3
     }
 
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum LogonType
     {
       /// <summary>
@@ -157,6 +158,7 @@ namespace MediaPortal.Utilities.SystemAPI
       NewCredentials = 9,
     }
 
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum LogonProvider
     {
       /// <summary>
@@ -172,6 +174,7 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     [Flags]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum TokenAccess
     {
       StandardRightsRequired = 0x000F0000,
@@ -190,6 +193,7 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public struct ProcessInformation
     {
       public IntPtr hProcess;
@@ -199,6 +203,7 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public class StartupInfo
     {
       public int cb;
@@ -230,6 +235,7 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public class SecurityAttributes
     {
       public uint nLength;
@@ -242,6 +248,7 @@ namespace MediaPortal.Utilities.SystemAPI
       }
     }
 
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum TokenType
     {
       Primary = 1,
@@ -249,6 +256,7 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     [Flags]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum CreateProcessFlags : uint
     {
       None = 0,
@@ -271,6 +279,7 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     [Flags]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public enum ProcessAccess
     {
       AllAccess = CreateThread | DuplicateHandle | QueryInformation | SetInformation | Terminate | VmOperation | VmRead | VmWrite | Synchronize,
@@ -287,23 +296,29 @@ namespace MediaPortal.Utilities.SystemAPI
 
     // Obtains user token
     [DllImport("advapi32.dll", SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool LogonUser(string username, string domain, string password, LogonType dwLogonType, LogonProvider dwLogonProvider, out IntPtr phToken);
 
     // Closes open handles returned by LogonUser
     [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public extern static bool CloseHandle(IntPtr handle);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool SetHandleInformation(SafeFileHandle hObject, int dwMask, uint dwFlags);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern SafeFileHandle GetStdHandle(int nStdHandle);
 
     // Creates duplicate token handle.
     [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public extern static bool DuplicateToken(IntPtr existingTokenHandle, SecurityImpersonationLevel impersonationLevel, ref IntPtr duplicateTokenHandle);
 
     [DllImport("advapi32.dll", EntryPoint = "DuplicateTokenEx", SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool DuplicateTokenEx(
         IntPtr hExistingToken,
         TokenAccess dwDesiredAccess,
@@ -313,6 +328,7 @@ namespace MediaPortal.Utilities.SystemAPI
         out IntPtr phNewToken);
 
     [DllImport("advapi32")]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool OpenProcessToken(
         IntPtr processHandle, // handle to process
         TokenAccess desiredAccess, // desired access to process
@@ -320,35 +336,45 @@ namespace MediaPortal.Utilities.SystemAPI
     );
 
     [DllImport("advapi32.DLL")]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool ImpersonateLoggedOnUser(IntPtr hToken); // handle to token for logged-on user
 
     [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool CreateProcessAsUserW(IntPtr token, [MarshalAs(UnmanagedType.LPTStr)] string lpApplicationName, [MarshalAs(UnmanagedType.LPTStr)] string lpCommandLine, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreateProcessFlags dwCreationFlags, IntPtr lpEnvironment, [MarshalAs(UnmanagedType.LPTStr)] string lpCurrentDirectory, [In] StartupInfo lpStartupInfo, out ProcessInformation lpProcessInformation);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern uint GetPriorityClass(IntPtr handle);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool SetPriorityClass(IntPtr handle, uint priorityClass);
 
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
 
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool CreatePipe(out SafeFileHandle hReadPipe, out SafeFileHandle hWritePipe, SecurityAttributes lpPipeAttributes, int nSize);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle, SafeFileHandle hSourceHandle, IntPtr hTargetProcess, out SafeFileHandle targetHandle, int dwDesiredAccess, bool bInheritHandle, int dwOptions);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern IntPtr GetCurrentProcess();
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern IntPtr OpenProcess(ProcessAccess dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
 
     [StructLayout(LayoutKind.Sequential)]

@@ -34,6 +34,7 @@ namespace MediaPortal.Utilities.Process
   public class ProcessUtils
   {
     public static readonly Encoding CONSOLE_ENCODING = Encoding.UTF8;
+    [Obsolete("This field will be removed. The functionality is contained in ImpersonationService")]
     private static readonly string CONSOLE_ENCODING_PREAMBLE = CONSOLE_ENCODING.GetString(CONSOLE_ENCODING.GetPreamble());
 
     public const int INFINITE = -1;
@@ -52,6 +53,10 @@ namespace MediaPortal.Utilities.Process
     /// Any other error in managed code is signaled by the returned task being set to Faulted state.
     /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
     /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
+    /// This method is nearly identical to ImpersonationService.ExecuteWithResourceAccessAsync; it is necessary to have this code duplicated
+    /// because AsyncImpersonationProcess hides several methods of the Process class and executing these methods on the base class does
+    /// therefore not work. If this method is changed it is likely that ImpersonationService.ExecuteWithResourceAccessAsync also
+    /// needs to be changed.
     /// </remarks>
     public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
@@ -163,6 +168,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
+    [Obsolete("Use ExecuteAsync instead.")]
     public static bool TryExecute(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       string unused;
@@ -179,6 +185,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
+    [Obsolete("Use IImpersonationService.ExecuteWithResourceAccessAsync instead.")]
     public static bool TryExecute_AutoImpersonate(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       return IsImpersonated ?
@@ -195,6 +202,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
+    [Obsolete("Use IImpersonationService.ExecuteWithResourceAccessAsync instead.")]
     public static bool TryExecute_Impersonated(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       IntPtr userToken;
@@ -221,6 +229,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns></returns>
+    [Obsolete("Use ExecuteAsync instead.")]
     public static bool TryExecuteReadString(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       return TryExecute(executable, arguments, true, out result, priorityClass, maxWaitMs);
@@ -236,6 +245,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns></returns>
+    [Obsolete("Use IImpersonationService.ExecuteWithResourceAccessAsync instead.")]
     public static bool TryExecuteReadString_AutoImpersonate(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       return IsImpersonated ?
@@ -254,6 +264,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
+    [Obsolete("Use IImpersonationService.ExecuteWithResourceAccessAsync instead.")]
     public static bool TryExecuteReadString_Impersonated(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       IntPtr userToken;
@@ -277,6 +288,7 @@ namespace MediaPortal.Utilities.Process
     /// <summary>
     /// Indicates if the current <see cref="WindowsIdentity"/> uses impersonation.
     /// </summary>
+    [Obsolete("This method will be removed. The functionality is contained in ImpersonationService")]
     private static bool IsImpersonated
     {
       get
@@ -297,6 +309,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns></returns>
+    [Obsolete("This method will be removed. The functionality is contained in ImpersonationService")]
     private static bool TryExecute(string executable, string arguments, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       StringBuilder outputBuilder = new StringBuilder();
@@ -337,6 +350,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="priorityClass">Process priority</param>
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns><c>true</c> if process was executed and finished correctly</returns>
+    [Obsolete("This method will be removed. The functionality is contained in ImpersonationService")]
     private static bool TryExecute_Impersonated(string executable, string arguments, IntPtr token, bool redirectInputOutput, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       // Note: Althought the code is nearly identical as TryExecute, it cannot be easily refactored, as the ImpersonationProcess implements many methods and properties with "new".
@@ -371,6 +385,7 @@ namespace MediaPortal.Utilities.Process
       return false;
     }
 
+    [Obsolete("This method will be removed. The functionality is contained in ImpersonationService")]
     private static void PrepareProcess(string executable, string arguments, bool redirectInputOutput, System.Diagnostics.Process process, AutoResetEvent outputWaitHandle, StringBuilder outputBuilder)
     {
       process.StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = redirectInputOutput };
@@ -401,6 +416,7 @@ namespace MediaPortal.Utilities.Process
     /// </summary>
     /// <param name="rawString">Raw string that might include the preamble (BOM).</param>
     /// <returns>String without preamble.</returns>
+    [Obsolete("This method will be removed. The functionality is contained in ImpersonationService")]
     private static string RemoveEncodingPreamble(string rawString)
     {
       if (!string.IsNullOrWhiteSpace(rawString) && rawString.StartsWith(CONSOLE_ENCODING_PREAMBLE))
