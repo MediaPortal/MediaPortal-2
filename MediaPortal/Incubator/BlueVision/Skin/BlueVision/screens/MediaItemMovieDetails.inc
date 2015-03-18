@@ -49,7 +49,7 @@
               <Image.Source>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding Path="PlayCount"/>
-                  <Binding Source="watched_icon.png"/>
+                  <Binding Source=""/>
                   <Binding Source="unwatched_icon.png"/> 
                 </MultiBinding>
               </Image.Source>
