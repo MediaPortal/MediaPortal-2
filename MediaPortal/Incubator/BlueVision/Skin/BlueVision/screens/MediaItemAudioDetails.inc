@@ -217,12 +217,12 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Margin="0,8,0,0" Grid.Row="0" Grid.Column="0"  >
+          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="32" Margin="0,8,0,0" Grid.Row="0" Grid.Column="0"  >
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding Path="PlayCount"/>
-                <Binding Source="watched_icon.png"/>
-                <Binding Source="unwatched_icon.png"/>
+                <Binding Source=""/>
+                <Binding Source="unheard_icon.png"/>
               </MultiBinding>
             </Image.Source>
           </Image>
