@@ -352,6 +352,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         menuSettings.MainMenuGroupNames = new List<GroupItemSetting>
         {
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME,        Id = new Guid(MenuSettings.MENU_ID_HOME)}, 
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE,       Id = new Guid(MenuSettings.MENU_ID_IMAGE)}, 
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO,       Id = new Guid(MenuSettings.MENU_ID_AUDIO)}, 
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_MEDIAHUB,    Id = new Guid(MenuSettings.MENU_ID_MEDIAHUB)},
@@ -375,6 +376,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         positions = new SerializableDictionary<Guid, GridPosition>();
         positions[new Guid("55556593-9FE9-436c-A3B6-A971E10C9D44")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
         menuSettings.MenuItems[MenuSettings.MENU_NAME_IMAGE] = positions;
+
+        positions = new SerializableDictionary<Guid, GridPosition>();
+        positions[new Guid("94961A9E-4C81-4bf7-9EE4-DF9712C3DCF2")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
+        menuSettings.MenuItems[MenuSettings.MENU_NAME_HOME] = positions;
 
         positions = new SerializableDictionary<Guid, GridPosition>();
         positions[new Guid("30715D73-4205-417f-80AA-E82F0834171F")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Audio
