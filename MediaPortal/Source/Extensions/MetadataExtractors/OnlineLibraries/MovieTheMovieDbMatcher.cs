@@ -379,6 +379,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         _collectionStorage.Dispose();
       }
       base.Dispose(disposing);
+      _disposed = true;
     }
   }
 }
