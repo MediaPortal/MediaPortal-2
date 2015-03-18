@@ -48,6 +48,8 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
     public const string MENU_ID_SETTINGS = "9AD4076C-8F1F-4353-AF60-4F6C4238DCB7";
     public const string MENU_NAME_OTHERS = "[Menu.Others]";
     public const string MENU_ID_OTHERS = "D805F21B-0A1F-4323-BEB5-B108778F89AA";
+    public const string MENU_NAME_HOME = "[Menu.Home]";
+    public const string MENU_ID_HOME = "DF153D5E-0CD9-416c-B18B-E09AD5A864D8";
 
     public const int DEFAULT_ROWSPAN_SMALL = 2;
     public const int DEFAULT_COLSPAN_SMALL = 2;
