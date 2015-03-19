@@ -24,17 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Network;
-using MediaPortal.Utilities.Process;
-using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser
 {
@@ -44,14 +40,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
   /// </summary>
   class WNetEnumNeighborhoodBrowser : INeighborhoodBrowser
   {
-    #region Constants
-
-    private const string NETWORK_SERVICE_USERNAME = "NETWORK SERVICE";
-    private const string NETWORK_SERVICE_DOMAIN = "NT AUTHORITY";
-    private const string NETWORK_SERVICE_PASSWORD = "";
-
-    #endregion
-
     #region Private methods
 
     /// <summary>
@@ -66,8 +54,9 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       var hosts = new Dictionary<String, Task<IPHostEntry>>();
       ICollection<String> hostNames;
       
-      // The WNetEnum API requires at least to be impersonated as NetworkService
-      using (ImpersonateNetworkService())
+      // The WNetEnum API requires at least to be impersonated as NetworkService; this is the fallback credential used for
+      // the root path of NetworkNeighborhoodResourceProvider if no other credentials have been entered.
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(NetworkNeighborhoodResourceProvider.RootPath))
         hostNames = NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk, ResourceUsage.All, ResourceDisplayType.Server);
       
       // The hostNames returned by the NetworkResourceEnumerator are in the form \\COMPUTERNAME
@@ -97,39 +86,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       }
       NeighborhoodBrowserHelper.LogResult(result, GetType().Name, stopWatch.ElapsedMilliseconds);
       return result;
-    }
-
-    /// <summary>
-    /// Impersonates the NetworkService
-    /// </summary>
-    /// <remarks>
-    /// The NetworkService can only be logged on with LogonType.NewCredentials or LogonType.Service.
-    /// Access to the WNetEnum API is only possible when using LogonType.NewCredentials. Additionally,
-    /// LogonType.NewCredentials also works on the client side when we are not running as LocalSystem.
-    /// </remarks>
-    /// <returns>ImpersonationConntext of the NetworkService</returns>
-    private ImpersonationHelper.ImpersonationContext ImpersonateNetworkService()
-    {
-      var tokenHandle = IntPtr.Zero;
-      try
-      {
-        if (NativeMethods.LogonUser(NETWORK_SERVICE_USERNAME, NETWORK_SERVICE_DOMAIN, NETWORK_SERVICE_PASSWORD, NativeMethods.LogonType.NewCredentials, NativeMethods.LogonProvider.Default, out tokenHandle))
-          return new ImpersonationHelper.ImpersonationContext { Identity = new WindowsIdentity(tokenHandle) };
-
-        var error = Marshal.GetLastWin32Error();
-        ServiceRegistration.Get<ILogger>().Error("WNetEnumNeighborhoodBrowser:  Error when calling LogonUser: {0}", new Win32Exception(error).Message);
-        return null;
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("WNetEnumNeighborhoodBrowser:  Error when impersonating: {0}", e);
-        return null;
-      }
-      finally
-      {
-        if (tokenHandle != IntPtr.Zero)
-          NativeMethods.CloseHandle(tokenHandle);
-      }
     }
 
     #endregion

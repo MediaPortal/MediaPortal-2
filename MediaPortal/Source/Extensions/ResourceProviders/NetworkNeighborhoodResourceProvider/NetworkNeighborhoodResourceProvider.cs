@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -32,6 +33,7 @@ using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
@@ -46,6 +48,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[NetworkNeighborhoodResourceProvider.Name]";
     protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[NetworkNeighborhoodResourceProvider.Description]";
+    protected static readonly SerializableNetworkCredential NETWORK_SERVICE_CREDENTIAL = new SerializableNetworkCredential
+    {
+      UserName = "NETWORK SERVICE",
+      Domain = "NT AUTHORITY",
+      Password = ""
+    };
 
     protected const ResourceProviderMetadata.SystemAffinity DEFAULT_SYSTEM_AFFINITY = ResourceProviderMetadata.SystemAffinity.Server | ResourceProviderMetadata.SystemAffinity.DetachedClient;
 
@@ -120,6 +128,19 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         }
         if(ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(path, kvp.Value))
           _registeredPaths.Add(path);
+        else
+          ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider: Could not register credentials for ResourcePath: '{0}'", kvp.Key);
+      }
+      if (!_registeredPaths.Contains(RootPath))
+      {
+        // If there was no credential registered for the root path of the NetworkNeighborhoodResourceProvider,
+        // we use the Network Service account as fallback. This is required in particular because the
+        // WNetEnumNeighborhoodBrowser cannot enumerate computers in the network under the LocalSystem account.
+        ServiceRegistration.Get<ILogger>().Info("NetworkNeighborhoodResourceProvider: No credential registered for the root path; using Network Service account as fallback");
+        if (ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(RootPath, NETWORK_SERVICE_CREDENTIAL))
+          _registeredPaths.Add(RootPath);
+        else
+          ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider: Could not register credentials for ResourcePath: '{0}'", RootPath);
       }
     }
 
