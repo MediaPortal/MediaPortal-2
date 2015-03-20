@@ -47,6 +47,9 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public BooleanCombinationFilter(BooleanOperator op, IEnumerable<IFilter> operands)
     {
       _operator = op;
+      // Note: this is a workaround for JSON deserializaion, this constructor is called with null 
+      // as argument, while XML deserialization prefers the internal parameterless constructor.
+      if (operands == null) return;
       _operands = new List<IFilter>(operands);
       if (_operands.Count == 0)
         throw new ArgumentException("The filter operands enumeration must not be empty");
