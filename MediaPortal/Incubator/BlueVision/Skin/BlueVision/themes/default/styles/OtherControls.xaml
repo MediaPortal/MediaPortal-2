@@ -438,7 +438,7 @@
 
       <!-- Light blue background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
-          x:Name="HomeFill" Fill="#FF00B7FF" Opacity="0.302" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          x:Name="HomeFill" Fill="#FFFFFF" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
       <!-- Image -->
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
