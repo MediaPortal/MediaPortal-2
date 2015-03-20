@@ -31,6 +31,10 @@ using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.UiComponents.Media.General
 {
+  /// <summary>
+  /// <see cref="SerializerConfig"/> holds default settings for the Json.Net serializer. The serialization is optimized to be 
+  /// compatible with the existing [XmlIgnore] attributes of properties.
+  /// </summary>
   public static class SerializerConfig
   {
     private static readonly JsonSerializerSettings SETTING;
@@ -44,9 +48,15 @@ namespace MediaPortal.UiComponents.Media.General
         ContractResolver = new XmlIngoreContractResolver()
       };
     }
+    /// <summary>
+    /// Gets the default setting for JSON serialization.
+    /// </summary>
     public static JsonSerializerSettings Default { get { return SETTING; } }
   }
 
+  /// <summary>
+  /// <see cref="XmlIngoreContractResolver"/> filters properties that are marked with the <see cref="XmlIgnoreAttribute"/>.
+  /// </summary>
   public class XmlIngoreContractResolver : DefaultContractResolver
   {
     protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)

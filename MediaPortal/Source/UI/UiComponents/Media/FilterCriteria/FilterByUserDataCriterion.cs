@@ -26,52 +26,31 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.General;
-using Newtonsoft.Json;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByUserDataCriterion : MLFilterCriterion
   {
-    const string KEY_USER_QUERIES = "SavedUserQueries";
-
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      IFilter watchedFilter = new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "{e88e64a8-0233-4fdf-ba27-0b44c6a39ae9}:///D:/Capture/The Code%", null);
-      var filters = new List<FilterValue>(new[] { new FilterValue("Test 'The Code'", watchedFilter, null, 0, this) });
+      var userFilterHandler = new UserFilterHandler();
+      List<FilterValue> filters;
+      if (!userFilterHandler.GetSavedUserFilters(out filters))
+        return new List<FilterValue>();
 
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      bool recreate = false;
-      if (userProfileDataManagement.IsValidUser)
+      // Count items for saved filters
+      foreach (var filterValue in filters)
       {
-        string serializeObject;
-        // Load lists
-        if (!recreate && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalData(userProfileDataManagement.CurrentUser.ProfileId, KEY_USER_QUERIES, out serializeObject))
-        {
-          filters = JsonConvert.DeserializeObject<List<FilterValue>>(serializeObject, SerializerConfig.Default);
-        }
-        else
-        {
-          // Create default for later use
-          serializeObject = JsonConvert.SerializeObject(filters, SerializerConfig.Default);
-          userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfileDataManagement.CurrentUser.ProfileId, KEY_USER_QUERIES, serializeObject);
-        }
-
-        foreach (var filterValue in filters)
-        {
-          filterValue.NumItems = cd.CountMediaItems(necessaryMIATypeIds, filterValue.Filter, true);
-        }
+        filterValue.NumItems = cd.CountMediaItems(necessaryMIATypeIds, filterValue.Filter, true);
       }
-
       return filters;
     }
 

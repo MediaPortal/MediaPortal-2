@@ -101,6 +101,7 @@
     <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
+    <Compile Include="Actions\SaveUserFilterAction.cs" />
     <Compile Include="Actions\SwitchFilterAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
     <Compile Include="Actions\RemovePlaylistsAction.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="General\SerializerConfig.cs" />
+    <Compile Include="General\UserFilterHandler.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
+    <Compile Include="Models\MediaUserFilterModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
@@ -411,6 +414,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\VideoFilterByUserData.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSaveUserFilter.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

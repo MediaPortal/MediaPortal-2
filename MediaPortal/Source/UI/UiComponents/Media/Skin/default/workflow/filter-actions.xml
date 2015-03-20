@@ -8,5 +8,12 @@
         SortOrder="a1"
         SourceStates="*"
         ContributorModelId="C1FCD6E1-41E8-45F9-BFCB-D59F2FFB0F15"/> <!-- Filter action -->
+
+    <WorkflowContributorAction Id="0CB2491B-A73B-4CC3-BD8E-C1AFDA818926"
+        Name="Media navigation->Save user filter"
+        DisplayCategory="a5-ViewSaveUserFilter"
+        SortOrder="a11"
+        SourceStates="*"
+        ContributorModelId="8C7A46F1-3F7A-473F-9E67-441578BB5397"/> <!-- Save user filter action -->
   </MenuActions>
 </Workflow>

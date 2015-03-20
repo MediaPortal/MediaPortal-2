@@ -305,6 +305,9 @@ namespace MediaPortal.UiComponents.Media.General
     // Filter
     public const string RES_SWITCH_FILTER = "[Media.SwitchFilterMenuItem]";
 
+    // Save user filter
+    public const string RES_SAVE_USER_FILTER = "[Media.SaveUserFilterMenuItem]";
+
     public const string RES_SORT_BY_TITLE = "[Media.SortByTitle]";
     public const string RES_SORT_BY_ALBUM_TRACK = "[Media.SortByAlbumTrack]";
     public const string RES_SORT_BY_GENRE = "[Media.SortByGenre]";
@@ -397,6 +400,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string DIALOG_SWITCH_FILTER = "DialogSwitchFilter";
 
+    public const string DIALOG_SAVE_USER_FILTER = "DialogSaveUserFilter";
+
     // Timespans
     public static TimeSpan TS_SEARCH_TEXT_TYPE = TimeSpan.FromMilliseconds(300);
 
@@ -470,6 +475,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_SORTING = "Sorting";
 
     public const string KEY_FILTER = "Filter";
+
+    public const string KEY_USER_QUERIES = "SavedUserQueries";
 
     // Custom constants used for NavigationData
     public const string USE_BROWSE_MODE = "{UseBrowseMode}";

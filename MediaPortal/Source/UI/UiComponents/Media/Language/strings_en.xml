@@ -373,6 +373,9 @@
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>
 
+  <string name="Media.SaveUserFilterMenuItem">Save filter</string>
+  <string name="Media.SaveUserFilterDialogTitle">Save current filter</string>
+
   <string name="Settings.Players">Players</string>
 
   <string name="Settings.Players.ClosePlayersWhenFinished">Close players when finished</string>
