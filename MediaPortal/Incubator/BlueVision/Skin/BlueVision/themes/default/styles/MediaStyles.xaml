@@ -628,7 +628,7 @@
        Source="{Binding MediaItem}" OpacityMask="{ThemeResource MediaItemsOpacityBrushNormalLarge}" />
 
       <!-- Unwatched indicator -->
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top" OpacityMask="{ThemeResource MediaItemsOpacityBrushNormal}" Margin="0,0,0,0" Grid.Row="0">
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top" OpacityMask="{ThemeResource MediaItemsOpacityBrush}" Grid.Row="0">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
             <Binding Path="PlayCount"/>

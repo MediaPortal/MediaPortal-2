@@ -20,6 +20,13 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <Storyboard x:Key="FocusedButtonStoryboard_Media" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.12"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <Storyboard x:Key="FocusedMenuButtonStoryboard_Base" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames FillBehavior="HoldEnd" BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="{ThemeResource FocusedButtonAnimationTime1}" Value="{ThemeResource FocusedButtonGradient1Color}"/>
@@ -58,6 +65,11 @@
 
   <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+  </Storyboard>
+
+  <Storyboard x:Key="FocusedButtonWideStoryboard_Media" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Media"/>
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
@@ -318,7 +330,8 @@
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1">
+              Margin="0,0,0,0" Fill="#284161" Stroke="#213848" StrokeThickness="1">
+            <!--Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1"-->
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -334,7 +347,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="-30,0,-30,0">
+              Margin="0,0,0,0">
             <Rectangle.Fill>
               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="{ThemeResource ButtonGradient1Color}" Offset="0"/>
@@ -508,7 +521,27 @@
 
   <!-- MediaItems style -->
 
-  <Style x:Key="MediaItemButtonControlStyle" TargetType="{x:Type Control}" BasedOn="{ThemeResource ButtonControlStyle}">
+  <Style x:Key="MediaItemButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle x:Name="ButtonControlRectangle"
+              Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+            Margin="0,0,45,0" Stroke="#213848" StrokeThickness="1">
+            <Rectangle.Fill>
+              <LinearGradientBrush>
+                <LinearGradientBrush.GradientStops>
+                  <GradientStop Offset="0" Color="#FFFFFF"/>
+                  <GradientStop Offset="0.75" Color="#000000"/>
+                  <GradientStop Offset="1" Color="#000000"/>
+                </LinearGradientBrush.GradientStops>
+              </LinearGradientBrush>
+            </Rectangle.Fill>
+            <!--Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1"-->
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="MediaItemButtonCoverControlStyle" TargetType="{x:Type Control}">
@@ -550,7 +583,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Media}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
