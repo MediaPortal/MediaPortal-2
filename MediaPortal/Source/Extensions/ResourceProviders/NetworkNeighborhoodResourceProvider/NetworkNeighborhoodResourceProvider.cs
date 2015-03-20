@@ -48,14 +48,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[NetworkNeighborhoodResourceProvider.Name]";
     protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[NetworkNeighborhoodResourceProvider.Description]";
+    protected const ResourceProviderMetadata.SystemAffinity DEFAULT_SYSTEM_AFFINITY = ResourceProviderMetadata.SystemAffinity.Server | ResourceProviderMetadata.SystemAffinity.DetachedClient;
     protected static readonly SerializableNetworkCredential NETWORK_SERVICE_CREDENTIAL = new SerializableNetworkCredential
     {
       UserName = "NETWORK SERVICE",
       Domain = "NT AUTHORITY",
       Password = ""
     };
-
-    protected const ResourceProviderMetadata.SystemAffinity DEFAULT_SYSTEM_AFFINITY = ResourceProviderMetadata.SystemAffinity.Server | ResourceProviderMetadata.SystemAffinity.DetachedClient;
 
     #endregion
 
@@ -87,16 +86,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     #endregion
 
-    #region Protected members
-
-    protected LocalFsResourceProvider LocalFsResourceProvider
-    {
-      get { return LocalFsResourceProvider.Instance; }
-    }
-
-    #endregion
-
-    #region Public members
+    #region Public properties
 
     public INeighborhoodBrowserSerivce BrowserService
     {
@@ -131,6 +121,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         else
           ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider: Could not register credentials for ResourcePath: '{0}'", kvp.Key);
       }
+
       if (!_registeredPaths.Contains(RootPath))
       {
         // If there was no credential registered for the root path of the NetworkNeighborhoodResourceProvider,
