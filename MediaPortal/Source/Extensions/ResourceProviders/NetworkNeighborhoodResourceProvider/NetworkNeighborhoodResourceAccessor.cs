@@ -40,12 +40,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 {
   public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor, IResourceDeletor
   {
-    #region Consts
-
-    protected const string ROOT_PATH = "/";
-
-    #endregion
-
     #region Protected fields
 
     protected NetworkNeighborhoodResourceProvider _parent;
@@ -53,6 +47,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server or root
 
     #endregion
+
+    #region Ctor
 
     public NetworkNeighborhoodResourceAccessor(NetworkNeighborhoodResourceProvider parent, string path)
     {
@@ -67,6 +63,10 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
           _underlayingResource = (ILocalFsResourceAccessor)ra;
     }
 
+    #endregion
+
+    #region Protected methods
+
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
     {
       ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected internal static bool IsRootPath(string providerPath)
     {
-      return (providerPath == ROOT_PATH);
+      return (providerPath == NetworkNeighborhoodResourceProvider.ROOT_PROVIDER_PATH);
     }
 
     protected internal static bool IsServerPath(string providerPath)
@@ -97,9 +97,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected internal static string GetServerName(string providerPath)
     {
-      if (!IsServerPath(providerPath))
-        return null;
-      return providerPath.Substring(2);
+      return !IsServerPath(providerPath) ? null : providerPath.Substring(2);
     }
 
     protected internal static bool IsResource(string path)
@@ -109,6 +107,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(ResourcePath.BuildBaseProviderPath(NetworkNeighborhoodResourceProvider.NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, path)))
         return IsServerPath(path) || LocalFsResourceProvider.Instance.IsResource("/" + path);
     }
+
+    #endregion
 
     #region ILocalFsResourceAccessor implementation
 
@@ -299,7 +299,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     #endregion
 
-    #region IResourceDeletor members
+    #region IResourceDeletor implementation
 
     public bool Delete()
     {
