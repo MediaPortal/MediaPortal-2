@@ -155,6 +155,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_BY_IMAGE_YEAR_MENU_ITEM = "[Media.FilterByImageYearMenuItem]";
     public const string RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM = "[Media.FilterByVideoYearMenuItem]";
     public const string RES_FILTER_BY_VIDEO_PLAYCOUNT_MENU_ITEM = "[Media.FilterByVideoPlayCountMenuItem]";
+    public const string RES_FILTER_BY_VIDEO_USERDATA_MENU_ITEM = "[Media.FilterByVideoUserDataMenuItem]";
     public const string RES_FILTER_BY_ACTOR_MENU_ITEM = "[Media.FilterByActorMenuItem]";
     public const string RES_FILTER_BY_DIRECTOR_MENU_ITEM = "[Media.FilterByDirectorMenuItem]";
     public const string RES_FILTER_BY_WRITER_MENU_ITEM = "[Media.FilterByWriterMenuItem]";
@@ -190,6 +191,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL = "[Media.FilterWriterNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoGenreNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_PLAYCOUNT_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoPlayCountDisplayLabel]";
+    public const string RES_FILTER_VIDEO_USERDATA_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoUserDataDisplayLabel]";
     public const string RES_FILTER_IMAGE_SIZE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageSizeNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
@@ -352,6 +354,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOS_FILTER_BY_SYSTEM = "VideoFilterBySystem";
     public const string SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG = "VideoFilterByLanguage";
     public const string SCREEN_VIDEOS_FILTER_BY_PLAYCOUNT = "VideoFilterByPlayCount";
+    public const string SCREEN_VIDEOS_FILTER_BY_USERDATA = "VideoFilterByUserData";
     public const string SCREEN_MOVIES_SHOW_ITEMS = "MoviesShowItems";
     public const string SCREEN_MOVIES_FILTER_BY_COLLECTION = "MoviesFilterByCollection";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";

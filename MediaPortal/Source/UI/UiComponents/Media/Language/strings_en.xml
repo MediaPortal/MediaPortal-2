@@ -27,6 +27,7 @@
   <string name="Media.FilterByVideoGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter by year</string>
   <string name="Media.FilterByVideoPlayCountMenuItem">Filter by (un-)watched</string>
+  <string name="Media.FilterByVideoUserDataMenuItem">User filters</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filter by language</string>
   <string name="Media.FilterByImageSizeMenuItem">Filter by size</string>
   <string name="Media.FilterByImageYearMenuItem">Filter by year</string>
@@ -76,6 +77,7 @@
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoPlayCountDisplayLabel">Watch state: {0}</string>
+  <string name="Media.FilterVideoUserDataDisplayLabel">Filter: {0}</string>
   <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Season {0}</string>
@@ -139,6 +141,7 @@
   <string name="Media.ChooseSystemHeader">Choose a system</string>
   <string name="Media.ChooseVideoLanguageHeader">Choose a language</string>
   <string name="Media.ChoosePlayCountHeader">Choose a watch state</string>
+  <string name="Media.ChooseUserDataHeader">Choose a filter</string>
 
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
   <string name="Media.SavePlaylistEditNameHeader">Save playlist</string>

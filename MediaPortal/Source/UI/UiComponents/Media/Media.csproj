@@ -165,6 +165,7 @@
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByUserDataScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByDirectorScreenData.cs" />
@@ -405,6 +406,11 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Skin\default\screens\VideoFilterByPlayCount.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\VideoFilterByUserData.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

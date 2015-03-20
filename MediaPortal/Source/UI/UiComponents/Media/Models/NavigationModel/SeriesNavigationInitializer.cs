@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _defaultScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
+        new VideosFilterByUserDataScreenData(),
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
         // C# doesn't like it to have an assignment inside a collection initializer
         _defaultScreen,
