@@ -29,6 +29,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
@@ -137,14 +138,23 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Label>
         
         <!-- Main Menu Group tabs -->
+        <!--
         <ListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
             VerticalAlignment="Stretch" HorizontalAlignment="Center"
             IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
             SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
         </ListView>
+        -->
+        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
+                               VerticalAlignment="Stretch" HorizontalAlignment="Center"
+                               HomeMenuModel="{StaticResource MenuModel}"
+                               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
+                               SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
+        </bvm:GroupMenuListView>
 
-        <!-- Time & Date -->
+      <!-- Time & Date -->
         <StackPanel Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" Margin="5,-5,110,0">
           <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
