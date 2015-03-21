@@ -373,7 +373,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         TvServerEventArgs tvEvent = (TvServerEventArgs)eventArgs;
 
-        if (tvEvent.EventType == TvServerEventType.RecordingEnded)
+        if (tvEvent.EventType == TvServerEventType.RecordingStarted || tvEvent.EventType == TvServerEventType.RecordingEnded)
         {
 #if TVE3
           var recording = Recording.Retrieve(tvEvent.Recording.IdRecording);
@@ -382,7 +382,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 #endif
           if (recording != null)
           {
-            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Recording ended: {0}", recording.FileName);
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: {0}: {1}", tvEvent.EventType, recording.FileName);
             ImportRecording(recording.FileName);
           }
         }
