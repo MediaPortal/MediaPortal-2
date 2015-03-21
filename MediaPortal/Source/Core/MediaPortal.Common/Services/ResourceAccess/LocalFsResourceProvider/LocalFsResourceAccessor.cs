@@ -121,7 +121,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
       if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
         return null;
-      return File.OpenRead(dosPath);
+      return new FileStream(dosPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
     }
 
     public Stream OpenWrite()
