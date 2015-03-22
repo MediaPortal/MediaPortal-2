@@ -138,14 +138,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Label>
         
         <!-- Main Menu Group tabs -->
-        <!--
-        <ListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
-            VerticalAlignment="Stretch" HorizontalAlignment="Center"
-            IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
-            SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
-        </ListView>
-        -->
+        <!-- use custom ListView to modify focus behavior -->
         <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
                                VerticalAlignment="Stretch" HorizontalAlignment="Center"
                                HomeMenuModel="{StaticResource MenuModel}"
