@@ -279,14 +279,10 @@
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
-            <Trigger Property="Selected" Value="True">
-              <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
-            </Trigger>
-            <Trigger Property="HasFocus" Value="False">
-              <!-- Added following code to make only the focused menu item heving full opacity-->
+            <!-- using the ancestor ListViewItem.Selected property instead of Button.Focused for highlighting the active item so it is visible all the time -->
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Selected}" Value="false">
               <Setter Property="Opacity" Value="0.4"/>
-              <!-- Added following code to make only the focused menu item heving full opacity-->
-            </Trigger>
+            </DataTrigger>
 
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
