@@ -49,9 +49,9 @@ namespace MediaPortal.UI.SkinEngine.Players
     bool SetRenderDelegate(RenderDlgt dlgt);
 
     /// <summary>
-    /// Returns the render surface for the current frame. May be <c>null</c>.
+    /// Returns the render texture for the current frame. May be <c>null</c>.
     /// </summary>
-    Surface Surface { get; } 
+    Texture Texture { get; } 
 
     /// <summary>
     /// Gets the rectangle out of the video frame <see cref="Surface"/> which should be presented.

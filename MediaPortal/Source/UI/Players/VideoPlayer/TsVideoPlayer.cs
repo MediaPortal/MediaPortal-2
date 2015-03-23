@@ -330,9 +330,9 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Render subtitles on video texture if enabled and available.
     /// </summary>
-    protected override void PostProcessTexture(Surface targetSurface)
+    protected override void PostProcessTexture(Texture targetTexture)
     {
-      _subtitleRenderer.DrawOverlay(targetSurface);
+      _subtitleRenderer.DrawOverlay(targetTexture);
     }
 
     public override TimeSpan CurrentTime

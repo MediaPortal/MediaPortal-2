@@ -121,9 +121,9 @@ namespace MediaPortal.UI.Players.Video
         _onTextureInvalidated();
     }
 
-    public void DrawOverlay(Surface targetSurface)
+    public void DrawOverlay(Texture targetTexture)
     {
-      if (targetSurface == null || _combinedOsdSurface == null)
+      if (targetTexture == null || _combinedOsdSurface == null)
         return;
 
       try
@@ -131,7 +131,7 @@ namespace MediaPortal.UI.Players.Video
         lock (_syncObj)
         {
           // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
-          using (new TemporaryRenderTarget(targetSurface))
+          using (new TemporaryRenderTarget(targetTexture))
           {
             _sprite.Begin();
             _sprite.Draw(_combinedOsdTexture, new ColorBGRA(255, 255, 255, 255) /* White */);

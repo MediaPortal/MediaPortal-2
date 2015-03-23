@@ -388,9 +388,9 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       pm.ForEach(psc =>
         {
           ISharpDXVideoPlayer player = psc.CurrentPlayer as ISharpDXVideoPlayer;
-          if (player == null || player.Surface == null)
+          if (player == null || player.Texture == null)
             return;
-          SurfaceDescription desc = player.Surface.Description;
+          SurfaceDescription desc = player.Texture.GetLevelDescription(0);
           playerInfos += String.Format("{0}Player {1}: Resolution {2}x{3}", string.IsNullOrEmpty(playerInfos) ? "" : "\r\n", index++, desc.Width, desc.Height);
         });
       return playerInfos;

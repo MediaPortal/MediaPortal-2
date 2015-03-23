@@ -117,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      VideoBrush b = (VideoBrush) source;
+      VideoBrush b = (VideoBrush)source;
       Stream = b.Stream;
       Geometry = b.Geometry;
       BorderColor = b.BorderColor;
@@ -200,13 +200,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       lock (sdvPlayer.SurfaceLock)
       {
-        Surface surface = sdvPlayer.Surface;
-        if (surface == null)
+        Texture texture = sdvPlayer.Texture;
+        if (texture == null)
         {
           _refresh = true;
           return false;
         }
-        SurfaceDescription desc = surface.Description;
+
+        SurfaceDescription desc = texture.GetLevelDescription(0);
         _videoTextureClip = new RectangleF(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
             cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
       }
@@ -268,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public int Stream
     {
-      get { return (int) _streamProperty.GetValue(); }
+      get { return (int)_streamProperty.GetValue(); }
       set { _streamProperty.SetValue(value); }
     }
 
@@ -282,7 +283,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public string Geometry
     {
-      get { return (string) _geometryProperty.GetValue(); }
+      get { return (string)_geometryProperty.GetValue(); }
       set { _geometryProperty.SetValue(value); }
     }
 
@@ -296,7 +297,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     public Color BorderColor
     {
-      get { return (Color) _borderColorProperty.GetValue(); }
+      get { return (Color)_borderColorProperty.GetValue(); }
       set { _borderColorProperty.SetValue(value); }
     }
 
@@ -322,21 +323,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       lock (player.SurfaceLock)
       {
-        Surface playerSurface = player.Surface;
-        if (playerSurface == null)
+        Texture texture = player.Texture;
+        if (texture == null)
           return false;
-        DeviceEx device = SkinContext.Device;
-        SurfaceDescription desc = playerSurface.Description;
-        SurfaceDescription? textureDesc = _texture == null ? new SurfaceDescription?() : _texture.GetLevelDescription(0);
-        if (!textureDesc.HasValue || textureDesc.Value.Width != desc.Width || textureDesc.Value.Height != desc.Height)
-        {
-          TryDispose(ref _texture);
-          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
-        }
-        using(Surface target = _texture.GetSurfaceLevel(0))
-          device.StretchRectangle(playerSurface, target, TextureFilter.None);
+        _texture = texture;
       }
-      
+
       // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
       RectangleF tranformedRect;
       GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);

@@ -279,9 +279,9 @@ namespace MediaPortal.UI.Players.Video
       get { return (_evrCallback == null) ? new System.Drawing.SizeF(1, 1) : _evrCallback.AspectRatio.ToDrawingSizeF(); }
     }
 
-    protected Surface RawVideoSurface
+    protected Texture RawVideoTexture
     {
-      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
     }
 
     public object SurfaceLock
@@ -293,22 +293,22 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    public Surface Surface
+    public Texture Texture
     {
       get
       {
         lock (SurfaceLock)
         {
-          Surface videoSurface = RawVideoSurface;
+          Texture videoTexture = RawVideoTexture;
           if (!_textureInvalid)
-            return videoSurface;
+            return videoTexture;
 
-          if (videoSurface == null || videoSurface.IsDisposed)
+          if (videoTexture == null || videoTexture.IsDisposed)
             return null;
 
-          PostProcessTexture(videoSurface);
+          PostProcessTexture(videoTexture);
           _textureInvalid = false;
-          return videoSurface;
+          return videoTexture;
         }
       }
     }
@@ -323,7 +323,7 @@ namespace MediaPortal.UI.Players.Video
     /// i.e. for overlaying subtitles or OSD menus.
     /// </summary>
     /// <param name="targetTexture"></param>
-    protected virtual void PostProcessTexture(Surface targetTexture)
+    protected virtual void PostProcessTexture(Texture targetTexture)
     { }
 
     public IGeometry GeometryOverride

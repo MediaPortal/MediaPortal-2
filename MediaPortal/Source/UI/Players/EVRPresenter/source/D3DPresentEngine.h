@@ -62,6 +62,6 @@ protected:
   IDirect3D9Ex                *m_pD3D9;
   IDirect3DDevice9Ex          *m_pDevice;
   IDirect3DDeviceManager9     *m_pDeviceManager;      // Direct3D device manager.
-  IDirect3DSurface9           *m_pSurfaceRepaint;     // Surface for repaint requests.
+  IDirect3DTexture9           *m_pTextureRepaint;     // Surface for repaint requests.
 };
 
