@@ -201,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       lock (sdvPlayer.SurfaceLock)
       {
         Texture texture = sdvPlayer.Texture;
-        if (texture == null)
+        if (texture == null || texture.IsDisposed)
         {
           _refresh = true;
           return false;
