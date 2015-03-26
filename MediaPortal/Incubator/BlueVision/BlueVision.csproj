@@ -72,6 +72,7 @@
     <Compile Include="Models\GroupMenuListView.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
+    <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\MenuSettings.cs" />
   </ItemGroup>
@@ -210,6 +211,10 @@
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
