@@ -63,6 +63,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     #endregion
 
     public const int DEFAULT_QUERY_LIMIT = 5;
+    public const int AUTO_UPDATE_INTERVAL = 30000;
 
     public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
 
@@ -118,15 +119,15 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           return;
 
         // Once MediaLibrary is connected, we reduce the update interval to 10 seconds
-        if (_updateInterval != 10000)
-          ChangeInterval(10000);
+        if (_updateInterval != AUTO_UPDATE_INTERVAL)
+          ChangeInterval(AUTO_UPDATE_INTERVAL);
 
         FillList(contentDirectory, Media.General.Consts.NECESSARY_MOVIES_MIAS, Movies, item => new MovieItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new SeriesItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_IMAGE_MIAS, Images, item => new ImageItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Audio, item => new AudioItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Videos, item => new AudioItem(item));
-        FillList(contentDirectory, NECESSARY_RECORDING_MIAS, Videos, item => new AudioItem(item));
+        FillList(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Videos, item => new VideoItem(item));
+        FillList(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));
+        FillList(contentDirectory, NECESSARY_RECORDING_MIAS, Recordings, item => new VideoItem(item));
       }
       catch (Exception ex)
       {
