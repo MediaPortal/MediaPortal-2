@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons"
+    >
+
+  <ResourceWrapper x:Key="WeatherIconSmallWidth720">64</ResourceWrapper>
+  <ResourceWrapper x:Key="WeatherIconSmallHeight720">64</ResourceWrapper>
+
+  <ResourceWrapper x:Key="WeatherIconSmallWidth1080">96</ResourceWrapper>
+  <ResourceWrapper x:Key="WeatherIconSmallHeight1080">96</ResourceWrapper>
+
+  <ResourceWrapper x:Key="WeatherIconBigWidth720">128</ResourceWrapper>
+  <ResourceWrapper x:Key="WeatherIconBigHeight720">128</ResourceWrapper>
+
+  <ResourceWrapper x:Key="WeatherIconBigWidth1080">192</ResourceWrapper>
+  <ResourceWrapper x:Key="WeatherIconBigHeight1080">192</ResourceWrapper>
+
+</ResourceDictionary>
