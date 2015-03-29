@@ -270,6 +270,7 @@
     <Compile Include="MarkupExtensions\IValueConverter.cs" />
     <Compile Include="MarkupExtensions\MultiBindingExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
+    <Compile Include="MarkupExtensions\ResolutionResourceExtension.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceExtension.cs" />
     <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
     <Compile Include="MpfElements\Converters\AbstractSingleDirectionConverter.cs" />
