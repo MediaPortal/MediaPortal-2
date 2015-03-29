@@ -86,9 +86,9 @@
     <Content Include="Skin\default\screens\dialogAddNewsFeed.xaml" />
     <Content Include="Skin\default\screens\NewsItemDetail.xaml" />
     <Content Include="Skin\Reflexion\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
-    <Content Include="Skin\Reflexion\themes\default\styles\NewsStyles.xaml" />
     <Content Include="Skin\Titanium\themes\default\images\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
-    <Content Include="Skin\Titanium\themes\default\styles\NewsStyles.xaml" />
+    <Content Include="Skin\Titanium\themes\default\styles\NewsConsts.xaml" />
+    <Content Include="Skin\default\themes\default\styles\NewsConsts.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />

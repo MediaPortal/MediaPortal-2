@@ -15,11 +15,12 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
+      <StackPanel DataContext="{Binding Source={StaticResource Model}}" Width="{ResolutionResource NewsDialogWidth}">
+
         <Label Margin="10,0,0,0" Content="[News.ConfiguredFeeds]" Color="{ThemeResource TextColor}"/>
-        <StackPanel Margin="10" HorizontalAlignment="Center">
-          <ListView Name="FeedsList" Height="300" Width="600" Style="{ThemeResource NewsFeedsBookmarksListViewStyle}"
-              ItemsSource="{Binding Feeds}">
+        <StackPanel Margin="20" HorizontalAlignment="Stretch">
+          <ListView Name="FeedsList" HorizontalAlignment="Stretch" Style="{ThemeResource NewsFeedsBookmarksListViewStyle}"
+              ItemsSource="{Binding Feeds}" Height="{ResolutionResource NewsFeedListHeight}">
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>

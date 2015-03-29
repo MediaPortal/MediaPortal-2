@@ -15,7 +15,8 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
+      <StackPanel DataContext="{Binding Source={StaticResource Model}}" Width="{ResolutionResource NewsDialogWidth}">
+
         <StackPanel Margin="10" HorizontalAlignment="Stretch">
           <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[News.EnterFeedName]" Color="{ThemeResource TextColor}"/>
           <TextBox Margin="10,5,10,5" HorizontalAlignment="Stretch" BorderThickness="1"
@@ -44,7 +45,7 @@
           <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
               HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
-      </StackPanel>
+      
     </ControlTemplate>
 
   </Include.Resources>
