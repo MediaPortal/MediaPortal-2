@@ -545,8 +545,8 @@
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
                   <GradientStop Offset="0" Color="#FFFFFF"/>
-                  <GradientStop Offset="0.75" Color="#000000"/>
-                  <GradientStop Offset="1" Color="#000000"/>
+                  <GradientStop Offset="0.75" Color="#666666"/>
+                  <GradientStop Offset="1" Color="#666666"/>
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Rectangle.Fill>
