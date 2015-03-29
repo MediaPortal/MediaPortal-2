@@ -16,7 +16,7 @@
     <ControlTemplate x:Key="Contents_Template">
       <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
-        <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Center" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="50"/>
@@ -32,7 +32,9 @@
 
           <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,0,0,0">
-            <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+            <Image x:Name="BigIcon" Width="{ResolutionResource WeatherIconBigWidth}" Height="{ResolutionResource WeatherIconBigHeight}"
+                   Source="{Binding CurrentLocation.Condition.BigIconProperty}" Stretch="Uniform" />
+
             <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
               <Label x:Name="Temperature" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                   Content="{Binding CurrentLocation.Condition.Temperature}"/>
