@@ -27,7 +27,8 @@
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[News.Published]" Margin="0,0,10,0"/>
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
             </WrapPanel>
-            <Image Grid.Column="1" MaxHeight="{ThemeResource NewsItemDetailsImageMaxHeight}" Width="{ThemeResource NewsItemDetailsImageMaxHeight}" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Margin="5"/>
+            <Image Grid.Column="1" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Margin="5"
+                   MaxHeight="{ResolutionResource NewsItemDetailsImageMaxHeight}" Width="{ResolutionResource NewsItemDetailsImageMaxHeight}"/>
           </Grid>
         </StackPanel>
         <ScrollViewer CanContentScroll="False" Margin="10" HorizontalScrollBarVisibility="Disabled" Focusable="True">
