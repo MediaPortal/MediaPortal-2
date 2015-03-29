@@ -26,7 +26,7 @@ using System;
 using Jyc.Expr;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
-using Parser=Jyc.Expr.Parser;
+using Parser = Jyc.Expr.Parser;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
@@ -76,8 +76,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
       string expression = parameter as string;
       if (string.IsNullOrEmpty(expression))
         return false;
-			try
-			{
+      try
+      {
         // We're using an expression parser from "devilplusplus", "C# Eval function"
         // See http://www.codeproject.com/KB/dotnet/Expr.aspx
         // The parser was slightly adapted to our needs:
@@ -117,23 +117,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         //pvh.Parameters["TimeZone"] = new Parameter(typeof(TimeZone));
 
         // Add child binding values
-			  for (int i = 0; i < values.Length; i++)
-			  {
-			    IDataDescriptor value = values[i];
+        for (int i = 0; i < values.Length; i++)
+        {
+          IDataDescriptor value = values[i];
           Type type = value.DataType;
           if (type != null && !pvh.Parameters.Contains(type.Name))
             pvh.Parameters[type.Name] = new Parameter(type);
-			    pvh.Parameters[i.ToString()] = new Parameter(value.Value, type);
-			  }
+          pvh.Parameters[i.ToString()] = new Parameter(value.Value, type);
+        }
         evaluator.VariableHolder = pvh;
         Tree tree = ep.Parse(expression);
         result = evaluator.Eval(tree);
         return TypeConverter.Convert(result, targetType, out result);
-			}
-			catch(Exception)
-			{
-			  return false;
-			}
+      }
+      catch (Exception)
+      {
+        return false;
+      }
     }
 
     #endregion
