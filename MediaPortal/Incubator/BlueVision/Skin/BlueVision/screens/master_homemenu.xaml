@@ -16,12 +16,14 @@
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
 
+        <!--Begin Home Screen-->
         <Grid DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
               xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
                   Margin="0,0,0,-50">
           <Grid.Resources>
             <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
             <Model x:Key="LatestMediaModel" Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870"/>
+            <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
           </Grid.Resources>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -118,7 +120,7 @@
             <Image Grid.Row="0" Grid.ColumnSpan="2" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Grid.ColumnSpan="2" Content="weather" Margin="0,-15,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
             <Image  Grid.Row="1" Grid.Column="0" x:Name="WeatherBigIcon" Stretch="Uniform" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}"
-             IsVisible="{Binding UseInHome}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+             IsVisible="{Binding UseInHome}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,5,5,5"/>
 
             <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
               <Label  x:Name="Temp" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
@@ -151,9 +153,22 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Content="news" Margin="0,-15,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Grid Grid.Column="0" Grid.Row="1" Margin="30,0,10,0" DataContext="{Binding Source={StaticResource CurrentNewsModel}}" VerticalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Label Grid.Row="0" Grid.Column="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                     Content="{Binding CurrentNewsItem.Title}" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+              <Label Grid.Row="1" Grid.Column="0" Margin="0,0,0,55" x:Name="NewSummary" Wrap="True" Scroll="Auto" ScrollSpeed="20" ScrollDelay="3"
+                     VerticalAlignment="Stretch" Content="{Binding CurrentNewsItem.Summary}" Opacity="0.6"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            </Grid>
           </Grid>
-
-        </Grid>
+        </Grid> <!--End Home Screen-->
 
         <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
             VerticalAlignment="Stretch" SetFocusPrio="Fallback"
