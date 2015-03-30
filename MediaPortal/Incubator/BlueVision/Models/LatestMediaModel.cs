@@ -34,9 +34,11 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -128,6 +130,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         FillList(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Videos, item => new VideoItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));
         FillList(contentDirectory, NECESSARY_RECORDING_MIAS, Recordings, item => new VideoItem(item));
+        SetLayout();
       }
       catch (Exception ex)
       {
@@ -152,6 +155,17 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         list.Add(listItem);
       }
       list.FireChange();
+    }
+
+    protected void SetLayout()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      ViewModeModel vwm = workflowManager.GetModel(ViewModeModel.VM_MODEL_ID) as ViewModeModel;
+      if (vwm != null)
+      {
+        vwm.LayoutType = LayoutType.GridLayout;
+        vwm.LayoutSize = LayoutSize.Medium;
+      }
     }
   }
 }
