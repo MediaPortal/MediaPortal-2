@@ -1244,7 +1244,10 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Image -->
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- IMAGE -->
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  
   <ControlTemplate x:Key="ListViewImageItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,45,0">
       <Grid.ColumnDefinitions>
@@ -1305,15 +1308,35 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Grid>
-      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
-      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
-             Source="{Binding MediaItem}" FallbackSource="ImageLarge.png"
-             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      </Image>
-    </Grid>
-  </ControlTemplate>
+
+    <ControlTemplate x:Key="GridViewImageItemTemplate">
+      <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+        <!--Image Width="207" Height="134" Stretch="Fill" Margin="-3,-3,-9,-9" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source=""/>
+            <Binding Source="MediaItem_shadow.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image-->
+
+        <Grid Width="193" Height="128" OpacityMask="{ThemeResource MediaItemsOpacityBrushNormal}">
+          <Image Source="{Binding MediaItem}" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                <Binding Path="PlayCount"/>
+                <Binding Source="UnwatchedTab_small.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
 
   <!-- Specific media navigation data templates -->
   <DataTemplate DataType="{x:Type navitems:SeriesFilterItem}">
@@ -1922,4 +1945,81 @@
     <Setter Property="PlayerContext" Value="SecondaryPlayer"/>
   </Style>
 
+  <Style x:Key="MediaItemsListListViewStyle2" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
+    <BindingSetter Property="ItemContainerStyle">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
+              <Binding Source="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>
+              <!--Binding Source="{ThemeResource MediaItemCoverFlowWithContextMenuContainerStyle}"/-->
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <!--Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="3" Style="{ThemeResource LeftSideScrollViewerStyle}"
+              HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter-->
+
+    <Setter Property="RenderTransform">
+      <Setter.Value>
+        <TransformGroup>
+          <ScaleTransform ScaleX="0.72" ScaleY="0.72"/>
+        </TransformGroup>
+      </Setter.Value>
+    </Setter>
+    
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="-10,0,-20,0"/>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <VirtualizingWrapPanel
+                      x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center">
+                    </VirtualizingWrapPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Cover layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0,0,0,0"/>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+  </Style>
+  
 </ResourceDictionary>
