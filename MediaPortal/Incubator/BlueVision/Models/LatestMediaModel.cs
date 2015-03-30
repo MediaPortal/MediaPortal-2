@@ -61,6 +61,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     };
 
     private readonly AbstractProperty _queryLimitProperty;
+    private bool _updatePending = false;
 
     #endregion
 
@@ -88,7 +89,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       : base(true, 500)
     {
       _queryLimitProperty = new WProperty(typeof(int), DEFAULT_QUERY_LIMIT);
-      
+
       Videos = new ItemsList();
       Series = new ItemsList();
       Movies = new ItemsList();
@@ -113,16 +114,22 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     protected override void Update()
     {
+      if (_updatePending)
+        UpdateItems();
+    }
+
+    public bool UpdateItems()
+    {
       try
       {
         ClearAll();
         var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
         if (contentDirectory == null)
-          return;
-
-        // Once MediaLibrary is connected, we reduce the update interval to 10 seconds
-        if (_updateInterval != AUTO_UPDATE_INTERVAL)
-          ChangeInterval(AUTO_UPDATE_INTERVAL);
+        {
+          _updatePending = true;
+          return false;
+        }
+        _updatePending = false;
 
         FillList(contentDirectory, Media.General.Consts.NECESSARY_MOVIES_MIAS, Movies, item => new MovieItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new SeriesItem(item));
@@ -131,10 +138,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         FillList(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));
         FillList(contentDirectory, NECESSARY_RECORDING_MIAS, Recordings, item => new VideoItem(item));
         SetLayout();
+        return true;
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Error updating Latest Media", ex);
+        return false;
       }
     }
 

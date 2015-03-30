@@ -244,6 +244,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         }
       }
       _mainMenuGroupList.FireChange();
+      UpdateHomeItems();
     }
 
     public void OnGroupItemSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -251,7 +252,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       var item = e.FirstAddedItem as ListItem;
       if (item != null)
       {
-        SetGroup((string) item.AdditionalProperties["Id"]);
+        SetGroup((string)item.AdditionalProperties["Id"]);
       }
     }
 
@@ -330,6 +331,19 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       NavigateToHome();
       CreatePositionedItems();
       UpdateSelectedGroup();
+      UpdateHomeItems();
+    }
+
+    private void UpdateHomeItems()
+    {
+      if (!IsHome)
+        return;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      LatestMediaModel lmm = workflowManager.GetModel(LatestMediaModel.LATEST_MEDIA_MODEL_ID) as LatestMediaModel;
+      if (lmm != null)
+      {
+        lmm.UpdateItems();
+      }
     }
 
     private void NavigateToHome()
