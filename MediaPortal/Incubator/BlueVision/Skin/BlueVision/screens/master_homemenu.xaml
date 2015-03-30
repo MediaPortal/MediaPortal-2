@@ -16,9 +16,14 @@
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
 
-        <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Left" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
+        <Grid Background="Red" DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}">
+          <Label Content="Place home panel content here!"/>
+        </Grid>
+        
+        <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
             VerticalAlignment="Stretch" SetFocusPrio="Fallback"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}">
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
+            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <bv:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </bv:GridListView.Resources>
