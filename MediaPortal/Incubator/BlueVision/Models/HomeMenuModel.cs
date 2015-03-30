@@ -182,6 +182,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _lastSelectedItemProperty = new WProperty(typeof(ListItem), null);
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
       _isHomeProperty = new WProperty(typeof(bool), false);
+      IsHomeProperty.Attach(IsHomeChanged);
 
       ReadPositions();
       CreateMenuGroupItems();
@@ -244,7 +245,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         }
       }
       _mainMenuGroupList.FireChange();
-      UpdateHomeItems();
     }
 
     public void OnGroupItemSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -331,10 +331,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       NavigateToHome();
       CreatePositionedItems();
       UpdateSelectedGroup();
-      UpdateHomeItems();
     }
 
-    private void UpdateHomeItems()
+    private void IsHomeChanged(AbstractProperty property, object oldvalue)
     {
       if (!IsHome)
         return;
