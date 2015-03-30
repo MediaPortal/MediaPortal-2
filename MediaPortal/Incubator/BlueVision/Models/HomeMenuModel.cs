@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected MenuSettings _menuSettings;
     protected AbstractProperty _lastSelectedItemProperty;
     protected AbstractProperty _lastSelectedItemNameProperty;
+    protected AbstractProperty _isHomeProperty;
 
     #endregion
 
@@ -163,12 +164,24 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       set { _lastSelectedItemNameProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsHomeProperty
+    {
+      get { return _isHomeProperty; }
+    }
+
+    public bool IsHome
+    {
+      get { return (bool)_isHomeProperty.GetValue(); }
+      set { _isHomeProperty.SetValue(value); }
+    }
+
     #endregion
 
     public HomeMenuModel()
     {
       _lastSelectedItemProperty = new WProperty(typeof(ListItem), null);
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
+      _isHomeProperty = new WProperty(typeof(bool), false);
 
       ReadPositions();
       CreateMenuGroupItems();
@@ -219,12 +232,13 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         foreach (var group in _menuSettings.MainMenuGroupNames)
         {
           string groupName = group.Name;
-          var groupItem = new ListItem(Consts.KEY_NAME, groupName)
-          {
-            Selected = idx == _menuSettings.DefaultIndex
-          };
+          var groupItem = new ListItem(Consts.KEY_NAME, groupName);
           groupItem.AdditionalProperties["Id"] = group.Id.ToString();
-          groupItem.AdditionalProperties.Add("NameKey", groupName);
+          if (idx == _menuSettings.DefaultIndex)
+          {
+            IsHome = group.Id.ToString().Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
+            groupItem.Selected = true;
+          }
           _mainMenuGroupList.Add(groupItem);
           idx++;
         }
@@ -237,7 +251,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       var item = e.FirstAddedItem as ListItem;
       if (item != null)
       {
-        SetGroup((string) item.AdditionalProperties["NameKey"]);
+        SetGroup((string) item.AdditionalProperties["Id"]);
       }
     }
 
@@ -297,12 +311,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _positionedItems.FireChange();
     }
 
-    private void SetGroup(string groupName)
+    private void SetGroup(string groupId)
     {
       int idx = 0;
       foreach (var menuGroupName in _menuSettings.MainMenuGroupNames)
       {
-        if (menuGroupName.Name == groupName)
+        if (menuGroupName.Id.ToString() == groupId)
         {
           if (_menuSettings.DefaultIndex == idx)
             return;
@@ -311,6 +325,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         }
         ++idx;
       }
+      IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
       ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
       NavigateToHome();
       CreatePositionedItems();
