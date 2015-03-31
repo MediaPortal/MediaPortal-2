@@ -28,7 +28,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.Plugins.ServerSettings.UPnP;
 using MediaPortal.UI.ServerCommunication;
 
@@ -60,6 +62,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             Enable(true);
+            RefreshNetworkNeighborhoodResourceProviderSettings();
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             Enable(false);
@@ -97,6 +100,21 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
         ServiceRegistration.Get<ILogger>().Debug("ConnectionMonitor: Setting Configuration '{0}' enabled to {1}", configItem.Text, newState);
         configItem.Enabled = newState;
       }
+    }
+
+    /// <summary>
+    /// Refreshes the <see cref="NetworkNeighborhoodResourceProviderSettings"/> and stores them locally
+    /// </summary>
+    /// <remarks>
+    /// This is a workaround that makes sure that we have changes made to the <see cref="NetworkNeighborhoodResourceProviderSettings"/>
+    /// by another MP2-Client locally available at least after a restart of this MP2-Client or the MP2-Server.
+    /// ToDo: Remove this once we have SystemSettings that are automatically updated.
+    /// </remarks>
+    private void RefreshNetworkNeighborhoodResourceProviderSettings()
+    {
+      var settings = ServiceRegistration.Get<IServerSettingsClient>().Load<NetworkNeighborhoodResourceProviderSettings>();
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ILogger>().Debug("ConnectionMonitor: Server connected, NetworkNeighborhoodResourceProviderSettings refreshed.");
     }
 
     #region IViewChangeNotificator implementation

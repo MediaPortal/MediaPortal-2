@@ -26,52 +26,46 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
-using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
-using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
   public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor, IResourceDeletor
   {
-    #region Consts
-
-    protected const string ROOT_PATH = "/";
-
-    #endregion
-
     #region Protected fields
 
     protected NetworkNeighborhoodResourceProvider _parent;
     protected string _path;
-    protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server
-    protected ImpersonationHelper.ImpersonationContext _impersonationContext;
-
-    protected static SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings> _settings = new SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings>();
+    protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server or root
 
     #endregion
+
+    #region Ctor
 
     public NetworkNeighborhoodResourceAccessor(NetworkNeighborhoodResourceProvider parent, string path)
     {
       _parent = parent;
       _path = path;
-      if (IsServerPath(path))
+      if (IsRootPath(path ) || IsServerPath(path))
         return;
 
-      _impersonationContext = ImpersonateUser(null);
-
       IResourceAccessor ra;
-      if (LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
-        _underlayingResource = (ILocalFsResourceAccessor)ra;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
+        if (LocalFsResourceProvider.Instance.TryCreateResourceAccessor("/" + path, out ra))
+          _underlayingResource = (ILocalFsResourceAccessor)ra;
     }
+
+    #endregion
+
+    #region Protected methods
 
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
     {
@@ -82,7 +76,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected internal static bool IsRootPath(string providerPath)
     {
-      return (providerPath == ROOT_PATH);
+      return (providerPath == NetworkNeighborhoodResourceProvider.ROOT_PROVIDER_PATH);
     }
 
     protected internal static bool IsServerPath(string providerPath)
@@ -103,43 +97,18 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     protected internal static string GetServerName(string providerPath)
     {
-      if (!IsServerPath(providerPath))
-        return null;
-      return providerPath.Substring(2);
+      return !IsServerPath(providerPath) ? null : providerPath.Substring(2);
     }
 
     protected internal static bool IsResource(string path)
     {
-      using (ImpersonateUser(null))
+      if (IsRootPath(path))
+        return true;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(ResourcePath.BuildBaseProviderPath(NetworkNeighborhoodResourceProvider.NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, path)))
         return IsServerPath(path) || LocalFsResourceProvider.Instance.IsResource("/" + path);
     }
 
-    /// <summary>
-    /// Tries to impersonate the current process as the user which runs explorer.exe currently. The caller should always call <see cref="IDisposable.Dispose"/> on
-    /// the returned instance to revert identity to self.
-    /// </summary>
-    private static ImpersonationHelper.ImpersonationContext ImpersonateUser(ImpersonationHelper.ImpersonationContext requestedIdentity)
-    {
-      NetworkNeighborhoodResourceProviderSettings settings = _settings.Settings;
-      ImpersonationHelper.ImpersonationContext ctx = null;
-
-      // Prefer to impersonate current interactive user.
-      if (settings.ImpersonateInteractive)
-      {
-        if (requestedIdentity != null && !ImpersonationHelper.RequiresImpersonate(requestedIdentity.Identity))
-          return null;
-
-        ctx = ImpersonationHelper.ImpersonateByProcess("explorer");
-      }
-      if (ctx != null)
-        return ctx;
-
-      // Second way based on network credentials.
-      if (settings.UseCredentials)
-        ctx = ImpersonationHelper.ImpersonateUser(settings.NetworkUserName, settings.NetworkPassword);
-
-      return ctx;
-    }
+    #endregion
 
     #region ILocalFsResourceAccessor implementation
 
@@ -147,8 +116,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       if (_underlayingResource != null)
         _underlayingResource.Dispose();
-      if (_impersonationContext != null)
-        _impersonationContext.Dispose();
     }
 
     public IResourceProvider ParentProvider
@@ -160,7 +127,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser(_impersonationContext))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
           return _underlayingResource == null ? IsServerPath(_path) : _underlayingResource.Exists;
       }
     }
@@ -170,7 +137,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       get
       {
         string dosPath = NetworkPath;
-        using (ImpersonateUser(_impersonationContext))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
           return !string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath);
       }
     }
@@ -179,7 +146,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser(_impersonationContext))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
           return _underlayingResource != null && _underlayingResource.IsFile;
       }
     }
@@ -193,7 +160,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser(_impersonationContext))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
           return GetServerName(_path) ?? (_underlayingResource == null ? string.Empty : _underlayingResource.ResourceName);
       }
     }
@@ -212,7 +179,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser(_impersonationContext))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
           return _underlayingResource == null ? new DateTime() : _underlayingResource.LastChanged;
       }
     }
@@ -221,14 +188,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       get
       {
-        using (ImpersonateUser(_impersonationContext))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
           return _underlayingResource == null ? -1 : _underlayingResource.Size;
       }
     }
 
     public void PrepareStreamAccess()
     {
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
         if (_underlayingResource != null)
           _underlayingResource.PrepareStreamAccess();
     }
@@ -237,15 +204,23 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       if (_underlayingResource == null)
         return null;
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
         return _underlayingResource.OpenRead();
+    }
+
+    public async Task<Stream> OpenReadAsync()
+    {
+      if (_underlayingResource == null)
+        return null;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
+        return await _underlayingResource.OpenReadAsync();
     }
 
     public Stream OpenWrite()
     {
       if (_underlayingResource == null)
         return null;
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
         return _underlayingResource.OpenWrite();
     }
 
@@ -256,7 +231,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public bool ResourceExists(string path)
     {
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
         return IsServerPath(path) || (_underlayingResource != null && _underlayingResource.ResourceExists(path));
     }
 
@@ -270,7 +245,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
       {
         if (_path == "/" || IsServerPath(_path))
           return new List<IFileSystemResourceAccessor>();
@@ -285,12 +260,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
           .Select(host => host.GetUncString()).Where(uncPathString => uncPathString != null)
           .Select(uncPathString => new NetworkNeighborhoodResourceAccessor(_parent, uncPathString.Replace('\\', '/')))
           .Cast<IFileSystemResourceAccessor>().ToList();
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
       {
         if (IsServerPath(_path))
           return SharesEnumerator.EnumerateShares(StringUtils.RemovePrefixIfPresent(_path, "//"))
-            // Allow all filesystems, but exclude "Special" shares (IPC, Admin$)
-            .Where(share => share.IsFileSystem && !share.ShareType.HasFlag(ShareType.Special))
+            // Allow all filesystems, but exclude "Special" shares (IPC$, Admin$) and all other "hidden" shares (ending with "$" such as print$)
+            .Where(share => share.IsFileSystem && !share.ShareType.HasFlag(ShareType.Special) && !share.UNCPath.EndsWith("$"))
             .Select(
               share =>
               {
@@ -307,6 +282,12 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       get { return _path.Replace('/', '\\'); }
     }
 
+    public IDisposable EnsureLocalFileSystemAccess()
+    {
+      // Impersonation required
+      return ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath);
+    }
+
     /// <summary>
     /// Returns a UNC representation of the resource.
     /// </summary>
@@ -318,11 +299,11 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     #endregion
 
-    #region IResourceDeletor members
+    #region IResourceDeletor implementation
 
     public bool Delete()
     {
-      using (ImpersonateUser(_impersonationContext))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
       {
         string dosPath = NetworkPath;
         try

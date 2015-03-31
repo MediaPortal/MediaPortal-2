@@ -23,10 +23,17 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
@@ -37,10 +44,17 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     public const string NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID_STR = "{03DD2DA6-4DA8-4D3E-9E55-80E3165729A3}";
     public static readonly Guid NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID = new Guid(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID_STR);
 
+    internal const string ROOT_PROVIDER_PATH = "/";
+
     protected const string RES_RESOURCE_PROVIDER_NAME = "[NetworkNeighborhoodResourceProvider.Name]";
     protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[NetworkNeighborhoodResourceProvider.Description]";
-
     protected const ResourceProviderMetadata.SystemAffinity DEFAULT_SYSTEM_AFFINITY = ResourceProviderMetadata.SystemAffinity.Server | ResourceProviderMetadata.SystemAffinity.DetachedClient;
+    protected static readonly SerializableNetworkCredential NETWORK_SERVICE_CREDENTIAL = new SerializableNetworkCredential
+    {
+      UserName = "NETWORK SERVICE",
+      Domain = "NT AUTHORITY",
+      Password = ""
+    };
 
     #endregion
 
@@ -49,6 +63,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected ResourceProviderMetadata _metadata;
     protected LocalFsResourceProvider _localFsProvider;
     protected readonly INeighborhoodBrowserSerivce _browserService;
+    protected readonly SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings> _settings;
+    protected readonly ConcurrentBag<ResourcePath> _registeredPaths;
 
     #endregion
 
@@ -58,24 +74,72 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       _metadata = new ResourceProviderMetadata(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, false, true, DEFAULT_SYSTEM_AFFINITY);
       _browserService = new NeighborhoodBrowserService();
+      _settings =  new SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings>();
+      _registeredPaths = new ConcurrentBag<ResourcePath>();
+      RegisterCredentials();
+      _settings.SettingsChanged += (sender, args) =>
+      {
+        UnregisterCredentials();
+        RegisterCredentials();
+      };
     }
 
     #endregion
 
-    #region Protected members
-
-    protected LocalFsResourceProvider LocalFsResourceProvider
-    {
-      get { return LocalFsResourceProvider.Instance; }
-    }
-
-    #endregion
-
-    #region Public members
+    #region Public properties
 
     public INeighborhoodBrowserSerivce BrowserService
     {
       get { return _browserService; }
+    }
+
+    public static ResourcePath RootPath
+    {
+      get { return ResourcePath.BuildBaseProviderPath(NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, ROOT_PROVIDER_PATH); }
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private void RegisterCredentials()
+    {
+      foreach (var kvp in _settings.Settings.NetworkCredentials)
+      {
+        ResourcePath path;
+        try
+        {
+          path = ResourcePath.Deserialize(kvp.Key);
+        }
+        catch (Exception)
+        {
+          ServiceRegistration.Get<ILogger>().Error("NetworkNeighborhoodResourceProvider: Malformed ResourcePath in NetworkNeighborhoodResourceProviderSettings: '{0}'", kvp.Key);
+          continue;
+        }
+        if(ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(path, kvp.Value))
+          _registeredPaths.Add(path);
+        else
+          ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider: Could not register credentials for ResourcePath: '{0}'", kvp.Key);
+      }
+
+      if (!_registeredPaths.Contains(RootPath))
+      {
+        // If there was no credential registered for the root path of the NetworkNeighborhoodResourceProvider,
+        // we use the Network Service account as fallback. This is required in particular because the
+        // WNetEnumNeighborhoodBrowser cannot enumerate computers in the network under the LocalSystem account.
+        ServiceRegistration.Get<ILogger>().Info("NetworkNeighborhoodResourceProvider: No credential registered for the root path; using Network Service account as fallback");
+        if (ServiceRegistration.Get<IImpersonationService>().TryRegisterCredential(RootPath, NETWORK_SERVICE_CREDENTIAL))
+          _registeredPaths.Add(RootPath);
+        else
+          ServiceRegistration.Get<ILogger>().Warn("NetworkNeighborhoodResourceProvider: Could not register credentials for ResourcePath: '{0}'", RootPath);
+      }
+    }
+
+    private void UnregisterCredentials()
+    {
+      ResourcePath path;
+      while(_registeredPaths.TryTake(out path))
+        ServiceRegistration.Get<IImpersonationService>().TryUnregisterCredential(path);
     }
 
     #endregion
@@ -113,15 +177,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       // 2) A resource path in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
       // 3) A dos path
       if (IsResource(pathStr))
-        return new ResourcePath(new ProviderPathSegment[]
+        return new ResourcePath(new[]
           {
-              new ProviderPathSegment(_metadata.ResourceProviderId, pathStr, true), 
+              new ProviderPathSegment(_metadata.ResourceProviderId, pathStr, true)
           });
       string providerPath = LocalFsResourceProviderBase.ToProviderPath(pathStr);
       if (IsResource(providerPath))
-        return new ResourcePath(new ProviderPathSegment[]
+        return new ResourcePath(new[]
           {
-              new ProviderPathSegment(_metadata.ResourceProviderId, providerPath, true), 
+              new ProviderPathSegment(_metadata.ResourceProviderId, providerPath, true)
           });
       try
       {
@@ -135,11 +199,13 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
     #endregion
 
-    #region IDisposeable implementation
+    #region IDisposable implementation
 
     public void Dispose()
     {
       _browserService.Dispose();
+      _settings.Dispose();
+      UnregisterCredentials();
     }
 
     #endregion

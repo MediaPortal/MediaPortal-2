@@ -34,6 +34,7 @@ namespace MediaPortal.Utilities.Process
   /// <summary>
   /// Helper class to logon as a new user. This is be required to access network resources when running the main program as LocalSystem.
   /// </summary>
+  [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
   public class ImpersonationHelper
   {
     #region ImpersonationContext
@@ -41,10 +42,12 @@ namespace MediaPortal.Utilities.Process
     /// <summary>
     /// Helper class to store <see cref="Identity"/> and automatically impersonate.
     /// </summary>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public class ImpersonationContext : IDisposable
     {
       private WindowsIdentity _identity;
 
+      [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
       public WindowsIdentity Identity
       {
         get { return _identity; }
@@ -59,8 +62,10 @@ namespace MediaPortal.Utilities.Process
         }
       }
 
+      [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
       public WindowsImpersonationContext Context { get; private set; }
 
+      [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
       public void Dispose()
       {
         WindowsImpersonationContext wic = Context;
@@ -81,6 +86,7 @@ namespace MediaPortal.Utilities.Process
     /// Checks if the caller needs to impersonate (again).
     /// </summary>
     /// <returns><c>true</c> if impersonate is required.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static bool RequiresImpersonate(WindowsIdentity requestedIdentity)
     {
       if (requestedIdentity == null)
@@ -99,6 +105,7 @@ namespace MediaPortal.Utilities.Process
     /// Indicates if the <see cref="WindowsIdentity.GetCurrent()"/> represents one of the <see cref="KNOWN_SID_TYPES"/>, which do not have network access.
     /// </summary>
     /// <returns><c>true</c> for a well known identity.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static bool IsWellknownIdentity()
     {
       return IsWellknownIdentity(WindowsIdentity.GetCurrent());
@@ -109,6 +116,7 @@ namespace MediaPortal.Utilities.Process
     /// </summary>
     /// <param name="identity">Identity to check.</param>
     /// <returns><c>true</c> for a well known identity.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static bool IsWellknownIdentity(WindowsIdentity identity)
     {
       return KNOWN_SID_TYPES.Any(wellKnownSidType => identity.User != null && identity.User.IsWellKnown(wellKnownSidType));
@@ -119,6 +127,7 @@ namespace MediaPortal.Utilities.Process
     /// </summary>
     /// <param name="processName">Process name to take user account from (without .exe).</param>
     /// <returns>WindowsImpersonationContext if successful.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static ImpersonationContext ImpersonateByProcess(string processName)
     {
       IntPtr userToken;
@@ -143,6 +152,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="password">User's password to logon with.</param>
     /// <param name="domain">Logon domain, defaults to local system.</param>
     /// <returns>WindowsImpersonationContext if successful.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static ImpersonationContext ImpersonateUser(string username, string password, string domain = null)
     {
       // Initialize tokens
@@ -169,6 +179,7 @@ namespace MediaPortal.Utilities.Process
     /// </summary>
     /// <param name="existingTokenHandle">Outputs an existing token.</param>
     /// <param name="duplicate"><c>true</c> to duplicate handle.</param>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static bool GetTokenByProcess(out IntPtr existingTokenHandle, bool duplicate = false)
     {
       return GetTokenByProcess("explorer", out existingTokenHandle, duplicate);
@@ -182,6 +193,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="existingTokenHandle">Outputs an existing token.</param>
     /// <param name="duplicate"><c>true</c> to duplicate handle.</param>
     /// <returns><c>true</c> if successful.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static bool GetTokenByProcess(string processName, out IntPtr existingTokenHandle, bool duplicate = false)
     {
       // Try to find a process for given processName. There can be multiple processes, we will take the first one.
@@ -205,6 +217,7 @@ namespace MediaPortal.Utilities.Process
       return false;
     }
 
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     private static bool CreatePrimaryToken(IntPtr impersonationToken, out IntPtr primaryToken)
     {
       // Convert the impersonation token into Primary token
@@ -232,6 +245,7 @@ namespace MediaPortal.Utilities.Process
     /// <param name="domain">Domain name, <c>null</c> defaults to computer name.</param>
     /// <param name="duplicateTokenHandle">Outputs a duplicated token.</param>
     /// <returns><c>true</c> if successful.</returns>
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     public static bool GetTokenByUser(string uername, string password, string domain, out IntPtr duplicateTokenHandle)
     {
       // Initialize tokens
@@ -257,24 +271,28 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     internal static void SafeCloseHandle(IntPtr handle)
     {
       if (handle != IntPtr.Zero)
         NativeMethods.CloseHandle(handle);
     }
 
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     internal static void SafeCloseHandle(ref IntPtr handle)
     {
       SafeCloseHandle(handle);
       handle = IntPtr.Zero;
     }
 
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     internal static void SafeCloseHandle(SafeFileHandle handle)
     {
       if (handle != null && !handle.IsInvalid)
         handle.Close();
     }
 
+    [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
     internal static void SafeCloseHandle(ref SafeFileHandle handle)
     {
       SafeCloseHandle(handle);

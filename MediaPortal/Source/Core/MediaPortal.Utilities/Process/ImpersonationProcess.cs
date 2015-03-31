@@ -27,6 +27,7 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Utilities.Process
 {
+  [Obsolete("Use AsyncImpersonationProcess instead.")]
   public class ImpersonationProcess : System.Diagnostics.Process
   {
     private const int HANDLE_FLAG_INHERIT = 1;
@@ -53,6 +54,7 @@ namespace MediaPortal.Utilities.Process
     private SafeFileHandle _stderrReadHandle;
     private NativeMethods.ProcessInformation _processInformation;
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     private string GetCommandLine()
     {
       StringBuilder result = new StringBuilder();
@@ -77,6 +79,7 @@ namespace MediaPortal.Utilities.Process
       return result.ToString();
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     public new void Kill()
     {
       IntPtr hProcess = IntPtr.Zero;
@@ -94,12 +97,14 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     public new ProcessPriorityClass PriorityClass
     {
       get { return (ProcessPriorityClass) NativeMethods.GetPriorityClass(_processInformation.hProcess); }
       set { NativeMethods.SetPriorityClass(_processInformation.hProcess, (uint) value); }
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     public new int ExitCode
     {
       get
@@ -111,6 +116,7 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     public new bool HasExited
     {
       get
@@ -120,6 +126,7 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     public bool StartAsUser(string domain, string username, string password)
     {
       IntPtr userToken = IntPtr.Zero;
@@ -141,6 +148,7 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     public bool StartAsUser(IntPtr userToken)
     {
       _processInformation = new NativeMethods.ProcessInformation();
@@ -225,6 +233,7 @@ namespace MediaPortal.Utilities.Process
       base.Dispose(disposing);
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     private void CreateStandardPipe(out SafeFileHandle readHandle, out SafeFileHandle writeHandle, int standardHandle, bool isInput, bool redirect)
     {
       if (redirect)
@@ -254,11 +263,13 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     private object InvokeMethod(string member, params object[] args)
     {
       return typeof(System.Diagnostics.Process).InvokeMember(member, BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance, null, this, args);
     }
 
+    [Obsolete("Use AsyncImpersonationProcess instead.")]
     private object SetField(string member, params object[] args)
     {
       return typeof(System.Diagnostics.Process).InvokeMember(member, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, this, args);

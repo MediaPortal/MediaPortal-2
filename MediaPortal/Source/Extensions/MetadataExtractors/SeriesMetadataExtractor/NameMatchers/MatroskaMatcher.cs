@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 
@@ -42,17 +43,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
   public class MatroskaMatcher
   {
     /// <summary>
-    /// Tries to match series by reading matroska tags from <paramref name="folderOrFileName"/>.
+    /// Tries to match series by reading matroska tags from <paramref name="folderOrFileLfsra"/>.
     /// </summary>
-    /// <param name="folderOrFileName">Full path to file</param>
+    /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file or folder</param>
     /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
     /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo, ref IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo, ref IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileName)).ToLower();
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
 
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
       {
@@ -60,7 +62,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         return false;
       }
 
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileName);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);

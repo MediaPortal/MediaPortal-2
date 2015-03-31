@@ -65,6 +65,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected Predicate<TMatch> _matchPredicate;
     protected MatchStorage<TMatch, TId> _storage;
 
+    private bool _disposed;
+
     #endregion
 
     #region Properties
@@ -149,7 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           if (!match.FanArtDownloadStarted.HasValue)
             match.FanArtDownloadStarted = DateTime.Now;
         }
-        _storage.SaveMatchesAsync();
+        _storage.SaveMatches();
       }
       return fanArtDownloaded;
     }
@@ -164,7 +166,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           if (!match.FanArtDownloadFinished.HasValue)
             match.FanArtDownloadFinished = DateTime.Now;
 
-        _storage.SaveMatchesAsync();
+        _storage.SaveMatches();
       }
     }
 
@@ -184,7 +186,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
             match.FanArtDownloadStarted = DateTime.Now;
           downloadsToBeStarted.Add(match.Id);
         }
-        _storage.SaveMatchesAsync();
+        _storage.SaveMatches();
       }
       foreach (var id in downloadsToBeStarted)
         ScheduleDownload(id, true);
@@ -212,7 +214,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     public void Dispose()
     {
-      EndDownloads();
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+      if (disposing)
+      {
+        EndDownloads();
+        _storage.Dispose();
+      }
+      _disposed = true;
     }
 
     #endregion

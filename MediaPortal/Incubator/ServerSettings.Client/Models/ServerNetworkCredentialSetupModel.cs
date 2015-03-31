@@ -24,11 +24,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Plugins.ServerSettings.Models
 {
@@ -36,21 +40,9 @@ namespace MediaPortal.Plugins.ServerSettings.Models
   {
     public const string NETWORK_CREDENTIAL_SETUP_MODEL_ID_STR = "62BFBA02-88F8-41A9-BD5A-FFD98799089B";
 
-    protected AbstractProperty _impersonateInteractiveProperty;
     protected AbstractProperty _useCredentialsProperty;
     protected AbstractProperty _networkUserNameProperty;
     protected AbstractProperty _networkPasswordProperty;
-
-    public AbstractProperty ImpersonateInteractiveProperty
-    {
-      get { return _impersonateInteractiveProperty; }
-    }
-
-    public bool ImpersonateInteractive
-    {
-      get { return (bool) _impersonateInteractiveProperty.GetValue(); }
-      set { _impersonateInteractiveProperty.SetValue(value); }
-    }
 
     public AbstractProperty UseCredentialsProperty
     {
@@ -89,7 +81,6 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     {
       _networkPasswordProperty = new SProperty(typeof (string), string.Empty);
       _networkUserNameProperty = new SProperty(typeof (string), string.Empty);
-      _impersonateInteractiveProperty = new SProperty(typeof (bool), false);
       _useCredentialsProperty = new SProperty(typeof (bool), false);
     }
 
@@ -98,23 +89,46 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     /// </summary>
     public void SaveSettings ()
     {
-      IServerSettingsClient settingsManager = ServiceRegistration.Get<IServerSettingsClient>();
-      NetworkNeighborhoodResourceProviderSettings settings = settingsManager.Load<NetworkNeighborhoodResourceProviderSettings>();
-      settings.ImpersonateInteractive = ImpersonateInteractive;
-      settings.UseCredentials = UseCredentials;
-      settings.NetworkUserName = NetworkUserName;
-      settings.NetworkPassword = NetworkPassword;
-      settingsManager.Save(settings);
+      var settings = ServiceRegistration.Get<IServerSettingsClient>().Load<NetworkNeighborhoodResourceProviderSettings>();
+      settings.NetworkCredentials.Clear();
+      if (UseCredentials)
+      {
+        // We currently only store one credential for the root path of the NetworkNeighborhoodResourceProvider.
+        // ToDo: Modify the frontend to support multiple credentials for different ResourcePaths
+        settings.NetworkCredentials.Add(NetworkNeighborhoodResourceProvider.RootPath.ToString(), new SerializableNetworkCredential
+        {
+          UserName = NetworkUserName,
+          // It is not recommended to use a string for storing cleartext passwords. This is 
+          // (besides InitModel below) the only place in the code base where we have to
+          // access the Password property instead of the SecurePassword property.
+          Password = NetworkPassword
+        });
+      }
+      // We currently store the settings on the server and locally on the client.
+      // ToDo: Make these settings SystemSettings, once they are implemented.
+      ServiceRegistration.Get<IServerSettingsClient>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     private void InitModel ()
     {
-      IServerSettingsClient settingsManager = ServiceRegistration.Get<IServerSettingsClient>();
-      NetworkNeighborhoodResourceProviderSettings settings = settingsManager.Load<NetworkNeighborhoodResourceProviderSettings>();
-      ImpersonateInteractive = settings.ImpersonateInteractive;
-      UseCredentials = settings.UseCredentials;
-      NetworkUserName = settings.NetworkUserName;
-      NetworkPassword = settings.NetworkPassword;
+      var settings = ServiceRegistration.Get<IServerSettingsClient>().Load<NetworkNeighborhoodResourceProviderSettings>();
+      if (settings.NetworkCredentials.Any())
+      {
+        UseCredentials = true;
+        NetworkUserName = settings.NetworkCredentials.First().Value.UserName;
+        // It is not recommended to use a string for storing cleartext passwords. This is 
+        // (besides SaveSettings above) the only place in the code base where we have to
+        // access the Password property instead of the SecurePassword property.
+        // ToDo: We need a TextBox that can handle SecureString
+        NetworkPassword = settings.NetworkCredentials.First().Value.Password;
+      }
+      else
+      {
+        UseCredentials = false;
+        NetworkUserName = String.Empty;
+        NetworkPassword = String.Empty;
+      }
     }
 
     #region IWorkflowModel implementation

@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected methods
 
-    protected bool ExtractSeriesData(string localFsResourcePath, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       // Try to get extended information out of matroska files)
       MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-      if (matroskaMatcher.MatchSeries(localFsResourcePath, out seriesInfo, ref extractedAspectData))
+      if (matroskaMatcher.MatchSeries(lfsra, out seriesInfo, ref extractedAspectData))
       {
         ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found SeriesInformation by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
           seriesInfo.Series, seriesInfo.ImdbId, seriesInfo.TvdbId, seriesInfo.IsCompleteMatch);
@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         // Try to match series from folder and file namings
         SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(localFsResourcePath, out seriesInfo);
+        seriesMatcher.MatchSeries(lfsra, out seriesInfo);
       }
 
       // Lookup online information (incl. fanart)
@@ -143,10 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        {
-          string localFsPath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
-          return ExtractSeriesData(localFsPath, extractedAspectData);
-        }
+          return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData);
       }
       catch (Exception e)
       {

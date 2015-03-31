@@ -163,38 +163,42 @@ namespace MediaPortal.UI.Players.Video
 
       // Render the file
       IFileSourceFilter f = (IFileSourceFilter)_fileSource;
-      string strFile = Path.Combine(((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath, @"BDMV\index.bdmv");
-      f.Load(strFile, null);
 
-      // Init GraphRebuilder
-      _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
-
-      // Get the complete BD title information (including all streams, chapters...)
-      _titleInfos = GetTitleInfoCollection(_bdReader);
-
-      ulong duration = 0;
-      uint maxIdx = 0;
-      foreach (BluRayAPI.BDTitleInfo bdTitleInfo in _titleInfos)
+      using (((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess())
       {
-        if (bdTitleInfo.Duration > duration)
+        string strFile = Path.Combine(((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath, @"BDMV\index.bdmv");
+        f.Load(strFile, null);
+
+        // Init GraphRebuilder
+        _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+
+        // Get the complete BD title information (including all streams, chapters...)
+        _titleInfos = GetTitleInfoCollection(_bdReader);
+
+        ulong duration = 0;
+        uint maxIdx = 0;
+        foreach (BluRayAPI.BDTitleInfo bdTitleInfo in _titleInfos)
         {
-          duration = bdTitleInfo.Duration;
-          maxIdx = bdTitleInfo.Index;
+          if (bdTitleInfo.Duration > duration)
+          {
+            duration = bdTitleInfo.Duration;
+            maxIdx = bdTitleInfo.Index;
+          }
         }
-      }
-      // TEST: play the longest title
-      _forceTitle = false;
-      if (_forceTitle)
-      {
-        _bdReader.ForceTitleBasedPlayback(true, maxIdx);
-        _currentTitle = (int)maxIdx;
-      }
-      else
-      {
-        _bdReader.ForceTitleBasedPlayback(false, 0);
-      }
+        // TEST: play the longest title
+        _forceTitle = false;
+        if (_forceTitle)
+        {
+          _bdReader.ForceTitleBasedPlayback(true, maxIdx);
+          _currentTitle = (int)maxIdx;
+        }
+        else
+        {
+          _bdReader.ForceTitleBasedPlayback(false, 0);
+        }
 
-      _bdReader.Start();
+        _bdReader.Start();
+      }
     }
 
     protected override void OnBeforeGraphRunning()

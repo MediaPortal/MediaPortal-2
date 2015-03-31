@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
@@ -36,6 +37,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 {
   public class LocalFsResourceAccessor : ILocalFsResourceAccessor, IResourceChangeNotifier, IResourceDeletor
   {
+    protected const int ASYNC_STREAM_BUFFER_SIZE = 4096;
     protected LocalFsResourceProvider _provider;
     protected string _path;
 
@@ -64,6 +66,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     public string LocalFileSystemPath
     {
       get { return StringUtils.TrimToNull(LocalFsResourceProviderBase.ToDosPath(_path)); }
+    }
+
+    public IDisposable EnsureLocalFileSystemAccess()
+    {
+      // Nothing to do here; access is ensured as of the instantiation of this class
+      return null;
     }
 
     public ResourcePath CanonicalLocalResourcePath
@@ -122,6 +130,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
         return null;
       return new FileStream(dosPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    }
+
+    public Task<Stream> OpenReadAsync()
+    {
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
+        return null;
+      // In this implementation there is no preparational work to do. We therefore return a
+      // completed Task; there is no need for any async operation.
+      return Task.FromResult((Stream)new FileStream(dosPath, FileMode.Open, FileAccess.Read, FileShare.Read, ASYNC_STREAM_BUFFER_SIZE, true));
     }
 
     public Stream OpenWrite()
