@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Brushes"
+    >
+
+  <!-- *************************** Play control graphics ****************************** -->
+  <ControlTemplate x:Key="ShowDvdMenuControlTemplate">
+    <Image Source="PlayerControls.Large\SelectTitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectChapterControlTemplate">
+    <Image Source="PlayerControls.Large\SelectChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+
+  <ControlTemplate x:Key="NextChapterControlTemplate">
+    <Image Source="PlayerControls.Large\NextChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PreviousChapterControlTemplate">
+    <Image Source="PlayerControls.Large\PreviousChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectSubtitleControlTemplate">
+    <Image Source="PlayerControls.Large\SelectSubtitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <!-- Dark version -->
+  <ControlTemplate x:Key="ShowDvdMenuDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectTitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+
+  <ControlTemplate x:Key="NextChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\NextChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PreviousChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\PreviousChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectSubtitleDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectSubtitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+</ResourceDictionary>
