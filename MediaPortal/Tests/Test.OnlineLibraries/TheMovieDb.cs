@@ -135,6 +135,11 @@ namespace Test.OnlineLibraries
         new MovieInfo { MovieName = "Hangover" },
         new MovieInfo { MovieName = "Hangover 2" },
         new MovieInfo { MovieName = "Gnomeo und Julia" },
+        //'dirty' filename tests
+        new MovieInfo { MovieName = "Paddington.2014.HDRip.XViD" },
+        new MovieInfo { MovieName = "The.Theory.of.Everything.2014.1080p.HC.WEBRip.x264.AAC2.0" },
+        new MovieInfo { MovieName = "Starred Up (2014)" },
+        new MovieInfo { MovieName = "Fury[2014].AC3.XViD" },
       };
 
       foreach (MovieInfo movieInfo in shouldMatchMovies)
