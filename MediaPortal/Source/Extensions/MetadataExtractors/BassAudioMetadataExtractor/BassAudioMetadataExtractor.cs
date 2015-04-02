@@ -202,7 +202,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
           byte[] thumbData;
           ImageType imageType;
-          if (generator.GetThumbnail(fileName, 256, 256, cachedOnly, out thumbData, out imageType))
+          if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
             MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
         }
         return true;

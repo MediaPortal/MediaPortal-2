@@ -41,8 +41,8 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
   /// </summary>
   public class ThumbnailGenerator : IThumbnailGenerator, IDisposable
   {
-    public const int DEFAULT_THUMB_WIDTH = 256;
-    public const int DEFAULT_THUMB_HEIGHT = 256;
+    public const int DEFAULT_THUMB_WIDTH = 512;
+    public const int DEFAULT_THUMB_HEIGHT = 512;
     public const ImageType DEFAULT_THUMB_IMAGE_TYPE = ImageType.Jpeg;
 
     protected List<SortedThumbnailCreator> _providerList = null;

@@ -370,7 +370,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
       byte[] thumbData;
       ImageType imageType;
-      if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+      if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
         MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
     }
 
