@@ -98,8 +98,9 @@ namespace MediaPortal.Common.Threading
       State = WorkState.INPROGRESS;
 
       // perform work 
-      if (WorkLoad != null)
-        WorkLoad();
+      DoWorkHandler workLoad = WorkLoad;
+      if (workLoad != null)
+        workLoad();
 
       // mark work as finished and fire work completion delegate
       State = WorkState.FINISHED;

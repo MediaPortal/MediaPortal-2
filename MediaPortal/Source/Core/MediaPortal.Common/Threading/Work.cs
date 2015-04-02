@@ -104,8 +104,9 @@ namespace MediaPortal.Common.Threading
         State = WorkState.INPROGRESS;
 
       // Perform work 
-      if (WorkLoad != null)
-        WorkLoad();
+      DoWorkHandler workLoad = WorkLoad;
+      if (workLoad != null)
+        workLoad();
       else
         throw new NotImplementedException();
 
