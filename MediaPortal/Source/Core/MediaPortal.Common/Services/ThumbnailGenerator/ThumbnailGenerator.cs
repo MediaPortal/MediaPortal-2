@@ -41,8 +41,8 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
   /// </summary>
   public class ThumbnailGenerator : IThumbnailGenerator, IDisposable
   {
-    public const int DEFAULT_THUMB_WIDTH = 256;
-    public const int DEFAULT_THUMB_HEIGHT = 256;
+    public const int DEFAULT_THUMB_WIDTH = 512;
+    public const int DEFAULT_THUMB_HEIGHT = 512;
     public const ImageType DEFAULT_THUMB_IMAGE_TYPE = ImageType.Jpeg;
 
     protected List<SortedThumbnailCreator> _providerList = null;
@@ -83,7 +83,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
           try
           {
             ThumbnailProviderRegistration thumbnailProviderRegistration = pluginManager.RequestPluginItem<ThumbnailProviderRegistration>(ThumbnailProviderBuilder.THUMBNAIL_PROVIDER_PATH, itemMetadata.Id, _thumbnailProviderPluginItemStateTracker);
-            if (thumbnailProviderRegistration == null)
+            if (thumbnailProviderRegistration == null || thumbnailProviderRegistration.ProviderClass == null)
               ServiceRegistration.Get<ILogger>().Warn("Could not instantiate IThumbnailProvider with id '{0}'", itemMetadata.Id);
             else
             {

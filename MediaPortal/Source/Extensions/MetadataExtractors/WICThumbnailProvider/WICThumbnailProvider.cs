@@ -32,10 +32,10 @@ using SharpDX.WIC;
 namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
 {
   /// <summary>
-  /// ShellThumbnailProvider extracts thumbnails for image and video files using the Windows provided thumbnail creation and
+  /// WICThumbnailProvider extracts thumbnails for image and video files using the Windows provided thumbnail creation and
   /// caching feature.
   /// </summary>
-  public class WICShellThumbnailProvider : IThumbnailProvider
+  public class WICThumbnailProvider : IThumbnailProvider
   {
     /// <summary>
     /// Extracts a thumbnail for a given <paramref name="fileName"/> and returns the best matching resolution from the windows thumbs cache.
@@ -65,13 +65,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
 
     public bool GetThumbnail(Stream stream, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType)
     {
+      imageData = null;
+      imageType = ImageType.Unknown;
+      // No support for cache
+      if (cachedOnly)
+        return false;
+
       try
       {
         if (stream.CanSeek)
           stream.Seek(0, SeekOrigin.Begin);
 
         // open the image file for reading
-        var factory = new ImagingFactory2();
+        using (var factory = new ImagingFactory2())
         using (var inputStream = new WICStream(factory, stream))
         using (var decoder = new BitmapDecoder(factory, inputStream, DecodeOptions.CacheOnLoad))
         using (var scaler = new BitmapScaler(factory))
@@ -120,9 +126,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("WICThumbnailProvider: Error loading bitmapSource from file data stream", e);
-        imageData = null;
-        imageType = ImageType.Unknown;
+        // ServiceRegistration.Get<ILogger>().Warn("WICThumbnailProvider: Error loading bitmapSource from file data stream", e);
         return false;
       }
     }
