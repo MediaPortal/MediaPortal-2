@@ -83,7 +83,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
           try
           {
             ThumbnailProviderRegistration thumbnailProviderRegistration = pluginManager.RequestPluginItem<ThumbnailProviderRegistration>(ThumbnailProviderBuilder.THUMBNAIL_PROVIDER_PATH, itemMetadata.Id, _thumbnailProviderPluginItemStateTracker);
-            if (thumbnailProviderRegistration == null)
+            if (thumbnailProviderRegistration == null || thumbnailProviderRegistration.ProviderClass == null)
               ServiceRegistration.Get<ILogger>().Warn("Could not instantiate IThumbnailProvider with id '{0}'", itemMetadata.Id);
             else
             {
