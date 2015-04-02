@@ -225,7 +225,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       if (disposing)
       {
         EndDownloads();
-        _storage.Dispose();
+        if (_storage != null)
+          _storage.Dispose();
       }
       _disposed = true;
     }
