@@ -76,6 +76,8 @@
     <Compile Include="StreamDetailsStub.cs" />
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
+    <Compile Include="XmlNfoReader.cs" />
+    <Compile Include="XmlWrappingReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">

@@ -28,12 +28,12 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
   /// We have a separate reader for the different nfo-files of all possible MediaItem types (in particular movies and series).
   /// This abstract base class contains common functionality that can be used for all types of nfo-files.
   /// </remarks>
-  public abstract class NfoReaderBase
+  public abstract class NfoReaderBase<TStub> where TStub : new()
   {
     #region Delegates
 
@@ -74,6 +74,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #region Protected fields
 
+    /// <summary>
+    /// After a call to <see cref="TryReadMetadataAsync"/> all parsed stub objects are contained in this list
+    /// </summary>
+    protected List<TStub> Stubs = new List<TStub>();
+
+    /// <summary>
+    /// Stub object used to temporarily store all readily parsed information from the nfo-file
+    /// If any information was parsed, this object is added to <see cref="Stubs"/>
+    /// </summary>
+    protected TStub CurrentStub;
+    
     /// <summary>
     /// Debug logger
     /// </summary>
@@ -185,7 +196,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       try
       {
         using(var memoryNfoStream = new MemoryStream(nfoBytes))
-        using (var xmlReader = XmlReader.Create(memoryNfoStream))
+        using (var xmlReader = new XmlNfoReader(memoryNfoStream))
         {
           var nfoDocument = XDocument.Load(xmlReader);
           return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra);
@@ -263,11 +274,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
     private async Task<bool> TryReadNfoDocumentAsync(XDocument nfoDocument, IFileSystemResourceAccessor nfoFsra)
     {
-      // Checks the name of the root element
-      if (!CanReadNfoDocument(nfoDocument))
+      // Checks the structure of the nfo document
+      if (!IsValidNfoDocument(nfoDocument))
         return false;
 
-      var metadataFound = false;
+      Stubs.Clear();
+      var result = false;
       
       // Create an IFileSystemResourceAccessor to the parent directory of the nfo-file 
       var nfoDirectoryResourcePath = ResourcePathHelper.Combine(nfoFsra.CanonicalLocalResourcePath, "../");
@@ -282,29 +294,81 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       using (nfoDirectoryFsra)
       {
-        // CanReadNfoDocument returns false if nfoRootDocument is null
+        // IsValidNfoDocument returns false if nfoRootDocument is null
         // ReSharper disable once PossibleNullReferenceException
-        foreach (var element in nfoDocument.Root.Elements())
+        foreach (var itemRoot in nfoDocument.Root.Elements().Where(CanReadItemRootElementTree))
         {
-          Delegate readDelegate;
-          if (SupportedElements.TryGetValue(element.Name, out readDelegate))
+          CurrentStub = new TStub();
+          var metadataFound = false;
+          foreach (var element in itemRoot.Elements())
           {
-            try
+            Delegate readDelegate;
+            if (SupportedElements.TryGetValue(element.Name, out readDelegate))
             {
-              if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
-                  (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra)))
-                metadataFound = true;
+              try
+              {
+                if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
+                    (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra)))
+                  metadataFound = true;
+              }
+              catch (Exception e)
+              {
+                DebugLogger.Error("[#{0}]: Exception while reading element {1}", e, MiNumber, element);
+              }
             }
-            catch (Exception e)
-            {
-              DebugLogger.Error("[#{0}]: Exception while reading element {1}", e, MiNumber, element);
-            }
+            else
+              DebugLogger.Warn("[#{0}]: Unknown element {1}", MiNumber, element);
           }
-          else
-            DebugLogger.Warn("[#{0}]: Unknown element {1}", MiNumber, element);
+          if (metadataFound)
+          {
+            Stubs.Add(CurrentStub);
+            result = true;
+          }
         }
+        CurrentStub = default(TStub);
       }
-      return metadataFound;
+      return result;
+    }
+
+    /// <summary>
+    /// Checks if the nfoDocument has a root element with the name "root" and at least one child element
+    /// </summary>
+    /// <param name="nfoDocument">Document to check</param>
+    /// <returns><c>true</c> if ´<paramref name="nfoDocument"/> represents a valid nfo-document; otherwise <c>false</c></returns>
+    /// <remarks>For the structure of <paramref name="nfoDocument"/> see the documentation of <see cref="XmlNfoReader"/></remarks>
+    private bool IsValidNfoDocument(XDocument nfoDocument)
+    {
+      if (nfoDocument.Root == null)
+      {
+        DebugLogger.Warn("[#{0}]: Cannot extract metadata; no root element found", MiNumber);
+        return false;
+      }
+      if (nfoDocument.Root.Name.ToString() != "root")
+      {
+        DebugLogger.Error("[#{0}]: Cannot extract metadata; root element name is not 'root'; potential bug in XmlNfoReader", MiNumber);
+        return false;
+      }
+      if (!nfoDocument.Root.HasElements)
+      {
+        DebugLogger.Warn("[#{0}]: Cannot extract metadata; no item-root elements found", MiNumber);
+        return false;
+      }
+      if (nfoDocument.Root.Elements().Count() > 1)
+      {
+        DebugLogger.Info("[#{0}]: {1} item root elements found in the nfo-file", MiNumber, nfoDocument.Root.Elements().Count());
+        var firstItemRootElementName = nfoDocument.Root.Elements().First().Name.ToString();
+        foreach (var element in nfoDocument.Root.Elements().Where(element => element.Name.ToString() != firstItemRootElementName))
+          DebugLogger.Warn("[#{0}]: First item root element name is {1}, but there is another item root element with the name {2}", MiNumber, firstItemRootElementName, element.Name.ToString());
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Writes the <see cref="CurrentStub"/> object including its metadata into the debug log in Json form
+    /// </summary>
+    private void LogStubObjects()
+    {
+      DebugLogger.Debug("[#{0}]: MovieStub: {1}{2}", MiNumber, Environment.NewLine, JsonConvert.SerializeObject(Stubs, Formatting.Indented, new JsonSerializerSettings { Converters = { new JsonByteArrayConverter() } }));
     }
 
     #endregion
@@ -684,16 +748,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Abstract methods
 
     /// <summary>
-    /// Checks whether <see cref="nfoDocument"/>.Root.Name has a value that the derived NfoReader can understand
+    /// Checks whether <see cref="itemRootElement"/>.Name has a value that the derived NfoReader can understand
     /// </summary>
-    /// <param name="nfoDocument"><see cref="XDocument"/> to check</param>
-    /// <returns><c>true</c> if the derived NfoReader can understand the nfoDocument; otherwise <c>false</c></returns>
-    protected abstract bool CanReadNfoDocument(XDocument nfoDocument);
-
-    /// <summary>
-    /// Writes all StubObjects including their metadata into the debug log
-    /// </summary>
-    protected abstract void LogStubObjects();
+    /// <param name="itemRootElement"><see cref="XElement"/> to check</param>
+    /// <returns><c>true</c> if the derived NfoReader can understand the <paramref name="itemRootElement"/>; otherwise <c>false</c></returns>
+    protected abstract bool CanReadItemRootElementTree(XElement itemRootElement);
 
     #endregion
   }
