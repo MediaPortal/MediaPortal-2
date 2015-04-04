@@ -39,7 +39,7 @@
 
   <!-- Storyboard for buttons which are focused and which are almost square, e.g. radio buttons.
        This animation scales the button in x- and y-direction with the same factor. -->
-  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="Stop">
+  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
@@ -360,7 +360,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0">
+              Margin="0,0,0,0" Opacity="1">
             <Rectangle.Fill>
               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="{ThemeResource ButtonGradient1Color}" Offset="0"/>
@@ -545,8 +545,8 @@
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
                   <GradientStop Offset="0" Color="#FFFFFF"/>
-                  <GradientStop Offset="0.75" Color="#666666"/>
-                  <GradientStop Offset="1" Color="#666666"/>
+                  <GradientStop Offset="0.75" Color="#000000"/>
+                  <GradientStop Offset="1" Color="#000000"/>
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Rectangle.Fill>
