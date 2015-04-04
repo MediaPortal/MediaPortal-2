@@ -79,16 +79,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.RowDefinitions>
 
       <Rectangle Fill="{ThemeResource DialogBorderBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
-               Margin="-40" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9">
-        <!-- TODO: Better blur effect with adjustable Radius -->
-        <Rectangle.Effect>
-          <ZoomBlurEffect BlurAmount="0.1" />
-          <!--<SimpleImageEffect PartitialEffectName="directional_blur"/>-->
-        </Rectangle.Effect>
+               Margin="-120,-85,-120,-80" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9">
+         <Rectangle.Fill>
+            <ImageBrush ImageSource="blur.png"/>
+         </Rectangle.Fill>
+         <Rectangle.Effect>
+           <ZoomBlurEffect BlurAmount="0.1" />
+         </Rectangle.Effect>
       </Rectangle>
 
-      <Rectangle Fill="{ThemeResource DialogBackgroundBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
-               Margin="-10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7">
+      <Rectangle Fill="Black" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
+               Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="1">
         <!-- TODO: Better blur effect with adjustable Radius -->
         <!--<Rectangle.Effect>
           <ZoomBlurEffect BlurAmount="0.1" />
