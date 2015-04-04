@@ -1,11 +1,11 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="BlueVision² Skin"
+    Name="BlueVision Skin"
     PluginId="{344C49F3-F7D7-49fa-B023-DA6F7E49DE3E}"
-    Author="Ge2301,Morpheus_xx"
+    Author="Ge2301, Morpheus_xx, osre"
     Copyright="GPL"
     AutoActivate="true"
-    Description="BlueVision² for MediaPortal 2."
+    Description="BlueVision for MediaPortal 2."
     PluginVersion="1.0">
 
   <Runtime>
