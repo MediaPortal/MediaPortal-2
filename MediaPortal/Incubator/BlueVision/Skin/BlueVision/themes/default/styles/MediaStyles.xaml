@@ -1978,7 +1978,7 @@
     <Setter Property="RenderTransform">
       <Setter.Value>
         <TransformGroup>
-          <ScaleTransform ScaleX="0.72" ScaleY="0.72"/>
+          <ScaleTransform ScaleX="0.76" ScaleY="0.76"/>
         </TransformGroup>
       </Setter.Value>
     </Setter>
