@@ -234,13 +234,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
     }
 
-    private IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> GetComplexAttributes(ISQLDatabase database, ITransaction transaction, IEnumerable<Guid> ids)
+    private void AddComplexAttributes(ISQLDatabase database, ITransaction transaction, IEnumerable<Guid> ids, IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues)
     {
         string statementStr;
         IList<BindVar> bindVars;
 
-        IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
-            new Dictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>>();
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
         {
             ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(
@@ -274,16 +272,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 }
             }
         }
-
-        return complexAttributeValues;
     }
 
-    private IDictionary<Guid, ICollection<MultipleMediaItemAspect>> GetMultipleMIAs(ISQLDatabase database, ITransaction transaction, IEnumerable<MediaItemAspectMetadata> selectedMIAs, IEnumerable<Guid> ids)
+    private void AddMultipleMIAs(ISQLDatabase database, ITransaction transaction, IEnumerable<MediaItemAspectMetadata> selectedMIAs, IEnumerable<Guid> ids, IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues)
     {
         ILogger logger = ServiceRegistration.Get<ILogger>();
-
-        IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues =
-            new Dictionary<Guid, ICollection<MultipleMediaItemAspect>>();
 
         foreach (MultipleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is MultipleMediaItemAspectMetadata))
         {
@@ -331,8 +324,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 }
             }
         }
-
-        return multipleMiaValues;
     }
 
     public IList<MediaItem> QueryList()
@@ -348,15 +339,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       try
       {
-          IEnumerable<MediaItemAspectMetadata> selectedMIAs = _necessaryRequestedMIAs.Union(_optionalRequestedMIAs);
+          IList<MediaItemAspectMetadata> selectedMIAs = new List<MediaItemAspectMetadata>(_necessaryRequestedMIAs.Union(_optionalRequestedMIAs));
 
           IList<Guid> mediaItemIds;
           IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds);
 
-          logger.Debug("CompiledMediaItemQuery::Query got media items IDs [{0}]", string.Join(",", mediaItemIds));
+          //logger.Debug("CompiledMediaItemQuery::Query got media items IDs [{0}]", string.Join(",", mediaItemIds));
+
+          // Split the ID list into batches
+          IList<IList<Guid>> batch = new List<IList<Guid>>();
+          int start = 0;
+          while(start < mediaItemIds.Count)
+          {
+            int count = 500;
+            if (start + count >= mediaItemIds.Count)
+            {
+                count = mediaItemIds.Count - start;
+            }
+            batch.Add(new List<Guid>(mediaItemIds.Skip(start).Take(count)));
+            start += count;
+          }
 
           IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
-              GetComplexAttributes(database, transaction, mediaItemIds);
+              new Dictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>>();
+          foreach(IList<Guid> item in batch)
+            AddComplexAttributes(database, transaction, item, complexAttributeValues);
+
           foreach (MediaItem mediaItem in mediaItems)
             {
                 foreach (SingleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is SingleMediaItemAspectMetadata))
@@ -379,7 +387,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             }
 
           IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues =
-            GetMultipleMIAs(database, transaction, selectedMIAs, mediaItemIds);
+            new Dictionary<Guid, ICollection<MultipleMediaItemAspect>>();
+          foreach (IList<Guid> item in batch)
+              AddMultipleMIAs(database, transaction, selectedMIAs, item, multipleMiaValues);
+
           if (multipleMiaValues.Count > 0)
           {
               logger.Debug("Got multiple MIAs for " + string.Join(",", multipleMiaValues.Keys));
@@ -397,6 +408,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           }
 
           return mediaItems;
+      }
+      catch(Exception e)
+      {
+        logger.Error("Unable to query", e);
+        throw e;
       }
       finally
       {
