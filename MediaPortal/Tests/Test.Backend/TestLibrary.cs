@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,16 +23,163 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.MediaManagement;
 using NUnit.Framework;
 
 namespace Test.Backend
 {
+  class TestRelationshipExtractor : IRelationshipExtractor
+  {
+    private static readonly RelationshipExtractorMetadata _METADATA = new RelationshipExtractorMetadata(Guid.Empty, "TestRelationshipExtractor");
+
+    public RelationshipExtractorMetadata Metadata
+    {
+      get { return _METADATA; }
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid role, Guid linkedRole, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, bool forceQuickMode)
+    {
+      Console.WriteLine("Extracting {0} / {1} relationship from {2}", role, linkedRole, MIAUtils.Print(aspects));
+      return false;
+    }
+  }
+
+  class TestMediaAccessor : MediaAccessor
+  {
+    public override void Initialize()
+    {
+      base.Initialize();
+
+      RegisterRelationshipExtractor(new TestRelationshipExtractor());
+    }
+  }
+
+  class TestPluginManager : IPluginManager
+  {
+    public PluginManagerState State
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public IDictionary<Guid, PluginRuntime> AvailablePlugins
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public bool MaintenanceMode
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public void Initialize()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Startup(bool maintenanceMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Shutdown()
+    {
+      throw new NotImplementedException();
+    }
+
+    public PluginRuntime AddPlugin(IPluginMetadata pluginMetadata)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool TryStartPlugin(Guid pluginId, bool activate)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool TryStopPlugin(Guid pluginId)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<Guid> FindConflicts(IPluginMetadata plugin)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<Guid> FindMissingDependencies(IPluginMetadata plugin)
+    {
+      throw new NotImplementedException();
+    }
+
+    public PluginItemMetadata GetPluginItemMetadata(string location, string id)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<string> GetAvailableChildLocations(string location)
+    {
+      throw new NotImplementedException();
+    }
+
+    public T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class
+    {
+      throw new NotImplementedException();
+    }
+
+    public object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class
+    {
+      return new List<T>();
+    }
+
+    public ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
+    {
+    }
+
+    public void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
+    {
+    }
+  }
+
   [TestFixture]
   public class TestLibrary
   {
@@ -396,11 +543,63 @@ namespace Test.Backend
         TestReader mia3Reader = TestDbUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID", "MEDIA_ITEM_ID");
         //mia3Reader.AddResult(itemId.ToString());
         
-        string pathStr = "c:\\item.mp3";
+        string pathStr = @"c:\item.mp3";
         ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
         MIAUtils.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
 
         MIAUtils.Shutdown();
+    }
+
+    [Test]
+    public void TestBuildMediaItemRelationships()
+    {
+      MIAUtils.SetupLibrary();
+
+      ServiceRegistration.Set<IPluginManager>(new TestPluginManager());
+
+      ServiceRegistration.Set<IMediaAccessor>(new TestMediaAccessor());
+      ServiceRegistration.Get<IMediaAccessor>().Initialize();
+
+      MIAUtils.Management.AddMediaItemAspectStorage(EpisodeAspect.Metadata);
+      MIAUtils.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
+      MIAUtils.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      SingleMediaItemAspect episodeAspect = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      // Minimal information to do a lookup
+      MediaItemAspect.SetCollectionAttribute(aspects, EpisodeAspect.ATTR_EPISODE, new int[] { 1 });
+      episodeAspect.SetAttribute(EpisodeAspect.ATTR_SEASON, 1);
+      MediaItemAspect.SetAspect(aspects, episodeAspect);
+
+      MediaItemAspect.SetExternalAttribute(aspects, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_EPISODE, "123");
+
+      Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+
+      TestReader resourceReader = TestDbUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+      resourceReader.AddResult(itemId.ToString());
+
+      DateTime importDate;
+      DateTime.TryParse("2014-10-11 12:34:56", out importDate);
+      TestReader importReader = TestDbUtils.AddReader("SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
+      resourceReader.AddResult(importDate.ToString(), "false", importDate.ToString());
+
+      TestReader episodeReader = TestDbUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_EPISODEITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+      episodeReader.AddResult(itemId.ToString());
+
+      string pathStr = @"c:\item.mkv";
+      ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
+
+      IList<MediaItemAspect> aspectList = new List<MediaItemAspect>();
+      foreach(IList<MediaItemAspect> value in aspects.Values)
+        value.ToList().ForEach(x => aspectList.Add(x));
+
+      TestReader itemReader = TestDbUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A15, T0.MEDIA_ITEM_ID A16, T1.MEDIA_ITEM_ID A17, T2.MEDIA_ITEM_ID A18, T0.SYSTEM_ID A0, T0.MIMETYPE A1, T0.SIZE A2, T0.PATH A3, T0.PARENTDIRECTORY A4, T1.SERIESNAME A5, T1.SEASON A6, T1.SERIESSEASONNAME A7, T1.EPISODENAME A8, T1.FIRSTAIRED A9, T1.TOTALRATING A10, T1.RATINGCOUNT A11, T2.LASTIMPORTDATE A12, T2.DIRTY A13, T2.DATEADDED A14 FROM M_PROVIDERRESOURCE T0 LEFT OUTER JOIN M_EPISODEITEM T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_IMPORTEDITEM T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE (T0.MEDIA_ITEM_ID = @V0 AND T0.SYSTEM_ID = @V1)", "A15", "A16", "T1", "T2", "A18", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14");
+      itemReader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), itemId.ToString(), "test", "video/mkv", "100", @"c:\", @"c:\", null, null, null, null, "0", "0", importDate.ToString(), "false", importDate.ToString());
+
+      MIAUtils.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspectList);
+
+      MIAUtils.Shutdown();
     }
   }
 }
