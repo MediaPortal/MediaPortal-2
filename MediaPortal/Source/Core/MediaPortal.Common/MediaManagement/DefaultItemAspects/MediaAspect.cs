@@ -43,19 +43,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
 
     /// <summary>
-    /// Contains the mime type of the media item.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MIME_TYPE =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
-    /// Online resources like streams might have <c>0</c> as size.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SIZE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
-
-    /// <summary>
     /// Contains the recording time and date of the media item. Can be used for an exact recording time
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
@@ -91,8 +78,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
-            ATTR_MIME_TYPE,
-            ATTR_SIZE,
             ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,

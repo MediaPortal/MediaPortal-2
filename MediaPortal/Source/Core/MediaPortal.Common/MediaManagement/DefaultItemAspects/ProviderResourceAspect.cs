@@ -44,6 +44,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
 
     /// <summary>
+    /// Contains the mime type of the media item.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MIME_TYPE =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
+    /// Online resources like streams might have <c>0</c> as size.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SIZE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
+
+    /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
@@ -59,6 +72,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SYSTEM_ID,
+            ATTR_MIME_TYPE,
+            ATTR_SIZE,
             ATTR_RESOURCE_ACCESSOR_PATH,
             ATTR_PARENT_DIRECTORY_ID,
         });
