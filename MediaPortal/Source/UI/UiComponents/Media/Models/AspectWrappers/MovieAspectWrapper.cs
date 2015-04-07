@@ -47,10 +47,7 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 
 protected AbstractProperty _movieNameProperty;
 protected AbstractProperty _origNameProperty;
-protected AbstractProperty _iMDBIDProperty;
-protected AbstractProperty _tMDBIDProperty;
 protected AbstractProperty _collectionNameProperty;
-protected AbstractProperty _collectionIDProperty;
 protected AbstractProperty _runtimeProperty;
 protected AbstractProperty _certificationProperty;
 protected AbstractProperty _taglineProperty;
@@ -88,28 +85,6 @@ public string OrigName
   set { _origNameProperty.SetValue(value); }
 }
 
-public AbstractProperty IMDBIDProperty
-{
-  get{ return _iMDBIDProperty; }
-}
-
-public string IMDBID
-{
-  get { return (string) _iMDBIDProperty.GetValue(); }
-  set { _iMDBIDProperty.SetValue(value); }
-}
-
-public AbstractProperty TMDBIDProperty
-{
-  get{ return _tMDBIDProperty; }
-}
-
-public int? TMDBID
-{
-  get { return (int?) _tMDBIDProperty.GetValue(); }
-  set { _tMDBIDProperty.SetValue(value); }
-}
-
 public AbstractProperty CollectionNameProperty
 {
   get{ return _collectionNameProperty; }
@@ -119,17 +94,6 @@ public string CollectionName
 {
   get { return (string) _collectionNameProperty.GetValue(); }
   set { _collectionNameProperty.SetValue(value); }
-}
-
-public AbstractProperty CollectionIDProperty
-{
-  get{ return _collectionIDProperty; }
-}
-
-public int? CollectionID
-{
-  get { return (int?) _collectionIDProperty.GetValue(); }
-  set { _collectionIDProperty.SetValue(value); }
 }
 
 public AbstractProperty RuntimeProperty
@@ -250,10 +214,7 @@ public MovieAspectWrapper()
 {
   _movieNameProperty = new SProperty(typeof(string));
   _origNameProperty = new SProperty(typeof(string));
-  _iMDBIDProperty = new SProperty(typeof(string));
-  _tMDBIDProperty = new SProperty(typeof(int?));
   _collectionNameProperty = new SProperty(typeof(string));
-  _collectionIDProperty = new SProperty(typeof(int?));
   _runtimeProperty = new SProperty(typeof(int?));
   _certificationProperty = new SProperty(typeof(string));
   _taglineProperty = new SProperty(typeof(string));
@@ -286,39 +247,33 @@ public void Init(MediaItem mediaItem)
   }
 
   MovieName = (string) aspect[MovieAspect.ATTR_MOVIE_NAME];
-OrigName = (string) aspect[MovieAspect.ATTR_ORIG_MOVIE_NAME];
-TMDBID = (int?) aspect[MovieAspect.ATTR_TMDB_ID];
-IMDBID = (string) aspect[MovieAspect.ATTR_IMDB_ID];
-CollectionName = (string) aspect[MovieAspect.ATTR_COLLECTION_NAME];
-CollectionID = (int?) aspect[MovieAspect.ATTR_COLLECTION_ID];
-Runtime = (int?) aspect[MovieAspect.ATTR_RUNTIME_M];
-Certification = (string) aspect[MovieAspect.ATTR_CERTIFICATION];
-Tagline = (string) aspect[MovieAspect.ATTR_TAGLINE];
-Popularity = (float?) aspect[MovieAspect.ATTR_POPULARITY];
-Budget = (long?) aspect[MovieAspect.ATTR_BUDGET];
-Revenue = (long?) aspect[MovieAspect.ATTR_REVENUE];
-Score = (float?) aspect[MovieAspect.ATTR_SCORE];
-TotalRating = (double?) aspect[MovieAspect.ATTR_TOTAL_RATING];
-RatingCount = (int?) aspect[MovieAspect.ATTR_RATING_COUNT];
+  OrigName = (string) aspect[MovieAspect.ATTR_ORIG_MOVIE_NAME];
+  CollectionName = (string) aspect[MovieAspect.ATTR_COLLECTION_NAME];
+  Runtime = (int?) aspect[MovieAspect.ATTR_RUNTIME_M];
+  Certification = (string) aspect[MovieAspect.ATTR_CERTIFICATION];
+  Tagline = (string) aspect[MovieAspect.ATTR_TAGLINE];
+  Popularity = (float?) aspect[MovieAspect.ATTR_POPULARITY];
+  Budget = (long?) aspect[MovieAspect.ATTR_BUDGET];
+  Revenue = (long?) aspect[MovieAspect.ATTR_REVENUE];
+  Score = (float?) aspect[MovieAspect.ATTR_SCORE];
+  TotalRating = (double?) aspect[MovieAspect.ATTR_TOTAL_RATING];
+  RatingCount = (int?) aspect[MovieAspect.ATTR_RATING_COUNT];
 }
 
 public void SetEmpty()
 {
   MovieName = null;
-OrigName = null;
-TMDBID = null;
-IMDBID = null;
-CollectionName = null;
-CollectionID = null;
-Runtime = null;
-Certification = null;
-Tagline = null;
-Popularity = null;
-Budget = null;
-Revenue = null;
-Score = null;
-TotalRating = null;
-RatingCount = null;
+  OrigName = null;
+  CollectionName = null;
+  Runtime = null;
+  Certification = null;
+  Tagline = null;
+  Popularity = null;
+  Budget = null;
+  Revenue = null;
+  Score = null;
+  TotalRating = null;
+  RatingCount = null;
 }
 
 

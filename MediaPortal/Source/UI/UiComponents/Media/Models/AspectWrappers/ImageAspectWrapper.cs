@@ -299,41 +299,41 @@ public void Init(MediaItem mediaItem)
   }
 
   AspectWidth = (int?) aspect[ImageAspect.ATTR_WIDTH];
-AspectHeight = (int?) aspect[ImageAspect.ATTR_HEIGHT];
-EquipmentMake = (string) aspect[ImageAspect.ATTR_MAKE];
-EquipmentModel = (string) aspect[ImageAspect.ATTR_MODEL];
-ExposureBias = (string) aspect[ImageAspect.ATTR_EXPOSURE_BIAS];
-ExposureTime = (string) aspect[ImageAspect.ATTR_EXPOSURE_TIME];
-FlashMode = (string) aspect[ImageAspect.ATTR_FLASH_MODE];
-FNumber = (string) aspect[ImageAspect.ATTR_FNUMBER];
-ISOSpeedRating = (string) aspect[ImageAspect.ATTR_ISO_SPEED];
-Orientation = (int?) aspect[ImageAspect.ATTR_ORIENTATION];
-MeteringMode = (string) aspect[ImageAspect.ATTR_METERING_MODE];
-Latitude = (double?) aspect[ImageAspect.ATTR_LATITUDE];
-Longitude = (double?) aspect[ImageAspect.ATTR_LONGITUDE];
-City = (string) aspect[ImageAspect.ATTR_CITY];
-State = (string) aspect[ImageAspect.ATTR_STATE];
-Country = (string) aspect[ImageAspect.ATTR_COUNTRY];
+  AspectHeight = (int?) aspect[ImageAspect.ATTR_HEIGHT];
+  EquipmentMake = (string) aspect[ImageAspect.ATTR_MAKE];
+  EquipmentModel = (string) aspect[ImageAspect.ATTR_MODEL];
+  ExposureBias = (string) aspect[ImageAspect.ATTR_EXPOSURE_BIAS];
+  ExposureTime = (string) aspect[ImageAspect.ATTR_EXPOSURE_TIME];
+  FlashMode = (string) aspect[ImageAspect.ATTR_FLASH_MODE];
+  FNumber = (string) aspect[ImageAspect.ATTR_FNUMBER];
+  ISOSpeedRating = (string) aspect[ImageAspect.ATTR_ISO_SPEED];
+  Orientation = (int?) aspect[ImageAspect.ATTR_ORIENTATION];
+  MeteringMode = (string) aspect[ImageAspect.ATTR_METERING_MODE];
+  Latitude = (double?) aspect[ImageAspect.ATTR_LATITUDE];
+  Longitude = (double?) aspect[ImageAspect.ATTR_LONGITUDE];
+  City = (string) aspect[ImageAspect.ATTR_CITY];
+  State = (string) aspect[ImageAspect.ATTR_STATE];
+  Country = (string) aspect[ImageAspect.ATTR_COUNTRY];
 }
 
 public void SetEmpty()
 {
   AspectWidth = null;
-AspectHeight = null;
-EquipmentMake = null;
-EquipmentModel = null;
-ExposureBias = null;
-ExposureTime = null;
-FlashMode = null;
-FNumber = null;
-ISOSpeedRating = null;
-Orientation = null;
-MeteringMode = null;
-Latitude = null;
-Longitude = null;
-City = null;
-State = null;
-Country = null;
+  AspectHeight = null;
+  EquipmentMake = null;
+  EquipmentModel = null;
+  ExposureBias = null;
+  ExposureTime = null;
+  FlashMode = null;
+  FNumber = null;
+  ISOSpeedRating = null;
+  Orientation = null;
+  MeteringMode = null;
+  Latitude = null;
+  Longitude = null;
+  City = null;
+  State = null;
+  Country = null;
 }
 
 

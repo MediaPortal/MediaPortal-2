@@ -247,33 +247,33 @@ public void Init(MediaItem mediaItem)
   }
 
   Artists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
-Album = (string) aspect[AudioAspect.ATTR_ALBUM];
-Genres = (IEnumerable<string>) aspect[AudioAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-Duration = (long?) aspect[AudioAspect.ATTR_DURATION];
-Track = (int?) aspect[AudioAspect.ATTR_TRACK];
-NumTracks = (int?) aspect[AudioAspect.ATTR_NUMTRACKS];
-AlbumArtists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ALBUMARTISTS] ?? EMPTY_STRING_COLLECTION;
-Composers = (IEnumerable<string>) aspect[AudioAspect.ATTR_COMPOSERS] ?? EMPTY_STRING_COLLECTION;
-Encoding = (string) aspect[AudioAspect.ATTR_ENCODING];
-BitRate = (int?) aspect[AudioAspect.ATTR_BITRATE];
-DiscId = (int?) aspect[AudioAspect.ATTR_DISCID];
-NumDiscs = (int?) aspect[AudioAspect.ATTR_NUMDISCS];
+  Album = (string) aspect[AudioAspect.ATTR_ALBUM];
+  Genres = (IEnumerable<string>) aspect[AudioAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+  Duration = (long?) aspect[AudioAspect.ATTR_DURATION];
+  Track = (int?) aspect[AudioAspect.ATTR_TRACK];
+  NumTracks = (int?) aspect[AudioAspect.ATTR_NUMTRACKS];
+  AlbumArtists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ALBUMARTISTS] ?? EMPTY_STRING_COLLECTION;
+  Composers = (IEnumerable<string>) aspect[AudioAspect.ATTR_COMPOSERS] ?? EMPTY_STRING_COLLECTION;
+  Encoding = (string) aspect[AudioAspect.ATTR_ENCODING];
+  BitRate = (int?) aspect[AudioAspect.ATTR_BITRATE];
+  DiscId = (int?) aspect[AudioAspect.ATTR_DISCID];
+  NumDiscs = (int?) aspect[AudioAspect.ATTR_NUMDISCS];
 }
 
 public void SetEmpty()
 {
   Artists = EMPTY_STRING_COLLECTION;
-Album = null;
-Genres = EMPTY_STRING_COLLECTION;
-Duration = null;
-Track = null;
-NumTracks = null;
-AlbumArtists = EMPTY_STRING_COLLECTION;
-Composers = EMPTY_STRING_COLLECTION;
-Encoding = null;
-BitRate = null;
-DiscId = null;
-NumDiscs = null;
+  Album = null;
+  Genres = EMPTY_STRING_COLLECTION;
+  Duration = null;
+  Track = null;
+  NumTracks = null;
+  AlbumArtists = EMPTY_STRING_COLLECTION;
+  Composers = EMPTY_STRING_COLLECTION;
+  Encoding = null;
+  BitRate = null;
+  DiscId = null;
+  NumDiscs = null;
 }
 
 

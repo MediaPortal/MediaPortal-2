@@ -32,10 +32,10 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 {
 /// <summary>
-/// EpisodeAspectWrapper wraps the contents of <see cref="EpisodeAspect"/> into properties that can be bound from xaml controls.
+/// SeasonAspectWrapper wraps the contents of <see cref="SeasonAspect"/> into properties that can be bound from xaml controls.
 /// Note: this code was automatically created by the MediaItemAspectModelBuilder helper tool under Resources folder.
 /// </summary>
-public class EpisodeAspectWrapper: Control
+public class SeasonAspectWrapper: Control
 {
 #region Constants
 
@@ -48,9 +48,6 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _seasonProperty;
 protected AbstractProperty _seriesSeasonNameProperty;
-protected AbstractProperty _episodeProperty;
-protected AbstractProperty _dvdEpisodeProperty;
-protected AbstractProperty _episodeNameProperty;
 protected AbstractProperty _firstAiredProperty;
 protected AbstractProperty _totalRatingProperty;
 protected AbstractProperty _ratingCountProperty;
@@ -91,39 +88,6 @@ public string SeriesSeasonName
 {
   get { return (string) _seriesSeasonNameProperty.GetValue(); }
   set { _seriesSeasonNameProperty.SetValue(value); }
-}
-
-public AbstractProperty EpisodeProperty
-{
-  get{ return _episodeProperty; }
-}
-
-public IEnumerable<int> Episode
-{
-  get { return (IEnumerable<int>) _episodeProperty.GetValue(); }
-  set { _episodeProperty.SetValue(value); }
-}
-
-public AbstractProperty DvdEpisodeProperty
-{
-  get{ return _dvdEpisodeProperty; }
-}
-
-public IEnumerable<double> DvdEpisode
-{
-  get { return (IEnumerable<double>) _dvdEpisodeProperty.GetValue(); }
-  set { _dvdEpisodeProperty.SetValue(value); }
-}
-
-public AbstractProperty EpisodeNameProperty
-{
-  get{ return _episodeNameProperty; }
-}
-
-public string EpisodeName
-{
-  get { return (string) _episodeNameProperty.GetValue(); }
-  set { _episodeNameProperty.SetValue(value); }
 }
 
 public AbstractProperty FirstAiredProperty
@@ -174,14 +138,11 @@ public MediaItem MediaItem
 
 #region Constructor
 
-public EpisodeAspectWrapper()
+public SeasonAspectWrapper()
 {
   _seriesNameProperty = new SProperty(typeof(string));
   _seasonProperty = new SProperty(typeof(int?));
   _seriesSeasonNameProperty = new SProperty(typeof(string));
-  _episodeProperty = new SProperty(typeof(IEnumerable<int>));
-  _dvdEpisodeProperty = new SProperty(typeof(IEnumerable<double>));
-  _episodeNameProperty = new SProperty(typeof(string));
   _firstAiredProperty = new SProperty(typeof(DateTime?));
   _totalRatingProperty = new SProperty(typeof(double?));
   _ratingCountProperty = new SProperty(typeof(int?));
@@ -201,21 +162,18 @@ private void MediaItemChanged(AbstractProperty property, object oldvalue)
 public void Init(MediaItem mediaItem)
 {
   SingleMediaItemAspect aspect;
-  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out aspect))
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, SeasonAspect.Metadata, out aspect))
   {
      SetEmpty();
      return;
   }
 
-  SeriesName = (string) aspect[EpisodeAspect.ATTR_SERIESNAME];
-  Season = (int?) aspect[EpisodeAspect.ATTR_SEASON];
-  SeriesSeasonName = (string) aspect[EpisodeAspect.ATTR_SERIES_SEASON];
-  Episode = (IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE];
-  DvdEpisode = (IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE];
-  EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODENAME];
-  FirstAired = (DateTime?) aspect[EpisodeAspect.ATTR_FIRSTAIRED];
-  TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
-  RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];
+  SeriesName = (string) aspect[SeasonAspect.ATTR_SERIESNAME];
+  Season = (int?) aspect[SeasonAspect.ATTR_SEASON];
+  SeriesSeasonName = (string) aspect[SeasonAspect.ATTR_SERIES_SEASON];
+  FirstAired = (DateTime?) aspect[SeasonAspect.ATTR_FIRSTAIRED];
+  TotalRating = (double?) aspect[SeasonAspect.ATTR_TOTAL_RATING];
+  RatingCount = (int?) aspect[SeasonAspect.ATTR_RATING_COUNT];
 }
 
 public void SetEmpty()
@@ -223,9 +181,6 @@ public void SetEmpty()
   SeriesName = null;
   Season = null;
   SeriesSeasonName = null;
-  Episode = new List<Int32>();
-  DvdEpisode = new List<Double>();
-  EpisodeName = null;
   FirstAired = null;
   TotalRating = null;
   RatingCount = null;

@@ -312,43 +312,43 @@ public void Init(MediaItem mediaItem)
   }
 
   Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-Duration = (long?) aspect[VideoAspect.ATTR_DURATION];
-AudioStreamCount = (int?) aspect[VideoAspect.ATTR_AUDIOSTREAMCOUNT];
-AudioEncoding = (string) aspect[VideoAspect.ATTR_AUDIOENCODING];
-AudioBitRate = (long?) aspect[VideoAspect.ATTR_AUDIOBITRATE];
-AudioLanguages = (IEnumerable<string>) aspect[VideoAspect.ATTR_AUDIOLANGUAGES] ?? EMPTY_STRING_COLLECTION;
-VideoEncoding = (string) aspect[VideoAspect.ATTR_VIDEOENCODING];
-VideoBitRate = (long?) aspect[VideoAspect.ATTR_VIDEOBITRATE];
-AspectWidth = (int?) aspect[VideoAspect.ATTR_WIDTH];
-AspectHeight = (int?) aspect[VideoAspect.ATTR_HEIGHT];
-AspectRatio = (float?) aspect[VideoAspect.ATTR_ASPECTRATIO];
-FPS = (int?) aspect[VideoAspect.ATTR_FPS];
-Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
-Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
-Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
-IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
-StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
+  Duration = (long?) aspect[VideoAspect.ATTR_DURATION];
+  AudioStreamCount = (int?) aspect[VideoAspect.ATTR_AUDIOSTREAMCOUNT];
+  AudioEncoding = (string) aspect[VideoAspect.ATTR_AUDIOENCODING];
+  AudioBitRate = (long?) aspect[VideoAspect.ATTR_AUDIOBITRATE];
+  AudioLanguages = (IEnumerable<string>) aspect[VideoAspect.ATTR_AUDIOLANGUAGES] ?? EMPTY_STRING_COLLECTION;
+  VideoEncoding = (string) aspect[VideoAspect.ATTR_VIDEOENCODING];
+  VideoBitRate = (long?) aspect[VideoAspect.ATTR_VIDEOBITRATE];
+  AspectWidth = (int?) aspect[VideoAspect.ATTR_WIDTH];
+  AspectHeight = (int?) aspect[VideoAspect.ATTR_HEIGHT];
+  AspectRatio = (float?) aspect[VideoAspect.ATTR_ASPECTRATIO];
+  FPS = (int?) aspect[VideoAspect.ATTR_FPS];
+  Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
+  Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
+  Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
+  IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
+  StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
 }
 
 public void SetEmpty()
 {
   Genres = EMPTY_STRING_COLLECTION;
-Duration = null;
-AudioStreamCount = null;
-AudioEncoding = null;
-AudioBitRate = null;
-AudioLanguages = EMPTY_STRING_COLLECTION;
-VideoEncoding = null;
-VideoBitRate = null;
-AspectWidth = null;
-AspectHeight = null;
-AspectRatio = null;
-FPS = null;
-Actors = EMPTY_STRING_COLLECTION;
-Directors = EMPTY_STRING_COLLECTION;
-Writers = EMPTY_STRING_COLLECTION;
-IsDVD = null;
-StoryPlot = null;
+  Duration = null;
+  AudioStreamCount = null;
+  AudioEncoding = null;
+  AudioBitRate = null;
+  AudioLanguages = EMPTY_STRING_COLLECTION;
+  VideoEncoding = null;
+  VideoBitRate = null;
+  AspectWidth = null;
+  AspectHeight = null;
+  AspectRatio = null;
+  FPS = null;
+  Actors = EMPTY_STRING_COLLECTION;
+  Directors = EMPTY_STRING_COLLECTION;
+  Writers = EMPTY_STRING_COLLECTION;
+  IsDVD = null;
+  StoryPlot = null;
 }
 
 
