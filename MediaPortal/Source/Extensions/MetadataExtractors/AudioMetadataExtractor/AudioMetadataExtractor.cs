@@ -40,6 +40,8 @@ using MediaPortal.Utilities.Graphics;
 using TagLib;
 using File = TagLib.File;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -378,11 +380,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (tag.Tag.Track != 0)
           trackNo = tag.Tag.Track;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, fsra.Size);
+        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_SIZE, fsra.Size);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         if (!string.IsNullOrWhiteSpace(tag.MimeType))
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
+          MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_ARTISTS, ApplyAdditionalSeparator(artists));
         MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
@@ -443,6 +445,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           ImageType imageType;
           if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
             MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+        }
+
+        TrackInfo trackInfo = new TrackInfo
+        {
+          Title = title,
+        };
+
+        if (MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo))
+        {
+          trackInfo.SetMetadata(extractedAspectData);
         }
         return true;
       }
