@@ -21,4 +21,10 @@
         Id="AudioMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioMetadataExtractor"/>
   </Register>
+
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="AudioMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioMetadataExtractor"/>
+  </Register>
 </Plugin>
