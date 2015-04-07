@@ -127,7 +127,7 @@ namespace MediaPortal.Media.MetadataExtractors
               MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
               MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
 
-              mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
+              mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 
               using (lfsra.EnsureLocalFileSystemAccess())
               {

@@ -232,7 +232,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       public void UpdateMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, _mimeType);
+        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, _mimeType);
         if (_ar.HasValue)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ASPECTRATIO, _ar.Value);
         if (_frameRate.HasValue)
@@ -464,7 +464,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
             if (lfsra != null)
             {
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, lfsra.Size);
+              MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
               ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
               ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);

@@ -104,7 +104,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
+      mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
       LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
       return tvStream;
     }

@@ -61,11 +61,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           // remove leading '.'
           ext = ext.Substring(1);
         Extension = ext;
-      }
-      SingleMediaItemAspect mediaAspect;
-      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
-      {
-        MimeType = (string)mediaAspect[MediaAspect.ATTR_MIME_TYPE];
+        MimeType = (string)resourceAspect[ProviderResourceAspect.ATTR_MIME_TYPE];
       }
       FireChange();
     }

@@ -421,7 +421,6 @@ namespace MediaPortal.Common.Services.MediaManagement
       { // Add directory item to ML
         MediaItemAspect mia = new SingleMediaItemAspect(MediaAspect.Metadata);
         mia.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
-        mia.SetAttribute(MediaAspect.ATTR_MIME_TYPE, null);
         mia.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
         mia.SetAttribute(MediaAspect.ATTR_RATING, 0);
         mia.SetAttribute(MediaAspect.ATTR_COMMENT, null);
