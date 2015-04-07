@@ -37,18 +37,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("287A2809-D38D-4F98-B613-E9C09904392D");
 
     /// <summary>
-    /// Contains the TMDB ID of the series.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TVDB_ID =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TVDBID", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the IMDB ID of the series.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_IMDB_ID =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
-
-    /// <summary>
     /// Series name.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIESNAME =
@@ -107,8 +95,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "EpisodeItem", new[] {
-            ATTR_IMDB_ID,
-            ATTR_TVDB_ID,
             ATTR_SERIESNAME,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
