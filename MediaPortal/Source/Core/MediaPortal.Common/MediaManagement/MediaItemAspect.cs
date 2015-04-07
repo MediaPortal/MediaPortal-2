@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Xml;
 using UPnP.Infrastructure.Utils;
@@ -644,6 +645,46 @@ namespace MediaPortal.Common.MediaManagement
       aspect.SetCollectionAttribute(attributeSpecification, value);
     }
 
+    public static bool TryGetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      ExternalIdentifierAspect.Source source, string type, out string id)
+    {
+      id = null;
+      IList<MultipleMediaItemAspect> values;
+      if (!TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out values))
+        return false;
+      foreach (MultipleMediaItemAspect value in values)
+      {
+        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source.ToString() && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
+        {
+          id = value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          return true;
+        }
+      }
+      return false;
+    }
+    public static void SetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      ExternalIdentifierAspect.Source source, string type, string id)
+    {
+      IList<MultipleMediaItemAspect> values;
+      if(!TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out values))
+        values = new List<MultipleMediaItemAspect>();
+      int maxIndex = 1;
+      foreach (MultipleMediaItemAspect value in values)
+      {
+        if (value.Index > maxIndex)
+          maxIndex = value.Index + 1;
+        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source.ToString() && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
+        {
+          value.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
+          return;
+        }
+      }
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(maxIndex, ExternalIdentifierAspect.Metadata);
+      aspect.SetAttribute(ExternalIdentifierAspect.ATTR_SOURCE, source.ToString());
+      aspect.SetAttribute(ExternalIdentifierAspect.ATTR_TYPE, type);
+      aspect.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
+      AddAspect(aspectData, aspect);
+    }
     public static IList<MediaItemAspect> GetAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       IList<MediaItemAspect> aspects = new List<MediaItemAspect>();

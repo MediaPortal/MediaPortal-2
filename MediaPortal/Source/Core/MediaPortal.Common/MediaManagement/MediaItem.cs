@@ -115,11 +115,14 @@ namespace MediaPortal.Common.MediaManagement
     {
       mimeType = null;
       mediaItemTitle = null;
-      IList<MediaItemAspect> mediaAspect = this[MediaAspect.ASPECT_ID];
-      if (mediaAspect == null)
+      SingleMediaItemAspect mediaAspect = null;
+      if(!MediaItemAspect.TryGetAspect(this.Aspects, MediaAspect.Metadata, out mediaAspect))
         return false;
-      mimeType = (string) mediaAspect[0][MediaAspect.ATTR_MIME_TYPE];
-      mediaItemTitle = (string) mediaAspect[0][MediaAspect.ATTR_TITLE];
+      SingleMediaItemAspect resourceAspect = null;
+      if (!MediaItemAspect.TryGetAspect(this.Aspects, ProviderResourceAspect.Metadata, out resourceAspect))
+        return false;
+      mimeType = (string)resourceAspect[ProviderResourceAspect.ATTR_MIME_TYPE];
+      mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
       return true;
     }
 
