@@ -46,8 +46,6 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 #region Fields
 
 protected AbstractProperty _titleProperty;
-protected AbstractProperty _mimeTypeProperty;
-protected AbstractProperty _sizeProperty;
 protected AbstractProperty _recordingTimeProperty;
 protected AbstractProperty _ratingProperty;
 protected AbstractProperty _commentProperty;
@@ -68,28 +66,6 @@ public string Title
 {
   get { return (string) _titleProperty.GetValue(); }
   set { _titleProperty.SetValue(value); }
-}
-
-public AbstractProperty MimeTypeProperty
-{
-  get{ return _mimeTypeProperty; }
-}
-
-public string MimeType
-{
-  get { return (string) _mimeTypeProperty.GetValue(); }
-  set { _mimeTypeProperty.SetValue(value); }
-}
-
-public AbstractProperty SizeProperty
-{
-  get{ return _sizeProperty; }
-}
-
-public long? Size
-{
-  get { return (long?) _sizeProperty.GetValue(); }
-  set { _sizeProperty.SetValue(value); }
 }
 
 public AbstractProperty RecordingTimeProperty
@@ -165,8 +141,6 @@ public MediaItem MediaItem
 public MediaAspectWrapper()
 {
   _titleProperty = new SProperty(typeof(string));
-  _mimeTypeProperty = new SProperty(typeof(string));
-  _sizeProperty = new SProperty(typeof(long?));
   _recordingTimeProperty = new SProperty(typeof(DateTime?));
   _ratingProperty = new SProperty(typeof(int?));
   _commentProperty = new SProperty(typeof(string));
@@ -195,25 +169,21 @@ public void Init(MediaItem mediaItem)
   }
 
   Title = (string) aspect[MediaAspect.ATTR_TITLE];
-MimeType = (string) aspect[MediaAspect.ATTR_MIME_TYPE];
-Size = (long?) aspect[MediaAspect.ATTR_SIZE];
-RecordingTime = (DateTime?) aspect[MediaAspect.ATTR_RECORDINGTIME];
-Rating = (int?) aspect[MediaAspect.ATTR_RATING];
-Comment = (string) aspect[MediaAspect.ATTR_COMMENT];
-PlayCount = (int?) aspect[MediaAspect.ATTR_PLAYCOUNT];
-LastPlayed = (DateTime?) aspect[MediaAspect.ATTR_LASTPLAYED];
+  RecordingTime = (DateTime?) aspect[MediaAspect.ATTR_RECORDINGTIME];
+  Rating = (int?) aspect[MediaAspect.ATTR_RATING];
+  Comment = (string) aspect[MediaAspect.ATTR_COMMENT];
+  PlayCount = (int?) aspect[MediaAspect.ATTR_PLAYCOUNT];
+  LastPlayed = (DateTime?) aspect[MediaAspect.ATTR_LASTPLAYED];
 }
 
 public void SetEmpty()
 {
   Title = null;
-MimeType = null;
-Size = null;
-RecordingTime = null;
-Rating = null;
-Comment = null;
-PlayCount = null;
-LastPlayed = null;
+  RecordingTime = null;
+  Rating = null;
+  Comment = null;
+  PlayCount = null;
+  LastPlayed = null;
 }
 
 

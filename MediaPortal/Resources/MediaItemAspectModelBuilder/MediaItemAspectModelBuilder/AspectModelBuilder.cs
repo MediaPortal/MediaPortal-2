@@ -235,9 +235,9 @@ namespace MediaItemAspectModelBuilder
         emptyCommands.Add(string.Format("{0} = {1};", attrName, GetEmptyValue(spec)));
       }
 
-      members.Add(string.Format(methodStub, string.Join("\r\n", initCommands.ToArray()), aspectType.Name));
+      members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
 
-      members.Add(string.Format(emptyStub, string.Join("\r\n", emptyCommands.ToArray())));
+      members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
     }
 
     private string GetEmptyValue(MediaItemAspectMetadata.AttributeSpecification spec)
