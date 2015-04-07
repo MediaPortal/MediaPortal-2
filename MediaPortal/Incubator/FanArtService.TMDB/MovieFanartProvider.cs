@@ -108,14 +108,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
           return false;
 
         MediaItem mediaItem = items.First();
-        int movieDbId;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out movieDbId))
+        string movieDbId;
+        if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out movieDbId))
         {
           switch (mediaType)
           {
             case FanArtConstants.FanArtMediaType.Undefined:
             case FanArtConstants.FanArtMediaType.Movie:
-              basePath = Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId.ToString());
+              basePath = Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId);
               break;
           }
         }

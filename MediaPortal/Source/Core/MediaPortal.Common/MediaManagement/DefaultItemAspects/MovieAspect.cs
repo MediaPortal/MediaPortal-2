@@ -51,28 +51,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("OrigName", 100, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the TMDB ID of the movie.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TMDB_ID =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TMDBID", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the IMDB ID of the movie.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_IMDB_ID =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
-
-    /// <summary>
     /// Contains the name of the movie collection.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 100, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the TMDB ID of the movie collection.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_ID =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("CollectionID", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the official runtime in minutes. This value must not necessary match the exact video runtime (i.e. tv recordings will be longer because
@@ -133,10 +115,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         ASPECT_ID, "MovieItem", new[] {
             ATTR_MOVIE_NAME,
             ATTR_ORIG_MOVIE_NAME,
-            ATTR_IMDB_ID,
-            ATTR_TMDB_ID,
             ATTR_COLLECTION_NAME,
-            ATTR_COLLECTION_ID,
             ATTR_RUNTIME_M,
             ATTR_CERTIFICATION,
             ATTR_TAGLINE,
