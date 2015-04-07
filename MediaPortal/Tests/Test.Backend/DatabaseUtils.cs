@@ -659,7 +659,18 @@ namespace Test.Backend
 
     public bool GetBoolean(int i)
     {
-      throw new NotImplementedException();
+      try
+      {
+        return Boolean.Parse(_results[_index][i]);
+      }
+      catch (KeyNotFoundException e)
+      {
+        throw new KeyNotFoundException("Column " + i + " not found", e);
+      }
+      catch (FormatException e)
+      {
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as boolean", e);
+      }
     }
 
     public byte GetByte(int i)
@@ -745,7 +756,18 @@ namespace Test.Backend
 
     public long GetInt64(int i)
     {
-      throw new NotImplementedException();
+      try
+      {
+        return Int64.Parse(_results[_index][i]);
+      }
+      catch (KeyNotFoundException e)
+      {
+        throw new KeyNotFoundException("Column " + i + " not found", e);
+      }
+      catch (FormatException e)
+      {
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as integer", e);
+      }
     }
 
     public string GetName(int i)

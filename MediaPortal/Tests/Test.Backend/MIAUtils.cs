@@ -5,6 +5,7 @@ using System.Threading;
 using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Backend.Services.SystemResolver;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
@@ -37,10 +38,17 @@ namespace Test.Backend
 
     class TestML : MediaLibrary
     {
-        public TestML() : base()
-        {
-            _miaManagement = MIAUtils.Management;
-        }
+      public TestML() : base()
+      {
+        _miaManagement = MIAUtils.Management;
+
+        _systemsOnline["test"] = SystemName.GetLocalSystemName();
+      }
+
+      protected void UpdateRelationships(Guid mediaItemId)
+      {
+        
+      }
     }
 
     class TestMessageBroker : MessageBroker
@@ -157,6 +165,11 @@ namespace Test.Backend
         public static void AddMediaItemAspectStorage(MediaItemAspectMetadata meta)
         {
             MANAGEMENT.AddMediaItemAspectStorage(meta);
+        }
+
+        internal static string Print(IDictionary<Guid, IList<MediaItemAspect>> aspects)
+        {
+          throw new NotImplementedException();
         }
     }
 }
