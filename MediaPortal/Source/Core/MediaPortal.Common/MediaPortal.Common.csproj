@@ -61,6 +61,13 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ExternalIdentifierAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
+    <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
+    <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
