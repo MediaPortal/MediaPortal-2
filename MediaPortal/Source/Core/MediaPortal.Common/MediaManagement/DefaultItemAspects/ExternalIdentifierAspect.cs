@@ -1,0 +1,84 @@
+﻿#region Copyright (C) 2007-2014 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2014 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+
+namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
+{
+  /// <summary>
+  /// Contains the metadata specification of the "ExternalIdentifier" media item aspect which
+  /// associates media items with external sources. The source / type / id is intended to
+  /// be a unique external identifier which MediaPortal can use to merge aspect data from
+  /// multiple items.
+  /// </summary>
+  public static class ExternalIdentifierAspect
+  {
+    public enum Source
+    {
+      IMDB, // IMDb.com
+      TMDB, // themoviedb.org
+      TVDB, // TheTVDB.com
+      MUSICBRAINZ, // MusicBrainz.org
+    };
+
+    public static readonly string TYPE_TRACK = "track";
+    public static readonly string TYPE_EPISODE = "episode";
+    public static readonly string TYPE_SERIES = "series";
+    public static readonly string TYPE_MOVIE = "movie";
+    public static readonly string TYPE_CHARACTER = "character"; // Someone in a movie / series
+    public static readonly string TYPE_COLLECTION = "collection";
+    public static readonly string TYPE_PERSON = "person"; // Someone in real life
+
+    /// <summary>
+    /// Media item aspect id of the relationship aspect.
+    /// </summary>
+    public static readonly Guid ASPECT_ID = new Guid("4C43FFDC-8A43-42F0-A6EF-3A0ECA46F9AA");
+
+    /// <summary>
+    /// Source of the identifier
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SOURCE =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, false);
+
+    /// <summary>
+    /// The type of identifier
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_TYPE =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Source type's unique id
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ID =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Id", 100, Cardinality.Inline, false);
+
+    public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
+        // TODO: Localize name
+        ASPECT_ID, "ExternalIdentifier", new[] {
+            ATTR_SOURCE,
+            ATTR_TYPE,
+            ATTR_ID,
+        });
+  }
+}

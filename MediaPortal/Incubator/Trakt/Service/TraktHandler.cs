@@ -269,11 +269,11 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (isMovie)
       {
         TraktMovieScrobble movie = new TraktMovieScrobble();
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
           movie.IMDBID = value;
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) && iValue > 0)
-          movie.TMDBID = iValue.ToString();
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
+          movie.TMDBID = value;
 
         if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
           movie.Year = dtValue.Year.ToString();
@@ -286,11 +286,11 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (isSeries)
       {
         TraktEpisodeScrobble series = new TraktEpisodeScrobble();
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
           series.IMDBID = value;
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_TVDB_ID, out iValue))
-          series.SeriesID = iValue.ToString();
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_EPISODE, out value))
+          series.SeriesID = value;
 
         if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
           series.Title = value;
