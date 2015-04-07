@@ -146,8 +146,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         using (Stream mediaStream = fsra.OpenRead())
         {
           string mimeType = MimeTypeDetector.GetMimeType(mediaStream) ?? DEFAULT_MIMETYPE;
-          mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_SIZE, fsra.Size);
+          mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
+          mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
         }
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))

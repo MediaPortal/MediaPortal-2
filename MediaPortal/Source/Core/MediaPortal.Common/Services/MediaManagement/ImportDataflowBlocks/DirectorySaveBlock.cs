@@ -206,7 +206,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
       var mediaAspect = new SingleMediaItemAspect(MediaAspect.Metadata);
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, null);
       mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
       mediaAspect.SetAttribute(MediaAspect.ATTR_RATING, 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, null);
