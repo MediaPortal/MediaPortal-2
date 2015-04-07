@@ -47,8 +47,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-60,0">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
             </ListView>
           </Grid>
 
@@ -61,8 +64,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="[Audio.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Content="[Audio.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ListView x:Name="Audio" Grid.Row="1" ItemsSource="{Binding Audio}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
             </ListView>
           </Grid>
 
@@ -75,8 +81,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="[Series.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Content="[Series.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ListView x:Name="Series" Grid.Row="1" ItemsSource="{Binding Series}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
             </ListView>
           </Grid>
 
@@ -89,8 +98,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="[Images.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Content="[Images.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ListView x:Name="Images" Grid.Row="1" ItemsSource="{Binding Images}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
             </ListView>
           </Grid>
 
@@ -103,8 +115,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="[Recordings.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Content="[Recordings.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ListView x:Name="Recordings" Grid.Row="1" ItemsSource="{Binding Recordings}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
             </ListView>
           </Grid>
 
@@ -118,28 +133,28 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Grid.ColumnSpan="2" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Grid.ColumnSpan="2" Content="weather" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Grid.ColumnSpan="2" Content="weather" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <Image  Grid.Row="1" Grid.Column="0" x:Name="WeatherBigIcon" Stretch="Uniform" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}"
              IsVisible="{Binding UseInHome}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,5,5,5"/>
 
             <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
               <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Label  x:Name="Temp" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
-                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" IsVisible="{Binding UseInHome}"
+                  Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <Label Content=", " Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"> </Label>
+                <Label Content=", " Color="{ThemeResource TextColor}"> </Label>
                 <Label Grid.Column="1" x:Name="Humidity" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Humidity}"
-                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" IsVisible="{Binding UseInHome}"
+                  Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
                   VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,0,0,0"/>
               </WrapPanel>
               
 
               <Label  x:Name="Place"
                       Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Name}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" IsVisible="{Binding UseInHome}"
+                Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
                 VerticalAlignment="Center" HorizontalAlignment="Center" />
               <Label  x:Name="Wind" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Wind}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" IsVisible="{Binding UseInHome}"
+                Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
                 VerticalAlignment="Center" HorizontalAlignment="Center" Margin="-10,0,-10,0"/>
             </StackPanel>
           </Grid>
@@ -153,7 +168,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="news" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label Grid.Row="0" Content="news" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <Grid Grid.Column="0" Grid.Row="1" Margin="30,0,10,0" DataContext="{Binding Source={StaticResource CurrentNewsModel}}" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -162,11 +177,11 @@
                 <RowDefinition Height="70" />
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
-              <Label Grid.Row="0" Grid.Column="0" x:Name="News" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}"
+              <Label Grid.Row="0" Grid.Column="0" x:Name="News" Color="{ThemeResource TextColor}"
                      Content="{Binding CurrentNewsItem.Title}" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
               <Label Grid.Row="1" Grid.Column="0" Margin="0,0,0,55" x:Name="NewSummary" Wrap="True" Scroll="Auto" ScrollSpeed="20" ScrollDelay="3"
                      VerticalAlignment="Stretch" Content="{Binding CurrentNewsItem.Summary}" Opacity="0.6"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+                     Color="{ThemeResource TextColor}"/>
             </Grid>
           </Grid>
         </Grid> <!--End Home Screen-->
