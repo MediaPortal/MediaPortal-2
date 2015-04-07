@@ -68,6 +68,12 @@ namespace MediaPortal.Common.ResourceAccess
     IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors { get; }
 
     /// <summary>
+    /// Collection of all registered local relationship extractors, organized as a dictionary of
+    /// (GUID; relationship extractor) mappings.
+    /// </summary>
+    IDictionary<Guid, IRelationshipExtractor> LocalRelationshipExtractors { get; }
+
+    /// <summary>
     /// Initializes resource providers, metadata extractors and internal structures.
     /// </summary>
     void Initialize();
