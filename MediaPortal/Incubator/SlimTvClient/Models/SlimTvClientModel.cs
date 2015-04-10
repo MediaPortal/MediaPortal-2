@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -726,7 +726,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           if (context != null && context.Channel != null)
           {
             ChannelName = context.Channel.Name;
-            if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out currentProgram, out nextProgram))
+            if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out currentProgram, out nextProgram) && currentProgram != null)
             {
               double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
                                 (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
@@ -242,6 +243,15 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       if (!_isFile)
         throw new IllegalCallException("Only files can provide stream access");
       PrepareStreamAccess();
+      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
+    }
+
+    public async Task<Stream> OpenReadAsync()
+    {
+      if (!_isFile)
+        throw new IllegalCallException("Only files can provide stream access");
+      // ToDo: Implement PrepareStreamAccess in an async way and implement the async virtual methods of SynchronizedMasterStreamClient
+      await Task.Run(() => PrepareStreamAccess());
       return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
     }
 

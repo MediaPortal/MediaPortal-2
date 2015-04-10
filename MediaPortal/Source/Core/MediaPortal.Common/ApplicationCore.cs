@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,6 +40,7 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.Messaging;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.Threading;
 using MediaPortal.Common.Services.ThumbnailGenerator;
@@ -106,6 +107,9 @@ namespace MediaPortal.Common
     public static void RegisterCoreServices()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      logger.Debug("ApplicationCore: Registering IImpersonationService");
+      ServiceRegistration.Set<IImpersonationService>(new ImpersonationService());
 
       logger.Debug("ApplicationCore: Registering IRegistry service");
       ServiceRegistration.Set<IRegistry>(new Services.Registry.Registry());
@@ -234,6 +238,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IRegistry service");
       ServiceRegistration.RemoveAndDispose<IRegistry>();
+
+      logger.Debug("ApplicationCore: Removing IImpersonationService");
+      ServiceRegistration.RemoveAndDispose<IImpersonationService>();
 
       logger.Debug("ApplicationCore: Removing IPathManager service");
       ServiceRegistration.RemoveAndDispose<IPathManager>();

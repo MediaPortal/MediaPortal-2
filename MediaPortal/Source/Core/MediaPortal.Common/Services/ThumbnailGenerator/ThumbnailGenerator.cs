@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -42,17 +41,30 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
   /// </summary>
   public class ThumbnailGenerator : IThumbnailGenerator, IDisposable
   {
-    public const string FOLDER_THUMB_NAME = "folder.jpg";
-    public const int DEFAULT_THUMB_WIDTH = 192;
-    public const int DEFAULT_THUMB_HEIGHT = 192;
+    public const int DEFAULT_THUMB_WIDTH = 512;
+    public const int DEFAULT_THUMB_HEIGHT = 512;
     public const ImageType DEFAULT_THUMB_IMAGE_TYPE = ImageType.Jpeg;
 
-    protected IList<IThumbnailProvider> _providerList = null;
+    protected List<SortedThumbnailCreator> _providerList = null;
     protected IPluginItemStateTracker _thumbnailProviderPluginItemStateTracker;
     protected readonly Queue<WorkItem> _workToDo = new Queue<WorkItem>();
     protected Thread _workerThread = null;
     protected WorkItem _currentWorkItem = null;
     protected readonly object _syncObj = new object();
+
+    #region Internal class
+    protected class SortedThumbnailCreator : IDisposable
+    {
+      public int Priority;
+      public IThumbnailProvider Provider;
+      public void Dispose()
+      {
+        IDisposable disp = Provider as IDisposable;
+        if (disp != null)
+          disp.Dispose();
+      }
+    }
+    #endregion
 
     public void InitProviders()
     {
@@ -61,7 +73,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
         if (_providerList != null)
           return;
 
-        var providerList = new List<IThumbnailProvider>();
+        var providerList = new List<SortedThumbnailCreator>();
 
         _thumbnailProviderPluginItemStateTracker = new FixedItemStateTracker("ThumbnailGenerator Service - Provider registration");
 
@@ -71,14 +83,14 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
           try
           {
             ThumbnailProviderRegistration thumbnailProviderRegistration = pluginManager.RequestPluginItem<ThumbnailProviderRegistration>(ThumbnailProviderBuilder.THUMBNAIL_PROVIDER_PATH, itemMetadata.Id, _thumbnailProviderPluginItemStateTracker);
-            if (thumbnailProviderRegistration == null)
+            if (thumbnailProviderRegistration == null || thumbnailProviderRegistration.ProviderClass == null)
               ServiceRegistration.Get<ILogger>().Warn("Could not instantiate IThumbnailProvider with id '{0}'", itemMetadata.Id);
             else
             {
               IThumbnailProvider provider = Activator.CreateInstance(thumbnailProviderRegistration.ProviderClass) as IThumbnailProvider;
               if (provider == null)
                 throw new PluginInvalidStateException("Could not create IThumbnailProvider instance of class {0}", thumbnailProviderRegistration.ProviderClass);
-              providerList.Add(provider);
+              providerList.Add(new SortedThumbnailCreator { Priority = thumbnailProviderRegistration.Priority, Provider = provider });
             }
           }
           catch (PluginInvalidStateException e)
@@ -86,8 +98,7 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
             ServiceRegistration.Get<ILogger>().Warn("Cannot add IThumbnailProvider with id '{0}'", e, itemMetadata.Id);
           }
         }
-        // TODO: implement sorting based on ThumbnailProviderRegistration
-        //providerList.Sort((p1, p2) => p1.Priority.CompareTo(p2.Priority));
+        providerList.Sort((p1, p2) => p1.Priority.CompareTo(p2.Priority));
         _providerList = providerList;
       }
     }
@@ -150,11 +161,11 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
     {
       InitProviders();
       imageType = ImageType.Jpeg;
-      foreach (IThumbnailProvider thumbnailProvider in _providerList)
+      foreach (var thumbnailProvider in _providerList)
       {
         try
         {
-          if (thumbnailProvider.GetThumbnail(fileOrFolderPath, width, height, cachedOnly, out imageData, out imageType))
+          if (thumbnailProvider.Provider.GetThumbnail(fileOrFolderPath, width, height, cachedOnly, out imageData, out imageType))
             return true;
         }
         catch (Exception ex)

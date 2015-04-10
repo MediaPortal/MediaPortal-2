@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 
@@ -36,16 +37,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
   /// </summary>
   public class MatroskaMatcher
   {
-    public static bool TryMatchImdbId(string folderOrFileName, out string imdbId)
+    public static bool TryMatchImdbId(ILocalFsResourceAccessor folderOrFileLfsra, out string imdbId)
     {
-      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileName)).ToLower();
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
       {
         imdbId = null;
         return false;
       }
 
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileName);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);

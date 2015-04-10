@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -178,7 +178,8 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       }
       else
         // Optimize access to local filesystem resource
-        handle = Bass.BASS_StreamCreateFile(lfra.LocalFileSystemPath, 0, 0, flags);
+        using (lfra.EnsureLocalFileSystemAccess())
+          handle = Bass.BASS_StreamCreateFile(lfra.LocalFileSystemPath, 0, 0, flags);
 
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_StreamCreateFile");

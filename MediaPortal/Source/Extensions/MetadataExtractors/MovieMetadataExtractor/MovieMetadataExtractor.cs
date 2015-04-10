@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -94,6 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     private static bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title;
       // VideoAspect must be present to be sure it is actually a video resource.
@@ -118,7 +119,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
           NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
-          MatroskaMatcher.TryMatchImdbId(lfsra.LocalFileSystemPath, out imdbId))
+          MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
         movieInfo.ImdbId = imdbId;
 
       // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.

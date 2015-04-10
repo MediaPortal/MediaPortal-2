@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -104,8 +104,9 @@ namespace MediaPortal.Common.Threading
         State = WorkState.INPROGRESS;
 
       // Perform work 
-      if (WorkLoad != null)
-        WorkLoad();
+      DoWorkHandler workLoad = WorkLoad;
+      if (workLoad != null)
+        workLoad();
       else
         throw new NotImplementedException();
 

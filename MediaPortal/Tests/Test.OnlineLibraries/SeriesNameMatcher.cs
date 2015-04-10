@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,8 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -74,7 +76,10 @@ namespace Test.OnlineLibraries
       foreach (string folderOrFileName in shouldMatchPaths)
       {
         SeriesInfo seriesInfo;
-        bool match = matcher.MatchSeries(folderOrFileName, out seriesInfo);
+        IResourceAccessor ra;
+        LocalFsResourceProvider.Instance.TryCreateResourceAccessor(folderOrFileName, out ra);
+        var lfsra = ra as ILocalFsResourceAccessor;
+        bool match = matcher.MatchSeries(lfsra, out seriesInfo);
         Assert.IsTrue(match, string.Format("Failed to match path '{0}'", folderOrFileName));
       }
     }
@@ -96,7 +101,10 @@ namespace Test.OnlineLibraries
       foreach (string folderOrFileName in shouldNotMatchPaths)
       {
         SeriesInfo seriesInfo;
-        bool match = matcher.MatchSeries(folderOrFileName, out seriesInfo);
+        IResourceAccessor ra;
+        LocalFsResourceProvider.Instance.TryCreateResourceAccessor(folderOrFileName, out ra);
+        var lfsra = ra as ILocalFsResourceAccessor;
+        bool match = matcher.MatchSeries(lfsra, out seriesInfo);
         Assert.IsFalse(match, string.Format("Wrong match for '{0}' should not be matched!", folderOrFileName));
       }
     }

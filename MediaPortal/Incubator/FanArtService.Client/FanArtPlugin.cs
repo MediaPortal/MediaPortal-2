@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginManager;
@@ -40,6 +41,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       MediaItem mediaItem = source as MediaItem;
       if (mediaItem == null)
         return null;
+      // Use the ThumbnailAspect as fallback for non-ML imported MediaItems
+      if (mediaItem.MediaItemId == Guid.Empty)
+        return ImageSourceFactory.CreateMediaItemThumbnailAspectSource(source, width, height);
+
       FanArtConstants.FanArtMediaType mediaType = FanArtConstants.FanArtMediaType.Undefined;
       // Special handling for ImageThumbs that might require rotation
       if (mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID))

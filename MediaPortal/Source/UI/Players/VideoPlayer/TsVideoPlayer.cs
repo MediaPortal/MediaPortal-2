@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -134,8 +134,14 @@ namespace MediaPortal.UI.Players.Video
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, sourcePathOrUrl);
 
-        int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
-        new HRESULT(hr).Throw();
+        IDisposable accessEnsurer = null;
+        if (IsLocalFilesystemResource)
+          accessEnsurer = ((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess();
+        using (accessEnsurer)
+        {
+          int hr = fileSourceFilter.Load(SourcePathOrUrl, null);
+          new HRESULT(hr).Throw();
+        }
       }
       else
       {
@@ -146,10 +152,12 @@ namespace MediaPortal.UI.Players.Video
         if (localFileSystemResourceAccessor == null)
           throw new IllegalCallException("The TsVideoPlayer can only play file resources of type ILocalFsResourceAccessor");
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
-
-        int hr = fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
-        new HRESULT(hr).Throw();
+        using (localFileSystemResourceAccessor.EnsureLocalFileSystemAccess())
+        {
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for stream '{1}'", PlayerTitle, localFileSystemResourceAccessor.LocalFileSystemPath);
+          int hr = fileSourceFilter.Load(localFileSystemResourceAccessor.LocalFileSystemPath, null);
+          new HRESULT(hr).Throw();
+        }
       }
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
@@ -291,7 +299,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void SaveSubtitlePreference()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      settings.PreferredSubtitleSteamName = _selectedSubtitleIndex != NO_STREAM_INDEX
+      settings.PreferredSubtitleStreamName = _selectedSubtitleIndex != NO_STREAM_INDEX
         ? Subtitles[_selectedSubtitleIndex] : String.Empty;
 
       // If selected stream is "No subtitles", we disable the setting
@@ -309,7 +317,7 @@ namespace MediaPortal.UI.Players.Video
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleSteamName);
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableSubtitles)
         // Tell the renderer it should not render subtitles
         _subtitleRenderer.RenderSubtitles = false;

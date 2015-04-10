@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -65,14 +66,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
     /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
     /// </summary>
-    /// <param name="folderOrFileName">Full path to file</param>
+    /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
     /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo)
     {
       foreach (Regex matcher in _matchers)
       {
-        Match ma = matcher.Match(folderOrFileName);
+        // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+        Match ma = matcher.Match(folderOrFileLfsra.LocalFileSystemPath);
         seriesInfo = ParseSeries(ma);
         if (seriesInfo.IsCompleteMatch)
           return true;

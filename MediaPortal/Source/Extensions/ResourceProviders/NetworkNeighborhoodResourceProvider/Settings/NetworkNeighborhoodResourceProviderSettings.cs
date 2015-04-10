@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,34 +22,24 @@
 
 #endregion
 
+using System.Net;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings
 {
   public class NetworkNeighborhoodResourceProviderSettings
   {
-    /// <summary>
-    /// Gets or sets an indicator, if the server should try to impersonate the current interactive session.
-    /// </summary>
-    [Setting(SettingScope.Global, true)]
-    public bool ImpersonateInteractive { get; set; }
+    public NetworkNeighborhoodResourceProviderSettings()
+    {
+      NetworkCredentials = new SerializableDictionary<string, SerializableNetworkCredential>();
+    }
 
     /// <summary>
-    /// Gets or sets an indicator, if the server should use username and password to access network resources.
+    /// Dictionary of <see cref="ResourcePath"/>-strings and the respective <see cref="NetworkCredential"/>s to access network resources.
     /// </summary>
-    [Setting(SettingScope.Global, false)]
-    public bool UseCredentials { get; set; }
-
-    /// <summary>
-    /// Username to access network resources.
-    /// </summary>
-    [Setting(SettingScope.Global, null)]
-    public string NetworkUserName { get; set; }
-
-    /// <summary>
-    /// Password to access network resources.
-    /// </summary>
-    [Setting(SettingScope.Global, null)]
-    public string NetworkPassword { get; set; }
+    [Setting(SettingScope.Global)]
+    public SerializableDictionary<string, SerializableNetworkCredential> NetworkCredentials { get; set; }
   }
 }

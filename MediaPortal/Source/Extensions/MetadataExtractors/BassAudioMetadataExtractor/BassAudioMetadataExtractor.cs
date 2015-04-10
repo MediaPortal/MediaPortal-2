@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,6 +36,7 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Graphics;
+using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
@@ -108,14 +109,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         return false;
       if (!fsra.IsFile)
         return false;
-      string filePath = fsra.LocalFileSystemPath;
       string fileName = fsra.ResourceName;
       if (!HasAudioExtension(fileName))
         return false;
 
       try
       {
-        var tags = BassTags.BASS_TAG_GetFromFile(filePath);
+        TAG_INFO tags;
+        using (fsra.EnsureLocalFileSystemAccess())
+          tags = BassTags.BASS_TAG_GetFromFile(fsra.LocalFileSystemPath);
         if (tags == null)
           return false;
 
@@ -145,7 +147,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, fsra.Size);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, "audio/" + Path.GetExtension(filePath).Substring(1));
+        // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, "audio/" + Path.GetExtension(fsra.LocalFileSystemPath).Substring(1));
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_ARTISTS, ApplyAdditionalSeparator(artists));
         MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tags.album));
         IEnumerable<string> albumArtists = SplitTagEnum(tags.albumartist);
@@ -202,7 +205,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
           byte[] thumbData;
           ImageType imageType;
-          if (generator.GetThumbnail(fileName, 256, 256, cachedOnly, out thumbData, out imageType))
+          if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
             MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
         }
         return true;

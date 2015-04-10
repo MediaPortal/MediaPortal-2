@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configures the drive letter for mounting remote resources on server.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Network credentials</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configures username and password to access network resources from server.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Use credentials of interactive session on server</string>
   <string name="Settings.ServerSettings.UseCredentials">Use username and password to access network</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Username and password</string>
   <string name="Settings.ServerSettings.Username">Username:</string>

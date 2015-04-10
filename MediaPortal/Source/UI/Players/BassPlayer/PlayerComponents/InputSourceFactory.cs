@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -87,7 +87,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
           ILocalFsResourceAccessor lfra = _accessor as ILocalFsResourceAccessor;
           if (lfra == null)
             return null;
-          result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
+          using (lfra.EnsureLocalFileSystemAccess())
+            result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
         }
         else
         {

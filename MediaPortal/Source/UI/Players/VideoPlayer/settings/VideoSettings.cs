@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -196,7 +196,7 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// Gets or sets the preferred subtitle stream name for video playback.
     /// </summary>
     [Setting(SettingScope.User)]
-    public string PreferredSubtitleSteamName { get; set; }
+    public string PreferredSubtitleStreamName { get; set; }
 
     /// <summary>
     /// Gets or sets the preferred subtitle language.

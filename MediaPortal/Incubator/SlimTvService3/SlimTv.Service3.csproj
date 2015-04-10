@@ -116,13 +116,19 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\SlimTvService\Helpers\ConnectionHelper.cs"><Link>Helpers\ConnectionHelper.cs</Link></Compile>
-    <Compile Include="..\SlimTvService\Helpers\EntityFrameworkHelper.cs"><Link>Helpers\EntityFrameworkHelper.cs</Link></Compile>
-    <Compile Include="..\SlimTvService\SlimTvService.cs"><Link>SlimTvService.cs</Link></Compile>
-    <Compile Include="..\SlimTvService\SlimTvServicePlugin.cs"><Link>SlimTvServicePlugin.cs</Link></Compile>
+    <Compile Include="..\SlimTvService\SlimTvService.cs">
+      <Link>SlimTvService.cs</Link>
+    </Compile>
+    <Compile Include="..\SlimTvService\SlimTvServicePlugin.cs">
+      <Link>SlimTvServicePlugin.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\SlimTvService\TvEntityExtensions.cs"><Link>TvEntityExtensions.cs</Link></Compile>
-    <Compile Include="..\SlimTvService\UPnP\SlimTvServiceImpl.cs"><Link>UPnP\SlimTvServiceImpl.cs</Link></Compile>
+    <Compile Include="..\SlimTvService\TvEntityExtensions.cs">
+      <Link>TvEntityExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\SlimTvService\UPnP\SlimTvServiceImpl.cs">
+      <Link>UPnP\SlimTvServiceImpl.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">

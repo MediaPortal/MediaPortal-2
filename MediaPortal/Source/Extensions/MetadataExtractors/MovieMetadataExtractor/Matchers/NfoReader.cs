@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -139,7 +139,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         ILocalFsResourceAccessor lfsra = metaFileAccessor as ILocalFsResourceAccessor;
         if (lfsra == null || !lfsra.Exists)
           return false;
-        string content = File.ReadAllText(lfsra.LocalFileSystemPath);
+        string content;
+        using (lfsra.EnsureLocalFileSystemAccess())
+          content = File.ReadAllText(lfsra.LocalFileSystemPath);
         return ImdbIdMatcher.TryMatchImdbId(content, out imdbId);
       }
     }

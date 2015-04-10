@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2013 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2013 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -354,6 +354,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Append(StringUtils.Join(", ", sortCriteria));
         }
       }
+
+
       statementStr = result.ToString();
     }
 

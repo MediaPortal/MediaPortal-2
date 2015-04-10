@@ -71,6 +71,10 @@
     <Compile Include="Network\Netbios\NbNsResourceRecordBase.cs" />
     <Compile Include="Network\Netbios\NbNsStatistics.cs" />
     <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
+    <Compile Include="Process\ProcessExecutionResult.cs" />
+    <Compile Include="Security\SafeProcessHandle.cs" />
+    <Compile Include="Security\SafeThreadHandle.cs" />
+    <Compile Include="Security\SafeTokenHandle.cs" />
     <Compile Include="SystemAPI\NativeMethods.cs" />
     <Compile Include="Process\SingleInstanceHelper.cs" />
     <Compile Include="Network\NetworkConnectionTracker.cs" />
@@ -110,6 +114,7 @@
     <Compile Include="UPnP\MarshallingHelper.cs" />
     <Compile Include="Versions.cs" />
     <Compile Include="Xml\SerializableDictionary.cs" />
+    <Compile Include="Xml\SerializableNetworkCredential.cs" />
     <Compile Include="Xml\XmlSerialization.cs" />
   </ItemGroup>
   <ItemGroup>

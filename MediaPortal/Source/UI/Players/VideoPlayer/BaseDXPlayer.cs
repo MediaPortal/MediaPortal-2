@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -69,6 +69,8 @@ namespace MediaPortal.UI.Players.Video
       Audio = 1,
       Subtitle = 2,
       MatroskaEdition = 18,
+      VsFilterSubtitle = 6590016,
+      VsFilterSubtitleOptions = 6590025,
       DirectVobSubtitle = 6590033,
     }
 

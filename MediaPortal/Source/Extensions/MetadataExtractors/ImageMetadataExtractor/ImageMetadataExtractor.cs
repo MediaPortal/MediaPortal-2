@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -183,6 +183,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           }
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
           {
             string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
             if (localFsResourcePath != null)
@@ -194,7 +195,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               byte[] thumbData;
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -146,6 +146,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           {
             fsra.PrepareStreamAccess();
             using (var fileStream = fsra.OpenRead())
+              // Calling EnsureLocalFileSystemAccess not necessary; only string operation
               return FromStream(fileStream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fsra.LocalFileSystemPath);
           }
         }

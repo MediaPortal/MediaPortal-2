@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -105,12 +105,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
           {
-            fileSystemPath = fsra.LocalFileSystemPath;
-            var ext = Path.GetExtension(fileSystemPath);
+            var ext = Path.GetExtension(fsra.LocalFileSystemPath);
             if (!SUPPORTED_EXTENSIONS.Contains(ext))
               return false;
 
-            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fileSystemPath);
+            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fsra);
             byte[] binaryData = null;
             if (patterns.Any(pattern => mkvReader.GetAttachmentByName(pattern, out binaryData)))
             {

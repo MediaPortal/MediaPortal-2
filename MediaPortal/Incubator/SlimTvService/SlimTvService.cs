@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -373,7 +373,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         TvServerEventArgs tvEvent = (TvServerEventArgs)eventArgs;
 
-        if (tvEvent.EventType == TvServerEventType.RecordingEnded)
+        if (tvEvent.EventType == TvServerEventType.RecordingStarted || tvEvent.EventType == TvServerEventType.RecordingEnded)
         {
 #if TVE3
           var recording = Recording.Retrieve(tvEvent.Recording.IdRecording);
@@ -382,7 +382,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 #endif
           if (recording != null)
           {
-            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Recording ended: {0}", recording.FileName);
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: {0}: {1}", tvEvent.EventType, recording.FileName);
             ImportRecording(recording.FileName);
           }
         }
@@ -715,7 +715,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
 #endif
     }
-
 
     public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
     {

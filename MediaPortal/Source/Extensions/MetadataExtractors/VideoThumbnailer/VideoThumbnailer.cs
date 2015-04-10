@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,13 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 {
@@ -140,6 +141,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
       string arguments = string.Format("-ss {0} -i \"{1}\" -vframes 1 -an -dn -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1/1,scale=iw/2:-1\" -y \"{2}\"",
         defaultVideoOffset,
+        // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
         lfsra.LocalFileSystemPath,
         tempFileName);
 
@@ -147,15 +149,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       {
         bool success;
         lock (FFMPEG_THROTTLE_LOCK)
-          success = ProcessUtils.TryExecute_AutoImpersonate(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS);
+          success = lfsra.ExecuteWithResourceAccessAsync(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result.Success;
         if (success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
+          // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
         }
         else
+          // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='{0}', Arguments='{1}', Timeout='{2}'", executable, arguments, PROCESS_TIMEOUT_MS);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {

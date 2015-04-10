@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -64,6 +64,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected volatile bool _downloadAllowed = true;
     protected Predicate<TMatch> _matchPredicate;
     protected MatchStorage<TMatch, TId> _storage;
+
+    private bool _disposed;
 
     #endregion
 
@@ -149,7 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           if (!match.FanArtDownloadStarted.HasValue)
             match.FanArtDownloadStarted = DateTime.Now;
         }
-        _storage.SaveMatchesAsync();
+        _storage.SaveMatches();
       }
       return fanArtDownloaded;
     }
@@ -164,7 +166,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           if (!match.FanArtDownloadFinished.HasValue)
             match.FanArtDownloadFinished = DateTime.Now;
 
-        _storage.SaveMatchesAsync();
+        _storage.SaveMatches();
       }
     }
 
@@ -184,7 +186,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
             match.FanArtDownloadStarted = DateTime.Now;
           downloadsToBeStarted.Add(match.Id);
         }
-        _storage.SaveMatchesAsync();
+        _storage.SaveMatches();
       }
       foreach (var id in downloadsToBeStarted)
         ScheduleDownload(id, true);
@@ -212,7 +214,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     public void Dispose()
     {
-      EndDownloads();
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+      if (disposing)
+      {
+        EndDownloads();
+        if (_storage != null)
+          _storage.Dispose();
+      }
+      _disposed = true;
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -98,8 +98,9 @@ namespace MediaPortal.Common.Threading
       State = WorkState.INPROGRESS;
 
       // perform work 
-      if (WorkLoad != null)
-        WorkLoad();
+      DoWorkHandler workLoad = WorkLoad;
+      if (workLoad != null)
+        workLoad();
 
       // mark work as finished and fire work completion delegate
       State = WorkState.FINISHED;

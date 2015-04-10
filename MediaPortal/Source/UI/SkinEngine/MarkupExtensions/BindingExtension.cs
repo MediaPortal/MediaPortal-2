@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -155,6 +155,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected DataDescriptorRepeater _evaluatedSourceValue = new DataDescriptorRepeater();
 
     protected IDataDescriptor _lastUpdatedValue = null;
+
+    private readonly object _syncObj = new object();
 
     #endregion
 
@@ -591,7 +593,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       if (sourcePathProperty != null)
       {
-        _attachedPropertiesCollection.Add(sourcePathProperty);
+        lock (_syncObj)
+          _attachedPropertiesCollection.Add(sourcePathProperty);
         sourcePathProperty.Attach(OnDataContextChanged);
       }
     }
@@ -603,18 +606,22 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     protected void ResetChangeHandlerAttachments()
     {
-      foreach (AbstractProperty property in _attachedPropertiesCollection)
-        property.Detach(OnDataContextChanged);
-      _attachedPropertiesCollection.Clear();
-      if (_attachedSource != null)
+      lock (_syncObj)
       {
-        _attachedSource.Detach(OnBindingSourceChange);
-        _attachedSource = null;
-      }
-      if (_attachedSourceObservable != null)
-      {
-        _attachedSourceObservable.ObjectChanged -= OnBindingSourceChange;
-        _attachedSourceObservable = null;
+        foreach (AbstractProperty property in _attachedPropertiesCollection)
+          property.Detach(OnDataContextChanged);
+
+        _attachedPropertiesCollection.Clear();
+        if (_attachedSource != null)
+        {
+          _attachedSource.Detach(OnBindingSourceChange);
+          _attachedSource = null;
+        }
+        if (_attachedSourceObservable != null)
+        {
+          _attachedSourceObservable.ObjectChanged -= OnBindingSourceChange;
+          _attachedSourceObservable = null;
+        }
       }
     }
 

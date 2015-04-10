@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.ResourceAccess
@@ -116,6 +117,18 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns>Stream opened for read operations, if supported. Else, <c>null</c> is returned.</returns>
     /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
     Stream OpenRead();
+
+    /// <summary>
+    /// Opens a stream to read this resource in asynchronouns mode, if supported; otherwise returns the same as <see cref="OpenRead"/>
+    /// </summary>
+    /// <returns>Task of Stream opened for asynchronous read operations, if supported. Otherwise resutnrs the same as <see cref="OpenRead"/>.</returns>
+    /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
+    /// <remarks>
+    /// This method not only tries to open a stream to the resource in asynchronous mode, it also returns a Task of Stream (instead of a plain Stream).
+    /// The reason is that - depending on the concrete implementation - a call to this method may require preparational and potentially longer lasting
+    /// tasks to be done (in particular if <see cref="PrepareStreamAccess"/> was not called before).
+    /// </remarks>
+    Task<Stream> OpenReadAsync();
 
     /// <summary>
     /// Opens a stream to write this resource.

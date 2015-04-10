@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -129,25 +129,29 @@ namespace MediaPortal.Media.MetadataExtractors
 
               mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 
-              string bdmvDirectory = lfsra.LocalFileSystemPath;
-              BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
-              string title = bdinfo.GetTitle();
-              mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
-
-              // Check for BD disc thumbs
-              FileInfo thumbnail = bdinfo.GetBiggestThumb();
-              if (thumbnail != null)
+              using (lfsra.EnsureLocalFileSystemAccess())
               {
-                try
+                BDInfoExt bdinfo = new BDInfoExt(lfsra.LocalFileSystemPath);
+                string title = bdinfo.GetTitle();
+                mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+
+                // Check for BD disc thumbs
+                FileInfo thumbnail = bdinfo.GetBiggestThumb();
+                if (thumbnail != null)
                 {
-                  using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
-                  using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(fileStream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+                  try
                   {
-                    MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+                    using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
+                    using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(fileStream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+                    {
+                      MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+                    }
+                  }
+                    // Decoding of invalid image data can fail, but main MediaItem is correct.
+                  catch
+                  {
                   }
                 }
-                // Decoding of invalid image data can fail, but main MediaItem is correct.
-                catch { }
               }
               return true;
             }
