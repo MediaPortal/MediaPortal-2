@@ -31,7 +31,7 @@
 
   <!-- Storyboard for buttons which are focused and which are almost square, e.g. radio buttons.
        This animation scales the button in x- and y-direction with the same factor. -->
-  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="Stop">
+  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
