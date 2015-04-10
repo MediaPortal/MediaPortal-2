@@ -45,9 +45,10 @@ namespace Test.Backend
         _systemsOnline["test"] = SystemName.GetLocalSystemName();
       }
 
-      protected void UpdateRelationships(Guid mediaItemId)
+      protected override void UpdateRelationships(Guid mediaItemId)
       {
         
+        Console.WriteLine("Testing update relationships does nothing");
       }
     }
 

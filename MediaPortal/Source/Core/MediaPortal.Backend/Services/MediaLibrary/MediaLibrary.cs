@@ -911,7 +911,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 	
-	protected void UpdateRelationships(Guid mediaItemId)
+	protected virtual void UpdateRelationships(Guid mediaItemId)
 	{
     // TODO: Reconciler - what about removing MIAs that the reconciler automatically creates?
 
