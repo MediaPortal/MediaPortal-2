@@ -1188,7 +1188,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMediaAspectTitle(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMediaAspectTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Title != null)
       {
@@ -1203,7 +1203,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // priority 1:
       if (_movieStub.Premiered.HasValue)
@@ -1225,7 +1225,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMediaAspectPlayCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMediaAspectPlayCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_movieStub.PlayCount.HasValue)
@@ -1247,7 +1247,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMediaAspectLastPlayed(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMediaAspectLastPlayed(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.LastPlayed.HasValue)
       {
@@ -1266,7 +1266,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteVideoAspectGenres(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteVideoAspectGenres(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Genres != null && _movieStub.Genres.Any())
       {
@@ -1281,7 +1281,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteVideoAspectActors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteVideoAspectActors(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Actors != null && _movieStub.Actors.Any())
       {
@@ -1296,7 +1296,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteVideoAspectDirectors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteVideoAspectDirectors(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Director != null)
       {
@@ -1311,7 +1311,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteVideoAspectStoryPlot(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteVideoAspectStoryPlot(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // priority 1:
       if (_movieStub.Plot != null)
@@ -1337,7 +1337,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectMovieName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectMovieName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Title != null)
       {
@@ -1352,7 +1352,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectOrigName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectOrigName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.OriginalTitle != null)
       {
@@ -1367,24 +1367,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectTmdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectTmdbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_movieStub.TmdbId.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _movieStub.TmdbId.Value);
+        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.TmdbId.Value.ToString());
         return true;
       }
       //priority 2:
       if (_movieStub.Thmdb.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _movieStub.Thmdb.Value);
+        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Thmdb.Value.ToString());
         return true;
       }
       //priority 3:
       if (_movieStub.IdsTmdbId.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _movieStub.IdsTmdbId.Value);
+        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.IdsTmdbId.Value.ToString());
         return true;
       }
       return false;
@@ -1395,24 +1395,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectImdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectImdbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_movieStub.Id != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _movieStub.Id);
+        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Id);
         return true;
       }
       //priority 2:
       if (_movieStub.Imdb != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _movieStub.Imdb);
+        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
         return true;
       }
       //priority 3:
       if (_movieStub.IdsImdbId != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _movieStub.Imdb);
+        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
         return true;
       }
       return false;
@@ -1423,7 +1423,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectCollectionName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectCollectionName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Sets != null && _movieStub.Sets.Any())
       {
@@ -1438,7 +1438,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectRuntime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectRuntime(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Runtime.HasValue)
       {
@@ -1453,7 +1453,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectCertification(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectCertification(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // priority 1:
       if (_movieStub.Certification != null && _movieStub.Certification.Any())
@@ -1475,7 +1475,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectTagline(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectTagline(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Tagline != null)
       {
@@ -1490,7 +1490,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectTotalRating(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectTotalRating(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // priority 1:
       if (_movieStub.Rating.HasValue)
@@ -1515,7 +1515,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Votes.HasValue)
       {
@@ -1537,7 +1537,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_movieStub.Thumb != null)
       {
