@@ -46,6 +46,9 @@
   <!-- MediaItem related -->
   <ResourceWrapper x:Key="MediaItemsRadiusX" Resource="10"/>
   <ResourceWrapper x:Key="MediaItemsRadiusY" Resource="10"/>
+  <ResourceWrapper x:Key="SmallRadius" Resource="11"/>
+  <ResourceWrapper x:Key="MediumRadius" Resource="14"/>
+  <ResourceWrapper x:Key="LargeRadius" Resource="18"/>
 
   <ResourceWrapper x:Key="FocusedButtonAnimationTime1" Resource="00:00:00.300"/>
 
