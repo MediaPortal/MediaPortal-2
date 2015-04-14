@@ -64,20 +64,21 @@
         Text="[Settings.Players.Codecs.VideoCodecs.MPEG2]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.MPEG2.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoMPEG2Codec"/>
-  </Register>
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoMPEG4Codec"
         Text="[Settings.Players.Codecs.VideoCodecs.MPEG4]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.MPEG4.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoMPEG4Codec"/>
-  </Register>
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoAVCCodec"
         Text="[Settings.Players.Codecs.VideoCodecs.AVC]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.AVC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoAVCCodec"/>
+    <ConfigSetting
+        Id="VideoHEVCCodec"
+        Text="[Settings.Players.Codecs.VideoCodecs.HEVC]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.HEVC.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoHEVCCodec"/>
   </Register>
 
   <!-- Contents of '/Players/Codecs' section -->
@@ -94,17 +95,11 @@
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodec]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodec.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodec"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
     <ConfigSetting
         Id="AudioCodecLATMAAC"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodecLATMAAC"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
     <ConfigSetting
         Id="AudioCodecAAC"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecAAC]"

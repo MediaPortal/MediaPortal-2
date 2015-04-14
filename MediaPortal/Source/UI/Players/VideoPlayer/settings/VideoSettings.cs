@@ -53,6 +53,7 @@ namespace MediaPortal.UI.Players.Video.Settings
     private CodecInfo _audioRenderer = null;
     private CodecInfo _avcCodec = null;
     private CodecInfo _h264Codec = null;
+    private CodecInfo _hevcCodec = null;
     private CodecInfo _divXCodec = null;
     private CodecInfo _mpeg2Codec = null;
 
@@ -146,6 +147,19 @@ namespace MediaPortal.UI.Players.Video.Settings
     {
       get { return _avcCodec ?? DEFAULT_VIDEO_CODEC; }
       set { _avcCodec = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the preferred HEVC (H265) codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo HEVCCodec
+    {
+      get { return _hevcCodec ?? DEFAULT_VIDEO_CODEC; }
+      set { _hevcCodec = value; }
     }
 
     /// <summary>
