@@ -1,7 +1,7 @@
 #region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,7 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 
 #region Fields
 
+protected AbstractProperty _descriptionProperty;
 protected AbstractProperty _artistsProperty;
 protected AbstractProperty _genresProperty;
 protected AbstractProperty _numTracksProperty;
@@ -54,6 +55,17 @@ protected AbstractProperty _mediaItemProperty;
 #endregion
 
 #region Properties
+
+public AbstractProperty DescriptionProperty
+{
+  get{ return _descriptionProperty; }
+}
+
+public string Description
+{
+  get { return (string) _descriptionProperty.GetValue(); }
+  set { _descriptionProperty.SetValue(value); }
+}
 
 public AbstractProperty ArtistsProperty
 {
@@ -116,6 +128,7 @@ public MediaItem MediaItem
 
 public AudioAlbumAspectWrapper()
 {
+  _descriptionProperty = new SProperty(typeof(string));
   _artistsProperty = new SProperty(typeof(IEnumerable<string>));
   _genresProperty = new SProperty(typeof(IEnumerable<string>));
   _numTracksProperty = new SProperty(typeof(int?));
@@ -142,6 +155,7 @@ public void Init(MediaItem mediaItem)
      return;
   }
 
+  Description = (string) aspect[AudioAlbumAspect.ATTR_DESCRIPTION];
   Artists = (IEnumerable<string>) aspect[AudioAlbumAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
   Genres = (IEnumerable<string>) aspect[AudioAlbumAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
   NumTracks = (int?) aspect[AudioAlbumAspect.ATTR_NUMTRACKS];
@@ -150,6 +164,7 @@ public void Init(MediaItem mediaItem)
 
 public void SetEmpty()
 {
+  Description = null;
   Artists = EMPTY_STRING_COLLECTION;
   Genres = EMPTY_STRING_COLLECTION;
   NumTracks = null;

@@ -46,6 +46,7 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 #region Fields
 
 protected AbstractProperty _seriesNameProperty;
+protected AbstractProperty _descriptionProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -61,6 +62,17 @@ public string SeriesName
 {
   get { return (string) _seriesNameProperty.GetValue(); }
   set { _seriesNameProperty.SetValue(value); }
+}
+
+public AbstractProperty DescriptionProperty
+{
+  get{ return _descriptionProperty; }
+}
+
+public string Description
+{
+  get { return (string) _descriptionProperty.GetValue(); }
+  set { _descriptionProperty.SetValue(value); }
 }
 
 public AbstractProperty MediaItemProperty
@@ -81,6 +93,7 @@ public MediaItem MediaItem
 public SeriesAspectWrapper()
 {
   _seriesNameProperty = new SProperty(typeof(string));
+  _descriptionProperty = new SProperty(typeof(string));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -104,11 +117,13 @@ public void Init(MediaItem mediaItem)
   }
 
   SeriesName = (string) aspect[SeriesAspect.ATTR_SERIESNAME];
+  Description = (string) aspect[SeriesAspect.ATTR_DESCRIPTION];
 }
 
 public void SetEmpty()
 {
   SeriesName = null;
+  Description = null;
 }
 
 
