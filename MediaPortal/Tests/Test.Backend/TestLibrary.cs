@@ -41,13 +41,6 @@ namespace Test.Backend
   [TestFixture]
   public class TestLibrary
   {
-    [TestFixtureSetUp]
-    public void OneTimeSetUp()
-    {
-        MockDBUtils.Setup();
-        MockCore.Setup();
-    }
-
     [SetUp]
     public void SetUp()
     {
