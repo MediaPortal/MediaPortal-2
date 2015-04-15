@@ -56,19 +56,19 @@ namespace Test.OnlineLibraries
           Console.WriteLine(" {0}:", metadata.Name);
           int count = 0;
           string sb = " ";
-          foreach (string key in aspect.Data.Keys)
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in metadata.AttributeSpecifications.Values)
           {
-            object value = aspect.Data[key];
+            object value = aspect[spec];
             if (value != null)
             {
               if (count > 0)
                 sb += ",";
-              MediaItemAspectMetadata.AttributeSpecification spec = metadata.AttributeSpecifications[key];
-              sb += string.Format(" {0}({1}/{2})=", spec.AttributeName, spec.AttributeType.Name, spec.Cardinality);
               if (value is IList)
-                sb += "[" + string.Join(",", (IList)value) + "]";
+              {
+                sb += string.Format(" {0}({1}/{2})=[{3}]", spec.AttributeName, spec.AttributeType.Name, spec.Cardinality, string.Join(",", (IList)value));
+              }
               else
-                sb += value.ToString();
+                sb += string.Format(" {0}={1}", spec.AttributeName, value.ToString());
               count++;
             }
           }
