@@ -128,6 +128,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
+    public bool TryGetSeries(int tvDbId, out TvdbSeries seriesDetail)
+    {
+      return _tv.GetSeries(tvDbId, true, out seriesDetail);
+    }
+
     protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvdbSeries seriesDetail)
     {
       // We deal with two scenarios here:
