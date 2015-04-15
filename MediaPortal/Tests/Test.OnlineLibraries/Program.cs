@@ -154,7 +154,7 @@ namespace Test.OnlineLibraries
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_SERIES, out value))
       {
         TvdbSeries seriesDetail;
-        SeriesTvDbMatcher.Instance.GetSeriesDetail(Int32.Parse(value), out seriesDetail);
+        SeriesTvDbMatcher.Instance.TryGetSeries(Int32.Parse(value), out seriesDetail);
         Console.WriteLine("{0}: {1}", seriesDetail.SeriesName, seriesDetail.Overview);
         foreach (TvdbEpisode episode in seriesDetail.Episodes)
         {
@@ -186,6 +186,10 @@ namespace Test.OnlineLibraries
 
           else
             Usage();
+        }
+        else
+        {
+          Usage();
         }
       }
       catch (Exception e)
