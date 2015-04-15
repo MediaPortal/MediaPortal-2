@@ -146,15 +146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (seriesInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
       {
         episode = episodes[0];
-        episodeInfo.ImdbId = seriesDetail.ImdbId;
-        episodeInfo.TvdbId = seriesDetail.Id;
-        episodeInfo.SeasonNumber = episode.SeasonNumber;
-        episodeInfo.EpisodeNumbers.Clear();
-        episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
-        episodeInfo.FirstAired = episode.FirstAired;
-        episodeInfo.DvdEpisodeNumbers.Clear();
-        episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
-        SetEpisodeDetails(episodeInfo, episode);
+        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
         return true;
       }
 
@@ -162,7 +154,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (episode != null)
       {
         episodeInfo.Episode = episode.EpisodeName;
-        SetEpisodeDetails(episodeInfo, episode);
+        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
         return true;
       }
 
@@ -171,8 +163,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return true;
     }
 
-    private static void SetEpisodeDetails(EpisodeInfo episodeInfo, TvdbEpisode episode)
+    private static void SetEpisodeDetails(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, TvdbEpisode episode)
     {
+      episodeInfo.ImdbId = seriesDetail.ImdbId;
+      episodeInfo.TvdbId = seriesDetail.Id;
+      episodeInfo.SeasonNumber = episode.SeasonNumber;
+      episodeInfo.EpisodeNumbers.Clear();
+      episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
+      episodeInfo.FirstAired = episode.FirstAired;
+      episodeInfo.DvdEpisodeNumbers.Clear();
+      episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
+
       episodeInfo.TotalRating = episode.Rating;
       episodeInfo.Summary = episode.Overview;
       // Don't clear episodeInfo.Actors again. It's already been filled with actors from series details.
