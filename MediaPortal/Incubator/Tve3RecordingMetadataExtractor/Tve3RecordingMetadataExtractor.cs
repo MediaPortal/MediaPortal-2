@@ -140,9 +140,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Tags)));
     }
 
-    public SeriesInfo GetSeriesFromTags(Tags extractedTags)
+    public EpisodeInfo GetSeriesFromTags(Tags extractedTags)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo seriesInfo = new EpisodeInfo();
       string tmpString;
       int tmpInt;
 
@@ -211,7 +211,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Handle series information
-        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+        EpisodeInfo seriesInfo = GetSeriesFromTags(tags);
         if (seriesInfo.IsCompleteMatch)
         {
           if (!forceQuickMode)

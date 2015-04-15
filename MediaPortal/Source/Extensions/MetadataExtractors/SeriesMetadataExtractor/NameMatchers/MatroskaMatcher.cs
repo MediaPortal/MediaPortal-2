@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
     /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo, ref IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo seriesInfo, ref IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
@@ -95,9 +95,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       return true;
     }
 
-    protected SeriesInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
+    protected EpisodeInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo seriesInfo = new EpisodeInfo();
       if (extractedTags[MatroskaConsts.TAG_EPISODE_TITLE] != null)
         seriesInfo.Episode = extractedTags[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
 

@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
-      SeriesInfo seriesInfo = null;
+      EpisodeInfo seriesInfo;
 
       // First check if we already have a complete match from a previous MDE
       string title;

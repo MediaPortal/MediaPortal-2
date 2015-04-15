@@ -184,7 +184,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\RelationshipAspect.cs" />
     <Compile Include="MediaManagement\Helpers\MovieInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\EpisodeInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
     <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />

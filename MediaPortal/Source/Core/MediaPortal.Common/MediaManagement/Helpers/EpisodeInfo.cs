@@ -32,13 +32,13 @@ using MediaPortal.Utilities;
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
   /// <summary>
-  /// <see cref="SeriesInfo"/> contains metadata information about a series episode item.
+  /// <see cref="EpisodeInfo"/> contains metadata information about a series episode item.
   /// </summary>
   /// <remarks>
   /// If all required fields are filled, the <see cref="IsCompleteMatch"/> 
   /// returns <c>true</c>. The <see cref="ToString"/> method returns a well formatted series title if <see cref="IsCompleteMatch"/> is <c>true</c>.
   /// </remarks>
-  public class SeriesInfo
+  public class EpisodeInfo
   {
     #region Fields
 
@@ -173,7 +173,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Constructor
 
-    public SeriesInfo()
+    public EpisodeInfo()
     {
       EpisodeNumbers = new List<int>();
       DvdEpisodeNumbers = new List<double>();
@@ -211,8 +211,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_FIRSTAIRED, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
-      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetExternalAttribute(aspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, ImdbId);
-      if (TvdbId > 0) MediaItemAspect.SetExternalAttribute(aspectData, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_EPISODE, TvdbId.ToString());
+      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetExternalAttribute(aspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_SERIES, ImdbId);
+      if (TvdbId > 0) MediaItemAspect.SetExternalAttribute(aspectData, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_SERIES, TvdbId.ToString());
       if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_TOTAL_RATING, TotalRating);
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_RATING_COUNT, RatingCount);
 

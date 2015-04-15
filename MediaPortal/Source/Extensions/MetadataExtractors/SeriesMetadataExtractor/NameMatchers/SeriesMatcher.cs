@@ -64,12 +64,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileLfsra"/> for known patterns. The match is only successful,
-    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// if the <see cref="EpisodeInfo.IsCompleteMatch"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
     /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo seriesInfo)
     {
       return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out seriesInfo);
     }
@@ -95,16 +95,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       return false;
     }
 
-    static SeriesInfo ParseSeries(Match ma)
+    static EpisodeInfo ParseSeries(Match ma)
     {
-      SeriesInfo info = new SeriesInfo();
+      EpisodeInfo info = new EpisodeInfo();
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        info.Series = SeriesInfo.CleanupWhiteSpaces(group.Value);
+        info.Series = EpisodeInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        info.Episode = SeriesInfo.CleanupWhiteSpaces(group.Value);
+        info.Episode = EpisodeInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;
