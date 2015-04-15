@@ -67,9 +67,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// if the <see cref="EpisodeInfo.IsCompleteMatch"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo seriesInfo)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo episodeInfo)
     {
       return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out seriesInfo);
     }
@@ -87,11 +87,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
         Match ma = matcher.Match(folderOrFileName);
-        seriesInfo = ParseSeries(ma);
-        if (seriesInfo.IsCompleteMatch)
+        episodeInfo = ParseSeries(ma);
+        if (episodeInfo.IsCompleteMatch)
           return true;
       }
-      seriesInfo = null;
+      episodeInfo = null;
       return false;
     }
 
