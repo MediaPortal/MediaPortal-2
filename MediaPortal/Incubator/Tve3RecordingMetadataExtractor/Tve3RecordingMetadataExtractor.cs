@@ -140,28 +140,28 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Tags)));
     }
 
-    public SeriesInfo GetSeriesFromTags(Tags extractedTags)
+    public EpisodeInfo GetSeriesFromTags(Tags extractedTags)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo episodeInfo = new EpisodeInfo();
       string tmpString;
       int tmpInt;
 
       if (TryGet(extractedTags, TAG_TITLE, out tmpString))
-        seriesInfo.Series = tmpString;
+        episodeInfo.Series = tmpString;
 
       if (TryGet(extractedTags, TAG_EPISODENAME, out tmpString))
-        seriesInfo.Episode = tmpString;
+        episodeInfo.Episode = tmpString;
 
       if (TryGet(extractedTags, TAG_SERIESNUM, out tmpString) && int.TryParse(tmpString, out tmpInt))
-        seriesInfo.SeasonNumber = tmpInt;
+        episodeInfo.SeasonNumber = tmpInt;
 
       if (TryGet(extractedTags, TAG_EPISODENUM, out tmpString))
       {
         int episodeNum;
         if (int.TryParse(tmpString, out episodeNum))
-          seriesInfo.EpisodeNumbers.Add(episodeNum);
+          episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
-      return seriesInfo;
+      return episodeInfo;
     }
 
     private static bool TryGet(Tags tags, string key, out string value)
@@ -211,13 +211,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Handle series information
-        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
-        if (seriesInfo.IsCompleteMatch)
+        EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
+        if (episodeInfo.IsCompleteMatch)
         {
           if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(episodeInfo);
 
-          seriesInfo.SetMetadata(extractedAspectData);
+          episodeInfo.SetMetadata(extractedAspectData);
         }
 
         string value;

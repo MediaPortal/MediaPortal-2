@@ -37,6 +37,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("352151B1-50AA-45D4-89E6-517ED8C8F411");
 
     /// <summary>
+    /// Album description
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
+
+    /// <summary>
     /// Enumeration of artist names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ARTISTS =
@@ -63,6 +69,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "AlbumItem", new[] {
+            ATTR_DESCRIPTION,
             ATTR_ARTISTS,
             ATTR_GENRES,
             ATTR_NUMTRACKS,
