@@ -239,7 +239,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           StringUtils.Join(", ", EpisodeNumbers.Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
           Episode);
       }
-      return "SeriesInfo: No complete match";
+      return "EpisodeInfo: No complete match";
     }
 
     public string ToShortString()

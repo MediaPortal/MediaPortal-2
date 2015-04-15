@@ -46,19 +46,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// Tries to match series by reading matroska tags from <paramref name="folderOrFileLfsra"/>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file or folder</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
     /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo seriesInfo, ref IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo episodeInfo, ref IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
 
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
       {
-        seriesInfo = null;
+        episodeInfo = null;
         return false;
       }
 
@@ -104,19 +104,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, plot);
 
       // Series and episode handling. Prefer information from tags.
-      seriesInfo = GetSeriesFromTags(tagsToExtract);
+      episodeInfo = GetSeriesFromTags(tagsToExtract);
 
       return true;
     }
 
     protected EpisodeInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
     {
-      EpisodeInfo seriesInfo = new EpisodeInfo();
+      EpisodeInfo episodeInfo = new EpisodeInfo();
       if (extractedTags[MatroskaConsts.TAG_EPISODE_TITLE] != null)
-        seriesInfo.Episode = extractedTags[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
+        episodeInfo.Episode = extractedTags[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
 
       if (extractedTags[MatroskaConsts.TAG_SERIES_TITLE] != null)
-        seriesInfo.Series = extractedTags[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
+        episodeInfo.Series = extractedTags[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
 
       if (extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID] != null)
       {
@@ -124,7 +124,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID])
           if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
           { 
-            seriesInfo.ImdbId = imdbId; 
+            episodeInfo.ImdbId = imdbId; 
             break;
           }
       }
@@ -136,14 +136,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID])
           if(int.TryParse(candidate, out tmp) == true)
           {
-            seriesInfo.TvdbId = tmp;
+            episodeInfo.TvdbId = tmp;
             break;
           }
       }
 
       int tmpInt;
       if (extractedTags[MatroskaConsts.TAG_SEASON_NUMBER] != null && int.TryParse(extractedTags[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out tmpInt))
-        seriesInfo.SeasonNumber = tmpInt; 
+        episodeInfo.SeasonNumber = tmpInt; 
 
       if (extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
       {
@@ -151,10 +151,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
         foreach (string s in extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER])
           if (int.TryParse(s, out episodeNum))
-            if (!seriesInfo.EpisodeNumbers.Contains(episodeNum))
-              seriesInfo.EpisodeNumbers.Add(episodeNum);
+            if (!episodeInfo.EpisodeNumbers.Contains(episodeNum))
+              episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
-      return seriesInfo;
+      return episodeInfo;
     }
   }
 }
