@@ -29,6 +29,7 @@ using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Mock;
 using NUnit.Framework;
 
 namespace Test.Backend
@@ -39,15 +40,15 @@ namespace Test.Backend
         [TestFixtureSetUp]
         public void OneTimeSetUp()
         {
-            TestDbUtils.Setup();
-            MIAUtils.Setup();
+            MockDBUtils.Setup();
+            MockCore.Setup();
         }
 
         [SetUp]
         public void SetUp()
         {
-            TestDbUtils.Reset();
-            MIAUtils.Reset();
+          MockDBUtils.Reset();
+            MockCore.Reset();
         }
 
         private IDictionary<MediaItemAspectMetadata, string> CreateMIAMAliases(params object[] args)
@@ -74,8 +75,8 @@ namespace Test.Backend
             IList<object> parts = new List<object>();
             IList<BindVar> bindVars = new List<BindVar>();
 
-            TestCompiledFilter compiledFilter = new TestCompiledFilter();
-            compiledFilter.test(MIAUtils.Management, filter, null, "test", null, parts, bindVars);
+            MockCompiledFilter compiledFilter = new MockCompiledFilter();
+            compiledFilter.test(MockCore.Management, filter, null, "test", null, parts, bindVars);
 
             //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
             //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
@@ -91,7 +92,7 @@ namespace Test.Backend
         [Test]
         public void TestSingleMIALikeFilter()
         {
-            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+            SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
 
             IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -100,8 +101,8 @@ namespace Test.Backend
             IList<object> parts = new List<object>();
             IList<BindVar> bindVars = new List<BindVar>();
 
-            TestCompiledFilter compiledFilter = new TestCompiledFilter();
-            compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", null, parts, bindVars);
+            MockCompiledFilter compiledFilter = new MockCompiledFilter();
+            compiledFilter.test(MockCore.Management, filter, requiredMIATypes, "test", null, parts, bindVars);
 
             //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
             //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
@@ -113,7 +114,7 @@ namespace Test.Backend
         [Test]
         public void TestMultipleMIALikeFilter()
         {
-            MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, true);
+          MultipleTestMIA mia1 = TestUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, true);
 
             IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -122,8 +123,8 @@ namespace Test.Backend
             IList<object> parts = new List<object>();
             IList<BindVar> bindVars = new List<BindVar>();
 
-            TestCompiledFilter compiledFilter = new TestCompiledFilter();
-            compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", null, parts, bindVars);
+            MockCompiledFilter compiledFilter = new MockCompiledFilter();
+            compiledFilter.test(MockCore.Management, filter, requiredMIATypes, "test", null, parts, bindVars);
 
             //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
             //Console.WriteLine("Part 7 " + parts[7].GetType());
@@ -139,7 +140,7 @@ namespace Test.Backend
         public void TestRelationshipFilter()
         {
             // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
-            MIAUtils.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
+            MockCore.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
 
             Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
             Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
@@ -152,8 +153,8 @@ namespace Test.Backend
             IList<BindVar> bindVars = new List<BindVar>();
             ICollection<TableJoin> tableJoins = new List<TableJoin>();
 
-            TestCompiledFilter compiledFilter = new TestCompiledFilter();
-            compiledFilter.test(MIAUtils.Management, filter, requiredMIATypes, "test", tableJoins, parts, bindVars);
+            MockCompiledFilter compiledFilter = new MockCompiledFilter();
+            compiledFilter.test(MockCore.Management, filter, requiredMIATypes, "test", tableJoins, parts, bindVars);
 
             //Console.WriteLine("Parts [{0}]", string.Join(",", parts));
             //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
@@ -176,8 +177,8 @@ namespace Test.Backend
         [Test]
         public void TestSingleMIAOnlyLikeQueryBuilder()
         {
-            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, false);
-            SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, false);
+          SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, false);
+          SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, false);
 
             IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -185,7 +186,7 @@ namespace Test.Backend
             requiredMIATypes.Add(mia1.Metadata);
             requiredMIATypes.Add(mia2.Metadata);
 
-            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
             string mediaItemIdAlias = null;
             IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -210,8 +211,8 @@ namespace Test.Backend
         [Test]
         public void TestMultipleMIAOnlyLikeQueryBuilder()
         {
-            MultipleTestMIA mia1 = MIAUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, false);
-            MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("Meta2", Cardinality.Inline, true, false);
+            MultipleTestMIA mia1 = TestUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, false);
+            MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("Meta2", Cardinality.Inline, true, false);
 
             IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -219,7 +220,7 @@ namespace Test.Backend
             requiredMIATypes.Add(mia1.Metadata);
             requiredMIATypes.Add(mia2.Metadata);
 
-            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
             string mediaItemIdAlias = null;
             IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -244,8 +245,8 @@ namespace Test.Backend
         [Test]
         public void TestSingleAndMultipleMIAQueryBuilder()
         {
-            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("single1", Cardinality.Inline, true, false);
-            MultipleTestMIA mia2 = MIAUtils.CreateMultipleMIA("multi1", Cardinality.Inline, true, false);
+          SingleTestMIA mia1 = TestUtils.CreateSingleMIA("single1", Cardinality.Inline, true, false);
+          MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("multi1", Cardinality.Inline, true, false);
 
             IFilter filter1 = new LikeFilter(mia1.ATTR_STRING, "%", null);
             IFilter filter2 = new LikeFilter(mia2.ATTR_STRING, "%", null);
@@ -255,7 +256,7 @@ namespace Test.Backend
             requiredMIATypes.Add(mia1.Metadata);
             requiredMIATypes.Add(mia2.Metadata);
 
-            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
             string mediaItemIdAlias = null;
             IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -285,10 +286,10 @@ namespace Test.Backend
         public void TestRelationshipQueryBuilder()
         {
             // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
-            MIAUtils.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
+            MockCore.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
 
-            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-            SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+            SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+            SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
 
             ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
             requiredMIATypes.Add(mia1.Metadata);
@@ -299,7 +300,7 @@ namespace Test.Backend
             Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
             IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
 
-            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
             string mediaItemIdAlias = null;
             IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -330,8 +331,8 @@ namespace Test.Backend
         [Test]
         public void TestAndQueryBuilder()
         {
-            SingleTestMIA mia1 = MIAUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-            SingleTestMIA mia2 = MIAUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+          SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+          SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
 
             IList<IFilter> filters = new List<IFilter>();
             filters.Add(new LikeFilter(mia1.ATTR_STRING, "%", null));
@@ -342,7 +343,7 @@ namespace Test.Backend
             requiredMIATypes.Add(mia1.Metadata);
             requiredMIATypes.Add(mia2.Metadata);
 
-            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MIAUtils.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
             string mediaItemIdAlias = null;
             IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
