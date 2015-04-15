@@ -97,7 +97,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
-      SeriesInfo seriesInfo;
+      EpisodeInfo seriesInfo;
 
       // Try to get extended information out of matroska files)
       MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
