@@ -1,7 +1,7 @@
 #region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _seasonProperty;
 protected AbstractProperty _seriesSeasonNameProperty;
+protected AbstractProperty _descriptionProperty;
 protected AbstractProperty _firstAiredProperty;
 protected AbstractProperty _totalRatingProperty;
 protected AbstractProperty _ratingCountProperty;
@@ -88,6 +89,17 @@ public string SeriesSeasonName
 {
   get { return (string) _seriesSeasonNameProperty.GetValue(); }
   set { _seriesSeasonNameProperty.SetValue(value); }
+}
+
+public AbstractProperty DescriptionProperty
+{
+  get{ return _descriptionProperty; }
+}
+
+public string Description
+{
+  get { return (string) _descriptionProperty.GetValue(); }
+  set { _descriptionProperty.SetValue(value); }
 }
 
 public AbstractProperty FirstAiredProperty
@@ -143,6 +155,7 @@ public SeasonAspectWrapper()
   _seriesNameProperty = new SProperty(typeof(string));
   _seasonProperty = new SProperty(typeof(int?));
   _seriesSeasonNameProperty = new SProperty(typeof(string));
+  _descriptionProperty = new SProperty(typeof(string));
   _firstAiredProperty = new SProperty(typeof(DateTime?));
   _totalRatingProperty = new SProperty(typeof(double?));
   _ratingCountProperty = new SProperty(typeof(int?));
@@ -171,6 +184,7 @@ public void Init(MediaItem mediaItem)
   SeriesName = (string) aspect[SeasonAspect.ATTR_SERIESNAME];
   Season = (int?) aspect[SeasonAspect.ATTR_SEASON];
   SeriesSeasonName = (string) aspect[SeasonAspect.ATTR_SERIES_SEASON];
+  Description = (string) aspect[SeasonAspect.ATTR_DESCRIPTION];
   FirstAired = (DateTime?) aspect[SeasonAspect.ATTR_FIRSTAIRED];
   TotalRating = (double?) aspect[SeasonAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[SeasonAspect.ATTR_RATING_COUNT];
@@ -181,6 +195,7 @@ public void SetEmpty()
   SeriesName = null;
   Season = null;
   SeriesSeasonName = null;
+  Description = null;
   FirstAired = null;
   TotalRating = null;
   RatingCount = null;
