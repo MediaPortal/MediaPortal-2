@@ -38,8 +38,17 @@
   </DataTemplate>
 
   <!-- Filter -->
+  
+  <ControlTemplate x:Key="FilterCoverTemplate">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Width="193" Height="128" Stretch="Fill"
+             HorizontalAlignment="Center" VerticalAlignment="Center" Source="Container.png" >
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="ListViewFilterItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="0,0,43,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -49,33 +58,68 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
-        <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="FilterSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="FilterSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="FilterLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
-          </Image.IsVisible>
-        </Image>
-      </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.4"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
+
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="0,0,10,0"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>   
+      
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+               Template="{ThemeResource FilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Control.LayoutTransform>
+          <ScaleTransform>
+            <ScaleTransform.ScaleX>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                <Binding Source="0.5"/>
+                <Binding Source="0.8"/>
+                <Binding Source="1"/>
+              </MultiBinding>
+            </ScaleTransform.ScaleX>
+            <ScaleTransform.ScaleY>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                <Binding Source="0.5"/>
+                <Binding Source="0.8"/>
+                <Binding Source="1"/>
+              </MultiBinding>
+            </ScaleTransform.ScaleY>
+          </ScaleTransform>
+        </Control.LayoutTransform>
+      </Control>
+
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
+            HorizontalAlignment="Stretch"
+            IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="40"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+      </Grid>
     </Grid>
   </ControlTemplate>
-
+  
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -83,18 +127,27 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="FilterLarge.png"
-           Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" />
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0,0,0,0" Source="Container.png"
+           Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}" Opacity="1"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Color="Black"
+           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25" />
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
+           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,11,15,25" />
     </Grid>
   </ControlTemplate>
 
   <!-- Container -->
+ <ControlTemplate x:Key="ContainerCoverTemplate">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Width="193" Height="128" Stretch="Fill"
+             HorizontalAlignment="Center" VerticalAlignment="Center" Source="Container.png" >
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="ListViewContainerItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="0,0,43,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -104,30 +157,65 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
-        <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="NavigationSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="NavigationSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="NavigationLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
-          </Image.IsVisible>
-        </Image>
-      </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.4"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
+
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="0,0,10,0"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>   
+      
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+               Template="{ThemeResource ContainerCoverTemplate}" RenderTransformOrigin="0.5,0.5"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Control.LayoutTransform>
+          <ScaleTransform>
+            <ScaleTransform.ScaleX>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                <Binding Source="0.5"/>
+                <Binding Source="0.8"/>
+                <Binding Source="1"/>
+              </MultiBinding>
+            </ScaleTransform.ScaleX>
+            <ScaleTransform.ScaleY>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                <Binding Source="0.5"/>
+                <Binding Source="0.8"/>
+                <Binding Source="1"/>
+              </MultiBinding>
+            </ScaleTransform.ScaleY>
+          </ScaleTransform>
+        </Control.LayoutTransform>
+      </Control>
+
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
+            HorizontalAlignment="Stretch"
+            IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="40"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -138,12 +226,14 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"
-           Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center"/>
+      </Grid.RowDefinitions>   
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Fill" Source="Container.png"
+           Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}" Opacity="1">
+      </Image>  
+      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="Black"
+           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25"/>
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
+           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,11,15,25" />
     </Grid>
   </ControlTemplate>
 
