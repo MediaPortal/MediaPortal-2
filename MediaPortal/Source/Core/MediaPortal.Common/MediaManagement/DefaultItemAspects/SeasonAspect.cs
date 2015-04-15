@@ -56,6 +56,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesSeasonName", 200, Cardinality.Inline, false);
 
     /// <summary>
+    /// Album description
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
+
+    /// <summary>
     /// First aired date of episode.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FIRSTAIRED =
@@ -78,6 +84,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_SERIESNAME,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
+            ATTR_DESCRIPTION,
             ATTR_FIRSTAIRED,
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
