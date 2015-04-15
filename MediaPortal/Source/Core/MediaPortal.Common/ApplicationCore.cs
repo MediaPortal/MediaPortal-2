@@ -183,16 +183,30 @@ namespace MediaPortal.Common
     public static void RegisterDefaultMediaItemAspectTypes()
     {
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+
       miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(DirectoryAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
+
+      miatr.RegisterLocallyKnownMediaItemAspectType(ExternalIdentifierAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
     }
 
     public static void DisposeCoreServices()
