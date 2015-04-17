@@ -58,7 +58,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, Title);
-      if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.SetExternalAttribute(aspectData, ExternalIdentifierAspect.Source.MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
+      if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.SetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
       if (!string.IsNullOrEmpty(ArtistName)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ARTISTS, new string[] { ArtistName});
 
       if (Year > 0) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));

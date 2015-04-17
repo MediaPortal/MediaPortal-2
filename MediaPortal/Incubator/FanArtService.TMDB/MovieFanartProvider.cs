@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
 
         MediaItem mediaItem = items.First();
         string movieDbId;
-        if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out movieDbId))
+        if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out movieDbId))
         {
           switch (mediaType)
           {

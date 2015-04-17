@@ -34,21 +34,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ExternalIdentifierAspect
   {
-    public enum Source
-    {
-      IMDB, // IMDb.com
-      TMDB, // themoviedb.org
-      TVDB, // TheTVDB.com
-      MUSICBRAINZ, // MusicBrainz.org
-    };
+    // TODO: Put this somewhere else?
+    public static readonly string SOURCE_IMDB = "imdb";
+    public static readonly string SOURCE_MUSICBRAINZ = "musicbrainz";
+    public static readonly string SOURCE_TMDB = "tmdb";
+    public static readonly string SOURCE_TVDB = "tvdb";
 
-    public static readonly string TYPE_TRACK = "track";
-    public static readonly string TYPE_EPISODE = "episode";
-    public static readonly string TYPE_SERIES = "series";
-    public static readonly string TYPE_MOVIE = "movie";
     public static readonly string TYPE_CHARACTER = "character"; // Someone in a movie / series
     public static readonly string TYPE_COLLECTION = "collection";
+    public static readonly string TYPE_EPISODE = "episode";
+    public static readonly string TYPE_MOVIE = "movie";
     public static readonly string TYPE_PERSON = "person"; // Someone in real life
+    public static readonly string TYPE_SERIES = "series";
+    public static readonly string TYPE_TRACK = "track";
 
     /// <summary>
     /// Media item aspect id of the relationship aspect.
