@@ -134,7 +134,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OnlineLibraries", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Mock", "..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj", "{F1A04140-5C63-4688-8A9E-A195AAF95DE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevTools", "..\..\..\MediaPortal-2.local\MediaPortal\Tools\DevTools\DevTools.csproj", "{98D58DAF-00AE-44BA-94BC-600C35AF77C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevTools", "..\Tools\DevTools\DevTools.csproj", "{98D58DAF-00AE-44BA-94BC-600C35AF77C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
