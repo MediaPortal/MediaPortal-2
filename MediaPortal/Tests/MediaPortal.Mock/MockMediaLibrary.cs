@@ -24,22 +24,34 @@
 
 using System;
 using MediaPortal.Backend.Services.MediaLibrary;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Mock
 {
   public class MockMediaLibrary : MediaLibrary
   {
-    public MockMediaLibrary() : base()
+    public MockMediaLibrary()
     {
       _miaManagement = MockCore.Management;
 
       _systemsOnline["mock"] = SystemName.GetLocalSystemName();
     }
 
+    public bool UpdateRelationshipsEnabled { get; set; }
+
+    protected override void Reconcile(Guid mediaItemId)
+    {
+      UpdateRelationships(mediaItemId);
+    }
+
     protected override void UpdateRelationships(Guid mediaItemId)
     {
-      Console.WriteLine("Mock update relationships does nothing");
+      if (UpdateRelationshipsEnabled)
+        base.UpdateRelationships(mediaItemId);
+      else
+        ServiceRegistration.Get<ILogger>().Debug("Update relationships is disabled");
     }
   }
 }

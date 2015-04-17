@@ -30,9 +30,9 @@ namespace MediaPortal.Mock
 {
   public class MockMessageBroker : MessageBroker
   {
-    public void Shutdown()
+    public new void Dispose()
     {
-      Dispose();
+      base.Dispose();
       Thread.Sleep(GC_INTERVAL + TimeSpan.FromSeconds(1));
     }
   }

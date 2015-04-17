@@ -40,12 +40,12 @@ namespace MediaPortal.Mock
       this._columns = columns.ToArray();
     }
 
-    public void AddResult(params string[] values)
+    public void AddResult(params object[] values)
     {
       IDictionary<int, string> result = new Dictionary<int, string>();
       for (int index = 0; index < values.Length; index++)
       {
-        result[index] = values[index];
+        result[index] = values[index] != null ? values[index].ToString() : null;
       }
       _results.Add(result);
     }
@@ -143,7 +143,21 @@ namespace MediaPortal.Mock
 
     public DateTime GetDateTime(int i)
     {
-      throw new NotImplementedException();
+      try
+      {
+        if (_results[_index][i] == null)
+          return DateTime.MinValue;
+
+        return DateTime.Parse(_results[_index][i]);
+      }
+      catch (KeyNotFoundException e)
+      {
+        throw new KeyNotFoundException("Column " + i + " not found", e);
+      }
+      catch (FormatException e)
+      {
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as datetime", e);
+      }
     }
 
     public decimal GetDecimal(int i)
@@ -153,7 +167,21 @@ namespace MediaPortal.Mock
 
     public double GetDouble(int i)
     {
-      throw new NotImplementedException();
+      try
+      {
+        if (_results[_index][i] == null)
+          return double.MinValue;
+
+        return Double.Parse(_results[_index][i]);
+      }
+      catch (KeyNotFoundException e)
+      {
+        throw new KeyNotFoundException("Column " + i + " not found", e);
+      }
+      catch (FormatException e)
+      {
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as double", e);
+      }
     }
 
     public Type GetFieldType(int i)
@@ -168,7 +196,21 @@ namespace MediaPortal.Mock
 
     public Guid GetGuid(int i)
     {
-      throw new NotImplementedException();
+      try
+      {
+        if (_results[_index][i] == null)
+          return Guid.Empty;
+
+        return new Guid(_results[_index][i]);
+      }
+      catch (KeyNotFoundException e)
+      {
+        throw new KeyNotFoundException("Column " + i + " not found", e);
+      }
+      catch (FormatException e)
+      {
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as GUID", e);
+      }
     }
 
     public short GetInt16(int i)
@@ -180,6 +222,9 @@ namespace MediaPortal.Mock
     {
       try
       {
+        if (_results[_index][i] == null)
+          return 0;
+
         return Int32.Parse(_results[_index][i]);
       }
       catch (KeyNotFoundException e)
@@ -196,6 +241,9 @@ namespace MediaPortal.Mock
     {
       try
       {
+        if (_results[_index][i] == null)
+          return 0;
+
         return Int64.Parse(_results[_index][i]);
       }
       catch (KeyNotFoundException e)
