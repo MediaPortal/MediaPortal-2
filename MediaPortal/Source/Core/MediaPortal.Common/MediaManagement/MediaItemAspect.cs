@@ -646,7 +646,7 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     public static bool TryGetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
-      ExternalIdentifierAspect.Source source, string type, out string id)
+      string source, string type, out string id)
     {
       id = null;
       IList<MultipleMediaItemAspect> values;
@@ -654,7 +654,7 @@ namespace MediaPortal.Common.MediaManagement
         return false;
       foreach (MultipleMediaItemAspect value in values)
       {
-        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source.ToString() && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
+        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
         {
           id = value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
           return true;
@@ -662,8 +662,9 @@ namespace MediaPortal.Common.MediaManagement
       }
       return false;
     }
+
     public static void SetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
-      ExternalIdentifierAspect.Source source, string type, string id)
+      string source, string type, string id)
     {
       IList<MultipleMediaItemAspect> values;
       if(!TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out values))
@@ -673,7 +674,7 @@ namespace MediaPortal.Common.MediaManagement
       {
         if (value.Index > maxIndex)
           maxIndex = value.Index + 1;
-        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source.ToString() && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
+        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
         {
           value.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
           return;
@@ -685,6 +686,7 @@ namespace MediaPortal.Common.MediaManagement
       aspect.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
       AddAspect(aspectData, aspect);
     }
+
     public static IList<MediaItemAspect> GetAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
