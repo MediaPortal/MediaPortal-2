@@ -66,6 +66,9 @@ namespace MediaPortal.Mock
 
       logger = ServiceRegistration.Get<ILogger>();
 
+      logger.Debug("Registering IMessageBroker service");
+      ServiceRegistration.Set<IMessageBroker>(BROKER = new MockMessageBroker());
+
       logger.Debug("Registering ISettingsManager service");
       ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
@@ -76,23 +79,21 @@ namespace MediaPortal.Mock
       MANAGEMENT = new MockMIA_Management();
     }
 
-    public static void SetupLibrary()
-    {
-      logger.Debug("Registering IMessageBroker service");
-      ServiceRegistration.Set<IMessageBroker>(BROKER = new MockMessageBroker());
-
-      logger.Debug("Creating test media library");
-      LIBRARY = new MockMediaLibrary();
-    }
-
     public static void Reset()
     {
       MANAGEMENT.Reset();
     }
 
-    public static void Shutdown()
+    public static void SetupLibrary()
     {
-      BROKER.Shutdown();
+      logger.Debug("Creating test media library");
+      LIBRARY = new MockMediaLibrary();
+    }
+
+    public static void ShutdownLibrary()
+    {
+      LIBRARY.Dispose();
+      LIBRARY = null;
     }
 
     public static void AddMediaItemAspectStorage(MediaItemAspectMetadata meta)
