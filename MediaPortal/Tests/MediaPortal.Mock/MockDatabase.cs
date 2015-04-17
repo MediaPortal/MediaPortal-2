@@ -80,17 +80,25 @@ namespace MediaPortal.Mock
     public object ReadDBValue(Type type, IDataReader reader, int colIndex)
     {
       if (type == typeof(string))
-      {
         return reader.GetString(colIndex);
-      }
+
       else if (type == typeof(Int32))
-      {
         return reader.GetInt32(colIndex);
-      }
+
+      else if (type == typeof(Int64))
+        return reader.GetInt64(colIndex);
+
+      else if (type == typeof(Double))
+        return reader.GetDouble(colIndex);
+
+      else if (type == typeof(Boolean))
+        return reader.GetBoolean(colIndex);
+
+      else if (type == typeof(DateTime))
+        return reader.GetDateTime(colIndex);
+
       else if (type == typeof(Guid))
-      {
-        return new Guid(reader.GetString(colIndex));
-      }
+        return reader.GetGuid(colIndex);
 
       throw new NotImplementedException("Cannot read DB value " + type + " at " + colIndex);
     }

@@ -85,8 +85,11 @@ namespace Test.Backend
       ids.Add(itemId);
       IFilter filter = new MediaItemIdFilter(ids);
 
-      MockReader reader = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1 FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A4", "A0", "A1");
-      reader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), "zero", "0");
+      MockReader reader = MockDBUtils.AddReader(
+        "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1 " +
+        "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  " +
+        "WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A4", "A0", "A1");
+      reader.AddResult(itemId, itemId, itemId, "zero", "0");
 
       Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID};
       Guid[] optionalAspects = null;
@@ -112,7 +115,7 @@ namespace Test.Backend
             "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_STRING_0 A2, T2.ATTR_INTEGER_0 A3 " +
             "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.ATTR_STRING LIKE @V0",
             "A4", "A5", "A6", "A7", "A0", "A1", "A2", "A3");
-        reader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), itemId.ToString(), "zerozero", "11", "twotwo", "23");
+        reader.AddResult(itemId, itemId, itemId, itemId, "zerozero", "11", "twotwo", "23");
 
         Guid[] requiredAspects = new Guid[] { mia1.ASPECT_ID, mia2.ASPECT_ID };
         Guid[] optionalAspects = new Guid[] { mia3.ASPECT_ID };
@@ -144,14 +147,14 @@ namespace Test.Backend
         IFilter filter = new MediaItemIdFilter(ids);
 
         MockReader singleReader = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A0 FROM MEDIA_ITEMS T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A0");
-        singleReader.AddResult(itemId.ToString());
+        singleReader.AddResult(itemId);
 
         MockReader multipleReader1 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING A0 FROM M_MULTIPLE1 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
-        multipleReader1.AddResult(itemId.ToString(), itemId.ToString(), "0", "oneone");
+        multipleReader1.AddResult(itemId, itemId, "0", "oneone");
 
         MockReader multipleReader2 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
-        multipleReader2.AddResult(itemId.ToString(), itemId.ToString(), "0", "21");
-        multipleReader2.AddResult(itemId.ToString(), itemId.ToString(), "1", "22");
+        multipleReader2.AddResult(itemId, itemId, "0", "21");
+        multipleReader2.AddResult(itemId, itemId, "1", "22");
 
         Guid[] requiredAspects = new Guid[] { mia1.ASPECT_ID, mia2.ASPECT_ID };
         Guid[] optionalAspects = null;
@@ -186,21 +189,21 @@ namespace Test.Backend
         IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new List<IFilter> { new LikeFilter(mia1.ATTR_STRING, "%", null), new LikeFilter(mia2.ATTR_STRING, "%", null) });
 
         MockReader reader = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0  WHERE (T0.ATTR_STRING LIKE @V0 AND T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MULTIPLE2.ATTR_STRING LIKE @V1))", "A2", "A3", "A0", "A1");
-        reader.AddResult(itemId0.ToString(), itemId0.ToString(), "zero", "0");
-        reader.AddResult(itemId1.ToString(), itemId1.ToString(), "one", "1");
+        reader.AddResult(itemId0, itemId0, "zero", "0");
+        reader.AddResult(itemId1, itemId1, "one", "1");
 
         MockReader multipleReader2 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING_0 A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
-        multipleReader2.AddResult(itemId0.ToString(), itemId0.ToString(), "0", "zerozero");
-        multipleReader2.AddResult(itemId0.ToString(), itemId0.ToString(), "1", "zeroone");
-        multipleReader2.AddResult(itemId1.ToString(), itemId1.ToString(), "0", "onezero");
+        multipleReader2.AddResult(itemId0, itemId0, "0", "zerozero");
+        multipleReader2.AddResult(itemId0, itemId0, "1", "zeroone");
+        multipleReader2.AddResult(itemId1, itemId1, "0", "onezero");
 
         MockReader multipleReader3 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER_0 A0 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
-        multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "0", "10");
-        multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "1", "11");
-        multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "2", "12");
-        multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "3", "13");
-        multipleReader3.AddResult(itemId0.ToString(), itemId0.ToString(), "4", "14");
-        multipleReader3.AddResult(itemId1.ToString(), itemId1.ToString(), "0", "20");
+        multipleReader3.AddResult(itemId0, itemId0, "0", "10");
+        multipleReader3.AddResult(itemId0, itemId0, "1", "11");
+        multipleReader3.AddResult(itemId0, itemId0, "2", "12");
+        multipleReader3.AddResult(itemId0, itemId0, "3", "13");
+        multipleReader3.AddResult(itemId0, itemId0, "4", "14");
+        multipleReader3.AddResult(itemId1, itemId1, "0", "20");
 
         Guid[] requiredAspects = new Guid[] { mia1.ASPECT_ID, mia2.ASPECT_ID };
         Guid[] optionalAspects = new Guid[] { mia3.ASPECT_ID };
@@ -266,8 +269,14 @@ namespace Test.Backend
         ids.Add(itemId);
         IFilter filter = new MediaItemIdFilter(ids);
 
-        MockReader reader = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T3.MEDIA_ITEM_ID A8, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_INTEGER_0 A2, T3.ATTR_INTEGER_1 A3 FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE4 T3 ON T3.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A4", "A5", "A6", "A7", "A8", "A0", "A1", "A2", "A3");
-        reader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), itemId.ToString(), null, "zero", "0", "0", null);
+        MockReader reader = MockDBUtils.AddReader(
+          "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T3.MEDIA_ITEM_ID A8, " +
+          "T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_INTEGER_0 A2, T3.ATTR_INTEGER_1 A3 " +
+          "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE4 T3 ON T3.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  " +
+          "WHERE T0.MEDIA_ITEM_ID = @V0", "A4", "A5", "A6", "A7", "A8", "A0", "A1", "A2", "A3");
+        reader.AddResult(
+          itemId, itemId, itemId, itemId, 
+          null, "zero", "0", "0", null);
 
         Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID };
         Guid[] optionalAspects = new Guid[] { single3.ASPECT_ID, single4.ASPECT_ID };
@@ -286,6 +295,7 @@ namespace Test.Backend
     public void TestAddMediaItem()
     {
         MockCore.SetupLibrary();
+        MockCore.Library.UpdateRelationshipsEnabled = false;
 
         SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
         MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
@@ -327,13 +337,14 @@ namespace Test.Backend
         ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
         MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
 
-        MockCore.Shutdown();
+      MockCore.ShutdownLibrary();
     }
 
     [Test]
     public void TestEditMediaItem()
     {
         MockCore.SetupLibrary();
+        MockCore.Library.UpdateRelationshipsEnabled = false;
 
         SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
         MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
@@ -378,79 +389,191 @@ namespace Test.Backend
         Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
 
         MockReader resourceReader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
-        resourceReader.AddResult(itemId.ToString());
+        resourceReader.AddResult(itemId);
 
         DateTime importDate;
         DateTime.TryParse("2014-10-11 12:34:56", out importDate);
         MockReader importReader = MockDBUtils.AddReader("SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
-        resourceReader.AddResult(importDate.ToString(), "false", importDate.ToString());
+        importReader.AddResult(importDate, "false", importDate);
 
         MockReader mia1Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_SINGLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
-        mia1Reader.AddResult(itemId.ToString());
+        mia1Reader.AddResult(itemId);
 
         MockReader mia2Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID", "MEDIA_ITEM_ID");
-        mia2Reader.AddResult(itemId.ToString());
+        mia2Reader.AddResult(itemId);
 
         MockReader mia3Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID", "MEDIA_ITEM_ID");
-        //mia3Reader.AddResult(itemId.ToString());
+        //mia3Reader.AddResult(itemId);
         
         string pathStr = @"c:\item.mp3";
         ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
         MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
 
-        MockCore.Shutdown();
+        MockCore.ShutdownLibrary();
+    }
+
+    private string[] CreateAttributeIdList(int firstId, int maxId)
+    {
+      IList<string> ids = new List<string>();
+
+      for (int id = firstId; id <= maxId; id++)
+        ids.Add("A" + id);
+
+      for (int id = 0; id < firstId; id++)
+        ids.Add("A" + id);
+
+      return ids.ToArray();
     }
 
     [Test]
-    public void TestBuildMediaItemRelationships()
+    public void TestReconcileMediaItem()
     {
       MockCore.SetupLibrary();
+      MockCore.Library.UpdateRelationshipsEnabled = true;
 
       ServiceRegistration.Set<IPluginManager>(new MockPluginManager());
 
-      ServiceRegistration.Set<IMediaAccessor>(new MockMediaAccessor());
+      MockRelationshipExtractor extractor = new MockRelationshipExtractor();
+
+      MockMediaAccessor accessor = new MockMediaAccessor();
+      accessor.AddRelationshipExtractor(extractor);
+      ServiceRegistration.Set<IMediaAccessor>(accessor);
       ServiceRegistration.Get<IMediaAccessor>().Initialize();
 
       MockCore.Management.AddMediaItemAspectStorage(EpisodeAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(SeasonAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(SeriesAspect.Metadata);
       MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
       MockCore.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ExternalIdentifierAspect.Metadata);
 
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      string seriesName = "The Series";
+      int season = 3;
+      string seriesSeasonName = "The Series " + season;
+      int episode = 12;
+      string episodeName = "The Episode";
+      string source = "TEST";
+      string seriesId = "456";
 
-      SingleMediaItemAspect episodeAspect = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      Guid episodeItemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      Guid seriesItemId = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
+      Guid parentDirectoryId = new Guid("dddddddd-4444-4444-4444-dddddddddddd");
+
+      IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       // Minimal information to do a lookup
-      MediaItemAspect.SetCollectionAttribute(aspects, EpisodeAspect.ATTR_EPISODE, new int[] { 1 });
-      episodeAspect.SetAttribute(EpisodeAspect.ATTR_SEASON, 1);
-      MediaItemAspect.SetAspect(aspects, episodeAspect);
-
-      MediaItemAspect.SetExternalAttribute(aspects, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_SERIES, "123");
-
-      Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      MediaItemAspect.SetCollectionAttribute(episodeAspects, EpisodeAspect.ATTR_EPISODE, new[] { episode });
+      MediaItemAspect.SetAttribute(episodeAspects, EpisodeAspect.ATTR_SEASON, season);
+      MediaItemAspect.SetExternalAttribute(episodeAspects, source, ExternalIdentifierAspect.TYPE_SERIES, seriesId);
 
       MockReader resourceReader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
-      resourceReader.AddResult(itemId.ToString());
+      resourceReader.AddResult(episodeItemId);
 
       DateTime importDate;
       DateTime.TryParse("2014-10-11 12:34:56", out importDate);
       MockReader importReader = MockDBUtils.AddReader("SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
-      resourceReader.AddResult(importDate.ToString(), "false", importDate.ToString());
+      importReader.AddResult(importDate, "false", importDate);
 
-      MockReader episodeReader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_EPISODEITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
-      episodeReader.AddResult(itemId.ToString());
+      MockReader episodeItemReader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_EPISODEITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+      episodeItemReader.AddResult(episodeItemId);
 
       string pathStr = @"c:\item.mkv";
       ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
 
-      IList<MediaItemAspect> aspectList = new List<MediaItemAspect>();
-      foreach(IList<MediaItemAspect> value in aspects.Values)
-        value.ToList().ForEach(x => aspectList.Add(x));
+      IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIESNAME, seriesName);
+      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SEASON, season);
+      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIES_SEASON, seriesName + " " + season);
+      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_DESCRIPTION, "The characters are established and exciting things happen");
+      MediaItemAspect.SetExternalAttribute(seasonAspects, source, ExternalIdentifierAspect.TYPE_SERIES, seriesId);
+      extractor.AddRelationship(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, source, ExternalIdentifierAspect.TYPE_SERIES, seriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seasonAspects });
 
-      MockReader itemReader = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A15, T0.MEDIA_ITEM_ID A16, T1.MEDIA_ITEM_ID A17, T2.MEDIA_ITEM_ID A18, T0.SYSTEM_ID A0, T0.MIMETYPE A1, T0.SIZE A2, T0.PATH A3, T0.PARENTDIRECTORY A4, T1.SERIESNAME A5, T1.SEASON A6, T1.SERIESSEASONNAME A7, T1.EPISODENAME A8, T1.FIRSTAIRED A9, T1.TOTALRATING A10, T1.RATINGCOUNT A11, T2.LASTIMPORTDATE A12, T2.DIRTY A13, T2.DATEADDED A14 FROM M_PROVIDERRESOURCE T0 LEFT OUTER JOIN M_EPISODEITEM T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_IMPORTEDITEM T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE (T0.MEDIA_ITEM_ID = @V0 AND T0.SYSTEM_ID = @V1)", "A15", "A16", "T1", "T2", "A18", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14");
-      itemReader.AddResult(itemId.ToString(), itemId.ToString(), itemId.ToString(), itemId.ToString(), "test", "video/mkv", "100", @"c:\", @"c:\", null, null, null, null, "0", "0", importDate.ToString(), "false", importDate.ToString());
+      IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      MediaItemAspect.SetAttribute(seriesAspects, SeasonAspect.ATTR_SERIESNAME, seriesName);
+      MediaItemAspect.SetAttribute(seriesAspects, SeasonAspect.ATTR_DESCRIPTION, "The adventures of some characters");
+      MediaItemAspect.SetExternalAttribute(seriesAspects, source, ExternalIdentifierAspect.TYPE_SERIES, seriesId);
+      extractor.AddRelationship(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, source, ExternalIdentifierAspect.TYPE_SERIES, seriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seriesAspects });
 
-      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspectList);
+      // Result used by AddOrUpdateMediaItem to find episode item
+      MockReader addOrUpdateReader = MockDBUtils.AddReader(
+        "SELECT T5.MEDIA_ITEM_ID A24, T0.MEDIA_ITEM_ID A25, T1.MEDIA_ITEM_ID A26, T2.MEDIA_ITEM_ID A27, T3.MEDIA_ITEM_ID A28, T4.MEDIA_ITEM_ID A29, " +
+        "T0.SERIESNAME A0, T0.SEASON A1, T0.SERIESSEASONNAME A2, T0.EPISODENAME A3, T0.FIRSTAIRED A4, T0.TOTALRATING A5, T0.RATINGCOUNT A6, " +
+        "T1.SERIESNAME_0 A7, T1.SEASON_0 A8, T1.SERIESSEASONNAME_0 A9, T1.DESCRIPTION A10, T1.FIRSTAIRED_0 A11, T1.TOTALRATING_0 A12, T1.RATINGCOUNT_0 A13, " +
+        "T2.SERIESNAME_1 A14, T2.DESCRIPTION_0 A15, " +
+        "T3.SYSTEM_ID A16, T3.MIMETYPE A17, T3.SIZE A18, T3.PATH A19, T3.PARENTDIRECTORY A20, " +
+        "T4.LASTIMPORTDATE A21, T4.DIRTY A22, T4.DATEADDED A23 " +
+        "FROM MEDIA_ITEMS T5 " +
+        "LEFT OUTER JOIN M_EPISODEITEM T0 ON T0.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_SEASONITEM T1 ON T1.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_SERIESITEM T2 ON T2.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_PROVIDERRESOURCE T3 ON T3.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_IMPORTEDITEM T4 ON T4.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID  " +
+        "WHERE T5.MEDIA_ITEM_ID = @V0",
+        CreateAttributeIdList(24, 29));
+      addOrUpdateReader.AddResult(
+        episodeItemId, episodeItemId, null, null, episodeItemId, episodeItemId,
+        seriesName, season, seriesSeasonName, episodeName, null, null, null,
+        null, null, null, null, null, null, null,
+        null, null,
+        "test", "video/mkv", "100", @"c:\", parentDirectoryId,
+        importDate, "false", importDate
+        );
 
-      MockCore.Shutdown();
+      MockDBUtils.AddReader(
+        "SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID",
+        "MEDIA_ITEM_ID");
+
+      // Results used by Search in UpdateRelationships to find episode item
+      MockReader searchReader = MockDBUtils.AddReader(
+        "SELECT T3.MEDIA_ITEM_ID A15, T0.MEDIA_ITEM_ID A16, T1.MEDIA_ITEM_ID A17, T2.MEDIA_ITEM_ID A18, " +
+        "T0.SERIESNAME A0, T0.SEASON A1, T0.SERIESSEASONNAME A2, T0.EPISODENAME A3, T0.FIRSTAIRED A4, T0.TOTALRATING A5, T0.RATINGCOUNT A6, " +
+        "T1.SYSTEM_ID A7, T1.MIMETYPE A8, T1.SIZE A9, T1.PATH A10, T1.PARENTDIRECTORY A11, T2.LASTIMPORTDATE A12, T2.DIRTY A13, T2.DATEADDED A14 " +
+        "FROM MEDIA_ITEMS T3 LEFT OUTER JOIN M_EPISODEITEM T0 ON T0.MEDIA_ITEM_ID = T3.MEDIA_ITEM_ID LEFT OUTER JOIN M_PROVIDERRESOURCE T1 ON T1.MEDIA_ITEM_ID = T3.MEDIA_ITEM_ID LEFT OUTER JOIN M_IMPORTEDITEM T2 ON T2.MEDIA_ITEM_ID = T3.MEDIA_ITEM_ID  " +
+        "WHERE T3.MEDIA_ITEM_ID = @V0",
+        "A15", "A16", "A17", "A18", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14");
+      searchReader.AddResult(episodeItemId, episodeItemId, episodeItemId, episodeItemId, 
+        null, season, null, null, DateTime.MinValue, "0", "0", 
+        "test", "video/mkv", "100", @"c:\", parentDirectoryId, importDate, "false", importDate);
+
+      MockReader episodeAttributeReader = MockDBUtils.AddReader(
+        "SELECT T0.MEDIA_ITEM_ID A0, T1.VALUE A1 FROM NM_EPISODE T0 INNER JOIN V_EPISODE T1 ON T0.VALUE_ID = T1.VALUE_ID WHERE T0.MEDIA_ITEM_ID = @V0",
+        "A0", "A1");
+      episodeAttributeReader.AddResult(episodeItemId, episode);
+
+      MockDBUtils.AddReader(
+        "SELECT T0.MEDIA_ITEM_ID A0, T1.VALUE A1 FROM NM_DVDEPISODE T0 INNER JOIN V_DVDEPISODE T1 ON T0.VALUE_ID = T1.VALUE_ID WHERE T0.MEDIA_ITEM_ID = @V0",
+        "A0", "A1");
+
+      MockReader externalAttributeReader = MockDBUtils.AddReader(
+        "SELECT T0.MEDIA_ITEM_ID A3, T0.MEDIA_ITEM_ID A4, T0.INDEX_ID A5, T0.SOURCE A0, T0.TYPE A1, T0.ID A2 FROM M_EXTERNALIDENTIFIER T0  WHERE T0.MEDIA_ITEM_ID = @V0",
+        "A3", "A4", "A5", "A0", "A1", "A2");
+      externalAttributeReader.AddResult(episodeItemId, episode, "1", "TEST", ExternalIdentifierAspect.TYPE_SERIES, seriesId);
+
+      // Results used by Search in UpdateRelationships to find related items
+      MockReader relatedReader = MockDBUtils.AddReader(
+        "SELECT T5.MEDIA_ITEM_ID A24, T0.MEDIA_ITEM_ID A25, T1.MEDIA_ITEM_ID A26, T2.MEDIA_ITEM_ID A27, T3.MEDIA_ITEM_ID A28, T4.MEDIA_ITEM_ID A29, " +
+        "T0.SERIESNAME A0, T0.SEASON A1, T0.SERIESSEASONNAME A2, T0.EPISODENAME A3, T0.FIRSTAIRED A4, T0.TOTALRATING A5, T0.RATINGCOUNT A6, " +
+        "T1.SERIESNAME_0 A7, T1.SEASON_0 A8, T1.SERIESSEASONNAME_0 A9, T1.DESCRIPTION A10, T1.FIRSTAIRED_0 A11, T1.TOTALRATING_0 A12, T1.RATINGCOUNT_0 A13, " +
+        "T2.SERIESNAME_1 A14, T2.DESCRIPTION_0 A15, " +
+        "T3.SYSTEM_ID A16, T3.MIMETYPE A17, T3.SIZE A18, T3.PATH A19, T3.PARENTDIRECTORY A20, " +
+        "T4.LASTIMPORTDATE A21, T4.DIRTY A22, T4.DATEADDED A23 " +
+        "FROM MEDIA_ITEMS T5 " +
+        "LEFT OUTER JOIN M_EPISODEITEM T0 ON T0.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_SEASONITEM T1 ON T1.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_SERIESITEM T2 ON T2.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_PROVIDERRESOURCE T3 ON T3.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID " +
+        "LEFT OUTER JOIN M_IMPORTEDITEM T4 ON T4.MEDIA_ITEM_ID = T5.MEDIA_ITEM_ID  " +
+        "WHERE (T5.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE ExternalIdentifier.Source = @V0) AND T5.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE ExternalIdentifier.Type = @V1) AND T5.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE ExternalIdentifier.Id = @V2))",
+        CreateAttributeIdList(24, 29));
+      relatedReader.AddResult(seriesItemId, null, null, seriesItemId, null, seriesItemId,
+        null, null, null, null, null, null, null,
+        null, null, null, null, null, null, null,
+        seriesName, null,
+        null, null, null, null, null,
+        importDate, "false", importDate);
+
+      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, episodeAspects.Values.SelectMany(x => x));
+
+      MockCore.ShutdownLibrary();
     }
   }
 }

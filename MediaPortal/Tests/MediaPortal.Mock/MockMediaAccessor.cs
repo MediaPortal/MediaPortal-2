@@ -22,17 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.Mock
 {
   public class MockMediaAccessor : MediaAccessor
   {
-    public override void Initialize()
+    public void AddRelationshipExtractor(IRelationshipExtractor extractor)
     {
-      base.Initialize();
+      Initialize();
 
-      RegisterRelationshipExtractor(new MockRelationshipExtractor());
+      RegisterRelationshipExtractor(extractor);
     }
   }
 }

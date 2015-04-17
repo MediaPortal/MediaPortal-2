@@ -24,12 +24,27 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.Logging;
 
 namespace MediaPortal.Mock
 {
-  class MockRelationshipExtractor : IRelationshipExtractor
+  internal class RelationshipLookup
   {
+    public Guid Role { get; set; }
+    public Guid LinkedRole { get; set; }
+    public string ExternalSource { get; set; }
+    public string ExternalType { get; set; }
+    public string ExternalId { get; set; }
+
+    public ICollection<IDictionary<Guid, IList<MediaItemAspect>>> Data { get; set; }
+  }
+
+  public class MockRelationshipExtractor : IRelationshipExtractor
+  {
+    private IList<RelationshipLookup> lookups = new List<RelationshipLookup>();
     private static readonly RelationshipExtractorMetadata _METADATA = new RelationshipExtractorMetadata(Guid.Empty, "MockRelationshipExtractor");
 
     public RelationshipExtractorMetadata Metadata
@@ -37,9 +52,42 @@ namespace MediaPortal.Mock
       get { return _METADATA; }
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid role, Guid linkedRole, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, bool forceQuickMode)
+    public void AddRelationship(Guid role, Guid linkedRole, string source, string type, string id, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData)
     {
-      Console.WriteLine("Extracting {0} / {1}", role, linkedRole);
+      lookups.Add(new RelationshipLookup()
+      {
+        Role = role,
+        LinkedRole = linkedRole,
+        ExternalSource = source,
+        ExternalType = type,
+        ExternalId = id,
+
+        Data = extractedAspectData
+      });
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid role, Guid linkedRole, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, bool forceQuickMode)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("Extracting {0} / {1}", role, linkedRole);
+
+      foreach(RelationshipLookup lookup in lookups)
+      {
+        string id = null;
+        ServiceRegistration.Get<ILogger>().Debug("Checking {0} / {1} / {2} / {3} / {4}", lookup.Role, lookup.LinkedRole, lookup.ExternalSource, lookup.ExternalType, lookup.ExternalId);
+        if (lookup.Role == role && lookup.LinkedRole == linkedRole && MediaItemAspect.TryGetExternalAttribute(aspects, lookup.ExternalSource, lookup.ExternalType, out id) && lookup.ExternalId == id)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("Matched");
+          extractedAspectData = lookup.Data;
+          return true;
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Debug("No match for {0}", id);
+        }
+      }
+
+      extractedAspectData = null;
+
       return false;
     }
   }
