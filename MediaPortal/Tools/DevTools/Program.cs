@@ -261,14 +261,13 @@ namespace MediaPortal.DevTools
             Console.WriteLine(" {0}:", metadata.Name);
             int count = 0;
             string sb = " ";
-            foreach (string key in aspect.Data.Keys)
+            foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
             {
-              object value = aspect.Data[key];
+              object value = aspect.GetAttributeValue(spec);
               if (value != null)
               {
                 if (count > 0)
                   sb += ",";
-                MediaItemAspectMetadata.AttributeSpecification spec = metadata.AttributeSpecifications[key];
                 sb += string.Format(" {0}({1}/{2})=", spec.AttributeName, spec.AttributeType.Name, spec.Cardinality);
                 if(value is IList)
                   sb += "[" + string.Join(",", (IList)value) + "]";
