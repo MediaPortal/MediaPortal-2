@@ -75,5 +75,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_NUMTRACKS,
             ATTR_DISCID,
         });
+
+    public static readonly Guid ROLE_ALBUM = new Guid("CCCA5512-1CBA-4859-BD53-1D7AE96EBBCE");
   }
 }

@@ -53,5 +53,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_SERIESNAME,
             ATTR_DESCRIPTION,
         });
+
+    public static readonly Guid ROLE_SERIES = new Guid("13FDBDAF-F5D0-46C8-952F-F22647812C50");
   }
 }
