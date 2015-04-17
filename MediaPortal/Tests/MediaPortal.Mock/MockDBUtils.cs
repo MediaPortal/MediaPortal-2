@@ -36,6 +36,7 @@ namespace MediaPortal.Mock
   public class MockDBUtils : DBUtils
   {
     private static readonly MockDatabase DATABASE = new MockDatabase();
+    private static readonly MockDatabaseManager DATABASE_MANAGER = new MockDatabaseManager();
     private static readonly IDictionary<string, MockReader> READERS = new Dictionary<string, MockReader>();
     private static IList<MockCommand> COMMANDS = new List<MockCommand>();
     private static MockReader ALIASES_READER = null;
@@ -47,6 +48,7 @@ namespace MediaPortal.Mock
       SIMPLEDOTNETTYPE2DBTYPE[typeof(Guid)] = DbType.String;
 
       ServiceRegistration.Set<ISQLDatabase>(DATABASE);
+      ServiceRegistration.Set<IDatabaseManager>(DATABASE_MANAGER);
 
       ALIASES_READER = AddReader("SELECT MIAM_ID, IDENTIFIER, DATABASE_OBJECT_NAME FROM MIA_NAME_ALIASES");
       /*
@@ -83,6 +85,11 @@ namespace MediaPortal.Mock
     public static MockDatabase Database
     {
       get { return DATABASE; }
+    }
+
+    public static MockDatabaseManager DatabaseManager
+    {
+      get { return DATABASE_MANAGER; }
     }
 
     public static MockReader AddReader(string command, params string[] columns)
