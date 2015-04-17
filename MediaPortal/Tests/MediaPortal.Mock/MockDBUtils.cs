@@ -45,21 +45,6 @@ namespace MediaPortal.Mock
       // Override mappings to make output log more readable
       SIMPLEDOTNETTYPE2DBTYPE[typeof(DateTime)] = DbType.String;
       SIMPLEDOTNETTYPE2DBTYPE[typeof(Guid)] = DbType.String;
-    }
-
-    public static DbType GetType(Type type)
-    {
-      return SIMPLEDOTNETTYPE2DBTYPE[type];
-    }
-
-    public static MockReader GetAliasesReader()
-    {
-      return ALIASES_READER;
-    }
-
-    public static void Setup()
-    {
-      MockCore.Setup();
 
       ServiceRegistration.Set<ISQLDatabase>(DATABASE);
 
@@ -78,6 +63,16 @@ namespace MediaPortal.Mock
       AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES");
       AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION, CREATION_DATE FROM MIA_TYPES");
       AddReader("SELECT MIAM_ID, CREATION_DATE FROM MIA_TYPES");
+    }
+
+    public static DbType GetType(Type type)
+    {
+      return SIMPLEDOTNETTYPE2DBTYPE[type];
+    }
+
+    public static MockReader GetAliasesReader()
+    {
+      return ALIASES_READER;
     }
 
     public static void Reset()

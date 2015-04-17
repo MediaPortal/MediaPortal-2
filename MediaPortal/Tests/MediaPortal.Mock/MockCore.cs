@@ -41,23 +41,6 @@ namespace MediaPortal.Mock
 {
   public class MockCore
   {
-    private static bool DONE = false;
-
-    public static void BasicSetup()
-    {
-      if (DONE)
-      {
-        return;
-      }
-
-      ServiceRegistration.Set<IPathManager>(new PathManager());
-      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_Mock/log");
-      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_Mock/config");
-      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
-
-      DONE = true;
-    }
-
     private static MockMIA_Management MANAGEMENT;
     private static MockMediaLibrary LIBRARY;
     private static MockMessageBroker BROKER;
@@ -74,9 +57,12 @@ namespace MediaPortal.Mock
       get { return LIBRARY; }
     }
 
-    public static void Setup()
+    static MockCore()
     {
-      BasicSetup();
+      ServiceRegistration.Set<IPathManager>(new PathManager());
+      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_Mock/log");
+      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_Mock/config");
+      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
 
       logger = ServiceRegistration.Get<ILogger>();
 
