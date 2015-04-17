@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       // Try to use an existing IMDB id for exact mapping
       string imdbId;
-      if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
+      if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
           NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
           MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
