@@ -134,6 +134,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OnlineLibraries", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Mock", "..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj", "{F1A04140-5C63-4688-8A9E-A195AAF95DE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevTools", "..\..\..\MediaPortal-2.local\MediaPortal\Tools\DevTools\DevTools.csproj", "{98D58DAF-00AE-44BA-94BC-600C35AF77C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -333,6 +335,10 @@ Global
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1}.Debug|x86.Build.0 = Debug|x86
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1}.Release|x86.ActiveCfg = Release|x86
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1}.Release|x86.Build.0 = Release|x86
+		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Debug|x86.ActiveCfg = Debug|x86
+		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Debug|x86.Build.0 = Debug|x86
+		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Release|x86.ActiveCfg = Release|x86
+		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
