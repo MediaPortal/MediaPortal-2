@@ -393,7 +393,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
           if (multipleMiaValues.Count > 0)
           {
-              logger.Debug("Got multiple MIAs for " + string.Join(",", multipleMiaValues.Keys));
+              logger.Debug("Got multiple MIAs [{0}]", string.Join(",", multipleMiaValues.Keys));
               foreach (MediaItem mediaItem in mediaItems)
               {
                   ICollection<MultipleMediaItemAspect> values;
@@ -401,7 +401,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                       continue;
                   foreach (MultipleMediaItemAspect value in values)
                   {
-                      logger.Debug("Adding MIA " + value);
+                      logger.Debug("Adding MIA {0} #{1}", value.Metadata.Name, value.Index);
                       MediaItemAspect.AddAspect(mediaItem.Aspects, value);
                   }
               }
