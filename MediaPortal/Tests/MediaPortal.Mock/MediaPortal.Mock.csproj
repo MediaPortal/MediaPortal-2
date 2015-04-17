@@ -38,6 +38,7 @@
     <Compile Include="MockCommand.cs" />
     <Compile Include="MockCompiledFilter.cs" />
     <Compile Include="MockDatabase.cs" />
+    <Compile Include="MockDatabaseManager.cs" />
     <Compile Include="MockDataParameter.cs" />
     <Compile Include="MockDataParameterCollection.cs" />
     <Compile Include="MockDBUtils.cs" />
