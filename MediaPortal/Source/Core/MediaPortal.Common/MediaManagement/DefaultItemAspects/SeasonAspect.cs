@@ -89,5 +89,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
         });
+
+    public static readonly Guid ROLE_SEASON = new Guid("830D5DCD-708C-4E30-B043-CCDCBF593E12");
   }
 }

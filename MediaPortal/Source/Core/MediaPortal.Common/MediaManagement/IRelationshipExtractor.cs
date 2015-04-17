@@ -18,6 +18,6 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     RelationshipExtractorMetadata Metadata { get; }
 
-    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid role, Guid linkedRole, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, bool forceQuickMode);
+    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid role, Guid linkedRole, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, bool forceQuickMode);
   }
 }

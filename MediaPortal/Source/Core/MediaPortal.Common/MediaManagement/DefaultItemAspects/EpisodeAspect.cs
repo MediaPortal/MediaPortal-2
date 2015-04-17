@@ -105,5 +105,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
         });
+
+      public static readonly Guid ROLE_EPISODE = new Guid("83C2CDF9-717E-4881-8411-3A31C2027B77");
   }
 }

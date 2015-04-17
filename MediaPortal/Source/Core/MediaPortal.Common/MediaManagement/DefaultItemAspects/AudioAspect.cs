@@ -124,5 +124,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_DISCID,
             ATTR_NUMDISCS,
         });
+
+      public static readonly Guid ROLE_TRACK = new Guid("10C134B1-4E35-4750-836D-76F3AB58D40A");
   }
 }

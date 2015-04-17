@@ -23,10 +23,11 @@
 #endregion
 
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Exceptions;
@@ -170,6 +171,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
 
+    protected volatile bool _mediaReconcilerAllowed = true;
+    protected Thread _mediaReconcilerThread;
+    protected BlockingCollection<Guid> _mediaReconcilerQueue = new BlockingCollection<Guid>();
+
     #endregion
 
     #region Ctor & dtor
@@ -187,11 +192,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
+
+      _mediaReconcilerThread = new Thread(Reconcile) { Name = "MediaReconciler", Priority = ThreadPriority.Lowest };
+      _mediaReconcilerThread.Start();
     }
 
     public void Dispose()
     {
       _messageQueue.Shutdown();
+
+      lock(_syncObj)
+        _mediaReconcilerQueue.CompleteAdding();
+      _mediaReconcilerAllowed = false;
+
+      if (!_mediaReconcilerThread.Join(5000))
+        _mediaReconcilerThread.Abort();
+
+      _mediaReconcilerThread = null;
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -867,7 +884,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         transaction.Commit();
 
-        UpdateRelationships(mediaItemId.Value);
+        Reconcile(mediaItemId.Value);
 
         return mediaItemId.Value;
       }
@@ -877,6 +894,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         throw;
       }
+    }
+
+    protected virtual void Reconcile(Guid mediaItemId)
+    {
+      _mediaReconcilerQueue.Add(mediaItemId);
     }
 
     public void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
@@ -901,7 +923,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         transaction.Commit();
 
-        UpdateRelationships(mediaItemId);
+        Reconcile(mediaItemId);
       }
       catch (Exception e)
       {
@@ -910,25 +932,120 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         throw;
       }
     }
-	
-	protected virtual void UpdateRelationships(Guid mediaItemId)
-	{
-    // TODO: Reconciler - what about removing MIAs that the reconciler automatically creates?
 
-    MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false).First();
-    Logger.Info("Found item {0}", item.MediaItemId);    
+    private void Reconcile()
+	  {
+	    while (_mediaReconcilerAllowed)
+	    {
+        foreach(Guid mediaItemId in _mediaReconcilerQueue.GetConsumingEnumerable())
+	        UpdateRelationships(mediaItemId);
+	    }
+	  }
 
-    IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-    foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+    protected virtual void UpdateRelationships(Guid mediaItemId)
     {
-      ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      // TODO: Set role and linkedRole GUIDs properly
-      if(extractor.TryExtractRelationships(item.Aspects, Guid.Empty, Guid.Empty, extractedAspectData, true))
+      Logger.Info("Updating relationships for {0}", mediaItemId);
+      MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
+      if (item == null)
       {
-        // Merge with existing MIs
+        // Item deleted on the main thread before the reconciler processes it - could happen?
+        Logger.Warn("Cannot find {0}", mediaItemId);
+        return;
+      }
+      Logger.Info("Found item {0}", item.MediaItemId);
+
+      // TODO: What happens to MIAs that the reconciler automatically adds that have been removed manually by the user?
+
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+      {
+        if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          Logger.Info("Update episode / season relationship");
+          UpdateRelationship(extractor, item.Aspects, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, EpisodeSeasonMatcher);
+        }
+        if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          Logger.Info("Update season / series relationship");
+          UpdateRelationship(extractor, item.Aspects, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, SeasonSeriesMatcher);
+        }
       }
     }
-	}
+
+    private bool EpisodeSeasonMatcher(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
+    {
+      int season;
+      int linkedSeason;
+
+      if (!MediaItemAspect.TryGetAttribute<int>(aspects, EpisodeAspect.ATTR_SEASON, out season))
+      {
+        Logger.Info("No season attribute in aspects");
+        return false;
+      }
+
+      if (!MediaItemAspect.TryGetAttribute(linkedAspects, SeasonAspect.ATTR_SEASON, out linkedSeason))
+      {
+        Logger.Info("No season attribute in linked aspects");
+        return false;
+      }
+
+      Logger.Info("Comparing season attribute {0} -vs- {1}", season, linkedSeason);
+      return season == linkedSeason;
+    }
+
+    private bool SeasonSeriesMatcher(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
+    {
+      return true;
+    }
+
+    private void UpdateRelationship(IRelationshipExtractor extractor, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid role, Guid linkedRole, Func<IDictionary<Guid, IList<MediaItemAspect>>, IDictionary<Guid, IList<MediaItemAspect>>, bool> matcher)
+    {
+      ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData;
+      if (extractor.TryExtractRelationships(aspects, role, linkedRole, out extractedAspectData, true))
+      {
+        foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedAspectItem in extractedAspectData)
+        {
+          IList<MultipleMediaItemAspect> externalAspects;
+          bool found = false;
+          if (MediaItemAspect.TryGetAspects(extractedAspectItem, ExternalIdentifierAspect.Metadata, out externalAspects))
+          {
+            foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+            {
+              string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+              string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+              string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+
+              BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
+                  {
+                    new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                    new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                    new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+                  });
+              Logger.Info("Searching for external items with {0} / {1} / {2}", source, type, id);
+              IList<MediaItem> externalItems = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, filter), false);
+              foreach (MediaItem externalItem in externalItems)
+              {
+                Logger.Info("Checking external item {0}", externalItem.MediaItemId);
+                if (matcher(aspects, externalItem.Aspects))
+                {
+                  Logger.Info("Merging external aspects into {0}", externalItem.MediaItemId);
+                  UpdateMediaItem(externalItem.MediaItemId, externalAspects);
+                  found = true;
+                  break;
+                }
+              }
+              if (found)
+                break;
+            }
+          }
+          if (found)
+          {
+            Logger.Info("Adding new media item for extracted item");
+            AddOrUpdateMediaItem(Guid.Empty, null, null, extractedAspectItem.Values.SelectMany(x => x));
+          }
+        }
+      }
+    }
 
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
     {
