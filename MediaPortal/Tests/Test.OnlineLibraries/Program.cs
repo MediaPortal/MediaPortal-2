@@ -151,7 +151,7 @@ namespace Test.OnlineLibraries
       ShowMIAs(aspects, registration);
 
       string value;
-      if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.Source.TVDB, ExternalIdentifierAspect.TYPE_SERIES, out value))
+      if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, out value))
       {
         TvdbSeries seriesDetail;
         SeriesTvDbMatcher.Instance.TryGetSeries(Int32.Parse(value), out seriesDetail);
