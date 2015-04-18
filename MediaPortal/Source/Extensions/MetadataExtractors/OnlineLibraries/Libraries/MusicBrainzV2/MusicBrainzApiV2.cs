@@ -24,8 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using Newtonsoft.Json;
@@ -46,6 +49,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     #region Fields
 
+    private static readonly FileVersionInfo FILE_VERSION_INFO;
+
     private readonly string _cachePath;
     private readonly Downloader _downloader;
 
@@ -53,12 +58,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     #region Constructor
 
+    static MusicBrainzApiV2()
+    {
+      FILE_VERSION_INFO = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
+    }
+
     public MusicBrainzApiV2(string cachePath)
     {
       _cachePath = cachePath;
       _downloader = new Downloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
-      _downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
+      _downloader.Headers["User-Agent"] = "MediaPortal/" + FILE_VERSION_INFO.FileVersion + " (http://www.team-mediaportal.com/)";
     }
 
     #endregion
@@ -89,7 +99,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
       string url = GetUrl(URL_QUERYRECORDING, Uri.EscapeDataString(query));
 
-      Console.WriteLine("Loading '{0}','{1}','{2}','{3}','{4}','{5}','{6} -> {7}", title, artist, album, genre, year, trackNum, language, url);
+      Logger.Debug("Loading '{0}','{1}','{2}','{3}','{4}','{5}','{6} -> {7}", title, artist, album, genre, year, trackNum, language, url);
 	
       return Parse(url);
     }
@@ -103,12 +113,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     public IList<TrackSearchResult> Parse(string url)
     {
-      Console.WriteLine("Loading {0}", url);
+      Logger.Debug("Loading {0}", url + " as " + _downloader.Headers["User-Agent"]);
 
       IList<TrackSearchResult> results = _downloader.Download<RecordingResult>(url).Results;
       foreach(TrackSearchResult result in results)
       {
-        Console.WriteLine("Result: Id={0} Title={1} ArtistId={2} ArtistName={3} AlbumId={4} AlbumName={5} AlbumArtistId={6} AlbumArtistName={7}",
+        Logger.Debug("Result: Id={0} Title={1} ArtistId={2} ArtistName={3} AlbumId={4} AlbumName={5} AlbumArtistId={6} AlbumArtistName={7}",
           result.Id, result.Title,
           result.ArtistId, result.ArtistName,
           result.AlbumId, result.AlbumName,
@@ -267,5 +277,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     }
 
     #endregion
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
+    }
   }
 }
