@@ -25,7 +25,7 @@
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="26"/>
 
-  <ResourceWrapper x:Key="BiggerFontSize" Resource="40"/>
+  <ResourceWrapper x:Key="BiggerFontSize" Resource="44"/>
   <ResourceWrapper x:Key="BigFontSize" Resource="36"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="24"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="22"/>

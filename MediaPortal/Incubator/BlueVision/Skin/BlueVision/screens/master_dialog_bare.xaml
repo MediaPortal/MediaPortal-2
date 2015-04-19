@@ -78,17 +78,35 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
+      <!--Grid Margin="-180,-85,-180,-80" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+          
+        <Image Grid.Row="0" Source="blur_top.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9"/>
+        <Image Grid.Row="1" Source="blur_mid.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9" />
+        <Image Grid.Row="2" Source="blur_bot.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9"/>
+        <Grid.Effect>
+          <ZoomBlurEffect BlurAmount="0.1" />
+        </Grid.Effect>    
+      </Grid-->
+
       <Rectangle Fill="{ThemeResource DialogBorderBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
                Margin="-120,-85,-120,-80" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9">
          <Rectangle.Fill>
-            <ImageBrush ImageSource="blur.png"/>
+            <ImageBrush ImageSource="blur.png" Stretch="Fill"/>
          </Rectangle.Fill>
-         <Rectangle.Effect>
-           <ZoomBlurEffect BlurAmount="0.1" />
-         </Rectangle.Effect>
+        <Rectangle.Effect>
+          <ZoomBlurEffect BlurAmount="0.1" />
+        </Rectangle.Effect>
       </Rectangle>
 
-      <Rectangle Fill="Black" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
+      <Rectangle Grid.Row="0" Grid.RowSpan="3" Fill="Black" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
                Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="1">
         <!-- TODO: Better blur effect with adjustable Radius -->
         <!--<Rectangle.Effect>

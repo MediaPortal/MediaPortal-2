@@ -28,21 +28,18 @@
           </Control.TemplateControl>
         </Control>
 
-        <Control Grid.Column="1" VerticalAlignment="Stretch" Width="810"
+        <Control Grid.Column="1" VerticalAlignment="Stretch" MinWidth="500" Width="{DynamicResource Cover_Width}"
           Template="{Binding Source={DynamicResource Media_Details_Template}}">
-          <Control.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{GridLayout}"/>
-          </Control.IsVisible>
         </Control>
 
-        <Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,-58,10">
+        <!--Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,-58,10">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsListHeader.inc"/>
           </Control.TemplateControl>
           <Control.LayoutTransform>
             <RotateTransform Angle="270" CenterX="0.5" CenterY="0.5"/>
           </Control.LayoutTransform>
-        </Control>
+        </Control-->
       </Grid>
     </ControlTemplate>
 

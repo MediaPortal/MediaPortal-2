@@ -87,7 +87,7 @@
 
   <Storyboard x:Key="FocusedButtonWideStoryboard_Media" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Media"/>
-    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+    <!--StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/-->
   </Storyboard>
 
   <Storyboard x:Key="FocusedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
@@ -540,7 +540,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="0,0,45,0" Stroke="#213848" StrokeThickness="1">
+            Margin="-8,0,30,0" Stroke="#213848" StrokeThickness="1">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
