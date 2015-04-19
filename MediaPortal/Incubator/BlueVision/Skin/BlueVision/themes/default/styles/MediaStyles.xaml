@@ -38,7 +38,6 @@
   </DataTemplate>
 
   <!-- Filter -->
-  
   <ControlTemplate x:Key="FilterCoverTemplate">
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Image Width="193" Height="128" Stretch="Fill"
@@ -249,7 +248,6 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
             Margin="8,0,0,0">
         <Label.Opacity>
@@ -260,20 +258,17 @@
           </MultiBinding>
         </Label.Opacity>
       </Label>
-
-
+      <Border Name="mask" Background="White" CornerRadius="15" BorderThickness="0" BorderBrush="Black"/>
       <Grid Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
-        <Border Name="mask" Background="White" CornerRadius="15" BorderThickness="0" BorderBrush="Black"/>
-        <Image Stretch="Fill">
+        <Grid.OpacityMask>
+          <VisualBrush Visual="{Binding ElementName=mask}"/>
+        </Grid.OpacityMask>
+        <Image Stretch="Fill" FallbackSource="VideoWide.png">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SimpleTitle}"/>
           </Image.Source>
-          <Image.OpacityMask>
-            <VisualBrush Visual="{Binding ElementName=mask}"/>
-          </Image.OpacityMask>
         </Image>
       </Grid>
-
       <Grid Grid.Row="1" Grid.Column="1" Margin="8,0,0,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
@@ -282,14 +277,11 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
         <Label x:Name="NumItems" Content="{Binding NumItems}" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
         Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
         <Label Content="{Binding ListHint}" VerticalAlignment="Center" Margin="2,0,0,0" Grid.Row="0" Grid.Column="1"
         Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       </Grid>
-
-
       <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="1" Grid.Column="2"  >
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -298,7 +290,6 @@
             <Binding Source="0.15"/>
           </MultiBinding>
         </Image.Opacity>
-
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="PlayCount"/>
@@ -307,7 +298,6 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-
       <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="1" Grid.Column="2" Margin="60,0,-60,0"  >
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -317,8 +307,6 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-
-
     </Grid>
   </ControlTemplate>
 
@@ -587,7 +575,7 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource MovieCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -623,7 +611,7 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="60,0,-60,0"  >
+        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="67,0,-67,0"  >
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="PlayCount"/>
@@ -826,7 +814,7 @@
       </Image>
 
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource VideoCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -851,7 +839,7 @@
         </Control.LayoutTransform>
       </Control>
 
-      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,23,0"
             HorizontalAlignment="Stretch"
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
 

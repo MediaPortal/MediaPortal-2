@@ -425,32 +425,30 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <!-- Rounded corners are applied by OpacityMask -->
-    <Grid x:Name="ItemControl" Margin="0,0,0,0" OpacityMask="{ThemeResource HomeTileOpacityBrush}">
+    <Border Name="mask" Background="White" CornerRadius="16" BorderThickness="0" BorderBrush="Black"/>
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="48"/>
-        <RowDefinition Height="32"/>
+        <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
-
+      <Grid.OpacityMask>
+        <VisualBrush Visual="{Binding ElementName=mask}"/>
+      </Grid.OpacityMask>  
       <!-- Light blue background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
           x:Name="HomeFill" Fill="#FFFFFF" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-
       <!-- Image -->
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
              Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
-
       <!-- Darkened band -->
       <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
-
       <!-- Item label -->
-      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}"
-             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
     </Grid>
   </DataTemplate>
 
@@ -586,15 +584,7 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="56" Height="56" Stretch="Fill" Margin="20,0,20,0">
-      <!--Image.Opacity>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
-          <Binding Path="Selected"/>
-          <Binding Source="1" />
-          <Binding Source="0.4"/>
-        </MultiBinding>
-      </Image.Opacity-->
-
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="10,0,10,0">
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
           <Binding Path="AdditionalProperties[Id]"/>

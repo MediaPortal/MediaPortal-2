@@ -15,6 +15,7 @@
 
   <Label x:Name="MediaItemName" Grid.Row="0"
           HorizontalAlignment="Stretch"
+          Margin="-10,-15,0,0"
           Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
           Color="{ThemeResource TextColor}"
           FontFamily="DefaultBold"/>
@@ -23,6 +24,7 @@
         Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
         HorizontalAlignment="Stretch"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
+        Margin="-10,0,5,25"
         Color="{ThemeResource TextColor}"/>
 
 </Grid>
