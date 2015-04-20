@@ -41,6 +41,19 @@ namespace Test.Backend
   [TestFixture]
   public class TestLibrary
   {
+    private string[] CreateAttributeIdList(int firstId, int maxId)
+    {
+      IList<string> ids = new List<string>();
+
+      for (int id = firstId; id <= maxId; id++)
+        ids.Add("A" + id);
+
+      for (int id = 0; id < firstId; id++)
+        ids.Add("A" + id);
+
+      return ids.ToArray();
+    }
+
     [SetUp]
     public void SetUp()
     {
@@ -62,7 +75,7 @@ namespace Test.Backend
       MockCommand multipleCommand = MockDBUtils.FindCommand("CREATE TABLE M_MULTIPLE");
       Assert.IsNotNull(multipleCommand, "Multiple create table command");
       // Columns and objects will be suffixed with _0 because the alises we asked for have already been given to Multiple1
-      Assert.AreEqual("CREATE TABLE M_MULTIPLE (MEDIA_ITEM_ID Guid, INDEX_ID Int32, ATTR_STRING_0 TEXT, CONSTRAINT PK_0 PRIMARY KEY (MEDIA_ITEM_ID,INDEX_ID), CONSTRAINT FK_0 FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", multipleCommand.CommandText, "Multiple1 create table command");
+      Assert.AreEqual("CREATE TABLE M_MULTIPLE (MEDIA_ITEM_ID Guid, ATTR_STRING_0 TEXT, CONSTRAINT PK_0 PRIMARY KEY (MEDIA_ITEM_ID,ATTR_STRING_0), CONSTRAINT FK_0 FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", multipleCommand.CommandText, "Multiple1 create table command");
 
       // TODO: Put this back when Many cardinalities are supported on multiple MIAMs
         /*
@@ -149,10 +162,10 @@ namespace Test.Backend
         MockReader singleReader = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A0 FROM MEDIA_ITEMS T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A0");
         singleReader.AddResult(itemId);
 
-        MockReader multipleReader1 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING A0 FROM M_MULTIPLE1 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
+        MockReader multipleReader1 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.ATTR_STRING A0 FROM M_MULTIPLE1 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
         multipleReader1.AddResult(itemId, itemId, "0", "oneone");
 
-        MockReader multipleReader2 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
+        MockReader multipleReader2 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.ATTR_INTEGER A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A1", "A2", "A3", "A0");
         multipleReader2.AddResult(itemId, itemId, "0", "21");
         multipleReader2.AddResult(itemId, itemId, "1", "22");
 
@@ -167,12 +180,9 @@ namespace Test.Backend
 
         Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
         Assert.IsTrue(MediaItemAspect.TryGetAspects(result.Aspects, mia1.Metadata, out values), "MIA1");
-        Assert.AreEqual(0, values[0].Index, "MIA1 index");
         Assert.AreEqual("oneone", values[0].GetAttributeValue(mia1.ATTR_STRING), "MIA1 string attibute");
         Assert.IsTrue(MediaItemAspect.TryGetAspects(result.Aspects, mia2.Metadata, out values), "MIA2");
-        Assert.AreEqual(0, values[0].Index, "MIA1 index #0");
         Assert.AreEqual(21, values[0].GetAttributeValue(mia2.ATTR_INTEGER), "MIA2 integer attibute #0");
-        Assert.AreEqual(1, values[1].Index, "MIA1 index #0");
         Assert.AreEqual(22, values[1].GetAttributeValue(mia2.ATTR_INTEGER), "MIA2 integer attibute #0");
     }
 
@@ -192,12 +202,12 @@ namespace Test.Backend
         reader.AddResult(itemId0, itemId0, "zero", "0");
         reader.AddResult(itemId1, itemId1, "one", "1");
 
-        MockReader multipleReader2 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_STRING_0 A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
+        MockReader multipleReader2 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.ATTR_STRING_0 A0 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
         multipleReader2.AddResult(itemId0, itemId0, "0", "zerozero");
         multipleReader2.AddResult(itemId0, itemId0, "1", "zeroone");
         multipleReader2.AddResult(itemId1, itemId1, "0", "onezero");
 
-        MockReader multipleReader3 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.INDEX_ID A3, T0.ATTR_INTEGER_0 A0 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
+        MockReader multipleReader3 = MockDBUtils.AddReader("SELECT T0.MEDIA_ITEM_ID A1, T0.MEDIA_ITEM_ID A2, T0.ATTR_INTEGER_0 A0 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A1", "A2", "A3", "A0");
         multipleReader3.AddResult(itemId0, itemId0, "0", "10");
         multipleReader3.AddResult(itemId0, itemId0, "1", "11");
         multipleReader3.AddResult(itemId0, itemId0, "2", "12");
@@ -226,20 +236,14 @@ namespace Test.Backend
         Assert.AreEqual(0, value.GetAttributeValue(mia1.ATTR_INTEGER), "MIA1 integer attibute #0");
         Assert.IsTrue(MediaItemAspect.TryGetAspects(results[0].Aspects, mia2.Metadata, out values), "MIA2 #0");
         Assert.AreEqual(2, values.Count, "MIA2 count #0");
-        Assert.AreEqual(0, values[0].Index, "MIA2 index 0 #0");
         Assert.AreEqual("zerozero", values[0].GetAttributeValue(mia2.ATTR_STRING), "MIA2 string attibute 0 #0");
         Assert.AreEqual("zeroone", values[1].GetAttributeValue(mia2.ATTR_STRING), "MIA2 string attibute 1 #0");
         Assert.IsTrue(MediaItemAspect.TryGetAspects(results[0].Aspects, mia3.Metadata, out values), "MIA3 #0");
         Assert.AreEqual(5, values.Count, "MIA3 count #0");
-        Assert.AreEqual(0, values[0].Index, "MIA3 index 0 #0");
         Assert.AreEqual(10, values[0].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 0 #0");
-        Assert.AreEqual(1, values[1].Index, "MIA3 index 1 #0");
         Assert.AreEqual(11, values[1].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 1 #0");
-        Assert.AreEqual(2, values[2].Index, "MIA3 index 2 #0");
         Assert.AreEqual(12, values[2].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 2 #0");
-        Assert.AreEqual(3, values[3].Index, "MIA3 index 3 #0");
         Assert.AreEqual(13, values[3].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 3 #0");
-        Assert.AreEqual(4, values[4].Index, "MIA3 index 4 #0");
         Assert.AreEqual(14, values[4].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 4 #0");
 
         Assert.AreEqual(itemId1, results[1].MediaItemId, "MediaItem ID #1");
@@ -248,11 +252,9 @@ namespace Test.Backend
         Assert.AreEqual(1, value.GetAttributeValue(mia1.ATTR_INTEGER), "MIA1 integer attibute #1");
         Assert.IsTrue(MediaItemAspect.TryGetAspects(results[1].Aspects, mia2.Metadata, out values), "MIA2 #1");
         Assert.AreEqual(1, values.Count, "MIA2 count #1");
-        Assert.AreEqual(0, values[0].Index, "MIA2 index #1");
         Assert.AreEqual("onezero", values[0].GetAttributeValue(mia2.ATTR_STRING), "MIA2 string attibute 0 #1");
         Assert.IsTrue(MediaItemAspect.TryGetAspects(results[1].Aspects, mia3.Metadata, out values), "MIA3 #0");
         Assert.AreEqual(1, values.Count, "MIA3 count #1");
-        Assert.AreEqual(0, values[0].Index, "MIA3 index 0 #1");
         Assert.AreEqual(20, values[0].GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute 0 #1");
     }
 
@@ -314,20 +316,20 @@ namespace Test.Backend
         aspect1.SetAttribute(mia1.ATTR_STRING, "one");
         aspects.Add(aspect1);
 
-        MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(1, mia2.Metadata);
+        MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(mia2.Metadata);
         aspect2_1.SetAttribute(mia2.ATTR_STRING, "two.one");
         aspects.Add(aspect2_1);
-        MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(2, mia2.Metadata);
+        MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(mia2.Metadata);
         aspect2_2.SetAttribute(mia2.ATTR_STRING, "two.two");
         aspects.Add(aspect2_2);
 
-        MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(1, mia3.Metadata);
+        MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(mia3.Metadata);
         aspect3_1.SetAttribute(mia3.ATTR_INTEGER, 31);
         aspects.Add(aspect3_1);
-        MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(2, mia3.Metadata);
+        MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(mia3.Metadata);
         aspect3_2.SetAttribute(mia3.ATTR_INTEGER, 32);
         aspects.Add(aspect3_2);
-        MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(3, mia3.Metadata);
+        MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(mia3.Metadata);
         aspect3_3.SetAttribute(mia3.ATTR_INTEGER, 33);
         aspects.Add(aspect3_3);
 
@@ -368,20 +370,20 @@ namespace Test.Backend
         aspect1.SetAttribute(mia1.ATTR_STRING, "one");
         aspects.Add(aspect1);
 
-        MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(1, mia2.Metadata);
+        MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(mia2.Metadata);
         aspect2_1.SetAttribute(mia2.ATTR_STRING, "two.one");
         aspects.Add(aspect2_1);
-        MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(2, mia2.Metadata);
+        MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(mia2.Metadata);
         aspect2_2.SetAttribute(mia2.ATTR_STRING, "two.two");
         aspects.Add(aspect2_2);
 
-        MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(1, mia3.Metadata);
+        MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(mia3.Metadata);
         aspect3_1.SetAttribute(mia3.ATTR_INTEGER, 31);
         aspects.Add(aspect3_1);
-        MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(2, mia3.Metadata);
+        MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(mia3.Metadata);
         aspect3_2.SetAttribute(mia3.ATTR_INTEGER, 32);
         aspects.Add(aspect3_2);
-        MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(3, mia3.Metadata);
+        MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(mia3.Metadata);
         aspect3_3.Deleted = true;
         aspect3_3.SetAttribute(mia3.ATTR_INTEGER, 33);
         aspects.Add(aspect3_3);
@@ -399,10 +401,10 @@ namespace Test.Backend
         MockReader mia1Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_SINGLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
         mia1Reader.AddResult(itemId);
 
-        MockReader mia2Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID", "MEDIA_ITEM_ID");
+        MockReader mia2Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
         mia2Reader.AddResult(itemId);
 
-        MockReader mia3Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID", "MEDIA_ITEM_ID");
+        MockReader mia3Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
         //mia3Reader.AddResult(itemId);
         
         string pathStr = @"c:\item.mp3";
@@ -412,17 +414,36 @@ namespace Test.Backend
         MockCore.ShutdownLibrary();
     }
 
-    private string[] CreateAttributeIdList(int firstId, int maxId)
+    [Test]
+    public void TestExternalMediaItem()
     {
-      IList<string> ids = new List<string>();
+      MockCore.SetupLibrary();
+      MockCore.Library.UpdateRelationshipsEnabled = false;
 
-      for (int id = firstId; id <= maxId; id++)
-        ids.Add("A" + id);
+      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
 
-      for (int id = 0; id < firstId; id++)
-        ids.Add("A" + id);
+      MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ExternalIdentifierAspect.Metadata);
 
-      return ids.ToArray();
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(mia1.Metadata);
+      aspect1.SetAttribute(mia1.ATTR_INTEGER, 1);
+      aspect1.SetAttribute(mia1.ATTR_STRING, "one");
+      MediaItemAspect.SetAspect(aspects, aspect1);
+
+      MediaItemAspect.SetExternalAttribute(aspects, "test", ExternalIdentifierAspect.TYPE_EPISODE, "123");
+      MediaItemAspect.SetExternalAttribute(aspects, "test", ExternalIdentifierAspect.TYPE_SERIES, "456");
+
+      MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+
+      string pathStr = "c:\\item.mp3";
+      ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
+      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects.Values.SelectMany(x => x));
+
+      MockCore.ShutdownLibrary();
     }
 
     [Test]
@@ -519,7 +540,7 @@ namespace Test.Backend
         );
 
       MockDBUtils.AddReader(
-        "SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND INDEX_ID = @INDEX_ID",
+        "SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID",
         "MEDIA_ITEM_ID");
 
       // Results used by Search in UpdateRelationships to find episode item
@@ -544,7 +565,7 @@ namespace Test.Backend
         "A0", "A1");
 
       MockReader externalAttributeReader = MockDBUtils.AddReader(
-        "SELECT T0.MEDIA_ITEM_ID A3, T0.MEDIA_ITEM_ID A4, T0.INDEX_ID A5, T0.SOURCE A0, T0.TYPE A1, T0.ID A2 FROM M_EXTERNALIDENTIFIER T0  WHERE T0.MEDIA_ITEM_ID = @V0",
+        "SELECT T0.MEDIA_ITEM_ID A3, T0.MEDIA_ITEM_ID A4, T0.SOURCE A0, T0.TYPE A1, T0.ID A2 FROM M_EXTERNALIDENTIFIER T0  WHERE T0.MEDIA_ITEM_ID = @V0",
         "A3", "A4", "A5", "A0", "A1", "A2");
       externalAttributeReader.AddResult(episodeItemId, episode, "1", "TEST", ExternalIdentifierAspect.TYPE_SERIES, seriesId);
 

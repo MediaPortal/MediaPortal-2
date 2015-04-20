@@ -32,7 +32,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
             out string statementStr, out IList<BindVar> bindVars)
         {
-            GenerateSqlStatement(true, null, out groupSizeAlias, null, out attributeAliases, out statementStr, out bindVars);
+            GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
         }
 
         /// <summary>
@@ -50,8 +50,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             out string statementStr, out IList<BindVar> bindVars)
         {
             miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-            IDictionary<MediaItemAspectMetadata, string> indexAliases = new Dictionary<MediaItemAspectMetadata, string>();
-            GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, indexAliases, out attributeAliases, out statementStr, out bindVars);
+            GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
         }
     }
 }

@@ -38,14 +38,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         /// <param name="statementStr">SQL statement which was built by this method.</param>
         /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
         public void GenerateSqlStatement(out string mediaItemIdAlias,
-            out string indexAlias,
             out IDictionary<QueryAttribute, string> attributeAliases,
             out string statementStr, out IList<BindVar> bindVars)
         {
             IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-            IDictionary<MediaItemAspectMetadata, string> indexAliases = new Dictionary<MediaItemAspectMetadata, string>();
-            GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, indexAliases, out attributeAliases, out statementStr, out bindVars);
-            indexAlias = indexAliases[_requestedMIA];
+            GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
         }
     }
 }

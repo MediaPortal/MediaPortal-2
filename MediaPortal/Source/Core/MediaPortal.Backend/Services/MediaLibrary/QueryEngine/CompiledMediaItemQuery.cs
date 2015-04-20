@@ -328,12 +328,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             using (IDbCommand command = transaction.CreateCommand())
             {
                 string mediaItemIdAlias;
-                string indexAlias;
                 // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
                 IDictionary<QueryAttribute, string> qa2a;
                 string statementStr;
                 IList<BindVar> bindVars;
-                builder.GenerateSqlStatement(out mediaItemIdAlias, out indexAlias, out qa2a,
+                builder.GenerateSqlStatement(out mediaItemIdAlias, out qa2a,
                   out statementStr, out bindVars);
                 command.CommandText = statementStr;
                 foreach (BindVar bindVar in bindVars)
@@ -350,15 +349,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                             values = new List<MultipleMediaItemAspect>();
                             multipleMiaValues[itemId] = values;
                         }
-                        int index = database.ReadDBValue<Int32>(reader, reader.GetOrdinal(indexAlias));
-                        MultipleMediaItemAspect mia = new MultipleMediaItemAspect(index, miam);
+                        MultipleMediaItemAspect mia = new MultipleMediaItemAspect(miam);
                         foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
                         {
                             if (attr.Cardinality == Cardinality.Inline)
                             {
                                 QueryAttribute qa = _mainSelectAttributes[attr];
                                 string alias = qa2a[qa];
-                                logger.Debug("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
+                                //logger.Debug("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
                                 mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
                             }
                         }
@@ -436,7 +434,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
           if (multipleMiaValues.Count > 0)
           {
-              logger.Debug("Got multiple MIAs [{0}]", string.Join(",", multipleMiaValues.Keys));
+              //logger.Debug("Got multiple MIAs [{0}]", string.Join(",", multipleMiaValues.Keys));
               foreach (MediaItem mediaItem in mediaItems)
               {
                   ICollection<MultipleMediaItemAspect> values;
@@ -444,7 +442,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                       continue;
                   foreach (MultipleMediaItemAspect value in values)
                   {
-                      logger.Debug("Adding MIA {0} #{1}", value.Metadata.Name, value.Index);
+                      //logger.Debug("Adding MIA {0} #{1}", value.Metadata.Name, value.Index);
                       MediaItemAspect.AddAspect(mediaItem.Aspects, value);
                   }
               }

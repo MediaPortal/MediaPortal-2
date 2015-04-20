@@ -122,7 +122,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected void GenerateSqlStatement(bool groupByValues,
         IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out string mediaItemIdOrGroupSizeAlias,
-        IDictionary<MediaItemAspectMetadata, string> indexAliases,
         out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<BindVar> bindVars)
     {
@@ -291,18 +290,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Append(miamAlias);
           if (miamAlias != null)
             miamAliases.Add(kvp.Key, miamAlias);
-
-          if(kvp.Key is MultipleMediaItemAspectMetadata)
-          {
-              result.Append(", ");
-              string indexColumn = kvp.Value.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_INDEX_ID_COL_NAME;
-              result.Append(indexColumn);
-              string indexAlias = ns.GetOrCreate(indexColumn, "A");
-              result.Append(" ");
-              result.Append(indexAlias);
-              if (indexAlias != null)
-                  indexAliases.Add(kvp.Key, indexAlias);
-          }
         }
       }
 
@@ -374,11 +361,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       string mediaItemIdAlias;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-      IDictionary<MediaItemAspectMetadata, string> indexAliases = new Dictionary<MediaItemAspectMetadata, string>();
       IDictionary<QueryAttribute, string> qa2a;
       string statementStr;
       IList<BindVar> bindVars;
-      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, indexAliases, out qa2a, out statementStr, out bindVars);
+      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out qa2a, out statementStr, out bindVars);
       return statementStr;
     }
   }

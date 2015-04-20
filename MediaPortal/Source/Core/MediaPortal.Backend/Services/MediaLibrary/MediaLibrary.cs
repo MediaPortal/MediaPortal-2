@@ -876,7 +876,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             continue;
           }
           if (mia.Deleted)
-            _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia);
+            _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
           else if (wasCreated)
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
           else
