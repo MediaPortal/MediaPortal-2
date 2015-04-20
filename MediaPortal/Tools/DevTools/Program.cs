@@ -60,6 +60,7 @@ namespace MediaPortal.DevTools
       Console.Error.WriteLine("       sources refresh <ID ID ...>");
       Console.Error.WriteLine("       sources reload <ID ID ...>");
       Console.Error.WriteLine("       items list <ID ID ...>");
+      Console.Error.WriteLine("       items search <text>");
       Environment.Exit(1);
     }
 
@@ -82,7 +83,7 @@ namespace MediaPortal.DevTools
       ServiceRegistration.Set<IPathManager>(new PathManager());
       ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_DevTools/config");
       ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_DevTools/log");
-      ServiceRegistration.Set<ILogger>(_logger = new ConsoleLogger(LogLevel.All, true));
+      ServiceRegistration.Set(_logger = new ConsoleLogger(LogLevel.All, true));
 
       if (direct)
       {
@@ -263,16 +264,30 @@ namespace MediaPortal.DevTools
             string sb = " ";
             foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
             {
-              object value = aspect.GetAttributeValue(spec);
-              if (value != null)
+              string valueStr = null;
+              if (spec.IsCollectionAttribute)
+              {
+                IEnumerable values = aspect.GetCollectionAttribute(spec);
+                if (values != null)
+                {
+                  IList<string> list = new List<string>();
+                  foreach (object value in values)
+                    list.Add(value.ToString());
+                  valueStr = string.Format("[{0}]", string.Join(",", list));
+                }
+              }
+              else
+              {
+                object value = aspect.GetAttributeValue(spec);
+                if (value != null)
+                  valueStr = value.ToString();
+              }
+              if (valueStr != null)
               {
                 if (count > 0)
                   sb += ",";
-                sb += string.Format(" {0}({1}/{2})=", spec.AttributeName, spec.AttributeType.Name, spec.Cardinality);
-                if(value is IList)
-                  sb += "[" + string.Join(",", (IList)value) + "]";
-                else
-                  sb += value.ToString();
+                //sb += string.Format(" {0}{1}{2}({3}/{4})={5}", spec.AttributeName, aspect is MultipleMediaItemAspect ? "," : "", aspect is MultipleMediaItemAspect ? ((MultipleMediaItemAspect)aspect).Index.ToString() : "", spec.AttributeType.Name, spec.Cardinality, valueStr);
+                sb += string.Format(" {0}={1}", spec.AttributeName, valueStr);
                 count++;
               }
             }
