@@ -41,7 +41,7 @@ namespace Test.Backend
       if (createIntegerAttribute)
         attributes.Add(mia.ATTR_INTEGER = MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ATTR_INTEGER", typeof(Int32), cardinality, true));
 
-      mia.Metadata = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, table, attributes.ToArray());
+      mia.Metadata = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, table, attributes.ToArray(), attributes.ToArray());
 
       MockCore.AddMediaItemAspectStorage(mia.Metadata);
 

@@ -72,11 +72,17 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Id", 100, Cardinality.Inline, false);
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
-        // TODO: Localize name
-        ASPECT_ID, "ExternalIdentifier", new[] {
-            ATTR_SOURCE,
-            ATTR_TYPE,
-            ATTR_ID,
-        });
+      // TODO: Localize name
+      ASPECT_ID, "ExternalIdentifier",
+        new[] {
+          ATTR_SOURCE,
+          ATTR_TYPE,
+          ATTR_ID,
+        },
+        new[] {
+          ATTR_SOURCE,
+          ATTR_TYPE,
+        }
+      );
   }
 }
