@@ -700,7 +700,6 @@ namespace MediaPortal.Common.MediaManagement
     }
   }
 
-  [DataContract(Name = "multipleMia")]
   public class MultipleMediaItemAspect : MediaItemAspect
   {
     #region Protected fields
