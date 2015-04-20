@@ -28,11 +28,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Xml;
-using Newtonsoft.Json;
 using NUnit.Framework;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace Test.Common
 {
@@ -221,125 +218,6 @@ namespace Test.Common
       Assert.AreEqual(artistId, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
 
       reader.Read(); // Test
-    }
-
-    public class TypeNameSerializationBinder : SerializationBinder
-    {
-      public string TypeFormat { get; private set; }
-
-      public TypeNameSerializationBinder(string typeFormat)
-      {
-        TypeFormat = typeFormat;
-      }
-
-      public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
-      {
-        Console.WriteLine("TypeNameSerializationBinder::BindToName {0}", serializedType);
-        assemblyName = null;
-        if (serializedType == typeof(SingleMediaItemAspect))
-          typeName = "singleMia";
-        else if (serializedType == typeof(MultipleMediaItemAspect))
-          typeName = "multipleMia";
-        else
-          typeName = serializedType.Name;
-      }
-
-      public override Type BindToType(string assemblyName, string typeName)
-      {
-        Console.WriteLine("TypeNameSerializationBinder::BindToType {0} {1}", assemblyName, typeName);
-        if (typeName == "singleMia")
-          return typeof(SingleMediaItemAspect);
-        else if (typeName == "multipleMia")
-          return typeof(MultipleMediaItemAspect);
-
-        string resolvedTypeName = string.Format(TypeFormat, typeName);
-        return Type.GetType(resolvedTypeName, true);
-      }
-    }
-
-    public void TestJsonItem()
-    {
-      Guid trackId = new Guid("11111111-aaaa-aaaa-aaaa-100000000000");
-      Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
-      Guid artistId = new Guid("11111111-aaaa-aaaa-aaaa-100000000002");
-
-      Guid trackRelationship = new Guid("22222222-bbbb-bbbb-bbbb-200000000001");
-      Guid albumRelationship = new Guid("33333333-cccc-cccc-cccc-300000000001");
-      Guid artistRelationship = new Guid("44444444-dddd-dddd-dddd-400000000001");
-
-      IDictionary<Guid, IList<MediaItemAspect>> aspects1 = new Dictionary<Guid, IList<MediaItemAspect>>();
-
-      SingleMediaItemAspect resourceAspect1 = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
-      resourceAspect1.Deleted = true;
-      resourceAspect1.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
-      MediaItemAspect.SetAspect(aspects1, resourceAspect1);
-
-      AddRelationship(aspects1, trackRelationship, albumRelationship, albumId);
-      AddRelationship(aspects1, trackRelationship, artistRelationship, artistId);
-
-      MediaItem track1 = new MediaItem(trackId, aspects1);
-
-      IList<MediaItem> export = new List<MediaItem>();
-      export.Add(track1);
-      export.Add(track1);
-
-      string json = JsonConvert.SerializeObject(export, Formatting.Indented,
-        new JsonSerializerSettings()
-        {
-          //TypeNameHandling = TypeNameHandling.Auto,
-          //Binder = new TypeNameSerializationBinder("MediaPortal.{0}"),
-          //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        });
-      Console.WriteLine("JSON: {0}", json);
-
-      TextWriter writer = new StringWriter();
-      XmlWriter serialiser = new XmlTextWriter(writer);
-      serialiser.WriteStartElement("Test"); // Wrapper around the tracks
-      // Write the track twice
-      track1.Serialize(serialiser);
-      track1.Serialize(serialiser);
-      serialiser.WriteEndElement();
-      Console.WriteLine("XML: {0}", writer.ToString());
-
-      IList<MediaItem> import = JsonConvert.DeserializeObject<IList<MediaItem>>(json,
-        new JsonSerializerSettings
-        {
-          TypeNameHandling = TypeNameHandling.Auto,
-          Binder = new TypeNameSerializationBinder("MediaPortal.{0}"),
-        });
-      Assert.NotNull(import, "Tracks");
-      Assert.AreEqual(2, import.Count, "Track count");
-
-      MediaItem track2 = import[0];
-
-      SingleMediaItemAspect resourceAspect2;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track2.Aspects, ProviderResourceAspect.Metadata, out resourceAspect2), "Resource aspects");
-      Assert.AreEqual(true, resourceAspect2.Deleted, "Track deleted status");
-      Assert.AreEqual("c:\\file.mp3", resourceAspect2.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
-      IList<MediaItemAspect> relationships2 = track2[RelationshipAspect.ASPECT_ID];
-      Assert.IsTrue(track2[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
-      Assert.AreEqual(relationships2.Count, 2, "Track relationship count");
-      Assert.AreEqual(trackRelationship, relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
-      Assert.AreEqual(albumRelationship, relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
-      Assert.AreEqual(albumId, relationships2[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
-      Assert.AreEqual(trackRelationship, relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
-      Assert.AreEqual(artistRelationship, relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
-      Assert.AreEqual(artistId, relationships2[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
-
-      MediaItem track3 = import[1];
-
-      SingleMediaItemAspect resourceAspect3;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track3.Aspects, ProviderResourceAspect.Metadata, out resourceAspect3), "Resource aspects");
-      Assert.AreEqual("c:\\file.mp3", resourceAspect3.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
-      IList<MediaItemAspect> relationships3 = track3[RelationshipAspect.ASPECT_ID];
-      Assert.IsTrue(track3[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
-      Assert.AreEqual(2, relationships3.Count, "Track relationship count");
-      Assert.AreEqual(trackRelationship, relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
-      Assert.AreEqual(albumRelationship, relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
-      Assert.AreEqual(albumId, relationships3[0].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
-      Assert.AreEqual(trackRelationship, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_ROLE), "Track -> album item type");
-      Assert.AreEqual(artistRelationship, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ROLE), "Track -> album relationship type");
-      Assert.AreEqual(artistId, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
     }
   }
 }
