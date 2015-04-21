@@ -40,12 +40,19 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <StackPanel VerticalAlignment="Top" Margin="30">
-      <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
-      <Image Width="64" Height="64" Source="{Binding SmallIconProperty}"/>
-      <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
-      <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
-    </StackPanel>
+    <Grid Margin="10">
+      <Border BorderThickness="0" CornerRadius="15" BorderBrush="Black" Background="Black" Opacity="0.15"/>
+      <StackPanel VerticalAlignment="Top" Margin="20">
+        <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+          <Image Width="100" Height="100" Stretch="Fill" Source="{Binding BigIconProperty}" Margin="0,0,10,0"/>
+          <StackPanel Orientation="Vertical" Margin="5">
+            <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
   </DataTemplate>
 
   <!-- ListView style for all forecasts of the current location -->
@@ -58,13 +65,6 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
-    <!--Setter Property="RenderTransform">
-      <Setter.Value>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1.4" ScaleY="1.4"/>
-        </TransformGroup>
-      </Setter.Value>
-    </Setter-->
   </Style>
 
 </ResourceDictionary>
