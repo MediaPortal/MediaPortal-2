@@ -24,12 +24,12 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.UiComponents.VideoEffectChanger
+namespace MediaPortal.UiComponents.VideoEffectChanger.Settings
 {
   public class VideoEffectChangerSettings
   {
     [Setting(SettingScope.User, true)]
-    public bool Enable { get; set; }
+    public bool IsEnabled { get; set; }
 
     [Setting(SettingScope.User, 576 /* PAL SD */)]
     public int ResolutionLimit { get; set; }

@@ -30,6 +30,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UiComponents.VideoEffectChanger.Settings;
 
 namespace MediaPortal.UiComponents.VideoEffectChanger
 {
@@ -54,7 +55,7 @@ namespace MediaPortal.UiComponents.VideoEffectChanger
 
     private void ConfigureHandler()
     {
-      if (_settings.Settings.Enable)
+      if (_settings.Settings.IsEnabled)
       {
         SubscribeToMessages();
       }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- VideoEffectSetup model -->
+    <Model x:Key="Model" Id="10A1ABE0-2EF6-4DF1-822B-DEBC7DDB676A"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=ChooseEffectDialogHeader,Mode=OneTime}"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
+      <Binding Source="{StaticResource Model}" Path="AvailableEffects" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil" Source="{StaticResource Model}" Path="Select"/>
+
+  </Include.Resources>
+</Include>
