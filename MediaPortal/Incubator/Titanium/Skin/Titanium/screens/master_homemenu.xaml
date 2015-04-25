@@ -70,12 +70,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <!-- Navigates to ShutdownManager.ShutdownDialog, defined by its DialogState ID -->
           <Button Style="{ThemeResource ButtonWideStyle_GrowOnly}" Opacity="0.1"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-            <Image Source="ShutdownIcon.png" />
+            <Image Source="ShutdownIcon.png" Width="40" Height="40" Stretch="Uniform"/>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter Property="Opacity" Value="1.0" />
