@@ -596,7 +596,6 @@
         </MultiBinding>
       </Label.Opacity>
     </Label>
-    </Label>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
