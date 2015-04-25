@@ -144,7 +144,7 @@ namespace MediaPortal.UiComponents.VideoEffectChanger
         if (player.Surface == null)
           return;
 
-        var videoFrameHeight = player.Surface.Description.Height;
+        var videoFrameHeight = player.Surface.Height;
         player.EffectOverride = videoFrameHeight <= _settings.Settings.ResolutionLimit ?
           _settings.Settings.LowerResolutionEffect :
           _settings.Settings.HigherResolutionEffect;
