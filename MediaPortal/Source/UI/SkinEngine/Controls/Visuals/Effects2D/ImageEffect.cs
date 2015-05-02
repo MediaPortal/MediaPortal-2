@@ -70,16 +70,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       };
     }
 
-    public void SetParams(ImageEffectParams newParams)
-    {
-      // Make update calls only if values have been changed, they cause a huge performance drop.
-      if (_effectParams.Equals(newParams))
-      {
-        _effectParams = newParams;
-        UpdateConstants();
-      }
-    }
-
     #region Parameters wrapper properties
 
     /// <summary>
