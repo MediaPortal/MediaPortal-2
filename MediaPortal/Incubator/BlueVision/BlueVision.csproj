@@ -50,12 +50,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Packages\SharpDX.2.6.2\Bin\DirectX11-Signed-net40\SharpDX.dll</HintPath>
+    <Reference Include="SharpDX">
+      <HintPath>..\..\Packages\MediaPortal.SharpDX.2.6.3\lib\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -185,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="packages.config" />
     <None Include="Skin\BlueVision\fonts\DefaultBold.desc" />
     <None Include="Skin\BlueVision\fonts\Default.desc" />
     <None Include="Skin\BlueVision\fonts\FiraSansOT-Light.ttf" />
@@ -197,11 +198,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
-      <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
@@ -209,7 +210,7 @@
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
-      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
       <Name>SkinEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">

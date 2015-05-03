@@ -126,7 +126,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ImageBrush ImageSource="blur.png" Stretch="Fill"/>
             </Rectangle.Fill>
             <Rectangle.Effect>
-              <ZoomBlurEffect BlurAmount="0.1" />
+              <!--<ZoomBlurEffect BlurAmount="0.1" />-->
+              <BlurEffect Radius="20" />
             </Rectangle.Effect>
           </Rectangle>
 
