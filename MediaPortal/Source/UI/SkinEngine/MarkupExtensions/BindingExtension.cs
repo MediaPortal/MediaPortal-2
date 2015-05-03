@@ -156,6 +156,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected IDataDescriptor _lastUpdatedValue = null;
 
+    private readonly object _syncObj = new object();
+
     #endregion
 
     #region Ctor
@@ -176,8 +178,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// Creates a new <see cref="BindingExtension"/> for the use as
     /// <i>data context</i>.
     /// </summary>
-    public BindingExtension(DependencyObject contextObject):
-        base(contextObject)
+    public BindingExtension(DependencyObject contextObject) :
+      base(contextObject)
     {
 #if DEBUG_BINDINGS
       _bindingIDs.Add(this, _idCounter++);
@@ -251,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      BindingExtension bme = (BindingExtension) source;
+      BindingExtension bme = (BindingExtension)source;
       Source = copyManager.GetCopy(bme.Source);
       ElementName = bme.ElementName;
       RelativeSource = bme.RelativeSource;
@@ -290,7 +292,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           return false;
         result = _evaluatedSourceValue;
         return true;
-      } catch
+      }
+      catch
       {
         return false;
       }
@@ -328,12 +331,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     public RelativeSourceExtension @RelativeSource
     {
-      get { return (RelativeSourceExtension) RelativeSourceProperty.GetValue(); }
+      get { return (RelativeSourceExtension)RelativeSourceProperty.GetValue(); }
       set { RelativeSourceProperty.SetValue(value); }
     }
 
-//    public string XPath // TODO: Not implemented yet
-//    { }
+    //    public string XPath // TODO: Not implemented yet
+    //    { }
 
     public AbstractProperty ElementNameProperty
     {
@@ -347,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     public string ElementName
     {
-      get { return (string) ElementNameProperty.GetValue(); }
+      get { return (string)ElementNameProperty.GetValue(); }
       set { ElementNameProperty.SetValue(value); }
     }
 
@@ -363,7 +366,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     public string Path
     {
-      get { return (string) PathProperty.GetValue(); }
+      get { return (string)PathProperty.GetValue(); }
       set
       {
         if (_compiledPath != null)
@@ -379,7 +382,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public BindingMode Mode
     {
-      get { return (BindingMode) _modeProperty.GetValue(); }
+      get { return (BindingMode)_modeProperty.GetValue(); }
       set { _modeProperty.SetValue(value); }
     }
 
@@ -390,7 +393,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public UpdateSourceTrigger UpdateSourceTrigger
     {
-      get { return (UpdateSourceTrigger) UpdateSourceTriggerProperty.GetValue(); }
+      get { return (UpdateSourceTrigger)UpdateSourceTriggerProperty.GetValue(); }
       set { UpdateSourceTriggerProperty.SetValue(value); }
     }
 
@@ -441,7 +444,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     public bool IsSourceValueValid
     {
-      get { return (bool) _sourceValueValidProperty.GetValue(); }
+      get { return (bool)_sourceValueValidProperty.GetValue(); }
       set { _sourceValueValidProperty.SetValue(value); }
     }
 
@@ -591,7 +594,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       if (sourcePathProperty != null)
       {
-        lock (_attachedPropertiesCollection)
+        lock (_syncObj)
           _attachedPropertiesCollection.Add(sourcePathProperty);
         sourcePathProperty.Attach(OnDataContextChanged);
       }
@@ -604,10 +607,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     protected void ResetChangeHandlerAttachments()
     {
-      lock (_attachedPropertiesCollection)
+      lock (_syncObj)
       {
         foreach (AbstractProperty property in _attachedPropertiesCollection)
           property.Detach(OnDataContextChanged);
+
         _attachedPropertiesCollection.Clear();
       }
       if (_attachedSource != null)
@@ -826,10 +830,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         }
         if (current is UIElement)
         {
-          UIElement uiElement = (UIElement) current;
+          UIElement uiElement = (UIElement)current;
           AbstractProperty templateNameScopeProperty = uiElement.TemplateNameScopeProperty;
           AttachToSourcePathProperty(templateNameScopeProperty);
-          if ((result = ((INameScope) templateNameScopeProperty.GetValue())) != null)
+          if ((result = ((INameScope)templateNameScopeProperty.GetValue())) != null)
             return true;
         }
         if (!FindParent(current, out current, FindParentMode.HybridPreferLogicalTree))
@@ -904,9 +908,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
                   return true;
                 }
                 return false;
-                //case RelativeSourceMode.PreviousData:
-                //  // TODO: implement this
-                //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
+              //case RelativeSourceMode.PreviousData:
+              //  // TODO: implement this
+              //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
               default:
                 // Should never occur. If so, we have forgotten to handle a RelativeSourceMode
                 throw new NotImplementedException(
@@ -956,7 +960,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       {
         IDataDescriptor evaluatedValue;
         if (!GetSourceDataDescriptor(out evaluatedValue))
-            // Do nothing if not all necessary properties can be resolved at the current time
+          // Do nothing if not all necessary properties can be resolved at the current time
           return false;
         if (_compiledPath != null)
           try
@@ -1092,13 +1096,13 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       IList<string> l = new List<string>();
       if (Source != null)
-        l.Add("Source="+Source);
+        l.Add("Source=" + Source);
       if (RelativeSource != null)
-        l.Add("RelativeSource="+RelativeSource);
+        l.Add("RelativeSource=" + RelativeSource);
       if (ElementName != null)
-        l.Add("ElementName="+ElementName);
+        l.Add("ElementName=" + ElementName);
       if (!string.IsNullOrEmpty(Path))
-        l.Add("Path="+Path);
+        l.Add("Path=" + Path);
       return "{" + BindingTypeName + " " + StringUtils.Join(",", l) + "}";
     }
 

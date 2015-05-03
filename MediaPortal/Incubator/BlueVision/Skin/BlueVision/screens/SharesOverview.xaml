@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesOverview.Title]"/>
+
+    <Model x:Key="SharesModel" Id="0F1B04C1-0914-4AEB-BBE6-44708BADB25D"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource SharesModel}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            Style="{ThemeResource SharesOverviewListViewStyle}"
+            IsVisible="{Binding IsHomeServerConnected}"
+            ItemsSource="{Binding Path=SharesList,Mode=OneTime}"/>
+        <Label Grid.Row="0" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[SharesOverview.NotConnectedToHomeServer]" Color="{ThemeResource HintTextColor}"
+            IsVisible="{Binding !IsHomeServerConnected}" Wrap="True"/>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
