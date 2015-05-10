@@ -25,6 +25,8 @@
   <Builder Name="VideoPlayerMimeTypeMapping" ClassName="MediaPortal.UI.Players.Video.VideoPlayerMimeTypeMappingBuilder"/>
 
   <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <!-- Try to play all unknown video types by default video player -->
+    <VideoPlayerMimeTypeMapping Id="unknown" ClassName="MediaPortal.UI.Players.Video.VideoPlayer" MimeType="video/unknown"/>
     <VideoPlayerMimeTypeMapping Id="wmv" ClassName="MediaPortal.UI.Players.Video.VideoPlayer" MimeType="video/x-ms-wmv"/>
     <VideoPlayerMimeTypeMapping Id="ts" ClassName="MediaPortal.UI.Players.Video.TsVideoPlayer" MimeType="video/mp2t"/>
     <VideoPlayerMimeTypeMapping Id="dvd" ClassName="MediaPortal.UI.Players.Video.DvdPlayer" MimeType="video/dvd"/>
