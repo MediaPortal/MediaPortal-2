@@ -64,6 +64,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="EventManager test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-eventmanager}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Loop scroll test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-loopscroll}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>
