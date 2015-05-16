@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -133,12 +134,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
         SetLayout();
 
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_MOVIES_MIAS, Movies, item => new MovieItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new SeriesItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_IMAGE_MIAS, Images, item => new ImageItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Videos, item => new VideoItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));
-        FillList(contentDirectory, NECESSARY_RECORDING_MIAS, Recordings, item => new VideoItem(item));
+        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_MOVIES_MIAS, Movies, item => new MovieItem(item));
+        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new SeriesItem(item));
+        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_IMAGE_MIAS, Images, item => new ImageItem(item));
+        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Videos, item => new VideoItem(item));
+        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));
+        FillList_Async(contentDirectory, NECESSARY_RECORDING_MIAS, Recordings, item => new VideoItem(item));
         return true;
       }
       catch (Exception ex)
@@ -146,6 +147,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         ServiceRegistration.Get<ILogger>().Error("Error updating Latest Media", ex);
         return false;
       }
+    }
+
+    protected void FillList_Async(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
+    {
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() => FillList(contentDirectory, necessaryMIAs, list, converterAction));
     }
 
     protected void FillList(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
