@@ -77,8 +77,8 @@
             <Binding Source="0"/>
           </MultiBinding>
         </Label.Opacity>
-      </Label>   
-      
+      </Label>
+
       <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource FilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -118,7 +118,7 @@
       </Grid>
     </Grid>
   </ControlTemplate>
-  
+
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -146,7 +146,7 @@
   </ControlTemplate>
 
   <!-- Container -->
- <ControlTemplate x:Key="ContainerCoverTemplate">
+  <ControlTemplate x:Key="ContainerCoverTemplate">
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Image Width="193" Height="128" Stretch="Fill"
              HorizontalAlignment="Center" VerticalAlignment="Center" Source="Container.png" >
@@ -185,8 +185,8 @@
             <Binding Source="0"/>
           </MultiBinding>
         </Label.Opacity>
-      </Label>   
-      
+      </Label>
+
       <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource ContainerCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -234,7 +234,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-      </Grid.RowDefinitions>   
+      </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Fill" Source="Container.png"
            Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Opacity>
@@ -244,7 +244,7 @@
             <Binding Source="0.8"/>
           </MultiBinding>
         </Image.Opacity>
-      </Image>  
+      </Image>
       <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="Black"
            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25"/>
       <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
@@ -255,10 +255,13 @@
   <!-- Series Filter -->
 
   <ControlTemplate x:Key="SeriesFilterCoverTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource SmallRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png"
              HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -269,7 +272,7 @@
       </Image>
     </Grid>
   </ControlTemplate>
-  
+
   <ControlTemplate x:Key="ListViewSeriesFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,43,0">
       <Grid.ColumnDefinitions>
@@ -390,7 +393,7 @@
       </Grid>
     </Grid>
   </ControlTemplate>
-  
+
   <!--ControlTemplate x:Key="ListViewSeriesFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,40,0">
       <Grid.ColumnDefinitions>
@@ -480,10 +483,13 @@
   </ControlTemplate-->
 
   <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <!--Image Width="135" Height="185" Stretch="Fill" Margin="-3,-3,-7,-7" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image.Source>
@@ -506,9 +512,9 @@
             <Binding Source="1.0"/>
             <Binding Source="0.8"/>
           </MultiBinding>
-        </Image.Opacity>  
+        </Image.Opacity>
       </Image>
-      
+
       <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
@@ -523,10 +529,13 @@
 
   <!-- Movie Collection Filter -->
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
-  <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid>
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
         <Image.Source>
@@ -596,34 +605,37 @@
   <!-- MOVIE -->
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
- <ControlTemplate x:Key="GridViewMovieItemTemplate">
-   <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+  <ControlTemplate x:Key="GridViewMovieItemTemplate">
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-         <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
-        <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png" >
-          <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+      <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-          </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.8"/>
-            </MultiBinding>
-          </Image.Opacity>
-        </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
+        </Image.Source>
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.8"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="UnwatchedTab_small.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
     </Grid>
   </ControlTemplate>
 
@@ -668,39 +680,45 @@
       </Image>
 
       <Grid Grid.Row="0" Width="320" Height="445" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
-        <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
         <Grid>
-        <Grid.OpacityMask>
-          <VisualBrush Visual="{Binding ElementName=mask}"/>
-        </Grid.OpacityMask>      
-        <Image Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Source="{Binding MediaItem}">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.8"/>
-            </MultiBinding>
-          </Image.Opacity>
-        </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
+          <Grid.OpacityMask>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+              </VisualBrush.Visual>
+            </VisualBrush>
+          </Grid.OpacityMask>
+          <Image Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Source="{Binding MediaItem}">
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.8"/>
+              </MultiBinding>
+            </Image.Opacity>
+          </Image>
+          <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                <Binding Path="PlayCount"/>
+                <Binding Source="UnwatchedTab_small.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
         </Grid>
       </Grid>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="MovieCoverTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource SmallRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png"
              HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -883,9 +901,12 @@
       <Grid Width="550" Height="360" Grid.Row="0">
         <Grid>
           <Grid.OpacityMask>
-             <VisualBrush Visual="{Binding ElementName=mask}"/>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+              </VisualBrush.Visual>
+            </VisualBrush>
           </Grid.OpacityMask>
-          <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
           <Image Stretch="UniformToFill" FallbackSource="Video_normal.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
             <Image.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -894,7 +915,7 @@
                 <Binding Source="0.8"/>
               </MultiBinding>
             </Image.Opacity>
-          </Image>  
+          </Image>
           <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
@@ -920,48 +941,6 @@
       </Grid.RowDefinitions>
       <!--Rectangle Grid.Row="0" Grid.Column="0" Fill="Black" RadiusY="{StaticResource SmallRadius}" RadiusX="{StaticResource SmallRadius}" Opacity="0.1" Stretch="Fill"/-->
       <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-                
-      <Rectangle x:Name="mask" Fill="Black" RadiusY="{StaticResource SmallRadius}" RadiusX="{StaticResource SmallRadius}"/>
-      <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid.OpacityMask>
-          <VisualBrush Visual="{Binding ElementName=mask}"/>
-        </Grid.OpacityMask>
-        <Image Source="{Binding MediaItem}" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
-               HorizontalAlignment="Center" VerticalAlignment="Center">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.8"/>
-            </MultiBinding>
-          </Image.Opacity>
-        </Image>  
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
-      </Grid>
-    </Grid>
-    </Grid>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="VideoCoverTemplate">
-      <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
@@ -972,14 +951,62 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Rectangle x:Name="mask" Fill="Black" RadiusY="{StaticResource SmallRadius}" RadiusX="{StaticResource SmallRadius}"/>
+
         <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
           <Grid.OpacityMask>
-            <VisualBrush Visual="{Binding ElementName=mask}"/>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+              </VisualBrush.Visual>
+            </VisualBrush>
           </Grid.OpacityMask>
-          <Image Height="128" Stretch="Uniform" FallbackSource="VideoNormal.png"
-                 HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
+          <Image Source="{Binding MediaItem}" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
+               HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.8"/>
+              </MultiBinding>
+            </Image.Opacity>
           </Image>
+          <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                <Binding Path="PlayCount"/>
+                <Binding Source="UnwatchedTab_small.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="VideoCoverTemplate">
+    <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image Height="128" Stretch="Uniform" FallbackSource="VideoNormal.png"
+                 HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
+        </Image>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1125,10 +1152,13 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="AudioCoverTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black" />  
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-         <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Stretch="Fill" 
              HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -1248,7 +1278,6 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewAudioItemTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource LargeRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid x:Name="ItemControl" Margin="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="174"/>
@@ -1257,9 +1286,13 @@
         <RowDefinition Height="175"/>
       </Grid.RowDefinitions>
       <Grid.OpacityMask>
-         <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
-      
+
       <!--Image Width="179" Height="181" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Margin="-15,-2,-6,-10">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1270,7 +1303,7 @@
         </Image.Source>
       </Image-->
 
-       <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio_square.png">
+      <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio_square.png">
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -1278,20 +1311,20 @@
             <Binding Source="0.8"/>
           </MultiBinding>
         </Image.Opacity>
-       </Image>
-       <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source=""/>
-              <Binding Source="UnheardTab_small.png"/>
-            </MultiBinding>
-          </Image.Source>
-       </Image>
-     </Grid>
+      </Image>
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source=""/>
+            <Binding Source="UnheardTab_small.png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+    </Grid>
   </ControlTemplate>
-  
-    
+
+
   <ControlTemplate x:Key="CoverViewAudioItemTemplate">
     <Grid x:Name="ItemControl" Margin="3,0,3,0" >
       <Grid.ColumnDefinitions>
@@ -1333,10 +1366,13 @@
       </Image>
 
       <Grid Width="325" Height="325" Grid.Row="0">
-        <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
         <Grid>
           <Grid.OpacityMask>
-            <VisualBrush Visual="{Binding ElementName=mask}"/>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+              </VisualBrush.Visual>
+            </VisualBrush>
           </Grid.OpacityMask>
           <Image Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}"  />
           <Image HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -1356,10 +1392,13 @@
   <!-- Audio Album -->
 
   <ControlTemplate x:Key="AudioAlbumCoverTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource SmallRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Stretch="Fill" FallbackSource="Audio_square.png"
              HorizontalAlignment="Center" VerticalAlignment="Center"       
@@ -1372,7 +1411,7 @@
     </Grid>
   </ControlTemplate>
 
-  
+
   <ControlTemplate x:Key="ListViewAlbumItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,43,0">
       <Grid.ColumnDefinitions>
@@ -1527,7 +1566,6 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewAlbumItemTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid x:Name="ItemControl" Margin="1,0,1,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="177"/>
@@ -1536,7 +1574,11 @@
         <RowDefinition Height="179"/>
       </Grid.RowDefinitions>
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image x:Name="ItemTypeAudio" Grid.Row="0" Stretch="Fill"
              HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}"
@@ -1570,10 +1612,13 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Rectangle x:Name="mask" Fill="Black" RadiusY="{StaticResource SmallRadius}" RadiusX="{StaticResource SmallRadius}"/>
       <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="128" MaxWidth="400">
         <Grid.OpacityMask>
-          <VisualBrush Visual="{Binding ElementName=mask}"/>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
         </Grid.OpacityMask>
         <Image Stretch="Uniform" 
                HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
@@ -1581,7 +1626,7 @@
       </Grid>
     </Grid>
   </ControlTemplate>
-  
+
   <ControlTemplate x:Key="ListViewImageItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,45,0">
       <Grid.ColumnDefinitions>
@@ -1666,7 +1711,6 @@
 
 
   <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="193" Height="128">
 
       <!--Image Width="207" Height="134" Stretch="Fill" Margin="-3,-3,-9,-9" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1680,7 +1724,11 @@
       </Image-->
 
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Source="{Binding MediaItem}" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
              HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1690,18 +1738,18 @@
             <Binding Source="1.0"/>
             <Binding Source="0.8"/>
           </MultiBinding>
-        </Image.Opacity>      
+        </Image.Opacity>
       </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
-      </Grid>
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="UnwatchedTab_small.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+    </Grid>
   </ControlTemplate>
 
   <!-- Specific media navigation data templates -->
