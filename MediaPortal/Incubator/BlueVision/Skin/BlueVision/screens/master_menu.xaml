@@ -132,15 +132,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <Rectangle Fill="{ThemeResource DialogBackgroundBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
                Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="1">
-            <!-- TODO: Better blur effect with adjustable Radius -->
-            <!--<Rectangle.Effect>
-              <ZoomBlurEffect BlurAmount="0.1" />
-            </Rectangle.Effect>-->
           </Rectangle>
 
           <Border x:Name="DialogBorder"
-            Background="{ThemeResource DialogBackgroundBrush}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
-            VerticalAlignment="Center" HorizontalAlignment="Center">
+            Background="Black" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
+            VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1">
             <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
               <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top" Margin="5"
                  VerticalAlignment="Top" HorizontalAlignment="Stretch">
