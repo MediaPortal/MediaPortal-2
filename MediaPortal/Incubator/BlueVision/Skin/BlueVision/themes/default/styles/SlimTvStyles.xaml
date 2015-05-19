@@ -257,10 +257,13 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="RecordingCoverTemplate">
-    <Border Name="mask" Background="White" CornerRadius="13.5" BorderThickness="0" BorderBrush="Black"/>
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
       </Grid.OpacityMask>
       <Image Margin="0,0,0,0"/>
       <Image Width="193" Height="128" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
