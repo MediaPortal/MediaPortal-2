@@ -413,7 +413,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       Share usedShare = possibleShares.OrderByDescending(s => s.BaseResourcePath.LastPathSegment.Path.Length).First();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
-      importerWorker.ScheduleImport(LocalFsResourceProviderBase.ToResourcePath(fileName), usedShare.MediaCategories, false);
+      importerWorker.ScheduleRefresh(usedShare.BaseResourcePath, usedShare.MediaCategories, true);
     }
 
     #endregion
