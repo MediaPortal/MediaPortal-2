@@ -781,6 +781,92 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return true;
     }
 
+    /// <summary>
+    /// Focuses the first line if an item on the last line currently has focus
+    /// </summary>
+    /// <returns>true if the first line was focused</returns>
+    protected override bool TryLoopToFirstLine()
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        return base.TryLoopToFirstLine();
+      int maxIndex = itemProvider.NumItems - 1;
+      if (maxIndex < 0)
+        return false;
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false; 
+      IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
+      if (lines.Count == 0)
+        return false;
+      var lastLine = lines[lines.Count - 1];
+      //check if last arranged line is actual last line
+      if (lastLine.EndIndex != maxIndex)
+        return false;
+      for (int childIndex = lastLine.StartIndex; childIndex <= lastLine.EndIndex; childIndex++)
+      {
+        FrameworkElement item = GetItem(childIndex, itemProvider, false);
+        if (item != null && InVisualPath(item, currentElement))
+        {
+          //item on last line has focus
+          //assume first line always has at least same number of items as last line
+          //set focus to item in same position on first line
+          item = GetItem(childIndex - lastLine.StartIndex, itemProvider, false);
+          if (item != null)
+            item.SetFocusPrio = SetFocusPriority.Default;
+          SetScrollIndex(0, true);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Focuses the last line if the first line currently has focus
+    /// </summary>
+    /// <returns>true if the last line was focused</returns>
+    protected override bool TryLoopToLastLine()
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        return base.TryLoopToFirstLine();
+      int numItems = itemProvider.NumItems;
+      if (numItems == 0)
+        return false;
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
+      if (lines.Count == 0)
+        return false;
+      var firstLine = lines[0];
+      //check if first arranged line is actual first line
+      if (firstLine.StartIndex != 0)
+        return false;
+      for (int childIndex = firstLine.StartIndex; childIndex <= firstLine.EndIndex; childIndex++)
+      {
+        FrameworkElement item = GetItem(childIndex, itemProvider, false);
+        if (item != null && InVisualPath(item, currentElement))
+        {
+          //item on first line has focuse
+          int lineLength = firstLine.EndIndex - firstLine.StartIndex + 1;
+          //calculate number of items on last line, may be fewer than first line
+          int remainder = itemProvider.NumItems % lineLength;
+          if(remainder == 0)
+            remainder = lineLength;
+          //set focus to item in same position or last item if less
+          int itemIndex = numItems - remainder + childIndex;
+          CalcHelper.Bound(ref itemIndex, 0, numItems - 1);
+          item = GetItem(itemIndex, itemProvider, false);
+          if (item != null)
+            item.SetFocusPrio = SetFocusPriority.Default;
+          SetScrollIndex(int.MaxValue, false);
+          return true;
+        }
+      }
+      return false;
+    }
+
     #endregion
 
     #region IScrollInfo implementation overrides

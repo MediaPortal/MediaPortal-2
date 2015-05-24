@@ -712,6 +712,59 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Focuses the first item if the last item currently has focus
+    /// </summary>
+    /// <returns>true if the first item was focused</returns>
+    protected override bool TryLoopToFirstItem()
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        return base.TryLoopToFirstItem();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      int maxIndex = itemProvider.NumItems - 1;
+      if (maxIndex < 0)
+        return false;
+      FrameworkElement item = GetItem(maxIndex, itemProvider, false);
+      if (item == null || !InVisualPath(item, currentElement))
+        return false;
+      //last item has focus, focus first item
+      SetScrollIndex(0, true);
+      item = GetItem(0, itemProvider, false);
+      if (item != null)
+        item.SetFocusPrio = SetFocusPriority.Default;
+      return true;
+    }
+
+    /// <summary>
+    /// Focuses the last item if the first item currently has focus
+    /// </summary>
+    /// <returns>true if the last item was focused</returns>
+    protected override bool TryLoopToLastItem()
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        return base.TryLoopToLastItem();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      int maxIndex = itemProvider.NumItems - 1;
+      maxIndex = itemProvider.NumItems - 1;
+      if (maxIndex < 0)
+        return false;
+      FrameworkElement item = GetItem(0, itemProvider, false);
+      if (item == null || !InVisualPath(item, currentElement))
+        return false;
+      //first item has focus, focus last item
+      SetScrollIndex(maxIndex, false);
+      item = GetItem(maxIndex, itemProvider, false);
+      if (item != null)
+        item.SetFocusPrio = SetFocusPriority.Default;
+      return true;
+    }
+
     public override bool FocusPageUp()
     {
       IItemProvider itemProvider = ItemProvider;

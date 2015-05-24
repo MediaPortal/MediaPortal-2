@@ -56,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     #region Protected fields
 
     protected AbstractProperty _orientationProperty;
+    protected AbstractProperty _loopScrollProperty;
     protected float _totalHeight;
     protected float _totalWidth;
 
@@ -93,6 +94,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void Init()
     {
       _orientationProperty = new SProperty(typeof(Orientation), Orientation.Vertical);
+      _loopScrollProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -111,6 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       StackPanel p = (StackPanel) source;
       Orientation = p.Orientation;
+      LoopScroll = p.LoopScroll;
       DoScroll = p.DoScroll;
       Attach();
     }
@@ -128,6 +131,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get { return (Orientation) _orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LoopScrollProperty
+    {
+      get { return _loopScrollProperty; }
+    }
+    /// <summary>
+    /// Whether to enable looping to first/last item when scrolling
+    /// </summary>
+    public bool LoopScroll
+    {
+      get { return (bool)_loopScrollProperty.GetValue(); }
+      set { _loopScrollProperty.SetValue(value); }
     }
 
     #endregion
@@ -513,6 +529,46 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return nextElement != null && nextElement.TrySetFocus(true);
     }
 
+    /// <summary>
+    /// Focuses the first item if the last item currently has focus
+    /// </summary>
+    /// <returns>true if the first item was focused</returns>
+    protected virtual bool TryLoopToFirstItem()
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+      if (visibleChildren.Count == 0)
+        return false;
+      if (!InVisualPath(visibleChildren[visibleChildren.Count - 1], currentElement))
+        return false;
+      //last item has focus, focus first item
+      SetScrollIndex(0, true);
+      visibleChildren[0].SetFocusPrio = SetFocusPriority.Default;
+      return true;
+    }
+
+    /// <summary>
+    /// Focuses the last item if the first item currently has focus
+    /// </summary>
+    /// <returns>true if the last item was focused</returns>
+    protected virtual bool TryLoopToLastItem()
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+      if (visibleChildren.Count == 0)
+        return false;
+      if (!InVisualPath(visibleChildren[0], currentElement))
+        return false;
+      //first item has focus, focus last item
+      SetScrollIndex(int.MaxValue, false);
+      visibleChildren[visibleChildren.Count - 1].SetFocusPrio = SetFocusPriority.Default;
+      return true;
+    }
+
     #endregion
 
     #region Base overrides
@@ -556,28 +612,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public virtual bool FocusUp()
     {
       if (Orientation == Orientation.Vertical)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Up);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Up) || (LoopScroll && TryLoopToLastItem());
       return false;
     }
 
     public virtual bool FocusDown()
     {
       if (Orientation == Orientation.Vertical)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Down);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Down) || (LoopScroll && TryLoopToFirstItem());
       return false;
     }
 
     public virtual bool FocusLeft()
     {
       if (Orientation == Orientation.Horizontal)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Left);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Left) || (LoopScroll && TryLoopToLastItem());
       return false;
     }
 
     public virtual bool FocusRight()
     {
       if (Orientation == Orientation.Horizontal)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Right);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Right) || (LoopScroll && TryLoopToFirstItem());
       return false;
     }
 

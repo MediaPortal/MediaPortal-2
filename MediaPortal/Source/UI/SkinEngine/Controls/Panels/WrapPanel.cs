@@ -101,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     #region Protected fields
 
     protected AbstractProperty _orientationProperty;
+    protected AbstractProperty _loopScrollProperty;
     protected float _totalHeight;
     protected float _totalWidth;
 
@@ -134,6 +135,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void Init()
     {
       _orientationProperty = new SProperty(typeof(Orientation), Orientation.Horizontal);
+      _loopScrollProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -152,6 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       WrapPanel p = (WrapPanel) source;
       Orientation = p.Orientation;
+      LoopScroll = p.LoopScroll;
       Attach();
     }
 
@@ -166,6 +169,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get { return (Orientation) _orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LoopScrollProperty
+    {
+      get { return _loopScrollProperty; }
+    }
+
+    /// <summary>
+    /// Whether to enable looping to first/last line when scrolling
+    /// </summary>
+    public bool LoopScroll
+    {
+      get { return (bool)_loopScrollProperty.GetValue(); }
+      set { _loopScrollProperty.SetValue(value); }
     }
 
     #region Layouting
@@ -651,6 +668,71 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return nextElement != null && nextElement.TrySetFocus(true);
     }
 
+    /// <summary>
+    /// Focuses the first line if an item on the last line currently has focus
+    /// </summary>
+    /// <returns>true if the first line was focused</returns>
+    protected virtual bool TryLoopToFirstLine()
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+      if (visibleChildren.Count == 0)
+        return false;
+      IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
+      if (lines.Count == 0)
+        return false;
+      var lastLine = lines[lines.Count - 1];
+      for (int childIndex = lastLine.StartIndex; childIndex <= lastLine.EndIndex; childIndex++)
+      {
+        if (InVisualPath(visibleChildren[childIndex], currentElement))
+        {
+          //item on last line has focus
+          //assume first line always has at least same number of items as last line
+          //set focus to item in same position on first line
+          SetScrollIndex(0, true);
+          visibleChildren[childIndex - lastLine.StartIndex].SetFocusPrio = SetFocusPriority.Default;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Focuses the last line if the first line currently has focus
+    /// </summary>
+    /// <returns>true if the last line was focused</returns>
+    protected virtual bool TryLoopToLastLine()
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+      if (visibleChildren.Count == 0)
+        return false;
+      IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
+      if (lines.Count == 0)
+        return false;
+      var firstLine = lines[0];
+      for (int childIndex = firstLine.StartIndex; childIndex <= firstLine.EndIndex; childIndex++)
+      {
+        if (InVisualPath(visibleChildren[childIndex], currentElement))
+        {
+          //item on first line has focus
+          var lastLine = lines[lines.Count - 1];
+          //last line may have fewer items than first line
+          //set focus to item in same position or last item if less
+          int itemIndex = lastLine.StartIndex + childIndex;
+          CalcHelper.Bound(ref itemIndex, 0, visibleChildren.Count - 1);
+          SetScrollIndex(int.MaxValue, false);
+          visibleChildren[itemIndex].SetFocusPrio = SetFocusPriority.Default;
+          return true;
+        }
+      }
+      return false;
+    }
+
     #endregion
 
     #region Base overrides
@@ -706,28 +788,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public virtual bool FocusUp()
     {
       if (Orientation == Orientation.Horizontal)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Up);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Up) || (LoopScroll && TryLoopToLastLine());
       return false;
     }
 
     public virtual bool FocusDown()
     {
       if (Orientation == Orientation.Horizontal)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Down);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Down) || (LoopScroll && TryLoopToFirstLine());
       return false;
     }
 
     public virtual bool FocusLeft()
     {
       if (Orientation == Orientation.Vertical)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Left);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Left) || (LoopScroll && TryLoopToLastLine());
       return false;
     }
 
     public virtual bool FocusRight()
     {
       if (Orientation == Orientation.Vertical)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Right);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Right) || (LoopScroll && TryLoopToFirstLine());
       return false;
     }
 
