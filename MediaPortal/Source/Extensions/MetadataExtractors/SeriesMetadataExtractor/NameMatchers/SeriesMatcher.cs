@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         };
 
     /// <summary>
-    /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
+    /// Tries to match series by checking the <paramref name="folderOrFileLfsra"/> for known patterns. The match is only successful,
     /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
@@ -71,10 +71,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// <returns><c>true</c> if successful.</returns>
     public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo)
     {
+      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out seriesInfo);
+    }
+
+    /// <summary>
+    /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
+    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// </summary>
+    /// <param name="folderOrFileName">Full path to file</param>
+    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <returns><c>true</c> if successful.</returns>
+    public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
+    {
       foreach (Regex matcher in _matchers)
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
-        Match ma = matcher.Match(folderOrFileLfsra.LocalFileSystemPath);
+        Match ma = matcher.Match(folderOrFileName);
         seriesInfo = ParseSeries(ma);
         if (seriesInfo.IsCompleteMatch)
           return true;

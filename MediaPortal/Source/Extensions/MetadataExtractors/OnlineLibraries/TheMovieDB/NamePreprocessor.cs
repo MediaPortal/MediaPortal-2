@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     public const string GROUP_YEAR = "year";
     public static readonly IList<Regex> REGEXP_TITLE_YEAR = new List<Regex>
       {
-        new Regex(@"(?<title>[^\\|\/]*)\s*\((?<year>(19|20)\d{2})\)[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
+        new Regex(@"(?<title>[^\\|\/]*?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
         // Can be extended
       };
 
@@ -52,6 +52,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
         new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase), 
         // Can be extended
       };
+
+    protected static Regex _cleanUpWhiteSpaces = new Regex(@"[\.|_](\S|$)");
+    protected static Regex _trimWhiteSpaces = new Regex(@"\s{2,}");
 
     public static bool MatchTitleYear(MovieInfo movieInfo)
     {
@@ -73,8 +76,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       string originalTitle = movieInfo.MovieName;
       foreach (Regex regex in REGEXP_CLEANUPS)
         movieInfo.MovieName = regex.Replace(movieInfo.MovieName, "");
-
+      movieInfo.MovieName = CleanupWhiteSpaces(movieInfo.MovieName);
       return originalTitle != movieInfo.MovieName;
+    }
+
+    /// <summary>
+    /// Cleans up strings by replacing unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
+    /// </summary>
+    public static string CleanupWhiteSpaces(string str)
+    {
+      if (string.IsNullOrEmpty(str))
+        return str;
+      str = _cleanUpWhiteSpaces.Replace(str, " $1");
+      //replace multiple spaces with single space
+      return _trimWhiteSpaces.Replace(str, " ").Trim(' ', '-');
     }
   }
 }
