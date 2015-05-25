@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
@@ -328,9 +329,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
       ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
-      NavigateToHome();
-      CreatePositionedItems();
-      UpdateSelectedGroup();
+      if (NavigateToHome())
+      {
+        CreatePositionedItems();
+        UpdateSelectedGroup();
+      }
     }
 
     private void IsHomeChanged(AbstractProperty property, object oldvalue)
@@ -345,14 +348,23 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
-    private void NavigateToHome()
+    private bool NavigateToHome()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (workflowManager == null)
-        return;
+      try
+      {
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        if (workflowManager == null)
+          return false;
 
-      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != HOME_STATE_ID)
-        workflowManager.NavigatePopToState(HOME_STATE_ID, false);
+        if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != HOME_STATE_ID)
+          workflowManager.NavigatePopToState(HOME_STATE_ID, false);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("HomeMenuModel: Failed to navigate.", ex);
+        return false;
+      }
+      return true;
     }
 
     private void UpdateSelectedGroup()
