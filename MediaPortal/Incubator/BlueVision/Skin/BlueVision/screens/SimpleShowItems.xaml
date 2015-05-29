@@ -22,14 +22,6 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <!--Grid.OpacityMask>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Offset="0.5" Color="Black"></GradientStop>
-            <GradientStop Offset="1" Color="Transparent"></GradientStop>
-          </LinearGradientBrush>
-        </Grid.OpacityMask-->
-        
-        
         <Control Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsList.inc"/>
