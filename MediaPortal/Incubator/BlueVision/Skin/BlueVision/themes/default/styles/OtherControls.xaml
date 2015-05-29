@@ -8,7 +8,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
-    DependsOnStyleResources="Colors,Buttons,Consts"
+    DependsOnStyleResources="Colors,Buttons,Consts,Widgets"
     >
 
   <!-- BackgroundManager model -->
@@ -426,38 +426,18 @@
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
     <Grid>
-    <!-- SHADOW -->
-    <Grid Margin="-4">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="24"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="24"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="24"  />
-        <RowDefinition Height="*"  />
-        <RowDefinition Height="24"  />
-      </Grid.RowDefinitions>
-      <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
-      <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
-      <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
-      <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
-      <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
-      <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
-      <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
-      <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
-      <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
-    </Grid>
-    <!-- SHADOW -->
-    
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="60"/>
-      </Grid.RowDefinitions>
+      <!-- SHADOW -->
+      <Control Style="{ThemeResource Shadow_4_24}" />
+      <!-- SHADOW -->
+
+      <Grid x:Name="ItemControl">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
 
         <Grid.OpacityMask>
           <VisualBrush>
@@ -465,7 +445,7 @@
               <Border Name="mask" Background="White" CornerRadius="16" BorderThickness="0" BorderBrush="Black"/>
             </VisualBrush.Visual>
           </VisualBrush>
-        </Grid.OpacityMask>  
+        </Grid.OpacityMask>
         <!-- Light blue background fill -->
         <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
             x:Name="HomeFill" Fill="#FF808080" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
