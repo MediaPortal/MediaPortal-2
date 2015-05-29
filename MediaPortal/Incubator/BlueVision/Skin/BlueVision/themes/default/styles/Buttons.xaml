@@ -81,7 +81,6 @@
   </Storyboard>
 
   <Storyboard x:Key="FocusedGroupMenuItemStoryboard" FillBehavior="HoldEnd">
-    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <StaticResource ResourceKey="FocusedGroupMenuItemStoryboard_GrowOnly"/>
   </Storyboard>
 
@@ -296,8 +295,8 @@
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
-            <!-- using the ancestor ListViewItem.Selected property instead of Button.Focused for highlighting the active item so it is visible all the time -->
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Selected}" Value="false">
+            <!-- using the ancestor GroupMenuListItem.IsActive property instead of Button.Focused for highlighting the active item so it is visible all the time -->
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Context.IsActive}" Value="False">
               <Setter Property="Opacity" Value="0.4"/>
             </DataTrigger>
 

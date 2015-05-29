@@ -68,6 +68,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Converters\StringCaseConverter.cs" />
+    <Compile Include="Models\GroupMenuListItem.cs" />
     <Compile Include="Models\GridListItem.cs" />
     <Compile Include="Models\GroupMenuListView.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />

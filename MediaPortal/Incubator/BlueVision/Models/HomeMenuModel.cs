@@ -208,9 +208,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       // unfortunately we can not access ScreenManager.HOME_SCREEN without adding another reference to the plugin
       if (String.Equals(screenManager.ActiveScreenName, "home"))
       {
-        foreach (ListItem listItem in MainMenuGroupList)
+        foreach (GroupMenuListItem listItem in MainMenuGroupList)
         {
-          if (listItem.Selected)
+          if (listItem.IsActive)
           {
             LastSelectedItem = listItem;
             LastSelectedItemName = listItem[Consts.KEY_NAME];
@@ -234,12 +234,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         foreach (var group in _menuSettings.MainMenuGroupNames)
         {
           string groupName = group.Name;
-          var groupItem = new ListItem(Consts.KEY_NAME, groupName);
+          var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
           groupItem.AdditionalProperties["Id"] = group.Id.ToString();
           if (idx == _menuSettings.DefaultIndex)
           {
             IsHome = group.Id.ToString().Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
-            groupItem.Selected = true;
+            groupItem.IsActive = true;
           }
           _mainMenuGroupList.Add(groupItem);
           idx++;
@@ -370,11 +370,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     private void UpdateSelectedGroup()
     {
       int idx = 0;
-      foreach (ListItem listItem in MainMenuGroupList)
+      foreach (GroupMenuListItem listItem in MainMenuGroupList)
       {
-        listItem.Selected = (idx++) == _menuSettings.DefaultIndex;
+        listItem.IsActive = (idx++) == _menuSettings.DefaultIndex;
         // if the group is selected, it is the LastSelectedItem now.
-        if (listItem.Selected)
+        if (listItem.IsActive)
         {
           LastSelectedItem = listItem;
           LastSelectedItemName = listItem[Consts.KEY_NAME];
