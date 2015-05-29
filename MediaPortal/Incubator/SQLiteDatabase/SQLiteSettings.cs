@@ -77,6 +77,9 @@ namespace MediaPortal.Database.SQLite
     private const string TEMP_STORE_MEMORY_COMMAND = "PRAGMA temp_store=MEMORY;";
     private const bool DEFAULT_USE_TEMP_STORE_MEMOY = true;
 
+    private const string THREADS_COMMAND = "PRAGMA threads={0};";
+    private const bool DEFAULT_USE_THREADS = true;
+
     // If SQLite increases the size of the database file because it needs more space, it increases it
     // by this value - even if it only needs one byte more space. Setting the chunk size to a high value
     // dramatically increases import performance for big MediaLibraries (because less system calls are necessary)
@@ -118,6 +121,9 @@ namespace MediaPortal.Database.SQLite
     [Setting(SettingScope.Global, DEFAULT_USE_TEMP_STORE_MEMOY)]
     public bool UseTempStoreMemory { get; set; }
 
+    [Setting(SettingScope.Global, DEFAULT_USE_THREADS)]
+    public bool UseMultiThreading { get; set; }
+
     [Setting(SettingScope.Global)]
     public int CacheSizeInKiloBytes { get; set; }
 
@@ -144,6 +150,8 @@ namespace MediaPortal.Database.SQLite
         sb.AppendFormat(WAL_AUTOCHECKPOINT_COMMAND_TEMPLATE, WalAutocheckpointAfterPages);
         if (UseTempStoreMemory)
           sb.Append(TEMP_STORE_MEMORY_COMMAND);
+        if (UseMultiThreading)
+          sb.AppendFormat(THREADS_COMMAND, 1);
         return sb.ToString();
       }
     }

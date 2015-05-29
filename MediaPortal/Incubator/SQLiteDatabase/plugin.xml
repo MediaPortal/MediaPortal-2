@@ -6,7 +6,7 @@
     Copyright="GPL"
     AutoActivate="true"
     Description="Provides database access to an SQLite database"
-    PluginVersion="0.07">
+    PluginVersion="0.08">
 
   <Runtime>
     <Assembly FileName="SQLiteDatabase.dll"/>
