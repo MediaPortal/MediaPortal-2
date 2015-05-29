@@ -628,7 +628,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> arrangedItemsCopy;
       lock (Children.SyncRoot)
       {
-        arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems.Skip(_arrangedLines[0].StartIndex).Take(_arrangedLines[_arrangedLines.Count - 1].EndIndex + 1));
+        arrangedItemsCopy = _arrangedLines.Count > 0 ? new List<FrameworkElement>(_arrangedItems.Skip(_arrangedLines[0].StartIndex).Take(_arrangedLines[_arrangedLines.Count - 1].EndIndex + 1)) : new List<FrameworkElement>();
       }
       int numLinesBeforeAndAfter = linesBeforeAndAfter ? NUM_ADD_MORE_FOCUS_LINES : 0;
       AddFocusedElementRange(arrangedItemsCopy, startingRect, _actualFirstVisibleLineIndex, _actualLastVisibleLineIndex,
