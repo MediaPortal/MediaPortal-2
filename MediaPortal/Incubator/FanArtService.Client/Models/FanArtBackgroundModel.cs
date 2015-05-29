@@ -270,6 +270,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         ItemDescription = video.StoryPlot;
         return;
       }
+      FilterItem filterItem = SelectedItem as FilterItem;
+      if (filterItem != null)
+      {
+        SimpleTitle = filterItem.SimpleTitle;
+        ItemDescription = string.Empty;
+        return;
+      }
       FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
       FanArtName = string.Empty;
       ItemDescription = string.Empty;
