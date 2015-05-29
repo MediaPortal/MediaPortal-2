@@ -23,6 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SharpDX;
@@ -55,7 +57,8 @@ namespace MediaPortal.UiComponents.BlueVision.Models
             {
               // get the real ListItem from the DataContext and check if this is the currently focused item
               IDataDescriptor listItem;
-              if (item.DataContext.Evaluate(out listItem) && ReferenceEquals(listItem.Value, HomeMenuModel.LastSelectedItem))
+              ListItem lastSelectedItem =  HomeMenuModel.MainMenuGroupList.FirstOrDefault(i => i.Selected) ?? HomeMenuModel.LastSelectedItem;
+              if (item.DataContext.Evaluate(out listItem) && ReferenceEquals(listItem.Value, lastSelectedItem))
               {
                 // if LastSelectedItem is not currently focused, then the focus comes from the outside, and it's the focus candidate then
                 if (!ReferenceEquals(item, Screen.FocusedElement))
