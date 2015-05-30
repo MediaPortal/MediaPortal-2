@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml">
+    <Include.Resources>
+
+        <Model x:Key="OnlineVideosModel" Id="C418243F-5BD3-4637-8871-DA6545387929"/>
+
+        <!-- Header -->
+      <!--ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource OnlineVideosModel}, Path=SelectedSite.Name, Mode=OneTime}"/-->
+
+        <!-- Contents -->
+        <ControlTemplate x:Key="Contents_Template">
+            <DockPanel DataContext="{Binding Source={StaticResource OnlineVideosModel}}" LastChildFill="true">
+
+                <ListView x:Name="categorieslist" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" 
+                          Style="{ThemeResource ovsCategoriesListViewStyle}" Margin="-40, 0,-40,-5"
+                          CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}"
+                          ItemsSource="{Binding Path=CategoriesList}" SetFocusPrio="RestoreState"/>
+
+              <StackPanel Orientation="Vertical" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-20,625,0,-625" >
+                  <Label Content="{Binding Path=SelectedSite.Name}" Color="{ThemeResource TextColor}"> </Label>
+                  <Label Color="{ThemeResource TextColor}" Opacity="0.6"
+                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Wrap="True" Scroll="Auto"
+                         DataContext="{Binding ElementName=categorieslist,Path=CurrentItem}"
+                         Content="{Binding Path=Name}" />
+                </StackPanel>
+              
+            </DockPanel>
+        </ControlTemplate>
+    </Include.Resources>
+</Include>
