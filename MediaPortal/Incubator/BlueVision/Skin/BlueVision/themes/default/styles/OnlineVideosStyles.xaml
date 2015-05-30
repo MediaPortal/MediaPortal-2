@@ -25,7 +25,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border CornerRadius="13.5" Background="Black" Opacity="0.1" Margin="-10,-10,-10,-10"> </Border>
+            <Border CornerRadius="13.5" Background="Black" Opacity="0.2" Margin="-10,-10,-10,-10"> </Border>
             <Image x:Name="thumb" Stretch="Uniform" Margin="{ResolutionResource ovsSiteItemThumbMargin}" 
                    Source="{Binding Path=Site, Converter={StaticResource ovsSiteUtilIconConverter}}"/>
             <Image Width="{ResolutionResource ovsLanguageImageWidth}" Stretch="Uniform" Margin="0,2,3,0" 
