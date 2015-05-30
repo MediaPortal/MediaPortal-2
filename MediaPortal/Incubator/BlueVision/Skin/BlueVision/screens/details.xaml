@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ovs="clr-namespace:OnlineVideos.MediaPortal2;assembly=OnlineVideos.MediaPortal2"
+    Source="screens\master_bare.xaml">
+    <Include.Resources>
+
+        <Model x:Key="OnlineVideosModel" Id="C418243F-5BD3-4637-8871-DA6545387929"/>
+
+        <ovs:ExtendedInfoConverter x:Key="ExtendedInfoConverter"/>
+
+        <!-- Contents -->
+        <ControlTemplate x:Key="Client_Template">
+            <Grid DataContext="{Binding Source={StaticResource OnlineVideosModel}}" Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.35*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.RowSpan="2" LastChildFill="true">
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <Label Content="[OnlineVideos.DateOfRelease]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}" HorizontalAlignment="Center"/>
+                        <Label Content="{Binding Path=SelectedVideo, Converter={StaticResource ExtendedInfoConverter}, ConverterParameter=ReleaseDate}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+                        <Label Content="{Binding Path=SelectedVideo, Converter={StaticResource ExtendedInfoConverter}, ConverterParameter=Certificate}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <Border BorderBrush="{ThemeResource ButtonStrokeColor}" BorderThickness="1" Margin="0,0,0,10">
+                        <Image Stretch="Uniform" SkinNeutralAR="True" Source="{Binding SelectedVideo.ThumbnailImage}" Margin="2"/>
+                    </Border>
+                </DockPanel>
+                <Grid Grid.Column="1" Margin="10,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Label Content="[OnlineVideos.Actors]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}" />
+                    <Label Grid.Column="1" Content="{Binding Path=SelectedVideo, Converter={StaticResource ExtendedInfoConverter}, ConverterParameter=Actors}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="true"/>
+                    <Label Grid.Row="1" Content="[OnlineVideos.Directors]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}" />
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding Path=SelectedVideo, Converter={StaticResource ExtendedInfoConverter}, ConverterParameter=Directors}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="true"/>
+                    <Label Grid.Row="2" Content="[OnlineVideos.Genre]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}" />
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding Path=SelectedVideo, Converter={StaticResource ExtendedInfoConverter}, ConverterParameter=Genres}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="true"/>
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="1" Margin="10,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.5*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <DockPanel LastChildFill="true">
+                        <Label DockPanel.Dock="Top" Content="[OnlineVideos.PlotOutline]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}" Margin="0,0,0,5"/>
+                        <Label Content="{Binding Path=SelectedVideo, Converter={StaticResource ExtendedInfoConverter}, ConverterParameter=Plot}"
+                               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="true" Scroll="Auto" Width="100" />
+                    </DockPanel>
+                    <ListView Grid.Column="1" Style="{ThemeResource ovsDetailsVideosListViewStyle}" ItemsSource="{Binding Path=DetailsVideosList,Mode=OneTime}" SetFocus="true">
+                        <ListView.Resources>
+                            <CommandList x:Key="Menu_Command">
+                                <Command Source="{StaticResource OnlineVideosModel}" Path="SelectDetailsVideo">
+                                    <Command.Parameters>
+                                        <LateBoundValue BindingValue="{Binding}"/>
+                                    </Command.Parameters>
+                                </Command>
+                            </CommandList>
+                        </ListView.Resources>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </ControlTemplate>
+
+    </Include.Resources>
+</Include>

@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ovs="clr-namespace:OnlineVideos.MediaPortal2;assembly=OnlineVideos.MediaPortal2">
+
+    <!-- Site styles 720p -->
+    <ResourceWrapper x:Key="ovsSiteItemWidth720">157</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemHeight720">120</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemMargin720">0</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemContainerMargin720">3</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemThumbMargin720">5</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsLanguageImageWidth720">20</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsSitePageLabelHeight720">50</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSitePageLabelMargin720">100,0,100,5</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsCategoryItemWidth720">250</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsCategoryItemHeight720">90</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsCategoryItemContainerMargin720">0</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsVideoItemWidth720">160</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideoItemHeight720">120</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideoItemThumbMaxHeight720">95</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideoItemContainerMargin720">3</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsSiteStateRadius720">16</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsReportLabelWidth720">130</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsSitesPanelMargin720">50,20,20,0</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsCategoriesPanelMargin720">0</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideosPanelMargin720">25,25,0,0</ResourceWrapper>
+
+    <!-- Site styles 1080p -->
+    <ResourceWrapper x:Key="ovsSiteItemWidth1080">178</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemHeight1080">148</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemMargin1080">7</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemContainerMargin1080">6</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSiteItemThumbMargin1080">8</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsLanguageImageWidth1080">40</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsSitePageLabelHeight1080">75</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsSitePageLabelMargin1080">100,0,100,5</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsCategoryItemWidth1080">257</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsCategoryItemHeight1080">162</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsCategoryItemContainerMargin1080">5</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsVideoItemWidth1080">256</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideoItemHeight1080">160</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideoItemThumbMaxHeight1080">148</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideoItemContainerMargin1080">5</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsSiteStateRadius1080">30</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsReportLabelWidth1080">200</ResourceWrapper>
+
+    <ResourceWrapper x:Key="ovsSitesPanelMargin1080">20,20,20,0</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsCategoriesPanelMargin1080">10</ResourceWrapper>
+    <ResourceWrapper x:Key="ovsVideosPanelMargin1080">25,23,0,23</ResourceWrapper>
+
+</ResourceDictionary>
