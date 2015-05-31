@@ -131,7 +131,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           MediaAspect.Metadata,
           VideoAspect.Metadata,
-          MovieAspect.Metadata
+          MovieAspect.Metadata,
+          ThumbnailLargeAspect.Metadata
         });
 
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtractorSettings>();
