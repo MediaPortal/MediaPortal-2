@@ -339,7 +339,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       foreach (var extension in _settings.NfoFileNameExtensions)
       {
         result.Add(mediaFileOrDirectoryName + extension);
-        result.AddRange(_settings.NfoFileNames.Select(nfoFileName => nfoFileName + extension));
+        result.AddRange(_settings.MovieNfoFileNames.Select(movieNfoFileName => movieNfoFileName + extension));
       }
       return result;
     }
@@ -359,7 +359,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
       _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawNfoFileIntoDebugLog);
       _debugLogger.Info("   WriteStubObjectIntoDebugLog: {0}", _settings.WriteStubObjectIntoDebugLog);
-      _debugLogger.Info("   NfoFileNames: {0}", String.Join(";", _settings.NfoFileNames));
+      _debugLogger.Info("   MovieNfoFileNames: {0}", String.Join(";", _settings.MovieNfoFileNames));
       _debugLogger.Info("   NfoFileNameExtensions: {0}", String.Join(" ", _settings.NfoFileNameExtensions));
       _debugLogger.Info("   SeparatorCharacters: {0}", String.Join(" ", _settings.SeparatorCharacters));
       _debugLogger.Info("   IgnoreStrings: {0}", String.Join(";", _settings.IgnoreStrings));

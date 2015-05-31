@@ -57,12 +57,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Public properties
 
     /// <summary>
-    /// These file names are used additionally to the media file name to find a respective nfo-file
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> NfoFileNames { get; set; }
-
-    /// <summary>
     /// These file name extensions are used to find a respective nfo-file
     /// </summary>
     [Setting(SettingScope.Global)]
@@ -81,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public HashSet<string> IgnoreStrings { get; set; }
 
     /// <summary>
-    /// Indicates whether a very detailed NfoMovieMetadataExtractorDebug.log is created.
+    /// Indicates whether a very detailed Nfo[...]MetadataExtractorDebug.log is created.
     /// </summary>
 #if DEBUG
     [Setting(SettingScope.Global, true)]
@@ -91,13 +85,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public bool EnableDebugLogging { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, all nfo-files are written into the NfoMovieMetadataExtractorDebug.log (if enabled)
+    /// If <c>true</c>, all nfo-files are written into the Nfo[...]MetadataExtractorDebug.log (if enabled)
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool WriteRawNfoFileIntoDebugLog { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, the filled stub objects are written as Json into the NfoMovieMetadataExtractorDebug.log (if enabled)
+    /// If <c>true</c>, the filled stub objects are written as Json into the Nfo[...]MetadataExtractorDebug.log (if enabled)
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool WriteStubObjectIntoDebugLog { get; set; }

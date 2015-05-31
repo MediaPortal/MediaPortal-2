@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -41,8 +42,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     public NfoMovieMetadataExtractorSettings()
     {
-      NfoFileNames = new HashSet<string> { "movie" };
+      MovieNfoFileNames = new HashSet<string> { "movie" };
     }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// These file names are used additionally to the media file name to find a respective nfo-file for movies
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public HashSet<string> MovieNfoFileNames { get; set; }
 
     #endregion
   }
