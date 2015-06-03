@@ -40,9 +40,9 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="10">
-      <Border BorderThickness="0" CornerRadius="15" BorderBrush="Black" Background="Black" Opacity="0.1"/>
-      <StackPanel VerticalAlignment="Top" Margin="20">
+    <Grid Margin="10,10,5,10">
+      <Border BorderThickness="0" CornerRadius="22" BorderBrush="Black" Background="Black" Opacity="0.2" Width="321" Height="250"/>
+      <StackPanel VerticalAlignment="Center" Margin="20" HorizontalAlignment="Center">
         <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
           <Image Width="100" Height="100" Stretch="Fill" Source="{Binding BigIconProperty}" Margin="0,0,10,0"/>
