@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
-
-
+  
+  <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
 
   <!-- Button background and effects-->
