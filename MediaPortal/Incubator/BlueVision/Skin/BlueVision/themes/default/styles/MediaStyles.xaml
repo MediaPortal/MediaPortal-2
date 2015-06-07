@@ -2473,10 +2473,15 @@
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Grid>
-
+                  <Grid.OpacityMask>
+                    <VisualBrush>
+                      <VisualBrush.Visual>
+                        <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                      </VisualBrush.Visual>
+                    </VisualBrush>
+                  </Grid.OpacityMask>
                   <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
-                         FallbackSource="{Binding MediaItem}"
-                         OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
+                         FallbackSource="{Binding MediaItem}">
                     <Image.Source>
                       <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem}"
                           fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
