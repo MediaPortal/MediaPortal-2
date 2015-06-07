@@ -4,8 +4,17 @@
     PluginId="{2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5}"
     Author = "MJGraf"
     Copyright="GPL"
-    Description="Metadata extractors reading metadata from local nfo-files"
-    PluginVersion="0.03">
+    Description="Metadata extractors reading metadata from local nfo-files">
+
+  <Version
+    PluginVersion="0.03"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="NfoMetadataExtractors.dll"/>

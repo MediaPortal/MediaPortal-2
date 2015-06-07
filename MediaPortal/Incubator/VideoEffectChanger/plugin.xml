@@ -5,16 +5,22 @@
     PluginId="{21F4BB41-6DEF-4B88-B748-D645CB5D3CB4}"
     Author="Team MediaPortal"
     Copyright="GPL"
-    Description="Allows automatic selection of effects depending on video resolution"
-    PluginVersion="1.0">
+    Description="Allows automatic selection of effects depending on video resolution">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2015-06-01 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <Runtime>
     <Assembly FileName="VideoEffectChanger.dll"/>
   </Runtime>
 
   <DependsOn>
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Register Location="/Models">
