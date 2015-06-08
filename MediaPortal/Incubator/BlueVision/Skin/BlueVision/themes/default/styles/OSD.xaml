@@ -34,7 +34,8 @@
               <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
 
-              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding ShowMouseControls}" Height="34" Margin="0,0,50,0">
+              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="34" Margin="0,0,50,0" SetFocusPrio="Default">
+                <!--IsVisible="{Binding ShowMouseControls}"-->
                 <Control  x:Name="ControlsPresenter" HorizontalAlignment="Center"
                      Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
               </Grid>
