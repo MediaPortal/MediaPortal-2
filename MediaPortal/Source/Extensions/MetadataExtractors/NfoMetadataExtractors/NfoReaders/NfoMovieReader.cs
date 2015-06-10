@@ -1417,19 +1417,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 1:
       if (_stubs[0].TmdbId.HasValue)
       {
-        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.TmdbId.Value.ToString());
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.TmdbId.Value.ToString());
         return true;
       }
       //priority 2:
       if (_stubs[0].Thmdb.HasValue)
       {
-        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Thmdb.Value.ToString());
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Thmdb.Value.ToString());
         return true;
       }
       //priority 3:
       if (_stubs[0].IdsTmdbId.HasValue)
       {
-        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.IdsTmdbId.Value.ToString());
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.IdsTmdbId.Value.ToString());
         return true;
       }
       return false;
@@ -1445,19 +1445,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 1:
       if (_stubs[0].Id != null)
       {
-        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Id);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Id);
         return true;
       }
       //priority 2:
       if (_stubs[0].Imdb != null)
       {
-        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
         return true;
       }
       //priority 3:
       if (_stubs[0].IdsImdbId != null)
       {
-        MediaItemAspect.SetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
         return true;
       }
       return false;

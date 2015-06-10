@@ -105,7 +105,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
           MediaItemAspect.SetAspect(_aspects, smia);
         MultipleMediaItemAspect mmia = mia as MultipleMediaItemAspect;
         if (mmia is MultipleMediaItemAspect)
-          MediaItemAspect.AddAspect(_aspects, mmia);
+          MediaItemAspect.AddOrUpdateAspect(_aspects, mmia);
       }
       reader.ReadEndElement(); // MI
     }
