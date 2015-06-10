@@ -23,8 +23,8 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Backend.Services.SystemResolver;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -75,6 +75,9 @@ namespace MediaPortal.Mock
       logger.Debug("Registering ISystemResolver service");
       ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
 
+      //logger.Debug("Registering IMediaItemAspectTypeRegistration service");
+      //ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MockMediaItemAspectTypeRegistration());
+
       logger.Debug("Creating MIA management");
       MANAGEMENT = new MockMIA_Management();
     }
@@ -84,10 +87,10 @@ namespace MediaPortal.Mock
       MANAGEMENT.Reset();
     }
 
-    public static void SetupLibrary()
+    public static void SetupLibrary(bool updateRelationships = false)
     {
       logger.Debug("Creating test media library");
-      LIBRARY = new MockMediaLibrary();
+      LIBRARY = new MockMediaLibrary { UpdateRelationshipsEnabled = updateRelationships };
     }
 
     public static void ShutdownLibrary()
@@ -99,6 +102,50 @@ namespace MediaPortal.Mock
     public static void AddMediaItemAspectStorage(MediaItemAspectMetadata meta)
     {
       MANAGEMENT.AddMediaItemAspectStorage(meta);
+    }
+
+    public static void ShowMediaAspects(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, MediaItemAspectMetadata> metadatas)
+    {
+      foreach (Guid mia in aspects.Keys)
+      {
+        MediaItemAspectMetadata metadata = metadatas[mia];
+        foreach (MediaItemAspect aspect in aspects[mia])
+        {
+          logger.Debug(" {0}:", metadata.Name);
+          int count = 0;
+          string sb = " ";
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
+          {
+            string valueStr = null;
+            if (spec.IsCollectionAttribute)
+            {
+              IEnumerable values = aspect.GetCollectionAttribute(spec);
+              if (values != null)
+              {
+                IList<string> list = new List<string>();
+                foreach (object value in values)
+                  list.Add(value.ToString());
+                valueStr = string.Format("[{0}]", string.Join(",", list));
+              }
+            }
+            else
+            {
+              object value = aspect.GetAttributeValue(spec);
+              if (value != null)
+                valueStr = value.ToString();
+            }
+            if (valueStr != null)
+            {
+              if (count > 0)
+                sb += ",";
+              //sb += string.Format(" {0}{1}{2}({3}/{4})={5}", spec.AttributeName, aspect is MultipleMediaItemAspect ? "," : "", aspect is MultipleMediaItemAspect ? ((MultipleMediaItemAspect)aspect).Index.ToString() : "", spec.AttributeType.Name, spec.Cardinality, valueStr);
+              sb += string.Format(" {0}={1}", spec.AttributeName, valueStr);
+              count++;
+            }
+          }
+          logger.Debug(sb);
+        }
+      }
     }
   }
 }

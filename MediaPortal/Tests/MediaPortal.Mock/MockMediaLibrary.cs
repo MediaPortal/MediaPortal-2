@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -32,6 +33,8 @@ namespace MediaPortal.Mock
 {
   public class MockMediaLibrary : MediaLibrary
   {
+    private IList<Guid> _newMediaItemsIds = new List<Guid>();
+
     public MockMediaLibrary()
     {
       _miaManagement = MockCore.Management;
@@ -53,5 +56,27 @@ namespace MediaPortal.Mock
       else
         ServiceRegistration.Get<ILogger>().Debug("Update relationships is disabled");
     }
+
+    public void AddMediaItemId(Guid mediaItemId)
+    {
+      _newMediaItemsIds.Add(mediaItemId);
+    }
+
+    protected override Guid NewMediaItemId()
+    {
+      Guid mediaItemId;
+      if (_newMediaItemsIds.Count > 0)
+      {
+        mediaItemId = _newMediaItemsIds[0];
+        _newMediaItemsIds.RemoveAt(0);
+      }
+      else
+      {
+        mediaItemId = Guid.NewGuid();
+      }
+
+      return mediaItemId;
+    }
+
   }
 }

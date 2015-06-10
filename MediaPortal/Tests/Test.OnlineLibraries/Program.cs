@@ -40,6 +40,7 @@ using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Extensions.MetadataExtractors;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
+using MediaPortal.Mock;
 using MediaPortal.Utilities;
 
 namespace Test.OnlineLibraries

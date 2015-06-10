@@ -28,10 +28,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Utilities.Exceptions;
-using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -60,7 +60,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _requiredAttributes = _statementParts.OfType<QueryAttribute>().ToList();
     }
 
-    protected void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
+    protected virtual void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
         ICollection<MediaItemAspectMetadata> requiredMIATypes, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins,
         IList<object> resultParts, IList<BindVar> resultBindVars)
     {
@@ -108,6 +108,74 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       BooleanCombinationFilter boolFilter = filter as BooleanCombinationFilter;
+      if (boolFilter != null && boolFilter.Operator == BooleanOperator.And && boolFilter.Operands.Count > 1 && boolFilter.Operands.ToList().All(x => x is IAttributeFilter))
+      {
+        ICollection<IFilter> remainingOperands = new List<IFilter>();
+
+        // Special case to do multiple MIA boolean logic first
+        IDictionary<Guid, ICollection<IAttributeFilter>> multiGroups = new Dictionary<Guid, ICollection<IAttributeFilter>>();
+        foreach (IAttributeFilter operand in boolFilter.Operands)
+        {
+          MultipleMediaItemAspectMetadata mmiam = operand.AttributeType.ParentMIAM as MultipleMediaItemAspectMetadata;
+          if (mmiam != null)
+          {
+            Guid key = operand.AttributeType.ParentMIAM.AspectId;
+            if (!multiGroups.ContainsKey(key))
+            {
+              multiGroups[key] = new List<IAttributeFilter>();
+            }
+            multiGroups[key].Add(operand);
+          }
+          else
+          {
+            remainingOperands.Add(operand);
+          }
+        }
+
+        if (multiGroups.Keys.Count > 0)
+        {
+          bool firstGroup = true;
+          foreach (ICollection<IAttributeFilter> filterGroup in multiGroups.Values)
+          {
+            if (firstGroup)
+              firstGroup = false;
+            else
+              resultParts.Add(" AND ");
+
+            bool firstItem = true;
+            foreach (IAttributeFilter filterItem in filterGroup)
+            {
+              MediaItemAspectMetadata.AttributeSpecification attributeType = filterItem.AttributeType;
+              if (firstItem)
+              {
+                resultParts.Add(outerMIIDJoinVariable);
+                resultParts.Add(" IN(");
+                resultParts.Add("SELECT ");
+                resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+                resultParts.Add(" FROM ");
+                resultParts.Add(miaManagement.GetMIATableName(attributeType.ParentMIAM));
+                resultParts.Add(" WHERE ");
+
+                firstItem = false;
+              }
+              else
+              {
+                resultParts.Add(" AND ");
+              }
+
+              BuildAttributeFilterExpression(filterItem, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
+            }
+            resultParts.Add(")");
+          }
+
+          // Process remaining operands ?
+          if (remainingOperands.Count == 0)
+            return;
+
+          resultParts.Add(" AND ");
+          boolFilter.Operands = remainingOperands;
+        }
+      }
       if (boolFilter != null)
       {
         int numOperands = boolFilter.Operands.Count;
@@ -132,7 +200,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, ns, bvNamespace,
+          CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, ns, bvNamespace,
               requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         }
         if (numOperands > 1)
@@ -268,7 +336,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add(" FROM ");
           resultParts.Add(miaManagement.GetMIATableName(attributeType.ParentMIAM));
           resultParts.Add(" WHERE ");
-          BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType), bvNamespace, resultParts, resultBindVars);
+          BuildAttributeFilterExpression(attributeFilter, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
           resultParts.Add(")");
           
           return;

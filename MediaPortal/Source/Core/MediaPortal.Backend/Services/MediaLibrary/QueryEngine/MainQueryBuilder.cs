@@ -222,7 +222,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         qualifiedGroupByAliases.Add(ra.GetAlias(ns));
       }
 
-      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+      CompiledFilter compiledFilter = CreateCompiledFilter(ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
@@ -346,25 +346,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       statementStr = result.ToString();
     }
 
+    protected virtual CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
+    {
+      return new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
+    }
+
     protected abstract bool Include(MediaItemAspectMetadata miam);
 
-    /*
-  protected void GenerateSqlStatement(bool groupByValues,
-      IDictionary<MediaItemAspectMetadata, string> miamAliases,
-      out string mediaItemIdOrGroupSizeAlias,
-      IDictionary<MediaItemAspectMetadata, string> indexAliases,
-      out IDictionary<QueryAttribute, string> attributeAliases,
-      out string statementStr, out IList<BindVar> bindVars)
-    */
+    /// <summary>
+    /// Generates the SQL statement for the underlaying query specification.
+    /// </summary>
+    /// <param name="mediaItemIdAlias">Alias of the media item's IDs in the result set.</param>
+    /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
+    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
+    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
+    /// <param name="statementStr">SQL statement which was built by this method.</param>
+    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlStatement(out string mediaItemIdAlias,
+        out IDictionary<MediaItemAspectMetadata, string> miamAliases,
+        out IDictionary<QueryAttribute, string> attributeAliases,
+        out string statementStr, out IList<BindVar> bindVars)
+    {
+      miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
+    }
 
     public override string ToString()
     {
-      string mediaItemIdAlias;
-      IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+      string mediaItemIdAlias2;
+      IDictionary<MediaItemAspectMetadata, string> miamAliases;
       IDictionary<QueryAttribute, string> qa2a;
       string statementStr;
       IList<BindVar> bindVars;
-      GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out qa2a, out statementStr, out bindVars);
+      GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
       return statementStr;
     }
   }

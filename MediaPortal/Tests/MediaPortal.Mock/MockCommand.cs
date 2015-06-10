@@ -93,7 +93,7 @@ namespace MediaPortal.Mock
       return new MockDataParameter();
     }
 
-    protected void DumpCommand()
+    protected string GetFormattedSql()
     {
       StringBuilder sbLogText = new StringBuilder(_commandText);
       foreach (IDbDataParameter param in _commandParameters)
@@ -110,19 +110,18 @@ namespace MediaPortal.Mock
 
         sbLogText = sbLogText.Replace("@" + param.ParameterName, pv);
       }
-      ServiceRegistration.Get<ILogger>().Info(sbLogText.ToString());
+      return sbLogText.ToString();
     }
 
     public int ExecuteNonQuery()
     {
-      DumpCommand();
+      ServiceRegistration.Get<ILogger>().Info(GetFormattedSql());
       return 0;
     }
 
     public IDataReader ExecuteReader(CommandBehavior behavior)
     {
-      DumpCommand();
-      return MockDBUtils.GetReader(_commandText);
+      return MockDBUtils.GetReader(_commandText, GetFormattedSql());
     }
 
     public IDataReader ExecuteReader()

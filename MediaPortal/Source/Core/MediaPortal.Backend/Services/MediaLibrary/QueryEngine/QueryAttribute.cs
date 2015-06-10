@@ -45,11 +45,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _attr; }
     }
 
-    public override string ToString()
-    {
-      return _attr.ParentMIAM.Name + "." + _attr.AttributeName;
-    }
-
     public override bool Equals(object obj)
     {
         if (!(obj is QueryAttribute))
@@ -57,6 +52,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
         QueryAttribute qa = (QueryAttribute)obj;
         return Attr.Equals(qa.Attr);
+    }
+
+    protected bool Equals(QueryAttribute other)
+    {
+      return Equals(_attr, other._attr);
+    }
+
+    public override int GetHashCode()
+    {
+      return (_attr != null ? _attr.GetHashCode() : 0);
+    }
+
+    public override string ToString()
+    {
+      return _attr.ParentMIAM.Name + "." + _attr.AttributeName;
     }
   }
 }

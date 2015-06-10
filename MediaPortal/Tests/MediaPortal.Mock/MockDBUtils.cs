@@ -25,11 +25,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SQLite;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.Threading;
 using MediaPortal.Utilities.DB;
+using NUnit.Framework;
 
 namespace MediaPortal.Mock
 {
@@ -37,9 +41,10 @@ namespace MediaPortal.Mock
   {
     private static readonly MockDatabase DATABASE = new MockDatabase();
     private static readonly MockDatabaseManager DATABASE_MANAGER = new MockDatabaseManager();
-    private static readonly IDictionary<string, MockReader> READERS = new Dictionary<string, MockReader>();
+    private static readonly IDictionary<string, IList<MockReader>> READERS = new Dictionary<string, IList<MockReader>>();
     private static IList<MockCommand> COMMANDS = new List<MockCommand>();
     private static MockReader ALIASES_READER = null;
+    private static SQLiteConnection CONNECTION;
 
     static MockDBUtils()
     {
@@ -51,16 +56,6 @@ namespace MediaPortal.Mock
       ServiceRegistration.Set<IDatabaseManager>(DATABASE_MANAGER);
 
       ALIASES_READER = AddReader("SELECT MIAM_ID, IDENTIFIER, DATABASE_OBJECT_NAME FROM MIA_NAME_ALIASES");
-      /*
-          reader.AddResult("", GetMIATableIdentifier(MediaAspect.Metadata), "M_MEDIAITEM");
-          reader.AddResult("", GetMIAAttributeColumnIdentifier(MediaAspect.ATTR_TITLE), "TITLE");
-          reader.AddResult("", GetMIATableIdentifier(AudioAspect.Metadata), "M_AUDIOITEM");
-          reader.AddResult("", GetMIAAttributeColumnIdentifier(AudioAspect.ATTR_ALBUM), "ALBUM");
-          reader.AddResult("", GetMIATableIdentifier(RelationshipAspect.Metadata), "M_RELATIONSHIP");
-          reader.AddResult("", GetMIAAttributeColumnIdentifier(RelationshipAspect.ATTR_ROLE), "ROLE");
-          reader.AddResult("", GetMIAAttributeColumnIdentifier(RelationshipAspect.ATTR_LINKED_ID), "LINKEDID");
-          reader.AddResult("", GetMIAAttributeColumnIdentifier(RelationshipAspect.ATTR_LINKED_ROLE), "LINKEDROLE");
-          */
 
       AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES");
       AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION, CREATION_DATE FROM MIA_TYPES");
@@ -87,6 +82,11 @@ namespace MediaPortal.Mock
       get { return DATABASE; }
     }
 
+    public static SQLiteConnection Connection
+    {
+      get {  return CONNECTION; }
+    }
+
     public static MockDatabaseManager DatabaseManager
     {
       get { return DATABASE_MANAGER; }
@@ -94,25 +94,40 @@ namespace MediaPortal.Mock
 
     public static MockReader AddReader(string command, params string[] columns)
     {
-      return AddReader(command, new MockReader(columns));
+      return AddReader(-1, command, columns);
+    }
+
+    public static MockReader AddReader(int index, string command, params string[] columns)
+    {
+      return AddReader(command, new MockReader(index, columns));
     }
 
     public static MockReader AddReader(string command, MockReader reader)
     {
-      READERS[command] = reader;
+      IList<MockReader> readerList;
+      if (!READERS.TryGetValue(command, out readerList))
+      {
+        readerList = new List<MockReader>();
+        READERS[command] = readerList;
+      }
+      readerList.Add(reader);
       return reader;
     }
 
-    public static IDataReader GetReader(string command)
+    public static MockReader GetReader(string sql, string formatterSql)
     {
-      MockReader reader = null;
-      if (!READERS.TryGetValue(command, out reader))
+      IList<MockReader> readerList;
+      if (!READERS.TryGetValue(sql, out readerList))
       {
-        foreach (string key in READERS.Keys)
-        {
-        }
-        throw new NotImplementedException("No DB reader for " + command);
+        Assert.Fail("No DB reader for " + sql + " -> " + formatterSql);
       }
+      if (readerList.Count == 0)
+      {
+        Assert.Fail("DB readers exhausted for " + sql + " -> " + formatterSql);
+      }
+      MockReader reader = readerList[0];
+      readerList.RemoveAt(0);
+      ServiceRegistration.Get<ILogger>().Info("Using reader" + (reader.Id > 0 ? " #" + reader.Id : "") + " for " + sql + " -> " + formatterSql);
       return reader;
     }
 

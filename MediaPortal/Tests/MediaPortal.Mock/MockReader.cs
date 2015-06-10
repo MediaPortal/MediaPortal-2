@@ -31,14 +31,18 @@ namespace MediaPortal.Mock
 {
   public class MockReader : IDataReader
   {
+    private int _id;
     private IList<string> _columns = new List<string>();
     private readonly IList<IDictionary<int, string>> _results = new List<IDictionary<int, string>>();
     private int _index = -1;
 
-    public MockReader(string[] columns)
+    public MockReader(int id, string[] columns)
     {
-      this._columns = columns.ToArray();
+      _id = id;
+      _columns = columns.ToArray();
     }
+
+    public int Id { get { return _id; } }
 
     public void AddResult(params object[] values)
     {
@@ -107,7 +111,7 @@ namespace MediaPortal.Mock
       }
       catch (FormatException e)
       {
-        throw new FormatException("Cannot parse " + _results[_index][i] + " as boolean", e);
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as boolean column " + i, e);
       }
     }
 
@@ -156,7 +160,7 @@ namespace MediaPortal.Mock
       }
       catch (FormatException e)
       {
-        throw new FormatException("Cannot parse " + _results[_index][i] + " as datetime", e);
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as datetime column " + i, e);
       }
     }
 
@@ -180,7 +184,7 @@ namespace MediaPortal.Mock
       }
       catch (FormatException e)
       {
-        throw new FormatException("Cannot parse " + _results[_index][i] + " as double", e);
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as double column " + i, e);
       }
     }
 
@@ -209,7 +213,7 @@ namespace MediaPortal.Mock
       }
       catch (FormatException e)
       {
-        throw new FormatException("Cannot parse " + _results[_index][i] + " as GUID", e);
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as GUID column " + i, e);
       }
     }
 
@@ -233,7 +237,7 @@ namespace MediaPortal.Mock
       }
       catch (FormatException e)
       {
-        throw new FormatException("Cannot parse " + _results[_index][i] + " as integer", e);
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as integer column " + i, e);
       }
     }
 
@@ -252,7 +256,7 @@ namespace MediaPortal.Mock
       }
       catch (FormatException e)
       {
-        throw new FormatException("Cannot parse " + _results[_index][i] + " as integer", e);
+        throw new FormatException("Cannot parse " + _results[_index][i] + " as integer column " + i, e);
       }
     }
 

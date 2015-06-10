@@ -60,6 +60,7 @@
     <Compile Include="TestLibrary.cs" />
     <Compile Include="TestQueryEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestReconciler.cs" />
     <Compile Include="TestUtils.cs" />
   </ItemGroup>
   <ItemGroup>
