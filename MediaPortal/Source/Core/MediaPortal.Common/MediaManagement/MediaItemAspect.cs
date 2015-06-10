@@ -25,6 +25,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Xml;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities.Exceptions;
@@ -336,8 +338,7 @@ namespace MediaPortal.Common.MediaManagement
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       MediaItemAspectMetadata miaType;
       if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectTypeId, out miaType))
-        throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}'",
-            aspectTypeId));
+        throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}' in [{1} / {2}]", aspectTypeId, string.Join(",", miatr.LocallyKnownMediaItemAspectTypes.Keys), string.Join(",", miatr.LocallyKnownMediaItemAspectTypes.Values.ToList().Select(x => x.Name))));
       MediaItemAspect result = null;
       if(miaType is SingleMediaItemAspectMetadata)
       {
@@ -407,7 +408,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       if (!attributeSpecification.IsCollectionAttribute)
         throw new ArgumentException(string.Format(
-            "Media item aspect '{0}': Attribute '{1}' is not of a collection type, but a collection attribute is requrested",
+            "Media item aspect '{0}': Attribute '{1}' is not of a collection type, but a collection attribute is requested",
             _metadata.Name, attributeSpecification.AttributeName));
     }
 
@@ -461,19 +462,44 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method to add a <see cref="MediaItemAspect"/> from the given <paramref name="aspects"/> dictionary
+    /// Convenience method to add a <see cref="MediaItemAspect"/> from the given <paramref name="aspectData"/> dictionary
     /// </summary>
-    /// <param name="aspects">Dictionary of MediaItemAspects.</param>
-    /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation.</param>
+    /// <param name="aspectData">Dictionary of MediaItemAspects.</param>
     /// <param name="value">Metadata values used for creation.</param>
-    public static void AddAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, MultipleMediaItemAspect value)
+    public static void AddOrUpdateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData, MultipleMediaItemAspect value)
     {
       Guid aspectId = value.Metadata.AspectId;
-      if (!aspects.ContainsKey(aspectId))
+      IList<MediaItemAspect> aspects;
+      if (!aspectData.ContainsKey(aspectId))
       {
-        aspects[aspectId] = new List<MediaItemAspect>();
+        aspects = aspectData[aspectId] = new List<MediaItemAspect>();
       }
-      aspects[aspectId].Add(value);
+      else
+      {
+        aspects = aspectData[aspectId];
+      }
+
+      int index = GetMatchingAspect(aspects, value);
+      if (index >= 0)
+      {
+        aspects[index] = value;
+      }
+      else
+      {
+        aspects.Add(value);
+      }
+    }
+
+    private static int GetMatchingAspect(IList<MediaItemAspect> aspects, MultipleMediaItemAspect value)
+    {
+      for(int index = 0; index < aspects.Count; index++)
+      {
+        MediaItemAspect aspect = aspects[index];
+        if (value.Metadata.UniqueAttributeSpecifications.All(spec => aspect[spec].Equals(value[spec])))
+          return index;
+      }
+
+      return -1;
     }
 
     /// <summary>
@@ -486,7 +512,7 @@ namespace MediaPortal.Common.MediaManagement
     public static MultipleMediaItemAspect CreateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, MultipleMediaItemAspectMetadata mediaItemAspectMetadata)
     {
       MultipleMediaItemAspect mediaAspect = new MultipleMediaItemAspect(mediaItemAspectMetadata);
-      AddAspect(aspects, mediaAspect);
+      AddOrUpdateAspect(aspects, mediaAspect);
       return mediaAspect;
     }
 
@@ -513,7 +539,7 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method to set a simple attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
+    /// Convenience method to set a simple attribute in a dictionary of media item aspectData. If the given <paramref name="aspectData"/>
     /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
     /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not
     /// present in the dictionary yet, it is created and added to the dictionary before setting the value.
@@ -556,7 +582,7 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method to get a simple attribute in a dictionary of media item aspects.
+    /// Convenience method to get a simple attribute in a dictionary of media item aspectData.
     /// </summary>
     /// <typeparam name="TE">Type parameter.</typeparam>
     /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
@@ -581,7 +607,7 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method to get a simple attribute in a dictionary of media item aspects.
+    /// Convenience method to get a simple attribute in a dictionary of media item aspectData.
     /// </summary>
     /// <typeparam name="TE">Type parameter.</typeparam>
     /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
@@ -605,7 +631,7 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method to set a collection attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
+    /// Convenience method to set a collection attribute in a dictionary of media item aspectData. If the given <paramref name="aspectData"/>
     /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
     /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not
     /// present in the dictionary yet, it is created and added to the dictionary before setting the value.
@@ -638,28 +664,25 @@ namespace MediaPortal.Common.MediaManagement
       return false;
     }
 
-    /*
-     * TODO: Make this generic for all multiple MIAs using the unique index?
-     */
-    public static void SetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+    public static void AddOrUpdateExternalIdentifier(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
       string source, string type, string id)
     {
-      IList<MultipleMediaItemAspect> values;
-      if(!TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out values))
-        values = new List<MultipleMediaItemAspect>();
-      foreach (MultipleMediaItemAspect value in values)
-      {
-        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
-        {
-          value.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
-          return;
-        }
-      }
       MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(ExternalIdentifierAspect.Metadata);
       aspect.SetAttribute(ExternalIdentifierAspect.ATTR_SOURCE, source);
       aspect.SetAttribute(ExternalIdentifierAspect.ATTR_TYPE, type);
       aspect.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
-      AddAspect(aspectData, aspect);
+      AddOrUpdateAspect(aspectData, aspect);
+    }
+
+    public static void AddOrUpdateRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      Guid role, Guid linkedRole, Guid linkedId, int linkedIndex)
+    {
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
+      aspect.SetAttribute(RelationshipAspect.ATTR_ROLE, role);
+      aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, linkedRole);
+      aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, linkedId);
+      aspect.SetAttribute(RelationshipAspect.ATTR_RELATIONSHIP_INDEX, linkedIndex);
+      AddOrUpdateAspect(aspectData, aspect);
     }
 
     public static IList<MediaItemAspect> GetAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
@@ -674,6 +697,50 @@ namespace MediaPortal.Common.MediaManagement
     public override string ToString()
     {
       return "MIA of type '" + _metadata + "'";
+    }
+
+    public static string GetInfo(IEnumerable<MediaItemAspect> aspects, IDictionary<Guid, MediaItemAspectMetadata> types)
+    {
+      IList<StringBuilder> infos = new List<StringBuilder>();
+
+      foreach (MediaItemAspect aspect in aspects)
+      {
+        StringBuilder info;
+        MediaItemAspectMetadata metadata = types[aspect.Metadata.AspectId];
+        infos.Add(info = new StringBuilder().AppendFormat(" {0}: ", metadata.Name));
+        Boolean first = true;
+        foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
+        {
+          string valueStr = null;
+          if (spec.IsCollectionAttribute)
+          {
+            IEnumerable values = aspect.GetCollectionAttribute(spec);
+            if (values != null)
+            {
+              IList<string> list = new List<string>();
+              foreach (object value in values)
+                list.Add(value.ToString());
+              valueStr = string.Format("[{0}]", string.Join(",", list));
+            }
+          }
+          else
+          {
+            object value = aspect.GetAttributeValue(spec);
+            if (value != null)
+              valueStr = value.ToString();
+          }
+          if (valueStr != null)
+          {
+            if (first)
+              first = false;
+            else
+              info.Append(",");
+            //sb += string.Format(" {0}{1}{2}({3}/{4})={5}", spec.AttributeName, aspect is MultipleMediaItemAspect ? "," : "", aspect is MultipleMediaItemAspect ? ((MultipleMediaItemAspect)aspect).Index.ToString() : "", spec.AttributeType.Name, spec.Cardinality, valueStr);
+            info.AppendFormat(" {0}={1}", spec.AttributeName, valueStr);
+          }
+        }
+      }
+      return string.Join("\n", infos);
     }
   }
 
