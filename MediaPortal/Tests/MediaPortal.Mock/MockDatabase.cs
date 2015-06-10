@@ -25,6 +25,7 @@
 using System;
 using System.Data;
 using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Services.Database;
 
 namespace MediaPortal.Mock
 {
@@ -140,8 +141,19 @@ namespace MediaPortal.Mock
 
     public IDbCommand CreateCommand()
     {
-      MockCommand command = new MockCommand();
-      MockDBUtils.AddCommand(command);
+      IDbCommand command;
+
+      if (MockDBUtils.Connection != null)
+      {
+        command = MockDBUtils.Connection.CreateCommand();
+        command = new LoggingDbCommandWrapper(command);
+      }
+      else
+      {
+        command = new MockCommand();
+        MockDBUtils.AddCommand((MockCommand)command);
+      }
+
       return command;
     }
   }

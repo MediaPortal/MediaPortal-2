@@ -31,6 +31,7 @@ namespace Test.Backend
   {
     public Guid ASPECT_ID;
 
+    public MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ID;
     public MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_STRING;
     public MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_INTEGER;
 

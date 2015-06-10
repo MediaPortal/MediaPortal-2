@@ -36,12 +36,13 @@ namespace Test.Backend
       mia.ASPECT_ID = Guid.NewGuid();
 
       IList<MediaItemAspectMetadata.MultipleAttributeSpecification> attributes = new List<MediaItemAspectMetadata.MultipleAttributeSpecification>();
+      attributes.Add(mia.ATTR_ID = MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ATTR_ID", 10, Cardinality.Inline, true));
       if (createStringAttribute)
         attributes.Add(mia.ATTR_STRING = MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ATTR_STRING", 10, cardinality, false));
       if (createIntegerAttribute)
         attributes.Add(mia.ATTR_INTEGER = MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ATTR_INTEGER", typeof(Int32), cardinality, true));
 
-      mia.Metadata = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, table, attributes.ToArray(), attributes.ToArray());
+      mia.Metadata = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, table, attributes.ToArray(), new[] { mia.ATTR_ID } );
 
       MockCore.AddMediaItemAspectStorage(mia.Metadata);
 
