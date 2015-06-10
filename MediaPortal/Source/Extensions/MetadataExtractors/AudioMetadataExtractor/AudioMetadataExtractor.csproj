@@ -60,6 +60,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AudioRelationshipExtractor.cs" />
     <Compile Include="FreeDB\CDInfo.cs" />
     <Compile Include="FreeDB\CDInfoDetail.cs" />
     <Compile Include="FreeDB\CDTrackDetail.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="AudioMetadataExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\AudioMetadataExtractorSettings.cs" />
+    <Compile Include="TrackAlbumRelationshipExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
