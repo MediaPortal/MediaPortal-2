@@ -103,6 +103,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       TvdbSeries seriesDetail;
 
+      // Try online lookup
+      if (!Init())
+        return false;
+
       if (TryMatch(episodeInfo, false, out seriesDetail))
       {
         int tvDbId = 0;
