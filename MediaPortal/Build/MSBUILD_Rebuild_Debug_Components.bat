@@ -4,10 +4,10 @@
 set PathToBuildReport=.\..\Packages\BuildReport.1.0.0
 xcopy /I /Y %PathToBuildReport%\_BuildReport_Files .\_BuildReport_Files
 
-set xml=Build_Report_MediaPortal_2.xml
-set html=Build_Report_MediaPortal_2.html
+set xml=Build_Report_Release_Server.xml
+set html=Build_Report_Release_Server.html
 
 set logger=/l:XmlFileLogger,"%PathToBuildReport%\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
-"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" /m Build.proj %logger% /property:Configuration=Debug
+"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" /m Build.proj %logger% /property:BuildClient=true;BuildServer=true;BuildServiceMonitor=true;BuildSetup=false;Configuration=Debug
 
 %PathToBuildReport%\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%
