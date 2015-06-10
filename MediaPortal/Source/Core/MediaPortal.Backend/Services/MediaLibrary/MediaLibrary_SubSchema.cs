@@ -269,10 +269,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public static IDbCommand InsertMediaItemCommand(ITransaction transaction, out Guid mediaItemId)
     {
+      mediaItemId = Guid.NewGuid();
+      return InsertMediaItemCommand(transaction, mediaItemId);
+    }
+
+    public static IDbCommand InsertMediaItemCommand(ITransaction transaction, Guid mediaItemId)
+    {
       IDbCommand result = transaction.CreateCommand();
 
       result.CommandText = "INSERT INTO " + MEDIA_ITEMS_TABLE_NAME + " (" + MEDIA_ITEMS_ITEM_ID_COL_NAME + ") VALUES (@ITEM_ID)";
-      mediaItemId = Guid.NewGuid();
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "ITEM_ID", mediaItemId, typeof(Guid));
 
