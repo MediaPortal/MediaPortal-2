@@ -143,7 +143,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                                IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                                ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                                SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
-        </bvm:GroupMenuListView>
+        <bvm:GroupMenuListView.Resources>
+          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+        </bvm:GroupMenuListView.Resources>
+      </bvm:GroupMenuListView>
 
       <!-- Time & Date -->
         <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="5,-5,20,0" VerticalAlignment="Center">

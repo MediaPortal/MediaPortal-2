@@ -241,6 +241,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
           string groupName = group.Name;
           var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
+          if (_menuSettings.DisableAutoSelection)
+            groupItem.Command = new MethodDelegateCommand(() => SetGroup(groupId));
+
           groupItem.AdditionalProperties["Id"] = groupId;
           if (groupId == _menuSettings.DefaultMenuGroupId)
           {
@@ -255,11 +258,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     public void OnGroupItemSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      if (_menuSettings.DisableAutoSelection)
+        return;
       var item = e.FirstAddedItem as ListItem;
       if (item != null)
-      {
         SetGroup((string)item.AdditionalProperties["Id"]);
-      }
     }
 
     protected void CreatePositionedItems()
