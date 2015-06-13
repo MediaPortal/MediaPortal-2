@@ -24,11 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Settings;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UiComponents.BlueVision.Settings;
 
@@ -39,6 +42,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     #region Consts
 
     public const string SETUP_MODEL_ID_STR = "92A16CDF-480B-4A40-9C76-7F9B0779319F";
+    public const string SPLASH_SCREEN_NAME = "SplashScreen.jpg";
 
     public readonly static Guid SETUP_MODEL_ID = new Guid(SETUP_MODEL_ID_STR);
 
@@ -101,9 +105,32 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       settings.DisableHomeTab = DisableHomeTab;
       settings.DisableAutoSelection = DisableAutoSelection;
       settings.UseAlternativeSplashscreen = UseAlternativeSplashscreen;
-
       // Save
       settingsManager.Save(settings);
+
+      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      var startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
+      List<string> paths = new List<string>
+      {
+        string.Format("Plugins\\BlueVision\\Skin\\BlueVision\\Themes\\{0}\\Images\\{1}", skinSettings.Theme, SPLASH_SCREEN_NAME),
+        string.Format("Plugins\\BlueVision\\Skin\\BlueVision\\Images\\{0}", SPLASH_SCREEN_NAME),
+      };
+
+      startupSettings.AlternativeSplashScreen = string.Empty;
+      if (UseAlternativeSplashscreen)
+      {
+        string startupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        foreach (string path in paths)
+        {
+          string testPath = Path.Combine(startupPath, path);
+          if (File.Exists(testPath))
+          {
+            startupSettings.AlternativeSplashScreen = path;
+            break;
+          }
+        }
+      }
+      settingsManager.Save(startupSettings);
     }
 
     #endregion
