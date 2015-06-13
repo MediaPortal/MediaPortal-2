@@ -74,7 +74,9 @@
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
+    <Compile Include="Models\SetupModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\MenuSettingsConfiguration.cs" />
     <Compile Include="Settings\MenuSettings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -266,6 +268,10 @@
       <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
       <Name>SkinBase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MceRemoteReceiver\MceRemoteReceiver.csproj">
+      <Project>{AA23A7F2-8B6D-4C0C-8FAD-F2F58E3F8B08}</Project>
+      <Name>MceRemoteReceiver</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\default\styles\BusyCursor.xaml">
@@ -278,9 +284,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\BlueVision\screens\master_configuration_menu.xaml">
+    <Content Include="Skin\BlueVision\screens\master_configuration_menu.xaml">
       <SubType>Designer</SubType>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\shares_config_choose_categories.xaml">
@@ -408,9 +414,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\BlueVision\themes\default\styles\WeatherStyles.xaml">
+    <Content Include="Skin\BlueVision\themes\default\styles\WeatherStyles.xaml">
       <SubType>Designer</SubType>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\default\styles\Widgets.xaml">
@@ -427,10 +433,9 @@
     <Content Include="Skin\BlueVision\screens\BrowseMediaNavigation.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Page Include="Skin\BlueVision\screens\DialogVirtualKeyboard.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Content Include="Skin\BlueVision\screens\DialogVirtualKeyboard.xaml">
       <SubType>Designer</SubType>
-    </Page>
+    </Content>
     <Content Include="Skin\BlueVision\screens\ImageShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -468,6 +473,11 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\default\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\dialogBlueVisionConfiguration.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
