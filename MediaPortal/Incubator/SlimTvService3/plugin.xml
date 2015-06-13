@@ -19,6 +19,10 @@
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
   </DependsOn>
 
+  <ConflictsWith>
+    <PluginReference PluginId="{14E7757A-F7D7-4F61-933B-91E948083A11}"/> <!-- SlimTv Service Plugin (TVE3.5) -->
+  </ConflictsWith>
+
   <Runtime>
     <Assembly FileName="SlimTv.Service3.dll"/>
     <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Service.SlimTvServicePlugin"/>

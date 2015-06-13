@@ -5,8 +5,12 @@
     Author="Morpheus_xx"
     Copyright="GPL"
     AutoActivate="true"
-    Description="The OneTrueError plugin allows sending application errors to https://onetrueerror.com/ for error tracking purpose."
-    PluginVersion="1.0">
+    Description="The OneTrueError plugin allows sending application errors to https://onetrueerror.com/ for error tracking purpose.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <Runtime>
     <Assembly FileName="1TrueError.dll"/>
