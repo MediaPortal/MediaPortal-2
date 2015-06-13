@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common.Exceptions;
@@ -34,6 +35,7 @@ using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.UI.Settings;
 #if !DEBUG
 using System.Drawing;
 using System.IO;
@@ -70,15 +72,39 @@ namespace MediaPortal.Client
     #endregion
 
 #if !DEBUG
-    private static SplashScreen CreateSplashScreen(int startupScreen)
+    private static SplashScreen CreateSplashScreen()
     {
+      StartupSettings startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
+
+      string startupPath = Path.GetDirectoryName(Application.ExecutablePath);
+      List<string> testFileNames = new List<string>();
+      if (!string.IsNullOrEmpty(startupSettings.AlternativeSplashScreen))
+        testFileNames.Add(startupSettings.AlternativeSplashScreen);
+
+      testFileNames.Add("MP2 Client Splashscreen.jpg");
+
+      Image image = null;
+      foreach (string testFileName in testFileNames)
+      {
+        try
+        {
+          string fileName = Path.Combine(startupPath, testFileName);
+          image = Image.FromFile(fileName);
+          break;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("SplashScreen: Error loading startup image '{0}'", ex, testFileName);
+        }
+      }
+
       SplashScreen result = new SplashScreen
           {
-            StartupScreen = startupScreen,
+            StartupScreen = startupSettings.StartupScreenNum,
             ScaleToFullscreen = true,
             FadeInDuration = TimeSpan.FromMilliseconds(300),
             FadeOutDuration = TimeSpan.FromMilliseconds(200),
-            SplashBackgroundImage = Image.FromFile(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "MP2 Client Splashscreen.jpg"))
+            SplashBackgroundImage = image
           };
       return result;
     }
@@ -130,7 +156,7 @@ namespace MediaPortal.Client
           ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
 
 #if !DEBUG
-          splashScreen = CreateSplashScreen(ServiceRegistration.Get<ISettingsManager>().Load<UI.Settings.StartupSettings>().StartupScreenNum);
+          splashScreen = CreateSplashScreen();
           splashScreen.ShowSplashScreen();
 #endif
 

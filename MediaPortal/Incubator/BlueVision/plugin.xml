@@ -16,11 +16,19 @@
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
     <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- BackgroundManager -->
     <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"/> <!-- Media -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Register Location="/Models">
     <Model Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177" Name="HomeMenuModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.HomeMenuModel"/>
     <Model Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.LatestMediaModel"/>
+    <Model Id="92A16CDF-480B-4A40-9C76-7F9B0779319F" Name="SetupModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.SetupModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="F3A23F49-C9CA-4FFE-9A2D-CCC7B936A2A8" Name="BlueVisionConfiguration" DialogScreen="dialogBlueVisionConfiguration"
+        DisplayLabel="[Settings.Plugins.Trakt.TraktSetup]" WorkflowModel="92A16CDF-480B-4A40-9C76-7F9B0779319F"/>
   </Register>
 
   <!-- Language resources -->
@@ -31,4 +39,31 @@
   <Register Location="/Resources/Skin">
     <Resource Id="BlueVisionSkin" Directory="Skin" Type="Skin"/>
   </Register>
+
+  <!-- Contents of '/Appearance' section -->
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigGroup
+        Id="SkinAndTheme"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin.SkinAndTheme]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinAndTheme">
+    <CustomConfigSetting
+        Id="BlueVisionSetup"
+        Text="[BlueVision.Configuration]"
+        HelpText="[BlueVision.Configuration.Help]"
+        ClassName="MediaPortal.UiComponents.BlueVision.Settings.Configuration.MenuSettingsConfiguration"
+        AdditionalData="WorkflowState=F3A23F49-C9CA-4FFE-9A2D-CCC7B936A2A8,ConfAppPanel=..."/>
+  </Register>
+
 </Plugin>

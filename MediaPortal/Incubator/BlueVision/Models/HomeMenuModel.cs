@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
@@ -57,7 +58,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     readonly ItemsList _mainMenuGroupList = new ItemsList();
     readonly ItemsList _positionedItems = new ItemsList();
-    protected MenuSettings _menuSettings;
+    protected SettingsChangeWatcher<MenuSettings> _menuSettings;
     protected AbstractProperty _lastSelectedItemProperty;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
@@ -115,9 +116,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       get
       {
-        if (_menuSettings == null || _menuSettings.DefaultIndex >= _menuSettings.MainMenuGroupNames.Count)
+        if (_menuSettings == null)
           return string.Empty;
-        return _menuSettings.MainMenuGroupNames[_menuSettings.DefaultIndex].Name;
+        var item = _menuSettings.Settings.MainMenuGroupNames.FirstOrDefault(m => m.Id.ToString() == _menuSettings.Settings.DefaultMenuGroupId);
+        return item != null ? item.Name : string.Empty;
       }
     }
 
@@ -126,7 +128,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       get
       {
         SerializableDictionary<Guid, GridPosition> positions;
-        if (_menuSettings == null || !_menuSettings.MenuItems.TryGetValue(CurrentKey, out positions))
+        if (_menuSettings == null || !_menuSettings.Settings.MenuItems.TryGetValue(CurrentKey, out positions))
           return new Dictionary<Guid, GridPosition>();
 
         return positions;
@@ -186,6 +188,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       IsHomeProperty.Attach(IsHomeChanged);
 
       ReadPositions();
+
       CreateMenuGroupItems();
       CreatePositionedItems();
       MenuItems.ObjectChanged += MenuItemsOnObjectChanged;
@@ -220,6 +223,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
+    private void OnSettingsChanged(object sender, EventArgs e)
+    {
+      CreateMenuGroupItems();
+      CreatePositionedItems();
+    }
+
     protected void MenuItemsOnObjectChanged(IObservable observable)
     {
       CreatePositionedItems();
@@ -230,19 +239,25 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _mainMenuGroupList.Clear();
       if (_menuSettings != null)
       {
-        int idx = 0;
-        foreach (var group in _menuSettings.MainMenuGroupNames)
+        foreach (var group in _menuSettings.Settings.MainMenuGroupNames)
         {
+          string groupId = group.Id.ToString();
+          bool isHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
+          if (isHome && _menuSettings.Settings.DisableHomeTab)
+            continue;
+
           string groupName = group.Name;
           var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
-          groupItem.AdditionalProperties["Id"] = group.Id.ToString();
-          if (idx == _menuSettings.DefaultIndex)
+          if (_menuSettings.Settings.DisableAutoSelection)
+            groupItem.Command = new MethodDelegateCommand(() => SetGroup(groupId));
+
+          groupItem.AdditionalProperties["Id"] = groupId;
+          if (groupId == _menuSettings.Settings.DefaultMenuGroupId)
           {
-            IsHome = group.Id.ToString().Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
+            IsHome = isHome;
             groupItem.IsActive = true;
           }
           _mainMenuGroupList.Add(groupItem);
-          idx++;
         }
       }
       _mainMenuGroupList.FireChange();
@@ -250,11 +265,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     public void OnGroupItemSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      if (_menuSettings.Settings.DisableAutoSelection)
+        return;
       var item = e.FirstAddedItem as ListItem;
       if (item != null)
-      {
         SetGroup((string)item.AdditionalProperties["Id"]);
-      }
     }
 
     protected void CreatePositionedItems()
@@ -280,7 +295,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         // Under "others" all items are places, that do not fit into any other category
         if (CurrentKey == MenuSettings.MENU_NAME_OTHERS)
         {
-          bool found = _menuSettings.MenuItems.Keys.Any(key => _menuSettings.MenuItems[key].ContainsKey(wfAction.ActionId));
+          bool found = _menuSettings.Settings.MenuItems.Keys.Any(key => _menuSettings.Settings.MenuItems[key].ContainsKey(wfAction.ActionId));
           if (!found)
           {
             GridListItem gridItem = new GridListItem(menuItem)
@@ -315,18 +330,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void SetGroup(string groupId)
     {
-      int idx = 0;
-      foreach (var menuGroupName in _menuSettings.MainMenuGroupNames)
-      {
-        if (menuGroupName.Id.ToString() == groupId)
-        {
-          if (_menuSettings.DefaultIndex == idx)
-            return;
-          _menuSettings.DefaultIndex = idx;
-          break;
-        }
-        ++idx;
-      }
+      _menuSettings.Settings.DefaultMenuGroupId = groupId;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
       ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
       if (NavigateToHome())
@@ -369,10 +373,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void UpdateSelectedGroup()
     {
-      int idx = 0;
       foreach (GroupMenuListItem listItem in MainMenuGroupList)
       {
-        listItem.IsActive = (idx++) == _menuSettings.DefaultIndex;
+        listItem.IsActive = (string)listItem.AdditionalProperties["Id"] == _menuSettings.Settings.DefaultMenuGroupId;
         // if the group is selected, it is the LastSelectedItem now.
         if (listItem.IsActive)
         {
@@ -387,7 +390,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     /// </summary>
     private void ReadPositions()
     {
-      var menuSettings = ServiceRegistration.Get<ISettingsManager>().Load<MenuSettings>();
+      if (_menuSettings == null)
+      {
+        _menuSettings = new SettingsChangeWatcher<MenuSettings>();
+        _menuSettings.SettingsChanged += OnSettingsChanged;
+      }
+      var menuSettings = _menuSettings.Settings;
       if (menuSettings.MenuItems.Count == 0)
       {
         menuSettings.MainMenuGroupNames = new List<GroupItemSetting>
@@ -401,7 +409,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS,    Id = new Guid(MenuSettings.MENU_ID_SETTINGS)}, 
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS,      Id = new Guid(MenuSettings.MENU_ID_OTHERS)}
         };
-        menuSettings.DefaultIndex = 2;
+        menuSettings.DefaultMenuGroupId = MenuSettings.MENU_ID_MEDIAHUB;
 
         var positions = new SerializableDictionary<Guid, GridPosition>();
         positions[new Guid("A4DF2DF6-8D66-479a-9930-D7106525EB07")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Videos
@@ -446,10 +454,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
         ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
       }
-      _menuSettings = menuSettings;
-      if (_menuSettings.MainMenuGroupNames.All(key => key.Name != MenuSettings.MENU_NAME_OTHERS))
+      //_menuSettings = menuSettings;
+      if (_menuSettings.Settings.MainMenuGroupNames.All(key => key.Name != MenuSettings.MENU_NAME_OTHERS))
       {
-        _menuSettings.MainMenuGroupNames.Add(new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) });
+        _menuSettings.Settings.MainMenuGroupNames.Add(new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) });
         ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
       }
     }
