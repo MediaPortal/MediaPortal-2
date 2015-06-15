@@ -97,7 +97,6 @@
     <Content Include="Skin\BlueVision\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\BlueVision\images\Audio_square.png" />
     <Content Include="Skin\BlueVision\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
-    <Content Include="Skin\BlueVision\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703_2.jpg" />
     <Content Include="Skin\BlueVision\images\Background.jpg" />
     <Content Include="Skin\BlueVision\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
     <Content Include="Skin\BlueVision\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
@@ -120,11 +119,9 @@
     <Content Include="Skin\BlueVision\images\MediaItem_focus_normal.png" />
     <Content Include="Skin\BlueVision\images\MediaItem_Reflexion.png" />
     <Content Include="Skin\BlueVision\images\MediaItem_Shadow.png" />
-    <Content Include="Skin\BlueVision\images\Menu_Background.png" />
     <Content Include="Skin\BlueVision\images\news.png" />
     <Content Include="Skin\BlueVision\images\NewTab_small.png" />
     <Content Include="Skin\BlueVision\images\NextPage.png" />
-    <Content Include="Skin\BlueVision\images\others.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large.Dark\Audio.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large.Dark\AudioMute.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large.Dark\ForwardButton.png" />
@@ -187,13 +184,11 @@
     <Content Include="Skin\BlueVision\images\unheard_icon.png" />
     <Content Include="Skin\BlueVision\images\UnwatchedTab_small.png" />
     <Content Include="Skin\BlueVision\images\unwatched_icon.png" />
-    <Content Include="Skin\BlueVision\images\Very-Basic-Opened-Folder-icon.png" />
     <Content Include="Skin\BlueVision\images\video-icon.png" />
     <Content Include="Skin\BlueVision\images\VideoLarge.png" />
     <Content Include="Skin\BlueVision\images\VideoNormal.png" />
     <Content Include="Skin\BlueVision\images\VideoWide.png" />
     <Content Include="Skin\BlueVision\images\watched_icon.png" />
-    <Content Include="Skin\BlueVision\images\wetter.png" />
     <Content Include="Skin\BlueVision\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemMovieDetails.inc" />
