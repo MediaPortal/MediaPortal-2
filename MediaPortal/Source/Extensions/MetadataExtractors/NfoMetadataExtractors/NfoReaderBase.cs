@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -162,7 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
-    public async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
+    public virtual async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
       byte[] nfoBytes;
       var nfoFileWrittenToDebugLog = false;
@@ -363,17 +364,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return true;
     }
 
-    /// <summary>
-    /// Writes the <see cref="CurrentStub"/> object including its metadata into the debug log in Json form
-    /// </summary>
-    private void LogStubObjects()
-    {
-      DebugLogger.Debug("[#{0}]: MovieStub: {1}{2}", MiNumber, Environment.NewLine, JsonConvert.SerializeObject(Stubs, Formatting.Indented, new JsonSerializerSettings { Converters = { new JsonByteArrayConverter() } }));
-    }
-
     #endregion
 
     #region Protected methods
+
+    /// <summary>
+    /// Writes the <see cref="Stubs"/> object including its metadata into the debug log in Json form
+    /// </summary>
+    protected void LogStubObjects()
+    {
+      DebugLogger.Debug("[#{0}]: {1}s: {2}{3}", MiNumber, Stubs.GetType().GetGenericArguments()[0].Name, Environment.NewLine, JsonConvert.SerializeObject(Stubs, Formatting.Indented, new JsonSerializerSettings { Converters = { new JsonByteArrayConverter(), new StringEnumConverter() } }));
+    }
 
     /// <summary>
     /// Tries to read a simple string from <paramref name="element"/>.Value
@@ -480,7 +481,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         if (year >= 1000 && year <= 9999)
           return new DateTime(year, 1, 1);
 
-      DebugLogger.Warn("[#{0}]: The following element was supposed to contain a DateTime value, but it does not: {1}", MiNumber, element);
+      // We do not log 0-values; Kodi puts 0 in the year-element of every [episodefilename].nfo
+      // resulting in lots of warnings otherwise
+      if (year != 0)
+        DebugLogger.Warn("[#{0}]: The following element was supposed to contain a DateTime value, but it does not: {1}", MiNumber, element);
       return null;
     }
 

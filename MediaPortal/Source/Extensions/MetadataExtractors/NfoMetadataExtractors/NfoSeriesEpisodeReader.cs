@@ -32,41 +32,57 @@ using System.Xml.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
   /// <summary>
-  /// Reads the content of a nfo-file for movies into <see cref="MovieStub"/> objects and stores
-  /// the appropriate values into the respective <see cref="MediaItemAspect"/>s
+  /// Reads the content of a nfo-file for an episode of a series into <see cref="SeriesEpisodeStub"/> objects and stores
+  /// the appropriate values from the <see cref="SeriesEpisodeStub"/> objects and (if set before via <see cref="SetSeriesStubs"/>)
+  /// from the <see cref="SeriesStub"/> objects into the respective <see cref="MediaItemAspect"/>s
   /// </summary>
   /// <remarks>
   /// There is a TryRead method for any known child element of the nfo-file's root element and a
   /// TryWrite method for any MIA-Attribute we store values in.
   /// </remarks>
-  class NfoMovieReader : NfoReaderBase<MovieStub>
+  class NfoSeriesEpisodeReader : NfoReaderBase<SeriesEpisodeStub>
   {
     #region Consts
 
     /// <summary>
-    /// The name of the root element in a valid nfo-file for movies
+    /// The name of the root element in a valid nfo-file for episodes
     /// </summary>
-    private const string MOVIE_ROOT_ELEMENT_NAME = "movie";
+    private const string EPISODE_ROOT_ELEMENT_NAME = "episodedetails";
+
+    #endregion
+
+    #region Private fields
+
+    /// <summary>
+    /// List of <see cref="SeriesStub"/> objects to be set via <see cref="SetSeriesStubs"/>
+    /// </summary>
+    private List<SeriesStub> _seriesStubs;
+
+    /// <summary>
+    /// <c>false</c> if <see cref="_seriesStubs"/> is <c>null</c> or empty; otherwise <c>true</c>
+    /// </summary>
+    private bool _useSeriesStubs;
 
     #endregion
 
     #region Ctor
 
     /// <summary>
-    /// Instantiates a <see cref="NfoMovieReader"/> object
+    /// Instantiates a <see cref="NfoSeriesEpisodeReader"/> object
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
-    /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoMovieReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
+    /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
+    public NfoSeriesEpisodeReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
       InitializeSupportedElements();
@@ -84,73 +100,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     private void InitializeSupportedElements()
     {
+      SupportedElements.Add("uniqueid", new TryReadElementDelegate(TryReadUniqueId));
+      SupportedElements.Add("code", new TryReadElementDelegate(TryReadCode));
       SupportedElements.Add("id", new TryReadElementDelegate(TryReadId));
-      SupportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
-      SupportedElements.Add("tmdbid", new TryReadElementDelegate(TryReadTmdbId));
-      SupportedElements.Add("tmdbId", new TryReadElementDelegate(TryReadTmdbId)); // Tiny Media Manager (v2.6.5) uses <tmdbId> instead of <tmdbid>
-      SupportedElements.Add("thmdb", new TryReadElementDelegate(TryReadThmdb));
-      SupportedElements.Add("ids", new TryReadElementDelegate(TryReadIds)); // Used by Tiny MediaManager (as of v2.6.0)
-      SupportedElements.Add("allocine", new TryReadElementDelegate(TryReadAllocine));
-      SupportedElements.Add("cinepassion", new TryReadElementDelegate(TryReadCinepassion));
+
       SupportedElements.Add("title", new TryReadElementDelegate(TryReadTitle));
-      SupportedElements.Add("originaltitle", new TryReadElementDelegate(TryReadOriginalTitle));
-      SupportedElements.Add("sorttitle", new TryReadElementDelegate(TryReadSortTitle));
+      SupportedElements.Add("showtitle", new TryReadElementDelegate(TryReadShowTitle));
+      SupportedElements.Add("season", new TryReadElementDelegate(TryReadSeason));
+      SupportedElements.Add("episode", new TryReadElementDelegate(TryReadEpisode));
+      SupportedElements.Add("displayseason", new TryReadElementDelegate(TryReadDisplaySeason));
+      SupportedElements.Add("displayepisode", new TryReadElementDelegate(TryReadDisplayEpisode));
       SupportedElements.Add("set", new TryReadElementAsyncDelegate(TryReadSetAsync));
       SupportedElements.Add("sets", new TryReadElementAsyncDelegate(TryReadSetsAsync));
+
       SupportedElements.Add("premiered", new TryReadElementDelegate(TryReadPremiered));
+      SupportedElements.Add("aired", new TryReadElementDelegate(TryReadAired));
       SupportedElements.Add("year", new TryReadElementDelegate(TryReadYear));
-      SupportedElements.Add("country", new TryReadElementDelegate(TryReadCountry));
-      SupportedElements.Add("company", new TryReadElementDelegate(TryReadCompany));
       SupportedElements.Add("studio", new TryReadElementDelegate(TryReadStudio));
-      SupportedElements.Add("studios", new TryReadElementDelegate(TryReadStudio)); // Synonym for <studio>
       SupportedElements.Add("actor", new TryReadElementAsyncDelegate(TryReadActorAsync));
-      SupportedElements.Add("producer", new TryReadElementAsyncDelegate(TryReadProducerAsync));
       SupportedElements.Add("director", new TryReadElementDelegate(TryReadDirector));
-      SupportedElements.Add("directorimdb", new TryReadElementDelegate(TryReadDirectorImdb));
       SupportedElements.Add("credits", new TryReadElementDelegate(TryReadCredits));
+      SupportedElements.Add("runtime", new TryReadElementDelegate(TryReadRuntime));
+      SupportedElements.Add("status", new TryReadElementDelegate(TryReadStatus));
+
       SupportedElements.Add("plot", new TryReadElementDelegate(TryReadPlot));
       SupportedElements.Add("outline", new TryReadElementDelegate(TryReadOutline));
       SupportedElements.Add("tagline", new TryReadElementDelegate(TryReadTagline));
       SupportedElements.Add("trailer", new TryReadElementDelegate(TryReadTrailer));
-      SupportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
-      SupportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
-      SupportedElements.Add("language", new TryReadElementDelegate(TryReadLanguage));
-      SupportedElements.Add("languages", new TryReadElementDelegate(TryReadLanguage)); // Synonym for <language>
+
       SupportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      SupportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
-      SupportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
-      SupportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
-      SupportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
-      SupportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
-      SupportedElements.Add("certification", new TryReadElementDelegate(TryReadCertification));
+
       SupportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       SupportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
-      SupportedElements.Add("ratings", new TryReadElementDelegate(TryReadRatings));
       SupportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
-      SupportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
       SupportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
-      SupportedElements.Add("runtime", new TryReadElementDelegate(TryReadRuntime));
-      SupportedElements.Add("fps", new TryReadElementDelegate(TryReadFps));
-      SupportedElements.Add("rip", new TryReadElementDelegate(TryReadRip));
+
       SupportedElements.Add("fileinfo", new TryReadElementDelegate(TryReadFileInfo));
       SupportedElements.Add("epbookmark", new TryReadElementDelegate(TryReadEpBookmark));
+
       SupportedElements.Add("watched", new TryReadElementDelegate(TryReadWatched));
       SupportedElements.Add("playcount", new TryReadElementDelegate(TryReadPlayCount));
       SupportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
-      SupportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       SupportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
 
-      // The following elements are contained in many movie.nfo files, but have no meaning
-      // in the context of a movie. We add them here to avoid them being logged as
-      // unknown elements, but we simply ignore them.
-      // For reference see here: http://forum.kodi.tv/showthread.php?tid=40422&pid=244349#pid244349
-      SupportedElements.Add("status", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("code", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("aired", new TryReadElementDelegate(Ignore));
-
-      // We never need the following element as we get the same information in a more accurate way
-      // from the filesystem itself; hence, we ignore it.
-      SupportedElements.Add("filenameandpath", new TryReadElementDelegate(Ignore));
+      // The following element is contained in many episode nfo-files, but we don't need its information
+      // We add it here to avoid it being logged as unknown element, but we simply ignore it.
+      // For reference see here: http://forum.team-mediaportal.com/threads/mp2-459-implementation-of-a-movienfometadataextractor-and-a-seriesnfometadataextractor.128805/page-13#post-1130414
+      SupportedElements.Add("dateadded", new TryReadElementDelegate(Ignore));
+      
+      // Used by MKVBuddy to store the language of the first audio stream found by mediainfo.lib; we read that
+      // anyway in the VideoMetadataExtractor before.
+      SupportedElements.Add("language", new TryReadElementDelegate(Ignore));
     }
 
     /// <summary>
@@ -159,25 +159,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private void InitializeSupportedAttributes()
     {
       SupportedAttributes.Add(TryWriteMediaAspectTitle);
-      SupportedAttributes.Add(TryWriteMediaAspectRecordingTime);
       SupportedAttributes.Add(TryWriteMediaAspectPlayCount);
       SupportedAttributes.Add(TryWriteMediaAspectLastPlayed);
 
       SupportedAttributes.Add(TryWriteVideoAspectGenres);
       SupportedAttributes.Add(TryWriteVideoAspectActors);
       SupportedAttributes.Add(TryWriteVideoAspectDirectors);
+      SupportedAttributes.Add(TryWriteVideoAspectWriters);
       SupportedAttributes.Add(TryWriteVideoAspectStoryPlot);
 
-      SupportedAttributes.Add(TryWriteMovieAspectMovieName);
-      SupportedAttributes.Add(TryWriteMovieAspectOrigName);
-      SupportedAttributes.Add(TryWriteMovieAspectTmdbId);
-      SupportedAttributes.Add(TryWriteMovieAspectImdbId);
-      SupportedAttributes.Add(TryWriteMovieAspectCollectionName);
-      SupportedAttributes.Add(TryWriteMovieAspectRuntime);
-      SupportedAttributes.Add(TryWriteMovieAspectCertification);
-      SupportedAttributes.Add(TryWriteMovieAspectTagline);
-      SupportedAttributes.Add(TryWriteMovieAspectTotalRating);
-      SupportedAttributes.Add(TryWriteMovieAspectRatingCount);
+      SupportedAttributes.Add(TryWriteSeriesAspectTvDbId);
+      SupportedAttributes.Add(TryWriteSeriesAspectSeriesName);
+      SupportedAttributes.Add(TryWriteSeriesAspectSeason);
+      SupportedAttributes.Add(TryWriteSeriesAspectSeriesSeason);
+      SupportedAttributes.Add(TryWriteSeriesAspectEpisode);
+      SupportedAttributes.Add(TryWriteSeriesAspectDvdEpisode);
+      SupportedAttributes.Add(TryWriteSeriesAspectEpisodeName);
+      SupportedAttributes.Add(TryWriteSeriesAspectFirstAired);
+      SupportedAttributes.Add(TryWriteSeriesAspectTotalRating);
+      SupportedAttributes.Add(TryWriteSeriesAspectRatingCount);
 
       SupportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
@@ -189,124 +189,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Internet databases
 
     /// <summary>
-    /// Tries to read the Imdb ID
+    /// Tries to read the episode's ID at thetvdb.com
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadUniqueId(XElement element)
+    {
+      // Example of a valid element:
+      // <uniqueid>2111911</uniqueid>
+      return ((CurrentStub.UniqueId = ParseSimpleInt(element)) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the Production Code Number of the episode
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadCode(XElement element)
+    {
+      // Example of a valid element:
+      // <code>A12301</code>
+      return ((CurrentStub.ProductionCodeNumber = ParseSimpleString(element)) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the series' ID at thetvdb.com
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadId(XElement element)
     {
       // Example of a valid element:
-      // <id>tt0111161</id>
-      return ((CurrentStub.Id = ParseSimpleString(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the Imdb ID
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadImdb(XElement element)
-    {
-      // Example of a valid element:
-      // <imdb>tt0810913</imdb>
-      return ((CurrentStub.Imdb = ParseSimpleString(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the Tmdb ID
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadTmdbId(XElement element)
-    {
-      // Examples of valid elements:
-      // <tmdbId>52913<tmdbId>
-      // <tmdbid>52913<tmdbid>
-      return ((CurrentStub.TmdbId = ParseSimpleInt(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the Tmdb ID
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadThmdb(XElement element)
-    {
-      // Example of a valid element:
-      // <thmdb>52913</thmdb>
-      return ((CurrentStub.Thmdb = ParseSimpleInt(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the Allocine ID
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadAllocine(XElement element)
-    {
-      // Example of a valid element:
-      // <allocine>52719</allocine>
-      return ((CurrentStub.Allocine = ParseSimpleInt(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the Cinepassion ID
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadCinepassion(XElement element)
-    {
-      // Example of a valid element:
-      // <cinepassion>52719</cinepassion>
-      return ((CurrentStub.Cinepassion = ParseSimpleInt(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read Ids values
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadIds(XElement element)
-    {
-      // Example of a valid element:
-      // <ids>
-      //   <entry>
-      //     <key>imdbId</key>
-      //     <value xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema" xmlns:xsi="8769http://www.w3.org/2001/XMLSchema-instance">8769</value>
-      //   </entry>
-      //   <entry>
-      //     <key>tmdbId</key>
-      //     <value xsi:type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="8769http://www.w3.org/2001/XMLSchema-instance">8769</value>
-      //   </entry>
-      // </ids>
-      if (element == null || !element.HasElements)
-        return false;
-      var result = false;
-      foreach (var childElement in element.Elements())
-      {
-        if (childElement.Name == "entry")
-        {
-          var keyString = ParseSimpleString(childElement.Element("key"));
-          switch (keyString)
-          {
-            case null:
-              DebugLogger.Warn("[#{0}]: Key element missing {1}", MiNumber, childElement);
-              break;
-            case "imdbId":
-              result = ((CurrentStub.IdsImdbId = ParseSimpleString(childElement.Element("value"))) != null);
-              break;
-            case "tmdbId":
-              result = ((CurrentStub.IdsTmdbId = ParseSimpleInt(childElement.Element("value"))) != null) || result;
-              break;
-            default:
-              DebugLogger.Warn("[#{0}]: Unknown Key element {1}", MiNumber, childElement);
-              break;
-          }
-        }
-        else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
-      }
-      return result;
+      // <id>158661</id>
+      return ((CurrentStub.Id = ParseSimpleInt(element)) != null);
     }
 
     #endregion
@@ -314,43 +229,104 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Title information
 
     /// <summary>
-    /// Tries to read the title
+    /// Tries to read the title of the episode
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadTitle(XElement element)
     {
       // Example of a valid element:
-      // <title>Harry Potter und der Orden des Phönix</title>
+      // <title>Blumen für Dein Grab</title>
       return ((CurrentStub.Title = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
-    /// Tries to read the original title
+    /// Tries to read the title of the series
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadOriginalTitle(XElement element)
+    private bool TryReadShowTitle(XElement element)
     {
       // Example of a valid element:
-      // <originaltitle>Harry Potter and the Order of the Phoenix</originaltitle>
-      return ((CurrentStub.OriginalTitle = ParseSimpleString(element)) != null);
+      // <showtitle>Castle</showtitle>
+      return ((CurrentStub.ShowTitle = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
-    /// Tries to read the sort title
+    /// Tries to read the season value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadSortTitle(XElement element)
+    private bool TryReadSeason(XElement element)
     {
-      // Example of a valid element:
-      // <sorttitle>Harry Potter Collection05</sorttitle>
-      return ((CurrentStub.SortTitle = ParseSimpleString(element)) != null);
+      // Examples of valid elements:
+      // <season>2</season>
+      // <season>0</season>
+      // A value of 0 (zero) is valid for specials
+      // A value of < 0 is ignored
+      var value = ParseSimpleInt(element);
+      if (value < 0)
+        value = null;
+      return ((CurrentStub.Season = value) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the episode value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadEpisode(XElement element)
+    {
+      // Examples of valid elements:
+      // <episode>12</episode>
+      // <episode>0</episode>
+      // A value of 0 (zero) is valid for specials within a season
+      // A value of < 0 is ignored
+      var value = ParseSimpleInt(element);
+      if (value < 0)
+        value = null;
+      return ((CurrentStub.Episode = value) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the displayseason value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadDisplaySeason(XElement element)
+    {
+      // Examples of valid elements:
+      // <displayseason>2</displayseason>
+      // <displayseason>0</displayseason>
+      // A value of 0 (zero) is valid for specials
+      // A value of < 0 is ignored
+      var value = ParseSimpleInt(element);
+      if (value < 0)
+        value = null;
+      return ((CurrentStub.DisplaySeason = value) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the displayepisode value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadDisplayEpisode(XElement element)
+    {
+      // Examples of valid elements:
+      // <displayepisode>12</displayepisode>
+      // <displayepisode>0</displayepisode>
+      // A value of 0 (zero) is valid for specials within a season
+      // A value of < 0 is ignored
+      var value = ParseSimpleInt(element);
+      if (value < 0)
+        value = null;
+      return ((CurrentStub.DisplayEpisode = value) != null);
     }
 
     /// <summary>
     /// Tries to (asynchronously) read the set information
+    /// We have not found an example for this element, yet, and assume it has the same structure as for movies.
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
@@ -359,11 +335,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Examples of valid elements:
       // 1:
-      // <set order = "1">Set Name</set>
+      // <set order = "1">Star Trek</set>
       // 2:
       // <set order = "1">
-      //   <setname>Harry Potter</setname>
-      //   <setdescription>Magician ...</setdescription>
+      //   <setname>Star Trek</setname>
+      //   <setdescription>This is ...</setdescription>
       //   <setrule></setrule>
       //   <setimage></setimage>
       // </set>
@@ -439,6 +415,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
+    /// Tries to read the aired value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadAired(XElement element)
+    {
+      // Examples of valid elements:
+      // <aired>1994-09-14</aired>
+      // <aired>1994</aired>
+      return ((CurrentStub.Aired = ParseSimpleDateTime(element)) != null);
+    }
+
+    /// <summary>
     /// Tries to read the year value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
@@ -452,44 +441,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
-    /// Tries to read a country value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadCountry(XElement element)
-    {
-      // Examples of valid elements:
-      // <country>DE</country>
-      // <country>US, GB</country>
-      return ((CurrentStub.Countries = ParseCharacterSeparatedStrings(element, CurrentStub.Countries)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read a company value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadCompany(XElement element)
-    {
-      // Examples of valid elements:
-      // <company>Warner Bros. Pictures</company>
-      // <company>Happy Madison Productions / Columbia Pictures</company>
-      return ((CurrentStub.Companies = ParseCharacterSeparatedStrings(element, CurrentStub.Companies)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read a studio or studios value
+    /// Tries to read a studio value
     /// </summary>
     /// <param name="element">Element to read from</param>
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadStudio(XElement element)
     {
-      // Examples of valid elements:
-      // <studio>Warner Bros. Pictures</studio>
-      // <studio>Happy Madison Productions / Columbia Pictures</studio>
-      // <studios>Warner Bros. Pictures</studios>
-      // <studios>Happy Madison Productions / Columbia Pictures</studios>
-      return ((CurrentStub.Studios = ParseCharacterSeparatedStrings(element, CurrentStub.Studios)) != null);
+      // Example of a valid element:
+      // <studio>SyFy</studio>
+      return ((CurrentStub.Studio = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -511,24 +471,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
-    /// Tries to (asynchronously) read a producer value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private async Task<bool> TryReadProducerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra);
-      if (person == null)
-        return false;
-      if (CurrentStub.Producers == null)
-        CurrentStub.Producers = new HashSet<PersonStub>();
-      CurrentStub.Producers.Add(person);
-      return true;
-    }
-
-    /// <summary>
     /// Tries to read the director value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
@@ -538,18 +480,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Example of a valid element:
       // <director>Dennis Dugan</director>
       return ((CurrentStub.Director = ParseSimpleString(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the directorimdb value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadDirectorImdb(XElement element)
-    {
-      // Example of a valid element:
-      // <directorimdb>nm0240797</directorimdb>
-      return ((CurrentStub.DirectorImdb = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -565,6 +495,59 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return ((CurrentStub.Credits = ParseCharacterSeparatedStrings(element, CurrentStub.Credits)) != null);
     }
 
+    /// <summary>
+    /// Tries to read the runtime value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadRuntime(XElement element)
+    {
+      // Examples of valid elements:
+      // 1:
+      // <runtime>120</runtime>
+      // 2:
+      // <runtime>2h 00mn</runtime>
+      // 3:
+      // <runtime>2h 00min</runtime>
+      // The value in Example 1 may have decimal places and is interpreted as number of minutes
+      // A value of less than 1 second is ignored
+      var runtimeString = ParseSimpleString(element);
+      if (runtimeString == null)
+        return false;
+
+      double runtimeDouble;
+      if (double.TryParse(runtimeString, out runtimeDouble))
+      {
+        // Example 1
+        if (runtimeDouble < (1.0 / 60.0))
+          return false;
+        CurrentStub.Runtime = TimeSpan.FromMinutes(runtimeDouble);
+        return true;
+      }
+
+      var match = Regex.Match(runtimeString, @"(\d+)\s*h\s*(\d+)\s*[mn|min]", RegexOptions.IgnoreCase);
+      if (!match.Success)
+        return false;
+
+      // Examples 2 and 3
+      var hours = int.Parse(match.Groups[1].Value);
+      var minutes = int.Parse(match.Groups[2].Value);
+      CurrentStub.Runtime = new TimeSpan(hours, minutes, 0);
+      return true;
+    }
+
+    /// <summary>
+    /// Tries to read a status value
+    /// </summary>
+    /// <param name="element">Element to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadStatus(XElement element)
+    {
+      // Example of a valid element:
+      // <status>Continuing</status>
+      return ((CurrentStub.Status = ParseSimpleString(element)) != null);
+    }
+
     #endregion
 
     #region Content information
@@ -577,7 +560,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryReadPlot(XElement element)
     {
       // Example of a valid element:
-      // <plot>This movie tells a story about...</plot>
+      // <plot>This episode tells a story about...</plot>
       return ((CurrentStub.Plot = ParseSimpleString(element)) != null);
     }
 
@@ -589,7 +572,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryReadOutline(XElement element)
     {
       // Example of a valid element:
-      // <outline>This movie tells a story about...</outline>
+      // <outline>This episode tells a story about...</outline>
       return ((CurrentStub.Outline = ParseSimpleString(element)) != null);
     }
 
@@ -601,7 +584,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryReadTagline(XElement element)
     {
       // Example of a valid element:
-      // <tagline>This movie tells a story about...</tagline>
+      // <tagline>This episode tells a story about...</tagline>
       return ((CurrentStub.Tagline = ParseSimpleString(element)) != null);
     }
 
@@ -613,62 +596,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryReadTrailer(XElement element)
     {
       // Example of a valid element:
-      // <trailer>This movie tells a story about...</trailer>
+      // <trailer>[URL to a trailer]</trailer>
       return ((CurrentStub.Trailer = ParseSimpleString(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read a genre value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadGenre(XElement element)
-    {
-      // Examples of valid elements:
-      // <genre>Horror</genre>
-      // <genre>Horror / Trash</genre>
-      return ((CurrentStub.Genres = ParseCharacterSeparatedStrings(element, CurrentStub.Genres)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read a genres value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadGenres(XElement element)
-    {
-      // Example of a valid element:
-      // <genres>
-      //  <genre>[genre-value]</genre>
-      // </genres>
-      // There can be one of more <genre> child elements
-      // [genre-value] can be any value that can be read by TryReadGenre
-      if (element == null || !element.HasElements)
-        return false;
-      var result = false;
-      foreach (var childElement in element.Elements())
-      {
-        if (childElement.Name == "genre")
-          result = TryReadGenre(childElement) || result;
-        else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
-      }
-      return result;
-    }
-
-    /// <summary>
-    /// Tries to read a language or languages value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadLanguage(XElement element)
-    {
-      // Examples of valid elements:
-      // <language>de</language>
-      // <language>de, en</language>
-      // <languages>de</languages>
-      // <languages>de, en</languages>
-      return ((CurrentStub.Languages = ParseCharacterSeparatedStrings(element, CurrentStub.Languages)) != null);
     }
 
     #endregion
@@ -687,83 +616,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return ((CurrentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra)) != null);
     }
 
-    /// <summary>
-    /// Tries to (asynchronously) read one or more fanart images
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private async Task<bool> TryReadFanArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      // For examples of valid element values c of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.FanArt = await ParseMultipleImagesAsync(element, CurrentStub.FanArt, nfoDirectoryFsra)) != null);
-    }
-
-    /// <summary>
-    /// Tries to (asynchronously) read one or more discart images
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private async Task<bool> TryReadDiscArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.DiscArt = await ParseMultipleImagesAsync(element, CurrentStub.DiscArt, nfoDirectoryFsra)) != null);
-    }
-
-    /// <summary>
-    /// Tries to (asynchronously) read one or more logo images
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private async Task<bool> TryReadLogoAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.Logos = await ParseMultipleImagesAsync(element, CurrentStub.Logos, nfoDirectoryFsra)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read one or more clearart images
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private async Task<bool> TryReadClearArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.ClearArt = await ParseMultipleImagesAsync(element, CurrentStub.ClearArt, nfoDirectoryFsra)) != null);
-    }
-
-    /// <summary>
-    /// Tries to (asynchronously) read one or more banner images
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private async Task<bool> TryReadBannerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.Banners = await ParseMultipleImagesAsync(element, CurrentStub.Banners, nfoDirectoryFsra)) != null);
-    }
-
     #endregion
 
     #region Certification and ratings
-
-    /// <summary>
-    /// Tries to read a certification value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadCertification(XElement element)
-    {
-      // Examples of valid elements:
-      // <certification>12</certification>
-      // <certification>DE:FSK 12</certification>
-      // <certification>DE:FSK 12 / DE:FSK12 / DE:12 / DE:ab 12</certification>
-      return ((CurrentStub.Certification = ParseCharacterSeparatedStrings(element, CurrentStub.Certification)) != null);
-    }
 
     /// <summary>
     /// Tries to read a mpaa value
@@ -777,40 +632,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // <mpaa>DE:FSK 12</mpaa>
       // <mpaa>DE:FSK 12 / DE:FSK12 / DE:12 / DE:ab 12</mpaa>
       return ((CurrentStub.Mpaa = ParseCharacterSeparatedStrings(element, CurrentStub.Mpaa)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read a ratings value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadRatings(XElement element)
-    {
-      // Example of a valid element:
-      // <ratings>
-      //   <rating moviedb="imdb">8.7</rating>
-      // </ratings>
-      // The <ratings> element can contain one or more <rating> child elements
-      // A value of 0 (zero) is ignored
-      if (element == null || !element.HasElements)
-        return false;
-      var result = false;
-      foreach (var childElement in element.Elements())
-        if (childElement.Name == "rating")
-        {
-          var moviedb = ParseStringAttribute(childElement, "moviedb");
-          var rating = ParseSimpleDecimal(element);
-          if (moviedb != null && rating != null && rating.Value != decimal.Zero)
-          {
-            result = true;
-            if (CurrentStub.Ratings == null)
-              CurrentStub.Ratings = new Dictionary<string, decimal>();
-            CurrentStub.Ratings[moviedb] = rating.Value;
-          }
-        }
-        else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
-      return result;
     }
 
     /// <summary>
@@ -847,18 +668,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
-    /// Tries to read the review value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadReview(XElement element)
-    {
-      // Example of a valid element:
-      // <review>This movie is great...</review>
-      return ((CurrentStub.Review = ParseSimpleString(element)) != null);
-    }
-
-    /// <summary>
     /// Tries to read the top250 value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
@@ -878,72 +687,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #endregion
 
     #region Media file information
-
-    /// <summary>
-    /// Tries to read the runtime value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadRuntime(XElement element)
-    {
-      // Examples of valid elements:
-      // 1:
-      // <runtime>120</runtime>
-      // 2:
-      // <runtime>2h 00mn</runtime>
-      // 3:
-      // <runtime>2h 00min</runtime>
-      // The value in Example 1 may have decimal places and is interpreted as number of minutes
-      // A value of less than 1 second is ignored
-      var runtimeString = ParseSimpleString(element);
-      if (runtimeString == null)
-        return false;
-
-      double runtimeDouble;
-      if (double.TryParse(runtimeString, out runtimeDouble))
-      {
-        // Example 1
-        if (runtimeDouble < (1.0 / 60.0))
-          return false;
-        CurrentStub.Runtime = TimeSpan.FromMinutes(runtimeDouble);
-        return true;
-      }
-
-      var match = Regex.Match(runtimeString, @"(\d+)\s*h\s*(\d+)\s*[mn|min]", RegexOptions.IgnoreCase);
-      if (!match.Success)
-        return false;
-      
-      // Examples 2 and 3
-      var hours = int.Parse(match.Groups[1].Value);
-      var minutes = int.Parse(match.Groups[2].Value);
-      CurrentStub.Runtime = new TimeSpan(hours, minutes, 0);
-      return true;
-    }
-
-    /// <summary>
-    /// Tries to read the fps value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadFps(XElement element)
-    {
-      // Examples of valid elements:
-      // <fps>25</fps>
-      // <fps>23.976<fps>
-      return ((CurrentStub.Fps = ParseSimpleDecimal(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the rip value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadRip(XElement element)
-    {
-      // Example of a valid element:
-      // <rip>Bluray</rip>
-      return ((CurrentStub.Rip = ParseSimpleString(element)) != null);
-    }
 
     /// <summary>
     /// Tries to read the fileinfo value
@@ -1130,18 +873,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
-    /// Tries to read the dateadded value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadDateAdded(XElement element)
-    {
-      // Example of a valid element:
-      // <dateadded>2013-10-08 21:46</dateadded>
-      return ((CurrentStub.DateAdded = ParseSimpleDateTime(element)) != null);
-    }
-
-    /// <summary>
     /// Tries to read the resume value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
@@ -1171,8 +902,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Writer methods to store metadata in MediaItemAspects
 
     // The following writer methods only write the first item found in the nfo-file
-    // into the MediaItemAspects. This can be extended in the future once we support
-    // multiple MediaItems in one media file.
+    // into the MediaItemAspects. The only exception is the Episode Attribute, where
+    // we store the episode numbers of all items in the episode nfo-file.
+    // This can be extended in the future once we really support multiple MediaItems in one media file.
 
     #region MediaAspect
 
@@ -1183,31 +915,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMediaAspectTitle(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Title != null)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, Stubs[0].Title);
-        return true;
-      }
-      return false;
-    }
+      var seriesName = Stubs[0].ShowTitle;
+      if (seriesName == null && _useSeriesStubs)
+        seriesName = _seriesStubs[0].ShowTitle;
 
-    /// <summary>
-    /// Tries to write metadata into <see cref="MediaAspect.ATTR_RECORDINGTIME"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      // priority 1:
-      if (Stubs[0].Premiered.HasValue)
+      var season = Stubs[0].Season;
+      if (!season.HasValue)
+        season = Stubs[0].DisplaySeason;
+
+      var episode = Stubs[0].Episode;
+      var episodeName = Stubs[0].Title;
+
+      if (seriesName != null && season.HasValue && episode.HasValue && episodeName != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, Stubs[0].Premiered.Value);
-        return true;
-      }
-      //priority 2:
-      if (Stubs[0].Year.HasValue)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, Stubs[0].Year.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, String.Format(SeriesInfo.EPISODE_FORMAT_STR, seriesName, season, episode, episodeName));
         return true;
       }
       return false;
@@ -1261,9 +982,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectGenres(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Genres != null && Stubs[0].Genres.Any())
+      if (_useSeriesStubs && _seriesStubs[0].Genres != null && _seriesStubs[0].Genres.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, Stubs[0].Genres.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _seriesStubs[0].Genres.ToList());
         return true;
       }
       return false;
@@ -1276,9 +997,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectActors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Actors != null && Stubs[0].Actors.Any())
+      List<string> actors = null;
+      if (Stubs[0].Actors != null)
+        actors = Stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
+      if (_useSeriesStubs && _seriesStubs[0].Actors != null)
+        actors = actors != null ?
+          actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name)).ToList() :
+          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
+      if (actors != null && actors.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, Stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
         return true;
       }
       return false;
@@ -1294,6 +1022,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (Stubs[0].Director != null)
       {
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { Stubs[0].Director });
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_WRITERS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteVideoAspectWriters(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (Stubs[0].Credits != null && Stubs[0].Credits.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, Stubs[0].Credits.ToList());
         return true;
       }
       return false;
@@ -1318,205 +1061,216 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, Stubs[0].Outline);
         return true;
       }
+      // priority 3:
+      if (_useSeriesStubs && _seriesStubs[0].Plot != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _seriesStubs[0].Plot);
+        return true;
+      }
+      // priority 4:
+      if (_useSeriesStubs && _seriesStubs[0].Outline != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _seriesStubs[0].Outline);
+        return true;
+      }
       return false;
     }
 
     #endregion
 
-    #region MovieAspect
+    #region SeriesAspect
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_MOVIE_NAME"/>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_TVDB_ID"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectMovieName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteSeriesAspectTvDbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      //priority 1:
+      if (Stubs[0].Id.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TVDB_ID, Stubs[0].Id.Value);
+        return true;
+      }
+      //priority 2:
+      if (_useSeriesStubs && _seriesStubs[0].Id.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TVDB_ID, _seriesStubs[0].Id.Value);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_SERIESNAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectSeriesName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      //priority 1:
+      if (Stubs[0].ShowTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIESNAME, Stubs[0].ShowTitle);
+        return true;
+      }
+      //priority 2:
+      if (_useSeriesStubs && _seriesStubs[0].ShowTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIESNAME, _seriesStubs[0].ShowTitle);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_SEASON"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectSeason(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      //priority 1:
+      if (Stubs[0].Season.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SEASON, Stubs[0].Season.Value);
+        return true;
+      }
+      //priority 2:
+      if (Stubs[0].DisplaySeason.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SEASON, Stubs[0].DisplaySeason.Value);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_SERIES_SEASON"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectSeriesSeason(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      var series = Stubs[0].ShowTitle;
+      if (_useSeriesStubs && series == null)
+        series = _seriesStubs[0].ShowTitle;
+
+      var season = Stubs[0].Season;
+      if (!season.HasValue)
+        season = Stubs[0].DisplaySeason;
+
+      if (series != null && season.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIES_SEASON, String.Format(SeriesInfo.SERIES_SEASON_FORMAT_STR, series, season));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_EPISODE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectEpisode(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      var episodes = Stubs.Select(episodeStub => episodeStub.Episode).Where(episode => episode.HasValue).ToList();
+      if (episodes.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ATTR_EPISODE, episodes.Select(episode => episode.Value));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_DVDEPISODE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectDvdEpisode(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      var displayEpisodes = Stubs.Select(episodeStub => episodeStub.DisplayEpisode).Where(displayEpisode => displayEpisode.HasValue).ToList();
+      if (displayEpisodes.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ATTR_DVDEPISODE, displayEpisodes.Select(displayEpisode => displayEpisode.Value));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_EPISODENAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectEpisodeName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       if (Stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_MOVIE_NAME, Stubs[0].Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_EPISODENAME, Stubs[0].Title);
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_ORIG_MOVIE_NAME"/>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_FIRSTAIRED"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectOrigName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteSeriesAspectFirstAired(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].OriginalTitle != null)
+      if (Stubs[0].Aired.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, Stubs[0].OriginalTitle);
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_FIRSTAIRED, Stubs[0].Aired.Value);
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TMDB_ID"/>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_TOTAL_RATING"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectTmdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      //priority 1:
-      if (Stubs[0].TmdbId.HasValue)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, Stubs[0].TmdbId.Value);
-        return true;
-      }
-      //priority 2:
-      if (Stubs[0].Thmdb.HasValue)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, Stubs[0].Thmdb.Value);
-        return true;
-      }
-      //priority 3:
-      if (Stubs[0].IdsTmdbId.HasValue)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, Stubs[0].IdsTmdbId.Value);
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_IMDB_ID"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectImdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      //priority 1:
-      if (Stubs[0].Id != null)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, Stubs[0].Id);
-        return true;
-      }
-      //priority 2:
-      if (Stubs[0].Imdb != null)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, Stubs[0].Imdb);
-        return true;
-      }
-      //priority 3:
-      if (Stubs[0].IdsImdbId != null)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, Stubs[0].Imdb);
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_COLLECTION_NAME"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectCollectionName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      if (Stubs[0].Sets != null && Stubs[0].Sets.Any())
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_NAME, Stubs[0].Sets.OrderBy(set => set.Order).First().Name);
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_RUNTIME_M"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectRuntime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      if (Stubs[0].Runtime.HasValue)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RUNTIME_M, (int)Stubs[0].Runtime.Value.TotalMinutes);
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_CERTIFICATION"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectCertification(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      // priority 1:
-      if (Stubs[0].Certification != null && Stubs[0].Certification.Any())
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, Stubs[0].Certification.First());
-        return true;
-      }
-      // priority 2:
-      if (Stubs[0].Mpaa != null && Stubs[0].Mpaa.Any())
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, Stubs[0].Mpaa.First());
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TAGLINE"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectTagline(IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      if (Stubs[0].Tagline != null)
-      {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TAGLINE, Stubs[0].Tagline);
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TOTAL_RATING"/>
-    /// </summary>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
-    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectTotalRating(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteSeriesAspectTotalRating(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // priority 1:
       if (Stubs[0].Rating.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)Stubs[0].Rating.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TOTAL_RATING, (double)Stubs[0].Rating.Value);
         return true;
       }
       // priority 2:
-      if (Stubs[0].Ratings != null && Stubs[0].Ratings.Any())
+      if (_useSeriesStubs && _seriesStubs[0].Rating.HasValue)
       {
-        decimal rating;
-        if (!Stubs[0].Ratings.TryGetValue("imdb", out rating))
-          rating = Stubs[0].Ratings.First().Value;
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)rating);
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TOTAL_RATING, (double)_seriesStubs[0].Rating.Value);
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_RATING_COUNT"/>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_RATING_COUNT"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteSeriesAspectRatingCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Votes.HasValue)
+      //priority 1:
+      if (Stubs[0].Votes.HasValue && Stubs[0].Rating.HasValue)
       {
-        if (Stubs[0].Rating.HasValue || (Stubs[0].Ratings != null && Stubs[0].Ratings.Count == 1))
-        {
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, Stubs[0].Votes.Value);
-          return true;
-        }
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_RATING_COUNT, Stubs[0].Votes.Value);
+        return true;
+      }
+      //priority 2:
+      if (_useSeriesStubs && _seriesStubs[0].Votes.HasValue && _seriesStubs[0].Rating.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_RATING_COUNT, _seriesStubs[0].Votes.Value);
+        return true;
       }
       return false;
     }
@@ -1552,8 +1306,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="element"><see cref="XElement"/> to ignore</param>
     /// <returns><c>false</c></returns>
     /// <remarks>
-    /// We use this method as TryReadElementDelegate for elements, of which we know that they are irrelevant in the context of a movie,
-    /// but which are nevertheless contained in some movie's nfo-files. Having this method registered as handler delegate avoids that
+    /// We use this method as TryReadElementDelegate for elements, of which we know that they are irrelevant in the context of an episode,
+    /// but which are nevertheless contained in some episode's nfo-files. Having this method registered as handler delegate avoids that
     /// the respective xml element is logged as unknown element.
     /// </remarks>
     private static bool Ignore(XElement element)
@@ -1565,19 +1319,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
+    #region Public methods
+
+    /// <summary>
+    /// Sets the <see cref="SeriesStub"/> objects to be used by the TryWrite methods
+    /// </summary>
+    /// <param name="seriesStubs">List of <see cref="SeriesStub"/> objects to be used</param>
+    public void SetSeriesStubs(List<SeriesStub> seriesStubs)
+    {
+      _seriesStubs = seriesStubs;
+      if (_seriesStubs == null || _seriesStubs.Count == 0)
+      {
+        DebugLogger.Warn("[#{0}]: SeriesStub is null or empty; only information from the episode nfo-file is used.", MiNumber);
+        _useSeriesStubs = false;
+        return;
+      }
+      _useSeriesStubs = true;
+      if (_seriesStubs.Count > 1)
+        DebugLogger.Warn("[#{0}]: There were multiple series contained in the series nfo-file; only information from the first series is used.", MiNumber);
+    }
+
+    #endregion
+
     #region BaseOverrides
 
     /// <summary>
-    /// Checks whether the <paramref name="itemRootElement"/>'s name is "movie"
+    /// Checks whether the <paramref name="itemRootElement"/>'s name is "episodedetails"
     /// </summary>
     /// <param name="itemRootElement">Element to check</param>
-    /// <returns><c>true</c> if the element's name is "movie"; else <c>false</c></returns>
+    /// <returns><c>true</c> if the element's name is "episodedetails"; else <c>false</c></returns>
     protected override bool CanReadItemRootElementTree(XElement itemRootElement)
     {
       var itemRootElementName = itemRootElement.Name.ToString();
-      if (itemRootElementName == MOVIE_ROOT_ELEMENT_NAME)
+      if (itemRootElementName == EPISODE_ROOT_ELEMENT_NAME)
         return true;
-      DebugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", MiNumber, itemRootElementName, MOVIE_ROOT_ELEMENT_NAME);
+      DebugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", MiNumber, itemRootElementName, EPISODE_ROOT_ELEMENT_NAME);
       return false;
     }
 

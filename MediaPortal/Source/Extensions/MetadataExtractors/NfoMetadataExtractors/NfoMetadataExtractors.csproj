@@ -62,18 +62,27 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AsyncStaticCache.cs" />
+    <Compile Include="AsyncStaticTimeoutCache.cs" />
     <Compile Include="JsonByteArrayConverter.cs" />
     <Compile Include="NfoMetadataExtractorSettingsBase.cs" />
+    <Compile Include="NfoSeriesEpisodeReader.cs" />
+    <Compile Include="NfoSeriesReader.cs" />
+    <Compile Include="NfoSeriesMetadataExtractor.cs" />
+    <Compile Include="NfoSeriesMetadataExtractorSettings.cs" />
     <Compile Include="NfoMovieMetadataExtractorSettings.cs" />
     <Compile Include="NfoMovieReader.cs" />
     <Compile Include="NfoReaderBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NfoMovieMetadataExtractor.cs" />
     <Compile Include="Stubs\AudioStreamDetailsStub.cs" />
+    <Compile Include="Stubs\SeriesEpisodeStub.cs" />
+    <Compile Include="Stubs\SeriesStub.cs" />
     <Compile Include="Stubs\MovieStub.cs" />
     <Compile Include="Stubs\PersonStub.cs" />
     <Compile Include="Stubs\SetStub.cs" />
-    <Compile Include="StreamDetailsStub.cs" />
+    <Compile Include="Stubs\SeriesThumbStub.cs" />
+    <Compile Include="Stubs\StreamDetailsStub.cs" />
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
     <Compile Include="XmlNfoReader.cs" />
