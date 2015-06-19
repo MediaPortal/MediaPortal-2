@@ -99,57 +99,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Ctor helpers
 
     /// <summary>
-    /// Adds a delegate for each xml element in a series nfo-file that is understood by this MetadataExtractor to NfoReaderBase.SupportedElements
+    /// Adds a delegate for each xml element in a series nfo-file that is understood by this MetadataExtractor to NfoReaderBase._supportedElements
     /// </summary>
     private void InitializeSupportedElements()
     {
-      SupportedElements.Add("id", new TryReadElementDelegate(TryReadId));
-      SupportedElements.Add("code", new TryReadElementDelegate(TryReadCode));
-      SupportedElements.Add("episodeguide", new TryReadElementDelegate(TryReadEpisodeGuide));
+      _supportedElements.Add("id", new TryReadElementDelegate(TryReadId));
+      _supportedElements.Add("code", new TryReadElementDelegate(TryReadCode));
+      _supportedElements.Add("episodeguide", new TryReadElementDelegate(TryReadEpisodeGuide));
 
-      SupportedElements.Add("title", new TryReadElementDelegate(TryReadTitle));
-      SupportedElements.Add("showtitle", new TryReadElementDelegate(TryReadShowTitle));
-      SupportedElements.Add("sorttitle", new TryReadElementDelegate(TryReadSortTitle));
-      SupportedElements.Add("set", new TryReadElementAsyncDelegate(TryReadSetAsync));
-      SupportedElements.Add("sets", new TryReadElementAsyncDelegate(TryReadSetsAsync));
+      _supportedElements.Add("title", new TryReadElementDelegate(TryReadTitle));
+      _supportedElements.Add("showtitle", new TryReadElementDelegate(TryReadShowTitle));
+      _supportedElements.Add("sorttitle", new TryReadElementDelegate(TryReadSortTitle));
+      _supportedElements.Add("set", new TryReadElementAsyncDelegate(TryReadSetAsync));
+      _supportedElements.Add("sets", new TryReadElementAsyncDelegate(TryReadSetsAsync));
       
-      SupportedElements.Add("premiered", new TryReadElementDelegate(TryReadPremiered));
-      SupportedElements.Add("year", new TryReadElementDelegate(TryReadYear));
-      SupportedElements.Add("studio", new TryReadElementDelegate(TryReadStudio));
-      SupportedElements.Add("actor", new TryReadElementAsyncDelegate(TryReadActorAsync));
-      SupportedElements.Add("status", new TryReadElementDelegate(TryReadStatus));
+      _supportedElements.Add("premiered", new TryReadElementDelegate(TryReadPremiered));
+      _supportedElements.Add("year", new TryReadElementDelegate(TryReadYear));
+      _supportedElements.Add("studio", new TryReadElementDelegate(TryReadStudio));
+      _supportedElements.Add("actor", new TryReadElementAsyncDelegate(TryReadActorAsync));
+      _supportedElements.Add("status", new TryReadElementDelegate(TryReadStatus));
 
-      SupportedElements.Add("plot", new TryReadElementDelegate(TryReadPlot));
-      SupportedElements.Add("outline", new TryReadElementDelegate(TryReadOutline));
-      SupportedElements.Add("tagline", new TryReadElementDelegate(TryReadTagline));
-      SupportedElements.Add("trailer", new TryReadElementDelegate(TryReadTrailer));
-      SupportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
-      SupportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
+      _supportedElements.Add("plot", new TryReadElementDelegate(TryReadPlot));
+      _supportedElements.Add("outline", new TryReadElementDelegate(TryReadOutline));
+      _supportedElements.Add("tagline", new TryReadElementDelegate(TryReadTagline));
+      _supportedElements.Add("trailer", new TryReadElementDelegate(TryReadTrailer));
+      _supportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
+      _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
 
-      SupportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      SupportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
+      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+      _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
 
-      SupportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
-      SupportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
-      SupportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
-      SupportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
+      _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
+      _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
+      _supportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
+      _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
 
       // The following elements are contained in many tvshow.nfo files, but have no meaning
       // in the context of a series. We add them here to avoid them being logged as
       // unknown elements, but we simply ignore them.
       // For reference see here: http://forum.team-mediaportal.com/threads/mp2-459-implementation-of-a-movienfometadataextractor-and-a-seriesnfometadataextractor.128805/page-13#post-1130414
-      SupportedElements.Add("epbookmark", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("season", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("episode", new TryReadElementDelegate(Ignore)); // Kodi stores a value here, but the meaning is unclear
-      SupportedElements.Add("displayseason", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("displayepisode", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("uniqueid", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("aired", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("runtime", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("playcount", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("lastplayed", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("resume", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("dateadded", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("epbookmark", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("season", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("episode", new TryReadElementDelegate(Ignore)); // Kodi stores a value here, but the meaning is unclear
+      _supportedElements.Add("displayseason", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("displayepisode", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("uniqueid", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("aired", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("runtime", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("playcount", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("lastplayed", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("resume", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("dateadded", new TryReadElementDelegate(Ignore));
     }
 
     #endregion
@@ -167,7 +167,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <id>158661</id>
-      return ((CurrentStub.Id = ParseSimpleInt(element)) != null);
+      return ((_currentStub.Id = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <code>A</code>
-      return ((CurrentStub.ProductionCodeNumber = ParseSimpleString(element)) != null);
+      return ((_currentStub.ProductionCodeNumber = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -196,14 +196,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (element == null || !element.HasElements)
         return false;
       if (element.Elements().Count() > 1)
-        DebugLogger.Warn("[#{0}]: EpisodeGuide element has multiple child elements. Only using the first url child element {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: EpisodeGuide element has multiple child elements. Only using the first url child element {1}", _miNumber, element);
       var urlElements = element.Elements("url").ToList();
       if (!urlElements.Any())
       {
-        DebugLogger.Warn("[#{0}]: EpisodeGuide element missing url child element {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: EpisodeGuide element missing url child element {1}", _miNumber, element);
         return false;
       }
-      return ((CurrentStub.EpisodeGuide = ParseSimpleString(urlElements[0])) != null);
+      return ((_currentStub.EpisodeGuide = ParseSimpleString(urlElements[0])) != null);
     }
 
     #endregion
@@ -219,7 +219,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <title>Castle</title>
-      return ((CurrentStub.Title = ParseSimpleString(element)) != null);
+      return ((_currentStub.Title = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <showtitle>Castle</showtitle>
-      return ((CurrentStub.ShowTitle = ParseSimpleString(element)) != null);
+      return ((_currentStub.ShowTitle = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -243,7 +243,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <sorttitle>Star Trek02</sorttitle>
-      return ((CurrentStub.SortTitle = ParseSimpleString(element)) != null);
+      return ((_currentStub.SortTitle = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -287,9 +287,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (value.Name == null)
         return false;
 
-      if (CurrentStub.Sets == null)
-        CurrentStub.Sets = new HashSet<SetStub>();
-      CurrentStub.Sets.Add(value);
+      if (_currentStub.Sets == null)
+        _currentStub.Sets = new HashSet<SetStub>();
+      _currentStub.Sets.Add(value);
       return true;
     }
 
@@ -316,7 +316,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             result = true;
         }
         else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       return result;
     }
 
@@ -334,7 +334,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <premiered>1994-09-14</premiered>
       // <premiered>1994</premiered>
-      return ((CurrentStub.Premiered = ParseSimpleDateTime(element)) != null);
+      return ((_currentStub.Premiered = ParseSimpleDateTime(element)) != null);
     }
 
     /// <summary>
@@ -347,7 +347,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <year>1994-09-14</year>
       // <year>1994</year>
-      return ((CurrentStub.Year = ParseSimpleDateTime(element)) != null);
+      return ((_currentStub.Year = ParseSimpleDateTime(element)) != null);
     }
 
     /// <summary>
@@ -359,7 +359,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <studio>SyFy</studio>
-      return ((CurrentStub.Studio = ParseSimpleString(element)) != null);
+      return ((_currentStub.Studio = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -374,9 +374,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var person = await ParsePerson(element, nfoDirectoryFsra);
       if (person == null)
         return false;
-      if (CurrentStub.Actors == null)
-        CurrentStub.Actors = new HashSet<PersonStub>();
-      CurrentStub.Actors.Add(person);
+      if (_currentStub.Actors == null)
+        _currentStub.Actors = new HashSet<PersonStub>();
+      _currentStub.Actors.Add(person);
       return true;
     }
 
@@ -389,7 +389,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <status>Continuing</status>
-      return ((CurrentStub.Status = ParseSimpleString(element)) != null);
+      return ((_currentStub.Status = ParseSimpleString(element)) != null);
     }
 
     #endregion
@@ -405,7 +405,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <plot>This series tells a story about...</plot>
-      return ((CurrentStub.Plot = ParseSimpleString(element)) != null);
+      return ((_currentStub.Plot = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -417,7 +417,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <outline>This series tells a story about...</outline>
-      return ((CurrentStub.Outline = ParseSimpleString(element)) != null);
+      return ((_currentStub.Outline = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -429,7 +429,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <tagline>This series tells a story about...</tagline>
-      return ((CurrentStub.Tagline = ParseSimpleString(element)) != null);
+      return ((_currentStub.Tagline = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -441,7 +441,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <trailer>[URL to a trailer]</trailer>
-      return ((CurrentStub.Trailer = ParseSimpleString(element)) != null);
+      return ((_currentStub.Trailer = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -454,7 +454,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <genre>Horror</genre>
       // <genre>Horror / Trash</genre>
-      return ((CurrentStub.Genres = ParseCharacterSeparatedStrings(element, CurrentStub.Genres)) != null);
+      return ((_currentStub.Genres = ParseCharacterSeparatedStrings(element, _currentStub.Genres)) != null);
     }
 
     /// <summary>
@@ -478,7 +478,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         if (childElement.Name == "genre")
           result = TryReadGenre(childElement) || result;
         else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       }
       return result;
     }
@@ -524,7 +524,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           result.Aspect = SeriesThumbStub.ThumbAspect.Poster;
           break;
         default:
-          DebugLogger.Warn("[#{0}]: Unknown aspect attribute in thumb element: {1}", MiNumber, aspect);
+          _debugLogger.Warn("[#{0}]: Unknown aspect attribute in thumb element: {1}", _miNumber, aspect);
           break;
       }
 
@@ -538,7 +538,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             result.Season = season.Value;
         }
         else
-          DebugLogger.Warn("[#{0}]: Unknown type attribute in thumb element: {1}", MiNumber, type);
+          _debugLogger.Warn("[#{0}]: Unknown type attribute in thumb element: {1}", _miNumber, type);
       }
 
       var colors = ParseStringAttribute(element, "colors");
@@ -552,12 +552,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           result.NeutralMidtoneColor = ParseColor(separatedColors[3]);
         }
         else
-          DebugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", MiNumber, colors);
+          _debugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", _miNumber, colors);
       }
 
-      if (CurrentStub.Thumbs == null)
-        CurrentStub.Thumbs = new HashSet<SeriesThumbStub>();
-      CurrentStub.Thumbs.Add(result);
+      if (_currentStub.Thumbs == null)
+        _currentStub.Thumbs = new HashSet<SeriesThumbStub>();
+      _currentStub.Thumbs.Add(result);
       return true;
     }
 
@@ -582,7 +582,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       {
         if (childElement.Name != "thumb")
         {
-          DebugLogger.Warn("[#{0}]: Invalid child element in fanart element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Invalid child element in fanart element: {1}", _miNumber, childElement);
           continue;
         }
         if (urlPrefix != null)
@@ -608,7 +608,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // <mpaa>12</mpaa>
       // <mpaa>DE:FSK 12</mpaa>
       // <mpaa>DE:FSK 12 / DE:FSK12 / DE:12 / DE:ab 12</mpaa>
-      return ((CurrentStub.Mpaa = ParseCharacterSeparatedStrings(element, CurrentStub.Mpaa)) != null);
+      return ((_currentStub.Mpaa = ParseCharacterSeparatedStrings(element, _currentStub.Mpaa)) != null);
     }
 
     /// <summary>
@@ -624,7 +624,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var value = ParseSimpleDecimal(element);
       if (value == null || value.Value == decimal.Zero)
         return false;
-      CurrentStub.Rating = value;
+      _currentStub.Rating = value;
       return true;
     }
 
@@ -641,7 +641,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var value = ParseSimpleInt(element);
       if (value == 0)
         value = null;
-      return ((CurrentStub.Votes = value) != null);
+      return ((_currentStub.Votes = value) != null);
     }
 
     /// <summary>
@@ -658,7 +658,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var value = ParseSimpleInt(element);
       if (value == 0)
         value = null;
-      return ((CurrentStub.Top250 = value) != null);
+      return ((_currentStub.Top250 = value) != null);
     }
 
     #endregion
@@ -692,25 +692,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var separatedRgb = colorString.Split(',');
       if (separatedRgb.Count() != 3)
       {
-        DebugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", MiNumber, colorString);
+        _debugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", _miNumber, colorString);
         return null;
       }
       byte r;
       if (!byte.TryParse(separatedRgb[0], out r))
       {
-        DebugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", MiNumber, colorString);
+        _debugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", _miNumber, colorString);
         return null;
       }
       byte g;
       if (!byte.TryParse(separatedRgb[1], out g))
       {
-        DebugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", MiNumber, colorString);
+        _debugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", _miNumber, colorString);
         return null;
       }
       byte b;
       if (!byte.TryParse(separatedRgb[2], out b))
       {
-        DebugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", MiNumber, colorString);
+        _debugLogger.Warn("[#{0}]: Invalid colors attribute in thumb element: {1}", _miNumber, colorString);
         return null;
       }
       return new SeriesThumbStub.Color(r, g, b);
@@ -728,7 +728,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns>List of <see cref="SeriesStub"/> objects</returns>
     public List<SeriesStub> GetSeriesStubs()
     {
-      return Stubs;
+      return _stubs;
     }
 
     #endregion
@@ -745,7 +745,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var itemRootElementName = itemRootElement.Name.ToString();
       if (itemRootElementName == SERIES_ROOT_ELEMENT_NAME)
         return true;
-      DebugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", MiNumber, itemRootElementName, SERIES_ROOT_ELEMENT_NAME);
+      _debugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", _miNumber, itemRootElementName, SERIES_ROOT_ELEMENT_NAME);
       return false;
     }
 
@@ -758,18 +758,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path =>
       {
-        DebugLogger.Info("[#{0}]: SeriesStub object for series nfo-file not found in cache; parsing nfo-file {1}", MiNumber, nfoFsra.CanonicalLocalResourcePath);
+        _debugLogger.Info("[#{0}]: SeriesStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
         if (await base.TryReadMetadataAsync(nfoFsra))
         {
           if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
             LogStubObjects();
-          return Stubs;
+          return _stubs;
         }
         return null;
       });
       if (stubs == null)
         return false;
-      Stubs = stubs;
+      _stubs = stubs;
       return true;
     }
 

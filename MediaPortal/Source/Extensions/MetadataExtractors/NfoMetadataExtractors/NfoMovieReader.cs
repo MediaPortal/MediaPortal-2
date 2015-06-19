@@ -80,106 +80,106 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Ctor helpers
 
     /// <summary>
-    /// Adds a delegate for each xml element in a movie nfo-file that is understood by this MetadataExtractor to NfoReaderBase.SupportedElements
+    /// Adds a delegate for each xml element in a movie nfo-file that is understood by this MetadataExtractor to NfoReaderBase._supportedElements
     /// </summary>
     private void InitializeSupportedElements()
     {
-      SupportedElements.Add("id", new TryReadElementDelegate(TryReadId));
-      SupportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
-      SupportedElements.Add("tmdbid", new TryReadElementDelegate(TryReadTmdbId));
-      SupportedElements.Add("tmdbId", new TryReadElementDelegate(TryReadTmdbId)); // Tiny Media Manager (v2.6.5) uses <tmdbId> instead of <tmdbid>
-      SupportedElements.Add("thmdb", new TryReadElementDelegate(TryReadThmdb));
-      SupportedElements.Add("ids", new TryReadElementDelegate(TryReadIds)); // Used by Tiny MediaManager (as of v2.6.0)
-      SupportedElements.Add("allocine", new TryReadElementDelegate(TryReadAllocine));
-      SupportedElements.Add("cinepassion", new TryReadElementDelegate(TryReadCinepassion));
-      SupportedElements.Add("title", new TryReadElementDelegate(TryReadTitle));
-      SupportedElements.Add("originaltitle", new TryReadElementDelegate(TryReadOriginalTitle));
-      SupportedElements.Add("sorttitle", new TryReadElementDelegate(TryReadSortTitle));
-      SupportedElements.Add("set", new TryReadElementAsyncDelegate(TryReadSetAsync));
-      SupportedElements.Add("sets", new TryReadElementAsyncDelegate(TryReadSetsAsync));
-      SupportedElements.Add("premiered", new TryReadElementDelegate(TryReadPremiered));
-      SupportedElements.Add("year", new TryReadElementDelegate(TryReadYear));
-      SupportedElements.Add("country", new TryReadElementDelegate(TryReadCountry));
-      SupportedElements.Add("company", new TryReadElementDelegate(TryReadCompany));
-      SupportedElements.Add("studio", new TryReadElementDelegate(TryReadStudio));
-      SupportedElements.Add("studios", new TryReadElementDelegate(TryReadStudio)); // Synonym for <studio>
-      SupportedElements.Add("actor", new TryReadElementAsyncDelegate(TryReadActorAsync));
-      SupportedElements.Add("producer", new TryReadElementAsyncDelegate(TryReadProducerAsync));
-      SupportedElements.Add("director", new TryReadElementDelegate(TryReadDirector));
-      SupportedElements.Add("directorimdb", new TryReadElementDelegate(TryReadDirectorImdb));
-      SupportedElements.Add("credits", new TryReadElementDelegate(TryReadCredits));
-      SupportedElements.Add("plot", new TryReadElementDelegate(TryReadPlot));
-      SupportedElements.Add("outline", new TryReadElementDelegate(TryReadOutline));
-      SupportedElements.Add("tagline", new TryReadElementDelegate(TryReadTagline));
-      SupportedElements.Add("trailer", new TryReadElementDelegate(TryReadTrailer));
-      SupportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
-      SupportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
-      SupportedElements.Add("language", new TryReadElementDelegate(TryReadLanguage));
-      SupportedElements.Add("languages", new TryReadElementDelegate(TryReadLanguage)); // Synonym for <language>
-      SupportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      SupportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
-      SupportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
-      SupportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
-      SupportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
-      SupportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
-      SupportedElements.Add("certification", new TryReadElementDelegate(TryReadCertification));
-      SupportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
-      SupportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
-      SupportedElements.Add("ratings", new TryReadElementDelegate(TryReadRatings));
-      SupportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
-      SupportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
-      SupportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
-      SupportedElements.Add("runtime", new TryReadElementDelegate(TryReadRuntime));
-      SupportedElements.Add("fps", new TryReadElementDelegate(TryReadFps));
-      SupportedElements.Add("rip", new TryReadElementDelegate(TryReadRip));
-      SupportedElements.Add("fileinfo", new TryReadElementDelegate(TryReadFileInfo));
-      SupportedElements.Add("epbookmark", new TryReadElementDelegate(TryReadEpBookmark));
-      SupportedElements.Add("watched", new TryReadElementDelegate(TryReadWatched));
-      SupportedElements.Add("playcount", new TryReadElementDelegate(TryReadPlayCount));
-      SupportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
-      SupportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
-      SupportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
+      _supportedElements.Add("id", new TryReadElementDelegate(TryReadId));
+      _supportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
+      _supportedElements.Add("tmdbid", new TryReadElementDelegate(TryReadTmdbId));
+      _supportedElements.Add("tmdbId", new TryReadElementDelegate(TryReadTmdbId)); // Tiny Media Manager (v2.6.5) uses <tmdbId> instead of <tmdbid>
+      _supportedElements.Add("thmdb", new TryReadElementDelegate(TryReadThmdb));
+      _supportedElements.Add("ids", new TryReadElementDelegate(TryReadIds)); // Used by Tiny MediaManager (as of v2.6.0)
+      _supportedElements.Add("allocine", new TryReadElementDelegate(TryReadAllocine));
+      _supportedElements.Add("cinepassion", new TryReadElementDelegate(TryReadCinepassion));
+      _supportedElements.Add("title", new TryReadElementDelegate(TryReadTitle));
+      _supportedElements.Add("originaltitle", new TryReadElementDelegate(TryReadOriginalTitle));
+      _supportedElements.Add("sorttitle", new TryReadElementDelegate(TryReadSortTitle));
+      _supportedElements.Add("set", new TryReadElementAsyncDelegate(TryReadSetAsync));
+      _supportedElements.Add("sets", new TryReadElementAsyncDelegate(TryReadSetsAsync));
+      _supportedElements.Add("premiered", new TryReadElementDelegate(TryReadPremiered));
+      _supportedElements.Add("year", new TryReadElementDelegate(TryReadYear));
+      _supportedElements.Add("country", new TryReadElementDelegate(TryReadCountry));
+      _supportedElements.Add("company", new TryReadElementDelegate(TryReadCompany));
+      _supportedElements.Add("studio", new TryReadElementDelegate(TryReadStudio));
+      _supportedElements.Add("studios", new TryReadElementDelegate(TryReadStudio)); // Synonym for <studio>
+      _supportedElements.Add("actor", new TryReadElementAsyncDelegate(TryReadActorAsync));
+      _supportedElements.Add("producer", new TryReadElementAsyncDelegate(TryReadProducerAsync));
+      _supportedElements.Add("director", new TryReadElementDelegate(TryReadDirector));
+      _supportedElements.Add("directorimdb", new TryReadElementDelegate(TryReadDirectorImdb));
+      _supportedElements.Add("credits", new TryReadElementDelegate(TryReadCredits));
+      _supportedElements.Add("plot", new TryReadElementDelegate(TryReadPlot));
+      _supportedElements.Add("outline", new TryReadElementDelegate(TryReadOutline));
+      _supportedElements.Add("tagline", new TryReadElementDelegate(TryReadTagline));
+      _supportedElements.Add("trailer", new TryReadElementDelegate(TryReadTrailer));
+      _supportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
+      _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
+      _supportedElements.Add("language", new TryReadElementDelegate(TryReadLanguage));
+      _supportedElements.Add("languages", new TryReadElementDelegate(TryReadLanguage)); // Synonym for <language>
+      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+      _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
+      _supportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
+      _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
+      _supportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
+      _supportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
+      _supportedElements.Add("certification", new TryReadElementDelegate(TryReadCertification));
+      _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
+      _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
+      _supportedElements.Add("ratings", new TryReadElementDelegate(TryReadRatings));
+      _supportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
+      _supportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
+      _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
+      _supportedElements.Add("runtime", new TryReadElementDelegate(TryReadRuntime));
+      _supportedElements.Add("fps", new TryReadElementDelegate(TryReadFps));
+      _supportedElements.Add("rip", new TryReadElementDelegate(TryReadRip));
+      _supportedElements.Add("fileinfo", new TryReadElementDelegate(TryReadFileInfo));
+      _supportedElements.Add("epbookmark", new TryReadElementDelegate(TryReadEpBookmark));
+      _supportedElements.Add("watched", new TryReadElementDelegate(TryReadWatched));
+      _supportedElements.Add("playcount", new TryReadElementDelegate(TryReadPlayCount));
+      _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
+      _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
+      _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
 
       // The following elements are contained in many movie.nfo files, but have no meaning
       // in the context of a movie. We add them here to avoid them being logged as
       // unknown elements, but we simply ignore them.
       // For reference see here: http://forum.kodi.tv/showthread.php?tid=40422&pid=244349#pid244349
-      SupportedElements.Add("status", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("code", new TryReadElementDelegate(Ignore));
-      SupportedElements.Add("aired", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("status", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("code", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("aired", new TryReadElementDelegate(Ignore));
 
       // We never need the following element as we get the same information in a more accurate way
       // from the filesystem itself; hence, we ignore it.
-      SupportedElements.Add("filenameandpath", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("filenameandpath", new TryReadElementDelegate(Ignore));
     }
 
     /// <summary>
-    /// Adds a delegate for each Attribute in a MediaItemAspect into which this MetadataExtractor can write metadata to NfoReaderBase.SupportedAttributes
+    /// Adds a delegate for each Attribute in a MediaItemAspect into which this MetadataExtractor can write metadata to NfoReaderBase._supportedAttributes
     /// </summary>
     private void InitializeSupportedAttributes()
     {
-      SupportedAttributes.Add(TryWriteMediaAspectTitle);
-      SupportedAttributes.Add(TryWriteMediaAspectRecordingTime);
-      SupportedAttributes.Add(TryWriteMediaAspectPlayCount);
-      SupportedAttributes.Add(TryWriteMediaAspectLastPlayed);
+      _supportedAttributes.Add(TryWriteMediaAspectTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectRecordingTime);
+      _supportedAttributes.Add(TryWriteMediaAspectPlayCount);
+      _supportedAttributes.Add(TryWriteMediaAspectLastPlayed);
 
-      SupportedAttributes.Add(TryWriteVideoAspectGenres);
-      SupportedAttributes.Add(TryWriteVideoAspectActors);
-      SupportedAttributes.Add(TryWriteVideoAspectDirectors);
-      SupportedAttributes.Add(TryWriteVideoAspectStoryPlot);
+      _supportedAttributes.Add(TryWriteVideoAspectGenres);
+      _supportedAttributes.Add(TryWriteVideoAspectActors);
+      _supportedAttributes.Add(TryWriteVideoAspectDirectors);
+      _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
 
-      SupportedAttributes.Add(TryWriteMovieAspectMovieName);
-      SupportedAttributes.Add(TryWriteMovieAspectOrigName);
-      SupportedAttributes.Add(TryWriteMovieAspectTmdbId);
-      SupportedAttributes.Add(TryWriteMovieAspectImdbId);
-      SupportedAttributes.Add(TryWriteMovieAspectCollectionName);
-      SupportedAttributes.Add(TryWriteMovieAspectRuntime);
-      SupportedAttributes.Add(TryWriteMovieAspectCertification);
-      SupportedAttributes.Add(TryWriteMovieAspectTagline);
-      SupportedAttributes.Add(TryWriteMovieAspectTotalRating);
-      SupportedAttributes.Add(TryWriteMovieAspectRatingCount);
+      _supportedAttributes.Add(TryWriteMovieAspectMovieName);
+      _supportedAttributes.Add(TryWriteMovieAspectOrigName);
+      _supportedAttributes.Add(TryWriteMovieAspectTmdbId);
+      _supportedAttributes.Add(TryWriteMovieAspectImdbId);
+      _supportedAttributes.Add(TryWriteMovieAspectCollectionName);
+      _supportedAttributes.Add(TryWriteMovieAspectRuntime);
+      _supportedAttributes.Add(TryWriteMovieAspectCertification);
+      _supportedAttributes.Add(TryWriteMovieAspectTagline);
+      _supportedAttributes.Add(TryWriteMovieAspectTotalRating);
+      _supportedAttributes.Add(TryWriteMovieAspectRatingCount);
 
-      SupportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -197,7 +197,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <id>tt0111161</id>
-      return ((CurrentStub.Id = ParseSimpleString(element)) != null);
+      return ((_currentStub.Id = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <imdb>tt0810913</imdb>
-      return ((CurrentStub.Imdb = ParseSimpleString(element)) != null);
+      return ((_currentStub.Imdb = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -222,7 +222,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <tmdbId>52913<tmdbId>
       // <tmdbid>52913<tmdbid>
-      return ((CurrentStub.TmdbId = ParseSimpleInt(element)) != null);
+      return ((_currentStub.TmdbId = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -234,7 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <thmdb>52913</thmdb>
-      return ((CurrentStub.Thmdb = ParseSimpleInt(element)) != null);
+      return ((_currentStub.Thmdb = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -246,7 +246,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <allocine>52719</allocine>
-      return ((CurrentStub.Allocine = ParseSimpleInt(element)) != null);
+      return ((_currentStub.Allocine = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -258,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <cinepassion>52719</cinepassion>
-      return ((CurrentStub.Cinepassion = ParseSimpleInt(element)) != null);
+      return ((_currentStub.Cinepassion = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -290,21 +290,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           switch (keyString)
           {
             case null:
-              DebugLogger.Warn("[#{0}]: Key element missing {1}", MiNumber, childElement);
+              _debugLogger.Warn("[#{0}]: Key element missing {1}", _miNumber, childElement);
               break;
             case "imdbId":
-              result = ((CurrentStub.IdsImdbId = ParseSimpleString(childElement.Element("value"))) != null);
+              result = ((_currentStub.IdsImdbId = ParseSimpleString(childElement.Element("value"))) != null);
               break;
             case "tmdbId":
-              result = ((CurrentStub.IdsTmdbId = ParseSimpleInt(childElement.Element("value"))) != null) || result;
+              result = ((_currentStub.IdsTmdbId = ParseSimpleInt(childElement.Element("value"))) != null) || result;
               break;
             default:
-              DebugLogger.Warn("[#{0}]: Unknown Key element {1}", MiNumber, childElement);
+              _debugLogger.Warn("[#{0}]: Unknown Key element {1}", _miNumber, childElement);
               break;
           }
         }
         else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       }
       return result;
     }
@@ -322,7 +322,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <title>Harry Potter und der Orden des Phönix</title>
-      return ((CurrentStub.Title = ParseSimpleString(element)) != null);
+      return ((_currentStub.Title = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <originaltitle>Harry Potter and the Order of the Phoenix</originaltitle>
-      return ((CurrentStub.OriginalTitle = ParseSimpleString(element)) != null);
+      return ((_currentStub.OriginalTitle = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -346,7 +346,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <sorttitle>Harry Potter Collection05</sorttitle>
-      return ((CurrentStub.SortTitle = ParseSimpleString(element)) != null);
+      return ((_currentStub.SortTitle = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -389,9 +389,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (value.Name == null)
         return false;
 
-      if (CurrentStub.Sets == null)
-        CurrentStub.Sets = new HashSet<SetStub>();
-      CurrentStub.Sets.Add(value);
+      if (_currentStub.Sets == null)
+        _currentStub.Sets = new HashSet<SetStub>();
+      _currentStub.Sets.Add(value);
       return true;
     }
 
@@ -417,7 +417,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             result = true;
         }
         else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       return result;
     }
 
@@ -435,7 +435,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <premiered>1994-09-14</premiered>
       // <premiered>1994</premiered>
-      return ((CurrentStub.Premiered = ParseSimpleDateTime(element)) != null);
+      return ((_currentStub.Premiered = ParseSimpleDateTime(element)) != null);
     }
 
     /// <summary>
@@ -448,7 +448,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <year>1994-09-14</year>
       // <year>1994</year>
-      return ((CurrentStub.Year = ParseSimpleDateTime(element)) != null);
+      return ((_currentStub.Year = ParseSimpleDateTime(element)) != null);
     }
 
     /// <summary>
@@ -461,7 +461,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <country>DE</country>
       // <country>US, GB</country>
-      return ((CurrentStub.Countries = ParseCharacterSeparatedStrings(element, CurrentStub.Countries)) != null);
+      return ((_currentStub.Countries = ParseCharacterSeparatedStrings(element, _currentStub.Countries)) != null);
     }
 
     /// <summary>
@@ -474,7 +474,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <company>Warner Bros. Pictures</company>
       // <company>Happy Madison Productions / Columbia Pictures</company>
-      return ((CurrentStub.Companies = ParseCharacterSeparatedStrings(element, CurrentStub.Companies)) != null);
+      return ((_currentStub.Companies = ParseCharacterSeparatedStrings(element, _currentStub.Companies)) != null);
     }
 
     /// <summary>
@@ -489,7 +489,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // <studio>Happy Madison Productions / Columbia Pictures</studio>
       // <studios>Warner Bros. Pictures</studios>
       // <studios>Happy Madison Productions / Columbia Pictures</studios>
-      return ((CurrentStub.Studios = ParseCharacterSeparatedStrings(element, CurrentStub.Studios)) != null);
+      return ((_currentStub.Studios = ParseCharacterSeparatedStrings(element, _currentStub.Studios)) != null);
     }
 
     /// <summary>
@@ -504,9 +504,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var person = await ParsePerson(element, nfoDirectoryFsra);
       if (person == null)
         return false;
-      if (CurrentStub.Actors == null)
-        CurrentStub.Actors = new HashSet<PersonStub>();
-      CurrentStub.Actors.Add(person);
+      if (_currentStub.Actors == null)
+        _currentStub.Actors = new HashSet<PersonStub>();
+      _currentStub.Actors.Add(person);
       return true;
     }
 
@@ -522,9 +522,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var person = await ParsePerson(element, nfoDirectoryFsra);
       if (person == null)
         return false;
-      if (CurrentStub.Producers == null)
-        CurrentStub.Producers = new HashSet<PersonStub>();
-      CurrentStub.Producers.Add(person);
+      if (_currentStub.Producers == null)
+        _currentStub.Producers = new HashSet<PersonStub>();
+      _currentStub.Producers.Add(person);
       return true;
     }
 
@@ -537,7 +537,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <director>Dennis Dugan</director>
-      return ((CurrentStub.Director = ParseSimpleString(element)) != null);
+      return ((_currentStub.Director = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -549,7 +549,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <directorimdb>nm0240797</directorimdb>
-      return ((CurrentStub.DirectorImdb = ParseSimpleString(element)) != null);
+      return ((_currentStub.DirectorImdb = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -562,7 +562,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <credits>Adam Sandler</credits>
       // <credits>Adam Sandler / Steve Koren</credits>
-      return ((CurrentStub.Credits = ParseCharacterSeparatedStrings(element, CurrentStub.Credits)) != null);
+      return ((_currentStub.Credits = ParseCharacterSeparatedStrings(element, _currentStub.Credits)) != null);
     }
 
     #endregion
@@ -578,7 +578,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <plot>This movie tells a story about...</plot>
-      return ((CurrentStub.Plot = ParseSimpleString(element)) != null);
+      return ((_currentStub.Plot = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -590,7 +590,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <outline>This movie tells a story about...</outline>
-      return ((CurrentStub.Outline = ParseSimpleString(element)) != null);
+      return ((_currentStub.Outline = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -602,7 +602,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <tagline>This movie tells a story about...</tagline>
-      return ((CurrentStub.Tagline = ParseSimpleString(element)) != null);
+      return ((_currentStub.Tagline = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -614,7 +614,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <trailer>This movie tells a story about...</trailer>
-      return ((CurrentStub.Trailer = ParseSimpleString(element)) != null);
+      return ((_currentStub.Trailer = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -627,7 +627,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <genre>Horror</genre>
       // <genre>Horror / Trash</genre>
-      return ((CurrentStub.Genres = ParseCharacterSeparatedStrings(element, CurrentStub.Genres)) != null);
+      return ((_currentStub.Genres = ParseCharacterSeparatedStrings(element, _currentStub.Genres)) != null);
     }
 
     /// <summary>
@@ -651,7 +651,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         if (childElement.Name == "genre")
           result = TryReadGenre(childElement) || result;
         else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       }
       return result;
     }
@@ -668,7 +668,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // <language>de, en</language>
       // <languages>de</languages>
       // <languages>de, en</languages>
-      return ((CurrentStub.Languages = ParseCharacterSeparatedStrings(element, CurrentStub.Languages)) != null);
+      return ((_currentStub.Languages = ParseCharacterSeparatedStrings(element, _currentStub.Languages)) != null);
     }
 
     #endregion
@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadThumbAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseSimpleImageAsync
-      return ((CurrentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra)) != null);
     }
 
     /// <summary>
@@ -696,7 +696,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadFanArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values c of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.FanArt = await ParseMultipleImagesAsync(element, CurrentStub.FanArt, nfoDirectoryFsra)) != null);
+      return ((_currentStub.FanArt = await ParseMultipleImagesAsync(element, _currentStub.FanArt, nfoDirectoryFsra)) != null);
     }
 
     /// <summary>
@@ -708,7 +708,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadDiscArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.DiscArt = await ParseMultipleImagesAsync(element, CurrentStub.DiscArt, nfoDirectoryFsra)) != null);
+      return ((_currentStub.DiscArt = await ParseMultipleImagesAsync(element, _currentStub.DiscArt, nfoDirectoryFsra)) != null);
     }
 
     /// <summary>
@@ -720,7 +720,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadLogoAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.Logos = await ParseMultipleImagesAsync(element, CurrentStub.Logos, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Logos = await ParseMultipleImagesAsync(element, _currentStub.Logos, nfoDirectoryFsra)) != null);
     }
 
     /// <summary>
@@ -732,7 +732,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadClearArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.ClearArt = await ParseMultipleImagesAsync(element, CurrentStub.ClearArt, nfoDirectoryFsra)) != null);
+      return ((_currentStub.ClearArt = await ParseMultipleImagesAsync(element, _currentStub.ClearArt, nfoDirectoryFsra)) != null);
     }
 
     /// <summary>
@@ -744,7 +744,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadBannerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((CurrentStub.Banners = await ParseMultipleImagesAsync(element, CurrentStub.Banners, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Banners = await ParseMultipleImagesAsync(element, _currentStub.Banners, nfoDirectoryFsra)) != null);
     }
 
     #endregion
@@ -762,7 +762,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // <certification>12</certification>
       // <certification>DE:FSK 12</certification>
       // <certification>DE:FSK 12 / DE:FSK12 / DE:12 / DE:ab 12</certification>
-      return ((CurrentStub.Certification = ParseCharacterSeparatedStrings(element, CurrentStub.Certification)) != null);
+      return ((_currentStub.Certification = ParseCharacterSeparatedStrings(element, _currentStub.Certification)) != null);
     }
 
     /// <summary>
@@ -776,7 +776,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // <mpaa>12</mpaa>
       // <mpaa>DE:FSK 12</mpaa>
       // <mpaa>DE:FSK 12 / DE:FSK12 / DE:12 / DE:ab 12</mpaa>
-      return ((CurrentStub.Mpaa = ParseCharacterSeparatedStrings(element, CurrentStub.Mpaa)) != null);
+      return ((_currentStub.Mpaa = ParseCharacterSeparatedStrings(element, _currentStub.Mpaa)) != null);
     }
 
     /// <summary>
@@ -803,13 +803,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           if (moviedb != null && rating != null && rating.Value != decimal.Zero)
           {
             result = true;
-            if (CurrentStub.Ratings == null)
-              CurrentStub.Ratings = new Dictionary<string, decimal>();
-            CurrentStub.Ratings[moviedb] = rating.Value;
+            if (_currentStub.Ratings == null)
+              _currentStub.Ratings = new Dictionary<string, decimal>();
+            _currentStub.Ratings[moviedb] = rating.Value;
           }
         }
         else
-          DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, childElement);
+          _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       return result;
     }
 
@@ -826,7 +826,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var value = ParseSimpleDecimal(element);
       if (value == null || value.Value == decimal.Zero)
         return false;
-      CurrentStub.Rating = value;
+      _currentStub.Rating = value;
       return true;
     }
 
@@ -843,7 +843,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var value = ParseSimpleInt(element);
       if (value == 0)
         value = null;
-      return ((CurrentStub.Votes = value) != null);
+      return ((_currentStub.Votes = value) != null);
     }
 
     /// <summary>
@@ -855,7 +855,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <review>This movie is great...</review>
-      return ((CurrentStub.Review = ParseSimpleString(element)) != null);
+      return ((_currentStub.Review = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -872,7 +872,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var value = ParseSimpleInt(element);
       if (value == 0)
         value = null;
-      return ((CurrentStub.Top250 = value) != null);
+      return ((_currentStub.Top250 = value) != null);
     }
 
     #endregion
@@ -905,7 +905,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         // Example 1
         if (runtimeDouble < (1.0 / 60.0))
           return false;
-        CurrentStub.Runtime = TimeSpan.FromMinutes(runtimeDouble);
+        _currentStub.Runtime = TimeSpan.FromMinutes(runtimeDouble);
         return true;
       }
 
@@ -916,7 +916,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples 2 and 3
       var hours = int.Parse(match.Groups[1].Value);
       var minutes = int.Parse(match.Groups[2].Value);
-      CurrentStub.Runtime = new TimeSpan(hours, minutes, 0);
+      _currentStub.Runtime = new TimeSpan(hours, minutes, 0);
       return true;
     }
 
@@ -930,7 +930,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Examples of valid elements:
       // <fps>25</fps>
       // <fps>23.976<fps>
-      return ((CurrentStub.Fps = ParseSimpleDecimal(element)) != null);
+      return ((_currentStub.Fps = ParseSimpleDecimal(element)) != null);
     }
 
     /// <summary>
@@ -942,7 +942,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <rip>Bluray</rip>
-      return ((CurrentStub.Rip = ParseSimpleString(element)) != null);
+      return ((_currentStub.Rip = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -985,7 +985,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       {
         if (stream.Name != "streamdetails" || !stream.HasElements)
         {
-          DebugLogger.Warn("[#{0}]: Unknown or empty child element {1}", MiNumber, stream);
+          _debugLogger.Warn("[#{0}]: Unknown or empty child element {1}", _miNumber, stream);
           continue;
         }
         var streamDetails = new StreamDetailsStub();
@@ -1047,15 +1047,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               }
               break;
             default:
-              DebugLogger.Warn("[#{0}]: Unknown child element: {1}", MiNumber, streamDetail);
+              _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, streamDetail);
               break;
           }
         }
         if (streamValueFound)
         {
-          if (CurrentStub.FileInfo == null)
-            CurrentStub.FileInfo = new HashSet<StreamDetailsStub>();
-          CurrentStub.FileInfo.Add(streamDetails);
+          if (_currentStub.FileInfo == null)
+            _currentStub.FileInfo = new HashSet<StreamDetailsStub>();
+          _currentStub.FileInfo.Add(streamDetails);
           fileInfoFound = true;
         }
       }
@@ -1075,7 +1075,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var decimalSeconds = ParseSimpleDecimal(element);
       if (decimalSeconds.HasValue && decimalSeconds != decimal.Zero)
       {
-        CurrentStub.EpBookmark = TimeSpan.FromSeconds((double)decimalSeconds);
+        _currentStub.EpBookmark = TimeSpan.FromSeconds((double)decimalSeconds);
         return true;
       }
       return false;
@@ -1098,10 +1098,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       bool watched;
       if (bool.TryParse(watchedString, out watched))
       {
-        CurrentStub.Watched = watched;
+        _currentStub.Watched = watched;
         return true;
       }
-      DebugLogger.Warn("[#{0}]: The following elelement was supposed to contain a bool value but it does not: {1}", MiNumber, element);
+      _debugLogger.Warn("[#{0}]: The following elelement was supposed to contain a bool value but it does not: {1}", _miNumber, element);
       return false;
     }
 
@@ -1114,7 +1114,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <playcount>3</playcount>
-      return ((CurrentStub.PlayCount = ParseSimpleInt(element)) != null);
+      return ((_currentStub.PlayCount = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -1126,7 +1126,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <lastplayed>2013-10-08 21:46</lastplayed>
-      return ((CurrentStub.LastPlayed = ParseSimpleDateTime(element)) != null);
+      return ((_currentStub.LastPlayed = ParseSimpleDateTime(element)) != null);
     }
 
     /// <summary>
@@ -1138,7 +1138,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // Example of a valid element:
       // <dateadded>2013-10-08 21:46</dateadded>
-      return ((CurrentStub.DateAdded = ParseSimpleDateTime(element)) != null);
+      return ((_currentStub.DateAdded = ParseSimpleDateTime(element)) != null);
     }
 
     /// <summary>
@@ -1160,7 +1160,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var resumeDecimal = ParseSimpleDecimal(element.Element("position"));
       if (resumeDecimal == null || resumeDecimal < decimal.One)
         return false;
-      CurrentStub.ResumePosition = TimeSpan.FromSeconds((double)resumeDecimal);
+      _currentStub.ResumePosition = TimeSpan.FromSeconds((double)resumeDecimal);
       return true;
     }
 
@@ -1183,9 +1183,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMediaAspectTitle(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Title != null)
+      if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, Stubs[0].Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _stubs[0].Title);
         return true;
       }
       return false;
@@ -1199,15 +1199,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // priority 1:
-      if (Stubs[0].Premiered.HasValue)
+      if (_stubs[0].Premiered.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, Stubs[0].Premiered.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].Premiered.Value);
         return true;
       }
       //priority 2:
-      if (Stubs[0].Year.HasValue)
+      if (_stubs[0].Year.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, Stubs[0].Year.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].Year.Value);
         return true;
       }
       return false;
@@ -1221,15 +1221,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteMediaAspectPlayCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       //priority 1:
-      if (Stubs[0].PlayCount.HasValue)
+      if (_stubs[0].PlayCount.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_PLAYCOUNT, Stubs[0].PlayCount.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_PLAYCOUNT, _stubs[0].PlayCount.Value);
         return true;
       }
       //priority 2:
-      if (Stubs[0].Watched.HasValue)
+      if (_stubs[0].Watched.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_PLAYCOUNT, Stubs[0].Watched.Value ? 1 : 0);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_PLAYCOUNT, _stubs[0].Watched.Value ? 1 : 0);
         return true;
       }
       return false;
@@ -1242,9 +1242,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMediaAspectLastPlayed(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].LastPlayed.HasValue)
+      if (_stubs[0].LastPlayed.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_LASTPLAYED, Stubs[0].LastPlayed.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_LASTPLAYED, _stubs[0].LastPlayed.Value);
         return true;
       }
       return false;
@@ -1261,9 +1261,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectGenres(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Genres != null && Stubs[0].Genres.Any())
+      if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, Stubs[0].Genres.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _stubs[0].Genres.ToList());
         return true;
       }
       return false;
@@ -1276,9 +1276,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectActors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Actors != null && Stubs[0].Actors.Any())
+      if (_stubs[0].Actors != null && _stubs[0].Actors.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, Stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
         return true;
       }
       return false;
@@ -1291,9 +1291,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectDirectors(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Director != null)
+      if (_stubs[0].Director != null)
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { Stubs[0].Director });
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
         return true;
       }
       return false;
@@ -1307,15 +1307,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteVideoAspectStoryPlot(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // priority 1:
-      if (Stubs[0].Plot != null)
+      if (_stubs[0].Plot != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, Stubs[0].Plot);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
         return true;
       }
       // priority 2:
-      if (Stubs[0].Outline != null)
+      if (_stubs[0].Outline != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, Stubs[0].Outline);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
         return true;
       }
       return false;
@@ -1332,9 +1332,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectMovieName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Title != null)
+      if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_MOVIE_NAME, Stubs[0].Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_MOVIE_NAME, _stubs[0].Title);
         return true;
       }
       return false;
@@ -1347,9 +1347,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectOrigName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].OriginalTitle != null)
+      if (_stubs[0].OriginalTitle != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, Stubs[0].OriginalTitle);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, _stubs[0].OriginalTitle);
         return true;
       }
       return false;
@@ -1363,21 +1363,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteMovieAspectTmdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       //priority 1:
-      if (Stubs[0].TmdbId.HasValue)
+      if (_stubs[0].TmdbId.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, Stubs[0].TmdbId.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _stubs[0].TmdbId.Value);
         return true;
       }
       //priority 2:
-      if (Stubs[0].Thmdb.HasValue)
+      if (_stubs[0].Thmdb.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, Stubs[0].Thmdb.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _stubs[0].Thmdb.Value);
         return true;
       }
       //priority 3:
-      if (Stubs[0].IdsTmdbId.HasValue)
+      if (_stubs[0].IdsTmdbId.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, Stubs[0].IdsTmdbId.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, _stubs[0].IdsTmdbId.Value);
         return true;
       }
       return false;
@@ -1391,21 +1391,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteMovieAspectImdbId(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       //priority 1:
-      if (Stubs[0].Id != null)
+      if (_stubs[0].Id != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, Stubs[0].Id);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _stubs[0].Id);
         return true;
       }
       //priority 2:
-      if (Stubs[0].Imdb != null)
+      if (_stubs[0].Imdb != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, Stubs[0].Imdb);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _stubs[0].Imdb);
         return true;
       }
       //priority 3:
-      if (Stubs[0].IdsImdbId != null)
+      if (_stubs[0].IdsImdbId != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, Stubs[0].Imdb);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, _stubs[0].Imdb);
         return true;
       }
       return false;
@@ -1418,9 +1418,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectCollectionName(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Sets != null && Stubs[0].Sets.Any())
+      if (_stubs[0].Sets != null && _stubs[0].Sets.Any())
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_NAME, Stubs[0].Sets.OrderBy(set => set.Order).First().Name);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_NAME, _stubs[0].Sets.OrderBy(set => set.Order).First().Name);
         return true;
       }
       return false;
@@ -1433,9 +1433,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectRuntime(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Runtime.HasValue)
+      if (_stubs[0].Runtime.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RUNTIME_M, (int)Stubs[0].Runtime.Value.TotalMinutes);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RUNTIME_M, (int)_stubs[0].Runtime.Value.TotalMinutes);
         return true;
       }
       return false;
@@ -1449,15 +1449,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteMovieAspectCertification(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // priority 1:
-      if (Stubs[0].Certification != null && Stubs[0].Certification.Any())
+      if (_stubs[0].Certification != null && _stubs[0].Certification.Any())
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, Stubs[0].Certification.First());
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, _stubs[0].Certification.First());
         return true;
       }
       // priority 2:
-      if (Stubs[0].Mpaa != null && Stubs[0].Mpaa.Any())
+      if (_stubs[0].Mpaa != null && _stubs[0].Mpaa.Any())
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, Stubs[0].Mpaa.First());
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, _stubs[0].Mpaa.First());
         return true;
       }
       return false;
@@ -1470,9 +1470,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectTagline(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Tagline != null)
+      if (_stubs[0].Tagline != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TAGLINE, Stubs[0].Tagline);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TAGLINE, _stubs[0].Tagline);
         return true;
       }
       return false;
@@ -1486,17 +1486,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private bool TryWriteMovieAspectTotalRating(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // priority 1:
-      if (Stubs[0].Rating.HasValue)
+      if (_stubs[0].Rating.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)Stubs[0].Rating.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)_stubs[0].Rating.Value);
         return true;
       }
       // priority 2:
-      if (Stubs[0].Ratings != null && Stubs[0].Ratings.Any())
+      if (_stubs[0].Ratings != null && _stubs[0].Ratings.Any())
       {
         decimal rating;
-        if (!Stubs[0].Ratings.TryGetValue("imdb", out rating))
-          rating = Stubs[0].Ratings.First().Value;
+        if (!_stubs[0].Ratings.TryGetValue("imdb", out rating))
+          rating = _stubs[0].Ratings.First().Value;
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)rating);
         return true;
       }
@@ -1510,11 +1510,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Votes.HasValue)
+      if (_stubs[0].Votes.HasValue)
       {
-        if (Stubs[0].Rating.HasValue || (Stubs[0].Ratings != null && Stubs[0].Ratings.Count == 1))
+        if (_stubs[0].Rating.HasValue || (_stubs[0].Ratings != null && _stubs[0].Ratings.Count == 1))
         {
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, Stubs[0].Votes.Value);
+          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, _stubs[0].Votes.Value);
           return true;
         }
       }
@@ -1532,9 +1532,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (Stubs[0].Thumb != null)
+      if (_stubs[0].Thumb != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, Stubs[0].Thumb);
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumb);
         return true;
       }
       return false;
@@ -1577,7 +1577,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var itemRootElementName = itemRootElement.Name.ToString();
       if (itemRootElementName == MOVIE_ROOT_ELEMENT_NAME)
         return true;
-      DebugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", MiNumber, itemRootElementName, MOVIE_ROOT_ELEMENT_NAME);
+      _debugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", _miNumber, itemRootElementName, MOVIE_ROOT_ELEMENT_NAME);
       return false;
     }
 
