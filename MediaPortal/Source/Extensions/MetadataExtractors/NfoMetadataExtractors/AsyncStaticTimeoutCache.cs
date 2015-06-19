@@ -82,8 +82,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         // We just added a new value to the cache and need to create a timeout task for it
         _timeoutTasks[key] = Task.Run(async () =>
         {
-          await valueInCache.Value;
-          await Task.Delay(_timeout);
+          await valueInCache.Value.ConfigureAwait(false);
+          await Task.Delay(_timeout).ConfigureAwait(false);
           Task timeoutTask;
           _timeoutTasks.TryRemove(key, out timeoutTask);
           Lazy<Task<TValue>> valueToRemove;

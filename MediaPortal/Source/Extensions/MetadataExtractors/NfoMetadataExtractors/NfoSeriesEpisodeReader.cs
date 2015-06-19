@@ -358,7 +358,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
-        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra);
+        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
       value.Order = ParseIntAttribute(element, "order");
 
@@ -389,7 +389,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       foreach (var childElement in element.Elements())
         if (childElement.Name == "set")
         {
-          if (await TryReadSetAsync(childElement, nfoDirectoryFsra))
+          if (await TryReadSetAsync(childElement, nfoDirectoryFsra).ConfigureAwait(false))
             result = true;
         }
         else
@@ -461,7 +461,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadActorAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra);
+      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Actors == null)
@@ -613,7 +613,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadThumbAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseSimpleImageAsync
-      return ((_currentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     #endregion

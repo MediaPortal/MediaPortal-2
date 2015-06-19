@@ -136,7 +136,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       if (_position == Position.Initial || _position == Position.Prolog)
       {
-        if (await base.ReadAsync())
+        if (await base.ReadAsync().ConfigureAwait(false))
         {
           _position = base.NodeType != XmlNodeType.Element ? Position.Prolog : Position.OnBeginRoot;
           return true;
@@ -153,7 +153,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       if (_position == Position.WithinRoot)
       {
-        if (!await base.ReadAsync())
+        if (!await base.ReadAsync().ConfigureAwait(false))
           _position = Position.OnEndRoot;
         return true;
       }

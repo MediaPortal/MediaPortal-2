@@ -280,7 +280,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
-        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra);
+        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
       value.Order = ParseIntAttribute(element, "order");
 
@@ -312,7 +312,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       foreach (var childElement in element.Elements())
         if (childElement.Name == "set")
         {
-          if (await TryReadSetAsync(childElement, nfoDirectoryFsra))
+          if (await TryReadSetAsync(childElement, nfoDirectoryFsra).ConfigureAwait(false))
             result = true;
         }
         else
@@ -371,7 +371,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadActorAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra);
+      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Actors == null)
@@ -506,7 +506,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // [colors]: Contains three RGB colors in decimal format and pipe delimited (e.g. "|49,56,66|180,167,159|216,216,216|"). These are colors the artist picked
       //           that go well with the image. In order they are Light Accent Color, Dark Accent Color and Neutral Midtone Color. Only shows if [aspect]="fanart"
       //           (or the element is a child of <fanart>).
-      var thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra);
+      var thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra).ConfigureAwait(false);
       if (thumb == null)
         return false;
       var result = new SeriesThumbStub { Thumb = thumb };
@@ -587,7 +587,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
         if (urlPrefix != null)
           childElement.Value = urlPrefix + childElement.Value;
-        if (await TryReadThumbAsync(childElement, nfoDirectoryFsra))
+        if (await TryReadThumbAsync(childElement, nfoDirectoryFsra).ConfigureAwait(false))
           result = true;
       }
       return result;
@@ -759,14 +759,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path =>
       {
         _debugLogger.Info("[#{0}]: SeriesStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
-        if (await base.TryReadMetadataAsync(nfoFsra))
+        if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
         {
           if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
             LogStubObjects();
           return _stubs;
         }
         return null;
-      });
+      }).ConfigureAwait(false);
       if (stubs == null)
         return false;
       _stubs = stubs;

@@ -213,7 +213,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
         using (episodeNfoFsra)
         {
-          if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra))
+          if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found in episode nfo-file", miNumber);
             return false;
@@ -229,7 +229,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
           using (seriesNfoFsra)
           {
-            if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra))
+            if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
               episodeNfoReader.SetSeriesStubs(seriesNfoReader.GetSeriesStubs());
             else
               _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);

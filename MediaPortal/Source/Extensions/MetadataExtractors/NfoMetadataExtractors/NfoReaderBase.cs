@@ -169,7 +169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var nfoFileWrittenToDebugLog = false;
       try
       {
-        using (var nfoStream = await nfoFsra.OpenReadAsync())
+        using (var nfoStream = await nfoFsra.OpenReadAsync().ConfigureAwait(false))
         {
           // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
           // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
@@ -177,7 +177,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           // If the XML declaration contains an encoding attribute (which is optional), the XmlReader (contrary to the
           // StreamReader) automatically switches to the enconding specified by the XML declaration.
           nfoBytes = new byte[nfoStream.Length];
-          await nfoStream.ReadAsync(nfoBytes, 0, (int)nfoStream.Length);
+          await nfoStream.ReadAsync(nfoBytes, 0, (int)nfoStream.Length).ConfigureAwait(false);
           if (_settings.EnableDebugLogging && _settings.WriteRawNfoFileIntoDebugLog)
             using (var nfoMemoryStream = new MemoryStream(nfoBytes))
             using (var nfoReader = new StreamReader(nfoMemoryStream, true))
@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         using (var xmlReader = new XmlNfoReader(memoryNfoStream))
         {
           var nfoDocument = XDocument.Load(xmlReader);
-          return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra);
+          return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra).ConfigureAwait(false);
         }
       }
       catch (Exception e)
@@ -309,7 +309,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               try
               {
                 if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
-                    (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra)))
+                    (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra).ConfigureAwait(false)))
                   metadataFound = true;
               }
               catch (Exception e)
@@ -528,10 +528,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var imageFsra = nfoDirectoryFsra.GetResource(imageFileString);
         if (imageFsra != null)
           using (imageFsra)
-            using (var imageStream = await imageFsra.OpenReadAsync())
+            using (var imageStream = await imageFsra.OpenReadAsync().ConfigureAwait(false))
             {
               var result = new byte[imageStream.Length];
-              await imageStream.ReadAsync(result, 0, (int)imageStream.Length);
+              await imageStream.ReadAsync(result, 0, (int)imageStream.Length).ConfigureAwait(false);
               return result;
             }
       }
@@ -549,9 +549,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // Finally try to download the image from the internet
       try
       {
-        var response = await _httpDownloadClient.GetAsync(imageFileUri);
+        var response = await _httpDownloadClient.GetAsync(imageFileUri).ConfigureAwait(false);
         if (response.IsSuccessStatusCode)
-          return await response.Content.ReadAsByteArrayAsync();
+          return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         _debugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", _miNumber, (int)response.StatusCode, response.StatusCode, element);
       }
       catch (Exception e)
@@ -585,7 +585,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!element.HasElements)
       {
         // Example 1:
-        var value = await ParseSimpleImageAsync(element, nfoDirectoryFsra);
+        var value = await ParseSimpleImageAsync(element, nfoDirectoryFsra).ConfigureAwait(false);
         if (value != null)
           newValues.Add(value);
       }
@@ -595,7 +595,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         foreach (var childElement in element.Elements())
           if (childElement.Name == "thumb")
           {
-            var value = await ParseSimpleImageAsync(childElement, nfoDirectoryFsra);
+            var value = await ParseSimpleImageAsync(childElement, nfoDirectoryFsra).ConfigureAwait(false);
             if (value != null)
               newValues.Add(value);
           }
@@ -736,7 +736,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return null;
       value.Role = ParseSimpleString(element.Element("role"));
       value.Order = ParseSimpleInt(element.Element("order"));
-      value.Thumb = await ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra);
+      value.Thumb = await ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
       value.ImdbId = ParseSimpleString(element.Element("imdb"));
       value.Birthdate = ParseSimpleDateTime(element.Element("birthdate"));
       value.Birthplace = ParseSimpleString(element.Element("birthplace"));

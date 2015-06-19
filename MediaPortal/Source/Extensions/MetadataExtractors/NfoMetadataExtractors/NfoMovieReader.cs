@@ -382,7 +382,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
-        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra);
+        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
       value.Order = ParseIntAttribute(element, "order");
 
@@ -413,7 +413,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       foreach (var childElement in element.Elements())
         if (childElement.Name == "set")
         {
-          if (await TryReadSetAsync(childElement, nfoDirectoryFsra))
+          if (await TryReadSetAsync(childElement, nfoDirectoryFsra).ConfigureAwait(false))
             result = true;
         }
         else
@@ -501,7 +501,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadActorAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra);
+      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Actors == null)
@@ -519,7 +519,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadProducerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra);
+      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Producers == null)
@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadThumbAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseSimpleImageAsync
-      return ((_currentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     /// <summary>
@@ -696,7 +696,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadFanArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values c of NfoReaderBase.ParseMultipleImagesAsync
-      return ((_currentStub.FanArt = await ParseMultipleImagesAsync(element, _currentStub.FanArt, nfoDirectoryFsra)) != null);
+      return ((_currentStub.FanArt = await ParseMultipleImagesAsync(element, _currentStub.FanArt, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     /// <summary>
@@ -708,7 +708,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadDiscArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((_currentStub.DiscArt = await ParseMultipleImagesAsync(element, _currentStub.DiscArt, nfoDirectoryFsra)) != null);
+      return ((_currentStub.DiscArt = await ParseMultipleImagesAsync(element, _currentStub.DiscArt, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     /// <summary>
@@ -720,7 +720,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadLogoAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((_currentStub.Logos = await ParseMultipleImagesAsync(element, _currentStub.Logos, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Logos = await ParseMultipleImagesAsync(element, _currentStub.Logos, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     /// <summary>
@@ -732,7 +732,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadClearArtAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((_currentStub.ClearArt = await ParseMultipleImagesAsync(element, _currentStub.ClearArt, nfoDirectoryFsra)) != null);
+      return ((_currentStub.ClearArt = await ParseMultipleImagesAsync(element, _currentStub.ClearArt, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     /// <summary>
@@ -744,7 +744,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private async Task<bool> TryReadBannerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
-      return ((_currentStub.Banners = await ParseMultipleImagesAsync(element, _currentStub.Banners, nfoDirectoryFsra)) != null);
+      return ((_currentStub.Banners = await ParseMultipleImagesAsync(element, _currentStub.Banners, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     #endregion

@@ -213,7 +213,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var nfoReader = new NfoMovieReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
         using (nfoFsra)
         {
-          if (!await nfoReader.TryReadMetadataAsync(nfoFsra))
+          if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
