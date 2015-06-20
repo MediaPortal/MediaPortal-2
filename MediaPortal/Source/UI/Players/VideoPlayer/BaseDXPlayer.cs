@@ -78,7 +78,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Protected Properties
 
-    public virtual String PlayerTitle { get; protected set; }
+    public String PlayerTitle { get; protected set; }
 
     #endregion
 
