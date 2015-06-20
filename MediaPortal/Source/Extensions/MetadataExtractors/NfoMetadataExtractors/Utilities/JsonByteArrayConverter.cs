@@ -25,7 +25,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities
 {
   /// <summary>
   /// <see cref="JsonConverter"/> for byte arrays

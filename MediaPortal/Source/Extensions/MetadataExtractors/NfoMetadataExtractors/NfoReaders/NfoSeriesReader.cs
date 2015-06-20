@@ -30,9 +30,10 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
   /// <summary>
   /// Reads the content of a nfo-file for series (tvshow.nfo) into <see cref="SeriesStub"/> objects. It does not

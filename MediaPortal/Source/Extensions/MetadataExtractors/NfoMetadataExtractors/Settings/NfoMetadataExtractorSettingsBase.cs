@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
   /// <summary>
   /// Abstract base class for the settings class of all NfoMetadataExtractors

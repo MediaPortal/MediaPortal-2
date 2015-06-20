@@ -27,7 +27,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities
 {
   /// <summary>
   /// <see cref="XmlReader"/> specifically designed to read nfo-files

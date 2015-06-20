@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -64,15 +64,15 @@
     </Compile>
     <Compile Include="AsyncStaticCache.cs" />
     <Compile Include="AsyncStaticTimeoutCache.cs" />
-    <Compile Include="JsonByteArrayConverter.cs" />
-    <Compile Include="NfoMetadataExtractorSettingsBase.cs" />
-    <Compile Include="NfoSeriesEpisodeReader.cs" />
-    <Compile Include="NfoSeriesReader.cs" />
+    <Compile Include="Utilities\JsonByteArrayConverter.cs" />
+    <Compile Include="Settings\NfoMetadataExtractorSettingsBase.cs" />
+    <Compile Include="NfoReaders\NfoSeriesEpisodeReader.cs" />
+    <Compile Include="NfoReaders\NfoSeriesReader.cs" />
     <Compile Include="NfoSeriesMetadataExtractor.cs" />
-    <Compile Include="NfoSeriesMetadataExtractorSettings.cs" />
-    <Compile Include="NfoMovieMetadataExtractorSettings.cs" />
-    <Compile Include="NfoMovieReader.cs" />
-    <Compile Include="NfoReaderBase.cs" />
+    <Compile Include="Settings\NfoSeriesMetadataExtractorSettings.cs" />
+    <Compile Include="Settings\NfoMovieMetadataExtractorSettings.cs" />
+    <Compile Include="NfoReaders\NfoMovieReader.cs" />
+    <Compile Include="NfoReaders\NfoReaderBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NfoMovieMetadataExtractor.cs" />
     <Compile Include="Stubs\AudioStreamDetailsStub.cs" />
@@ -85,7 +85,7 @@
     <Compile Include="Stubs\StreamDetailsStub.cs" />
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
-    <Compile Include="XmlNfoReader.cs" />
+    <Compile Include="Utilities\XmlNfoReader.cs" />
     <Compile Include="XmlWrappingReader.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -38,6 +38,8 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors

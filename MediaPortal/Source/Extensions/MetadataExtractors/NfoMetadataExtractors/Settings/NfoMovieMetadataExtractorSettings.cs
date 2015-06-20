@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
   /// <summary>
   /// Settings class for the <see cref="NfoMovieMetadataExtractor"/>
