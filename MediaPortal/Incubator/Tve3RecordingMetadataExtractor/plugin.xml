@@ -26,5 +26,8 @@
     <Instance
         Id="Tve3RecordingMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.Tve3RecordingMetadataExtractor"/>
+    <Instance
+        Id="WTVRecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.WTVRecordingMetadataExtractor"/>
   </Register>
 </Plugin>

@@ -45,12 +45,13 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
 
       // TsVideoPlayer depends on the MP1 TsReader.ax component, we distribute our own copy of this file and load it without registration.
-      EXTENSIONS2PLAYER.Add(".ts", typeof (TsVideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ts", typeof(TsVideoPlayer));
 
       EXTENSIONS2PLAYER.Add(".mts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".m2ts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".dvr-ms", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".wtv", typeof(VideoPlayer));
+      // Will be played by SlimTV WTVPlayer
+      // EXTENSIONS2PLAYER.Add(".wtv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));
@@ -70,13 +71,13 @@ namespace MediaPortal.UI.Players.Video
     public static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
     {
       Type playerType;
-	    // When a mimetype is set, try to get the player type for it
+      // When a mimetype is set, try to get the player type for it
       if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
         return playerType;
 
-	    // 2nd chance: If no mimetype matches, try extension
-	    string path = locator.NativeResourcePath.LastPathSegment.Path;
-	    string extension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(path)).ToLowerInvariant();
+      // 2nd chance: If no mimetype matches, try extension
+      string path = locator.NativeResourcePath.LastPathSegment.Path;
+      string extension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(path)).ToLowerInvariant();
 
       if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
         return playerType;
