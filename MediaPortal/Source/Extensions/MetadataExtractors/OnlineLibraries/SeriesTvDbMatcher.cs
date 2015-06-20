@@ -195,7 +195,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
 
       // Use cached values before doing online query
-      SeriesMatch match = matches.Find(m => m.ItemName == seriesName || m.TvDBName == seriesName);
+      SeriesMatch match = matches.Find(m => string.Equals(m.ItemName, seriesName, StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(m.TvDBName, seriesName, StringComparison.OrdinalIgnoreCase));
       if (match != null && match.Id != 0)
       {
         tvDbId = match.Id;
