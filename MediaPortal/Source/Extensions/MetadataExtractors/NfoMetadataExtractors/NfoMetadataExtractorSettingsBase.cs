@@ -47,7 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     protected NfoMetadataExtractorSettingsBase()
     {
       // Set the default values
-      NfoFileNameExtensions = new HashSet<string> { ".nfo", ".xml" };
+      NfoFileNameExtensions = new HashSet<string> { ".nfo", ".xml", ".txt" };
       SeparatorCharacters = new HashSet<char> { '|', ',', '/' };
       IgnoreStrings = new HashSet<string> { "unknown" };
     }
