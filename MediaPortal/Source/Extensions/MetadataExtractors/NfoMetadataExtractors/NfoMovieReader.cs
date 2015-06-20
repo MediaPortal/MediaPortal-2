@@ -122,6 +122,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
       _supportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
       _supportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
+      _supportedElements.Add("Banner", new TryReadElementAsyncDelegate(TryReadBannerAsync)); // Used wrongly by XBNE instead of <banner>
+      _supportedElements.Add("Landscape", new TryReadElementAsyncDelegate(TryReadLandscapeAsync)); // Used by XBNE (capital letter in the beginning correct, but not according to spec)
       _supportedElements.Add("certification", new TryReadElementDelegate(TryReadCertification));
       _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
@@ -745,6 +747,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
       return ((_currentStub.Banners = await ParseMultipleImagesAsync(element, _currentStub.Banners, nfoDirectoryFsra).ConfigureAwait(false)) != null);
+    }
+
+    /// <summary>
+    /// Tries to (asynchronously) read one or more landscape images
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private async Task<bool> TryReadLandscapeAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
+    {
+      // For examples of valid element values see the comment of NfoReaderBase.ParseMultipleImagesAsync
+      return ((_currentStub.Landscape = await ParseMultipleImagesAsync(element, _currentStub.Landscape, nfoDirectoryFsra).ConfigureAwait(false)) != null);
     }
 
     #endregion

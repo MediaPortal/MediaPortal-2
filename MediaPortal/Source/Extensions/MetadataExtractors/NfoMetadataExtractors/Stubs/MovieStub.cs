@@ -212,6 +212,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public HashSet<byte[]> Logos { get; set; }
     public HashSet<byte[]> ClearArt { get; set; }
     public HashSet<byte[]> Banners { get; set; }
+    public HashSet<byte[]> Landscape { get; set; }
 
     #endregion
 
