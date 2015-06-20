@@ -332,7 +332,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       _menuSettings.Settings.DefaultMenuGroupId = groupId;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
-      ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
+      ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
       if (NavigateToHome())
       {
         CreatePositionedItems();
