@@ -168,6 +168,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _supportedAttributes.Add(TryWriteVideoAspectGenres);
       _supportedAttributes.Add(TryWriteVideoAspectActors);
       _supportedAttributes.Add(TryWriteVideoAspectDirectors);
+      _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
 
       _supportedAttributes.Add(TryWriteMovieAspectMovieName);
@@ -1308,6 +1309,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (_stubs[0].Director != null)
       {
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_WRITERS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteVideoAspectWriters(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (_stubs[0].Credits != null && _stubs[0].Credits.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, _stubs[0].Credits.ToList());
         return true;
       }
       return false;
