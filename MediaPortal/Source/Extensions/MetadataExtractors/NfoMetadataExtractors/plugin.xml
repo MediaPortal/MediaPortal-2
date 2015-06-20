@@ -7,9 +7,15 @@
     Description="Metadata extractors reading metadata from local nfo-files"
     PluginVersion="0.04">
 
+  <DependsOn>
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="NfoMetadataExtractors.dll"/>
-    <Assembly FileName="NewtonSoft.Json.dll"/>
+    <!-- Make sure that the Newtonsoft.Json.dll contained in OnlineLibraries is loaded -->
+    <!-- The existence of the relative directory path below is ensured by the PluginReference above -->
+    <Assembly FileName="..\OnlineLibraries\Newtonsoft.Json.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
