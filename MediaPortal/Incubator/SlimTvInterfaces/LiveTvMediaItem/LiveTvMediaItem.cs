@@ -43,6 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
 
     public const string MIME_TYPE_TV = "slimtv/livetv";
     public const string MIME_TYPE_RADIO = "slimtv/radio";
+    public const string MIME_TYPE_WTVREC = "slimtv/wtv";
 
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
