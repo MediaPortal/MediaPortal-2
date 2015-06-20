@@ -180,7 +180,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
       string filePath = lfsra.CanonicalLocalResourcePath.ToString();
       string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
-      if (lowerExtension != ".wtv")
+      if (lowerExtension != ".wtv" && lowerExtension != ".dvr-ms")
         return false;
 
       using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
