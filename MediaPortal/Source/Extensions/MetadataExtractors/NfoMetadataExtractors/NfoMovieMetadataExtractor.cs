@@ -123,6 +123,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     public NfoMovieMetadataExtractor()
     {
+      // The metadataExtractorPriority is intentionally set wrong to "Extended" although, depending on the
+      // content of the nfo-file, it may download thumbs from the internet (and should therefore be
+      // "External"). This is a temporary workaround for performance purposes. It ensures that this 
+      // MetadataExtractor is applied before the VideoThumbnailer (which is intentionally set to "External"
+      // although it only uses local files). Creating thumbs with the VideoThumbnailer takes much longer
+      // than downloading them from the internet.
+      // ToDo: Correct this once we have a better priority system
       _metadata = new MetadataExtractorMetadata(
         metadataExtractorId: METADATAEXTRACTOR_ID,
         name: "Nfo movie metadata extractor",
