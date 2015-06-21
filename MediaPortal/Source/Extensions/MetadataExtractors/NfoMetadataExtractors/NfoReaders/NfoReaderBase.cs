@@ -46,6 +46,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// <remarks>
   /// We have a separate reader for the different nfo-files of all possible MediaItem types (in particular movies and series).
   /// This abstract base class contains common functionality that can be used for all types of nfo-files.
+  /// This class can parse much more information than we can currently store in our MediaLibrary.
+  /// For performance reasons, the following long lasting operations have been temporarily disabled:
+  /// - We do parse elements containing information on persons, however, parsing and downloading "thumb"
+  ///   child elements for persons has been disabled. Reenable in <see cref="ParsePerson"/>
+  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   public abstract class NfoReaderBase<TStub> where TStub : new()
   {
@@ -738,7 +743,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return null;
       value.Role = ParseSimpleString(element.Element("role"));
       value.Order = ParseSimpleInt(element.Element("order"));
-      value.Thumb = await ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
+      //ToDo: Reenable parsing <thumb> child elements once we can store them in the MediaLibrary
+      value.Thumb = await Task.FromResult<byte[]>(null); //ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
       value.ImdbId = ParseSimpleString(element.Element("imdb"));
       value.Birthdate = ParseSimpleDateTime(element.Element("birthdate"));
       value.Birthplace = ParseSimpleString(element.Element("birthplace"));

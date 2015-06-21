@@ -47,6 +47,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// need to be taken (via <see cref="GetSeriesStubs"/>) and put into a <see cref="NfoSeriesEpisodeReader"/> object,
   /// which holds the appropriate TryWriteMethods to write information from both, <see cref="SeriesStub"/> and
   /// <see cref="SeriesEpisodeStub"/> objects into the appropriate MIA-Attributes.
+  /// This class can parse much more information than we can currently store in our MediaLibrary.
+  /// For performance reasons, the following long lasting operations have been temporarily disabled:
+  /// - We do parse "set" (and therefore also "sets" elements); however, parsing and downloading
+  ///   "setimage" child elements has been disabled. Reenable in <see cref="TryReadSetAsync"/>
+  /// - We do parse "actor" elements, however, parsing and downloading "thumb"
+  ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
+  /// - The following elements are completely ignored:
+  ///   "thumb" and "fanart"
+  ///   Reenable in <see cref="InitializeSupportedElements"/>
+  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   class NfoSeriesReader : NfoReaderBase<SeriesStub>
   {
@@ -134,6 +144,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
       _supportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
       _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
+
+      // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
+      // ToDo: Reenable the below once we can store the information in the MediaLibrary
+      _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
 
       // The following elements are contained in many tvshow.nfo files, but have no meaning
       // in the context of a series. We add them here to avoid them being logged as
@@ -281,7 +296,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
-        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
+        //ToDo: Reenable parsing <setimage> child elements once we can store them in the MediaLibrary
+        value.Image = await Task.FromResult<byte[]>(null); // ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
       value.Order = ParseIntAttribute(element, "order");
 

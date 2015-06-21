@@ -47,6 +47,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// <remarks>
   /// There is a TryRead method for any known child element of the nfo-file's root element and a
   /// TryWrite method for any MIA-Attribute we store values in.
+  /// This class can parse much more information than we can currently store in our MediaLibrary.
+  /// For performance reasons, the following long lasting operations have been temporarily disabled:
+  /// - We do parse "set" (and therefore also "sets" elements); however, parsing and downloading
+  ///   "setimage" child elements has been disabled. Reenable in <see cref="TryReadSetAsync"/>
+  /// - We do parse "actor" elements, however, parsing and downloading "thumb"
+  ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
+  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   class NfoSeriesEpisodeReader : NfoReaderBase<SeriesEpisodeStub>
   {
@@ -359,7 +366,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
-        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
+        //ToDo: Reenable parsing <setimage> child elements once we can store them in the MediaLibrary
+        value.Image = await Task.FromResult<byte[]>(null); // ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
       value.Order = ParseIntAttribute(element, "order");
 

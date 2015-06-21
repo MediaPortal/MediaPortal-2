@@ -45,6 +45,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// <remarks>
   /// There is a TryRead method for any known child element of the nfo-file's root element and a
   /// TryWrite method for any MIA-Attribute we store values in.
+  /// This class can parse much more information than we can currently store in our MediaLibrary.
+  /// For performance reasons, the following long lasting operations have been temporarily disabled:
+  /// - We do parse "set" (and therefore also "sets" elements); however, parsing and downloading
+  ///   "setimage" child elements has been disabled. Reenable in <see cref="TryReadSetAsync"/>
+  /// - We do parse "actor" and "procuder" elements, however, parsing and downloading "thumb"
+  ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
+  /// - The following elements are completely ignored:
+  ///   "fanart", "discart", "logo", "clearart", "banner", "Banner" and "Landscape"
+  ///   Reenable in <see cref="InitializeSupportedElements"/>
+  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   class NfoMovieReader : NfoReaderBase<MovieStub>
   {
@@ -142,6 +152,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
+
+      // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
+      // ToDo: Reenable the below once we can store the information in the MediaLibrary
+      _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["clearart"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["banner"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["Banner"] = new TryReadElementDelegate(Ignore);
+      _supportedElements["Landscape"] = new TryReadElementDelegate(Ignore);
 
       // The following elements are contained in many movie.nfo files, but have no meaning
       // in the context of a movie. We add them here to avoid them being logged as
@@ -386,7 +406,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
-        value.Image = await ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
+        //ToDo: Reenable parsing <setimage> child elements once we can store them in the MediaLibrary
+        value.Image = await Task.FromResult<byte[]>(null); // ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
       value.Order = ParseIntAttribute(element, "order");
 
