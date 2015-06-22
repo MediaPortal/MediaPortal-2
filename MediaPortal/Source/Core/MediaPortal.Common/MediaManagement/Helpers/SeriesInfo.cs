@@ -236,7 +236,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Format(format,
           Series,
           SeasonNumber.ToString().PadLeft(2, '0'),
-          StringUtils.Join(", ", EpisodeNumbers.Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
+          StringUtils.Join(", ", EpisodeNumbers.OrderBy(e => e).Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
           Episode);
       }
       return "SeriesInfo: No complete match";

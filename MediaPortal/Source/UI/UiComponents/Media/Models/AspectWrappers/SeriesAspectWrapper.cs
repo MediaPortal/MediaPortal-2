@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -238,7 +239,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       SeriesName = (string)aspect[SeriesAspect.ATTR_SERIESNAME];
       Season = (int?)aspect[SeriesAspect.ATTR_SEASON];
       SeriesSeasonName = (string)aspect[SeriesAspect.ATTR_SERIES_SEASON];
-      Episode = (IEnumerable<int>)aspect[SeriesAspect.ATTR_EPISODE];
+      Episode = ((IEnumerable<int>)aspect[SeriesAspect.ATTR_EPISODE]).OrderBy(e => e);
       DvdEpisode = (IEnumerable<double>)aspect[SeriesAspect.ATTR_DVDEPISODE];
       EpisodeName = (string)aspect[SeriesAspect.ATTR_EPISODENAME];
       FirstAired = (DateTime?)aspect[SeriesAspect.ATTR_FIRSTAIRED];
