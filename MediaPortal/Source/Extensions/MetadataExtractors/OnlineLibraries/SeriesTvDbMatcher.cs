@@ -137,7 +137,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
       List<TvdbEpisode> episodes = seriesDetail.Episodes.FindAll(e => e.EpisodeName == seriesInfo.Episode);
       // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
       // and keep the current episode details.
-      if (episodes.Count == 1)
+      // Use this way only for single episodes.
+      if (seriesInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
       {
         episode = episodes[0];
         seriesInfo.ImdbId = seriesDetail.ImdbId;
@@ -152,14 +153,43 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return true;
       }
 
-      episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == seriesInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == seriesInfo.SeasonNumber);
-      if (episode != null)
+      episodes = seriesDetail.Episodes.Where(e => seriesInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == seriesInfo.SeasonNumber).ToList();
+      if (episodes.Count == 0)
+        return false;
+
+      // Single episode entry
+      if (episodes.Count == 1)
       {
+        episode = episodes[0];
         seriesInfo.Episode = episode.EpisodeName;
         SetEpisodeDetails(seriesInfo, episode);
         return true;
       }
+
+      // Multiple episodes
+      SetMultiEpisodeDetailsl(seriesInfo, episodes);
       return false;
+    }
+
+    private static void SetMultiEpisodeDetailsl(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
+    {
+      seriesInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
+      seriesInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
+      seriesInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
+        Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Overview)).ToArray());
+
+      // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
+      var guestStars = episodes.SelectMany(e => e.GuestStars).Distinct().ToList();
+      if (guestStars.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Actors, guestStars);
+      seriesInfo.Directors.Clear();
+      var directors = episodes.SelectMany(e => e.Directors).Distinct().ToList();
+      if (directors.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Directors, directors);
+      var writers = episodes.SelectMany(e => e.Writer).Distinct().ToList();
+      seriesInfo.Writers.Clear();
+      if (writers.Count > 0)
+        CollectionUtils.AddAll(seriesInfo.Writers, writers);
     }
 
     private static void SetEpisodeDetails(SeriesInfo seriesInfo, TvdbEpisode episode)
