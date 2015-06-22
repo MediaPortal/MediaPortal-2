@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
+ 
+    <ControlTemplate x:Key="Contents_Template">
+      <mp_special_controls:PlayerControl Margin="10" PlayerContext="CurrentPlayer">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid Margin="-30, -10,-15,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
+            <Grid.RowDefinitions>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="420"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+              <RadioButton Content="General" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"  />
+              <RadioButton Content="Actors" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+              <RadioButton Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+            </StackPanel>
+            <Path Grid.Row="1" Grid.Column="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeLineJoin="Round" Fill="Black" Opacity="0.2"
+                  Data="F1 M -128,483C -128,499.016 -115.016,512 -99,512L 1193,512C 1209.02,512 1222,499.016 1222,483L 1222,29C 1222,12.9837 1209.02,0 1193,0L -128,0"/>
+
+            <Control x:Name="CP_MovieGeneral" Grid.Row="1" Grid.Column="0">
+              <Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible>
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MovieGeneral.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="20,0,0,0">
+              <Grid Grid.Row="0" Margin="-4,-4,-4,-4" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="33" />
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="33" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="33" />
+                  <RowDefinition Height="*"  />
+                  <RowDefinition Height="33" />
+                </Grid.RowDefinitions>
+                <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
+                <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
+                <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
+                <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
+                <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
+                <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
+                <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
+                <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
+                <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
+              </Grid>
+              <Grid>
+                <Image Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"/>
+                <Grid.OpacityMask>
+                  <VisualBrush>
+                    <VisualBrush.Visual>
+                      <Border Name="mask" Background="White" CornerRadius="25" BorderThickness="0" BorderBrush="Black"/>
+                    </VisualBrush.Visual>
+                  </VisualBrush>
+                </Grid.OpacityMask>
+              </Grid>
+            </Grid>
+            
+          <!-- following code needs to move to *.inc files, which are selected by aspect-->
+            <!-- following code needs to move to *.inc files, which are selected by aspect-->
+            <!--DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="true"
+                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid DockPanel.Dock="Top" Margin="10"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+                    Content="[Media.VideoTitleLabel]" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
+                    Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0"
+                    Content="[Media.VideoGenreLabel]" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="Genre" Grid.Row="1" Grid.Column="1"
+                    Content="{Binding VideoGenres}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"
+                    Content="[Media.VideoYearLabel]" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="Year" Grid.Row="2" Grid.Column="1"
+                    Content="{Binding VideoYear}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
+                    Content="[Media.VideoDurationLabel]" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
+                    Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="ActorsLabel" Grid.Row="4" Grid.Column="0"
+                    Content="[Media.VideoActorsLabel]" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="Actors" Grid.Row="4" Grid.Column="1" Wrap="true" HorizontalAlignment="Stretch"
+                    Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"
+                     Color="{ThemeResource TextColor}"/>
+
+                <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" Stretch="Uniform"
+                  Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"
+                  Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"/>
+              </Grid>
+              <DockPanel LastChildFill="True" DockPanel.Dock="Center" Margin="10"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Label x:Name="StoryPlotLabel" HorizontalAlignment="Left" VerticalAlignment="Top"
+                    DockPanel.Dock="Top" Content="[Media.VideoStoryPlotLabel]" Color="{ThemeResource TextColor}"/>
+                <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    DockPanel.Dock="Center" HorizontalScrollBarVisibility="Disabled"
+                    Focusable="True">
+                  <Label x:Name="StoryPlot" Wrap="True"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      Content="{Binding VideoStoryPlot}"
+                      Color="{ThemeResource TextColor}"/>
+                </ScrollViewer>
+              </DockPanel>
+            </DockPanel-->
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
