@@ -31,6 +31,9 @@
     <Label x:Name="Title" Scroll="Auto" FontFamily="DefaultBold" Grid.Row="0" Grid.Column="0" Margin="20,15,20,5"
            Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
 
+    <!-->Label x:Name="Percentage_played" Scroll="Auto" Grid.Row="1" Grid.Column="1" Margin="20,15,20,5" ContentStringFormat="{}{0.#0}%"
+           Content="{Binding PercentPlayed, Converter={StaticResource StringFormatConverter}, ConverterParameter=#.#0%}" Color="{ThemeResource TextColor}"/-->
+
     <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Margin="20,5,20,5">
       <Label x:Name="Year" Content="{Binding VideoYear}" Color="{ThemeResource TextColor}"/>
       <Label Content=" • " Color="{ThemeResource TextColor}"/>
