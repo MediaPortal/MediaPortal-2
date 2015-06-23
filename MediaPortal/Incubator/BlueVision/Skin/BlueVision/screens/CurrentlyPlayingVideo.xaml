@@ -24,9 +24,36 @@
               <ColumnDefinition Width="420"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-              <RadioButton Content="General" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"  />
-              <RadioButton Content="Actors" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
-              <RadioButton Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+              <RadioButton Content="General" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"  />
+              <RadioButton Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+              <RadioButton Content="MediaInfo" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+              <Control>
+                <Control.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Control.IsVisible>
+                <Control.TemplateControl>
+                  <RadioButton Content="Series" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+                </Control.TemplateControl>
+              </Control>
+              <!--Control>
+                <Control.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Control.IsVisible>
+                <Control.TemplateControl>
+                  <RadioButton Content="Album" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+                </Control.TemplateControl>
+              </Control-->     
             </StackPanel>
             <Path Grid.Row="1" Grid.Column="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeLineJoin="Round" Fill="Black" Opacity="0.2"
                   Data="F1 M -128,483C -128,499.016 -115.016,512 -99,512L 1193,512C 1209.02,512 1222,499.016 1222,483L 1222,29C 1222,12.9837 1209.02,0 1193,0L -128,0"/>
@@ -42,6 +69,19 @@
                 <Include Source="screens\CP_MovieGeneral.inc"/>
               </Control.TemplateControl>
             </Control>
+
+
+            <!--Control x:Name="CP_SeriesGeneral" Grid.Row="1" Grid.Column="0">
+              <Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible>
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MovieGeneral.inc"/>
+              </Control.TemplateControl>
+            </Control-->
 
             <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="20,0,0,0">
               <Grid Grid.Row="0" Margin="-4,-4,-4,-4" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
