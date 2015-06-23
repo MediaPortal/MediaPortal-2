@@ -62,6 +62,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected AbstractProperty _lastSelectedItemProperty;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
+    protected bool _noSettingsRefresh;
 
     #endregion
 
@@ -230,6 +231,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void OnSettingsChanged(object sender, EventArgs e)
     {
+      // Invoked from internal update, so skip refreshs
+      if (_noSettingsRefresh)
+        return;
       CreateMenuGroupItems();
       CreatePositionedItems();
     }
@@ -263,6 +267,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
             {
               IsHome = isHome;
               groupItem.IsActive = true;
+              groupItem.Selected = true;
             }
             _mainMenuGroupList.Add(groupItem);
           }
@@ -340,11 +345,19 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       _menuSettings.Settings.DefaultMenuGroupId = groupId;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
-      ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
-      if (NavigateToHome())
+      try
       {
-        CreatePositionedItems();
-        UpdateSelectedGroup();
+        _noSettingsRefresh = true;
+        ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
+        if (NavigateToHome())
+        {
+          CreatePositionedItems();
+          UpdateSelectedGroup();
+        }
+      }
+      finally 
+      {
+        _noSettingsRefresh = false;
       }
     }
 
