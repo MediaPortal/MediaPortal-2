@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private readonly string _apiKey;
     private readonly string _cachePath;
     private Configuration _configuration;
-    private readonly Downloader _downloader;
+    private readonly MovieDbDownloader _downloader;
 
     #endregion
 
@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       _apiKey = apiKey;
       _cachePath = cachePath;
-      _downloader = new Downloader { EnableCompression = true };
+      _downloader = new MovieDbDownloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
     }
 
