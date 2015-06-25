@@ -81,7 +81,7 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
     [Setting(SettingScope.Global)]
     public bool DisableHomeTab { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, true)]
     public bool DisableAutoSelection { get; set; }
 
     [Setting(SettingScope.Global)]

@@ -62,6 +62,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected AbstractProperty _lastSelectedItemProperty;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
+    protected bool _noSettingsRefresh;
 
     #endregion
 
@@ -137,7 +138,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     public ItemsList MainMenuGroupList
     {
-      get { return _mainMenuGroupList; }
+      get
+      {
+        lock (_mainMenuGroupList.SyncRoot)
+          return _mainMenuGroupList;
+      }
     }
 
     public ItemsList PositionedMenuItems
@@ -211,20 +216,24 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       // unfortunately we can not access ScreenManager.HOME_SCREEN without adding another reference to the plugin
       if (String.Equals(screenManager.ActiveScreenName, "home"))
       {
-        foreach (GroupMenuListItem listItem in MainMenuGroupList)
-        {
-          if (listItem.IsActive)
+        lock (_mainMenuGroupList.SyncRoot)
+          foreach (GroupMenuListItem listItem in _mainMenuGroupList)
           {
-            LastSelectedItem = listItem;
-            LastSelectedItemName = listItem[Consts.KEY_NAME];
-            break;
+            if (listItem.IsActive)
+            {
+              LastSelectedItem = listItem;
+              LastSelectedItemName = listItem[Consts.KEY_NAME];
+              break;
+            }
           }
-        }
       }
     }
 
     private void OnSettingsChanged(object sender, EventArgs e)
     {
+      // Invoked from internal update, so skip refreshs
+      if (_noSettingsRefresh)
+        return;
       CreateMenuGroupItems();
       CreatePositionedItems();
     }
@@ -236,28 +245,32 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     protected void CreateMenuGroupItems()
     {
-      _mainMenuGroupList.Clear();
-      if (_menuSettings != null)
+      lock (_mainMenuGroupList.SyncRoot)
       {
-        foreach (var group in _menuSettings.Settings.MainMenuGroupNames)
+        _mainMenuGroupList.Clear();
+        if (_menuSettings != null)
         {
-          string groupId = group.Id.ToString();
-          bool isHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
-          if (isHome && _menuSettings.Settings.DisableHomeTab)
-            continue;
-
-          string groupName = group.Name;
-          var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
-          if (_menuSettings.Settings.DisableAutoSelection)
-            groupItem.Command = new MethodDelegateCommand(() => SetGroup(groupId));
-
-          groupItem.AdditionalProperties["Id"] = groupId;
-          if (groupId == _menuSettings.Settings.DefaultMenuGroupId)
+          foreach (var group in _menuSettings.Settings.MainMenuGroupNames)
           {
-            IsHome = isHome;
-            groupItem.IsActive = true;
+            string groupId = group.Id.ToString();
+            bool isHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
+            if (isHome && _menuSettings.Settings.DisableHomeTab)
+              continue;
+
+            string groupName = group.Name;
+            var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
+            if (_menuSettings.Settings.DisableAutoSelection)
+              groupItem.Command = new MethodDelegateCommand(() => SetGroup(groupId));
+
+            groupItem.AdditionalProperties["Id"] = groupId;
+            if (groupId == _menuSettings.Settings.DefaultMenuGroupId)
+            {
+              IsHome = isHome;
+              groupItem.IsActive = true;
+              groupItem.Selected = true;
+            }
+            _mainMenuGroupList.Add(groupItem);
           }
-          _mainMenuGroupList.Add(groupItem);
         }
       }
       _mainMenuGroupList.FireChange();
@@ -332,11 +345,19 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       _menuSettings.Settings.DefaultMenuGroupId = groupId;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
-      ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
-      if (NavigateToHome())
+      try
       {
-        CreatePositionedItems();
-        UpdateSelectedGroup();
+        _noSettingsRefresh = true;
+        ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
+        if (NavigateToHome())
+        {
+          CreatePositionedItems();
+          UpdateSelectedGroup();
+        }
+      }
+      finally 
+      {
+        _noSettingsRefresh = false;
       }
     }
 
@@ -373,16 +394,17 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void UpdateSelectedGroup()
     {
-      foreach (GroupMenuListItem listItem in MainMenuGroupList)
-      {
-        listItem.IsActive = (string)listItem.AdditionalProperties["Id"] == _menuSettings.Settings.DefaultMenuGroupId;
-        // if the group is selected, it is the LastSelectedItem now.
-        if (listItem.IsActive)
+      lock (_mainMenuGroupList.SyncRoot)
+        foreach (GroupMenuListItem listItem in _mainMenuGroupList)
         {
-          LastSelectedItem = listItem;
-          LastSelectedItemName = listItem[Consts.KEY_NAME];
+          listItem.IsActive = (string)listItem.AdditionalProperties["Id"] == _menuSettings.Settings.DefaultMenuGroupId;
+          // if the group is selected, it is the LastSelectedItem now.
+          if (listItem.IsActive)
+          {
+            LastSelectedItem = listItem;
+            LastSelectedItemName = listItem[Consts.KEY_NAME];
+          }
         }
-      }
     }
 
     /// <summary>
