@@ -168,7 +168,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // Multiple episodes
       SetMultiEpisodeDetailsl(seriesInfo, episodes);
-      return false;
+      return true;
     }
 
     private static void SetMultiEpisodeDetailsl(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
