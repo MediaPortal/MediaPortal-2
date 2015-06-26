@@ -67,20 +67,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);
 
-      foreach(KeyValuePair<string, IList<string>> tag in tagsToExtract)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MatchSeries: MKV-Tag {0} Values are:", tag.Key);
-        if (tag.Value != null)
-        {
-          foreach (string s in tag.Value)
-            ServiceRegistration.Get<ILogger>().Debug("   {0}", s);
-        }
-        else
-        {
-          ServiceRegistration.Get<ILogger>().Debug("---NULL---");
-        }
-      }
-
       string title = string.Empty;
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
       if (tags != null)
