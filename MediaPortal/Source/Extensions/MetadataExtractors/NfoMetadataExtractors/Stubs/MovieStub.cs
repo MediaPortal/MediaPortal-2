@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -126,7 +126,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <summary>
     /// Countries in which the movie was produced
     /// </summary>
-    public HashSet<string >Countries { get; set; }
+    public HashSet<string> Countries { get; set; }
 
     /// <summary>
     /// Producing Companies
@@ -212,6 +212,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public HashSet<byte[]> Logos { get; set; }
     public HashSet<byte[]> ClearArt { get; set; }
     public HashSet<byte[]> Banners { get; set; }
+    public HashSet<byte[]> Landscape { get; set; }
 
     #endregion
 
@@ -257,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public string Review { get; set; }
 
     /// <summary>
-    /// Number in the Top 250 raking from www.imdb.com
+    /// Number in the Top 250 ranking from www.imdb.com
     /// </summary>
     public int? Top250 { get; set; }
 

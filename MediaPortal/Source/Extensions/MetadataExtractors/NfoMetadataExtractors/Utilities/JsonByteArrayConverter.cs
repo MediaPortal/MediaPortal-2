@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -25,13 +25,13 @@
 using System;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities
 {
   /// <summary>
   /// <see cref="JsonConverter"/> for byte arrays
   /// </summary>
   /// <remarks>
-  /// The NfoMetadataExtractors can for debugging purposes write the filled stub objects of each imported
+  /// The NfoMetadataExtractors can, for debugging purposes, write the filled stub objects of each imported
   /// MediaItem into the debug log in form of its Json representation. Binary data in these stub objects
   /// (in particular images) are represented by byte arrays. This <see cref="JsonConverter"/> prevents
   /// large amounts of binary data in byte arrays to be written into the debug log and instead just writes

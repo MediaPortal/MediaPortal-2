@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -28,14 +28,17 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
   /// <summary>
   /// Base class for all nfo-file readers
@@ -43,8 +46,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
   /// <remarks>
   /// We have a separate reader for the different nfo-files of all possible MediaItem types (in particular movies and series).
   /// This abstract base class contains common functionality that can be used for all types of nfo-files.
+  /// This class can parse much more information than we can currently store in our MediaLibrary.
+  /// For performance reasons, the following long lasting operations have been temporarily disabled:
+  /// - We do parse elements containing information on persons, however, parsing and downloading "thumb"
+  ///   child elements for persons has been disabled. Reenable in <see cref="ParsePerson"/>
+  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
-  public abstract class NfoReaderBase
+  public abstract class NfoReaderBase<TStub> where TStub : new()
   {
     #region Delegates
 
@@ -75,37 +83,48 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Protected fields
 
     /// <summary>
+    /// After a call to <see cref="TryReadMetadataAsync"/> all parsed stub objects are contained in this list
+    /// </summary>
+    protected List<TStub> _stubs = new List<TStub>();
+
+    /// <summary>
+    /// Stub object used to temporarily store all readily parsed information from the nfo-file
+    /// If any information was parsed, this object is added to <see cref="_stubs"/>
+    /// </summary>
+    protected TStub _currentStub;
+    
+    /// <summary>
     /// Debug logger
     /// </summary>
     /// <remarks>
     /// NoLogger or FileLogger depending on the respective <see cref="NfoMetadataExtractorSettingsBase"/>
     /// </remarks>
-    protected ILogger DebugLogger;
+    protected ILogger _debugLogger;
 
     /// <summary>
     /// Unique number of the MediaItem for which this NfoReader was instantiated
     /// </summary>
-    protected long MiNumber;
+    protected long _miNumber;
 
     /// <summary>
     /// If true, no long lasting operations such as parsing pictures are performed
     /// </summary>
-    protected bool ForceQuickMode;
+    protected bool _forceQuickMode;
 
     /// <summary>
     /// Dictionary used to find the appropriate <see cref="TryReadElementDelegate"/> or <see cref="TryReadElementAsyncDelegate"/> by element name
     /// </summary>
-    protected readonly Dictionary<XName, Delegate> SupportedElements = new Dictionary<XName, Delegate>();
+    protected readonly Dictionary<XName, Delegate> _supportedElements = new Dictionary<XName, Delegate>();
 
     /// <summary>
     /// List of <see cref="TryWriteAttributeDelegate"/>s used to write metadata into a specific Attribute of a MediaItemAspect
     /// </summary>
-    protected readonly List<TryWriteAttributeDelegate> SupportedAttributes = new List<TryWriteAttributeDelegate>();
+    protected readonly List<TryWriteAttributeDelegate> _supportedAttributes = new List<TryWriteAttributeDelegate>();
 
     /// <summary>
     /// <see cref="HttpClient"/> used to download from http URLs contained in nfo-files
     /// </summary>
-    protected readonly HttpClient HttpDownloadClient;
+    protected readonly HttpClient _httpDownloadClient;
 
     #endregion
 
@@ -135,10 +154,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="settings">Settings of the NfoMetadataExtractor</param>
     protected NfoReaderBase(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
     {
-      DebugLogger = debugLogger;
-      MiNumber = miNumber;
-      ForceQuickMode = forceQuickMode;
-      HttpDownloadClient = httpClient;
+      _debugLogger = debugLogger;
+      _miNumber = miNumber;
+      _forceQuickMode = forceQuickMode;
+      _httpDownloadClient = httpClient;
       _settings = settings;
     }
 
@@ -151,13 +170,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
-    public async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
+    public virtual async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
       byte[] nfoBytes;
       var nfoFileWrittenToDebugLog = false;
       try
       {
-        using (var nfoStream = await nfoFsra.OpenReadAsync())
+        using (var nfoStream = await nfoFsra.OpenReadAsync().ConfigureAwait(false))
         {
           // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
           // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
@@ -165,30 +184,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           // If the XML declaration contains an encoding attribute (which is optional), the XmlReader (contrary to the
           // StreamReader) automatically switches to the enconding specified by the XML declaration.
           nfoBytes = new byte[nfoStream.Length];
-          await nfoStream.ReadAsync(nfoBytes, 0, (int)nfoStream.Length);
+          await nfoStream.ReadAsync(nfoBytes, 0, (int)nfoStream.Length).ConfigureAwait(false);
           if (_settings.EnableDebugLogging && _settings.WriteRawNfoFileIntoDebugLog)
             using (var nfoMemoryStream = new MemoryStream(nfoBytes))
             using (var nfoReader = new StreamReader(nfoMemoryStream, true))
             {
               var nfoString = nfoReader.ReadToEnd();
-              DebugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", MiNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
               nfoFileWrittenToDebugLog = true;
             }
         }
       }
       catch (Exception e)
       {
-        DebugLogger.Error("[#{0}]: Cannot extract metadata; cannot read nfo-file", e, MiNumber);
+        _debugLogger.Error("[#{0}]: Cannot extract metadata; cannot read nfo-file", e, _miNumber);
         return false;
       }
       
       try
       {
         using(var memoryNfoStream = new MemoryStream(nfoBytes))
-        using (var xmlReader = XmlReader.Create(memoryNfoStream))
+        using (var xmlReader = new XmlNfoReader(memoryNfoStream))
         {
           var nfoDocument = XDocument.Load(xmlReader);
-          return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra);
+          return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra).ConfigureAwait(false);
         }
       }
       catch (Exception e)
@@ -201,12 +220,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             if (!nfoFileWrittenToDebugLog)
             {
               var nfoString = nfoReader.ReadToEnd();
-              DebugLogger.Warn("[#{0}]: Cannot extract metadata; cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, MiNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              _debugLogger.Warn("[#{0}]: Cannot extract metadata; cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
             }
           }
           catch (Exception)
           {
-            DebugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", e, MiNumber);
+            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", e, _miNumber);
           }
         }
         return false;
@@ -233,7 +252,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         LogStubObjects();
         stubObjectsLogged = true;
       }
-      foreach (var writeDelegate in SupportedAttributes)
+      foreach (var writeDelegate in _supportedAttributes)
       {
         try
         {
@@ -241,7 +260,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
         catch (Exception e)
         {
-          DebugLogger.Error("[#{0}]: Error writing metadata into the MediaItemAspects (delegate: {1})", e, MiNumber, writeDelegate);
+          _debugLogger.Error("[#{0}]: Error writing metadata into the MediaItemAspects (delegate: {1})", e, _miNumber, writeDelegate);
           if (stubObjectsLogged)
             continue;
           LogStubObjects();
@@ -263,11 +282,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
     private async Task<bool> TryReadNfoDocumentAsync(XDocument nfoDocument, IFileSystemResourceAccessor nfoFsra)
     {
-      // Checks the name of the root element
-      if (!CanReadNfoDocument(nfoDocument))
+      // Checks the structure of the nfo document
+      if (!IsValidNfoDocument(nfoDocument))
         return false;
 
-      var metadataFound = false;
+      _stubs.Clear();
+      var result = false;
       
       // Create an IFileSystemResourceAccessor to the parent directory of the nfo-file 
       var nfoDirectoryResourcePath = ResourcePathHelper.Combine(nfoFsra.CanonicalLocalResourcePath, "../");
@@ -282,34 +302,86 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       using (nfoDirectoryFsra)
       {
-        // CanReadNfoDocument returns false if nfoRootDocument is null
+        // IsValidNfoDocument returns false if nfoRootDocument is null
         // ReSharper disable once PossibleNullReferenceException
-        foreach (var element in nfoDocument.Root.Elements())
+        foreach (var itemRoot in nfoDocument.Root.Elements().Where(CanReadItemRootElementTree))
         {
-          Delegate readDelegate;
-          if (SupportedElements.TryGetValue(element.Name, out readDelegate))
+          _currentStub = new TStub();
+          var metadataFound = false;
+          foreach (var element in itemRoot.Elements())
           {
-            try
+            Delegate readDelegate;
+            if (_supportedElements.TryGetValue(element.Name, out readDelegate))
             {
-              if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
-                  (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra)))
-                metadataFound = true;
+              try
+              {
+                if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
+                    (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra).ConfigureAwait(false)))
+                  metadataFound = true;
+              }
+              catch (Exception e)
+              {
+                _debugLogger.Error("[#{0}]: Exception while reading element {1}", e, _miNumber, element);
+              }
             }
-            catch (Exception e)
-            {
-              DebugLogger.Error("[#{0}]: Exception while reading element {1}", e, MiNumber, element);
-            }
+            else
+              _debugLogger.Warn("[#{0}]: Unknown element {1}", _miNumber, element);
           }
-          else
-            DebugLogger.Warn("[#{0}]: Unknown element {1}", MiNumber, element);
+          if (metadataFound)
+          {
+            _stubs.Add(_currentStub);
+            result = true;
+          }
         }
+        _currentStub = default(TStub);
       }
-      return metadataFound;
+      return result;
+    }
+
+    /// <summary>
+    /// Checks if the nfoDocument has a root element with the name "root" and at least one child element
+    /// </summary>
+    /// <param name="nfoDocument">Document to check</param>
+    /// <returns><c>true</c> if ´<paramref name="nfoDocument"/> represents a valid nfo-document; otherwise <c>false</c></returns>
+    /// <remarks>For the structure of <paramref name="nfoDocument"/> see the documentation of <see cref="XmlNfoReader"/></remarks>
+    private bool IsValidNfoDocument(XDocument nfoDocument)
+    {
+      if (nfoDocument.Root == null)
+      {
+        _debugLogger.Warn("[#{0}]: Cannot extract metadata; no root element found", _miNumber);
+        return false;
+      }
+      if (nfoDocument.Root.Name.ToString() != "root")
+      {
+        _debugLogger.Error("[#{0}]: Cannot extract metadata; root element name is not 'root'; potential bug in XmlNfoReader", _miNumber);
+        return false;
+      }
+      if (!nfoDocument.Root.HasElements)
+      {
+        _debugLogger.Warn("[#{0}]: Cannot extract metadata; no item-root elements found", _miNumber);
+        return false;
+      }
+      if (nfoDocument.Root.Elements().Count() > 1)
+      {
+        _debugLogger.Info("[#{0}]: {1} item root elements found in the nfo-file", _miNumber, nfoDocument.Root.Elements().Count());
+        var firstItemRootElementName = nfoDocument.Root.Elements().First().Name.ToString();
+        foreach (var element in nfoDocument.Root.Elements().Where(element => element.Name.ToString() != firstItemRootElementName))
+          _debugLogger.Warn("[#{0}]: First item root element name is {1}, but there is another item root element with the name {2}", _miNumber, firstItemRootElementName, element.Name.ToString());
+      }
+      return true;
     }
 
     #endregion
 
     #region Protected methods
+
+    /// <summary>
+    /// Writes the <see cref="_stubs"/> object including its metadata into the debug log in Json form
+    /// </summary>
+    protected void LogStubObjects()
+    {
+      _debugLogger.Debug("[#{0}]: {1}s: {2}{3}", _miNumber, _stubs.GetType().GetGenericArguments()[0].Name, Environment.NewLine, JsonConvert.SerializeObject(_stubs, Formatting.Indented, new JsonSerializerSettings { Converters = { new JsonByteArrayConverter(), new StringEnumConverter() } }));
+    }
 
     /// <summary>
     /// Tries to read a simple string from <paramref name="element"/>.Value
@@ -327,7 +399,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return null;
       if (element.HasElements)
       {
-        DebugLogger.Warn("[#{0}]: The following element was supposed to contain a simple value, but it contains child elements: {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a simple value, but it contains child elements: {1}", _miNumber, element);
         return null;
       }
       var result = element.Value.Trim();
@@ -357,7 +429,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
       catch (Exception)
       {
-        DebugLogger.Warn("[#{0}]: The following element was supposed to contain an int value, but it does not: {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain an int value, but it does not: {1}", _miNumber, element);
       }
       return result;
     }
@@ -383,7 +455,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
       catch (Exception)
       {
-        DebugLogger.Warn("[#{0}]: The following element was supposed to contain a decimal value, but it does not: {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a decimal value, but it does not: {1}", _miNumber, element);
       }
       return result;
     }
@@ -416,7 +488,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         if (year >= 1000 && year <= 9999)
           return new DateTime(year, 1, 1);
 
-      DebugLogger.Warn("[#{0}]: The following element was supposed to contain a DateTime value, but it does not: {1}", MiNumber, element);
+      // We do not log 0-values; Kodi puts 0 in the year-element of every [episodefilename].nfo
+      // resulting in lots of warnings otherwise
+      if (year != 0)
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a DateTime value, but it does not: {1}", _miNumber, element);
       return null;
     }
 
@@ -427,7 +502,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the parent directory of the nfo-file</param>
     /// <returns>
     /// <c>null</c> if
-    ///   - <see cref="ForceQuickMode"/> is <c>true</c>; or
+    ///   - <see cref="_forceQuickMode"/> is <c>true</c>; or
     ///   - a call to <see cref="ParseSimpleString"/> for <paramref name="element"/> returns <c>null</c>
     ///   - <paramref name="element"/>.Value does not contain a valid and existing (absolute) http URL to an image; or
     ///   - <paramref name="element"/>.Value does contain a valid and existing (relative) file path or <paramref name="nfoDirectoryFsra"/> is <c>null</c>;
@@ -447,7 +522,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </remarks>
     protected async Task<byte[]> ParseSimpleImageAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
-      if (ForceQuickMode)
+      if (_forceQuickMode)
         return null;
 
       var imageFileString = ParseSimpleString(element);
@@ -460,35 +535,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var imageFsra = nfoDirectoryFsra.GetResource(imageFileString);
         if (imageFsra != null)
           using (imageFsra)
-            using (var imageStream = await imageFsra.OpenReadAsync())
+            using (var imageStream = await imageFsra.OpenReadAsync().ConfigureAwait(false))
             {
               var result = new byte[imageStream.Length];
-              await imageStream.ReadAsync(result, 0, (int)imageStream.Length);
+              await imageStream.ReadAsync(result, 0, (int)imageStream.Length).ConfigureAwait(false);
               return result;
             }
       }
       else
-        DebugLogger.Error("[#{0}]: The nfo-file's parent directory's fsra could not be created", MiNumber);
+        _debugLogger.Error("[#{0}]: The nfo-file's parent directory's fsra could not be created", _miNumber);
 
       // Then check if we have a valid http URL
       Uri imageFileUri;
       if (!Uri.TryCreate(imageFileString, UriKind.Absolute, out imageFileUri) || imageFileUri.Scheme != Uri.UriSchemeHttp)
       {
-        DebugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", _miNumber, element);
         return null;
       }
 
       // Finally try to download the image from the internet
       try
       {
-        var response = await HttpDownloadClient.GetAsync(imageFileUri);
+        var response = await _httpDownloadClient.GetAsync(imageFileUri).ConfigureAwait(false);
         if (response.IsSuccessStatusCode)
-          return await response.Content.ReadAsByteArrayAsync();
-        DebugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", MiNumber, (int)response.StatusCode, response.StatusCode, element);
+          return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        _debugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", _miNumber, (int)response.StatusCode, response.StatusCode, element);
       }
       catch (Exception e)
       {
-        DebugLogger.Warn("[#{0}]: The following image file could not be downloaded: {1}", e, MiNumber, element);
+        _debugLogger.Warn("[#{0}]: The following image file could not be downloaded: {1}", e, _miNumber, element);
       }
       return null;
     }
@@ -517,7 +592,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!element.HasElements)
       {
         // Example 1:
-        var value = await ParseSimpleImageAsync(element, nfoDirectoryFsra);
+        var value = await ParseSimpleImageAsync(element, nfoDirectoryFsra).ConfigureAwait(false);
         if (value != null)
           newValues.Add(value);
       }
@@ -527,12 +602,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         foreach (var childElement in element.Elements())
           if (childElement.Name == "thumb")
           {
-            var value = await ParseSimpleImageAsync(childElement, nfoDirectoryFsra);
+            var value = await ParseSimpleImageAsync(childElement, nfoDirectoryFsra).ConfigureAwait(false);
             if (value != null)
               newValues.Add(value);
           }
           else
-            DebugLogger.Warn("[#{0}]: Unknown child element {1}", MiNumber, childElement);
+            _debugLogger.Warn("[#{0}]: Unknown child element {1}", _miNumber, childElement);
       }
 
       if (!newValues.Any())
@@ -623,7 +698,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
       catch (Exception)
       {
-        DebugLogger.Warn("[#{0}]: The attribute '{1}' in the following element was supposed to contain an int value, but it does not: {2}", MiNumber, attributeName, element);
+        _debugLogger.Warn("[#{0}]: The attribute '{1}' in the following element was supposed to contain an int value, but it does not: {2}", _miNumber, attributeName, element);
       }
       return result;
     }
@@ -660,7 +735,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return null;
       if (!element.HasElements)
       {
-        DebugLogger.Warn("[#{0}]: The following element was supposed to contain a person's data in child elements, but it doesn't contain child elements: {1}", MiNumber, element);
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a person's data in child elements, but it doesn't contain child elements: {1}", _miNumber, element);
         return null;
       }
       var value = new PersonStub();
@@ -668,7 +743,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return null;
       value.Role = ParseSimpleString(element.Element("role"));
       value.Order = ParseSimpleInt(element.Element("order"));
-      value.Thumb = await ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra);
+      //ToDo: Reenable parsing <thumb> child elements once we can store them in the MediaLibrary
+      value.Thumb = await Task.FromResult<byte[]>(null); //ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
       value.ImdbId = ParseSimpleString(element.Element("imdb"));
       value.Birthdate = ParseSimpleDateTime(element.Element("birthdate"));
       value.Birthplace = ParseSimpleString(element.Element("birthplace"));
@@ -684,16 +760,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     #region Abstract methods
 
     /// <summary>
-    /// Checks whether <see cref="nfoDocument"/>.Root.Name has a value that the derived NfoReader can understand
+    /// Checks whether <see cref="itemRootElement"/>.Name has a value that the derived NfoReader can understand
     /// </summary>
-    /// <param name="nfoDocument"><see cref="XDocument"/> to check</param>
-    /// <returns><c>true</c> if the derived NfoReader can understand the nfoDocument; otherwise <c>false</c></returns>
-    protected abstract bool CanReadNfoDocument(XDocument nfoDocument);
-
-    /// <summary>
-    /// Writes all StubObjects including their metadata into the debug log
-    /// </summary>
-    protected abstract void LogStubObjects();
+    /// <param name="itemRootElement"><see cref="XElement"/> to check</param>
+    /// <returns><c>true</c> if the derived NfoReader can understand the <paramref name="itemRootElement"/>; otherwise <c>false</c></returns>
+    protected abstract bool CanReadItemRootElementTree(XElement itemRootElement);
 
     #endregion
   }

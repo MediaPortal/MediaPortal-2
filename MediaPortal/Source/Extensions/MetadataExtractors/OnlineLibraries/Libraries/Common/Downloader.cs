@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
@@ -69,7 +71,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     /// <param name="url">Url to download</param>
     /// <returns>JSON result</returns>
-    protected string DownloadJSON(string url)
+    protected virtual string DownloadJSON(string url)
     {
       CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
       foreach (KeyValuePair<string, string> headerEntry in Headers)
@@ -96,7 +98,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       }
       catch (Exception ex)
       {
-        // TODO: logging
+        ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when downloading file {0} from {1} ({2})", downloadFile, url, ex.Message);
         return false;
       }
     }

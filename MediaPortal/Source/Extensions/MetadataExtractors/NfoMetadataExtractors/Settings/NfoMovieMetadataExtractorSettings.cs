@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -23,8 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
   /// <summary>
   /// Settings class for the <see cref="NfoMovieMetadataExtractor"/>
@@ -41,8 +42,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     public NfoMovieMetadataExtractorSettings()
     {
-      NfoFileNames = new HashSet<string> { "movie" };
+      MovieNfoFileNames = new HashSet<string> { "movie" };
     }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// These file names are used additionally to the media file name to find a respective nfo-file for movies
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public HashSet<string> MovieNfoFileNames { get; set; }
 
     #endregion
   }
