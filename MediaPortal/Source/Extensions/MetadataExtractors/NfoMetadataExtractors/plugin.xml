@@ -5,7 +5,7 @@
     Author = "MJGraf"
     Copyright="GPL"
     Description="Metadata extractors reading metadata from local nfo-files"
-    PluginVersion="0.05">
+    PluginVersion="0.06">
 
   <DependsOn>
     <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"/> <!-- OnlineLibraries -->
