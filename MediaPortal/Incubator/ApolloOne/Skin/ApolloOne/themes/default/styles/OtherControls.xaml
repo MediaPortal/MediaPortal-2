@@ -407,6 +407,19 @@
 
   <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
 
+  <!-- A data template which shows an image and the Name of the ListItem -->
+  <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32"
+          Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+          Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <DataStringProvider x:Key="ContentsMenuItemDataStringProvider" Path="[Name]"/>
+
   <DataTemplate x:Key="MainMenuItemDataTemplate">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
@@ -499,6 +512,16 @@
 
   <!-- ListView style to be used in the content area of the screens -->
   <Style x:Key="ContentsMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="PopupMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -651,6 +674,11 @@
   <ControlTemplate x:Key="PlayerControlVideoPrimary">
     <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,-5,-25,-5"
                RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
+      <Rectangle.Triggers>
+        <EventTrigger RoutedEvent="UIElement.MouseDown">
+          <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+        </EventTrigger>
+      </Rectangle.Triggers>
       <Rectangle.Fill>
         <VideoBrush Stream="0"/>
       </Rectangle.Fill>
@@ -660,6 +688,11 @@
   <ControlTemplate x:Key="PlayerControlVideoSecondary">
     <Rectangle x:Name="Video"  Width="300" Height="170" Margin="-25,-5,0,-5"
                RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
+      <Rectangle.Triggers>
+        <EventTrigger RoutedEvent="UIElement.MouseDown">
+          <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+        </EventTrigger>
+      </Rectangle.Triggers>
       <Rectangle.Fill>
         <VideoBrush Stream="1"/>
       </Rectangle.Fill>
