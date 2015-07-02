@@ -69,6 +69,7 @@
   <string name="ImporterMessages.ImportCompletedText">L\'importation de \'{0}\' est terminée</string>
   <string name="LocalFsResourceProvider.Name">système de fichiers  local</string>
   <string name="LocalFsResourceProvider.Description">Accéder aux fichiers locaux</string>
+  <string name="RemoteResourceProvider.Name">Les ressources distantes</string>
   <string name="RemoteResourceProvider.Description">Accéder aux contenus situés sur un autre système MediaPortal 2</string>
   <string name="RawUrlResourceProvider.Name">Url RAW</string>
   <string name="RawUrlResourceProvider.Description">Accéder à des sources d\'URL brute5raw)</string>
@@ -169,6 +170,7 @@
   <string name="SharesConfig.ShareResourcePathInfo">Chemin d\'accès :</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Catégories de fichiers multimédia :</string>
   <string name="SharesConfig.ReImportShare">Re-importer une source de médias</string>
+  <string name="SharesConfig.SetupDefaultShares">Définir les sources par défaut</string>
   <string name="SharesConfig.RemoveShares">Supprimer les sources de médias</string>
   <string name="SharesConfig.EditShare">Modifier une source de médias</string>
   <string name="SharesConfig.ChooseSystem">Choisir le type de réseau</string>
@@ -183,7 +185,9 @@
   <string name="SharesConfig.ChooseResourceProviderForShare">SVP choisissez un fournisseur de contenus comme source de médias</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Choisir le chemin d\'accès vers la source de médias</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Définir un chemin d\'accès valide vers le  fournisseur de contenus.  Vous pouvez définir un chemin d\'accès simple compréhensible vers le fournisseur de contenus. Vous pouvez également modifier un chemin complexe selon le format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;..</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Choisir le chemin d\'accès à la source de médias</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Choisir le chemin d\'accès vers la source de médias</string>
+  <string name="SharesConfig.EditShareName">Modifier le nom d\'affichage de la source des médias</string>
+  <string name="SharesConfig.ChooseShareCategories">Choisir la catégorie de fichiers multimédias présente dans la source de médias</string>
   <string name="SharesConfig.SharePathExists">Une souce de médias avec ce chemin existe déjà</string>
   <string name="SharesConfig.ShareNameExists">Une source de médias avec ce nom existe déjà</string>
   <string name="SharesConfig.ShareNameEmpty">Choisir un nom pour la source de médias</string>
@@ -192,10 +196,12 @@
   <string name="SharesConfig.MenuAddShare">Ajouter une source de médias</string>
   <string name="SharesConfig.MenuEditShares">Éditer</string>
   <string name="SharesConfig.MenuRemoveShares">Supprimer les sources de médias</string>
-  <string name="SharesConfig.AddServerShare">Ajouter un seveur de source de médias</string>
+  <string name="SharesConfig.AddServerShare">Ajouter un serveur de source de médias</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Afficher un serveur de source de médias</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare">Ajouter un client  de source de médias</string>
+  <string name="SharesConfig.EditLocalShare">Afficher un client de source de médias</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Mise à jour de la source de médias</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Le fournisseur de ressource et/ou le chemin d\'accès ont été mis à jour.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">La bibliothèque d\'informations sur les fichiers multimédias concernant cette source de médias peut être mise à jour (déplacée) effacée ou ré-importée.</string>

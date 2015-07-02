@@ -46,6 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">De thuisserver is momenteel niet verbonden</string>
   <string name="ServerConnection.DetachMenu">Verbreek verbinding</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Verbreek verbinding met thuisserver</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Als je de verbinding met de de thuisserver verwijdert, worden alle gegevens over de lokale gedeelde mappen en hun media-items verwijderd uit de mediabibliotheek op de thuisserver. U kunt later de verbinding weer toevoegen. Wil je echt de verbinding verwijderen met de thuisserver \'{0}\' op host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Servers zoeken</string>
   <string name="ServerConnection.DetachFromServer">Verbreek verbinding met thuisserver</string>
   <string name="ServerConnection.AttachToServerHeader">Maak verbinding met de MediaPortal 2 server</string>
@@ -68,6 +69,7 @@
   <string name="ImporterMessages.ImportCompletedText">Het importeren van \'{0}\' is klaar.</string>
   <string name="LocalFsResourceProvider.Name">Lokaal bestandssysteem</string>
   <string name="LocalFsResourceProvider.Description">Toegang tot het lokale bestandssysteem</string>
+  <string name="RemoteResourceProvider.Name">Netwerkbronnen</string>
   <string name="RemoteResourceProvider.Description">Toegang tot bronnen op een ander MediaPortal 2-systeem</string>
   <string name="RawUrlResourceProvider.Name">Ruwe Url</string>
   <string name="RawUrlResourceProvider.Description">Toegang onbewerkte Uri bronnen</string>
@@ -138,6 +140,8 @@
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Overzicht mediabronnen</string>
   <string name="SharesOverview.Title">Overzicht mediabronnen</string>
   <string name="SharesOverview.ReImportAllShares">Herimporteer alle mediabronnen</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">De thuisserver is niet verbonden, de gedeelde bronnen kunnen niet worden opgehaald</string>
+  <string name="Shares.NoSharesInThisView">- Geen mediabronnen in deze weergave -</string>
   <string name="Shares.InvalidPath">ONGELDIG PAD: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -153,13 +157,16 @@
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Selecteer pad</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Bewerk naam</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Selecteer categorieën</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Kan de mediabron niet toevoegen</string>
   <string name="SharesConfig.SharesConfiguration.Title">Mediabronnen configuratie</string>
+  <string name="SharesConfig.NoSharesAvailable">Er zijn geen mediabronnen beschikbaar</string>
   <string name="SharesConfig.ShareNameInfo">Naam:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Basis bron:</string>
   <string name="SharesConfig.ShareSystem">Systeem:</string>
   <string name="SharesConfig.SharePathInfo">Pad:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technisch pad:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Media categorieën:</string>
+  <string name="SharesConfig.ReImportShare">Herimporteer mediabron</string>
   <string name="SharesConfig.RemoveShares">Verwijder mediabronnen</string>
   <string name="SharesConfig.ChooseSystem">Selecteer systeem</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Geef een geldig pad voor de geselecteerde bron. Je kunt een eenvoudig pad opgeven dat begrijpelijk is voor de bron. Je kunt ook een complex pad opgeven met de volgende notatie {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>

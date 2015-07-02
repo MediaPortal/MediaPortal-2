@@ -29,7 +29,7 @@
   <string name="Playback.NotSpecified">Ej specifierat</string>
   <string name="Playback.CaptionNormal">Normal text</string>
   <string name="Playback.CaptionBig">Stor text</string>
-  <string name="Playback.CaptionChildren">Liten Text</string>
+  <string name="Playback.CaptionChildren">Text för barn</string>
   <string name="Playback.CCNormal">Normal text</string>
   <string name="Playback.CCBig">Stor text</string>
   <string name="Playback.CCChildren">Text för barn</string>

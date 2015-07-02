@@ -3,6 +3,7 @@
   <string name="SlimTvClient.Title">Tanek TV klient</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV Vodič</string>
+  <string name="SlimTvClient.SingleChannelGuide">Vodič po kanalih</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informacije o programih</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Oddaja</string>
@@ -17,11 +18,39 @@
   <string name="SlimTvClient.ChooseChannelGroup">Izberi skupino kanalov</string>
   <string name="SlimTvClient.ProgramOver">Oddaja je že končana</string>
   <string name="SlimTvClient.WatchNow">Glej oddajo</string>
+  <string name="SlimTvClient.WatchFromBeginning">Poglej posneto od začetka</string>
   <string name="SlimTvClient.RecordNow">Posnemi</string>
   <string name="SlimTvClient.DeleteSchedule">Prekliči snemanje</string>
   <string name="SlimTvClient.CreateSchedule">Razporedi snemanje</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Dejanja snemanja</string>
+  <string name="SlimTvClient.StopCurrentRecording">Ustavi trenutno snemanje \'{0}\'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Posnemi program \'{0}\'</string>
+  <string name="SlimTvClient.RecordManual">Snemaj, dokler ni ročno ustavljeno</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Ročno snemanje</string>
+  <string name="SlimTvClient.RecordProgram">Posnemi program</string>
+  <string name="SlimTvClient.DontRecordProgram">Ne posnemi</string>
+  <string name="SlimTvClient.RecordSeries">Posnemi serijo</string>
+  <string name="SlimTvClient.ChooseScheduleType">Izberi tip urnika snemanja</string>
+  <string name="SlimTvClient.DeleteScheduleType">Kako izbrisati urnik?</string>
+  <string name="SlimTvClient.DeleteSingle">Izbriši en program</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Izbriši celoten urnik serije</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Izbriši urnik enega programa</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Enkrat</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Dnevno</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Tedensko</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Vsakič na tem kanalu</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Vsakič na vsakem kanalu</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Vikendi</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Delovni dnevi</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Tedensko vsakič na tem kanalu</string>
   <!--Schedule management-->
+  <string name="SlimTvClient.ScheduleDetails">Podrobnosti urnika</string>
+  <string name="SlimTvClient.ScheduleName">Ime urnika</string>
+  <string name="SlimTvClient.ScheduleType">Tip urnika</string>
+  <string name="SlimTvClient.Schedules">Urniki</string>
+  <string name="SlimTvClient.ExtendedSchedule">Podrobni utnik</string>
+  <string name="SlimTvClient.ScheduleManagement">Uredi urnike</string>
   <string name="SlimTvClient.ErrorNoTvProvider">(Trenutno) ni ponudnika TV</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Število vrstic v EPG</string>

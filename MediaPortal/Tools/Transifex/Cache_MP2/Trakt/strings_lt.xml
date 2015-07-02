@@ -8,6 +8,7 @@
   <string name="Trakt.SyncMovies">Sinchronizuoti filmus...</string>
   <string name="Trakt.SyncSeries">Sinchronizuoti serijas...</string>
   <string name="Trakt.SyncFinished">Sinchronizacija baigta!</string>
+  <string name="Trakt.MediaLibraryNotConnected">Serveris dabar neprijungtas, negalima sinchronizuoti!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Nustatyti Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Konfigūruoti Trakt.tv paslaugos abonento detales</string>

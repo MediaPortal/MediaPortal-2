@@ -46,6 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Domači strežnik je trenutno nepovezan</string>
   <string name="ServerConnection.DetachMenu">Izključi</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Izključi se od strežnika</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Če se odklopiš od strežnika, se bodo vsi podatki o virih, ki jih streže ta strežnik, odstranili iz knjižnjice. Seveda se kasneje spet lahko povežeš. Ali se res želiš odklopiti od strežnika \'{0}\' na \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Išči strežnike</string>
   <string name="ServerConnection.DetachFromServer">Izključi se od strežnika</string>
   <string name="ServerConnection.AttachToServerHeader">Priključi se na MediaPortal 2 strežnik</string>
@@ -70,6 +71,7 @@
   <string name="LocalFsResourceProvider.Description">Dostopaj do lokalnih datotek</string>
   <string name="RemoteResourceProvider.Name">Oddaljeni izvori</string>
   <string name="RemoteResourceProvider.Description">Dostopaj do virov na drugem MediaPortal računalniku</string>
+  <string name="RawUrlResourceProvider.Name">Naslov</string>
   <string name="RawUrlResourceProvider.Description">Uporabi surove URI vire</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -124,12 +126,23 @@
   <string name="Settings.Regional.Language.Main.Help">Nastavi glavni jezik za aplikacijo</string>
   <string name="Settings.Shares">Izvori medijev</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Nastavi izvore medijev</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Nastavljanje izvorov medijev</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Nastavi vse izvore medijev</string>
   <string name="Settings.Shares.Overview">Pregled</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Pregled izvorov medijev</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Globalni pregled izvorov medijev</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Ponovno uvozi vse izvore medijev</string>
   <string name="Settings.Plugins">Dodatki</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Pregled izvorov medijev</string>
+  <string name="SharesOverview.Title">Pregled izvorov medijev</string>
+  <string name="SharesOverview.ReImportAllShares">Ponovno uvozi vse izvore medijev</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">Srežnik ni povezan, ne morem dobiti podatkov o izvorih medijev</string>
+  <string name="Shares.NoSharesInThisView">- v tem pogledu ni nobenega izvora medijev -</string>
   <string name="Shares.InvalidPath">Napačna pot: \"{0}\"</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Priključen</string>
@@ -137,12 +150,18 @@
   <string name="Shares.ReImport">Ponovno uvozi</string>
   <string name="Shares.Importing">Uvažam...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Nastavljanje izvorov medijev</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Odstrani izvore medija</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informacije o izvorih medijev</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Izberi ponudnika virov</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Uredi pot</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Izberi pot</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Uredi ime</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Izberi kategorije</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Ne morem dodati izvorov medijev</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Strežnik je na istem računalniku, zato morajo biti vse delitve nastavljene na strežniku. Vendar pa strežnik trenutno ni povezan. Zaženi strežnik in poskusi znova.</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Nastavljanje izvorov medijev</string>
+  <string name="SharesConfig.NoSharesAvailable">Trenutno ni na voljo nobene delitve virov</string>
   <string name="SharesConfig.ShareInformationHeader">Informacije izvorov medija</string>
   <string name="SharesConfig.ShareNameInfo">Ime:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Osnovni ponudnik vira:</string>
@@ -150,24 +169,50 @@
   <string name="SharesConfig.SharePathInfo">Pot:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Tehnična pot:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Kategorije medija:</string>
+  <string name="SharesConfig.ReImportShare">Ponovno uvozi izvor medijev</string>
   <string name="SharesConfig.SetupDefaultShares">Nastavi privzete izvore</string>
   <string name="SharesConfig.RemoveShares">Odstrani izvor medija</string>
   <string name="SharesConfig.EditShare">Uredi izvor medija</string>
   <string name="SharesConfig.ChooseSystem">Izberi sistem</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Izberi delitev za izbris</string>
   <string name="SharesConfig.ChooseSystemForShare">Izberi izvor medija</string>
+  <string name="SharesConfig.LocalShare">Vir medijev na klientu</string>
+  <string name="SharesConfig.LocalShares">Viri medijev na klientu</string>
+  <string name="SharesConfig.GlobalShare">Vir medijev na strežniku</string>
+  <string name="SharesConfig.GlobalShares">Viri medijev na strežniku</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Strežnik trenutno ni povezan, zato strežnikovih virov medijev ne moreš urejati.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Strežnik je na istem računalniku, zato lahko urejaš le njegove vire medijev.</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Izberi ponudnika virov za vire medijev</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Uredi pot do vira medijev</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Uredi pot za izbranega ponudnika vsebin. Urediš lahko preprosto pot, ki jo ponudnik razume ali pa zapleteno pot v formatu {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Izberi pot do vira medijev</string>
+  <string name="SharesConfig.EditShareName">Uredi prikazano ime vira medijev</string>
+  <string name="SharesConfig.ChooseShareCategories">Izberi kategorije medijskih vsebin na viru medijev</string>
+  <string name="SharesConfig.SharePathExists">Vir medijev s to potjo že obstaja</string>
+  <string name="SharesConfig.ShareNameExists">Vir medijev s tem imenom že obstaja</string>
+  <string name="SharesConfig.ShareNameEmpty">Uredi ime vira medijev</string>
+  <string name="SharesConfig.EditShareProblemHeader">Težava pri nastavljanju vira medijev</string>
+  <string name="SharesConfig.EditShareProblemText">Prišlo je do interne napake pri nastavljanju vira medijev</string>
   <string name="SharesConfig.MenuAddShare">Dodaj izvor medija</string>
   <string name="SharesConfig.MenuEditShares">Uredi</string>
   <string name="SharesConfig.MenuRemoveShares">Odstrani izvore medijev</string>
+  <string name="SharesConfig.AddServerShare">Dodaj strežnikov vir medijev</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Urejaj strežnikov vir medijev</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Dodaj klientov vir medijev</string>
+  <string name="SharesConfig.EditLocalShare">Urejaj klientov vir medijev</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Posodobi izvor medija</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Ponudnik vsebin in/ali njegova pot sta bila popravljena za ta vir medijev</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Podatki o medijih vira medijev se za to knjižnjico lahko posodobijo (preselijo), zbrišejo ali ponovno uvozijo.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Želiš premestiti ali izbrisati in ponovno uvoziti?</string>
   <string name="SharesConfig.Relocate">Premesti</string>
   <string name="SharesConfig.ReImport">Ponovno uvozi</string>
+  <string name="SharesConfig.ManualPathInput">Ročni vnos</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 odjemalec</string>
   <string name="UPnPFrontendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 klient - MediaPortal GUI. Predvaja medijske vsebine, streže klientove medijske vsebine in izvaja uporabniški vmesnik</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 odjemalec</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

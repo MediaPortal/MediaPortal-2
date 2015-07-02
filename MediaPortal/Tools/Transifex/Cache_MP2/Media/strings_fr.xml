@@ -189,6 +189,7 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Par défaut</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Maintenir la fonction Picture in Picture</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.MediaItemsActionDialogHeader">Opérations sur les support</string>
   <string name="Media.SetWatched">Ensemble visionné</string>
   <string name="Media.SetUnwatched">Ensemble non visionné</string>
   <string name="Media.DeleteFromStorage">Supprimer du stockage</string>
