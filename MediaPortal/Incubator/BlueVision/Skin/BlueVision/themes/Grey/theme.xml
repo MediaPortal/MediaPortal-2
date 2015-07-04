@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="Grey" Version="1.0">
+  <ShortDescription>Blue Vision² Grey Theme</ShortDescription>
+  <Preview>images\preview.jpg</Preview>
+  <Author>Lehmden,Ge2301,Morpheus_xx</Author>
+  <ThemeVersion>1.0</ThemeVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <MinColorDepth>16</MinColorDepth>
+</Theme>
