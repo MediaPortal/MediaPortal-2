@@ -20,6 +20,13 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
+  
+    <Storyboard x:Key="FocusedButtonStoryboard_Tile" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.9"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
 
   <Storyboard x:Key="FocusedButtonStoryboard_Media" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
@@ -74,9 +81,21 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource GroupMenuZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
+  
+  <Storyboard x:Key="FocusedTabStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.15"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
 
   <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+  </Storyboard>
+  
+  <Storyboard x:Key="FocusedButtonWideStoryboard_Tile" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Tile"/>
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
   </Storyboard>
 
@@ -225,7 +244,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Tile}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -664,7 +683,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Tile}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -969,7 +988,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,0,2,0">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,1" Margin="0,0,2,0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -978,28 +997,33 @@
             </Grid.RowDefinitions>
             <Control Style="{ThemeResource TabButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <!--Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/-->
-              <Setter Property="Foreground" Value="White"/>
+              <!--Setter Property="Foreground" Value="White"/-->
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/-->
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedTabStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/>
               <!--Setter Property="Foreground" Value="White"/-->
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"/>
+                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"/-->
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
