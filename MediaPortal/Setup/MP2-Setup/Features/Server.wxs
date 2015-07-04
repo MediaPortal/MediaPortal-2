@@ -7,6 +7,9 @@
 
     <?include ..\Includes.wxi ?>
 
+    <!-- Icon -->
+    <Icon Id="Server" SourceFile="$(var.MediaPortal.Server.TargetPath)" />
+
     <!-- Directory definition -->
     <DirectoryRef Id="TeamMediaPortal.Folder">
       <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
@@ -38,7 +41,7 @@
 
     <!-- Directory content -->
     <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.MediaPortal.Server.TargetDir)">
-      
+
       <Component Id="Server.Registry.InstallDir" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
         <RegistryKey Root="HKLM"
                      Key="Software\[Manufacturer]\[ProductName]">
@@ -71,6 +74,49 @@
         <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
       </Component>
 
+      <!--<Component Id="SetupTV.exe" Guid="F9DC6B22-A800-4F0C-B442-CC5D6A6D5B92">
+        <File Id="SetupTV.exe" Name="SetupTV.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>-->
+
+    </DirectoryRef>
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="SetupTV.StartMenu.Shortcut" Guid="08D3FF8F-A2AE-4AAA-8598-981F1E26F299">
+        <Shortcut Id="SetupTV.StartMenu.Shortcut"
+                  Name="MediaPortal 2 SetupTV"
+                  Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
+                  Icon="Server"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="SetupTV.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="SetupTV.Desktop.Shortcut" Guid="958D7666-FDE2-43EF-BE84-4D19F7BAEA32">
+        <Shortcut Id="SetupTV.Desktop.Shortcut"
+                  Name="MediaPortal 2 SetupTV"
+                  Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
+                  Icon="Server"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="SetupTV.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
     </DirectoryRef>
 
     <!-- Feature -->
@@ -88,6 +134,9 @@
 
       <ComponentRef Id="Server.exe" />
       <ComponentRef Id="Server.Registry.InstallDir" />
+
+      <ComponentRef Id="SetupTV.StartMenu.Shortcut" />
+      <ComponentRef Id="SetupTV.Desktop.Shortcut" />
 
       <ComponentGroupRef Id="Server.Heat"/>
     </Feature>
