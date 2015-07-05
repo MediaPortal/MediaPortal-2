@@ -280,7 +280,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       if (_menuSettings.Settings.DisableAutoSelection)
         return;
-      var item = e.FirstAddedItem as ListItem;
+      var item = e.FirstAddedItem as GroupMenuListItem;
       if (item != null)
         SetGroup((string)item.AdditionalProperties["Id"]);
     }
@@ -343,6 +343,8 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void SetGroup(string groupId)
     {
+      if (_menuSettings.Settings.DefaultMenuGroupId == groupId)
+        return;
       _menuSettings.Settings.DefaultMenuGroupId = groupId;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
       try
@@ -397,7 +399,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       lock (_mainMenuGroupList.SyncRoot)
         foreach (GroupMenuListItem listItem in _mainMenuGroupList)
         {
-          listItem.IsActive = (string)listItem.AdditionalProperties["Id"] == _menuSettings.Settings.DefaultMenuGroupId;
+          listItem.Selected = listItem.IsActive = (string)listItem.AdditionalProperties["Id"] == _menuSettings.Settings.DefaultMenuGroupId;
           // if the group is selected, it is the LastSelectedItem now.
           if (listItem.IsActive)
           {
