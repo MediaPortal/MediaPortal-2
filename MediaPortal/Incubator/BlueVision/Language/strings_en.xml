@@ -11,14 +11,14 @@
   <string name="Menu.Home">Home</string>
   <string name="Menu.Main">Main Menu</string>
 
-  <string name="Movies.Title">movies</string>
-  <string name="Series.Title">series</string>
-  <string name="Audio.Title">audio</string>
-  <string name="Recordings.Title">recordings</string>
-  <string name="Images.Title">images</string>
-  <string name="Videos.Title">videos</string>
-  <string name="News.Title">news</string>
-  <string name="Weather.Title">weather</string>
+  <string name="Movies.Title">Movies</string>
+  <string name="Series.Title">Series</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Recordings</string>
+  <string name="Images.Title">Images</string>
+  <string name="Videos.Title">Videos</string>
+  <string name="News.Title">News</string>
+  <string name="Weather.Title">Weather</string>
 
   <string name="Media.AudioAlbumArtistsLabel">Album Artists:</string>
   <string name="Media.AudioTrackLabel">Track:</string>
