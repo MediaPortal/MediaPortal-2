@@ -133,7 +133,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Grid.ColumnSpan="2" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Grid.ColumnSpan="2" Content="weather" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Row="0" Grid.ColumnSpan="2" Content="[Weather.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <Image  Grid.Row="1" Grid.Column="0" x:Name="WeatherBigIcon" Stretch="Uniform" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}"
              IsVisible="{Binding UseInHome}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,5,5,5"/>
 
@@ -168,7 +168,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
-            <Label Grid.Row="0" Content="news" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Row="0" Content="[News.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <Grid Grid.Column="0" Grid.Row="1" Margin="30,0,10,0" DataContext="{Binding Source={StaticResource CurrentNewsModel}}" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
