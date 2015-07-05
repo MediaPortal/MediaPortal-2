@@ -658,6 +658,32 @@
     </Trigger-->
   </Style>
 
+  <!-- ListView style for MediaInfos in Currently Playing screen-->
+  <DataTemplate x:Key="AudioLanguageItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <WrapPanel Orientation="Horizontal" x:Name="ItemControl" >
+      <Image Stretch="Uniform" Height="80">
+        <Image.Source>
+          <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+        </Image.Source>
+      </Image>        
+    </WrapPanel>
+  </DataTemplate>
+
+  <Style x:Key="AudioLanguageListViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource DefaultListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource AudioLanguageItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value=""/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">

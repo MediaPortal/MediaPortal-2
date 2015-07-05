@@ -17,8 +17,13 @@
   <string name="Recordings.Title">Aufnahmen</string>
   <string name="Images.Title">Bilder</string>
   <string name="Videos.Title">Videos</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Untertitel</string>
   <string name="News.Title">Nachrichten</string>
   <string name="Weather.Title">Wetter</string>
+  <string name="General.Title">Allgemein</string>
+  <string name="CastCrew.Title">Stab + Besetzung</string>
+  <string name="MediaInfo.Title">Medien Info</string>
 
   <string name="Media.AudioAlbumArtistsLabel">Album Künstler:</string>
   <string name="Media.AudioTrackLabel">Stück:</string>

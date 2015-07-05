@@ -24,11 +24,11 @@
               <ColumnDefinition Width="420"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-              <RadioButton x:Name="General" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True"  />
-              <RadioButton x:Name="CastCrew" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center" 
+              <RadioButton x:Name="General" Content="[General.Title]" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True"/>
+              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
-              <RadioButton x:Name="MediaInfo" Content="MediaInfo" HorizontalAlignment="Center" VerticalAlignment="Center" 
+              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
               <Control>
                 <Control.IsVisible>
@@ -83,7 +83,7 @@
               </Control.TemplateControl>
             </Control>
 
-            <Control x:Name="CP_MovieMediaInfo" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=CastCrew, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+            <Control x:Name="CP_MovieMediaInfo" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=MediaInfo, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
               <!-->Control.IsVisible>
                 <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                   <Binding Path="MediaItem"  />
