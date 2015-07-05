@@ -83,20 +83,26 @@
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
     <Content Include="Skin\BlueVision\fonts\default-font.xml" />
+    <Content Include="Skin\BlueVision\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
+    <Content Include="Skin\BlueVision\images\09EAE702-D9EC-4325-82D9-4843502C966B.jpg" />
     <Content Include="Skin\BlueVision\images\1190A648-90F3-413D-88AC-DA89684E9766.png" />
     <Content Include="Skin\BlueVision\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\BlueVision\images\2DED75C0-5EAE-4E69-9913-6B50A9AB2956.jpg" />
     <Content Include="Skin\BlueVision\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\BlueVision\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
     <Content Include="Skin\BlueVision\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\BlueVision\images\7D68C459-EE9B-4EAA-AE2C-C2C365139AEE.jpg" />
     <Content Include="Skin\BlueVision\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
     <Content Include="Skin\BlueVision\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
     <Content Include="Skin\BlueVision\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
+    <Content Include="Skin\BlueVision\images\873EB147-C998-4632-8F86-D5E24062BE2E.jpg" />
     <Content Include="Skin\BlueVision\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
     <Content Include="Skin\BlueVision\images\9AD4076C-8F1F-4353-AF60-4F6C4238DCB7.png" />
     <Content Include="Skin\BlueVision\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
     <Content Include="Skin\BlueVision\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
     <Content Include="Skin\BlueVision\images\Audio_square.png" />
     <Content Include="Skin\BlueVision\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\BlueVision\images\B78F4A38-D719-4FE3-BE56-D24F8C568400.jpg" />
     <Content Include="Skin\BlueVision\images\Background.jpg" />
     <Content Include="Skin\BlueVision\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
     <Content Include="Skin\BlueVision\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
@@ -200,8 +206,18 @@
     <Content Include="Skin\BlueVision\screens\MultiDetails.inc" />
     <Content Include="Skin\BlueVision\skin.xml" />
     <Content Include="Skin\BlueVision\themes\default\images\preview.jpg" />
+    <Content Include="Skin\BlueVision\themes\default\images\SplashScreen.jpg" />
     <Content Include="Skin\BlueVision\themes\default\theme.xml" />
     <Content Include="Skin\BlueVision\themes\default\workflow\BlueVision-actions.xml" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\7D68C459-EE9B-4EAA-AE2C-C2C365139AEE_landscape.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\Background.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\preview.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\BlueVision\sounds\" />
