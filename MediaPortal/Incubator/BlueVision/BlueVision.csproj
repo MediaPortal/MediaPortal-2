@@ -195,6 +195,9 @@
     <Content Include="Skin\BlueVision\images\VideoNormal.png" />
     <Content Include="Skin\BlueVision\images\VideoWide.png" />
     <Content Include="Skin\BlueVision\images\watched_icon.png" />
+    <Content Include="Skin\BlueVision\screens\CP_MediaInfo.inc" />
+    <Content Include="Skin\BlueVision\screens\CP_MovieCastCrew.inc" />
+    <Content Include="Skin\BlueVision\screens\CP_MovieGeneral.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemMovieDetails.inc" />
@@ -489,6 +492,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\dialogBlueVisionConfiguration.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\CurrentlyPlayingVideo.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
