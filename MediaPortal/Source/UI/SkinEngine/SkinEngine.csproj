@@ -317,6 +317,7 @@
     <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
+    <Compile Include="MpfElements\Converters\SafeFilenameConverter.cs" />
     <Compile Include="MpfElements\Converters\StringFormatConverter.cs" />
     <Compile Include="MpfElements\EventManager.cs" />
     <Compile Include="MpfElements\GlobalEventManager.cs" />
