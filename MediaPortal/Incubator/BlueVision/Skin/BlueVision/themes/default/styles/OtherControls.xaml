@@ -687,19 +687,32 @@
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}">
-      <Grid.Width>
+    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" 
+          Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
+      <!--Grid.Width>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
           <Binding ElementName="ItemTypeImage" Path="HasImage"/>
           <Binding Source="{StaticResource MEDIA_POSTER_WIDTH}" />
           <Binding Source="0"/>
         </MultiBinding>
-      </Grid.Width>
-      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
-      <Image x:Name="ItemTypeImage" Source="{Binding MediaItem}"
-             Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
-             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      </Image>
+      </Grid.Width-->
+
+      <!-- SHADOW -->
+      <Control Style="{ThemeResource Shadow_3_18}" />
+      <!-- SHADOW -->
+
+      <Grid>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+                Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
+        </Image>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
