@@ -623,7 +623,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              IsEnabled="{Binding Enabled}">
           </Button>
         </ControlTemplate>
       </Setter.Value>
