@@ -72,6 +72,7 @@
     <Compile Include="Network\Netbios\NbNsStatistics.cs" />
     <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
     <Compile Include="Process\ProcessExecutionResult.cs" />
+    <Compile Include="Screens\FormExtensions.cs" />
     <Compile Include="Security\SafeProcessHandle.cs" />
     <Compile Include="Security\SafeThreadHandle.cs" />
     <Compile Include="Security\SafeTokenHandle.cs" />
