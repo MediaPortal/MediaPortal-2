@@ -9,6 +9,7 @@
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
     <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
@@ -70,10 +71,10 @@
                 <Binding Path="VideoBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps" />
               </Label.Content>
             </Label>
-       
+
             <Image Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Width="300" >
               <Image.Source>
-                <Binding Path="VideoEncoding" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\video\{0}.png"/>
+                <Binding Path="VideoEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\video\{0}.png"/>
               </Image.Source>
             </Image>
 
@@ -89,11 +90,9 @@
                       HorizontalAlignment="Center" VerticalAlignment="Stretch"
                       Style="{ThemeResource AudioLanguageListViewStyle}" Margin="10,5,10,5" />
 
-            <Image Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Width="300" Margin="10,5,10,5" >
-              <Image.Source>
-                <Binding Path="AudioEncoding" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
-              </Image.Source>
-            </Image>
+            <ListView Grid.Row="1" Grid.RowSpan="5" Grid.Column="3" x:Name="AudioEncodingList" ItemsSource="{Binding Path=AudioEncoding, Converter={StaticResource StringSplitConverter}}"
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                      Style="{ThemeResource AudioEncodingListViewStyle}" Margin="10,5,10,5" />
 
             <Label Grid.Row="1" Grid.Column="4" Margin="10,5,10,5" Content="{Binding AudioBitRate}" Color="{ThemeResource TextColor}"
                    HorizontalAlignment="Center" VerticalAlignment="Center">
