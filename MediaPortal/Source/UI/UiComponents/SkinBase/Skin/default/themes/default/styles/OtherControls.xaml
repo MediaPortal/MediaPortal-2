@@ -25,6 +25,7 @@
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
   <SafeFilenameConverter x:Key="SafeFilenameConverter"/>
+  <StringSplitConverter x:Key="StringSplitConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
