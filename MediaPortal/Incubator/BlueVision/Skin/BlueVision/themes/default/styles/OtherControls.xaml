@@ -538,7 +538,7 @@
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
-  
+
   <!-- ListView style to be used in the content area of the screens -->
   <Style x:Key="ContentsMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
@@ -665,7 +665,17 @@
         <Image.Source>
           <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
         </Image.Source>
-      </Image>        
+      </Image>
+    </WrapPanel>
+  </DataTemplate>
+  
+  <DataTemplate x:Key="AudioEncodingItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <WrapPanel Orientation="Horizontal" x:Name="ItemControl" >
+      <Image Stretch="Uniform" Height="80">
+        <Image.Source>
+          <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+        </Image.Source>
+      </Image>
     </WrapPanel>
   </DataTemplate>
 
@@ -683,7 +693,22 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
+  <Style x:Key="AudioEncodingListViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource DefaultListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource AudioEncodingItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value=""/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">
