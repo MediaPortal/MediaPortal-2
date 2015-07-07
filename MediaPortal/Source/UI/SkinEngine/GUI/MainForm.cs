@@ -45,6 +45,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.Screens;
 using MediaPortal.Utilities.SystemAPI;
 using SharpDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
@@ -318,7 +319,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       TopMost = IsFullScreen && (force || this == ActiveForm);
       if (force)
       {
-        SafeActivate();
+        this.SafeActivate();
         BringToFront();
       }
 #endif
@@ -409,7 +410,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Start()
     {
-      SafeActivate();
+      this.SafeActivate();
       CheckTopMost(true);
       StartUI();
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Running");
@@ -495,7 +496,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       SkinContext.WindowSize = ClientSize;
 
       Update();
-      SafeActivate();
+      this.SafeActivate();
       CheckTopMost();
 
       StartUI();
@@ -839,7 +840,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // Restore if minimized
         Restore();
         // Set active window
-        SafeActivate();
+        this.SafeActivate();
         CheckTopMost();
         return;
       }
@@ -917,24 +918,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // Send windows message through the system if any component needs to access windows messages
       WindowsMessaging.BroadcastWindowsMessage(ref m);
       base.WndProc(ref m);
-    }
-
-    /// <summary>
-    /// Helper method to activate the form. Usually <see cref="Form.Activate"/> does all we need, but on some systems the MP2-Client's window
-    /// is not being activated. In this case we need to call native methods to force it.
-    /// </summary>
-    private void SafeActivate()
-    {
-      if (this == ActiveForm)
-        return;
-      Activate();
-      if (this != ActiveForm)
-      {
-        ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: SafeActivate: Current form is not active one? Try to activate again...");
-        // Make Mediaportal window focused
-        if (NativeMethods.SetForegroundWindow(Handle, true))
-          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Successfully switched focus.");
-      }
     }
 
     protected override void OnResizeEnd(EventArgs e)

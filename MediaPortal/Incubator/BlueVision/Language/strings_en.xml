@@ -17,8 +17,13 @@
   <string name="Recordings.Title">Recordings</string>
   <string name="Images.Title">Images</string>
   <string name="Videos.Title">Videos</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Subtitle</string>
   <string name="News.Title">News</string>
   <string name="Weather.Title">Weather</string>
+  <string name="General.Title">General</string>
+  <string name="CastCrew.Title">Cast + Crew</string>
+  <string name="MediaInfo.Title">Media Info</string>
 
   <string name="Media.AudioAlbumArtistsLabel">Album Artists:</string>
   <string name="Media.AudioTrackLabel">Track:</string>

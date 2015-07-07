@@ -538,7 +538,7 @@
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
-  
+
   <!-- ListView style to be used in the content area of the screens -->
   <Style x:Key="ContentsMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
@@ -623,7 +623,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              IsEnabled="{Binding Enabled}">
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -658,22 +658,86 @@
     </Trigger-->
   </Style>
 
+  <!-- ListView style for MediaInfos in Currently Playing screen-->
+  <DataTemplate x:Key="AudioLanguageItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <WrapPanel Orientation="Horizontal" x:Name="ItemControl" >
+      <Image Stretch="Uniform" Height="80">
+        <Image.Source>
+          <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+        </Image.Source>
+      </Image>
+    </WrapPanel>
+  </DataTemplate>
+  
+  <DataTemplate x:Key="AudioEncodingItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <WrapPanel Orientation="Horizontal" x:Name="ItemControl" >
+      <Image Stretch="Uniform" Height="80">
+        <Image.Source>
+          <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+        </Image.Source>
+      </Image>
+    </WrapPanel>
+  </DataTemplate>
+
+  <Style x:Key="AudioLanguageListViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource DefaultListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource AudioLanguageItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value=""/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AudioEncodingListViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource DefaultListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource AudioEncodingItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value=""/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}">
-      <Grid.Width>
+    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" 
+          Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
+      <!--Grid.Width>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
           <Binding ElementName="ItemTypeImage" Path="HasImage"/>
           <Binding Source="{StaticResource MEDIA_POSTER_WIDTH}" />
           <Binding Source="0"/>
         </MultiBinding>
-      </Grid.Width>
-      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
-      <Image x:Name="ItemTypeImage" Source="{Binding MediaItem}"
-             Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
-             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      </Image>
+      </Grid.Width-->
+
+      <!-- SHADOW -->
+      <Control Style="{ThemeResource Shadow_3_18}" />
+      <!-- SHADOW -->
+
+      <Grid>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+                Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
+        </Image>
+      </Grid>
     </Grid>
   </ControlTemplate>
 

@@ -9,16 +9,21 @@
   <string name="Menu.Settings">Einstellungen</string>
   <string name="Menu.Others">Sonstiges</string>
   <string name="Menu.Home">Informationen</string>
-  <string name="Menu.Main">Haupt Menü</string>
+  <string name="Menu.Main">Hauptmenü</string>
 
   <string name="Movies.Title">Spielfilme</string>
   <string name="Series.Title">Serien</string>
-  <string name="Audio.Title">Musik</string>
+  <string name="Audio.Title">Audio</string>
   <string name="Recordings.Title">Aufnahmen</string>
   <string name="Images.Title">Bilder</string>
   <string name="Videos.Title">Videos</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Untertitel</string>
   <string name="News.Title">Nachrichten</string>
   <string name="Weather.Title">Wetter</string>
+  <string name="General.Title">Allgemein</string>
+  <string name="CastCrew.Title">Stab + Besetzung</string>
+  <string name="MediaInfo.Title">Medien Info</string>
 
   <string name="Media.AudioAlbumArtistsLabel">Album Künstler:</string>
   <string name="Media.AudioTrackLabel">Stück:</string>
@@ -29,8 +34,8 @@
   <string name="BlueVision.Configuration">BlueVision Konfiguration</string>
   <string name="BlueVision.Configuration.Help">Ermöglicht die Personalisierung des BlueVision Skins</string>
 
-  <string name="BlueVision.DisableHomeTab">Deaktiviere "Informationen" Menüpunkt</string>
-  <string name="BlueVision.DisableAutoSelection">Deaktiviere die automatische Menüpunkt Auswahl</string>
+  <string name="BlueVision.DisableHomeTab">Deaktiviere Menüpunkt "Informationen"</string>
+  <string name="BlueVision.DisableAutoSelection">Deaktiviere automatische Menüpunkt-Auswahl</string>
   <string name="BlueVision.UseAlternativeSplashscreen">Verwende BlueVision Splashscreen</string>
 
 </resources>
