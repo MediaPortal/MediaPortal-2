@@ -567,7 +567,9 @@
     <Content Include="Skin\BlueVision\themes\default\images\SplashScreen.jpg" />
     <Content Include="Skin\BlueVision\themes\default\theme.xml" />
     <Content Include="Skin\BlueVision\themes\default\workflow\BlueVision-actions.xml" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\BlueVision\themes\Grey\images\2DED75C0-5EAE-4E69-9913-6B50A9AB2956.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\images\7D68C459-EE9B-4EAA-AE2C-C2C365139AEE_landscape.jpg" />
@@ -852,6 +854,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\CurrentlyPlayingVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Grey\styles\Colors.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
