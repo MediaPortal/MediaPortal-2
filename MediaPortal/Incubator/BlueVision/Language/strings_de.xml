@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Menu.Audio">Musik</string>
+  <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Bilder</string>
   <string name="Menu.MediaHub">Videos</string>
   <string name="Menu.TV">Fernsehen</string>
