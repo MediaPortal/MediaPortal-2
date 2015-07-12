@@ -471,7 +471,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
-      _debugLogger.Info("NfoSeriesMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
+      _debugLogger.Info("NfoSeriesMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].PluginVersion);
       _debugLogger.Info("Setttings:");
       _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
       _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawNfoFileIntoDebugLog);
