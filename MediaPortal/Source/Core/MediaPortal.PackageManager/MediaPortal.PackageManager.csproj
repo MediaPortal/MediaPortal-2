@@ -93,7 +93,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MediaPortal.PackageCore\MediaPortal.PackageCore.csproj">
+    <ProjectReference Include="..\MediaPortal.PackageCore\MediaPortal.PackageCore.csproj">
       <Project>{4a14f525-b1db-4a58-a3d6-708d34099e8e}</Project>
       <Name>MediaPortal.PackageCore</Name>
     </ProjectReference>
