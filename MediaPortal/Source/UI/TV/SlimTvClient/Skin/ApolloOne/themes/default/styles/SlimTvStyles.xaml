@@ -7,7 +7,7 @@
     xmlns:navitems="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.Navigation;assembly=SlimTv.Client"
     xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls,MediaStyles,OSD"
+    DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,MediaStyles,OSD"
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
