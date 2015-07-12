@@ -527,6 +527,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
+            <Rectangle RadiusY="17" RadiusX="17" Stroke="Gray" Opacity="1" StrokeThickness="1.5" IsVisible="{Binding Path=Selected}" Margin="-2" />
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource PopupMenuButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
