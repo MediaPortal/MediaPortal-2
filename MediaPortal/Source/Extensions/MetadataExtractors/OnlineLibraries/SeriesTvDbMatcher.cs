@@ -362,7 +362,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (threadPool != null)
       {
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Refreshing local cache");
-        threadPool.Add(() => _tv.UpdateCache());
+        threadPool.Add(() =>
+        {
+          if (Init())
+            _tv.UpdateCache();
+        });
       }
     }
 
