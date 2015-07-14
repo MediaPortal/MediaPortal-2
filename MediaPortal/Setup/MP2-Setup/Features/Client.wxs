@@ -142,7 +142,7 @@
     </FeatureRef>
 
     <InstallExecuteSequence>
-      <Custom Action="LaunchClientLauncher" After="InstallFinalize" />
+      <Custom Action="LaunchClientLauncher" After="InstallFinalize"><![CDATA[&Client=3]]></Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="LaunchClientLauncher"
