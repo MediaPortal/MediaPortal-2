@@ -46,10 +46,10 @@ namespace MediaPortal.Plugins.OneTrueError.Settings
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionTunerLoadFailed",
 
       // TVE 3 names
-      "TVLibrary.Interfaces.TvExceptionNoPMT",
-      "TVLibrary.Interfaces.TvExceptionNoSignal",
-      "TVLibrary.Interfaces.TvExceptionSWEncoderMissing",
-      "TVLibrary.Interfaces.TvExceptionTuneCancelled",
+      "TvLibrary.TvExceptionNoPMT",
+      "TvLibrary.TvExceptionNoSignal",
+      "TvLibrary.TvExceptionSWEncoderMissing",
+      "TvLibrary.TvExceptionTuneCancelled",
     };
 
     private List<string> _exceptionExcludedList = new List<string>();

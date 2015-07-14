@@ -8,8 +8,8 @@
     Description="The OneTrueError plugin allows sending application errors to https://onetrueerror.com/ for error tracking purpose.">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    PluginVersion="1.1"
+    ReleaseDate="2015-07-14 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <Runtime>

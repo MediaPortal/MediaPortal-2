@@ -38,9 +38,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Packages\OneTrueError.1.0.27\lib\net40\OneTrueError.Reporting.dll</HintPath>
     </Reference>
-    <Reference Include="OneTrueError.Reporting.WinForms, Version=1.0.14.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="OneTrueError.Reporting.WinForms, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Packages\OneTrueError.WinForms.1.0.14\lib\net40\OneTrueError.Reporting.WinForms.dll</HintPath>
+      <HintPath>..\..\Packages\OneTrueError.WinForms.1.0.16\lib\net40\OneTrueError.Reporting.WinForms.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
