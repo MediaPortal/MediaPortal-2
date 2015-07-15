@@ -42,13 +42,16 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
-using MediaPortal.Utilities;
+using MediaPortal.Utilities.FileSystem;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using Timer = System.Timers.Timer;
 #if TVE3
+using MediaPortal.Plugins.SlimTv.Service3;
+using MediaPortal.Utilities;
+using TvLibrary.Implementations.DVB;
 using TvControl;
 using TvDatabase;
 using TvEngine.Events;
@@ -153,6 +156,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
       PrepareProgramData();
 
+#if TVE3
+      // Register required filters
+      PrepareFilterRegistrations();
+#endif
+
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
 #if TVE3
       InitializeGentle();
@@ -177,6 +185,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
     }
 
 #if TVE3
+    private void PrepareFilterRegistrations()
+    {
+      const string FILTERNAME = "MPIPTvSource.ax";
+      try
+      {
+        Guid clsIdIPSource = new Guid("{D3DD4C59-D3A7-4B82-9727-7B9203EB67C0}");
+        if (!FilterGraphTools.IsThisComObjectInstalled(clsIdIPSource))
+        {
+          var filterPath = FileUtils.BuildAssemblyRelativePath(FILTERNAME);
+          COMRegistration.Register(filterPath, true);
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register filter {0}", ex, FILTERNAME);
+      }
+    }
 
     public void Start()
     {
@@ -662,7 +687,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       channels = _tvBusiness.GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
         // Bug? SortOrder contains logical channel number, not the group sort order?
         // .OrderBy(c => c.SortOrder)
-        .Where(c=> c.VisibleInGuide)
+        .Where(c => c.VisibleInGuide)
         .Select(c => c.ToChannel())
         .ToList();
 #else

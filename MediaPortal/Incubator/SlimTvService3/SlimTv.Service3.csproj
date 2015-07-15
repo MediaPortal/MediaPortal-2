@@ -123,6 +123,7 @@
     <Compile Include="..\SlimTvService\SlimTvServicePlugin.cs">
       <Link>SlimTvServicePlugin.cs</Link>
     </Compile>
+    <Compile Include="COMRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SlimTvService\TvEntityExtensions.cs">
       <Link>TvEntityExtensions.cs</Link>
