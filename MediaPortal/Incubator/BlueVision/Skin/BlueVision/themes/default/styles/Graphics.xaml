@@ -92,13 +92,20 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="PowerControlTemplate">
-    <Grid Width="81" Height="80" Margin="-20">
-      <Image Source="Power_blur.png" Opacity="0.02"
-              VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform"/>
-      <!--Image Source="Power.png"  
-             VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1" /-->
-      <Image Source="ShutdownIcon.png" Width="42" Height="35" Margin="0,-1,0,1"
-             Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1"/>
+    <Grid Width="81" Height="80" Margin="-25">
+      <!--Image Source="Power_blur.png" Opacity="0.02"
+              VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform"/-->
+      <Image Source="Power_button.png"
+             VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1" />
+      <!--Image Source="ShutdownIcon.png" Width="42" Height="35" Margin="0,-1,0,1"
+             Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1"/-->
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="MenuControlTemplate">
+    <Grid Width="81" Height="80" Margin="-25">
+      <Image Source="Menu_button.png"
+             VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1" />
     </Grid>
   </ControlTemplate>
 
