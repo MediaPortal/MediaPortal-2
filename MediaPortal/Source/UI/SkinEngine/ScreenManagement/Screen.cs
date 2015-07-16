@@ -832,6 +832,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void TriggerScreenClosingEvent_Sync()
     {
+      _closeTime = FindCloseEventCompletionTime().AddMilliseconds(20); // 20 more milliseconds because of the delay until the event is fired in render loop
       DoFireScreenEvent(new PendingScreenEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree));
     }
 
