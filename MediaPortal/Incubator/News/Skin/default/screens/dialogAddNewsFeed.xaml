@@ -45,7 +45,7 @@
           <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
               HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
-      
+      </StackPanel>
     </ControlTemplate>
 
   </Include.Resources>
