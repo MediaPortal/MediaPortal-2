@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MediaPortal.PackageService")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2014")]
+[assembly: AssemblyCopyright("Copyright © 2007 - 2015 Team MediaPortal")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

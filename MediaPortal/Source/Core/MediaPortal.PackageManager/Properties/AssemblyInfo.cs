@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal Package Manager")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2014")]
+[assembly: AssemblyCopyright("Copyright © 2007 - 2015 Team MediaPortal")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
