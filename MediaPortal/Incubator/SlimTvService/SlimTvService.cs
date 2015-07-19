@@ -659,14 +659,21 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // TODO: only TV groups affected here
       groups = TvDatabase.ChannelGroup.ListAll()
         .OrderBy(tvGroup => tvGroup.SortOrder)
+        .Select(tvGroup => tvGroup.ToChannelGroup())
+        .Union(
+          RadioChannelGroup.ListAll()
+          .OrderBy(radioGroup => radioGroup.SortOrder)
+          .Select(radioGroup => radioGroup.ToChannelGroup())
+        )
+        .ToList();
 #else
       IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
       groups = channelGroupService.ListAllChannelGroups()
         .OrderBy(tvGroup => tvGroup.MediaType)
         .ThenBy(tvGroup => tvGroup.SortOrder)
-#endif
-.Select(tvGroup => tvGroup.ToChannelGroup())
+        .Select(tvGroup => tvGroup.ToChannelGroup())
         .ToList();
+#endif
       return true;
     }
 
@@ -684,12 +691,24 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
 #if TVE3
-      channels = _tvBusiness.GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
-        // Bug? SortOrder contains logical channel number, not the group sort order?
-        // .OrderBy(c => c.SortOrder)
-        .Where(c => c.VisibleInGuide)
-        .Select(c => c.ToChannel())
-        .ToList();
+      if (group.ChannelGroupId < 0)
+      {
+        var radioGroup = RadioChannelGroup.Retrieve(-group.ChannelGroupId);
+        var radioChannels = radioGroup.ReferringRadioGroupMap().OrderBy(rgm => rgm.SortOrder).Select(rgm => rgm.ReferencedChannel());
+        channels = radioChannels
+          .Where(c => c.VisibleInGuide)
+          .Select(c => c.ToChannel())
+          .ToList();
+      }
+      else
+      {
+        channels = _tvBusiness.GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
+          // Bug? SortOrder contains logical channel number, not the group sort order?
+          // .OrderBy(c => c.SortOrder)
+          .Where(c => c.VisibleInGuide)
+          .Select(c => c.ToChannel())
+          .ToList();
+      }
 #else
       IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
       channels = channelGroupService.GetChannelGroup(group.ChannelGroupId).GroupMaps

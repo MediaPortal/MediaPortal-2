@@ -79,6 +79,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
     }
 
+    public static IChannelGroup ToChannelGroup(this TvDatabase.RadioChannelGroup radioGroup)
+    {
+      if (radioGroup == null)
+        return null;
+      // Note: this temporary workaround uses negative group ids to be able to separate them later. This can be removed once there is a 
+      // dedicated radio group interface (if required).
+      return new ChannelGroup { ChannelGroupId = -radioGroup.IdGroup, Name = radioGroup.GroupName };
+    }
+
     public static ISchedule ToSchedule(this TvDatabase.Schedule schedule)
     {
       if (schedule == null)
@@ -129,9 +138,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = (MediaType)tvChannel.MediaType };
     }
 
-    public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)
+    public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup radioGroup)
     {
-      return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
+      return new ChannelGroup { ChannelGroupId = radioGroup.IdGroup, Name = radioGroup.GroupName };
     }
 
     public static ISchedule ToSchedule(this Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule)
