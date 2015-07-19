@@ -30,9 +30,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Player;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
@@ -52,7 +54,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   /// <see cref="SlimTvClientModel"/> is the main entry model for SlimTV. It provides channel group and channel selection and 
   /// acts as backing model for the Live-TV OSD to provide program information.
   /// </summary>
-  public class SlimTvClientModel : SlimTvModelBase
+  public class 
+    SlimTvClientModel : SlimTvModelBase
   {
     public const string MODEL_ID_STR = "8BEC1372-1C76-484c-8A69-C7F3103708EC";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
@@ -474,6 +477,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    protected bool ShouldAutoTune()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      if (!settings.AutoStartTV)
+        return false;
+      return playerContextManager.NumActivePlayerContexts == 0;
+    }
+
+    protected void AutoTuneLastChannel()
+    {
+      GetCurrentChannelGroup();
+      GetCurrentChannel();
+      IChannel current = ChannelContext.Channels.Current;
+      if (current != null)
+        Tune(current);
+    }
+
     protected override void SetChannel()
     {
       base.SetChannel();
@@ -748,6 +769,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         currentGroupChannel.Selected = IsSameChannel(currentGroupChannel.Channel, channel);
 
       CurrentGroupChannels.FireChange();
+
+      SetCurrentChannelGroup();
+      SetCurrentChannel();
     }
 
     #endregion
@@ -902,6 +926,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override Guid ModelId
     {
       get { return MODEL_ID; }
+    }
+
+    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      base.EnterModelContext(oldContext, newContext);
+
+      if (!ShouldAutoTune())
+        return;
+
+      AutoTuneLastChannel();
     }
 
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)

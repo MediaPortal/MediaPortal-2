@@ -22,22 +22,22 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Plugins.SlimTv.Providers.Settings
+namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class NativeProviderSettings
+  public class AutoStartTvSetting : YesNo
   {
-    /// <summary>
-    /// Holds the last selected channel group ID.
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public int LastChannelGroupId { get; set; }
+    public override void Load()
+    {
+      Yes = SettingsManager.Load<SlimTvClientSettings>().AutoStartTV;
+    }
 
-    /// <summary>
-    /// Holds the last selected channel ID.
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public int LastChannelId { get; set; }
+    public override void Save()
+    {
+      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      settings.AutoStartTV = Yes;
+      SettingsManager.Save(settings);
+    }
   }
 }

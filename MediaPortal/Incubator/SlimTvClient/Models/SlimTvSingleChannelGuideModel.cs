@@ -111,7 +111,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _channel = CurrentChannel;
         ChannelName = CurrentChannel.Name;
-        SetCurrentChannel();
+        // Now current channel group / channel is only set for tuning
+        // SetCurrentChannel();
       }
       else
       {

@@ -39,5 +39,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = 2d)]
     public double EpgVisibleHours { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, TV gets started when entering TV home state.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool AutoStartTV { get; set; }
   }
 }

@@ -349,7 +349,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           ChannelContext.Channels.AddRange(channels);
         }
 
-        SetCurrentChannelGroup();
+        // Now current channel group / channel is only set for tuning
+        // SetCurrentChannelGroup();
         UpdateCurrentChannel();
         UpdatePrograms();
       }

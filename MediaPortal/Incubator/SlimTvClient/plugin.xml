@@ -129,6 +129,11 @@
 
   <Register Location="/Configuration/Settings/Plugins/TV">
     <ConfigSetting
+        Id="AutoStartTvSetting"
+        Text="[SlimTvClient.AutoStartTv]"
+        HelpText="[SlimTvClient.AutoStartTv.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.AutoStartTvSetting"/>
+    <ConfigSetting
         Id="EpgNumberOfRows"
         Text="[SlimTvClient.EpgNumberOfRows]"
         HelpText="[SlimTvClient.EpgNumberOfRows.Help]"

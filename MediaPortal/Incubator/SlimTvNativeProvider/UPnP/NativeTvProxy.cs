@@ -469,7 +469,20 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public int SelectedChannelId { get; set; }
+    public int SelectedChannelId
+    {
+      get
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        return settings.LastChannelId;
+      }
+      set
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        settings.LastChannelId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
 
     public int SelectedChannelGroupId
     {
