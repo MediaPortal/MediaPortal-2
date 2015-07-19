@@ -33,6 +33,8 @@ using MediaPortal.Common.PluginManager.Packages.DataContracts;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Packages;
 using MediaPortal.PackageCore.Package;
+using MediaPortal.PackageCore.Package.Action;
+using MediaPortal.PackageCore.Package.Root;
 
 namespace MediaPortal.PackageCore
 {
@@ -69,23 +71,23 @@ namespace MediaPortal.PackageCore
 
     public void InstallFromFile(string packageFilePath, bool update, IDictionary<string, string> installPaths)
     {
-      PackageRoot package;
+      PackageModel package;
       bool delete;
       if (Directory.Exists(packageFilePath))
       {
-        package = PackageRoot.ParsePackage(Log, packageFilePath);
+        package = PackageModel.ParsePackage(packageFilePath, Log);
         delete = false;
       }
       else
       {
         Log.Info("Extracting package '{0}' ...", Path.GetFileNameWithoutExtension(packageFilePath));
-        package = PackageRoot.ExtractPackage(Log, packageFilePath);
+        package = PackageModel.ExtractPackage(packageFilePath, null, Log);
         delete = true;
       }
       try
       {
-        Log.Info("{0} package {1} V{2} ...", update ? "Updating" : "Installing", package.PluginMetaData.Name, package.ReleaseMetaData.Version);
-        package.InstallPackage(update ? PackageInstallType.Update : PackageInstallType.Install, installPaths);
+        Log.Info("{0} package {1} V{2}-{3} ...", update ? "Updating" : "Installing", package.Name, package.Version, package.Channel);
+        package.InstallPackage(null, update ? InstallType.Update : InstallType.Install, installPaths, Log);
       }
       finally
       {

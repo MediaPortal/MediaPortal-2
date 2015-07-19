@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 using MediaPortal.Common.Logging;
-using MediaPortal.PackageCore.Package;
+using MediaPortal.PackageCore.Package.Root;
 
 namespace MediaPortal.PackageCore
 {
@@ -42,10 +42,14 @@ namespace MediaPortal.PackageCore
     
     public bool CreatePackage(string sourceFolder, string targetFolder, bool overwriteExistingTarget)
     {
-      var packageRoot = PackageRoot.ParsePackage(Log, sourceFolder, true);
+      var package = PackageModel.ParsePackage(sourceFolder, Log);
+      if (!package.CheckElements(Log))
+      {
+        return false;
+      }
 
       // verify that output file doesn't exist
-      var packageFileName = string.Format("{0}-{1}{2}", packageRoot.PluginMetaData.Name, packageRoot.ReleaseMetaData.Version, PACKAGE_EXTENSION);
+      var packageFileName = string.Format("{0}-{1}-{2}{3}", package.Name, package.Version, package.Channel, PACKAGE_EXTENSION);
       var packageFilePath = Path.Combine(targetFolder, packageFileName);
       if (File.Exists(packageFilePath))
       {
@@ -56,7 +60,7 @@ namespace MediaPortal.PackageCore
       }
 
       // create package archive
-      packageRoot.CreatePackage(packageFilePath);
+      package.CreatePackage(packageFilePath, Log);
 
       #region TODOs for the future
 

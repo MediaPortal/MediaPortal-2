@@ -52,7 +52,40 @@
     <Compile Include="PackageInstaller.cs" />
     <Compile Include="PackagePublisher.cs" />
     <Compile Include="PackageBuilder.cs" />
+    <Compile Include="Package\Action\ActionBaseModel.cs" />
+    <Compile Include="Package\Action\ActionModels.cs" />
+    <Compile Include="Package\Action\ActionsBaseModel.cs" />
+    <Compile Include="Package\Action\CanOverwriteActionBaseModel.cs" />
+    <Compile Include="Package\Action\CopyDirectoryActionModel.cs" />
+    <Compile Include="Package\Action\CopyFileActionModel.cs" />
+    <Compile Include="Package\Action\FileHelper.cs" />
+    <Compile Include="Package\Action\DeleteDirectoryActionModel.cs" />
+    <Compile Include="Package\Action\DeleteFileActionModel.cs" />
+    <Compile Include="Package\Action\InstallActionsModel.cs" />
+    <Compile Include="Package\Action\InstallContext.cs" />
+    <Compile Include="Package\Action\UninstallActionsModel.cs" />
+    <Compile Include="Package\Action\UpdateActionsModel.cs" />
     <Compile Include="Package\BasicPackageActions.cs" />
+    <Compile Include="Package\Content\ContentModels.cs" />
+    <Compile Include="Package\ICheckable.cs" />
+    <Compile Include="Package\Root\Channels.cs" />
+    <Compile Include="Package\Content\ContentModel.cs" />
+    <Compile Include="Package\Content\ContentBaseModel.cs" />
+    <Compile Include="Package\Content\CoreContentModel.cs" />
+    <Compile Include="Package\Content\CustomContentModel.cs" />
+    <Compile Include="Package\Content\InstallTarget.cs" />
+    <Compile Include="Package\Content\PluginContentModel.cs" />
+    <Compile Include="Package\Content\PluginExtensionContentModel.cs" />
+    <Compile Include="Package\Content\UtilityContentModel.cs" />
+    <Compile Include="Package\Root\ContentRefModel.cs" />
+    <Compile Include="Package\Root\ImageModel.cs" />
+    <Compile Include="Package\Root\ImagesModel.cs" />
+    <Compile Include="Package\Root\ImageTypes.cs" />
+    <Compile Include="Package\Root\InstallOptionModel.cs" />
+    <Compile Include="Package\Root\InstallOptionsModel.cs" />
+    <Compile Include="Package\Root\LinkModel.cs" />
+    <Compile Include="Package\Root\LinksModel.cs" />
+    <Compile Include="Package\Root\PackageModel.cs" />
     <Compile Include="Package\PackageAction.cs" />
     <Compile Include="Package\PackageExceptions.cs" />
     <Compile Include="Package\PackageImage.cs" />
@@ -62,6 +95,8 @@
     <Compile Include="Package\PackageReleaseMetaData.cs" />
     <Compile Include="Package\PackageRoot.cs" />
     <Compile Include="Package\PackageRootDirectory.cs" />
+    <Compile Include="Package\Root\ReleaseInfoModel.cs" />
+    <Compile Include="Package\Root\RootModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestExecutionHelper.cs" />
     <Compile Include="Requestor.cs" />
@@ -74,6 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Package\mediaPortal_mp2_package_2015.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,6 +30,7 @@ using System.Text;
 using System.Threading;
 using CommandLine;
 using MediaPortal.Common.Logging;
+using MediaPortal.PackageCore.Package.Root;
 using MediaPortal.PackageManager.Core;
 using MediaPortal.PackageManager.Options;
 using MediaPortal.PackageManager.Options.Shared;
@@ -51,9 +52,6 @@ namespace MediaPortal.PackageManager
       // 3 = IO exception
       try
       {
-        // remember args if we need to run elevated
-        _args = args;
-
         var options = new CommandLineOptions();
         var parser = new Parser(with => with.HelpWriter = Console.Out);
         parser.ParseArgumentsStrict(args, options, Dispatch, () => Environment.ExitCode = 1);
