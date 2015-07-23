@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <Bundle Name="MediaPortal 2" Version="2.0.0.0" Manufacturer="Team MediaPortal" UpgradeCode="C49F700B-5590-4F71-B322-D65198B501B9" Compressed="no">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+      <bal:WixStandardBootstrapperApplication LicenseFile="..\..\Source\Base\Client\Docs\MediaPortal License.rtf"
+                                              LogoFile="..\..\Setup\MP2-Setup\Resources\MP2_Icon_48.png"
+                                              SuppressOptionsUI="yes"
+                                              LicenseUrl="http://www.team-mediaportal.com"/>
+    </BootstrapperApplicationRef>
+
+    <Chain>
+
+      <PackageGroupRef Id="NetFx451Web"/>
+      <PackageGroupRef Id="redist"/>
+
+      <RollbackBoundary />
+
+      <MsiPackage Id="MainPackage" SourceFile="..\..\Bin\MP2-Setup\$(var.Configuration)\en-us\MP2-Setup.msi" DisplayInternalUI="yes" Compressed="yes" Vital="yes" />
+    </Chain>
+  </Bundle>
+</Wix>
