@@ -15,6 +15,7 @@
 
       <PackageGroupRef Id="NetFx451Web"/>
       <PackageGroupRef Id="redist"/>
+      <PackageGroupRef Id="directx9"/>
 
       <RollbackBoundary />
 

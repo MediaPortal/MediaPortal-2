@@ -25,6 +25,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bundle.wxs" />
+    <Compile Include="Fragments\DirectX9.wxs" />
     <Compile Include="Fragments\VCRedists.wxs" />
   </ItemGroup>
   <ItemGroup>
