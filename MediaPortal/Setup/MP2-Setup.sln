@@ -32,6 +32,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.ServiceMonitor", "..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj", "{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Bootstrapper", "Bootstrapper\MP2-Bootstrapper.wixproj", "{C49F700B-5590-4F71-B322-D65198B501B9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF} = {49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
