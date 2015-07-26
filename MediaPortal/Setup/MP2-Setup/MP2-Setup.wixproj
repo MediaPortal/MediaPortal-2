@@ -22,7 +22,7 @@
     <LinkerAdditionalOptions>-sval</LinkerAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\</OutputPath>
+    <OutputPath>Bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <SuppressIces>ICE60;ICE80</SuppressIces>
     <LinkerAdditionalOptions>

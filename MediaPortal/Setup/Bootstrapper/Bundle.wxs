@@ -19,7 +19,7 @@
 
       <RollbackBoundary />
 
-      <MsiPackage Id="MainPackage" SourceFile="..\..\Bin\MP2-Setup\$(var.Configuration)\en-us\MP2-Setup.msi" DisplayInternalUI="yes" Compressed="yes" Vital="yes" />
+      <MsiPackage Id="MainPackage" SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi" DisplayInternalUI="yes" Compressed="yes" Vital="yes" />
     </Chain>
   </Bundle>
 </Wix>
