@@ -3,7 +3,10 @@
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
-  <Bundle Name="MediaPortal 2" Version="2.0.0.0" Manufacturer="Team MediaPortal" UpgradeCode="C49F700B-5590-4F71-B322-D65198B501B9" Compressed="no">
+  <!-- This should NEVER be changed ! This is the product ID of MP2 main package. -->
+  <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
+
+  <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MainPackage)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="..\..\Source\Base\Client\Docs\MediaPortal License.rtf"
                                               LogoFile="..\..\Setup\MP2-Setup\Resources\MP2_Icon_48.png"
