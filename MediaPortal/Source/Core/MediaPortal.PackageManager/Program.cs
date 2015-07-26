@@ -30,7 +30,6 @@ using System.Text;
 using System.Threading;
 using CommandLine;
 using MediaPortal.Common.Logging;
-using MediaPortal.PackageCore.Package.Root;
 using MediaPortal.PackageManager.Core;
 using MediaPortal.PackageManager.Options;
 using MediaPortal.PackageManager.Options.Shared;
@@ -45,6 +44,8 @@ namespace MediaPortal.PackageManager
 
     public static void Main(string[] args)
     {
+      _args = args;
+
       // Exit codes:
       // 0 = OK
       // 1 = Parameter error
@@ -154,7 +155,7 @@ namespace MediaPortal.PackageManager
       var argsString = new StringBuilder();
       foreach (var arg in _args)
       {
-        if (arg.IndexOfAny(new[] { ' ', '\\' }) >= 0)
+        if (arg.IndexOfAny(new[] { ' ', '\\', '\t' }) >= 0)
         {
           // quoted
           argsString.Append('\"');

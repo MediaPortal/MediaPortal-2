@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://schemas.team-mediaportal.com/mp2/package/2015.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://schemas.team-mediaportal.com/mp2/package/2015.xsd"
+    xmlns:mstns="http://schemas.team-mediaportal.com/mp2/package/2015.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- == root elements ============================================================== -->
+  
+  <xs:complexType name="PackageType">
+    <xs:sequence>
+      <xs:element name="InstallOptions" type="InstallOptionsType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Images" type="ImagesType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Links" type="LinksType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReleaseInfo" type="ReleaseInfoType" minOccurs="0" maxOccurs="1"/>
+
+      <xs:element name="Content" type="ContentType" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Version" type="xs:string" use="required"/>
+    <xs:attribute name="Channel" type="Channels" use="required"/>
+  </xs:complexType>
+  <xs:element name="Package" type="PackageType"/>
+
+  
+  <xs:simpleType name="Channels">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Alpha"/>
+      <xs:enumeration value="Beta"/>
+      <xs:enumeration value="Released"/>
+      <xs:enumeration value="Developers"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  
+  <!-- option elements -->
+  <xs:complexType name="InstallOptionsType">
+    <xs:sequence>
+      <xs:element name="Option" type="OptionType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OptionType">
+    <xs:sequence>
+      <xs:element name="Content" type="ContentRefType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="optional"/>
+    <xs:attribute name="IsDefault" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+
+  <xs:complexType name="ContentRefType">
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  
+  <!-- image elements -->
+  <xs:complexType name="ImagesType">
+    <xs:sequence>
+      <xs:element name="Image" type="ImageType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ImageType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Type" type="ImageTypes" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:simpleType name="ImageTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Logo"/>
+      <xs:enumeration value="Screenshot"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- link elements -->
+  <xs:complexType name="LinksType">
+  <xs:sequence>
+    <xs:element name="Link" type="LinkType" minOccurs="1" maxOccurs="unbounded"/>
+  </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LinkType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Description" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <!-- release elements -->
+
+  <xs:complexType name="ReleaseInfoType">
+    <xs:attribute name="ReleaseNotes" type="xs:string"/>
+  </xs:complexType>
+  
+  <!-- == content elements ============================================================== -->
+
+  <xs:simpleType name="InstallTarget">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Server"/>
+      <xs:enumeration value="Client"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ActionsBaseType" abstract="true">
+    <xs:group ref="ActionsGroup"/>
+  </xs:complexType>
+
+  <xs:complexType name="InstallActionsType">
+    <xs:complexContent>
+      <xs:extension base="ActionsBaseType">
+        <xs:attribute name="UseForUpdate" type="xs:boolean" use="optional" default="false"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UpdateActionsType">
+    <xs:complexContent>
+      <xs:extension base="ActionsBaseType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UninstallActionsType">
+    <xs:complexContent>
+      <xs:extension base="ActionsBaseType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="ContentType">
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Plugin" type="PluginContentType"/>
+        <xs:element name="PluginExtension" type="PluginExtensionContentType"/>
+        <xs:element name="Core" type="CoreContentType"/>
+        <xs:element name="Utility" type="UtilityContentType"/>
+        <xs:element name="Custom" type="CustomContentType"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  
+  <xs:complexType name="ContentBaseType" abstract="true">
+    <xs:sequence>
+      <xs:element name="InstallActions" type="InstallActionsType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="UpdateActions" type="UpdateActionsType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="UninstallActions" type="UninstallActionsType" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Target" type="InstallTarget" use="required"/>
+    <xs:attribute name="RootDirectory" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  
+  <!-- plugin elements -->
+  
+  <xs:complexType name="PluginContentType">
+    <xs:complexContent>
+      <xs:extension base="ContentBaseType">
+        
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="PluginExtensionContentType">
+    <xs:complexContent>
+      <xs:extension base="ContentBaseType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CoreContentType">
+    <xs:complexContent>
+      <xs:extension base="ContentBaseType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UtilityContentType">
+    <xs:complexContent>
+      <xs:extension base="ContentBaseType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CustomContentType">
+    <xs:complexContent>
+      <xs:extension base="ContentBaseType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  
+  <!-- == action elements ============================================================== -->
+
+  <xs:group name="ActionsGroup">
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="CopyDirectory" type="CopyDirectoryAction"/>
+        <xs:element name="CopyFile" type="CopyFileAction"/>
+        <xs:element name="DeleteDirectory" type="DeleteDirectoryAction"/>
+        <xs:element name="DeleteFile" type="DeleteFileAction"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="ActionBase" abstract="true">
+  </xs:complexType>
+  
+  <xs:complexType name="CanOverwriteActionBase" abstract="true">
+    <xs:complexContent>
+      <xs:extension base="ActionBase">
+        <xs:attribute name="Overwrite" type="xs:boolean" use="optional" default="false"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- copy actions -->
+  
+  <xs:complexType name="CopyDirectoryAction">
+    <xs:complexContent>
+      <xs:extension base="CanOverwriteActionBase">
+        <xs:attribute name="Source" type="xs:string" use="required"/>
+        <xs:attribute name="Target" type="xs:string" use="required"/>
+        <xs:attribute name="TargetRootCanExist" type="xs:boolean" use="optional" default="false"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CopyFileAction">
+    <xs:complexContent>
+      <xs:extension base="CanOverwriteActionBase">
+        <xs:attribute name="Source" type="xs:string" use="required"/>
+        <xs:attribute name="Target" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- delete actions -->
+
+  <xs:complexType name="DeleteDirectoryAction">
+    <xs:attribute name="Target" type="xs:string" use="required"/>
+    <xs:attribute name="SkipIfNotEmpty" type="xs:boolean" use="optional" default="false"/>
+    <xs:attribute name="FailIfNotExists" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+
+  <xs:complexType name="DeleteFileAction">
+    <xs:attribute name="Target" type="xs:string" use="required"/>
+    <xs:attribute name="FailIfNotExists" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+</xs:schema>

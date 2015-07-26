@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using System.Net.Sockets;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.PackageCore;
@@ -81,17 +82,17 @@ namespace MediaPortal.PackageManager.Core
           switch (action.ActionType)
           {
             case InstallActionType.Install:
-              InstallFromFile(action.LocalPath, false, options.GetInstallPaths());
+              InstallFromFile(action.LocalPath, action.OptionName, false, options.GetInstallPaths());
               break;
 
             case InstallActionType.Update:
-              InstallFromFile(action.LocalPath, true, options.GetInstallPaths());
+              InstallFromFile(action.LocalPath, action.OptionName, true, options.GetInstallPaths());
               break;
           }
         }
         else
         {
-          // download from web
+          //TODO: download from web
           /*var proxy = new RequestExecutionHelper();
         var model = new PackageReleaseQuery(options.PackageName, options.PackageVersion);
         var response = proxy.ExecuteRequest(PackageServerApi.Packages.FindRelease, model);

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -69,7 +70,7 @@ namespace MediaPortal.PackageCore
       return true;
     }
 
-    public void InstallFromFile(string packageFilePath, bool update, IDictionary<string, string> installPaths)
+    public void InstallFromFile(string packageFilePath, string optionName, bool update, IDictionary<string, string> installPaths)
     {
       PackageModel package;
       bool delete;
@@ -81,13 +82,23 @@ namespace MediaPortal.PackageCore
       else
       {
         Log.Info("Extracting package '{0}' ...", Path.GetFileNameWithoutExtension(packageFilePath));
-        package = PackageModel.ExtractPackage(packageFilePath, null, Log);
+        //TODO: switch to fully extract here after testing partial extract
+        package = PackageModel.OpenPackage(packageFilePath, false, null, Log);
         delete = true;
       }
       try
       {
-        Log.Info("{0} package {1} V{2}-{3} ...", update ? "Updating" : "Installing", package.Name, package.Version, package.Channel);
-        package.InstallPackage(null, update ? InstallType.Update : InstallType.Install, installPaths, Log);
+        InstallOptionModel option = null;
+        if (!String.IsNullOrEmpty(optionName))
+        {
+          option = package.InstallOptions.GetOption(optionName);
+          if (option == null)
+          {
+            throw new ArgumentException(String.Format("The option '{0}' could not be found in the package", optionName));
+          }
+        }
+        Log.Info("{0} package {1} V{2}-{3} Option {4} ...", update ? "Updating" : "Installing", package.Name, package.Version, package.Channel, option != null ? option.Name : "<default>");
+        package.InstallPackage(option, update ? InstallType.Update : InstallType.Install, installPaths, Log);
       }
       finally
       {

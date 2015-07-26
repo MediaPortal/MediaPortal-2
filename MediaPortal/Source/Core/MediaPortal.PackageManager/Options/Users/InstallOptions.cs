@@ -75,9 +75,9 @@ namespace MediaPortal.PackageManager.Options.Users
     public InstallAction(string action)
     {
       var parts = action.Split('|');
-      if (parts.Length < 2 || parts.Length > 3)
+      if (parts.Length < 2 || parts.Length > 4)
       {
-        throw new ArgumentException("An action must be defined by 3 parameters separated by '|'.");
+        throw new ArgumentException("An action must be defined by 2, 3 or 4 parameters separated by '|'.");
       }
       if (parts[0].Equals("I", StringComparison.OrdinalIgnoreCase))
       {
@@ -99,14 +99,16 @@ namespace MediaPortal.PackageManager.Options.Users
       {
         PackageName = parts[1];
       }
-      else if (parts.Length == 2)
+      else if (parts.Length == 3)
       {
         LocalPath = parts[1];
+        OptionName = parts[2];
       }
       else
       {
         PackageName = parts[1];
         PackageVersion = parts[2];
+        OptionName = parts[3];
       }
     }
 
@@ -122,6 +124,8 @@ namespace MediaPortal.PackageManager.Options.Users
     public string PackageName { get; private set; }
 
     public string PackageVersion { get; private set; }
+
+    public string OptionName { get; private set; }
   }
 
   internal enum InstallActionType
