@@ -22,8 +22,12 @@
 
 #endregion
 
+using System;
+using System.Diagnostics;
+using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using ILogger = Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.ILogger;
 
@@ -35,6 +39,9 @@ namespace MediaPortal.Plugins.SlimTv.Integration
   /// </summary>
   public class MP2IntegrationProvider : IIntegrationProvider
   {
+    private const string STR_PLUGIN_TVE3 = "{796C1294-38BA-4C9C-8E56-AA299558A59B}";
+    private static readonly Guid ID_PLUGIN_TVE3 = new Guid(STR_PLUGIN_TVE3);
+
     private PathManagerWrapper _pathManagerWrapper;
     private LoggerWrapper _loggerWrapper;
 
@@ -45,7 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Integration
       if (pathManagerAvailable && _pathManagerWrapper != null && _loggerWrapper != null)
         return;
 
-      if (_pathManagerWrapper != null && _loggerWrapper != null) 
+      if (_pathManagerWrapper != null && _loggerWrapper != null)
         return;
 
       // If running outside of MP2 scope
@@ -59,8 +66,25 @@ namespace MediaPortal.Plugins.SlimTv.Integration
         ServiceRegistration.Set<Common.PathManager.IPathManager>(pathManager);
       }
 
-      _pathManagerWrapper = new PathManagerWrapper();
+      var isTve3 = IsTVE3();
+      _pathManagerWrapper = new PathManagerWrapper(isTve3);
       _loggerWrapper = new LoggerWrapper();
+    }
+
+    protected bool IsTVE3()
+    {
+      // First try: if we run inside MP2 process, we can check available plugins for version detection
+      IPluginManager pluginManager;
+      if ((pluginManager = ServiceRegistration.Get<IPluginManager>(false)) != null)
+      {
+        return pluginManager.AvailablePlugins.ContainsKey(ID_PLUGIN_TVE3);
+      }
+
+      // When running SetupTV, we need to use another way. TVE3 uses namespace "SetupTv" while TVE3.5 uses "Mediaportal.TV.Server.SetupTV"
+      StackTrace st = new StackTrace();
+      var lastFrame = st.GetFrame(st.FrameCount - 1);
+      var declaringType = lastFrame.GetMethod().DeclaringType;
+      return declaringType != null && declaringType.Namespace == "SetupTv";
     }
 
     public IPathManager PathManager

@@ -33,13 +33,10 @@ namespace MediaPortal.Plugins.SlimTv.Integration
   class PathManagerWrapper : IPathManager
   {
     private readonly Common.PathManager.IPathManager _pathManager;
-    private const string STR_PLUGIN_TVE3 = "{796C1294-38BA-4C9C-8E56-AA299558A59B}";
-    private static readonly Guid ID_PLUGIN_TVE3 = new Guid(STR_PLUGIN_TVE3);
 
-    public PathManagerWrapper()
+    public PathManagerWrapper(bool isTVE3)
     {
       // Set custom folder for TVE3 or TVE3.5.
-      var isTVE3 = ServiceRegistration.Get<IPluginManager>().AvailablePlugins.ContainsKey(ID_PLUGIN_TVE3);
       string versionFolder = isTVE3 ? "v3.0" : "v3.5";
 
       _pathManager = ServiceRegistration.Get<Common.PathManager.IPathManager>();
