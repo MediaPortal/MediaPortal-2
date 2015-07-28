@@ -22,46 +22,54 @@
 
 #endregion
 
+using System;
 using System.IO;
 using MediaPortal.Common;
+using MediaPortal.Common.PluginManager;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Integration
 {
-  class PathManagerWrapper: IPathManager
+  class PathManagerWrapper : IPathManager
   {
     private readonly Common.PathManager.IPathManager _pathManager;
+    private const string STR_PLUGIN_TVE3 = "{796C1294-38BA-4C9C-8E56-AA299558A59B}";
+    private static readonly Guid ID_PLUGIN_TVE3 = new Guid(STR_PLUGIN_TVE3);
 
-    public PathManagerWrapper ()
+    public PathManagerWrapper()
     {
+      // Set custom folder for TVE3 or TVE3.5.
+      var isTVE3 = ServiceRegistration.Get<IPluginManager>().AvailablePlugins.ContainsKey(ID_PLUGIN_TVE3);
+      string versionFolder = isTVE3 ? "v3.0" : "v3.5";
+
       _pathManager = ServiceRegistration.Get<Common.PathManager.IPathManager>();
-      _pathManager.SetPath("TVCORE", "<DATA>\\SlimTVCore");
+      _pathManager.SetPath("TVCORE", "<DATA>\\SlimTVCore\\" + versionFolder);
       string path = GetPath("<TVCORE>");
       if (!Directory.Exists(path))
         Directory.CreateDirectory(path);
     }
 
-    public bool Exists (string label)
+    public bool Exists(string label)
     {
       return _pathManager.Exists(label);
     }
 
-    public void SetPath (string label, string pathPattern)
+    public void SetPath(string label, string pathPattern)
     {
       _pathManager.SetPath(label, pathPattern);
     }
 
-    public string GetPath (string pathPattern)
+    public string GetPath(string pathPattern)
     {
       return _pathManager.GetPath(pathPattern);
     }
 
-    public void RemovePath (string label)
+    public void RemovePath(string label)
     {
       _pathManager.RemovePath(label);
     }
 
-    public bool LoadPaths (string pathsFile)
+    public bool LoadPaths(string pathsFile)
     {
       return _pathManager.LoadPaths(pathsFile);
     }

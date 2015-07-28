@@ -51,7 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Utils, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\Common.Utils.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\Common.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Gentle.Common">
       <HintPath>References\Gentle.Common.dll</HintPath>
@@ -73,10 +73,10 @@
       <HintPath>..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="PluginBase, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\PluginBase.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\PluginBase.dll</HintPath>
     </Reference>
     <Reference Include="SetupControls, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\SetupControls.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\SetupControls.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -88,36 +88,36 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="TvBusinessLayer, Version=1.12.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TvBusinessLayer.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TvBusinessLayer.dll</HintPath>
     </Reference>
     <Reference Include="TvControl, Version=1.12.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TvControl.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TvControl.dll</HintPath>
     </Reference>
     <Reference Include="TVDatabase, Version=1.12.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TVDatabase.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TVDatabase.dll</HintPath>
     </Reference>
     <Reference Include="TVLibrary, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TVLibrary.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TVLibrary.dll</HintPath>
     </Reference>
     <Reference Include="TvLibrary.Interfaces, Version=1.12.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TvLibrary.Interfaces.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TvLibrary.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="TvLibrary.Utils, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TvLibrary.Utils.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TvLibrary.Utils.dll</HintPath>
     </Reference>
     <Reference Include="TvService, Version=1.12.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TvService.exe</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TvService.exe</HintPath>
     </Reference>
     <Reference Include="TvThumbnails, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12\lib\TvThumbnails.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.12.1\lib\TvThumbnails.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\SlimTvService\SlimTvService.cs">
-      <Link>SlimTvService.cs</Link>
+    <Compile Include="..\SlimTvService\AbstractSlimTvService.cs">
+      <Link>AbstractSlimTvService.cs</Link>
     </Compile>
     <Compile Include="..\SlimTvService\SlimTvServicePlugin.cs">
       <Link>SlimTvServicePlugin.cs</Link>
@@ -130,6 +130,7 @@
     <Compile Include="..\SlimTvService\UPnP\SlimTvServiceImpl.cs">
       <Link>UPnP\SlimTvServiceImpl.cs</Link>
     </Compile>
+    <Compile Include="SlimTvService3.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -228,6 +229,7 @@
     <None Include="References\log4net.config" />
     <None Include="References\MPFileWriter.ax" />
     <None Include="References\MPIPTVSource.ax" />
+    <None Include="References\MPIPTVSource.ini" />
     <None Include="References\PDMpgMux.ax" />
     <None Include="References\Plugins\Blaster.exe.config" />
     <None Include="References\ProgramData\ProgramData.zip" />
