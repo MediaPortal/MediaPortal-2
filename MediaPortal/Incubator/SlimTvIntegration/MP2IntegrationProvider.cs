@@ -24,10 +24,10 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.Logging;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using ILogger = Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.ILogger;
 
@@ -64,6 +64,8 @@ namespace MediaPortal.Plugins.SlimTv.Integration
         pathManager.InitializeDefaults();
 
         ServiceRegistration.Set<Common.PathManager.IPathManager>(pathManager);
+        Common.Logging.ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
+        ServiceRegistration.Set<Common.Logging.ILogger>(logger);
       }
 
       var isTve3 = IsTVE3();
