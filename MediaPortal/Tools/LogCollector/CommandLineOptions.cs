@@ -32,6 +32,9 @@ namespace MediaPortal.LogCollector
     [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
     public string DataDirectory { get; set; }
 
+    [Option('o', "output", Required = false, HelpText = "Overrides the default output directory (default: Desktop\\MediaPortal2-Logs).")]
+    public string OutputDirectory { get; set; }
+
     [HelpOption]
     public string GetUsage()
     {

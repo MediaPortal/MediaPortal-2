@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Ionic.Zip;
 
@@ -16,6 +17,8 @@ namespace MediaPortal.LogCollector
 
       List<string> products = new List<string>
       {
+        "MediaPortal Setup TV", // Legacy folders for TVE3 support
+        "MediaPortal TV Server", // Legacy folders for TVE3 support
         "MP2-Client",
         "MP2-Server",
         "MP2-ClientLauncher",
@@ -26,12 +29,27 @@ namespace MediaPortal.LogCollector
         mpOptions.DataDirectory :
         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
 
-      CollectLogFiles(dataPath, products);
+      string outputPath = !string.IsNullOrEmpty(mpOptions.OutputDirectory) ?
+        mpOptions.OutputDirectory :
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MediaPortal2-Logs");
+
+      try
+      {
+        CollectLogFiles(dataPath, outputPath, products);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Exception while collecting log files: {0}", ex);
+      }
     }
 
-    private static void CollectLogFiles(string dataPath, List<string> products)
+    private static void CollectLogFiles(string dataPath, string outputPath, List<string> products)
     {
+      if (!Directory.Exists(outputPath))
+        Directory.CreateDirectory(outputPath);
+
       string targetFile = string.Format("MediaPortal2-Logs-{0}.zip", DateTime.Now.ToString("yyyy-MM-dd-HH.mm.ss"));
+      targetFile = Path.Combine(outputPath, targetFile);
       if (File.Exists(targetFile))
         File.Delete(targetFile);
 
@@ -57,6 +75,8 @@ namespace MediaPortal.LogCollector
       archive.Save();
       archive.Dispose();
       Console.WriteLine("Successful created log archive: {0}", targetFile);
+
+      Process.Start(outputPath); // Opens output folder
     }
   }
 }
