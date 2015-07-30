@@ -192,7 +192,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueVision", "..\Incubator\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{2BAB7B4B-1456-4525-8A27-DEBED86796F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogCollector", "..\Tools\LogCollector\LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

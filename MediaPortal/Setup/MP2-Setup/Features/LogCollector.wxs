@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+
+  <Fragment>
+
+    <?include ..\Includes.wxi ?>
+
+    <!-- Icon -->
+    <Icon Id="LogCollector" SourceFile="$(var.MediaPortal.LogCollector.TargetPath)" />
+
+    <!-- Directory definition -->
+    <DirectoryRef Id="TeamMediaPortal.Folder">
+      <Directory Id="INSTALLDIR_LOG_COLLECTOR" Name="MP2-LogCollector" />
+    </DirectoryRef>
+
+    <!-- Directory content -->
+    <DirectoryRef Id="INSTALLDIR_LOG_COLLECTOR" FileSource="$(var.MediaPortal.LogCollector.TargetDir)">
+
+      <Component Id="LogCollector.Registry.InstallDir" Guid="6C95EC1B-D25C-4CB7-8649-282415B34F4F">
+        <RegistryKey Root="HKLM"
+                     Key="Software\[Manufacturer]\[ProductName]">
+          <RegistryValue Type="string" Name="INSTALLDIR_LOG_COLLECTOR" Value="[INSTALLDIR_LOG_COLLECTOR]"/>
+        </RegistryKey>
+        <CreateFolder />
+      </Component>
+
+      <Component Id="LogCollector.exe" Guid="9E37BE55-E43B-480A-B4EB-F27E60749AB4">
+        <File Id="LogCollector.exe" Name="MP2-LogCollector.exe" KeyPath="yes" Checksum="yes" />
+      </Component>
+
+    </DirectoryRef>
+
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="LogCollector.StartMenu.Shortcut" Guid="C68C3BCF-C432-4FBF-8EFD-32BC8966073B">
+        <Shortcut Id="LogCollector.StartMenu.Shortcut"
+                  Name="!(loc.SC_LogCollector)"
+                  Description="!(loc.SC_LogCollector_Desc)"
+                  Target="[!LogCollector.exe]"
+                  Icon="LogCollector"
+                  WorkingDirectory="INSTALLDIR_LOG_COLLECTOR" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="LogCollector.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="LogCollector.Desktop.Shortcut" Guid="15D952D0-15EB-48BC-A86F-A02CAF1A8AE2">
+        <Shortcut Id="LogCollector.Desktop.Shortcut"
+                  Name="!(loc.SC_LogCollector)"
+                  Description="!(loc.SC_LogCollector_Desc)"
+                  Target="[!LogCollector.exe]"
+                  Icon="LogCollector"
+                  WorkingDirectory="INSTALLDIR_LOG_COLLECTOR" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="LogCollector.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Feature -->
+    <Feature Id="LogCollector"
+             Level="1"
+             AllowAdvertise="no"
+             ConfigurableDirectory="INSTALLDIR_LOG_COLLECTOR"
+             Title="!(loc.F_LogCollector)"
+             Description="!(loc.F_LogCollector_Desc)">
+
+      <ComponentRef Id="LogCollector.exe" />
+      <ComponentRef Id="LogCollector.Desktop.Shortcut" />
+      <ComponentRef Id="LogCollector.StartMenu.Shortcut" />
+      <ComponentRef Id="LogCollector.Registry.InstallDir" />
+
+      <ComponentGroupRef Id="LogCollector.Heat" />
+    </Feature>
+
+  </Fragment>
+</Wix>
