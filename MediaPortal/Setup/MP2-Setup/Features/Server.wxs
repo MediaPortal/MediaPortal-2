@@ -83,7 +83,7 @@
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="SetupTV.StartMenu.Shortcut" Guid="08D3FF8F-A2AE-4AAA-8598-981F1E26F299">
         <Shortcut Id="SetupTV.StartMenu.Shortcut"
-                  Name="MediaPortal 2 SetupTV"
+                  Name="MediaPortal 2 TV Configuration"
                   Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
                   Icon="SetupTV"
                   WorkingDirectory="INSTALLDIR_SERVER" />
@@ -102,7 +102,7 @@
     <DirectoryRef Id="DesktopFolder">
       <Component Id="SetupTV.Desktop.Shortcut" Guid="958D7666-FDE2-43EF-BE84-4D19F7BAEA32">
         <Shortcut Id="SetupTV.Desktop.Shortcut"
-                  Name="MediaPortal 2 SetupTV"
+                  Name="MediaPortal 2 TV Configuration"
                   Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
                   Icon="SetupTV"
                   WorkingDirectory="INSTALLDIR_SERVER" />
