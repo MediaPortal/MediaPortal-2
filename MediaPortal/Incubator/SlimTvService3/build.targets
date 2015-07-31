@@ -35,6 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <References Include="$(ProjectDir)*.ico" />
       <References Include="$(ProjectDir)References\**\*.*" />
     </ItemGroup>
 

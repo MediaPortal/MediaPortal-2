@@ -190,6 +190,7 @@
     <Content Include="References\TvService.exe" />
     <Content Include="References\TvThumbnails.dll" />
     <Content Include="References\UPnP.dll" />
+    <Content Include="SetupTV.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">

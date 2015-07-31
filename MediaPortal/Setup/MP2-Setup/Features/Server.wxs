@@ -8,7 +8,7 @@
     <?include ..\Includes.wxi ?>
 
     <!-- Icon -->
-    <Icon Id="Server" SourceFile="$(var.MediaPortal.Server.TargetPath)" />
+    <Icon Id="SetupTV" SourceFile="$(var.MediaPortal.Server.TargetDir)\Plugins\SlimTV.Service3\SetupTV.ico" />
 
     <!-- Directory definition -->
     <DirectoryRef Id="TeamMediaPortal.Folder">
@@ -85,7 +85,7 @@
         <Shortcut Id="SetupTV.StartMenu.Shortcut"
                   Name="MediaPortal 2 SetupTV"
                   Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
-                  Icon="Server"
+                  Icon="SetupTV"
                   WorkingDirectory="INSTALLDIR_SERVER" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
@@ -104,7 +104,7 @@
         <Shortcut Id="SetupTV.Desktop.Shortcut"
                   Name="MediaPortal 2 SetupTV"
                   Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
-                  Icon="Server"
+                  Icon="SetupTV"
                   WorkingDirectory="INSTALLDIR_SERVER" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.

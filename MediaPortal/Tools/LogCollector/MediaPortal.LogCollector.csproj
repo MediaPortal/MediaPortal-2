@@ -14,7 +14,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>..\..\Source\Main\MediaPortal.Client\MP2.ico</ApplicationIcon>
+    <ApplicationIcon>MP2-LogCollector.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -70,9 +70,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Source\Main\MediaPortal.Client\MP2.ico">
-      <Link>MP2.ico</Link>
-    </Content>
+    <Content Include="MP2-LogCollector.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
