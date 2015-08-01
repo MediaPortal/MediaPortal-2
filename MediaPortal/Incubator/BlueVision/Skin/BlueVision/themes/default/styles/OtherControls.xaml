@@ -632,7 +632,7 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="10,0,10,0">
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="7,0,7,0">
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
           <Binding Path="AdditionalProperties[Id]"/>
@@ -653,9 +653,6 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeGroupDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeGroupMenuItemContainerStyle}"/>
-    <!--Trigger Property="IsSelected" Value="true">
-      <Setter x:Name="SelectedItem" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"/>
-    </Trigger-->
   </Style>
 
   <!-- ListView style for MediaInfos in Currently Playing screen-->
