@@ -39,7 +39,7 @@ namespace MediaPortal.Utilities.Network
     static NetworkConnectionTracker()
     {
       Install();
-      _isNetworkAvailable = NetworkUtils.IsNetworkAvailable(null, true);
+      _isNetworkAvailable = NetworkUtils.IsNetworkAvailable(null, false);
     }
 
     /// <summary>
@@ -63,12 +63,12 @@ namespace MediaPortal.Utilities.Network
 
     private static void OnNetworkAddressChanged(object sender, EventArgs e)
     {
-      _isNetworkAvailable = NetworkUtils.IsNetworkAvailable(null, true);
+      _isNetworkAvailable = NetworkUtils.IsNetworkAvailable(null, false);
     }
 
     private static void OnNetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
     {
-      _isNetworkAvailable = NetworkUtils.IsNetworkAvailable(null, true);
+      _isNetworkAvailable = NetworkUtils.IsNetworkAvailable(null, false);
     }
 
     /// <summary>
@@ -76,11 +76,11 @@ namespace MediaPortal.Utilities.Network
     /// automatically updated when change handlers are installed (<see cref="Install"/>).
     /// </summary>
     /// <remarks>
-    /// Connections with virtual network cards are filtered out.
+    /// Connections with virtual network cards are NOT filtered out.
     /// </remarks>
     /// <value>
-    /// <c>true</c> if a network connection is available; otherwise, <c>false</c>. Virtual network cards and the microsoft loopback
-    /// adapter are not considered.
+    /// <c>true</c> if a network connection is available; otherwise, <c>false</c>. The microsoft loopback
+    /// adapter is not considered.
     /// </value>
     public static bool IsNetworkConnected
     {

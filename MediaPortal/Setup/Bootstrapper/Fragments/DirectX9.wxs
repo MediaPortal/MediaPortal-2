@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Fragment>
+
+    <util:FileSearch Id="D3DX9_41_Version"
+           Variable="D3DX9_41_Version" Path="[SystemFolder]D3DX9_41.dll"
+           Result="version"/>
+    
+    <util:FileSearch Id="D3DX9_43_Version"
+           Variable="D3DX9_43_Version" Path="[SystemFolder]D3DX9_43.dll"
+           Result="version"/>
+
+    <PackageGroup Id="directx9">
+      <ExePackage Id="directx9" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
+                  Name="dxwebsetup.exe"
+                  DownloadUrl="http://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe"
+                  InstallCommand="/q"
+                  InstallCondition="(NOT D3DX9_41_Version >= v9.26.952.2844) OR NOT D3DX9_41_Version OR (NOT D3DX9_43_Version >= v9.29.952.3111) OR NOT D3DX9_43_Version">
+        <RemotePayload Description="Microsoft DirectX9C Web Setup" ProductName="Microsoft DirectX9C Web Setup" Size="292184" Version="10.0.30319.1" Hash="3c8243734cf43dd7bb2332ba05b58ccacfa4377c"/>
+      </ExePackage>
+    </PackageGroup>
+
+  </Fragment>
+
+</Wix>

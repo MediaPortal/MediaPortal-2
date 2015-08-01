@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <!-- This should NEVER be changed ! This is the product ID of MP2 main package. -->
+  <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
+
+  <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MainPackage)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+      <bal:WixStandardBootstrapperApplication LicenseFile="..\..\Source\Base\Client\Docs\MediaPortal License.rtf"
+                                              LogoFile="..\..\Setup\MP2-Setup\Resources\MP2_Icon_48.png"
+                                              SuppressOptionsUI="yes"
+                                              LicenseUrl="http://www.team-mediaportal.com"/>
+    </BootstrapperApplicationRef>
+
+    <Chain>
+
+      <PackageGroupRef Id="NetFx451Web"/>
+      <PackageGroupRef Id="redist"/>
+      <PackageGroupRef Id="directx9"/>
+
+      <RollbackBoundary />
+
+      <MsiPackage Id="MainPackage" SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi" DisplayInternalUI="yes" Compressed="yes" Vital="yes" />
+    </Chain>
+  </Bundle>
+</Wix>

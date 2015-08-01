@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <Fragment>
+    <!--<util:FileSearch Id="MFC90_Version_x86"
+               Variable="MFC90_Version_x86" Path="[SystemFolder]mfc90.dll"
+               Result="version"/>-->
+
+    <!-- We use a different way here, as the VC9 libraries are NOT installed under Systen32, but under WinSxS-->
+    <util:RegistrySearch Id="MFC90_Version_x86_Check" Root="HKLM"
+      Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9A25302D-30C0-39D9-BD6F-21E6EC160475}"
+      Value="DisplayVersion"
+      Win64="no" Variable="MFC90_Version_x86" />
+
+    <PackageGroup Id="redist_vc90">
+      <ExePackage Id="VC2008SP1_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
+                  Name="vcredist90_x86.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist90_x86.exe"
+                  InstallCommand="/q /norestart"
+                  InstallCondition="NOT MFC90_Version_x86">
+        <RemotePayload Description="Microsoft Visual C++ 2008 Redistributable Setup" ProductName="Microsoft Visual C++ 2008 Redistributable" Size="4216840 " Version="9.0.30729.17" Hash="6939100e397cef26ec22e95e53fcd9fc979b7bc9"/>
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <util:FileSearch Id="MFC100_Version_x86"
+               Variable="MFC100_Version_x86" Path="[SystemFolder]mfc100.dll"
+               Result="version"/>
+
+    <PackageGroup Id="redist_vc100">
+      <ExePackage Id="VC2010_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
+                  Name="vcredist100_x86.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist100_x86.exe"
+                  InstallCommand="/q /norestart"
+                  InstallCondition="(NOT MFC100_Version_x86 >= v10.0.30319.1) OR NOT MFC100_Version_x86">
+        <RemotePayload Description="Microsoft Visual C++ 2010 x86 Redistributable Setup" ProductName="Microsoft Visual C++ 2010 x86 Redistributable" Size="5073240" Version="10.0.30319.1" Hash="372d9c1670343d3fb252209ba210d4dc4d67d358"/>
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <util:FileSearch Id="MFC120_Version_x86"
+                 Variable="MFC120_Version_x86" Path="[SystemFolder]mfc120.dll"
+                 Result="version"/>
+
+    <PackageGroup Id="redist_vc120">
+      <ExePackage Id="VC2013_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
+                  Name="vcredist120_x86.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist120_x86.exe"
+                  InstallCommand="/passive /norestart"
+                  InstallCondition="(NOT MFC120_Version_x86 >= v12.0.21005.1) OR NOT MFC120_Version_x86"
+                  Protocol="burn">
+        <RemotePayload Description="Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.3050" ProductName="Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.30501" Size="6503984" Version="12.0.30501.1" Hash="df7f0a73bfa077e483e51bfb97f5e2eceedfb6a3"/>
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <PackageGroup Id="redist">
+      <PackageGroupRef Id="redist_vc90"/>
+      <PackageGroupRef Id="redist_vc100"/>
+      <PackageGroupRef Id="redist_vc120"/>
+    </PackageGroup>
+  </Fragment>
+
+</Wix>

@@ -122,6 +122,7 @@
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
       <FeatureRef Id="ServiceMonitor" />
+      <FeatureRef Id="LogCollector" />
 
       <ComponentRef Id="EmptyComponent_WindowsInstallerBugWorkaround" />
       <ComponentRef Id="TeamMediaPortal.Data.Folder" />

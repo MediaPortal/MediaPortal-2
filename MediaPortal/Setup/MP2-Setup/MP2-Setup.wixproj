@@ -22,7 +22,7 @@
     <LinkerAdditionalOptions>-sval</LinkerAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\</OutputPath>
+    <OutputPath>Bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <SuppressIces>ICE60;ICE80</SuppressIces>
     <LinkerAdditionalOptions>
@@ -36,6 +36,8 @@
     <None Include="Dokan\Dokan.targets" />
     <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
+    <Compile Include="Features\LogCollector.Heat.wxs" />
+    <Compile Include="Features\LogCollector.wxs" />
     <Compile Include="Features\Server.Heat.wxs" />
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
@@ -58,6 +60,7 @@
     <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
     <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
     <Content Include="xslt\Client.Heat.xslt" />
+    <Content Include="xslt\LogCollector.Heat.xslt" />
     <Content Include="xslt\Server.Heat.xslt" />
     <Content Include="xslt\ServiceMonitor.Heat.xslt" />
   </ItemGroup>
@@ -113,6 +116,14 @@
     <ProjectReference Include="..\..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj">
       <Name>MediaPortal.ServiceMonitor</Name>
       <Project>{b554fe2f-b4fc-4d70-87db-bc214ea104e4}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\LogCollector\MediaPortal.LogCollector.csproj">
+      <Name>MediaPortal.LogCollector</Name>
+      <Project>{3476bfd3-b634-4bab-8e0f-12921019b7b0}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>

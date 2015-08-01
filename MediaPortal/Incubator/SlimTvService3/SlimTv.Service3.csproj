@@ -138,6 +138,7 @@
     </Content>
     <Content Include="References\Castle.Core.dll" />
     <Content Include="References\Castle.Windsor.dll" />
+    <Content Include="SetupTV.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">

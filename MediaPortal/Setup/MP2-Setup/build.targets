@@ -36,8 +36,16 @@
       Transforms="$(ProjectDir)xslt\ServiceMonitor.Heat.xslt"
       OutputFile="$(ProjectDir)Features\ServiceMonitor.Heat.wxs"
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
-  </Target>
 
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\Release"
+      PreprocessorVariable="var.MediaPortal.LogCollector.TargetDir"
+      ComponentGroupName="LogCollector.Heat"
+      DirectoryRefId="INSTALLDIR_LOG_COLLECTOR"
+      Transforms="$(ProjectDir)xslt\LogCollector.Heat.xslt"
+      OutputFile="$(ProjectDir)Features\LogCollector.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+  </Target>
 
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>
