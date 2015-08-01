@@ -23,10 +23,11 @@
 #endregion
 
 using CommandLine;
+using MediaPortal.PackageManager.Options.Shared;
 
 namespace MediaPortal.PackageManager.Options.Shared
 {
-  internal class AuthOptions
+  internal abstract class AuthOptions : BaseOptions
   {
     [Option('h', "host", HelpText = "URI to the MediaPortal package server.", Required = true)]
     public string Host { get; set; }
@@ -36,5 +37,14 @@ namespace MediaPortal.PackageManager.Options.Shared
 
     [Option('p', "password", HelpText = "Password used to authenticate with the MediaPortal package server (if not specified, you will be prompted).", Required = false)]
     public string Password { get; set; }
+
+    #region Overrides of SharedOptions
+
+    public override bool RequiresElevation
+    {
+      get { return false; }
+    }
+
+    #endregion
   }
 }

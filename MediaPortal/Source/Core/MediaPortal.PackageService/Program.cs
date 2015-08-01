@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 
@@ -37,11 +38,12 @@ namespace MediaPortal.PackageService
     {
       try
       {
-        var options = new CommandLineOptions();
-        var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-        parser.ParseArgumentsStrict(args, options, () => Environment.Exit(1));
-
-        if (options.RunAsConsoleApp)
+        if (args.Contains("/c", StringComparer.OrdinalIgnoreCase) ||
+          args.Contains("/console", StringComparer.OrdinalIgnoreCase) ||
+          args.Contains("-c", StringComparer.OrdinalIgnoreCase) ||
+          args.Contains("-console", StringComparer.OrdinalIgnoreCase) || 
+          args.Contains("--c", StringComparer.OrdinalIgnoreCase) ||
+          args.Contains("--console", StringComparer.OrdinalIgnoreCase))
         {
           // run as command line program, makes debugging way easier
           Elevator.Start(Log);

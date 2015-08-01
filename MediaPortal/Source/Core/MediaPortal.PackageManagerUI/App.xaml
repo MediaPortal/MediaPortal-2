@@ -1,7 +1,9 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
-
-/*
-    Copyright (C) 2007-2014 Team MediaPortal
+﻿<Application x:Class="MediaPortal.PackageManagerUI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--#region Copyright (C) 2007-2015 Team MediaPortal -->
+    <!--
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -18,24 +20,8 @@
 
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#endregion
-
-using CommandLine;
-using CommandLine.Text;
-
-namespace MediaPortal.PackageService
-{
-  public class CommandLineOptions
-  {
-    [Option('c', "console", Required = false, HelpText = "Run MP2 Server as Console Application.")]
-    public bool RunAsConsoleApp { get; set; }
-
-    [HelpOption]
-    public string GetUsage()
-    {
-      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-    }
-  }
-}
+    -->
+    <!--#endregion-->
+    <Application.Resources>
+    </Application.Resources>
+</Application>

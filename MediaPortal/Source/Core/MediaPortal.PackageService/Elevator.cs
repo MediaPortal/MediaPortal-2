@@ -43,7 +43,6 @@ namespace MediaPortal.PackageService
   /// <summary>
   /// Elevator is a simple static class that opens a named pipe (MediaPortal.PackageService) and waits for 
   /// PackageManager to send a request to restart it with elevated privileges.
-  /// All console output of the elevated process is sent back through the pipe.
   /// </summary>
   public static class Elevator
   {
@@ -68,7 +67,7 @@ namespace MediaPortal.PackageService
           PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
       var pipe = new NamedPipeServerStream("MediaPortal.PackageService",
-        PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, 
+        PipeDirection.In, NamedPipeServerStream.MaxAllowedServerInstances, 
         PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
 
       lock (_serverPipes)
@@ -103,28 +102,15 @@ namespace MediaPortal.PackageService
           fileName = fileName.Substring(0, n);
         }
 
-        var redirector = new StdOutRedirector(pipe);
-
-        // start process and redirect std out and std error to our pipe
+        // start process
         var process = new Process();
         process.StartInfo.FileName = fileName;
         process.StartInfo.Arguments = arguments;
         process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.OutputDataReceived += redirector.ProcessOnDataReceived;
-        process.StartInfo.RedirectStandardError = true;
-        process.ErrorDataReceived += redirector.ProcessOnDataReceived;
+
         process.StartInfo.CreateNoWindow = true;
 
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-
-        // wait until process finishes and send exit code back through the pipe
-        // we prefix this with 0x7fff instead of data length, so the receiver can see that this is not an UTF8 encoded string, no matter what the exit code is
-        process.WaitForExit();
-        pipe.Write(BitConverter.GetBytes(0x7fff), 0, 4);
-        pipe.Write(BitConverter.GetBytes(process.ExitCode), 0, 4);
 
         lock (_serverPipes)
         {
@@ -155,33 +141,6 @@ namespace MediaPortal.PackageService
           }
         }
         _serverPipes.Clear();
-      }
-    }
-
-    private class StdOutRedirector
-    {
-      private readonly NamedPipeServerStream _pipe;
-
-      public StdOutRedirector(NamedPipeServerStream pipe)
-      {
-        _pipe = pipe;
-      }
-
-      public void ProcessOnDataReceived(object sender, DataReceivedEventArgs e)
-      {
-        if (e.Data != null)
-        {
-          try
-          {
-            var data = Encoding.UTF8.GetBytes(e.Data);
-            _pipe.Write(BitConverter.GetBytes(data.Length), 0, 4);
-            _pipe.Write(data, 0, data.Length);
-          }
-          catch
-          {
-            // ignored
-          }
-        }
       }
     }
   }

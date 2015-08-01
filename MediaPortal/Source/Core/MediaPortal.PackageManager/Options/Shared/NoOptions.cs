@@ -22,35 +22,17 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
-using System.ServiceProcess;
-
-namespace MediaPortal.PackageService
+namespace MediaPortal.PackageManager.Options.Shared
 {
-  /// <summary>
-  /// Windows service for MediaPortal.PackageService
-  /// </summary>
-  public partial class ElevatorService : ServiceBase
+  public class NoOptions : BaseOptions
   {
-    public ElevatorService()
+    #region Overrides of BaseOptions
+
+    public override bool RequiresElevation
     {
-      InitializeComponent();
+      get { return false; }
     }
 
-    private void Log(bool error, string format, params object[] args)
-    {
-      EventLog.WriteEntry(String.Format(format, args), error ? EventLogEntryType.Error : EventLogEntryType.Information);
-    }
-
-    protected override void OnStart(string[] args)
-    {
-      Elevator.Start(Log);
-    }
-
-    protected override void OnStop()
-    {
-      Elevator.Stop();
-    }
+    #endregion
   }
 }

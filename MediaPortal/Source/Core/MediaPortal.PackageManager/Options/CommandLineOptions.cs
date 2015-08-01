@@ -26,6 +26,7 @@ using CommandLine;
 using CommandLine.Text;
 using MediaPortal.PackageManager.Options.Admin;
 using MediaPortal.PackageManager.Options.Authors;
+using MediaPortal.PackageManager.Options.Shared;
 using MediaPortal.PackageManager.Options.Users;
 
 namespace MediaPortal.PackageManager.Options
@@ -64,6 +65,14 @@ namespace MediaPortal.PackageManager.Options
     public ListOptions ListVerb { get; set; }
 
     #endregion
+
+    #region Other Actions
+
+    [VerbOption("listassemblies", HelpText = "List all assembies and additional files which are used by the tool.")]
+    public NoOptions ListAssembliesVerb { get; set; }
+
+    #endregion
+
 
     [HelpVerbOption]
     public string GetUsage(string verb)

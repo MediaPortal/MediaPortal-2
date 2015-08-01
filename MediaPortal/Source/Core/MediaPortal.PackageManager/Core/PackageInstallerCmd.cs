@@ -24,7 +24,6 @@
 
 using System;
 using System.IO;
-using System.Net.Sockets;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
 using MediaPortal.PackageCore;

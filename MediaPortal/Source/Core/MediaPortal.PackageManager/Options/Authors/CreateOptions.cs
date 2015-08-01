@@ -23,10 +23,11 @@
 #endregion
 
 using CommandLine;
+using MediaPortal.PackageManager.Options.Shared;
 
 namespace MediaPortal.PackageManager.Options.Authors
 {
-  internal class CreateOptions
+  internal class CreateOptions : BaseOptions
   {
     [Option('s', "source", Required = true, HelpText = "Source folder containing the files to package.")]
     public string SourceFolder { get; set; }
@@ -39,5 +40,14 @@ namespace MediaPortal.PackageManager.Options.Authors
 
     [Option('f', "force", Required = false, HelpText = "Overwrite the target file if it already exists.", DefaultValue = false)]
     public bool OverwriteExistingTarget { get; set; }
+
+    #region Overrides of SharedOptions
+
+    public override bool RequiresElevation
+    {
+      get { return false; }
+    }
+
+    #endregion
   }
 }

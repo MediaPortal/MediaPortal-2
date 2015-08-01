@@ -28,7 +28,7 @@ namespace MediaPortal.PackageCore.Package.Action
       {
         if (doLog)
         {
-          context.Log.Error("Failed", ex);
+          context.LogError("Failed", ex);
         }
         throw;
       }
@@ -62,7 +62,7 @@ namespace MediaPortal.PackageCore.Package.Action
       {
         if (doLog)
         {
-          context.Log.Error("Failed", ex);
+          context.LogError("Failed", ex);
         }
         throw;
       }
@@ -100,12 +100,15 @@ namespace MediaPortal.PackageCore.Package.Action
         foreach (var file in Directory.GetFiles(source))
         {
           string fileName = Path.GetFileName(file);
-          string fileTarget = Path.Combine(target, fileName);
-          if (doLog)
+          if (fileName != null)
           {
-            context.LogInfo("Copying file {0}", fileName);
+            string fileTarget = Path.Combine(target, fileName);
+            if (doLog)
+            {
+              context.LogInfo("Copying file {0}", fileName);
+            }
+            CopyFile(context, file, fileTarget, overwrite, false);
           }
-          CopyFile(context, file, fileTarget, overwrite, false);
         }
       }
       catch (IOException ex)
@@ -173,7 +176,7 @@ namespace MediaPortal.PackageCore.Package.Action
       {
         if (doLog)
         {
-          context.Log.Error("Failed", ex);
+          context.LogError("Failed", ex);
         }
         throw;
       }

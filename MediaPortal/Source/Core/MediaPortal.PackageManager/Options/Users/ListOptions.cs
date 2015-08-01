@@ -25,10 +25,11 @@
 using System.Collections.Generic;
 using CommandLine;
 using MediaPortal.Common.PluginManager.Packages.DataContracts.Enumerations;
+using MediaPortal.PackageManager.Options.Shared;
 
 namespace MediaPortal.PackageManager.Options.Users
 {
-  internal class ListOptions : SharedOptions
+  internal class ListOptions : BaseOptions
   {
     [Option('t', "type", HelpText = "Filters the package list to the given package type (Client or Server).")]
     public PackageType PackageType { get; set; }
@@ -47,5 +48,14 @@ namespace MediaPortal.PackageManager.Options.Users
 
     [Option("tags", HelpText = "Filters the package list to contain only packages with matching tags.", Required = false)]
     public ICollection<string> CategoryTags { get; set; }
+
+    #region Overrides of SharedOptions
+
+    public override bool RequiresElevation
+    {
+      get { return false; }
+    }
+
+    #endregion
   }
 }
