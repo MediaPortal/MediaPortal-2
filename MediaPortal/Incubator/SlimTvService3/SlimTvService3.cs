@@ -94,6 +94,31 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
     }
 
+    protected override void PrepareProgramData()
+    {
+      base.PrepareProgramData();
+      // TVE3 doesn't allow all kind of required modifications of paths yet, so we need to use some "old" paths here
+      try
+      {
+        string mpTveServer = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Team MediaPortal", "MediaPortal TV Server");
+        string logFolder = Path.Combine(mpTveServer, "log");
+        if (!Directory.Exists(logFolder))
+          Directory.CreateDirectory(logFolder);
+
+
+        string mpIpTvConfig = "MPIPTVSource.ini";
+        string target = Path.Combine(mpTveServer, mpIpTvConfig);
+        if (!File.Exists(target))
+        {
+          File.Copy(Path.Combine(ServiceRegistration.Get<IPathManager>().GetPath("<TVCORE>"), mpIpTvConfig), target);
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Error creating TVE3 folders", ex);
+      }
+    }
+
     protected override void InitTvCore()
     {
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);

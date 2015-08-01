@@ -131,7 +131,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     /// <summary>
     /// Prepares the required data folders for first run. The required tuningdetails and other files are extracted to [TVCORE] path.
     /// </summary>
-    private void PrepareProgramData()
+    protected virtual void PrepareProgramData()
     {
       if (!NeedsExtract())
         return;
