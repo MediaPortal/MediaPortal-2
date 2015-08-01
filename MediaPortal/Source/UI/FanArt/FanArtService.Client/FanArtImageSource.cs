@@ -52,9 +52,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     #region Properties
 
-    public FanArtConstants.FanArtMediaType FanArtMediaType
+    public string FanArtMediaType
     {
-      get { return (FanArtConstants.FanArtMediaType) _fanArtMediaTypeProperty.GetValue(); }
+      get { return (string) _fanArtMediaTypeProperty.GetValue(); }
       set { _fanArtMediaTypeProperty.SetValue(value); }
     }
 
@@ -63,9 +63,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       get { return _fanArtMediaTypeProperty; }
     }
 
-    public FanArtConstants.FanArtType FanArtType
+    public string FanArtType
     {
-      get { return (FanArtConstants.FanArtType) _fanArtTypeProperty.GetValue(); }
+      get { return (string)_fanArtTypeProperty.GetValue(); }
       set { _fanArtTypeProperty.SetValue(value); }
     }
 
@@ -154,8 +154,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected void Init()
     {
-      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
-      _fanArtTypeProperty = new SProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
+      _fanArtMediaTypeProperty = new SProperty(typeof(string), FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtTypeProperty = new SProperty(typeof(string), FanArtConstants.FanArtType.Undefined);
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
       _maxWidthProperty = new SProperty(typeof(int), 0);
       _maxHeightProperty = new SProperty(typeof(int), 0);

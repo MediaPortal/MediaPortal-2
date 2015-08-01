@@ -47,7 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       if (string.IsNullOrWhiteSpace(name))
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
       return false;
     }
 
-    protected string[] GetPatterns(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int tvdbId, int seasonNum)
+    protected string[] GetPatterns(string mediaType, string fanArtType, string name, int tvdbId, int seasonNum)
     {
       if (mediaType == FanArtConstants.FanArtMediaType.Series)
       {
@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
       return null;
     }
 
-    protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name, out int tvDbId)
+    protected string GetBaseFolder(string mediaType, string name, out int tvDbId)
     {
       switch (mediaType)
       {

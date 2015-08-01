@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       if (mediaType != FanArtConstants.FanArtMediaType.Movie && mediaType != FanArtConstants.FanArtMediaType.MovieCollection &&
@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
       return files.Count > 0;
     }
 
-    protected bool GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, Guid mediaItemId, string name, out string[] patterns)
+    protected bool GetPattern(string mediaType, string fanArtType, Guid mediaItemId, string name, out string[] patterns)
     {
       patterns = null;
       string basePath = null;

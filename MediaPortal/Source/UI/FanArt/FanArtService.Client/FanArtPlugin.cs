@@ -45,7 +45,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       if (mediaItem.MediaItemId == Guid.Empty)
         return ImageSourceFactory.CreateMediaItemThumbnailAspectSource(source, width, height);
 
-      FanArtConstants.FanArtMediaType mediaType = FanArtConstants.FanArtMediaType.Undefined;
+      string mediaType = FanArtConstants.FanArtMediaType.Undefined;
       // Special handling for ImageThumbs that might require rotation
       if (mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
         mediaType = FanArtConstants.FanArtMediaType.Image;
