@@ -64,6 +64,9 @@
     </Compile>
     <Compile Include="FanArtImageSource.cs" />
     <Compile Include="FanArtImageSourceConverter.cs" />
+    <Compile Include="ImageSourceProvider\FanartImageSourceProvider.cs" />
+    <Compile Include="ImageSourceProvider\FanartImageSourceProviderBuilder.cs" />
+    <Compile Include="ImageSourceProvider\IFanartImageSourceProvider.cs" />
     <Compile Include="MediaItemAspectToBoolConverter.cs" />
     <Compile Include="Models\FanArtBackgroundModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

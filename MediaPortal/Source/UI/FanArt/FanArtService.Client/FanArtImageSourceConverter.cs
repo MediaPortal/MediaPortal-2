@@ -24,7 +24,6 @@
 
 using System;
 using System.Globalization;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 

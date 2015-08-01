@@ -32,6 +32,12 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using System.Collections.Generic;
+using MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager.Exceptions;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
@@ -52,7 +58,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _mediaItemProperty;
     protected AbstractProperty _imageSourceProperty;
 
-    protected AsynchronousMessageQueue _messageQueue = null;
+    protected AsynchronousMessageQueue _messageQueue = null; 
+    protected readonly object _syncObj = new object();
+    protected IList<IFanartImageSourceProvider> _providerList = null;
+    protected IPluginItemStateTracker _providerPluginItemStateTracker;
 
     public FanArtBackgroundModel()
     {
@@ -64,7 +73,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
       _mediaItemProperty = new WProperty(typeof(MediaItem), null);
       _imageSourceProperty = new WProperty(typeof(ImageSource), null);
-      SetFanArtType();
+      Update();
       SetImageSource();
       SubscribeToMessages();
     }
@@ -99,6 +108,41 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
           case WorkflowManagerMessaging.MessageType.NavigationComplete:
             SelectedItem = null; // Clear current data for new screen
             break;
+        }
+      }
+    }
+
+    public void InitProviders()
+    {
+      lock (_syncObj)
+      {
+        if (_providerList != null)
+          return;
+        _providerList = new List<IFanartImageSourceProvider>();
+
+        _providerPluginItemStateTracker = new FixedItemStateTracker("Fanart Service - Provider registration");
+
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(FanartImageSourceProviderBuilder.FANART_IMAGE_SOURCE_PROVIDER_PATH))
+        {
+          try
+          {
+            FanartImageSourceProviderRegistration providerRegistration = pluginManager.RequestPluginItem<FanartImageSourceProviderRegistration>(FanartImageSourceProviderBuilder.FANART_IMAGE_SOURCE_PROVIDER_PATH, itemMetadata.Id, _providerPluginItemStateTracker);
+            if (providerRegistration == null)
+              ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Fanart Image Source provider with id '{0}'", itemMetadata.Id);
+            else
+            {
+              IFanartImageSourceProvider provider = Activator.CreateInstance(providerRegistration.ProviderClass) as IFanartImageSourceProvider;
+              if (provider == null)
+                throw new PluginInvalidStateException("Could not create IFanartImageSourceProvider instance of class {0}", providerRegistration.ProviderClass);
+              _providerList.Add(provider);
+              ServiceRegistration.Get<ILogger>().Info("Successfully activated Fanart Image Source provider '{0}' (Id '{1}')", itemMetadata.Attributes["ClassName"], itemMetadata.Id);
+            }
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add IFanartImageSourceProvider extension with id '{0}'", e, itemMetadata.Id);
+          }
         }
       }
     }
@@ -196,7 +240,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     private void SetFanArtType(AbstractProperty property, object value)
     {
-      SetFanArtType();
+      Update();
       SetImageSource();
     }
 
@@ -205,14 +249,27 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     /// </summary>
     private void SetImageSource()
     {
+      InitProviders();
+      FanArtImageSource imageSource;
+      foreach (IFanartImageSourceProvider provider in _providerList)
+      {
+        if (provider.TryCreateFanartImageSource(SelectedItem, out imageSource))
+        {
+          ImageSource = imageSource;
+          FanArtMediaType = imageSource.FanArtMediaType;
+          FanArtName = imageSource.FanArtName;
+          return;
+        }
+      }
+
       ImageSource = new FanArtImageSource
         {
-          FanArtMediaType = FanArtMediaType,
-          FanArtName = FanArtName,
+          FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined,
+          FanArtName = string.Empty
         };
     }
 
-    private void SetFanArtType()
+    private void Update()
     {
       PlayableMediaItem playableMediaItem = SelectedItem as PlayableMediaItem;
       if (playableMediaItem != null)
@@ -229,33 +286,27 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       SeriesFilterItem series = SelectedItem as SeriesFilterItem;
       if (series != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
-        SimpleTitle = FanArtName = series.SimpleTitle;
+        SimpleTitle = series.SimpleTitle;
         ItemDescription = null;
         return;
       }
       SeriesItem episode = SelectedItem as SeriesItem;
       if (episode != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
-        SimpleTitle = FanArtName = episode.Series;
+        SimpleTitle = episode.Series;
         ItemDescription = episode.StoryPlot;
         return;
       }
       MovieFilterItem movieCollection = SelectedItem as MovieFilterItem;
       if (movieCollection != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.MovieCollection;
-        SimpleTitle = FanArtName = movieCollection.SimpleTitle;
+        SimpleTitle = movieCollection.SimpleTitle;
         ItemDescription = null;
         return;
       }
       MovieItem movie = SelectedItem as MovieItem;
       if (movie != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
-        // Fanart loading now depends on the MediaItemId to support local fanart
-        FanArtName = movie.MediaItem.MediaItemId.ToString();
         SimpleTitle = movie.SimpleTitle;
         ItemDescription = movie.StoryPlot;
         return;
@@ -263,9 +314,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       VideoItem video = SelectedItem as VideoItem;
       if (video != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
-        // Fanart loading now depends on the MediaItemId to support local fanart
-        FanArtName = video.MediaItem.MediaItemId.ToString();
         SimpleTitle = video.SimpleTitle;
         ItemDescription = video.StoryPlot;
         return;
@@ -277,8 +325,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         ItemDescription = string.Empty;
         return;
       }
-      FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
-      FanArtName = string.Empty;
       ItemDescription = string.Empty;
     }
   }

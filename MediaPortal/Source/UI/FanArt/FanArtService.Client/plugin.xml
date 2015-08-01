@@ -29,4 +29,10 @@
   <Register Location="/Models">
     <Model Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91" Name="FanArtBackgroundModel" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.Models.FanArtBackgroundModel"/>
   </Register>
+
+  <Builder Name="FanartImageSourceProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider.FanartImageSourceProviderBuilder"/>
+  <Register Location="/Fanart/FanartImageSourceProviders">
+    <FanartImageSourceProviderBuilder Id="{7B38898A-BD75-4B6B-9BF6-51A30729FFC5}" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider.FanartImageSourceProvider"/>
+  </Register>
+  
 </Plugin>
