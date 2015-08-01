@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
@@ -167,6 +168,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Exception while handling TvServerEvent", ex);
       }
+    }
+
+    protected override bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern)
+    {
+      IList<Card> allCards = ServiceAgents.Instance.CardServiceAgent.ListAllCards(CardIncludeRelationEnum.None);
+      // Get all different recording folders
+      recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+      singlePattern = ServiceAgents.Instance.SettingServiceAgent.GetValue("moviesformat", string.Empty);
+      seriesPattern = ServiceAgents.Instance.SettingServiceAgent.GetValue("seriesformat", string.Empty);
+      return recordingFolders.Count > 0;
     }
 
     #endregion

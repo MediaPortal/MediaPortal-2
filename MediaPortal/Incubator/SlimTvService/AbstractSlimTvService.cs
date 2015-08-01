@@ -50,6 +50,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 {
   public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
   {
+    public static readonly MediaCategory Series = new MediaCategory("Series", null);
+    public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
+
     protected const int MAX_WAIT_MS = 10000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
@@ -105,6 +108,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       // Run the actual TV core thread(s)
       InitTvCore();
+
+      // Prepare the MP2 integration
+      PrepareMediaSources();
     }
 
     /// <summary>
@@ -214,17 +220,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected void ImportRecording(string fileName)
     {
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-
-      List<Share> possibleShares = new List<Share>(); // Shares can point to different depth, we try to find the deepest one
-      foreach (var share in mediaLibrary.GetShares(systemResolver.LocalSystemId).Values)
-      {
-        var dir = LocalFsResourceProviderBase.ToDosPath(share.BaseResourcePath.LastPathSegment.Path);
-        if (dir != null && fileName.StartsWith(dir, StringComparison.InvariantCultureIgnoreCase))
-          possibleShares.Add(share);
-      }
-      if (possibleShares.Count == 0)
+      List<Share> possibleShares; // Shares can point to different depth, we try to find the deepest one
+      if (!GetSharesForPath(fileName, out possibleShares))
       {
         ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Received notifaction of new recording but could not find a media source. Have you added recordings folder as media source? File: {0}", fileName);
         return;
@@ -233,6 +230,102 @@ namespace MediaPortal.Plugins.SlimTv.Service
       Share usedShare = possibleShares.OrderByDescending(s => s.BaseResourcePath.LastPathSegment.Path.Length).First();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.ScheduleRefresh(usedShare.BaseResourcePath, usedShare.MediaCategories, true);
+    }
+
+    protected bool GetSharesForPath(string fileName, out List<Share> possibleShares)
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      string localSystemId = systemResolver.LocalSystemId;
+      return GetSharesForPath(fileName, localSystemId, out possibleShares);
+    }
+
+    protected bool GetSharesForPath(string fileName, string localSystemId, out List<Share> possibleShares)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      possibleShares = new List<Share>();
+      foreach (var share in mediaLibrary.GetShares(localSystemId).Values)
+      {
+        var dir = LocalFsResourceProviderBase.ToDosPath(share.BaseResourcePath.LastPathSegment.Path);
+        if (dir != null && fileName.StartsWith(dir, StringComparison.InvariantCultureIgnoreCase))
+          possibleShares.Add(share);
+      }
+      return possibleShares.Count > 0;
+    }
+
+    protected abstract bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern);
+
+    protected void PrepareMediaSources()
+    {
+      Dictionary<string, ICollection<MediaCategory>> checkFolders = new Dictionary<string, ICollection<MediaCategory>>();
+      List<string> recordingFolders;
+      string singlePattern;
+      string seriesPattern;
+      if (!GetRecordingConfiguration(out recordingFolders, out singlePattern, out seriesPattern))
+      {
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Unable to configure MediaSource for recordings, probably TV configuration wasn't run yet.");
+        return;
+      }
+
+      string movieSubfolder = GetFixedFolderPart(singlePattern);
+      string seriesSubfolder = GetFixedFolderPart(seriesPattern);
+
+      foreach (var recordingFolder in recordingFolders)
+      {
+        if (!string.IsNullOrEmpty(movieSubfolder) && !string.IsNullOrEmpty(seriesSubfolder))
+        {
+          // If there are different target folders defined, register the media sources with specialized Series/Movie types
+          checkFolders.Add(Path.Combine(recordingFolder, movieSubfolder), new HashSet<MediaCategory> { DefaultMediaCategories.Video, Movie });
+          checkFolders.Add(Path.Combine(recordingFolder, seriesSubfolder), new HashSet<MediaCategory> { DefaultMediaCategories.Video, Series });
+        }
+        else
+        {
+          checkFolders.Add(recordingFolder, new HashSet<MediaCategory> { DefaultMediaCategories.Video });
+        }
+      }
+
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      int cnt = 1;
+      foreach (var folderTypes in checkFolders)
+      {
+        try
+        {
+          List<Share> shares;
+          // Check if there are already share(s) for the folder
+          if (GetSharesForPath(folderTypes.Key, out shares))
+            continue;
+
+          var folderPath = LocalFsResourceProviderBase.ToProviderPath(folderTypes.Key);
+          var mediaCategories = folderTypes.Value.Select(mc => mc.CategoryName);
+          Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, folderPath),
+            string.Format("Recordings ({0})", cnt), mediaCategories);
+
+          mediaLibrary.RegisterShare(sd);
+          cnt++;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("SlimTvService: Error registering new MediaSource.", ex);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Returns only parts of pattern, which don't contain a variable placeholder (%)
+    /// </summary>
+    /// <param name="singlePattern">Pattern</param>
+    /// <returns></returns>
+    private static string GetFixedFolderPart(string singlePattern)
+    {
+      var folderParts = singlePattern.Split(new[] { '\\' });
+      var fixedFolderParts = new List<string>();
+      foreach (var folderPart in folderParts)
+      {
+        if (!folderPart.Contains("%"))
+          fixedFolderParts.Add(folderPart);
+        else
+          break;
+      }
+      return string.Join("\\", fixedFolderParts);
     }
 
     #endregion

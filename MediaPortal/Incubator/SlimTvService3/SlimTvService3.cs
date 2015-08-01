@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
@@ -243,6 +244,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Exception while handling TvServerEvent", ex);
       }
+    }
+
+    protected override bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern)
+    {
+      TvBusinessLayer layer = new TvBusinessLayer();
+      IList<Card> allCards = Card.ListAll();
+      // Get all different recording folders
+      recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+      singlePattern = layer.GetSetting("moviesformat", string.Empty).Value;
+      seriesPattern = layer.GetSetting("seriesformat", string.Empty).Value;
+      return recordingFolders.Count > 0;
     }
 
     #endregion
