@@ -45,10 +45,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       result = null;
       Guid mediaItemId;
 
-      var isImage = mediaType == FanArtConstants.FanArtMediaType.Image;
+      var isImage = mediaType == FanArtMediaTypes.Image;
       if (!Guid.TryParse(name, out mediaItemId) ||
-        mediaType != FanArtConstants.FanArtMediaType.Undefined && !isImage ||
-        fanArtType != FanArtConstants.FanArtType.Thumbnail)
+        mediaType != FanArtMediaTypes.Undefined && !isImage ||
+        fanArtType != FanArtTypes.Thumbnail)
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);

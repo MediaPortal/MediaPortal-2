@@ -71,14 +71,14 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
-      if (mediaType != FanArtConstants.FanArtMediaType.ChannelTv && mediaType != FanArtConstants.FanArtMediaType.ChannelRadio)
+      if (mediaType != FanArtMediaTypes.ChannelTv && mediaType != FanArtMediaTypes.ChannelRadio)
         return false;
 
       try
       {
         string designsFolder = FileUtils.BuildAssemblyRelativePath("Designs");
 
-        ChannelType logoChannelType = mediaType == FanArtConstants.FanArtMediaType.ChannelTv ? ChannelType.Tv : ChannelType.Radio;
+        ChannelType logoChannelType = mediaType == FanArtMediaTypes.ChannelTv ? ChannelType.Tv : ChannelType.Radio;
         ThemeHandler themeHandler = new ThemeHandler();
         Theme theme = themeHandler.Load(Path.Combine(designsFolder, _settings.LogoTheme));
 

@@ -45,15 +45,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       if (mediaItem.MediaItemId == Guid.Empty)
         return ImageSourceFactory.CreateMediaItemThumbnailAspectSource(source, width, height);
 
-      string mediaType = FanArtConstants.FanArtMediaType.Undefined;
+      string mediaType = FanArtMediaTypes.Undefined;
       // Special handling for ImageThumbs that might require rotation
       if (mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
-        mediaType = FanArtConstants.FanArtMediaType.Image;
+        mediaType = FanArtMediaTypes.Image;
 
       FanArtImageSource fanArtImageSource = new FanArtImageSource
       {
         FanArtMediaType = mediaType,
-        FanArtType = FanArtConstants.FanArtType.Thumbnail,
+        FanArtType = FanArtTypes.Thumbnail,
         MaxWidth = MAX_SIZE_THUMBS,
         MaxHeight = MAX_SIZE_THUMBS,
         // Order matters here: if all arguments are complete, download will start. We control the start time by setting FanArtName after all required properties are set

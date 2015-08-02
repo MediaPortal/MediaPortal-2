@@ -154,8 +154,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected void Init()
     {
-      _fanArtMediaTypeProperty = new SProperty(typeof(string), FanArtConstants.FanArtMediaType.Undefined);
-      _fanArtTypeProperty = new SProperty(typeof(string), FanArtConstants.FanArtType.Undefined);
+      _fanArtMediaTypeProperty = new SProperty(typeof(string), FanArtMediaTypes.Undefined);
+      _fanArtTypeProperty = new SProperty(typeof(string), FanArtTypes.Undefined);
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
       _maxWidthProperty = new SProperty(typeof(int), 0);
       _maxHeightProperty = new SProperty(typeof(int), 0);
@@ -221,8 +221,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected bool CheckValidArgs()
     {
       return (
-        FanArtMediaType != FanArtConstants.FanArtMediaType.Undefined && FanArtType != FanArtConstants.FanArtType.Undefined ||
-        FanArtMediaType == FanArtConstants.FanArtMediaType.Undefined && FanArtType == FanArtConstants.FanArtType.Thumbnail /* Special case for all MediaItem thumbs */
+        FanArtMediaType != FanArtMediaTypes.Undefined && FanArtType != FanArtTypes.Undefined ||
+        FanArtMediaType == FanArtMediaTypes.Undefined && FanArtType == FanArtTypes.Thumbnail /* Special case for all MediaItem thumbs */
         )
         && !string.IsNullOrWhiteSpace(FanArtName);
     }

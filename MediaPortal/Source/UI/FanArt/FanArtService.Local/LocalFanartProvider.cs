@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       Guid mediaItemId;
 
       // Don't try to load "fanart" for images
-      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtConstants.FanArtMediaType.Image)
+      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           {
             var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtConstants.FanArtType.Poster || fanArtType == FanArtConstants.FanArtType.Thumbnail)
+            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                       potentialFanArtFileNameWithoutExtension == "folder"
                 select potentialFanArtFile);
 
-            if (fanArtType == FanArtConstants.FanArtType.FanArt)
+            if (fanArtType == FanArtTypes.FanArt)
             {
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles

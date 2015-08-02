@@ -57,8 +57,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
-      if (mediaType != FanArtConstants.FanArtMediaType.Movie && mediaType != FanArtConstants.FanArtMediaType.MovieCollection &&
-          mediaType != FanArtConstants.FanArtMediaType.Undefined && fanArtType == FanArtConstants.FanArtType.Thumbnail)
+      if (mediaType != FanArtMediaTypes.Movie && mediaType != FanArtMediaTypes.MovieCollection &&
+          mediaType != FanArtMediaTypes.Undefined && fanArtType == FanArtTypes.Thumbnail)
         return false;
 
       Guid mediaItemId;
@@ -113,8 +113,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
         {
           switch (mediaType)
           {
-            case FanArtConstants.FanArtMediaType.Undefined:
-            case FanArtConstants.FanArtMediaType.Movie:
+            case FanArtMediaTypes.Undefined:
+            case FanArtMediaTypes.Movie:
               basePath = Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId.ToString());
               break;
           }
@@ -124,12 +124,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
       {
         switch (mediaType)
         {
-          case FanArtConstants.FanArtMediaType.Undefined:
-          case FanArtConstants.FanArtMediaType.Movie:
+          case FanArtMediaTypes.Undefined:
+          case FanArtMediaTypes.Movie:
             int movieDbId;
             basePath = !MovieTheMovieDbMatcher.Instance.TryGetMovieDbId(name, out movieDbId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId.ToString());
             break;
-          case FanArtConstants.FanArtMediaType.MovieCollection:
+          case FanArtMediaTypes.MovieCollection:
             int collectionId;
             basePath = !MovieTheMovieDbMatcher.Instance.TryGetCollectionId(name, out collectionId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, "COLL_" + collectionId);
             break;
@@ -141,11 +141,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
 
       switch (fanArtType)
       {
-        case FanArtConstants.FanArtType.Thumbnail:
-        case FanArtConstants.FanArtType.Poster:
+        case FanArtTypes.Thumbnail:
+        case FanArtTypes.Poster:
           patterns = new[] { Path.Combine(basePath, "Posters\\*.jpg") };
           return true;
-        case FanArtConstants.FanArtType.FanArt:
+        case FanArtTypes.FanArt:
           patterns = new[] { Path.Combine(basePath, "Backdrops\\*.jpg") };
           return true;
       }

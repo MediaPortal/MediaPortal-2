@@ -24,35 +24,32 @@
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
-  public class FanArtConstants
+  public static class FanArtMediaTypes
   {
-    public class FanArtMediaType
-    {
-      public const string Undefined = "Undefined";
-      public const string Music = "Music";
-      public const string Movie = "Movie";
-      public const string MovieCollection = "MovieCollection";
-      public const string Series = "Series";
-      public const string SeriesSeason = "SeriesSeason";
-      public const string Episode = "Episode";
-      public const string Actor = "Actor";
-      public const string Artist = "Artist";
-      public const string ChannelTv = "ChannelTv";
-      public const string ChannelRadio = "ChannelRadio";
-      public const string Album = "Album";
-      public const string Audio = "Audio";
-      public const string Image = "Image";
-    }
+    public const string Undefined = "Undefined";
+    public const string Music = "Music";
+    public const string Movie = "Movie";
+    public const string MovieCollection = "MovieCollection";
+    public const string Series = "Series";
+    public const string SeriesSeason = "SeriesSeason";
+    public const string Episode = "Episode";
+    public const string Actor = "Actor";
+    public const string Artist = "Artist";
+    public const string ChannelTv = "ChannelTv";
+    public const string ChannelRadio = "ChannelRadio";
+    public const string Album = "Album";
+    public const string Audio = "Audio";
+    public const string Image = "Image";
+  }
 
-    public class FanArtType
-    {
-      public const string Undefined = "Undefined";
-      public const string Poster = "Poster";
-      public const string Banner = "Banner";
-      public const string FanArt = "FanArt";
-      public const string Thumbnail = "Thumbnail";
-      public const string ClearArt = "ClearArt";
-      public const string DiscArt = "DiscArt";
-    }
+  public static class FanArtTypes
+  {
+    public const string Undefined = "Undefined";
+    public const string Poster = "Poster";
+    public const string Banner = "Banner";
+    public const string FanArt = "FanArt";
+    public const string Thumbnail = "Thumbnail";
+    public const string ClearArt = "ClearArt";
+    public const string DiscArt = "DiscArt";
   }
 }

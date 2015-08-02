@@ -39,32 +39,32 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
       SeriesFilterItem series = listItem as SeriesFilterItem;
       if (series != null)
       {
-        fanArtMediaType = FanArtConstants.FanArtMediaType.Series;
+        fanArtMediaType = FanArtMediaTypes.Series;
         fanArtName = series.SimpleTitle;
       }
       SeriesItem episode = listItem as SeriesItem;
       if (episode != null)
       {
-        fanArtMediaType = FanArtConstants.FanArtMediaType.Series;
+        fanArtMediaType = FanArtMediaTypes.Series;
         fanArtName = episode.Series;
       }
       MovieFilterItem movieCollection = listItem as MovieFilterItem;
       if (movieCollection != null)
       {
-        fanArtMediaType = FanArtConstants.FanArtMediaType.MovieCollection;
+        fanArtMediaType = FanArtMediaTypes.MovieCollection;
         fanArtName = movieCollection.SimpleTitle;
       }
       MovieItem movie = listItem as MovieItem;
       if (movie != null)
       {
-        fanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
+        fanArtMediaType = FanArtMediaTypes.Movie;
         // Fanart loading now depends on the MediaItemId to support local fanart
         fanArtName = movie.MediaItem.MediaItemId.ToString();
       }
       VideoItem video = listItem as VideoItem;
       if (video != null)
       {
-        fanArtMediaType = FanArtConstants.FanArtMediaType.Movie;
+        fanArtMediaType = FanArtMediaTypes.Movie;
         // Fanart loading now depends on the MediaItemId to support local fanart
         fanArtName = video.MediaItem.MediaItemId.ToString();
       }

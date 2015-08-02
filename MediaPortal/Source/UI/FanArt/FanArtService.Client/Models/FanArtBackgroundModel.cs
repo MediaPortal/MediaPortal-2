@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     {
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
       _selectedItemProperty.Attach(SetFanArtType);
-      _fanArtMediaTypeProperty = new WProperty(typeof(string), FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtMediaTypeProperty = new WProperty(typeof(string), FanArtMediaTypes.Undefined);
       _fanArtNameProperty = new WProperty(typeof(string), string.Empty);
       _simpleTitleProperty = new WProperty(typeof(string), string.Empty);
       _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
@@ -264,7 +264,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
       ImageSource = new FanArtImageSource
         {
-          FanArtMediaType = FanArtConstants.FanArtMediaType.Undefined,
+          FanArtMediaType = FanArtMediaTypes.Undefined,
           FanArtName = string.Empty
         };
     }

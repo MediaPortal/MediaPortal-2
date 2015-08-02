@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
-      if (mediaType != FanArtConstants.FanArtMediaType.Album || fanArtType != FanArtConstants.FanArtType.Poster || string.IsNullOrEmpty(name))
+      if (mediaType != FanArtMediaTypes.Album || fanArtType != FanArtTypes.Poster || string.IsNullOrEmpty(name))
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
