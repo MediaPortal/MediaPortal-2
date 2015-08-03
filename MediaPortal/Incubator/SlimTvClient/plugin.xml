@@ -59,6 +59,12 @@
       DisplayLabel="[SlimTvClient.ExtendedSchedule]"
       WorkflowModel="EB9CB370-9CD6-4D72-8354-73E446104438"/>   <!-- Workflow model = SlimTvExtSchedule Model -->
 
+    <WorkflowState Id="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
+      Name="SlimTvClientProgramSearch"
+      MainScreen="SlimTvClient-programsearch"
+      DisplayLabel="[SlimTvClient.ProgramSearch]"
+      WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>   <!-- Workflow model = SlimTvProgramSearch Model -->
+
     <WorkflowState Id="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       Name="SlimTvClientScheduleList"
       MainScreen="SlimTvClient-schedulelist"
@@ -104,6 +110,7 @@
     <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSingleChannelGuideModel"/>
     <Model Id="5054408D-C2A9-451f-A702-E84AFCD29C10" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvMultiChannelGuideModel"/>
     <Model Id="EB9CB370-9CD6-4D72-8354-73E446104438" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvExtScheduleModel"/>
+    <Model Id="71F1D594-21BF-4639-9F8A-3CE8D8170333" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvProgramSearchModel"/>
     <Model Id="7610403A-4488-47A4-8C27-FD1FE833E52B" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvScheduleManagement"/>
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
   </Register>
