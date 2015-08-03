@@ -52,11 +52,11 @@ namespace MediaPortal.Plugins.SlimTv.Service3
 
       if (hResult == 0)
       {
-        ServiceRegistration.Get<ILogger>().Info("COMRegistration: {0} successful.", (register ? "Registration" : "Unregistration"));
+        ServiceRegistration.Get<ILogger>().Info("COMRegistration: {0} of {1} successful.", (register ? "Registration" : "Unregistration"), filterPath);
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Error("COMRegistration: {0} failed. Error: {1:X}", (register ? "Registration" : "Unregistration"), hResult);
+        ServiceRegistration.Get<ILogger>().Error("COMRegistration: {0} of {2} failed. Error: {1:X}", (register ? "Registration" : "Unregistration"), hResult, filterPath);
       }
 
       FreeLibrary(hModuleDLL);
