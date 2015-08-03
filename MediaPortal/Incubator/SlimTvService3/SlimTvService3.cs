@@ -79,19 +79,25 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void PrepareFilterRegistrations()
     {
-      const string FILTERNAME = "MPIPTvSource.ax";
-      try
+      Dictionary<Guid, string> filters = new Dictionary<Guid, string>
       {
-        Guid clsIdIPSource = new Guid("{D3DD4C59-D3A7-4B82-9727-7B9203EB67C0}");
-        if (!FilterGraphTools.IsThisComObjectInstalled(clsIdIPSource))
+        { new Guid("{D3DD4C59-D3A7-4B82-9727-7B9203EB67C0}"), "MPIPTvSource.ax"},
+        { new Guid("{7F2BBEAF-E11C-4D39-90E8-938FB5A86045}"), "PDMpgMux.ax"}
+      };
+      foreach (var filter in filters)
+      {
+        try
         {
-          var filterPath = FileUtils.BuildAssemblyRelativePath(FILTERNAME);
-          COMRegistration.Register(filterPath, true);
+          if (!FilterGraphTools.IsThisComObjectInstalled(filter.Key))
+          {
+            var filterPath = FileUtils.BuildAssemblyRelativePath(filter.Value);
+            COMRegistration.Register(filterPath, true);
+          }
         }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register filter {0}", ex, FILTERNAME);
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register filter {0}", ex, filter.Value);
+        }
       }
     }
 
