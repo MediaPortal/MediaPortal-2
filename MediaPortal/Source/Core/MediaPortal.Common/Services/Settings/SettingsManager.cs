@@ -148,6 +148,8 @@ namespace MediaPortal.Common.Services.Settings
               property.SetValue(result, att.DefaultValue, null);
           }
         }
+        if (!globalHandler.SettingsFileExists && !userHandler.SettingsFileExists)
+          SaveSettingsObject(result);
         return result;
       }
       catch (Exception e)
