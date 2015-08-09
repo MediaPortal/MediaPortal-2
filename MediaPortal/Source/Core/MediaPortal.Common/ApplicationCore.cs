@@ -136,7 +136,6 @@ namespace MediaPortal.Common
         logger.Debug("ApplicationCore: Registering IImporterWorker service");
         ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());        
       }
-      ServiceRegistration.Get<ISettingsManager>().Save(importerWorkerSettings);
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
       ServiceRegistration.Set<IResourceServer>(new ResourceServer());

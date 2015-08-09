@@ -186,7 +186,6 @@ namespace MediaPortal.UI.Services.Players
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
       _volume = settings.Volume;
-      settingsManager.Save(settings);
     }
 
     /// <summary>

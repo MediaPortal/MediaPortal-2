@@ -49,7 +49,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       _browsers = new ConcurrentBag<INeighborhoodBrowser>();
 
       var browserSettings = ServiceRegistration.Get<ISettingsManager>().Load<NeighborhoodBrowserServiceSettings>();
-      ServiceRegistration.Get<ISettingsManager>().Save(browserSettings);
 
       if (browserSettings.UseWNetEnumNeighborhoodBrowser)
         RegisterBrowser(new WNetEnumNeighborhoodBrowser());

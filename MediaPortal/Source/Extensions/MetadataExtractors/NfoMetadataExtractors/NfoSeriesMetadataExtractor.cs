@@ -146,10 +146,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoSeriesMetadataExtractorSettings>();
 
-      // The following save operation makes sure that in any case an xml-file is written for the NfoSeriesMetadataExtractorSettings
-      // ToDo: Remove this once the SettingsManager does this automatically
-      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
-
       if (_settings.EnableDebugLogging)
       {
         _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoSeriesMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
