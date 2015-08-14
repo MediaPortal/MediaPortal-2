@@ -76,9 +76,14 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// Removes a task from the TaskCollection.
     /// </summary>
     /// <param name="task">Task to remove from the TaskCollection.</param>
+    /// <remarks>
+    /// The task to be removed is determined based on <paramref name="task.ID"/>. This is
+    /// necessary becasue a caller that only has the task's id and therefore calls
+    /// <see cref="GetTask"/> only receives a clone of the original task.
+    /// </remarks>
     public void Remove(Task task)
     {
-      _tasks.Remove(task);
+      _tasks.RemoveAll(t => t.ID == task.ID);
     }
 
     /// <summary>
