@@ -118,7 +118,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string imdbId;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
           MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
         movieInfo.ImdbId = imdbId;
 
