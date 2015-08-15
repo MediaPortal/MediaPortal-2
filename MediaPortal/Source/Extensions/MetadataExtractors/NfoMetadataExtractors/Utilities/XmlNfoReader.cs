@@ -26,6 +26,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities
 {

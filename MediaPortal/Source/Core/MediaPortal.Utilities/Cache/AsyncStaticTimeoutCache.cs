@@ -26,11 +26,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Utilities.Cache
 {
   /// <summary>
   /// Asynchronous cache that automatically removes items after a timeout
-  /// ToDo: Move this to MediaPortal.Utilities
   /// </summary>
   /// <typeparam name="TKey">Type of the cache's keys</typeparam>
   /// <typeparam name="TValue">Type of the cache's values</typeparam>
