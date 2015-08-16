@@ -36,6 +36,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -937,7 +938,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
       if (seriesName != null && season.HasValue && episode.HasValue && episodeName != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, String.Format(SeriesInfo.EPISODE_FORMAT_STR, seriesName, season, episode, episodeName));
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, String.Format(SeriesInfo.EPISODE_FORMAT_STR,
+                                                                                                seriesName,
+                                                                                                season.Value.ToString().PadLeft(2, '0'),
+                                                                                                StringUtils.Join(", ", _stubs.OrderBy(e => e.Episode).Select(e => e.Episode.ToString().PadLeft(2, '0'))),
+                                                                                                string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray())));
         return true;
       }
       return false;
@@ -1008,7 +1013,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       List<string> actors = null;
       if (_stubs[0].Actors != null)
-        actors = _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
+        actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Select(actor => actor.Name).Distinct().ToList();
       if (_useSeriesStubs && _seriesStubs[0].Actors != null)
         actors = actors != null ?
           actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name)).ToList() :
@@ -1030,7 +1035,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, _stubs.Select(e => e.Director).Distinct());
         return true;
       }
       return false;
@@ -1045,7 +1050,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Credits != null && _stubs[0].Credits.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, _stubs[0].Credits.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, _stubs.SelectMany(e => e.Credits).Distinct());
         return true;
       }
       return false;
@@ -1061,13 +1066,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // priority 1:
       if (_stubs[0].Plot != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
+        if (_stubs.Count == 1)
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
+        else
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episode).Select(e => string.Format("{0,02}) {1}", e.Episode, e.Plot)).ToArray()));
         return true;
       }
       // priority 2:
       if (_stubs[0].Outline != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
+        if (_stubs.Count == 1)
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
+        else
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episode).Select(e => string.Format("{0,02}) {1}", e.Episode, e.Outline)).ToArray()));
         return true;
       }
       // priority 3:
@@ -1219,7 +1230,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_EPISODENAME, _stubs[0].Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_EPISODENAME, string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
         return true;
       }
       return false;
@@ -1250,7 +1261,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // priority 1:
       if (_stubs[0].Rating.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TOTAL_RATING, (double)_stubs[0].Rating.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TOTAL_RATING, (double)_stubs.Where(e => e.Rating.HasValue).Average(e => e.Rating.Value));
         return true;
       }
       // priority 2:
