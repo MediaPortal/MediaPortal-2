@@ -61,6 +61,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="FanartProvider\SeriesFanartProvider.cs" />
+    <Compile Include="SeriesMetadataExtractorSettings.cs" />
     <Compile Include="NameMatchers\MatroskaMatcher.cs" />
     <Compile Include="NameMatchers\SeriesMatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
