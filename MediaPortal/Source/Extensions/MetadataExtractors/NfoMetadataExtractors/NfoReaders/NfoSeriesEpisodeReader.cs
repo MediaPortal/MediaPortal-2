@@ -1183,7 +1183,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
       if (series != null && season.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIES_SEASON, String.Format(SeriesInfo.SERIES_SEASON_FORMAT_STR, series, season));
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIES_SEASON, String.Format(SeriesInfo.SERIES_SEASON_FORMAT_STR, series, season.ToString().PadLeft(2, '0')));
         return true;
       }
       return false;
