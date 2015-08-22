@@ -229,10 +229,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+      public void UpdateMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, _mimeType);
+        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, _mimeType);
         if (_ar.HasValue)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ASPECTRATIO, _ar.Value);
         if (_frameRate.HasValue)
@@ -271,7 +271,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(lfsra.LocalFileSystemPath)).ToLower();
@@ -335,7 +335,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, tags);
     }
 
-    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(lfsra.LocalFileSystemPath)).ToUpper();
@@ -367,7 +367,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // In quick mode only allow thumbs taken from cache.
       bool cachedOnly = forceQuickMode;
@@ -400,7 +400,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -464,7 +464,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
             if (lfsra != null)
             {
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, lfsra.Size);
+              MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
               ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
               ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);

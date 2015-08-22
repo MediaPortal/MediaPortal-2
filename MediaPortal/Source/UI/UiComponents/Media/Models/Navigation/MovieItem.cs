@@ -40,8 +40,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       MovieInfo movieInfo = new MovieInfo();
-      MediaItemAspect movieAspect;
-      if (!mediaItem.Aspects.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect))
+      SingleMediaItemAspect movieAspect;
+      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, MovieAspect.Metadata, out movieAspect)) 
         return;
 
       MovieName = (string)movieAspect[MovieAspect.ATTR_MOVIE_NAME] ?? string.Empty;

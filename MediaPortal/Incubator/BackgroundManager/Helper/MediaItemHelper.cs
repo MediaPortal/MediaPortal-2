@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Helper
       if (mediaItem == null)
         return false;
       string mimeType;
-      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_MIME_TYPE, out mimeType) && mimeType.StartsWith("video/");
+      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE, out mimeType) && mimeType.StartsWith("video/");
     }
   }
 }

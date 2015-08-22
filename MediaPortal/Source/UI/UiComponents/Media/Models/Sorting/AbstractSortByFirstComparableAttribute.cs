@@ -32,19 +32,19 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public abstract class AbstractSortByFirstComparableAttribute<T> : SortByTitle where T : IComparable<T>
   {
-    protected MediaItemAspectMetadata.AttributeSpecification _attr;
+    protected SingleMediaItemAspectMetadata.SingleAttributeSpecification _attr;
 
-    protected AbstractSortByFirstComparableAttribute(MediaItemAspectMetadata.AttributeSpecification attr)
+    protected AbstractSortByFirstComparableAttribute(SingleMediaItemAspectMetadata.SingleAttributeSpecification attr)
     {
       _attr = attr;
     }
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
-      Guid aspectId = _attr.ParentMIAM.AspectId;
-      if (x.Aspects.TryGetValue(aspectId, out aspectX) && y.Aspects.TryGetValue(aspectId, out aspectY))
+      SingleMediaItemAspect aspectX;
+      SingleMediaItemAspect aspectY;
+      SingleMediaItemAspectMetadata metadata = _attr.ParentMIAM;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
       {
         List<string> valuesX = new List<string>(aspectX.GetCollectionAttribute<string>(_attr));
         valuesX.Sort();

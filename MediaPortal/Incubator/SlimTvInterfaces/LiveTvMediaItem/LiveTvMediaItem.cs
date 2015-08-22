@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
     {}
-    public LiveTvMediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
+    public LiveTvMediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
       : base(mediaItemId, aspects)
     { }
 
@@ -99,7 +99,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        _aspects[mia.Metadata.AspectId] = mia;
+		// TODO: Move into MIA static method?
+        SingleMediaItemAspect smia = mia as SingleMediaItemAspect;
+        if (smia != null)
+          MediaItemAspect.SetAspect(_aspects, smia);
+        MultipleMediaItemAspect mmia = mia as MultipleMediaItemAspect;
+        if (mmia is MultipleMediaItemAspect)
+          MediaItemAspect.AddOrUpdateAspect(_aspects, mmia);
       }
       reader.ReadEndElement(); // MI
     }
@@ -112,8 +118,9 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       // Timeshift contexes
       _timeshiftContexes.SerializeXml(writer);
 
-      foreach (MediaItemAspect mia in _aspects.Values)
-        mia.Serialize(writer);
+      foreach (IList<MediaItemAspect> list in _aspects.Values)
+        foreach (MediaItemAspect mia in list)
+          mia.Serialize(writer);
     }
 
     public new void Serialize(XmlWriter writer)

@@ -61,6 +61,14 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ExternalIdentifierAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
+    <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
+    <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
@@ -167,15 +175,16 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\EpisodeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\RelationshipAspect.cs" />
     <Compile Include="MediaManagement\Helpers\MovieInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\EpisodeInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
     <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />

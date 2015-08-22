@@ -137,8 +137,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var directoryItem = await LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
-        MediaItemAspect directoryAspect;
-        if (!directoryItem.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out directoryAspect))
+        SingleMediaItemAspect directoryAspect;
+        if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out directoryAspect))
         {
           // This is the case if the parentResourcePath was formerly imported as a single resource.
           // We cannot reuse it and it is necessary to delete this old MediaItem.
@@ -204,14 +204,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     private async Task<Guid> AddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId)
     {
       var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
-      var mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
+      var mediaAspect = new SingleMediaItemAspect(MediaAspect.Metadata);
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, null);
       mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
       mediaAspect.SetAttribute(MediaAspect.ATTR_RATING, 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, null);
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.MinValue);
-      var directoryAspect = new MediaItemAspect(DirectoryAspect.Metadata);
+      var directoryAspect = new SingleMediaItemAspect(DirectoryAspect.Metadata);
       IList<MediaItemAspect> aspects = new List<MediaItemAspect>(new[]
         {
             mediaAspect,

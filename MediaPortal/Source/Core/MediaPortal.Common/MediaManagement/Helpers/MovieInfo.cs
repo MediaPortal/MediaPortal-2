@@ -82,7 +82,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained movie information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, MediaItemAspect> aspectData)
+    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (!string.IsNullOrEmpty(MovieName))
       {
@@ -92,8 +92,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
       if (!string.IsNullOrEmpty(Tagline)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TAGLINE, Tagline);
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_CERTIFICATION, Certification);
-      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_IMDB_ID, ImdbId);
-      if (MovieDbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TMDB_ID, MovieDbId);
+      if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, ImdbId);
+      if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, MovieDbId.ToString());
       if (Runtime > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RUNTIME_M, Runtime);
       if (Popularity > 0f) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_POPULARITY, Popularity);
       if (Budget > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_BUDGET, Budget);
@@ -103,7 +103,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, RatingCount);
 
       if (!string.IsNullOrEmpty(CollectionName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, CollectionName);
-      if (CollectionMovieDbId > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_ID, CollectionMovieDbId);
+      if (CollectionMovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, CollectionMovieDbId.ToString());
 
       if (Year > 0)
         MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));

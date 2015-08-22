@@ -241,7 +241,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
       }
 
       bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
-      bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
+      bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID);
       if (!isMovie && !isSeries)
         return false;
 
@@ -269,11 +269,11 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (isMovie)
       {
         TraktMovieScrobble movie = new TraktMovieScrobble();
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
           movie.IMDBID = value;
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) && iValue > 0)
-          movie.TMDBID = iValue.ToString();
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
+          movie.TMDBID = value;
 
         if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
           movie.Year = dtValue.Year.ToString();
@@ -286,22 +286,22 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (isSeries)
       {
         TraktEpisodeScrobble series = new TraktEpisodeScrobble();
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
           series.IMDBID = value;
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out iValue))
-          series.SeriesID = iValue.ToString();
+        if (MediaItemAspect.TryGetExternalAttribute(pc.CurrentMediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_EPISODE, out value))
+          series.SeriesID = value;
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
           series.Title = value;
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_FIRSTAIRED, out dtValue))
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_FIRSTAIRED, out dtValue))
           series.Year = dtValue.Year.ToString();
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SEASON, out iValue))
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_SEASON, out iValue))
           series.Season = iValue.ToString();
         List<int> intList;
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
+        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, EpisodeAspect.ATTR_EPISODE, out intList) && intList.Any())
           series.Episode = intList.First().ToString(); // TODO: multi episode files?!
 
         scrobbleData = series;

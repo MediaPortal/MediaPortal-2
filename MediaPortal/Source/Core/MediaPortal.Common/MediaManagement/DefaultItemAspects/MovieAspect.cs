@@ -41,102 +41,81 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Contains the localized name of the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MOVIE_NAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("MovieName", 100, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MOVIE_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MovieName", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the original name of the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ORIG_MOVIE_NAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("OrigName", 100, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the TMDB ID of the movie.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TMDB_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("TMDBID", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the IMDB ID of the movie.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_IMDB_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ORIG_MOVIE_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("OrigName", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the name of the movie collection.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COLLECTION_NAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("CollectionName", 100, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the TMDB ID of the movie collection.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COLLECTION_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("CollectionID", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the official runtime in minutes. This value must not necessary match the exact video runtime (i.e. tv recordings will be longer because
     /// of advertisements).
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RUNTIME_M =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Runtime", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RUNTIME_M =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Runtime", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the certification.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CERTIFICATION =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CERTIFICATION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a short comment for the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TAGLINE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Tagline", 255, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TAGLINE =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Tagline", 255, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a popularity of movies, based on user votings.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_POPULARITY =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Popularity", typeof(float), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_POPULARITY =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Popularity", typeof(float), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the budget for producing the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_BUDGET =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Budget", typeof(long), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_BUDGET =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Budget", typeof(long), Cardinality.Inline, false);
     
     /// <summary>
     /// Contains the revenue of the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_REVENUE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Revenue", typeof(long), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_REVENUE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Revenue", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the score of the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SCORE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Score", typeof(float), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SCORE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Score", typeof(float), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the overall rating of the movie. Value ranges from 0 (very bad) to 10 (very good).
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TOTAL_RATING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the overall number ratings of the movie.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING_COUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "MovieItem", new[] {
             ATTR_MOVIE_NAME,
             ATTR_ORIG_MOVIE_NAME,
-            ATTR_IMDB_ID,
-            ATTR_TMDB_ID,
             ATTR_COLLECTION_NAME,
-            ATTR_COLLECTION_ID,
             ATTR_RUNTIME_M,
             ATTR_CERTIFICATION,
             ATTR_TAGLINE,
