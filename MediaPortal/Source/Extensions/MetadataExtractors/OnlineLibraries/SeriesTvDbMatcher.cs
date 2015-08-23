@@ -176,12 +176,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       episodeInfo.ImdbId = seriesDetail.ImdbId;
       episodeInfo.TvdbId = seriesDetail.Id;
-      episodeInfo.SeasonNumber = episode.SeasonNumber;
+      episodeInfo.SeasonNumber = episodes.First().SeasonNumber;
       episodeInfo.EpisodeNumbers.Clear();
-      episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
-      episodeInfo.FirstAired = episode.FirstAired;
+      episodeInfo.EpisodeNumbers.ToList().AddRange(episodes.Select(x => x.EpisodeNumber));
+      episodeInfo.FirstAired = episodes.First().FirstAired;
       episodeInfo.DvdEpisodeNumbers.Clear();
-      episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
+      episodeInfo.DvdEpisodeNumbers.ToList().AddRange(episodes.Select(x => x.DvdEpisodeNumber));
 	  
       episodeInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
       episodeInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
