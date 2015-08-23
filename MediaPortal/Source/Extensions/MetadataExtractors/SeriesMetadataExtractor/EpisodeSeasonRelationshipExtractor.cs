@@ -112,8 +112,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
+      List<TvdbEpisode> episodes = seriesDetail.GetEpisodes(seasonNum);
       // TODO: Build the episode MIs?
-      seriesDetail.GetEpisodes(seasonNum);
 
       return true;
     }

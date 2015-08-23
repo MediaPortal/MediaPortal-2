@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the Attribute to</param>
     /// <returns><c>true</c> if metadata was written to the Attribute; else <c>false</c></returns>
-    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, MediaItemAspect> extractedAspectData);
+    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData);
 
     #endregion
 
@@ -243,7 +243,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="extractedAspectData"></param> must not be <c>null</c>. If it does not contain a MediaItemAspect, in which this method wants
     /// to store metadata, this MediaItemAspect is added to <param name="extractedAspectData"></param>.
     /// </remarks>
-    public bool TryWriteMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryWriteMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var stubObjectsLogged = false;
       var result = false;
