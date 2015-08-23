@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -53,7 +54,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       IList<int> episodes = episodeAspect[EpisodeAspect.ATTR_EPISODE] as IList<int>;
       if (episodes != null)
       {
-        foreach (int episode in episodes.OrderBy(e => e))
+        foreach (int episode in episodes.ToList().OrderBy(e => e))
           episodeInfo.EpisodeNumbers.Add(episode);
         EpisodeNumber = episodeInfo.FormatString(string.Format("{{{0}}}", EpisodeInfo.EPISODENUM_INDEX));
       }
