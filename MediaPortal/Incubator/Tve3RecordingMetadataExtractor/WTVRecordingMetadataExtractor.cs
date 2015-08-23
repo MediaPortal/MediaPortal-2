@@ -109,9 +109,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     #endregion
 
-    public SeriesInfo GetSeriesFromTags(IDictionary metadata)
+    public EpisodeInfo GetSeriesFromTags(IDictionary metadata)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo seriesInfo = new EpisodeInfo();
       string tmpString;
 
       if (TryGet(metadata, TAG_TITLE, out tmpString))
@@ -150,7 +150,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -169,7 +169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    private bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    private bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (lfsra == null || !lfsra.IsFile)
         return false;
@@ -187,7 +187,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       {
         // Handle series information
         IDictionary tags = rec.GetAttributes();
-        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+        EpisodeInfo seriesInfo = GetSeriesFromTags(tags);
 
         if (!forceQuickMode)
         {
@@ -196,7 +196,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Force MimeType
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, "slimtv/wtv");
+        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/wtv");
 
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))

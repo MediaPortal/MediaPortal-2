@@ -1341,7 +1341,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteVideoAspectWriters(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool TryWriteVideoAspectWriters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_stubs[0].Credits != null && _stubs[0].Credits.Any())
       {
@@ -1408,7 +1408,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_TMDB_ID"/>
+    /// Tries to write metadata into <see cref="ExternalIdentifierAspect"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1417,26 +1417,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 1:
       if (_stubs[0].TmdbId.HasValue)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.TmdbId.Value.ToString());
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].TmdbId.Value.ToString());
         return true;
       }
       //priority 2:
       if (_stubs[0].Thmdb.HasValue)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Thmdb.Value.ToString());
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Thmdb.Value.ToString());
         return true;
       }
       //priority 3:
       if (_stubs[0].IdsTmdbId.HasValue)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.IdsTmdbId.Value.ToString());
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].IdsTmdbId.Value.ToString());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_IMDB_ID"/>
+    /// Tries to write metadata into <see cref="ExternalIdentifierAspect"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1445,19 +1445,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 1:
       if (_stubs[0].Id != null)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Id);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Id);
         return true;
       }
       //priority 2:
       if (_stubs[0].Imdb != null)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Imdb);
         return true;
       }
       //priority 3:
       if (_stubs[0].IdsImdbId != null)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _movieStub.Imdb);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Imdb);
         return true;
       }
       return false;
