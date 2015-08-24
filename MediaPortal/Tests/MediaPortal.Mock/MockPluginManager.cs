@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Attributes;
 using MediaPortal.Common.PluginManager;
 
 namespace MediaPortal.Mock
@@ -32,6 +33,11 @@ namespace MediaPortal.Mock
   public class MockPluginManager : IPluginManager
   {
     public PluginManagerState State
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public IDictionary<string, CoreAPIAttribute> CoreComponents
     {
       get { throw new NotImplementedException(); }
     }
