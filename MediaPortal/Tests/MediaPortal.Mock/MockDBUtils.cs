@@ -31,7 +31,6 @@ using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Services.Threading;
 using MediaPortal.Utilities.DB;
 using NUnit.Framework;
 
