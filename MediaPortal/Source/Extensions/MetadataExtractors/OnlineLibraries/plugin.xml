@@ -4,8 +4,17 @@
     PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}"
     Author="Morpheus_xx, Valk"
     Copyright="GPL"
-    Description="Library plugin providing online libaries access (TMDB, TheTvDB...) needed for some default metadata extractors"
-    PluginVersion="1.0">
+    Description="Library plugin providing online libaries access (TMDB, TheTvDB...) needed for some default metadata extractors">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="OnlineLibraries.dll"/>

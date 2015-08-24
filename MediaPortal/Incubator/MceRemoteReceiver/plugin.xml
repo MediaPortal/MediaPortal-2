@@ -5,8 +5,17 @@
     Author="chefkoch"
     Copyright="GPL"
     AutoActivate="true"
-    Description="Control your MP2 by a Microsoft MCE Remote"
-    PluginVersion="1.0">
+    Description="Control your MP2 by a Microsoft MCE Remote">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="MceRemoteReceiver.dll"/>

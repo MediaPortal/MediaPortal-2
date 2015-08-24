@@ -55,12 +55,28 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ID =
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, true);
 
+    /// <summary>
+    /// The index of the media item being linked to
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RELATIONSHIP_INDEX =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("RelationshipIndex", typeof(int), Cardinality.Inline, false);
+
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
-        ASPECT_ID, "Relationship", new[] {
+        ASPECT_ID, "Relationship",
+          new[] {
             ATTR_ROLE,
             ATTR_LINKED_ROLE,
             ATTR_LINKED_ID,
-        });
+            ATTR_RELATIONSHIP_INDEX,
+          },
+          new[]
+          {
+            ATTR_ROLE,
+            ATTR_LINKED_ROLE,
+            ATTR_LINKED_ID,
+            // TODO: Should linked index be part of the unique key?
+          }
+        );
   }
 }

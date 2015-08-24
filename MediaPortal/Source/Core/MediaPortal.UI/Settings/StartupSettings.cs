@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UI.Settings
@@ -47,5 +46,12 @@ namespace MediaPortal.UI.Settings
       get { return _startupScreenNum; }
       set { _startupScreenNum = value; }
     }
+
+    /// <summary>
+    /// Gets or sets an alternative path to an image which will be used as splash screen. If not set, the default image is used.
+    /// The path needs to be relative to entry assembly.
+    /// </summary>
+    [Setting(SettingScope.User, null)]
+    public string AlternativeSplashScreen { get; set; }
   }
 }

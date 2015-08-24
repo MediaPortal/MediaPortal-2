@@ -50,8 +50,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Utils, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\Common.Utils.dll</HintPath>
+    <Reference Include="Common.Utils, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\Common.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Gentle.Common">
       <HintPath>References\Gentle.Common.dll</HintPath>
@@ -72,11 +72,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="PluginBase, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\PluginBase.dll</HintPath>
+    <Reference Include="PluginBase, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\PluginBase.dll</HintPath>
     </Reference>
-    <Reference Include="SetupControls, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\SetupControls.dll</HintPath>
+    <Reference Include="SetupControls, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\SetupControls.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -87,29 +87,30 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TvBusinessLayer, Version=1.10.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TvBusinessLayer.dll</HintPath>
+    <Reference Include="TvBusinessLayer, Version=1.11.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TvBusinessLayer.dll</HintPath>
     </Reference>
-    <Reference Include="TvControl, Version=1.10.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TvControl.dll</HintPath>
+    <Reference Include="TvControl, Version=1.11.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TvControl.dll</HintPath>
     </Reference>
-    <Reference Include="TVDatabase, Version=1.10.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TVDatabase.dll</HintPath>
+    <Reference Include="TVDatabase, Version=1.11.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TVDatabase.dll</HintPath>
     </Reference>
-    <Reference Include="TVLibrary, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TVLibrary.dll</HintPath>
+    <Reference Include="TVLibrary, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TVLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="TvLibrary.Interfaces, Version=1.10.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TvLibrary.Interfaces.dll</HintPath>
+    <Reference Include="TvLibrary.Interfaces, Version=1.11.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TvLibrary.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="TvLibrary.Utils, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TvLibrary.Utils.dll</HintPath>
+    <Reference Include="TvLibrary.Utils, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TvLibrary.Utils.dll</HintPath>
     </Reference>
     <Reference Include="TvService, Version=1.10.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TvService.exe</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TvService.exe</HintPath>
     </Reference>
     <Reference Include="TvThumbnails, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.1\lib\TvThumbnails.dll</HintPath>
+      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core3.3.0.4\lib\TvThumbnails.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -151,10 +152,14 @@
     <Content Include="References\log4net.dll" />
     <Content Include="References\MediaInfo.dll" />
     <Content Include="References\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll" />
+    <Content Include="References\MPIPTV_FILE.dll" />
+    <Content Include="References\MPIPTV_HTTP.dll" />
+    <Content Include="References\MPIPTV_RTP.dll" />
+    <Content Include="References\MPIPTV_RTSP.dll" />
+    <Content Include="References\MPIPTV_UDP.dll" />
     <Content Include="References\MySql.Data.dll" />
     <Content Include="References\PluginBase.dll" />
     <Content Include="References\Plugins\Blaster.exe" />
-    <Content Include="References\Plugins\Common.Utils.dll" />
     <Content Include="References\Plugins\ComSkipLauncher.dll" />
     <Content Include="References\Plugins\ConflictsManager.dll" />
     <Content Include="References\Plugins\Ionic.Zip.dll" />
@@ -162,7 +167,6 @@
     <Content Include="References\Plugins\PowerScheduler.dll" />
     <Content Include="References\Plugins\PowerScheduler.Interfaces.dll" />
     <Content Include="References\Plugins\ServerBlaster.dll" />
-    <Content Include="References\Plugins\TvLibrary.Utils.dll" />
     <Content Include="References\Plugins\TvMovie.dll" />
     <Content Include="References\Plugins\WebEPG.dll" />
     <Content Include="References\Plugins\WebEPGImport.dll" />

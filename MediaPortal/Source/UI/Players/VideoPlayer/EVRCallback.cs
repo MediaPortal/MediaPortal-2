@@ -32,7 +32,6 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 using System;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -48,16 +47,16 @@ namespace MediaPortal.UI.Players.Video
   public interface IEVRPresentCallback
   {
     /// <summary>
-    /// Callback from EVRPresenter.dll to display a DirectX surface.
+    /// Callback from EVRPresenter.dll to display a DirectX texture.
     /// </summary>
     /// <param name="cx">Video width.</param>
     /// <param name="cy">Video height.</param>
     /// <param name="arx">Aspect Ratio X.</param>
     /// <param name="ary">Aspect Ratio Y.</param>
-    /// <param name="dwSurface">Address of the DirectX surface.</param>
+    /// <param name="dwTexture">Address of the DirectX surface.</param>
     /// <returns><c>0</c>, if the method succeeded, <c>!= 0</c> else.</returns>
     [PreserveSig]
-    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, ref IntPtr dwSurface);
+    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, ref IntPtr dwTexture);
   }
 
   public delegate void RenderDlgt();
@@ -71,9 +70,8 @@ namespace MediaPortal.UI.Players.Video
     private readonly object _lock = new object();
     private Size _originalVideoSize = new Size();
     private SizeF _aspectRatio = new SizeF();
-    private Surface _surface = null;
+    private Texture _texture = null;
 
-    private readonly DeviceEx _device;
     private readonly RenderDlgt _renderDlgt;
     private readonly Action _onTextureInvalidated;
 
@@ -83,7 +81,6 @@ namespace MediaPortal.UI.Players.Video
     {
       _onTextureInvalidated = onTextureInvalidated;
       _renderDlgt = renderDlgt;
-      _device = SkinContext.Device;
     }
 
     public void Dispose()
@@ -100,9 +97,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
-    public Surface Surface
+    public Texture Texture
     {
-      get { return _surface; }
+      get { return _texture; }
     }
 
     public object SurfaceLock
@@ -131,15 +128,15 @@ namespace MediaPortal.UI.Players.Video
     private void FreeSurface()
     {
       lock (_lock)
-        FilterGraphTools.TryDispose(ref _surface);
+        FilterGraphTools.TryDispose(ref _texture);
     }
 
     #region IEVRPresentCallback implementation
 
-    public int PresentSurface(short cx, short cy, short arx, short ary, ref IntPtr dwSurface)
+    public int PresentSurface(short cx, short cy, short arx, short ary, ref IntPtr dwTexture)
     {
       lock (_lock)
-        if (dwSurface != IntPtr.Zero && cx != 0 && cy != 0)
+        if (dwTexture != IntPtr.Zero && cx != 0 && cy != 0)
         {
           if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
             _originalVideoSize = new Size(cx, cy);
@@ -147,22 +144,8 @@ namespace MediaPortal.UI.Players.Video
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          // We need to Dispose the created instance because SharpDX tracks all created objects. When the surface is disposed, it will get released
-          // on unmanaged side as well, that's why we set the dwSurface to IntPtr.Zero to avoid duplicated release (which leads to hard crashes).
-          using (Surface surf = new Surface(dwSurface))
-          {
-            SurfaceDescription surfaceDesc = _surface == null ? new SurfaceDescription() : _surface.Description;
-            SurfaceDescription surfDesc = surf.Description;
-            if (surfaceDesc.Width != surfDesc.Width || surfaceDesc.Height != surfDesc.Height)
-            {
-              if (_surface != null)
-                _surface.Dispose();
-              _surface = Surface.CreateRenderTarget(_device, surfDesc.Width, surfDesc.Height, Format.A8R8G8B8, MultisampleType.None, 0, false);
-            }
-            _device.StretchRectangle(surf, _surface, TextureFilter.None);
-          }
-          // Clear pointer, surface was already released.
-          dwSurface = IntPtr.Zero;
+          FilterGraphTools.TryDispose(ref _texture);
+          _texture = new Texture(dwTexture);
         }
 
       VideoSizePresentDlgt vsp = VideoSizePresent;

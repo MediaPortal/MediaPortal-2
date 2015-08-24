@@ -78,7 +78,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Protected Properties
 
-    public virtual String PlayerTitle { get; protected set; }
+    public String PlayerTitle { get; protected set; }
 
     #endregion
 
@@ -485,6 +485,13 @@ namespace MediaPortal.UI.Players.Video
           if (settings.AVCCodec != null)
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AVC, settings.AVCCodec.GetCLSID());
 
+          if (settings.HEVCCodec != null)
+          {
+            DsGuid clsid = settings.HEVCCodec.GetCLSID();
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HVC1, clsid);
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HEVC, clsid);
+          }
+
           if (settings.AudioCodecLATMAAC != null)
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO, settings.AudioCodecLATMAAC.GetCLSID());
 
@@ -493,6 +500,7 @@ namespace MediaPortal.UI.Players.Video
 
           if (settings.AudioCodec != null)
           {
+            DsGuid clsid = settings.AudioCodec.GetCLSID();
             foreach (Guid guid in new[]
                                     {
                                       MediaSubType.Mpeg2Audio,
@@ -501,7 +509,7 @@ namespace MediaPortal.UI.Players.Video
                                       CodecHandler.MEDIASUBTYPE_MPEG1_AUDIO,
                                       CodecHandler.MEDIASUBTYPE_MPEG2_AUDIO
                                     })
-              pc.SetPreferredClsid(guid, settings.AudioCodec.GetCLSID());
+              pc.SetPreferredClsid(guid, clsid);
           }
         }
       }

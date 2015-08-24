@@ -4,8 +4,12 @@
     PluginId="{FF0F8B29-881E-48A9-9A47-4EF04C6C56E0}"
     Author = "Morpheus_xx"
     Copyright="GPL"
-    Description="Thumbnail creator based on Windows Imaging Components."
-    PluginVersion="1.0">
+    Description="Thumbnail creator based on Windows Imaging Components.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2015-06-01 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <Runtime>
     <Assembly FileName="WICThumbnailProvider.dll"/>

@@ -6,6 +6,6 @@
     Source="screens\SimpleShowItems.xaml"
     >
   <Include.Resources>
-    <ResourceWrapper x:Key="Cover_Width" Resource="520"/>
+    <ResourceWrapper x:Key="Cover_Width" Resource="525"/>
   </Include.Resources>
 </Include>

@@ -33,6 +33,7 @@ namespace AssemblyInfoHelper
   {
     private static readonly Regex RE_REPLACE_ADDITIONAL = new Regex("(AssemblyInformationalVersion\\(\").*(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_YEAR_MONTH = new Regex("(Assembly.*Version\\(\".*\\.)\\d{4}(\")", RegexOptions.Multiline);
+    private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright © Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);
 
     static void Main(string[] args)
     {
@@ -66,6 +67,9 @@ namespace AssemblyInfoHelper
       DateTime now = DateTime.Now;
       string yearMonth = now.Year.ToString().Substring(2, 2) + now.Month.ToString().PadLeft(2, '0');
       template = RE_REPLACE_YEAR_MONTH.Replace(template, string.Format("${{1}}{0}${{2}}", yearMonth));
+
+      string year = now.Year.ToString();
+      template = RE_REPLACE_YEAR_COPY.Replace(template, string.Format("${{1}}{0}${{2}}", year));
 
       File.WriteAllText(filePath, template);
       Console.WriteLine("AssemblyInfoHelper successfully changed VersionInfo.cs! New branch: {0}, Build month: {1}", versionInfo, yearMonth);

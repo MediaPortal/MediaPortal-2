@@ -14,7 +14,7 @@
 
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlBorderRadius" Resource="15" />
-  <ResourceWrapper x:Key="PlayerControlButtonMargins" Resource="-2,0,-2,0" />
+  <ResourceWrapper x:Key="PlayerControlButtonMargins" Resource="0,0,0,0" />
   <ResourceWrapper x:Key="PlayerControlHomeButtonMargins" Resource="-2,0,-2,0" />
   <ResourceWrapper x:Key="PlayerControlHeight" Resource="35"/>
   <ResourceWrapper x:Key="PlayerControlButtonOpacity" Resource="0.6"/>
@@ -25,7 +25,7 @@
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="26"/>
 
-  <ResourceWrapper x:Key="BiggerFontSize" Resource="40"/>
+  <ResourceWrapper x:Key="BiggerFontSize" Resource="44"/>
   <ResourceWrapper x:Key="BigFontSize" Resource="36"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="24"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="22"/>
@@ -46,6 +46,9 @@
   <!-- MediaItem related -->
   <ResourceWrapper x:Key="MediaItemsRadiusX" Resource="10"/>
   <ResourceWrapper x:Key="MediaItemsRadiusY" Resource="10"/>
+  <ResourceWrapper x:Key="SmallRadius" Resource="11"/>
+  <ResourceWrapper x:Key="MediumRadius" Resource="14"/>
+  <ResourceWrapper x:Key="LargeRadius" Resource="18"/>
 
   <ResourceWrapper x:Key="FocusedButtonAnimationTime1" Resource="00:00:00.300"/>
 

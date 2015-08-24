@@ -269,13 +269,13 @@ namespace MediaPortal.UiComponents.Trakt.Models
           var imdbId = serie.Select(episode =>
           {
             string value;
-            return MediaItemAspect.TryGetExternalAttribute(episode.Aspects, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) ? value : null;
+            return MediaItemAspect.TryGetExternalAttribute(episode.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) ? value : null;
           }).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
 
           var tvdbId = serie.Select(episode =>
           {
             string value;
-            return MediaItemAspect.TryGetExternalAttribute(episode.Aspects, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_EPISODE, out value) ? value : null;
+            return MediaItemAspect.TryGetExternalAttribute(episode.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_EPISODE, out value) ? value : null;
           }).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
 
           TraktEpisodeSync syncData = new TraktEpisodeSync
@@ -368,10 +368,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out value) && !string.IsNullOrWhiteSpace(value))
         movie.Title = value;
 
-      if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.Source.IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
+      if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
         movie.IMDBID = value;
 
-      if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.Source.TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
+      if (MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out value) && !string.IsNullOrWhiteSpace(value))
         movie.TMDBID = value;
 
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))

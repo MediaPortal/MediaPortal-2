@@ -45,6 +45,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.Screens;
 using MediaPortal.Utilities.SystemAPI;
 using SharpDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
@@ -310,12 +311,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// Sets the TopMost property setting according to the current fullscreen setting
     /// and activation mode.
     /// </summary>
-    protected void CheckTopMost()
+    protected void CheckTopMost(bool force = false)
     {
 #if DEBUG
       TopMost = false;
 #else
-      TopMost = IsFullScreen && this == ActiveForm;
+      TopMost = IsFullScreen && (force || this == ActiveForm);
+      if (force)
+      {
+        this.SafeActivate();
+        BringToFront();
+      }
 #endif
     }
 
@@ -404,8 +410,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Start()
     {
-      Activate();
-      CheckTopMost();
+      this.SafeActivate();
+      CheckTopMost(true);
       StartUI();
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Running");
     }
@@ -490,7 +496,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       SkinContext.WindowSize = ClientSize;
 
       Update();
-      Activate();
+      this.SafeActivate();
       CheckTopMost();
 
       StartUI();
@@ -834,7 +840,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // Restore if minimized
         Restore();
         // Set active window
-        Activate();
+        this.SafeActivate();
         CheckTopMost();
         return;
       }

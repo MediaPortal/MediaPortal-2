@@ -155,7 +155,7 @@ namespace MediaPortal.Common.MediaManagement
         }
         else if(mia is MultipleMediaItemAspect)
         {
-          MediaItemAspect.AddAspect(_aspects, (MultipleMediaItemAspect)mia);
+          MediaItemAspect.AddOrUpdateAspect(_aspects, (MultipleMediaItemAspect)mia);
         }
       }
       reader.ReadEndElement(); // MI

@@ -4,13 +4,20 @@
     PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"
     Author="Frodo, Albert, Morpheus_xx"
     Copyright="GPL"
-    Description="This plugin contains default players for several video formats and DVD"
-    PluginVersion="1.0">
+    Description="This plugin contains default players for several video formats and DVD">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Runtime>
@@ -25,6 +32,8 @@
   <Builder Name="VideoPlayerMimeTypeMapping" ClassName="MediaPortal.UI.Players.Video.VideoPlayerMimeTypeMappingBuilder"/>
 
   <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <!-- Try to play all unknown video types by default video player -->
+    <VideoPlayerMimeTypeMapping Id="unknown" ClassName="MediaPortal.UI.Players.Video.VideoPlayer" MimeType="video/unknown"/>
     <VideoPlayerMimeTypeMapping Id="wmv" ClassName="MediaPortal.UI.Players.Video.VideoPlayer" MimeType="video/x-ms-wmv"/>
     <VideoPlayerMimeTypeMapping Id="ts" ClassName="MediaPortal.UI.Players.Video.TsVideoPlayer" MimeType="video/mp2t"/>
     <VideoPlayerMimeTypeMapping Id="dvd" ClassName="MediaPortal.UI.Players.Video.DvdPlayer" MimeType="video/dvd"/>
@@ -64,20 +73,21 @@
         Text="[Settings.Players.Codecs.VideoCodecs.MPEG2]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.MPEG2.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoMPEG2Codec"/>
-  </Register>
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoMPEG4Codec"
         Text="[Settings.Players.Codecs.VideoCodecs.MPEG4]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.MPEG4.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoMPEG4Codec"/>
-  </Register>
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoAVCCodec"
         Text="[Settings.Players.Codecs.VideoCodecs.AVC]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.AVC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoAVCCodec"/>
+    <ConfigSetting
+        Id="VideoHEVCCodec"
+        Text="[Settings.Players.Codecs.VideoCodecs.HEVC]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.HEVC.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoHEVCCodec"/>
   </Register>
 
   <!-- Contents of '/Players/Codecs' section -->
@@ -94,17 +104,11 @@
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodec]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodec.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodec"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
     <ConfigSetting
         Id="AudioCodecLATMAAC"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodecLATMAAC"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
     <ConfigSetting
         Id="AudioCodecAAC"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecAAC]"

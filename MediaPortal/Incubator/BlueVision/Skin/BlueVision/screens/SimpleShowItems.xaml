@@ -35,14 +35,14 @@
           </Control.IsVisible>
         </Control>
 
-        <Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,-58,10">
+        <!--Control Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,-58,10">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsListHeader.inc"/>
           </Control.TemplateControl>
           <Control.LayoutTransform>
             <RotateTransform Angle="270" CenterX="0.5" CenterY="0.5"/>
           </Control.LayoutTransform>
-        </Control>
+        </Control-->
       </Grid>
     </ControlTemplate>
 

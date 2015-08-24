@@ -30,9 +30,9 @@
   <string name="SlimTvClient.ManualRecordingTitle">Manuell inspelning</string>
   <string name="SlimTvClient.RecordProgram">Spela in program</string>
   <string name="SlimTvClient.DontRecordProgram">Spela inte in</string>
-  <string name="SlimTvClient.RecordSeries">Spela in TV-serier</string>
+  <string name="SlimTvClient.RecordSeries">Spela in flera program</string>
   <string name="SlimTvClient.ChooseScheduleType">Välj typ av planerad inspelning</string>
-  <string name="SlimTvClient.DeleteScheduleType">Hur tar man bort en planerad inspelning</string>
+  <string name="SlimTvClient.DeleteScheduleType">Hur vill du ta bort den planerade inspelningen?</string>
   <string name="SlimTvClient.DeleteSingle">Ta bort enstaka planerad inspelning</string>
   <string name="SlimTvClient.DeleteFullSchedule">Ta bort hela den planerade TV-serieinspelningen</string>
   <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Ta bort en enstaka inspelning från en planerad TV-serieinspelning</string>

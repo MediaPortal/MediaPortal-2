@@ -21,7 +21,7 @@ m_DeviceResetToken(0),
 m_pD3D9(NULL),
 m_pDevice(d3DDevice),
 m_pDeviceManager(NULL),
-m_pSurfaceRepaint(NULL),
+m_pTextureRepaint(NULL),
 m_EVRCallback(callback),
 m_Width(0),
 m_Height(0)
@@ -40,7 +40,7 @@ m_Height(0)
 D3DPresentEngine::~D3DPresentEngine()
 {
   SAFE_RELEASE(m_pDevice);
-  SAFE_RELEASE(m_pSurfaceRepaint);
+  SAFE_RELEASE(m_pTextureRepaint);
   SAFE_RELEASE(m_pDeviceManager);
   SAFE_RELEASE(m_pD3D9);
 }
@@ -230,7 +230,7 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
 // Released Direct3D resources used by this object. 
 void D3DPresentEngine::ReleaseResources()
 {
-  SAFE_RELEASE(m_pSurfaceRepaint);
+  SAFE_RELEASE(m_pTextureRepaint);
 }
 
 
@@ -288,7 +288,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
   HRESULT hr = S_OK;
 
   IMFMediaBuffer* pBuffer = NULL;
-  IDirect3DSurface9* pSurface = NULL;
+  IDirect3DTexture9* pTexture = NULL;
 
   if (pSample)
   {
@@ -297,7 +297,14 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
     if (SUCCEEDED(hr))
     {
       // Get the surface from the buffer.
+      IDirect3DSurface9* pSurface = NULL;
       hr = MFGetService(pBuffer, MR_BUFFER_SERVICE, __uuidof(IDirect3DSurface9), (void**)&pSurface);
+
+      if (SUCCEEDED(hr))
+      {
+        // Get the texture from the buffer.
+        pSurface->GetContainer(IID_IDirect3DTexture9, (void**)&pTexture);
+      }
     }
     if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
     {
@@ -308,16 +315,16 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
       hr = S_OK;
     }
   }
-  else if (m_pSurfaceRepaint)
+  else if (m_pTextureRepaint)
   {
     // Redraw from the last surface.
-    pSurface = m_pSurfaceRepaint;
-    pSurface->AddRef();
+    pTexture = m_pTextureRepaint;
+    pTexture->AddRef();
   }
 
-  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&pSurface); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
+  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&pTexture); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
 
-  SAFE_RELEASE(pSurface);
+  SAFE_RELEASE(pTexture);
   SAFE_RELEASE(pBuffer);
 
   return hr;

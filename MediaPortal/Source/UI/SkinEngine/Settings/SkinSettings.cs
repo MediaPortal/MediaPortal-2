@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
       get { return _skin; }
       set { _skin = value; }
     }
-    [Setting(SettingScope.User, "anniversary")]
+    [Setting(SettingScope.User, "default")]
     public string Theme
     {
       get { return _theme; }

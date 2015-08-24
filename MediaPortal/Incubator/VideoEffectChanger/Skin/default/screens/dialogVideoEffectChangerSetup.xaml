@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Players.VideoPlayer.VEC]"/>
+
+    <!-- VideoEffectSetup model -->
+    <Model x:Key="Model" Id="10A1ABE0-2EF6-4DF1-822B-DEBC7DDB676A"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+
+      <Grid DataContext="{Binding Source={StaticResource Model}}" MinHeight="{ResolutionResource VECConfigDialogHeight}" MinWidth="{ResolutionResource VECConfigDialogWidth}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
+          <CheckBox x:Name="IsEnabled" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=IsEnabled,Mode=TwoWay}"
+              Content="{Binding}" />
+          <Label Content="[VEC.Enable]" Color="{ThemeResource TextColor}" Margin="5"/>
+        </StackPanel>
+
+        <GroupBox x:Name="ConfigGroup" Header="[VEC.ConfigGroup]" Grid.Row="1" Grid.ColumnSpan="2" Margin="10"
+             Style="{ThemeResource ContentGroupBoxStyle}" IsVisible="{Binding Path=IsEnabled}">
+
+          <Grid Margin="5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="[VEC.LowerEffect]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="0"/>
+            <Button Content="{Binding Path=LowerEffect}" Margin="5" Grid.Row="0" Grid.Column="1"
+                    Command="{Command Source={StaticResource Model},Path=SelectLowerEffect}"/>
+
+            <Label Content="[VEC.HigherEffect]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="1"/>
+            <Button Content="{Binding Path=HigherEffect}" Margin="5" Grid.Row="1" Grid.Column="1"
+                    Command="{Command Source={StaticResource Model},Path=SelectHigherEffect}"/>
+
+            <Label Content="[VEC.ResolutionLimit]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="2"/>
+            <TextBox Text="{Binding Path=ResolutionLimit,Mode=TwoWay}" Margin="5" Grid.Row="2" Grid.Column="1"/>
+
+          </Grid>
+        </GroupBox>
+
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SaveSettings"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

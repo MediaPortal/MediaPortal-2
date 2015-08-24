@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Server není spuštěn</string>
+  <string name="ServerStatus.Attached">Připojeno k serveru</string>
+  <string name="ServerStatus.Connected">Připojen k serveru</string>
+  <string name="ServerStatus.Detached">Odpojen od serveru</string>
+  <string name="ServerStatus.Disconnected">Odpojen od serveru</string>
+  <string name="ServerStatus.ClientConnected">Klienti připojení k serveru</string>
+  <string name="MainWindow.ServerStatus">Stav serveru</string>
+  <string name="MainWindow.AttachedClients">Připojení klienti:</string>
+  <string name="ContextMenu.ShowWin">Zobrazit okno</string>
+  <string name="ContextMenu.HideWin">Skrýt okno</string>
+  <string name="ContextMenu.StartService">Spustit službu</string>
+  <string name="ContextMenu.StopService">Zastavit službu</string>
+  <string name="ContextMenu.EnableAutostart">Povolit automatické spuštění</string>
+  <string name="ContextMenu.DisableAutostart">Zakázat automatické spuštění</string>
   <string name="ContextMenu.Exit">Konec</string>
+  <string name="SysTrayToolTip.Info">Právé kliknutí pro další volby</string>
 </resources>

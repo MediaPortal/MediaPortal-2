@@ -377,7 +377,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       byte[] thumbData;
       ImageType imageType;
       using (lfsra.EnsureLocalFileSystemAccess())
-        if (generator.GetThumbnail(lfsra.LocalFileSystemPath, cachedOnly, out thumbData, out imageType))
+        if (generator.GetThumbnail(lfsra.LocalFileSystemPath, 256, 256, cachedOnly, out thumbData, out imageType))
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
     }
 

@@ -647,7 +647,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     #region Subtitle rendering
 
-    public void DrawOverlay(Surface targetSurface)
+    public void DrawOverlay(Texture targetTexture)
     {
       Subtitle currentSubtitle;
       lock (_syncObj)
@@ -656,7 +656,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         if (currentSubtitle == null)
           return;
 
-        if (targetSurface == null || targetSurface.IsDisposed || currentSubtitle.SubTexture == null || currentSubtitle.SubTexture.IsDisposed)
+        if (targetTexture == null || targetTexture.IsDisposed || currentSubtitle.SubTexture == null || currentSubtitle.SubTexture.IsDisposed)
         {
           if (_drawCount > 0)
             ServiceRegistration.Get<ILogger>().Debug("Draw count for last sub: {0}", _drawCount);
@@ -669,7 +669,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       try
       {
         // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
-        using (new TemporaryRenderTarget(targetSurface))
+        using (new TemporaryRenderTarget(targetTexture))
         using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
         using (Sprite sprite = new Sprite(_device))
         {
@@ -683,7 +683,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           temporaryRenderState.SetTemporaryRenderState(RenderState.DestinationBlend, (int)Blend.InverseSourceAlpha);
 
           // Check the target texture dimensions and adjust scaling and translation
-          SurfaceDescription desc = targetSurface.Description;
+          SurfaceDescription desc = targetTexture.GetLevelDescription(0);
           Matrix transform = Matrix.Identity;
           transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
 

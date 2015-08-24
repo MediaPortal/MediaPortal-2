@@ -46,10 +46,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       string title;
       if (!mediaItem.GetPlayData(out mimeType, out title))
         return null;
-      if (mimeType != LiveTvMediaItem.MIME_TYPE_TV && mimeType != LiveTvMediaItem.MIME_TYPE_RADIO)
+      if (mimeType != LiveTvMediaItem.MIME_TYPE_TV && mimeType != LiveTvMediaItem.MIME_TYPE_RADIO && mimeType != LiveTvMediaItem.MIME_TYPE_WTVREC)
         return null;
       IResourceLocator locator = mediaItem.GetResourceLocator();
-      BaseDXPlayer player = mimeType == LiveTvMediaItem.MIME_TYPE_TV ? (BaseDXPlayer) new LiveTvPlayer() : new LiveRadioPlayer(true);
+      BaseDXPlayer player =
+        mimeType == LiveTvMediaItem.MIME_TYPE_TV ? (BaseDXPlayer)new LiveTvPlayer() :
+        mimeType == LiveTvMediaItem.MIME_TYPE_RADIO ? (BaseDXPlayer)new LiveRadioPlayer(true) : new WTVPlayer();
       try
       {
         player.SetMediaItem(locator, title);

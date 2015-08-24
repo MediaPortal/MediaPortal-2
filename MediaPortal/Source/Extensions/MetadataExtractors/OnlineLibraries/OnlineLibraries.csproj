@@ -76,6 +76,8 @@
     </Compile>
     <Compile Include="Libraries\Common\Data\TraceRouteResponse.cs" />
     <Compile Include="Libraries\Common\Downloader.cs" />
+    <Compile Include="Libraries\Common\IRequestRateLimiter.cs" />
+    <Compile Include="Libraries\Common\RequestRatePerTimeSpanLimiter.cs" />
     <Compile Include="Libraries\Common\TraceRoute.cs" />
     <Compile Include="Libraries\FreeGeoIP\Data\FreeGeoIPResponse.cs" />
     <Compile Include="Libraries\FreeGeoIP\IPLookup.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Libraries\ICoordinateResolver.cs" />
     <Compile Include="Libraries\IGeoLocationService.cs" />
     <Compile Include="Libraries\Microsoft\GPSLookup.cs" />
+    <Compile Include="Libraries\MovieDbV3\MovieDbDownloader.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\ImageCollection.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackCollection.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\Track.cs" />

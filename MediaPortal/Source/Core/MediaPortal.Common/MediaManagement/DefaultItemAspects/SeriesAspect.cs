@@ -42,9 +42,18 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIESNAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
 
+    /// <summary>
+    /// Album description
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {
             ATTR_SERIESNAME,
+            ATTR_DESCRIPTION,
         });
+
+    public static readonly Guid ROLE_SERIES = new Guid("13FDBDAF-F5D0-46C8-952F-F22647812C50");
   }
 }

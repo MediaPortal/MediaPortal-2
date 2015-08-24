@@ -29,50 +29,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using MediaPortal.Mock;
 using NUnit.Framework;
 
 namespace Test.Common
 {
-  internal class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
-  {
-    protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes =
-        new Dictionary<Guid, MediaItemAspectMetadata>();
-
-    public MediaItemAspectTypeRegistration()
-    {
-      _locallyKnownMediaItemAspectTypes[MediaAspect.ASPECT_ID] = MediaAspect.Metadata;
-      _locallyKnownMediaItemAspectTypes[AudioAspect.ASPECT_ID] = AudioAspect.Metadata;
-      _locallyKnownMediaItemAspectTypes[ProviderResourceAspect.ASPECT_ID] = ProviderResourceAspect.Metadata;
-      _locallyKnownMediaItemAspectTypes[RelationshipAspect.ASPECT_ID] = RelationshipAspect.Metadata;
-    }
-
-    public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
-    {
-      get { return _locallyKnownMediaItemAspectTypes; }
-    }
-
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType)
-    {
-      throw new NotImplementedException();
-    }
-  }
-
   [TestFixture]
   public class TestMediaItem
   {
     [TestFixtureSetUp]
     public void OneTimeSetUp()
     {
-      ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
-    }
+      IMediaItemAspectTypeRegistration miatr = new MockMediaItemAspectTypeRegistration();
+      ServiceRegistration.Set(miatr);
 
-    private void AddRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspects, int index, Guid localRole, Guid remoteRole, Guid remoteId)
-    {
-      MultipleMediaItemAspect relationship = new MultipleMediaItemAspect(index, RelationshipAspect.Metadata);
-      relationship.SetAttribute(RelationshipAspect.ATTR_ROLE, localRole);
-      relationship.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, remoteRole);
-      relationship.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, remoteId);
-      MediaItemAspect.AddAspect(aspects, relationship);
+      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
     }
 
       [Test]
@@ -150,13 +124,8 @@ namespace Test.Common
       Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
       Guid artistId = new Guid("11111111-aaaa-aaaa-aaaa-100000000002");
 
-      int trackAspect = 1;
       Guid trackRelationship = new Guid("22222222-bbbb-bbbb-bbbb-200000000001");
-
-      int albumAspect = 2;
       Guid albumRelationship = new Guid("33333333-cccc-cccc-cccc-300000000001");
-
-      int artistAspect = 3;
       Guid artistRelationship = new Guid("44444444-dddd-dddd-dddd-400000000001");
 
       IDictionary<Guid, IList<MediaItemAspect>> aspects1 = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -166,8 +135,8 @@ namespace Test.Common
       resourceAspect1.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
       MediaItemAspect.SetAspect(aspects1, resourceAspect1);
 
-      AddRelationship(aspects1, albumAspect, trackRelationship, albumRelationship, albumId);
-      AddRelationship(aspects1, artistAspect, trackRelationship, artistRelationship, artistId);
+      MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, albumRelationship, albumId, 1);
+      MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, artistRelationship, artistId, 0);
 
       MediaItem track1 = new MediaItem(trackId, aspects1);
 
@@ -223,6 +192,53 @@ namespace Test.Common
       Assert.AreEqual(artistId, relationships3[1].GetAttributeValue(RelationshipAspect.ATTR_LINKED_ID), "Track -> album relationship ID");
 
       reader.Read(); // Test
+    }
+
+    [Test]
+    public void TestRelationshipItem()
+    {
+      Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
+      Guid artistId = new Guid("11111111-aaaa-aaaa-aaaa-100000000002");
+
+      Guid trackRelationship = new Guid("22222222-bbbb-bbbb-bbbb-200000000001");
+      Guid albumRelationship = new Guid("33333333-cccc-cccc-cccc-300000000001");
+      Guid artistRelationship = new Guid("44444444-dddd-dddd-dddd-400000000001");
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, artistRelationship, artistId, 0);
+
+      Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");
+
+      IList<MultipleMediaItemAspect> relationships;
+
+      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, albumRelationship, albumId, 1);
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships), "Relationships");
+      Assert.AreEqual(relationships.Count, 2);
+
+      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, albumRelationship, albumId, 2); // This will update the existing track / album relationship
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships), "Relationships");
+      Assert.AreEqual(relationships.Count, 2);
+    }
+
+    [Test]
+    public void TestExternalItem()
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      MediaItemAspect.AddOrUpdateExternalIdentifier(aspects, "test", ExternalIdentifierAspect.TYPE_EPISODE, "123");
+
+      Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");
+
+      IList<MultipleMediaItemAspect> externalIdentifiers;
+
+      MediaItemAspect.AddOrUpdateExternalIdentifier(aspects, "test", ExternalIdentifierAspect.TYPE_SERIES, "456");
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, ExternalIdentifierAspect.Metadata, out externalIdentifiers), "Relationships");
+      Assert.AreEqual(externalIdentifiers.Count, 2);
+
+      MediaItemAspect.AddOrUpdateExternalIdentifier(aspects, "test", ExternalIdentifierAspect.TYPE_SERIES, "789");
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, ExternalIdentifierAspect.Metadata, out externalIdentifiers), "Relationships");
+      Assert.AreEqual(externalIdentifiers.Count, 2);
     }
   }
 }

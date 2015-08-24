@@ -82,4 +82,7 @@
   <string name="WeatherSetup.SearchCity">Şehir ara</string>
   <string name="WeatherSetup.AddCity">Şehir ekle</string>
   <string name="WeatherSetup.RemoveCity">Şehir çıkart</string>
+  <string name="WeatherSetup.Detect">Algıla</string>
+  <string name="WeatherSetup.DetectionFailed">Algılama Başarısız</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Konumunuz otomatik olarak algılanamadı.</string>
 </resources>

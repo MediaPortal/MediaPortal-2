@@ -43,6 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
 
     public const string MIME_TYPE_TV = "slimtv/livetv";
     public const string MIME_TYPE_RADIO = "slimtv/radio";
+    public const string MIME_TYPE_WTVREC = "slimtv/wtv";
 
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
@@ -104,7 +105,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
           MediaItemAspect.SetAspect(_aspects, smia);
         MultipleMediaItemAspect mmia = mia as MultipleMediaItemAspect;
         if (mmia is MultipleMediaItemAspect)
-          MediaItemAspect.AddAspect(_aspects, mmia);
+          MediaItemAspect.AddOrUpdateAspect(_aspects, mmia);
       }
       reader.ReadEndElement(); // MI
     }

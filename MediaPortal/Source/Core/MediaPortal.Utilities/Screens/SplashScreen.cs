@@ -352,6 +352,10 @@ namespace MediaPortal.Utilities.Screens
     {
       SetFormLocationAndBackground(_backgroundImage);
 
+      // Force activation and foreground
+      this.SafeActivate();
+      BringToFront();
+
       if (_fadeInDuration != TimeSpan.Zero)
       {
         _fadeMode = true;

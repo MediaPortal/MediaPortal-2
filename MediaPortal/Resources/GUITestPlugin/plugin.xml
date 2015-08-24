@@ -4,8 +4,18 @@
     PluginId="{0105CFBA-14BE-4136-87E6-954D03CE5D66}"
     Author="Albert"
     Copyright="GPL"
-    Description="GUI Test Plugin showing various test screens for the capabilities of the SkinEngine"
-    PluginVersion="1.0">
+    Description="GUI Test Plugin showing various test screens for the capabilities of the SkinEngine">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="GUITestPlugin.dll"/>

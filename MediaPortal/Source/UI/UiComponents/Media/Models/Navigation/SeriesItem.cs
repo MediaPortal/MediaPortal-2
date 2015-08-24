@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -40,25 +41,25 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo episodeInfo = new EpisodeInfo();
       SingleMediaItemAspect episodeAspect;
       if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out episodeAspect)) 
         return;
 
-      Series = seriesInfo.Series = (string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME] ?? string.Empty;
-      EpisodeName = seriesInfo.Episode = (string)episodeAspect[EpisodeAspect.ATTR_EPISODENAME] ?? string.Empty;
-      seriesInfo.SeasonNumber = (int)(episodeAspect[EpisodeAspect.ATTR_SEASON] ?? 0);
-      Season = seriesInfo.SeasonNumber.ToString();
+      Series = episodeInfo.Series = (string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME] ?? string.Empty;
+      EpisodeName = episodeInfo.Episode = (string)episodeAspect[EpisodeAspect.ATTR_EPISODENAME] ?? string.Empty;
+      episodeInfo.SeasonNumber = (int)(episodeAspect[EpisodeAspect.ATTR_SEASON] ?? 0);
+      Season = episodeInfo.SeasonNumber.ToString();
 
       IList<int> episodes = episodeAspect[EpisodeAspect.ATTR_EPISODE] as IList<int>;
       if (episodes != null)
       {
-        foreach (int episode in episodes)
-          seriesInfo.EpisodeNumbers.Add(episode);
-        EpisodeNumber = seriesInfo.FormatString(string.Format("{{{0}}}", SeriesInfo.EPISODENUM_INDEX));
+        foreach (int episode in episodes.ToList().OrderBy(e => e))
+          episodeInfo.EpisodeNumbers.Add(episode);
+        EpisodeNumber = episodeInfo.FormatString(string.Format("{{{0}}}", EpisodeInfo.EPISODENUM_INDEX));
       }
       // Use the short string without series name here
-      SimpleTitle = seriesInfo.ToShortString();
+      SimpleTitle = episodeInfo.ToShortString();
       FireChange();
     }
 

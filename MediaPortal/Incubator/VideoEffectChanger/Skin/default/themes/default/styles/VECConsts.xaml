@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    >
+
+  <ResourceWrapper x:Key="VECConfigDialogWidth720" Resource="700"/>
+  <ResourceWrapper x:Key="VECConfigDialogWidth1080" Resource="1000"/>
+
+  <ResourceWrapper x:Key="VECConfigDialogHeight720" Resource="350"/>
+  <ResourceWrapper x:Key="VECConfigDialogHeight1080" Resource="500"/>
+
+</ResourceDictionary>

@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -648,9 +649,19 @@ namespace MediaPortal.Common.MediaManagement
 
   public class MultipleMediaItemAspectMetadata : MediaItemAspectMetadata
   {
+    protected IList<AttributeSpecification> _uniqueAttributeSpecifications;
+
     public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
-        IEnumerable<MultipleAttributeSpecification> attributeSpecifications) : base(aspectId, aspectName, attributeSpecifications)
+        IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
+        IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications)
+      : base(aspectId, aspectName, attributeSpecifications)
     {
+      _uniqueAttributeSpecifications = new List<AttributeSpecification>(uniqueAttributeSpecifications);
+    }
+
+    public IList<AttributeSpecification> UniqueAttributeSpecifications
+    {
+      get { return _uniqueAttributeSpecifications; }
     }
 
     #region Additional members for the XML serialization

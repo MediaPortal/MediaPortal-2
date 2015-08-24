@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Vypínací menu</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Nastavení viditelnosti a polohy položek vypínacího menu.</string>
+  <string name="SystemState.Configuration.Dialog.Title">Nastavení položek pro vypnutí</string>
+  <string name="SystemState.Title">Vypínací menu</string>
+  <string name="SystemState.Hibernate">Hibernovat</string>
+  <string name="SystemState.Shutdown">Vypnout</string>
+  <string name="SystemState.Suspend">Uspat</string>
+  <string name="SystemState.Restart">Restartovat</string>
+  <string name="SystemState.Logoff">Odhlásit</string>
+  <string name="SystemState.MinimizeMP">Minimalizovat MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Zavřít MediaPortal</string>
+</resources>

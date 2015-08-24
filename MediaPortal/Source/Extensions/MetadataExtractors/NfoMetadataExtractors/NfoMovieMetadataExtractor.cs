@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2014 Team MediaPortal
@@ -38,6 +38,8 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
@@ -121,6 +123,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     public NfoMovieMetadataExtractor()
     {
+      // The metadataExtractorPriority is intentionally set wrong to "Extended" although, depending on the
+      // content of the nfo-file, it may download thumbs from the internet (and should therefore be
+      // "External"). This is a temporary workaround for performance purposes. It ensures that this 
+      // MetadataExtractor is applied before the VideoThumbnailer (which is intentionally set to "External"
+      // although it only uses local files). Creating thumbs with the VideoThumbnailer takes much longer
+      // than downloading them from the internet.
+      // ToDo: Correct this once we have a better priority system
       _metadata = new MetadataExtractorMetadata(
         metadataExtractorId: METADATAEXTRACTOR_ID,
         name: "Nfo movie metadata extractor",
@@ -131,7 +140,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           MediaAspect.Metadata,
           VideoAspect.Metadata,
-          MovieAspect.Metadata
+          MovieAspect.Metadata,
+          ThumbnailLargeAspect.Metadata
         });
 
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtractorSettings>();
@@ -212,7 +222,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         var nfoReader = new NfoMovieReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
         using (nfoFsra)
         {
-          if (!await nfoReader.TryReadMetadataAsync(nfoFsra))
+          if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
@@ -245,7 +255,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <summary>
     /// Tries to find a nfo-file for the given <param name="mediaFsra"></param>
     /// </summary>
-    /// <param name="miNumber">Unique number flor logging purposes</param>
+    /// <param name="miNumber">Unique number for logging purposes</param>
     /// <param name="mediaFsra">FileSystemResourceAccessor for which we search a nfo-file</param>
     /// <param name="nfoFsra">FileSystemResourceAccessor of the nfo-file or <c>null</c> if no nfo-file was found</param>
     /// <returns><c>true</c> if a nfo-file was found, otherwise <c>false</c></returns>
@@ -333,12 +343,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         mediaFileOrDirectoryName = ResourcePathHelper.GetFileNameWithoutExtension(mediaFileOrDirectoryName);
       }
 
-      // Combine the mediaFileOrDirectoryName and potentially further NfoFileNames from the settings with
+      // Combine the mediaFileOrDirectoryName and potentially further MovieNfoFileNames from the settings with
       // the NfoFileNameExtensions from the settings
       foreach (var extension in _settings.NfoFileNameExtensions)
       {
         result.Add(mediaFileOrDirectoryName + extension);
-        result.AddRange(_settings.NfoFileNames.Select(nfoFileName => nfoFileName + extension));
+        result.AddRange(_settings.MovieNfoFileNames.Select(movieNfoFileName => movieNfoFileName + extension));
       }
       return result;
     }
@@ -358,7 +368,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
       _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawNfoFileIntoDebugLog);
       _debugLogger.Info("   WriteStubObjectIntoDebugLog: {0}", _settings.WriteStubObjectIntoDebugLog);
-      _debugLogger.Info("   NfoFileNames: {0}", String.Join(";", _settings.NfoFileNames));
+      _debugLogger.Info("   MovieNfoFileNames: {0}", String.Join(";", _settings.MovieNfoFileNames));
       _debugLogger.Info("   NfoFileNameExtensions: {0}", String.Join(" ", _settings.NfoFileNameExtensions));
       _debugLogger.Info("   SeparatorCharacters: {0}", String.Join(" ", _settings.SeparatorCharacters));
       _debugLogger.Info("   IgnoreStrings: {0}", String.Join(";", _settings.IgnoreStrings));

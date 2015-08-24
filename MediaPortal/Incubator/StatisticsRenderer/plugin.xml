@@ -5,8 +5,18 @@
     Author="Morpheus_xx"
     Copyright="GPL"
     AutoActivate="true"
-    Description="The StatisticsRenderer plugin provides performance and video playback quality related information."
-    PluginVersion="1.0">
+    Description="The StatisticsRenderer plugin provides performance and video playback quality related information.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+  
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="StatisticsRenderer.dll"/>
@@ -14,7 +24,4 @@
     <PluginStateTracker ClassName="MediaPortal.Plugins.StatisticsRenderer.StatisticsRenderer"/>
   </Runtime>
 
-  <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
-  </DependsOn>
 </Plugin>

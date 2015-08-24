@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Description">Predvajaj audio zgoščenke</string>
+  <string name="AudioCDResourceProvider.Name">Avdio CD</string>
+  <string name="AudioCDResourceProvider.Description">Dostopi do skladb avdio CD-ja</string>
 </resources>

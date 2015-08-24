@@ -8,7 +8,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
-    DependsOnStyleResources="Colors,Buttons,Consts"
+    DependsOnStyleResources="Colors,Buttons,Consts,Widgets"
     >
 
   <!-- BackgroundManager model -->
@@ -337,9 +337,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+          <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,0,20,0" 
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
@@ -413,6 +413,19 @@
 
   <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
 
+  <!-- A data template which shows an image and the Name of the ListItem -->
+  <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32"
+          Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+          Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <DataStringProvider x:Key="ContentsMenuItemDataStringProvider" Path="[Name]"/>
+
   <DataTemplate x:Key="MainMenuItemDataTemplate">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
@@ -425,32 +438,40 @@
 
   <!-- Menu template -->
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
-    <!-- Rounded corners are applied by OpacityMask -->
-    <Grid x:Name="ItemControl" Margin="0,0,0,0" OpacityMask="{ThemeResource HomeTileOpacityBrush}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="48"/>
-        <RowDefinition Height="32"/>
-      </Grid.RowDefinitions>
+    <Grid>
+      <!-- SHADOW -->
+      <Control Style="{ThemeResource Shadow_4_24}" />
+      <!-- SHADOW -->
 
-      <!-- Light blue background fill -->
-      <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
-          x:Name="HomeFill" Fill="#FFFFFF" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+      <Grid x:Name="ItemControl">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
 
-      <!-- Image -->
-      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
-             Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
-
-      <!-- Darkened band -->
-      <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
-
-      <!-- Item label -->
-      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Content="{Binding [Name]}"
-             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="16" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <!-- Light blue background fill -->
+        <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+            x:Name="HomeFill" Fill="#FF808080" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        <!-- Image -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
+               Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
+        <!-- Darkened band -->
+        <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
+        <!-- Item label -->
+        <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
+               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
+      </Grid>
     </Grid>
   </DataTemplate>
 
@@ -503,8 +524,33 @@
   <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
   </Style>
 
+  <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource LeftSideScrollViewerStyle}">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="{ThemeResource FixedDialogWidth}"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
   <!-- ListView style to be used in the content area of the screens -->
   <Style x:Key="ContentsMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="PopupMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -577,7 +623,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              IsEnabled="{Binding Enabled}">
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -586,15 +632,7 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="56" Height="56" Stretch="Fill" Margin="20,0,20,0">
-      <!--Image.Opacity>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
-          <Binding Path="Selected"/>
-          <Binding Source="1" />
-          <Binding Source="0.4"/>
-        </MultiBinding>
-      </Image.Opacity-->
-
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="10,0,10,0">
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
           <Binding Path="AdditionalProperties[Id]"/>
@@ -620,22 +658,86 @@
     </Trigger-->
   </Style>
 
+  <!-- ListView style for MediaInfos in Currently Playing screen-->
+  <DataTemplate x:Key="AudioLanguageItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <WrapPanel Orientation="Horizontal" x:Name="ItemControl" >
+      <Image Stretch="Uniform" Height="80">
+        <Image.Source>
+          <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+        </Image.Source>
+      </Image>
+    </WrapPanel>
+  </DataTemplate>
+  
+  <DataTemplate x:Key="AudioEncodingItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <WrapPanel Orientation="Horizontal" x:Name="ItemControl" >
+      <Image Stretch="Uniform" Height="80">
+        <Image.Source>
+          <Binding Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+        </Image.Source>
+      </Image>
+    </WrapPanel>
+  </DataTemplate>
+
+  <Style x:Key="AudioLanguageListViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource DefaultListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource AudioLanguageItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value=""/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AudioEncodingListViewStyle" TargetType="{x:Type ListView}" BasedOn="{ThemeResource DefaultListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource AudioEncodingItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value=""/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}">
-      <Grid.Width>
+    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" 
+          Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
+      <!--Grid.Width>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
           <Binding ElementName="ItemTypeImage" Path="HasImage"/>
           <Binding Source="{StaticResource MEDIA_POSTER_WIDTH}" />
           <Binding Source="0"/>
         </MultiBinding>
-      </Grid.Width>
-      <Image Source="MediaItem_Shadow.png" Margin="-7,-4,-8,-6"/>
-      <Image x:Name="ItemTypeImage" Source="{Binding MediaItem}"
-             Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
-             OpacityMask="{ThemeResource MediaItemsOpacityBrush}">
-      </Image>
+      </Grid.Width-->
+
+      <!-- SHADOW -->
+      <Control Style="{ThemeResource Shadow_3_18}" />
+      <!-- SHADOW -->
+
+      <Grid>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+                Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
+        </Image>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -946,6 +1048,5 @@
       </Setter.Value>
     </Setter>
   </Style>
-
 
 </ResourceDictionary>

@@ -182,7 +182,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool TryGetCollectionId(string collectionName, out int collectionId)
     {
-      MovieCollectionMatch match = _collectionStorage.GetMatches().Find(m => m.ItemName == collectionName);
+      MovieCollectionMatch match = _collectionStorage.GetMatches().Find(m => string.Equals(m.ItemName, collectionName, StringComparison.OrdinalIgnoreCase));
       collectionId = match == null ? 0 : match.Id;
       return collectionId != 0;
     }

@@ -1,7 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Predvajalniki</string>
-  <string name="Settings.Players.Rendering">Risanje</string>
+  <string name="Settings.Players.AudioPlayer">Avdio predvajalnik</string>
+  <string name="Settings.Players.BassPlayer.Setup">Konfiguriraj izhodno napravo</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Konfigurira BassPlayer izhodno napravo in možnosti</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Ekskluzivni način</string>
+  <string name="Settings.Players.Rendering">Upodabljanje</string>
   <string name="Settings.Players.Rendering.CrossFading">Vmesno prelivanje</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Vmesno prelivanje omogočeno</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Določi, ali naj MediaPortal prelije pesmi, če je to mogoče</string>

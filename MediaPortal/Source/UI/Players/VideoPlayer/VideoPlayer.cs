@@ -180,12 +180,8 @@ namespace MediaPortal.UI.Players.Video
 
     protected override void AddSourceFilter()
     {
-      //VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      //if (settings.EnableSubtitles)
-      {
-        var _vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
-        _graphBuilder.AddFilter(_vsFilter, VSFILTER_NAME);
-      }
+      var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
+      _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
       base.AddSourceFilter();
     }
 
@@ -200,10 +196,10 @@ namespace MediaPortal.UI.Players.Video
     {
       ServiceRegistration.Get<ILogger>().Debug("{0}: Initialize EVR", PlayerTitle);
 
-      _evr = (IBaseFilter) new EnhancedVideoRenderer();
+      _evr = (IBaseFilter)new EnhancedVideoRenderer();
 
       IntPtr upDevice = SkinContext.Device.NativePointer;
-      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
+      int hr = EvrInit(_evrCallback, (uint)upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
       if (hr != 0)
       {
         EvrDeinit(_presenterInstance);
@@ -212,7 +208,7 @@ namespace MediaPortal.UI.Players.Video
       }
 
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
-      IEVRFilterConfig config = (IEVRFilterConfig) _evr;
+      IEVRFilterConfig config = (IEVRFilterConfig)_evr;
       config.SetNumberOfStreams(_streamCount);
 
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
@@ -279,9 +275,9 @@ namespace MediaPortal.UI.Players.Video
       get { return (_evrCallback == null) ? new System.Drawing.SizeF(1, 1) : _evrCallback.AspectRatio.ToDrawingSizeF(); }
     }
 
-    protected Surface RawVideoSurface
+    protected Texture RawVideoTexture
     {
-      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
     }
 
     public object SurfaceLock
@@ -293,22 +289,22 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    public Surface Surface
+    public Texture Texture
     {
       get
       {
         lock (SurfaceLock)
         {
-          Surface videoSurface = RawVideoSurface;
+          Texture videoTexture = RawVideoTexture;
           if (!_textureInvalid)
-            return videoSurface;
+            return videoTexture;
 
-          if (videoSurface == null || videoSurface.IsDisposed)
+          if (videoTexture == null || videoTexture.IsDisposed)
             return null;
 
-          PostProcessTexture(videoSurface);
+          PostProcessTexture(videoTexture);
           _textureInvalid = false;
-          return videoSurface;
+          return videoTexture;
         }
       }
     }
@@ -323,7 +319,7 @@ namespace MediaPortal.UI.Players.Video
     /// i.e. for overlaying subtitles or OSD menus.
     /// </summary>
     /// <param name="targetTexture"></param>
-    protected virtual void PostProcessTexture(Surface targetTexture)
+    protected virtual void PostProcessTexture(Texture targetTexture)
     { }
 
     public IGeometry GeometryOverride
@@ -503,7 +499,7 @@ namespace MediaPortal.UI.Players.Video
         _streamSelectors = FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder);
         foreach (IAMStreamSelect streamSelector in _streamSelectors)
         {
-          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter) streamSelector));
+          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter)streamSelector));
           int streamCount;
           streamSelector.Count(out streamCount);
 
@@ -533,7 +529,7 @@ namespace MediaPortal.UI.Players.Video
               i, mediaType.majorType, name, groupNumber, fi.achName, lcid);
 
             StreamInfo currentStream = new StreamInfo(streamSelector, i, name, lcid);
-            switch ((StreamGroup) groupNumber)
+            switch ((StreamGroup)groupNumber)
             {
               case StreamGroup.Video:
                 break;
@@ -548,7 +544,7 @@ namespace MediaPortal.UI.Players.Video
                   // if audio information is available via WaveEx format, query the channel count
                   if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
                   {
-                    WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
+                    WaveFormatEx waveFormatEx = (WaveFormatEx)Marshal.PtrToStructure(mediaType.formatPtr, typeof(WaveFormatEx));
                     currentStream.ChannelCount = waveFormatEx.nChannels;
                     streamAppendix = String.Format("{0} {1}ch", streamAppendix, currentStream.ChannelCount);
                   }
@@ -560,10 +556,10 @@ namespace MediaPortal.UI.Players.Video
                 }
                 break;
               case StreamGroup.Subtitle:
-                {                  
+                {
                   currentStream.IsAutoSubtitle = currentStream.Name.ToLowerInvariant().Contains(FORCED_SUBTITLES);
                   subtitleStreams.AddUnique(currentStream, true);
-                }                
+                }
                 break;
               case StreamGroup.VsFilterSubtitle:
               case StreamGroup.VsFilterSubtitleOptions:
@@ -646,7 +642,7 @@ namespace MediaPortal.UI.Players.Video
       _initialized = false;
 
       FilterState state;
-      IMediaControl mc = (IMediaControl) _graphBuilder;
+      IMediaControl mc = (IMediaControl)_graphBuilder;
       mc.GetState(10, out state);
       if (state != FilterState.Stopped)
       {
@@ -690,7 +686,7 @@ namespace MediaPortal.UI.Players.Video
 
       if (State == PlayerState.Active)
       {
-        IMediaControl mc = (IMediaControl) _graphBuilder;
+        IMediaControl mc = (IMediaControl)_graphBuilder;
         if (_isPaused)
           mc.Pause();
         else
@@ -743,10 +739,11 @@ namespace MediaPortal.UI.Players.Video
         if (forced != null)
         {
           subtitleStreams.EnableStream(forced.Name);
-        }else
+        }
+        else
         {
           subtitleStreams.EnableStream(NO_SUBTITLES);
-        }        
+        }
       }
       else
         subtitleStreams.EnableStream(streamInfo.Name);

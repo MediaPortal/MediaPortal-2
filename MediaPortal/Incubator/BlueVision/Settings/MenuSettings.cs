@@ -69,14 +69,23 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
       MenuItems = new SerializableDictionary<string, SerializableDictionary<Guid, HomeMenuModel.GridPosition>>();
     }
 
-    [Setting(SettingScope.Global, 0)]
-    public int DefaultIndex { get; set; }
+    [Setting(SettingScope.Global, "")]
+    public string DefaultMenuGroupId { get; set; }
 
     [Setting(SettingScope.Global)]
     public List<GroupItemSetting> MainMenuGroupNames { get; set; }
 
     [Setting(SettingScope.Global)]
     public SerializableDictionary<string, SerializableDictionary<Guid, HomeMenuModel.GridPosition>> MenuItems { get; set; }
+
+    [Setting(SettingScope.Global)]
+    public bool DisableHomeTab { get; set; }
+
+    [Setting(SettingScope.Global, true)]
+    public bool DisableAutoSelection { get; set; }
+
+    [Setting(SettingScope.Global)]
+    public bool UseAlternativeSplashscreen { get; set; }
   }
 
   public class GroupItemSetting

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using MediaPortal.Attributes;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
@@ -70,6 +71,7 @@ namespace MediaPortal.Common.Services.PluginManager
 
     protected object _syncObj = new object();
 
+    protected IDictionary<string, CoreAPIAttribute> _coreComponents = new Dictionary<string, CoreAPIAttribute>();
     protected IDictionary<Guid, PluginRuntime> _availablePlugins = new Dictionary<Guid, PluginRuntime>();
 
     protected IDictionary<string, PluginBuilderRegistration> _builders =
@@ -98,6 +100,11 @@ namespace MediaPortal.Common.Services.PluginManager
       get { return _state; }
     }
 
+    public IDictionary<string, CoreAPIAttribute> CoreComponents
+    {
+      get { return _coreComponents; }
+    }
+
     public IDictionary<Guid, PluginRuntime> AvailablePlugins
     {
       get { return _availablePlugins; }
@@ -114,6 +121,8 @@ namespace MediaPortal.Common.Services.PluginManager
       {
         ServiceRegistration.Get<ILogger>().Info("PluginManager: Initialize");
         _state = PluginManagerState.Initializing;
+        ServiceRegistration.Get<ILogger>().Info("PluginManager: Reflecting Core API");
+        ReflectCoreAPI();
         ServiceRegistration.Get<ILogger>().Debug("PluginManager: Loading plugins");
         IDictionary<Guid, IPluginMetadata> loadedPlugins = LoadPluginsData();
         foreach (IPluginMetadata pm in loadedPlugins.Values)
@@ -234,9 +243,26 @@ namespace MediaPortal.Common.Services.PluginManager
 
     public ICollection<Guid> FindConflicts(IPluginMetadata plugin)
     {
+      return FindConflicts(plugin, new HashSet<Guid>());
+    }
+
+    /// <summary>
+    /// Conflicts are searched recursive, but plugins might be referenced multiple times in the hierarchy.
+    /// So in order to speed up this process and prevent a StackOverflowException we pass a list of already checked plugin Ids.
+    /// </summary>
+    /// <param name="plugin"></param>
+    /// <param name="alreadyCheckedPlugins"></param>
+    /// <returns></returns>
+    protected ICollection<Guid> FindConflicts(IPluginMetadata plugin, HashSet<Guid> alreadyCheckedPlugins)
+    {
       ICollection<Guid> result = new HashSet<Guid>();
       lock (_syncObj)
       {
+        if (alreadyCheckedPlugins.Contains(plugin.PluginId))
+          return result;
+        else
+          alreadyCheckedPlugins.Add(plugin.PluginId);
+
         // Conflicts declared by plugin
         ICollection<Guid> conflictingPlugins = CollectionUtils.Intersection(plugin.ConflictsWith, _availablePlugins.Keys);
         foreach (Guid conflictId in conflictingPlugins)
@@ -253,12 +279,25 @@ namespace MediaPortal.Common.Services.PluginManager
             // Plugin pr conflicts with plugin
             result.Add(pr.Metadata.PluginId);
         }
-        foreach (Guid dependencyId in plugin.DependsOn)
+        foreach (PluginDependencyInfo dependencyInfo in plugin.DependsOn)
         {
-          PluginRuntime pr;
-          if (!_availablePlugins.TryGetValue(dependencyId, out pr))
-            throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyId);
-          CollectionUtils.AddAll(result, FindConflicts(pr.Metadata));
+          if (dependencyInfo.IsCoreDependency)
+          {
+            CoreAPIAttribute api;
+            if (!_coreComponents.TryGetValue(dependencyInfo.CoreDependencyName, out api))
+              throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyInfo.CoreDependencyName);
+            if (api.MinCompatibleAPI > dependencyInfo.CompatibleAPI || api.CurrentAPI < dependencyInfo.CompatibleAPI)
+              throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", dependencyInfo.CoreDependencyName, dependencyInfo.CompatibleAPI, api.MinCompatibleAPI, api.CurrentAPI);
+          }
+          else
+          {
+            PluginRuntime pr;
+            if (!_availablePlugins.TryGetValue(dependencyInfo.PluginId, out pr))
+              throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyInfo.PluginId);
+            if (pr.Metadata.MinCompatibleAPI > dependencyInfo.CompatibleAPI || pr.Metadata.CurrentAPI < dependencyInfo.CompatibleAPI)
+              throw new PluginIncompatibleException("Dependency '{0}' requires API level ({1}) and available is [min compatible ({2}) -> ({3}) current]", pr.Metadata.Name, dependencyInfo.CompatibleAPI, pr.Metadata.MinCompatibleAPI, pr.Metadata.CurrentAPI);
+            CollectionUtils.AddAll(result, FindConflicts(pr.Metadata, alreadyCheckedPlugins));
+          }
         }
       }
       return result;
@@ -268,12 +307,15 @@ namespace MediaPortal.Common.Services.PluginManager
     {
       ICollection<Guid> result = new HashSet<Guid>();
       lock (_syncObj)
-        foreach (Guid dependencyId in plugin.DependsOn)
+        foreach (PluginDependencyInfo dependencyInfo in plugin.DependsOn)
         {
-          PluginRuntime pr;
-          if (!_availablePlugins.TryGetValue(dependencyId, out pr))
-            result.Add(dependencyId);
-          CollectionUtils.AddAll(result, FindMissingDependencies(pr.Metadata));
+          if (!dependencyInfo.IsCoreDependency)
+          {
+            PluginRuntime pr;
+            if (!_availablePlugins.TryGetValue(dependencyInfo.PluginId, out pr))
+              result.Add(dependencyInfo.PluginId);
+            CollectionUtils.AddAll(result, FindMissingDependencies(pr.Metadata));
+          }
         }
       return result;
     }
@@ -742,7 +784,7 @@ namespace MediaPortal.Common.Services.PluginManager
     public bool TryEnable(PluginRuntime plugin, bool doAutoActivate)
     {
       ICollection<PluginRuntime> autoActivatePlugins = new List<PluginRuntime>();
-      bool result = TryEnable(plugin, autoActivatePlugins);
+      bool result = TryEnable(plugin, autoActivatePlugins, new HashSet<Guid>());
       if (doAutoActivate)
         foreach (PluginRuntime autoActivatePlugin in autoActivatePlugins)
           TryActivate(autoActivatePlugin);
@@ -757,8 +799,11 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <param name="autoActivatePlugins">This collection will be filled with plugins which have their auto-activate flag set.</param>
     /// <returns><c>true</c>, if the specified <paramref name="plugin"/> and all its dependencies could
     /// be enabled, else <c>false</c>.</returns>
-    protected bool TryEnable(PluginRuntime plugin, ICollection<PluginRuntime> autoActivatePlugins)
+    protected bool TryEnable(PluginRuntime plugin, ICollection<PluginRuntime> autoActivatePlugins, HashSet<Guid> pluginsPendingActivation)
     {
+      if (pluginsPendingActivation.Contains(plugin.Metadata.PluginId))
+        return true;
+
       LockPluginStateDependency(plugin, false); // First lock for read
       ICollection<PluginRuntime> lockedPluginStates = new List<PluginRuntime> {plugin};
       try
@@ -774,32 +819,55 @@ namespace MediaPortal.Common.Services.PluginManager
         ILogger logger = ServiceRegistration.Get<ILogger>();
         string pluginDisplayName = string.Format("'{0}' [Version: {1}; Authors: {2}; ID: '{3}']", plugin.Metadata.Name, plugin.Metadata.PluginVersion, plugin.Metadata.Author, plugin.Metadata.PluginId);
         logger.Debug("PluginManager: Trying to enable plugin {0}", pluginDisplayName);
-        if (FindConflicts(plugin.Metadata).Count > 0)
+        try
         {
-          logger.Info("PluginManager: Plugin {0} cannot be enabled - there are plugin conflicts", pluginDisplayName);
+          if (FindConflicts(plugin.Metadata).Count > 0)
+          {
+            logger.Warn("PluginManager: Plugin '{0}' cannot be enabled - there are plugin conflicts", plugin.Metadata.Name);
+            return false;
+          }
+        }
+        catch (PluginMissingDependencyException missingEx)
+        {
+          logger.Warn("PluginManager: Plugin '{0}' cannot be enabled: {1}", plugin.Metadata.Name, missingEx.Message);
+          return false;
+        }
+        catch (PluginIncompatibleException incompEx)
+        {
+          logger.Warn("PluginManager: Plugin '{0}' cannot be enabled: {1}", plugin.Metadata.Name, incompEx.Message);
           return false;
         }
 
+        pluginsPendingActivation.Add(plugin.Metadata.PluginId);
+
         // Handle dependencies
         ICollection<PluginRuntime> pendingChildRegistrations = new List<PluginRuntime>();
-        foreach (Guid parentId in plugin.Metadata.DependsOn)
+        foreach (PluginDependencyInfo parentDependency in plugin.Metadata.DependsOn)
         {
-          PluginRuntime parentPlugin;
-          lock (_syncObj)
-            if (!_availablePlugins.TryGetValue(parentId, out parentPlugin))
-            {
-              logger.Warn("Plugin {0}: Dependency '{1}' is not available", pluginDisplayName, parentId);
-              return false;
-            }
-          if (!TryEnable(parentPlugin, autoActivatePlugins))
+          if (!parentDependency.IsCoreDependency)
           {
-            logger.Warn("Plugin {0}: Dependency '{1}' cannot be enabled", pluginDisplayName, parentId);
-            return false;
+            PluginRuntime parentPlugin;
+            lock (_syncObj)
+              if (!_availablePlugins.TryGetValue(parentDependency.PluginId, out parentPlugin))
+              {
+                logger.Warn("Plugin {0}: Dependency '{1}' is not available", pluginDisplayName, parentDependency.PluginId);
+                return false;
+              }
+            if (!pluginsPendingActivation.Contains(parentPlugin.Metadata.PluginId))
+            {
+              if (!TryEnable(parentPlugin, autoActivatePlugins, pluginsPendingActivation))
+              {
+                logger.Warn("Plugin {0}: Dependency '{1}' cannot be enabled", pluginDisplayName, parentDependency.PluginId);
+                return false;
+              }
+              LockPluginStateDependency(parentPlugin, false, PluginState.Enabled, PluginState.Active);
+              lockedPluginStates.Add(parentPlugin);
+              pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
+            }
           }
-          LockPluginStateDependency(parentPlugin, false, PluginState.Enabled, PluginState.Active);
-          lockedPluginStates.Add(parentPlugin);
-          pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
         }
+
+        pluginsPendingActivation.Remove(plugin.Metadata.PluginId);
 
         // Check if builder dependencies are explicitly named (has to be done after dependencies are loaded - builders could be added by dependent plugins)
         lock (_syncObj)
@@ -822,7 +890,7 @@ namespace MediaPortal.Common.Services.PluginManager
             if (builderRegistration.PluginRuntime == null)
               // Builder is a default builder
               continue;
-            if (!plugin.Metadata.DependsOn.Contains(builderRegistration.PluginRuntime.Metadata.PluginId))
+            if (!plugin.Metadata.DependsOn.Any(d => !d.IsCoreDependency && d.PluginId == builderRegistration.PluginRuntime.Metadata.PluginId))
             {
               logger.Error(
                   "Plugin {0}: Builder '{1}' (implemented by plugin '{2}') is used, but this plugin dependency is not explicitly specified - plugin won't be enabled",
@@ -869,6 +937,14 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <returns><c>true</c>, if the plugin could be activated or was already active, else <c>false</c>.</returns>
     public bool TryActivate(PluginRuntime plugin)
     {
+      return TryActivate(plugin, new HashSet<Guid>());
+    }
+
+    public bool TryActivate(PluginRuntime plugin, HashSet<Guid> pluginsPendingActivation)
+    {
+      if (pluginsPendingActivation.Contains(plugin.Metadata.PluginId))
+        return true;
+
       if (!TryEnable(plugin, false))
         return false;
       if (IsInStoppingProcess(plugin))
@@ -887,24 +963,36 @@ namespace MediaPortal.Common.Services.PluginManager
         Guid pluginId = plugin.Metadata.PluginId;
         ILogger logger = ServiceRegistration.Get<ILogger>();
         logger.Debug("PluginManager: Trying to activate plugin '{0}' (id '{1}')", pluginName, pluginId);
+
+        pluginsPendingActivation.Add(plugin.Metadata.PluginId);
+        
         // Activate parent plugins - Load their assemblies etc.
         IDictionary<Guid, PluginRuntime> availablePlugins;
         lock (_syncObj)
           availablePlugins = new Dictionary<Guid, PluginRuntime>(_availablePlugins);
-        foreach (Guid parentId in plugin.Metadata.DependsOn)
+        foreach (PluginDependencyInfo parentDependency in plugin.Metadata.DependsOn)
         {
-          PluginRuntime parentPlugin = availablePlugins[parentId];
-          logger.Debug("PluginManager: Checking activation of plugin dependency '{0}' for plugin '{1}'",
-              parentId, pluginName);
-          if (!TryActivate(parentPlugin))
+          if (!parentDependency.IsCoreDependency)
           {
-            logger.Debug("PluginManager: Dependent plugin '{0}' could not be activated. Activation of plugin '{1}' was not successful.",
-                parentId, pluginName);
-            return false;
+            PluginRuntime parentPlugin = availablePlugins[parentDependency.PluginId];
+            logger.Debug("PluginManager: Checking activation of plugin dependency '{0}' for plugin '{1}'",
+                parentDependency.PluginId, pluginName);
+            if (!pluginsPendingActivation.Contains(parentPlugin.Metadata.PluginId))
+            {
+              if (!TryActivate(parentPlugin, pluginsPendingActivation))
+              {
+                logger.Debug("PluginManager: Dependent plugin '{0}' could not be activated. Activation of plugin '{1}' was not successful.",
+                    parentDependency.PluginId, pluginName);
+                return false;
+              }
+              LockPluginStateDependency(parentPlugin, false, PluginState.Active);
+              lockedPluginStates.Add(parentPlugin);
+            }
           }
-          LockPluginStateDependency(parentPlugin, false, PluginState.Active);
-          lockedPluginStates.Add(parentPlugin);
         }
+
+        pluginsPendingActivation.Remove(plugin.Metadata.PluginId);
+
         // All checks passed and preconditions met, activate plugin
         UpgradeReadLockToWriteLock(plugin);
         lock (_syncObj)
@@ -1091,6 +1179,20 @@ namespace MediaPortal.Common.Services.PluginManager
         }
       }
       return result;
+    }
+
+    internal void ReflectCoreAPI()
+    {
+      foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        var attributes = assembly.GetCustomAttributes(typeof(CoreAPIAttribute), false);
+        if (attributes != null && attributes.Length > 0)
+        {
+          var coreAPI = attributes[0] as CoreAPIAttribute;
+          var componentName = assembly.GetName().Name;
+          _coreComponents.Add(componentName, coreAPI);
+        }
+      }
     }
 
     #endregion

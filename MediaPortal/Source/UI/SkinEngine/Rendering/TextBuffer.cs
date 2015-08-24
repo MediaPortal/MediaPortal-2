@@ -236,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <returns>The width of the text in graphics device units (pixels)</returns>
     public float TextWidth(string text)
     {
-      return _font.TextWidth(text, _fontSize, _kerning);
+      return _font != null ? _font.TextWidth(text, _fontSize, _kerning) : 0f;
     }
 
     /// <summary>
@@ -246,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <returns>The height of the text in graphics device units (pixels)</returns>
     public float TextHeight(int lineCount)
     {
-      return _font.TextHeight(_fontSize, lineCount);
+      return _font != null ? _font.TextHeight(_fontSize, lineCount) : 0f;
     }
 
     /// <summary>
@@ -254,7 +254,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     public float LineHeight
     {
-      get { return _font.LineHeight(_fontSize); }
+      get { return _font != null ? _font.LineHeight(_fontSize) : 0f; }
     }
 
     public bool IsAllocated

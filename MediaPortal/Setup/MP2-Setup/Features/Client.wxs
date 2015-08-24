@@ -141,5 +141,14 @@
       <Feature Id="LAVFilters" Level="1" Absent="allow" InstallDefault="followParent" AllowAdvertise="no" Title="!(loc.F_LAVFilters)" Description="!(loc.F_LAVFilters_Desc)"/>
     </FeatureRef>
 
+    <InstallExecuteSequence>
+      <Custom Action="LaunchClientLauncher" After="InstallFinalize" />
+    </InstallExecuteSequence>
+
+    <CustomAction Id="LaunchClientLauncher"
+                  FileKey="ClientLauncher.exe"
+                  ExeCommand=""
+                  Return="asyncNoWait" />
+
   </Fragment>
 </Wix>

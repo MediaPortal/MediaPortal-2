@@ -109,7 +109,7 @@
 </string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tidsformat</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat som används. Använd format enligt .NET DateTimeFormatInfo-klassen.
-\"t\"=kort tidpunkt. \"T\" lång tidpunkt.</string>
+\"t\"=kort tidpunkt. \"T\"=lång tidpunkt.</string>
   <string name="Settings.General">Allmänt</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -126,7 +126,7 @@
   <string name="Settings.Regional">Regionalt</string>
   <string name="Settings.Regional.Language">Språk</string>
   <string name="Settings.Regional.Language.Main">Språk</string>
-  <string name="Settings.Regional.Language.Main.Help">Sätt huvudspråket som ska användas i applikationen</string>
+  <string name="Settings.Regional.Language.Main.Help">Sätt huvudspråket som ska användas i MediaPortal 2</string>
   <string name="Settings.Shares">Mediakällor</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Konfigurera mediakällor</string>
@@ -173,7 +173,7 @@
   <string name="SharesConfig.ShareResourcePathInfo">Teknisk sökväg:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Mediakategorier:</string>
   <string name="SharesConfig.ReImportShare">Återimportera mediakällor</string>
-  <string name="SharesConfig.SetupDefaultShares">Bestäm förvalda källor</string>
+  <string name="SharesConfig.SetupDefaultShares">Bestäm förvalda mediakällor</string>
   <string name="SharesConfig.RemoveShares">Ta bort mediakällor</string>
   <string name="SharesConfig.EditShare">Redigera mediakällor</string>
   <string name="SharesConfig.ChooseSystem">Välj system</string>

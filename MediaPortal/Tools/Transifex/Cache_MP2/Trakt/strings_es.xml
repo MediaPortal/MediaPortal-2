@@ -8,6 +8,7 @@
   <string name="Trakt.SyncMovies">Sincronizando películas...</string>
   <string name="Trakt.SyncSeries">Sincronizando series...</string>
   <string name="Trakt.SyncFinished">¡Sincronización completa!</string>
+  <string name="Trakt.MediaLibraryNotConnected">El servidor no está conectado, ¡no se pudo sincronizar!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Configurar Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configurar detalles de la cuenta para el servicio Trakt.tv</string>

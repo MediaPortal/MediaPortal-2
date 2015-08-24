@@ -106,67 +106,102 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="165"/>
-        <ColumnDefinition Width="400"/>
+        <ColumnDefinition Width="460"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="450"/>
+        <ColumnDefinition Width="300"/>
+        <ColumnDefinition Width="160"/>
       </Grid.ColumnDefinitions>
 
-      <!-- Power button -->
-      <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"-->
-        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="0,5,10,-5"
-            OpacityMask="#A0000000" HorizontalAlignment="Right" VerticalAlignment="Center"
-            IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-          <Button.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.Setters>
-                <Setter Property="OpacityMask" Value="#FF000000"/>
-              </Trigger.Setters>
-            </Trigger>
-          </Button.Triggers>
-        </Button>
-
-        <!--Label x:Name="SelectedItem" Grid.Column="1" Margin="20,0,200,0" Content="{Binding Path=[Name], Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}" 
-               VerticalAlignment="Center" HorizontalAlignment="Center">       
-        </Label-->
-
-        <Label x:Name="SelectedItem" Grid.Row="0" Grid.Column="1" Margin="5,3,25,-3" 
+      <!--Label x:Name="SelectedItem" Grid.Row="0" Grid.Column="1" Margin="5,3,25,-3" 
               Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
               VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BigFontSize}" FontFamily="DefaultBold"
               Color="{ThemeResource TextColor}">
+        </Label-->
+
+      <StackPanel Grid.Row="0" Grid.Column="0" Margin="110,-5,0,0" VerticalAlignment="Center" >
+        <Label x:Name="SelectedItem"
+                Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
+                VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
+                Color="{ThemeResource TextColor}">
         </Label>
-        
+        <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-8,0,0">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsListHeader.inc"/>
+          </Control.TemplateControl>
+        </Control>       
+      </StackPanel>
+            
         <!-- Main Menu Group tabs -->
         <!-- use custom ListView to modify focus behavior -->
-        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
-                               VerticalAlignment="Stretch" HorizontalAlignment="Center"
-                               HomeMenuModel="{StaticResource MenuModel}"
+
+      <!--Image Source="Menu_Background.png" Grid.Row="0" Grid.Column="1" Opacity="0.25" Stretch="Fill" Height="90" Margin="15,-5,15,-5"
+               VerticalAlignment="Center" HorizontalAlignment="Center"/-->
+
+        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="1"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                               HomeMenuModel="{StaticResource MenuModel}" Margin="-5,8,-5,-8"
                                IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                                ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                                SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
-        </bvm:GroupMenuListView>
+        <bvm:GroupMenuListView.Resources>
+          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+        </bvm:GroupMenuListView.Resources>
+      </bvm:GroupMenuListView>
 
       <!-- Time & Date -->
-        <StackPanel Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" Margin="5,-5,110,0">
+        <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="5,-5,20,0" VerticalAlignment="Center">
+          <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+                FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold" 
+                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
           <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
-               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        
-          <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" 
-             FontSize="{ThemeResource BigFontSize}" FontFamily="DefaultBold" Margin="0,-10,0,0"
-             Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
         </StackPanel>
 
+      <!-- Power button -->
+      <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"-->
+
+      <!--Image x:Name="Power_blur" Source="Power_blur.png" Grid.Row="0" Grid.Column="3" Width="79" Height="79" Opacity="0.8"
+              Margin="0,0,80,0" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill">
+        <Image.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="Opacity" Value="0.8"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Image.Triggers>
+      </Image>
+      <Image x:Name="Power" Source="Power.png" Grid.Row="0" Grid.Column="3" Width="80" Height="80"
+             Margin="0,0,80,0" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill">
+      </Image-->
+
+
+      <Canvas Width="58" Height="58" Grid.Row="0" Grid.Column="3" Margin="0,-20,80,-20" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Ellipse Fill="Black" Width="58" Height="58" Opacity="0.25" />
+      </Canvas>
+
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="3" Margin="0,-20,79.5,-20"
+          HorizontalAlignment="Center" VerticalAlignment="Center"
+          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="Opacity" Value="35"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Button.Triggers>
+      </Button>    
+      
+      
       <!--/StackPanel-->
 
       <Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" />
     </Grid>
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,20,115,0" />
+    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3"/>
 
     <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" />
-
 
     <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top">
       <Grid.RowDefinitions>

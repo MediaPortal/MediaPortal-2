@@ -4,8 +4,17 @@
     PluginId="{112728B1-F71D-4284-9E5C-3462E8D3C74D}"
     Author="Bavarian"
     Copyright="GPL"
-    Description="ISO files resource provider"
-    PluginVersion="1.0">
+    Description="ISO files resource provider">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="IsoResourceProvider.dll"/>

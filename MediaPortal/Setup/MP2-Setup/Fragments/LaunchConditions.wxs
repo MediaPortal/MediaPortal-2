@@ -6,14 +6,14 @@
 
     <Property Id="LaunchConditionsFile">1</Property>
 
-	<Property Id="DX9RUNTIME1">
+    <Property Id="DX9RUNTIME1">
       <DirectorySearch Id="SystemFolderDx9_41" Path="[SystemFolder]">
         <!-- Note: Version number needs to be 1 less then the actual file version !-->
-		<FileSearch Name="D3DX9_41.DLL" MinVersion="9.26.952.2843"/>
+        <FileSearch Name="D3DX9_41.DLL" MinVersion="9.26.952.2843"/>
       </DirectorySearch>
     </Property>
-	
-	<Property Id="DX9RUNTIME2">
+
+    <Property Id="DX9RUNTIME2">
       <DirectorySearch Id="SystemFolderDx9_43" Path="[SystemFolder]">
         <!-- Note: Version number needs to be 1 less then the actual file version !-->
         <FileSearch Name="D3DX9_43.DLL" MinVersion="9.29.952.3110"/>

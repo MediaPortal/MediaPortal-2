@@ -219,7 +219,7 @@
   <string name="Media.Rating">Betyg:</string>
   <string name="Media.VideoTitleLabel">Titel:</string>
   <string name="Media.VideoGenreLabel">Genre: </string>
-  <string name="Media.VideoCollectionLabel">Samling</string>
+  <string name="Media.VideoCollectionLabel">Samling:</string>
   <string name="Media.VideoYearLabel">År: </string>
   <string name="Media.VideoDurationLabel">Speltid:</string>
   <string name="Media.VideoActorsLabel">Skådespelare: </string>
@@ -295,7 +295,7 @@
   <string name="Media.SwitchViewModeMenuItem">Layout</string>
   <string name="Media.SwitchViewModeDialogTitle">Välj layout</string>
   <string name="Media.SmallList">Liten lista</string>
-  <string name="Media.MediumList">Medelstor lista:</string>
+  <string name="Media.MediumList">Medelstor lista</string>
   <string name="Media.LargeList">Stor lista</string>
   <string name="Media.LargeGrid">Rutnät</string>
   <string name="Media.CoverLayout">Omslag</string>

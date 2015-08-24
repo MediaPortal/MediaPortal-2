@@ -163,7 +163,8 @@ namespace MediaPortal.Common.Services.TaskScheduler
       now = now.AddSeconds(-now.Second);
       lock (_syncObj)
       {
-        DateTime nextTaskRun = _settings.TaskCollection.Tasks.Where(task => !task.IsExpired(now) && task.WakeupSystem).Min(t => t.NextRun);
+        var wakeupTasks = _settings.TaskCollection.Tasks.Where(task => !task.IsExpired(now) && task.WakeupSystem).ToList();
+        DateTime nextTaskRun = wakeupTasks.Any() ? wakeupTasks.Min(t => t.NextRun) : DateTime.MinValue;
         if (nextTaskRun != DateTime.MinValue)
         {
           double secondsToWait = (nextTaskRun - now).TotalSeconds;

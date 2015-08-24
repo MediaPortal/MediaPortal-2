@@ -11,20 +11,31 @@
   <string name="Menu.Home">Home</string>
   <string name="Menu.Main">Main Menu</string>
 
-  <string name="Movies.Title">movies</string>
-  <string name="Series.Title">series</string>
-  <string name="Audio.Title">audio</string>
-  <string name="Recordings.Title">recordings</string>
-  <string name="Images.Title">images</string>
-  <string name="Videos.Title">videos</string>
-  <string name="News.Title">news</string>
-  <string name="Weather.Title">weather</string>
-  
+  <string name="Movies.Title">Movies</string>
+  <string name="Series.Title">Series</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Recordings</string>
+  <string name="Images.Title">Images</string>
+  <string name="Videos.Title">Videos</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Subtitle</string>
+  <string name="News.Title">News</string>
+  <string name="Weather.Title">Weather</string>
+  <string name="General.Title">General</string>
+  <string name="CastCrew.Title">Cast + Crew</string>
+  <string name="MediaInfo.Title">Media Info</string>
 
   <string name="Media.AudioAlbumArtistsLabel">Album Artists:</string>
   <string name="Media.AudioTrackLabel">Track:</string>
   <string name="Media.AudioBitRateLabel">Bitrate:</string>
   <string name="Media.AudioComposersLabel">Composers:</string>
   <string name="Media.AudioMimeTypeLabel">Type:</string>
+
+  <string name="BlueVision.Configuration">BlueVision configuration</string>
+  <string name="BlueVision.Configuration.Help">Allows customization of the BlueVision skin</string>
+
+  <string name="BlueVision.DisableHomeTab">Disable "Home" tab</string>
+  <string name="BlueVision.DisableAutoSelection">Disable automatic tab menu selection</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Use BlueVision splash screen</string>
 
 </resources>

@@ -18,6 +18,8 @@
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.AltGr">Alt Gr</string>
+  <string name="Keys.Copy">Kopírovat</string>
+  <string name="Keys.Paste">Vložit</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Domů</string>
   <string name="Dialogs.InfoHeaderText">Informace</string>
@@ -26,6 +28,7 @@
   <string name="Media.MyMusic">Hudba</string>
   <string name="Media.MyVideos">Videa</string>
   <string name="Media.MyPictures">Obrázky</string>
+  <string name="Media.InvalidShareName">Neplatný zdroj medií</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Dostupný server MP2</string>
   <string name="ServerConnection.NotificationServerAvailableText">V síti je dostupný alespoň jeden server MediaPortalu 2. Připojte se k němu, abyste získali všechny funkce MediaPortalu 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' k hostiteli \'{1}\'</string>
@@ -63,7 +66,9 @@
   <string name="ImporterMessages.ImportStartedText">Import \'{0}\' byl spuštěn.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import dokončen</string>
   <string name="ImporterMessages.ImportCompletedText">Import \'{0}\' byl dokončen.</string>
+  <string name="LocalFsResourceProvider.Name">Místní systém souborů</string>
   <string name="LocalFsResourceProvider.Description">Přístup k místnímu systému souborů</string>
+  <string name="RemoteResourceProvider.Name">Vzdálené zdroje</string>
   <string name="RemoteResourceProvider.Description">Přístup ke zdrojům umístěných v jiném systému MediaPortalu 2</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
@@ -85,6 +90,7 @@
   <!--for example "Focus video player"-->
   <string name="Players.SwitchPipPlayers">Prohodit přehrávače PiP</string>
   <string name="Players.ChooseAudioStream">Vyberte zvukový datový proud</string>
+  <string name="Players.PlayerSlotAudioMenu">Zvukové menu pro {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Ztlumit</string>
   <string name="Players.MuteOff">Zrušit ztlumení</string>
@@ -102,38 +108,135 @@
   <string name="Settings.General.System">Systém</string>
   <string name="Settings.General.System.Autostart">Automatické spuštění</string>
   <string name="Settings.General.System.Autostart.Help">Spustit automaticky MediaPortal při spuštění Windows</string>
+  <string name="Settings.General.System.ClientDOKANDrive">Písmeno připojované zdrojové jednotky</string>
   <string name="Settings.General.Connectivity">Připojení</string>
   <string name="Settings.General.Connectivity.HomeServer">Domovský server</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informace o domovském serveru, připojit k a odpojit od serveru</string>
+  <string name="Settings.General.Connectivity.ServerListener">Serverový naslouchač</string>
   <string name="Settings.General.Connectivity.ClientName">Název klienta</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Nastavte název tohoto klienta MediaPortalu 2</string>
   <string name="Settings.Regional">Místní nastavení</string>
   <string name="Settings.Regional.Language">Jazyk</string>
   <string name="Settings.Regional.Language.Main">Jazyk</string>
   <string name="Settings.Regional.Language.Main.Help">Nastavte hlavní jazyk použitý v aplikaci</string>
+  <string name="Settings.Shares">Zdroje médií</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Nastavit zdroje medií</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Nastavení zdrojů médií</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Nastavit všechny zdroje médií</string>
+  <string name="Settings.Shares.Overview">Přehled</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Přehled zdrojů medií</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Globální přehled zdrojů médií</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Provést opětovný import všech médií</string>
   <string name="Settings.Plugins">Doplňky</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Přehled zdrojů medií</string>
+  <string name="SharesOverview.Title">Přehled zdrojů medií</string>
+  <string name="SharesOverview.ReImportAllShares">Provést opětovný import médií</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">Domácí server není připojen, informace ze serverových zdrojů médií nelze načíst. </string>
+  <string name="Shares.NoSharesInThisView">- Toto zobrazení neobsahuje žádné zdroje médií -</string>
+  <string name="Shares.InvalidPath">NEPLATNÁ CESTA: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <string name="Shares.Online">Online</string>
+  <string name="Shares.Offline">Offline</string>
+  <string name="Shares.ReImport">Provést opětovný import</string>
+  <string name="Shares.Importing">Importuji...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Nastavení zdrojů médií</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Odebrat zdroje médií</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informace o zdroji médií</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Vybrat zprostředkovatele prostředků</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Upravit cestu</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Vybrat cestu</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Upravit název</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Vybrat kategorie</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Nelze přidat zdroje médií</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Nastavení zdrojů médií</string>
+  <string name="SharesConfig.NoSharesAvailable">Nejsou k dispozici žádné zdroje médií</string>
+  <string name="SharesConfig.ShareInformationHeader">Informace o zdroji médií </string>
   <string name="SharesConfig.ShareNameInfo">Název:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Základní zprostředkovatel prostředků:</string>
   <string name="SharesConfig.ShareSystem">Systém:</string>
   <string name="SharesConfig.SharePathInfo">Cesta:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Technická cesta:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Kategorie médií:</string>
+  <string name="SharesConfig.ReImportShare">Provést opětovný import médií</string>
+  <string name="SharesConfig.SetupDefaultShares">Nastavit výchozí zdroje médií</string>
+  <string name="SharesConfig.RemoveShares">Odebrat zdroje médií </string>
+  <string name="SharesConfig.EditShare">Upravit zdroj médií</string>
   <string name="SharesConfig.ChooseSystem">Vybrat systém</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Zvolte zdroj médií, který chcete odebrat</string>
+  <string name="SharesConfig.ChooseSystemForShare">Zvolte zdroj médií</string>
+  <string name="SharesConfig.LocalShare">Místní zdroj médií</string>
+  <string name="SharesConfig.LocalShares">Místní zdroje médií</string>
+  <string name="SharesConfig.GlobalShare">Serverový zdroj médií</string>
+  <string name="SharesConfig.GlobalShares">Serverové zdroje médií</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Úprava umístění zdroje médií</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Zvolte umístění zdroje médií</string>
+  <string name="SharesConfig.EditShareName">Úprava názvu zdroje médií</string>
+  <string name="SharesConfig.SharePathExists">Zdroj médií s tímto umístěním již existuje</string>
+  <string name="SharesConfig.ShareNameExists">Zdroj médií s tímto názvem již existuje</string>
+  <string name="SharesConfig.ShareNameEmpty">Upravit název zdroje médií</string>
+  <string name="SharesConfig.EditShareProblemHeader">Chyba při nastavení zdroje médií</string>
+  <string name="SharesConfig.EditShareProblemText">Při nastavení zdroje médií se vyskytla interní chyba.</string>
+  <string name="SharesConfig.MenuAddShare">Přidat zdroj médií</string>
+  <string name="SharesConfig.MenuEditShares">Upravit</string>
+  <string name="SharesConfig.MenuRemoveShares">Odebrat zdroje médií</string>
+  <string name="SharesConfig.AddServerShare">Přidat serverový zdroj médií</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Upravit serverový zdroj médií</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Přidat místní zdroj médií</string>
+  <string name="SharesConfig.EditLocalShare">Upravit místní zdroj médií</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Aktualizovat zdroj medií</string>
+  <string name="SharesConfig.Relocate">Přemístit</string>
+  <string name="SharesConfig.ReImport">Provést opětovný import</string>
+  <string name="SharesConfig.ManualPathInput">Ruční vstup</string>
+  <string name="UPnPFrontendServer.DefaultFriendlyName">Klient MediPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Tým MediaPortalu</string>
+  <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelName">Klient MediPortal 2</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
+  <string name="DaysOfWeek.1">Pondělí</string>
+  <string name="DaysOfWeek.2">Úterý</string>
+  <string name="DaysOfWeek.3">Středa</string>
+  <string name="DaysOfWeek.4">Čtvrtek</string>
+  <string name="DaysOfWeek.5">Pátek</string>
+  <string name="DaysOfWeek.6">Sobota</string>
+  <string name="DaysOfWeek.7">Neděle</string>
+  <string name="DaysOfWeek.Monday">Pondělí</string>
+  <string name="DaysOfWeek.Tuesday">Úterý</string>
+  <string name="DaysOfWeek.Wednesday">Středa</string>
+  <string name="DaysOfWeek.Thursday">Čtvrtek</string>
+  <string name="DaysOfWeek.Friday">Pátek</string>
+  <string name="DaysOfWeek.Saturday">Sobota</string>
+  <string name="DaysOfWeek.Sunday">Neděle</string>
+  <string name="Months.1">Leden</string>
+  <string name="Months.2">Únor</string>
+  <string name="Months.3">Březen</string>
+  <string name="Months.4">Duben</string>
+  <string name="Months.5">Květen</string>
+  <string name="Months.6">Červen</string>
+  <string name="Months.7">Červenec</string>
+  <string name="Months.8">Srpen</string>
+  <string name="Months.9">Září</string>
+  <string name="Months.10">Říjen</string>
+  <string name="Months.11">Listopad</string>
+  <string name="Months.12">Prosinec</string>
+  <string name="Months.January">Leden</string>
+  <string name="Months.February">Únor</string>
+  <string name="Months.March">Březen</string>
+  <string name="Months.April">Duben</string>
+  <string name="Months.May">Květen</string>
+  <string name="Months.June">Červen</string>
+  <string name="Months.July">Červenec</string>
+  <string name="Months.August">Srpen</string>
+  <string name="Months.September">Září</string>
+  <string name="Months.October">Říjen</string>
+  <string name="Months.November">Listopad</string>
+  <string name="Months.December">Prosinec</string>
 </resources>

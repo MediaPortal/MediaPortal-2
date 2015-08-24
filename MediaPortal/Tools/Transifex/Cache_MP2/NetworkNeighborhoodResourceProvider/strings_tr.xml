@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Ağ komşuları</string>
   <string name="NetworkNeighborhoodResourceProvider.Description">Yerel ağ komşularında paylaşılan windows paylaşımlarına eriş</string>
 </resources>

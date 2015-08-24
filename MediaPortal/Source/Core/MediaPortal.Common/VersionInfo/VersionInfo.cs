@@ -5,9 +5,9 @@ using System.Reflection;
 // be deleted.
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2014")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2015")]
 // Note: Following two line will be modified by AssemblyInfoHelper in build process. The last 4 digits will be replaced by "YYMM" (year-month)
-[assembly: AssemblyVersion("2.0.0.1412")]
-[assembly: AssemblyFileVersion("2.0.0.1412")]
+[assembly: AssemblyVersion("2.0.0.1508")]
+[assembly: AssemblyFileVersion("2.0.0.1508")]
 // Note: This line will be filled by AssemblyInfoHelper in build process.
-[assembly: AssemblyInformationalVersion("origin/MP2-280_MediaLibrary_5000_items_limit_ServerChangesOnly-3b61d4")]
+[assembly: AssemblyInformationalVersion("origin/MIA_Rework_SummerRelease_15-dc3353")]

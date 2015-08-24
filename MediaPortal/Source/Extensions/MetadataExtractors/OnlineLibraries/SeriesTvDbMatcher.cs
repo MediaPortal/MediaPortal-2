@@ -95,30 +95,34 @@ namespace MediaPortal.Extensions.OnlineLibraries
     }
 
     /// <summary>
-    /// Tries to lookup the series from TheTvDB and updates the given <paramref name="seriesInfo"/> with the online information (Series and Episode names).
+    /// Tries to lookup the series from TheTvDB and updates the given <paramref name="episodeInfo"/> with the online information (Series and Episode names).
     /// </summary>
-    /// <param name="seriesInfo">Series to check</param>
+    /// <param name="episodeInfo">Series to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool FindAndUpdateSeries(SeriesInfo seriesInfo)
+    public bool FindAndUpdateSeries(EpisodeInfo episodeInfo)
     {
       TvdbSeries seriesDetail;
 
-      if (TryMatch(seriesInfo, false, out seriesDetail))
+      // Try online lookup
+      if (!Init())
+        return false;
+
+      if (TryMatch(episodeInfo, false, out seriesDetail))
       {
         int tvDbId = 0;
         if (seriesDetail != null)
         {
           tvDbId = seriesDetail.Id;
-          seriesInfo.Series = seriesDetail.SeriesName;
-          seriesInfo.Actors.Clear();
+          episodeInfo.Series = seriesDetail.SeriesName;
+          episodeInfo.Actors.Clear();
           if (seriesDetail.Actors.Count > 0)
-            CollectionUtils.AddAll(seriesInfo.Actors, seriesDetail.Actors);
-          seriesInfo.Genres.Clear();
+            CollectionUtils.AddAll(episodeInfo.Actors, seriesDetail.Actors);
+          episodeInfo.Genres.Clear();
           if (seriesDetail.Genre.Count > 0)
-            CollectionUtils.AddAll(seriesInfo.Genres, seriesDetail.Genre);
+            CollectionUtils.AddAll(episodeInfo.Genres, seriesDetail.Genre);
 
           // Also try to fill episode title from series details (most file names don't contain episode name).
-          TryMatchEpisode(seriesInfo, seriesDetail);
+          TryMatchEpisode(episodeInfo, seriesDetail);
         }
 
         if (tvDbId > 0)
@@ -128,53 +132,98 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    protected bool TryMatchEpisode(SeriesInfo seriesInfo, TvdbSeries seriesDetail)
+    public bool TryGetSeries(int tvDbId, out TvdbSeries seriesDetail)
+    {
+      return _tv.GetSeries(tvDbId, true, out seriesDetail);
+    }
+
+    protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvdbSeries seriesDetail)
     {
       // We deal with two scenarios here:
       //  - Having a real episode title, but the Season/Episode numbers might be wrong (seldom case)
       //  - Having only Season/Episode numbers and we need to fill Episode title (more common)
       TvdbEpisode episode;
-      List<TvdbEpisode> episodes = seriesDetail.Episodes.FindAll(e => e.EpisodeName == seriesInfo.Episode);
+      List<TvdbEpisode> episodes = seriesDetail.Episodes.FindAll(e => e.EpisodeName == episodeInfo.Episode);
       // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
       // and keep the current episode details.
+      // Use this way only for single episodes.
+      if (episodeInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
+      {
+        episode = episodes[0];
+        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
+        return true;
+      }
+
+      episodes = seriesDetail.Episodes.Where(e => episodeInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == episodeInfo.SeasonNumber).ToList();
+      if (episodes.Count == 0)
+        return false;
+
+      // Single episode entry
       if (episodes.Count == 1)
       {
         episode = episodes[0];
-        seriesInfo.ImdbId = seriesDetail.ImdbId;
-        seriesInfo.TvdbId = seriesDetail.Id;
-        seriesInfo.SeasonNumber = episode.SeasonNumber;
-        seriesInfo.EpisodeNumbers.Clear();
-        seriesInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
-        seriesInfo.FirstAired = episode.FirstAired;
-        seriesInfo.DvdEpisodeNumbers.Clear();
-        seriesInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
-        SetEpisodeDetails(seriesInfo, episode);
+        episodeInfo.Episode = episode.EpisodeName;
+        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
         return true;
       }
 
-      episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == seriesInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == seriesInfo.SeasonNumber);
-      if (episode != null)
-      {
-        seriesInfo.Episode = episode.EpisodeName;
-        SetEpisodeDetails(seriesInfo, episode);
-        return true;
-      }
-      return false;
+      // Multiple episodes
+      SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
+      return true;
     }
 
-    private static void SetEpisodeDetails(SeriesInfo seriesInfo, TvdbEpisode episode)
+    private static void SetMultiEpisodeDetailsl(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, List<TvdbEpisode> episodes)
     {
-      seriesInfo.TotalRating = episode.Rating;
-      seriesInfo.Summary = episode.Overview;
-      // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
+      episodeInfo.ImdbId = seriesDetail.ImdbId;
+      episodeInfo.TvdbId = seriesDetail.Id;
+      episodeInfo.SeasonNumber = episodes.First().SeasonNumber;
+      episodeInfo.EpisodeNumbers.Clear();
+      episodeInfo.EpisodeNumbers.ToList().AddRange(episodes.Select(x => x.EpisodeNumber));
+      episodeInfo.FirstAired = episodes.First().FirstAired;
+      episodeInfo.DvdEpisodeNumbers.Clear();
+      episodeInfo.DvdEpisodeNumbers.ToList().AddRange(episodes.Select(x => x.DvdEpisodeNumber));
+	  
+      episodeInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
+      episodeInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
+      episodeInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
+        Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Overview)).ToArray());
+
+      // Don't clear episodeInfo.Actors again. It's already been filled with actors from series details.
+      var guestStars = episodes.SelectMany(e => e.GuestStars).Distinct().ToList();
+      if (guestStars.Count > 0)
+        CollectionUtils.AddAll(episodeInfo.Actors, guestStars);
+      episodeInfo.Directors.Clear();
+      var directors = episodes.SelectMany(e => e.Directors).Distinct().ToList();
+      if (directors.Count > 0)
+        CollectionUtils.AddAll(episodeInfo.Directors, directors);
+      var writers = episodes.SelectMany(e => e.Writer).Distinct().ToList();
+      episodeInfo.Writers.Clear();
+      if (writers.Count > 0)
+        CollectionUtils.AddAll(episodeInfo.Writers, writers);
+    }
+
+    private static void SetEpisodeDetails(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, TvdbEpisode episode)
+    {
+      episodeInfo.ImdbId = seriesDetail.ImdbId;
+      episodeInfo.TvdbId = seriesDetail.Id;
+      episodeInfo.SeasonNumber = episode.SeasonNumber;
+      episodeInfo.EpisodeNumbers.Clear();
+      episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
+      episodeInfo.FirstAired = episode.FirstAired;
+      episodeInfo.DvdEpisodeNumbers.Clear();
+      episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
+
+      episodeInfo.TotalRating = episode.Rating;
+      episodeInfo.Summary = episode.Overview;
+      // Don't clear episodeInfo.Actors again. It's already been filled with actors from series details.
       if (episode.GuestStars.Count > 0)
-        CollectionUtils.AddAll(seriesInfo.Actors, episode.GuestStars);
-      seriesInfo.Directors.Clear();
+        CollectionUtils.AddAll(episodeInfo.Actors, episode.GuestStars);
+      episodeInfo.Directors.Clear();
       if (episode.Directors.Count > 0)
-        CollectionUtils.AddAll(seriesInfo.Directors, episode.Directors);
-      seriesInfo.Writers.Clear();
+        CollectionUtils.AddAll(episodeInfo.Directors, episode.Directors);
+      episodeInfo.Writers.Clear();
       if (episode.Writer.Count > 0)
-        CollectionUtils.AddAll(seriesInfo.Writers, episode.Writer);
+        CollectionUtils.AddAll(episodeInfo.Writers, episode.Writer);
     }
 
     protected bool TryGetId(string seriesName, out int tvDbId)
@@ -204,19 +253,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    protected bool TryMatch(SeriesInfo seriesInfo, bool cacheOnly, out TvdbSeries seriesDetail)
+    protected bool TryMatch(EpisodeInfo episodeInfo, bool cacheOnly, out TvdbSeries seriesDetail)
     {
       // If series has an TVDBID, prefer it over imdb or name lookup.
-      if (seriesInfo.TvdbId != 0 && TryMatch(seriesInfo.Series, false, cacheOnly, out seriesDetail, seriesInfo.TvdbId))
+      if (episodeInfo.TvdbId != 0 && TryMatch(episodeInfo.Series, false, cacheOnly, out seriesDetail, episodeInfo.TvdbId))
         return true;
 
       // If series has an IMDBID, prefer it over name lookup.
-      string imdbId = seriesInfo.ImdbId;
+      string imdbId = episodeInfo.ImdbId;
       if (!string.IsNullOrWhiteSpace(imdbId) && TryMatch(imdbId, true, cacheOnly, out seriesDetail))
         return true;
 
       // Perform name lookup.
-      return TryMatch(seriesInfo.Series, false, cacheOnly, out seriesDetail);
+      return TryMatch(episodeInfo.Series, false, cacheOnly, out seriesDetail);
     }
 
     protected bool TryMatch(string seriesNameOrImdbId, bool isImdbId, bool cacheOnly, out TvdbSeries seriesDetail, int tvdbid = 0)

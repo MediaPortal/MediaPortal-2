@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Kablosuz Ağları Tara</string>
+  <string name="Network.NoWirelessNetworksFound">Hiç kablosuz ağ bulunamadı</string>
+  <string name="Network.Connect">Bağlan</string>
+  <string name="Network.Disconnect">Bağlantıyı kes</string>
+  <string name="Network.EnterWifiPassword">Wifi Şifresini Girin</string>
+  <string name="Network.DeleteProfile">Wifi Profilini Sil</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi Bağlantısı</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Kablosuz bir ağa bağlan</string>
+</resources>

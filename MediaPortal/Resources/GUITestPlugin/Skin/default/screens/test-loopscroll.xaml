@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Screen.Resources>
+    <Style x:Key="LoopingMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+      <Setter Property="ItemsPanel">
+        <Setter.Value>
+          <ItemsPanelTemplate>
+            <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True"/>
+          </ItemsPanelTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Screen.Resources>
+
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Loop scrolling  test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows various two different list views. The left uses normal focus handling, the right use 'LoopScroll'. The focus movement should work in all cases, so that you are able to leave lists."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <Grid x:Name="ContentPanel" DockPanel.Dock="Center" SetFocusPrio="DefaultHigh"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="400"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="400"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Button Content="Above non looping" Grid.Column="0" Grid.Row="0" Margin="30" />
+      <ListView x:Name="Test" Grid.Column="0" Grid.Row="1" Style="{ThemeResource MenuListViewStyle}"
+       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <ListViewItem>A</ListViewItem>
+        <ListViewItem>B</ListViewItem>
+        <ListViewItem>C</ListViewItem>
+        <ListViewItem>D</ListViewItem>
+        <ListViewItem>E</ListViewItem>
+      </ListView>
+      <Button Content="Below non looping" Grid.Column="0" Grid.Row="2" Margin="30" />
+
+      <Button Content="Above looping" Grid.Column="2" Grid.Row="0" Margin="30" />
+      <ListView x:Name="TestLoop" Grid.Column="2" Grid.Row="1" Style="{ThemeResource LoopingMenuListViewStyle}"
+       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <ListViewItem>A</ListViewItem>
+        <ListViewItem>B</ListViewItem>
+        <ListViewItem>C</ListViewItem>
+        <ListViewItem>D</ListViewItem>
+        <ListViewItem>E</ListViewItem>
+      </ListView>
+      <Button Content="Below looping" Grid.Column="2" Grid.Row="2" Margin="30" />
+
+    </Grid>
+  </DockPanel>
+
+</Screen>
