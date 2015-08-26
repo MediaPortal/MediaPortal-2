@@ -21,27 +21,43 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Border Grid.Row="0" Margin="-85,-35,20,5" >
+    <!--Border Grid.Row="0" Margin="-85,-35,20,5" >
       <Border.Background>
         <SolidColorBrush Color="Black" Opacity="0.6"/>
       </Border.Background>
       <Border.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
       </Border.IsVisible>
-    </Border>
+    </Border-->
 
-
-    <!--Border Grid.Row="0" Margin="-85,-30, 0,-35" >
+    <Border Grid.Row="0" Margin="-85,-34,-710,6" >
       <Border.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
           <LinearGradientBrush.GradientStops>
-          <GradientStop Color="#CC000000" Offset="0.0"  />
-          <GradientStop Color="#CC000000" Offset="0.85" />
-          <GradientStop Color="#00000000" Offset="1"  />
+            <GradientStop Color="#00000000" Offset="3"  />
+            <GradientStop Color="#D9000000" Offset="0.5"  />
+            <GradientStop Color="#D9000000" Offset="0"  />
           </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
       </Border.Background>
-    </Border-->
+      <Border.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Border.IsVisible>
+    </Border>
+
+    <Border Grid.Row="0" Margin="-85,-34,-155,6" >
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+          <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#00000000" Offset="0"  />
+            <GradientStop Color="#D9000000" Offset="1"  />
+          </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+      </Border.Background>
+      <Border.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
+      </Border.IsVisible>
+    </Border>
 
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="-40,0,-110,0">

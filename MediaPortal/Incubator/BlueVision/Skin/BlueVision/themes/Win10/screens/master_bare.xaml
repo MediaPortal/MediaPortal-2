@@ -71,6 +71,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </TransformGroup>
     </Grid.RenderTransform>
 
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    
     <Grid.RowDefinitions>
       <!-- Breadcrumb -->
       <RowDefinition Height="Auto"/>
@@ -128,19 +132,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="50,-20,0,-20"
-               HorizontalAlignment="Left" VerticalAlignment="Center"
-               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-               Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="1"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
-      </Button>
-
+      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"> </Control>
+      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"> </Control>
+      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"> </Control>
 
       <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
         <Border.Background>

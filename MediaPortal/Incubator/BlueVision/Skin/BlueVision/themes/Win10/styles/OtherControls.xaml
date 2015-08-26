@@ -381,27 +381,11 @@
           <Button Style="{ThemeResource HomeButtonStyle}" Margin="8"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-
-            <Button.Triggers>
-              
-              <Trigger Property="HasFocus" Value="False">
-                <Setter TargetName="TileVisualBrush" Property="Animation"/>
-                <Setter TargetName="TileVisualBrush" Property="AnimationEnabled" Value="False"/>
-              </Trigger>
-              
+            <Button.Triggers>             
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-                
-                <Setter TargetName="TileVisualBrush" Property="AnimationEnabled" Value="True"/>
-                <Setter TargetName="TileVisualBrush" Property="Animation">
-                  <Setter.Value>
-                    <animation:KenBurnsAnimator Duration="5" />
-                  </Setter.Value>
-                </Setter>
-
-              </Trigger>
-              
+              </Trigger>         
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -461,7 +445,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="60"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <!-- Light blue background fill -->
@@ -478,36 +462,84 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Image VerticalAlignment="Stretch" Stretch="Fill" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0"
-                         Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}">
-                    <!--Image.Triggers>
-                      <Trigger Property="HasImage" Value="False">
+                        Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}">
+                    <Image.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="False">
                         <Setter TargetName="TileVisualBrush" Property="Animation"/>
                         <Setter TargetName="TileVisualBrush" Property="AnimationEnabled" Value="False"/>
-                      </Trigger>
-                      <Trigger Property="HasImage" Value="True">
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                         <Setter TargetName="TileVisualBrush" Property="AnimationEnabled" Value="True"/>
                         <Setter TargetName="TileVisualBrush" Property="Animation">
                           <Setter.Value>
                             <animation:KenBurnsAnimator Duration="10" />
                           </Setter.Value>
                         </Setter>
-                      </Trigger>
-                    </Image.Triggers-->
+                      </DataTrigger>
+                    </Image.Triggers>
                   </Image>
-                  <Image Source="fanart_overlay.png" />
                 </Grid>
               </VisualBrush.Visual>
             </VisualBrush>
           </Rectangle.Fill>
         </Rectangle>
-        
-        <!-- Image -->
-        <!--Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
-               Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/-->
-        
+                
         <!-- Darkened band -->
-        <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
+
+        <!--Grid x:Name="ItemBand" Grid.Row="1" Grid.Column="0" Height="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          
+          <Rectangle  Grid.Row="0" Grid.Column="0" Fill="#FF000000" Opacity="0.7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"/>
+          <Grid.Resources>
+              <Storyboard x:Key="Storyboard1">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ItemBand" Storyboard.TargetProperty="Height">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="80"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+          <Grid.Triggers>
+              <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="BandStoryboard" Storyboard="{StaticResource Storyboard1}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="BandStoryboard"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
+
+          <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
+                 FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
+          
+        </Grid-->
+
+        <Rectangle x:Name="ItemBand" Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749" Height="60"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+          <Rectangle.Resources>
+            <Storyboard x:Key="Storyboard1">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ItemBand" Storyboard.TargetProperty="Height">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="80"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Rectangle.Resources>
+   
+          <Rectangle.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <DataTrigger.EnterActions>
+                <BeginStoryboard x:Name="BandStoryboard" Storyboard="{StaticResource Storyboard1}"/>
+              </DataTrigger.EnterActions>
+              <DataTrigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="BandStoryboard"/>
+              </DataTrigger.ExitActions>
+            </DataTrigger>
+          </Rectangle.Triggers>   
+        </Rectangle>
+                   
         <!-- Item label -->
         <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
                FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
