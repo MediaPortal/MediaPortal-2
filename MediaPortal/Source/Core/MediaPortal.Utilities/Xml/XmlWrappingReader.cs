@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Utilities.Xml
 {
   /// <summary>
   /// Wraps a <see cref="XmlReader"/> and makes it possible to derive from this class

@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
@@ -61,8 +62,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #region Protected fields and classes
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-
     protected MetadataExtractorMetadata _metadata;
+    protected bool _onlyFanArt;
 
     #endregion
 
@@ -86,13 +87,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 VideoAspect.Metadata,
                 MovieAspect.Metadata
               });
+      _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>().OnlyFanArt;
     }
 
     #endregion
 
     #region Private methods
 
-    private static bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
@@ -118,7 +120,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string imdbId;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          NfoReader.TryMatchImdbId(lfsra, out imdbId) ||
           MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
         movieInfo.ImdbId = imdbId;
 
@@ -141,7 +142,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
       {
-        movieInfo.SetMetadata(extractedAspectData);
+        if (!_onlyFanArt)
+          movieInfo.SetMetadata(extractedAspectData);
+        if (_onlyFanArt && movieInfo.MovieDbId > 0)
+          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, movieInfo.MovieDbId);
+        if (_onlyFanArt && movieInfo.CollectionMovieDbId > 0)
+          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_ID, movieInfo.CollectionMovieDbId);
         return true;
       }
       return false;

@@ -26,11 +26,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Utilities.Cache
 {
   /// <summary>
   /// Asynchronous cache particularly to be used as static cache
-  /// ToDo: Move this to MediaPortal.Utilities
   /// </summary>
   /// <remarks>
   /// This cache class does intentionally not take its ValueFactory as constructor parameter. Instead it is passed

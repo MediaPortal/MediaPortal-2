@@ -24,12 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
 
@@ -60,8 +62,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
-
     protected MetadataExtractorMetadata _metadata;
+    protected bool _onlyFanArt;
 
     #endregion
 
@@ -85,6 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 VideoAspect.Metadata,
                 SeriesAspect.Metadata
               });
+      _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().OnlyFanArt;
     }
 
     #endregion
@@ -97,17 +100,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
-      SeriesInfo seriesInfo;
+      SeriesInfo seriesInfo = null;
 
-      // Try to get extended information out of matroska files)
-      MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-      if (matroskaMatcher.MatchSeries(lfsra, out seriesInfo, ref extractedAspectData))
+      // First check if we already have a complete match from a previous MDE
+      string title;
+      int tvDbId;
+      int seasonNumber;
+      IEnumerable<int> episodeNumbers;
+      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
+          MediaItemAspect.TryGetAttribute(extractedAspectData, SeriesAspect.ATTR_TVDB_ID, out tvDbId) &&
+          MediaItemAspect.TryGetAttribute(extractedAspectData, SeriesAspect.ATTR_SEASON, out seasonNumber) &&
+          (episodeNumbers = extractedAspectData[SeriesAspect.ASPECT_ID].GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE)) != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found SeriesInformation by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
-          seriesInfo.Series, seriesInfo.ImdbId, seriesInfo.TvdbId, seriesInfo.IsCompleteMatch);
+        seriesInfo = new SeriesInfo
+        {
+          Series = title,
+          TvdbId = tvDbId,
+          SeasonNumber = seasonNumber,
+        };
+        episodeNumbers.ToList().ForEach(n => seriesInfo.EpisodeNumbers.Add(n));
       }
 
-      // If no information from mkv were found, try name matching
+      // If there was no complete match, yet, try to get extended information out of matroska files)
+      if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
+      {
+        MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
+        if (matroskaMatcher.MatchSeries(lfsra, out seriesInfo, ref extractedAspectData))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found SeriesInformation by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
+            seriesInfo.Series, seriesInfo.ImdbId, seriesInfo.TvdbId, seriesInfo.IsCompleteMatch);
+        }
+      }
+
+      // If no information was found before, try name matching
       if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
       {
         // Try to match series from folder and file namings
@@ -119,9 +144,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (seriesInfo != null && seriesInfo.IsCompleteMatch)
       {
         SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
-        seriesInfo.SetMetadata(extractedAspectData);
+        if (!_onlyFanArt)
+          seriesInfo.SetMetadata(extractedAspectData);
       }
-      return (seriesInfo != null && seriesInfo.IsCompleteMatch);
+      return (seriesInfo != null && seriesInfo.IsCompleteMatch && !_onlyFanArt);
     }
 
     #endregion

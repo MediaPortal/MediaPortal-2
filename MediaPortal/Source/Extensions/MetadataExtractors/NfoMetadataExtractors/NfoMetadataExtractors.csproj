@@ -62,8 +62,6 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="AsyncStaticCache.cs" />
-    <Compile Include="AsyncStaticTimeoutCache.cs" />
     <Compile Include="Utilities\JsonByteArrayConverter.cs" />
     <Compile Include="Settings\NfoMetadataExtractorSettingsBase.cs" />
     <Compile Include="NfoReaders\NfoSeriesEpisodeReader.cs" />
@@ -86,7 +84,6 @@
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
     <Compile Include="Utilities\XmlNfoReader.cs" />
-    <Compile Include="XmlWrappingReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">

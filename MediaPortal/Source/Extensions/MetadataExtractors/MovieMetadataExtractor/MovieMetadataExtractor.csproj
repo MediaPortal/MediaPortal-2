@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="Matchers\MatroskaMatcher.cs" />
     <Compile Include="Matchers\NfoReader.cs" />
+    <Compile Include="MovieMetadataExtractorSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MovieMetadataExtractor.cs" />
   </ItemGroup>
