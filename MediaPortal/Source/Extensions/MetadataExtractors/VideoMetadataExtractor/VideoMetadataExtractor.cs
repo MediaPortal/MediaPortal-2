@@ -465,6 +465,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (lfsra != null)
             {
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, lfsra.Size);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
               ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
               ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
