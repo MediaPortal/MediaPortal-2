@@ -201,6 +201,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SkinEngine", "SkinEngine", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Titanium Extended", "UI\Skins\Titanium Extended\Titanium Extended.csproj", "{A0493D76-A38B-4B0F-92E6-B7B51200D005}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPRenderer", "..\Incubator\UPnPRenderer\UPnPRenderer.csproj", "{89526B39-E674-4618-807A-7D3D11F48098}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -503,6 +505,10 @@ Global
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Debug|x86.Build.0 = Debug|x86
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Release|x86.ActiveCfg = Release|x86
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Release|x86.Build.0 = Release|x86
+		{89526B39-E674-4618-807A-7D3D11F48098}.Debug|x86.ActiveCfg = Debug|x86
+		{89526B39-E674-4618-807A-7D3D11F48098}.Debug|x86.Build.0 = Debug|x86
+		{89526B39-E674-4618-807A-7D3D11F48098}.Release|x86.ActiveCfg = Release|x86
+		{89526B39-E674-4618-807A-7D3D11F48098}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -599,5 +605,6 @@ Global
 		{9071010C-1A5E-41A1-B6F9-5D683A304F82} = {5B0609A9-F3B5-41F8-81A5-3CE327A4ECD7}
 		{2EDCEE14-3063-45D5-A2A1-069C6AEC8C3F} = {5B0609A9-F3B5-41F8-81A5-3CE327A4ECD7}
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005} = {9579F1D5-315A-4528-AC60-FA7D61874E27}
+		{89526B39-E674-4618-807A-7D3D11F48098} = {D7E79601-A62E-4193-892F-033F8E7C90BD}
 	EndGlobalSection
 EndGlobal
