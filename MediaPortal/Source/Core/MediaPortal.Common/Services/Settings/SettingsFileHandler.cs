@@ -63,6 +63,11 @@ namespace MediaPortal.Common.Services.Settings
       get { return _filePath; }
     }
 
+    public bool SettingsFileExists
+    {
+      get { return File.Exists(_filePath) || File.Exists(_filePath + ".bak"); }
+    }
+
     #endregion
 
     #region Constructors

@@ -84,7 +84,6 @@ namespace MediaPortal.Database.SQLite
 
         _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
         _settings.LogSettings();
-        ServiceRegistration.Get<ISettingsManager>().Save(_settings);
 
         LogVersionInformation();
 
