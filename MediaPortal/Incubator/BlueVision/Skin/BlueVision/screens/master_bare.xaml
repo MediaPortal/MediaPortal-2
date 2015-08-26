@@ -112,24 +112,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="150"/>
       </Grid.ColumnDefinitions>
 
-      <!--Label x:Name="SelectedItem" Grid.Row="0" Grid.Column="1" Margin="5,3,25,-3" 
-              Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
-              VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BigFontSize}" FontFamily="DefaultBold"
-              Color="{ThemeResource TextColor}">
-        </Label-->
-
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="60,-20,0,-20"
-               HorizontalAlignment="Left" VerticalAlignment="Center"
-               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-               Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="2"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
-      </Button>
+      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"> </Control>
+      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"> </Control>
+      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"> </Control>
+      
 
       <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" >
         <Label x:Name="SelectedItem"

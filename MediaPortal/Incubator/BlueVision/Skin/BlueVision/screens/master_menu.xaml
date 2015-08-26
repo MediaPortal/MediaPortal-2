@@ -50,6 +50,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     >
   <Include.Resources>
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+    <ControlTemplate x:Key="Menu_Button_Placeholder">
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="60,18,0,-62"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+              Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="Opacity" Value="1"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Button.Triggers>
+      </Button>
+    </ControlTemplate>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 

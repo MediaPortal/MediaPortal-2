@@ -8,6 +8,13 @@
     >
   <Include.Resources>
 
+    <ControlTemplate x:Key="Menu_Button_Dummy">
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="60,18,0,-62"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              IsEnabled="False">
+      </Button>
+    </ControlTemplate>
+
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="Client_Template">
