@@ -34,9 +34,17 @@
       TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       DisplayTitle="[SlimTvClient.Schedules]"/>
 
+    <PushNavigationTransition Id="6CC60A38-08E3-4B7E-BEDD-964E5C1175E5"
+      Name="SlimTvClient->ProgramSearch"
+      DisplayCategory="A-2SlimTvClientProgramSearch"
+      SortOrder="c"
+      SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
+      TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
+      DisplayTitle="[SlimTvClient.ProgramSearch]"/>
+
     <WorkflowContributorAction Id="E6AB0765-6671-480F-9C9F-A517CE04934A"
       Name="SlimTvClient->Recordings"
-      DisplayCategory="A-2Recordings"
+      DisplayCategory="A-3Recordings"
       SortOrder="d"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"/>    <!-- Recordings action -->
