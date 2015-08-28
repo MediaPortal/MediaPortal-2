@@ -350,6 +350,7 @@
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
     <Compile Include="ScreenManagement\SuperLayerManager.cs" />
+    <Compile Include="Settings\Configuration\Appearance\SkinSounds.cs" />
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
     <Compile Include="SharpDX\SharpDXExtensions.cs" />
@@ -585,8 +586,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\MainForm.resx">
