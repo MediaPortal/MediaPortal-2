@@ -33,6 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
     #region Consts
 
     protected const bool DEFAULT_FULL_SCREEN = true;
+    protected const bool DEFAULT_SKIN_SOUNDS = true;
     protected const bool DEFAULT_CELL_PHONE_INPUT_STYLE = false;
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
     protected const double DEFAULT_SCREEN_SAVER_TIMEOUT_MIN = 5;
@@ -42,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
     #endregion
 
     protected bool _fullScreen = DEFAULT_FULL_SCREEN;
+    protected bool _skinSounds = DEFAULT_SKIN_SOUNDS;
     protected bool _cellPhoneInputStyle = DEFAULT_CELL_PHONE_INPUT_STYLE;
     protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
     protected double _screenSaverTimoutMin = DEFAULT_SCREEN_SAVER_TIMEOUT_MIN;
@@ -60,6 +62,13 @@ namespace MediaPortal.UI.SkinEngine.Settings
     {
       get { return _fullScreen; }
       set { _fullScreen = value; }
+    }
+
+    [Setting(SettingScope.User, DEFAULT_SKIN_SOUNDS)]
+    public bool SkinSounds
+    {
+      get { return _skinSounds; }
+      set { _skinSounds = value; }
     }
 
     [Setting(SettingScope.User, DEFAULT_CELL_PHONE_INPUT_STYLE)]

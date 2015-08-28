@@ -117,6 +117,11 @@
         HelpText="[Settings.Appearance.System.ScreenSaverTimeout.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverTimeout"/>
 
+    <ConfigSetting
+        Id="SkinSounds"
+        Text="[Settings.Appearance.Skin.SkinAndTheme.SkinSounds]"
+        HelpText="[Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.SkinSounds"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->

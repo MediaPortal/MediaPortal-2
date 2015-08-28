@@ -29,6 +29,8 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.UI.SkinEngine.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
@@ -56,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      SoundPlayerAction s = (SoundPlayerAction) source;
+      SoundPlayerAction s = (SoundPlayerAction)source;
       Source = copyManager.GetCopy(s.Source);
       DisableOnAudioOutput = s.DisableOnAudioOutput;
     }
@@ -72,7 +74,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public string Source
     {
-      get { return (string) _sourceProperty.GetValue(); }
+      get { return (string)_sourceProperty.GetValue(); }
       set { _sourceProperty.SetValue(value); }
     }
 
@@ -89,14 +91,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       string source = Source;
       if (string.IsNullOrEmpty(source))
         return;
+
+      if (!ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>().SkinSounds)
+        return;
+
       if (_disableOnAudioOutput)
       {
-        if (ServiceRegistration.Get<IPlayerManager>().PlayerSlotControllers.Select(slotController => slotController.CurrentPlayer).Any(
-            player => player is IAudioPlayer || player is IVideoPlayer))
+        if (ServiceRegistration.Get<IPlayerManager>().PlayerSlotControllers
+          .Select(slotController => slotController.CurrentPlayer)
+          .Any(player => player is IAudioPlayer || player is IVideoPlayer))
           return;
       }
-      using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(
-          SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
+      using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
         simpleSound.Play();
     }
   }
