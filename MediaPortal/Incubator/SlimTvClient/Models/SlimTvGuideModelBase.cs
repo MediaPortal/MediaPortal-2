@@ -194,7 +194,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                   });
 
             _programActions.Add(
-              new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.DeleteSchedule]"))
+              new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.DeleteSchedule]", program.Title))
                 {
                   Command = new MethodDelegateCommand(() =>
                                                         {
