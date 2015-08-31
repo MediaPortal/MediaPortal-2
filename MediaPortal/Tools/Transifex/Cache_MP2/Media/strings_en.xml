@@ -8,6 +8,7 @@
   <string name="Media.SeriesMenuItem">Series</string>
   <string name="Media.MoviesMenuItem">Movies</string>
   <string name="Media.ImagesMenuItem">Images</string>
+  <string name="Media.LatestMediaMenuItem">Latest media</string>
 
   <!-- Filter titles -->
   <string name="Media.FilterByArtistMenuItem">Filter by artist</string>
@@ -19,6 +20,7 @@
   <string name="Media.FilterByWriterMenuItem">Filter by writer</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter by year</string>
+  <string name="Media.FilterByVideoPlayCountMenuItem">Filter by (un-)watched</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filter by language</string>
   <string name="Media.FilterByImageSizeMenuItem">Filter by size</string>
   <string name="Media.FilterByImageYearMenuItem">Filter by year</string>
@@ -67,6 +69,7 @@
   <string name="Media.FilterImageCityNavbarDisplayLabel">City: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Name: {0}</string>
+  <string name="Media.FilterVideoPlayCountDisplayLabel">Watch state: {0}</string>
   <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Season {0}</string>
@@ -82,6 +85,7 @@
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Series library</string>
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Movies library</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Image library</string>
+  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Latest media</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Fullscreen video</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current audio</string>
@@ -128,6 +132,7 @@
   <string name="Media.ChooseImageCityHeader">Choose a city</string>
   <string name="Media.ChooseSystemHeader">Choose a system</string>
   <string name="Media.ChooseVideoLanguageHeader">Choose a language</string>
+  <string name="Media.ChoosePlayCountHeader">Choose a watch state</string>
 
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
   <string name="Media.SavePlaylistEditNameHeader">Save playlist</string>
@@ -332,6 +337,9 @@
   <string name="Media.LargeGrid">Grid</string>
   <string name="Media.CoverLayout">Covers</string>
 
+  <string name="Media.Watched">Watched</string>
+  <string name="Media.Unwatched">Unwatched</string>
+  
   <string name="Media.SwitchSortingMenuItem">Sorting</string>
   <string name="Media.SwitchSortingDialogTitle">Sorting</string>
   <string name="Media.SortByTitle">Sort by title</string>

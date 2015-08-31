@@ -19,6 +19,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Change theme</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Change the current skin\'s presentation</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Enable skin sounds</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Configure if skin sounds should be played</string>
 
   <string name="Settings.Players">Players</string>
   <string name="Settings.Players.Rendering">Rendering</string>
