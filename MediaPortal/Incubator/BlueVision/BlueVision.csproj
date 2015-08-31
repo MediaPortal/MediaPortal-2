@@ -563,6 +563,8 @@
     <Content Include="Skin\BlueVision\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\BlueVision\screens\MultiDetails.inc" />
     <Content Include="Skin\BlueVision\skin.xml" />
+    <Content Include="Skin\BlueVision\themes\default-large\fonts\default-font.xml" />
+    <Content Include="Skin\BlueVision\themes\default-large\theme.xml" />
     <Content Include="Skin\BlueVision\themes\default\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\default\images\SplashScreen.jpg" />
     <Content Include="Skin\BlueVision\themes\default\theme.xml" />
@@ -859,6 +861,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Grey\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\default-large\styles\Consts.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -150,6 +150,7 @@
     <Compile Include="TvHandler\TimeshiftContext.cs" />
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
@@ -283,9 +284,22 @@
     <Content Include="Skin\default\screens\SlimTvClient-programsearch.xaml">
       <SubType>Designer</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-programsearch.xaml">
+    <Content Include="Skin\BlueVision\screens\FullScreenContentTv.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\SlimTvClient-guide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\default\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\default\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
