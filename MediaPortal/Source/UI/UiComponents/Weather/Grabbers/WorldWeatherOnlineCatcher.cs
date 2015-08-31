@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private const string MM = "mm";
     private const string MBAR = "mbar";
 
-    private readonly TimeSpan _maxCacheDuration = TimeSpan.FromHours(1);
+    private readonly TimeSpan _maxCacheDuration = TimeSpan.FromHours(2);
     private readonly string _parsefileLocation;
 
     private readonly Dictionary<int, int> _weatherCodeTranslation = new Dictionary<int, int>();
@@ -126,7 +126,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       city.HasData = false;
       string cachefile = string.Format(_parsefileLocation, locationKey.Replace(',', '_'));
 
-      XPathDocument doc;
+      XPathDocument doc = null;
       if (ShouldUseCache(cachefile))
       {
         doc = new XPathDocument(cachefile);
@@ -142,6 +142,11 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
         string url = BuildRequest("weather.ashx", args);
         doc = WorldWeatherOnlineHelper.GetOnlineContent(url);
+        if (doc == null && File.Exists(cachefile))
+          doc = new XPathDocument(cachefile);
+
+        if (doc == null)
+          return false;
 
         // Save cache file
         using (XmlWriter xw = XmlWriter.Create(cachefile))
@@ -182,6 +187,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
       string url = BuildRequest("search.ashx", args);
       XPathDocument doc = WorldWeatherOnlineHelper.GetOnlineContent(url);
+
+      if (doc == null)
+        return locations;
+
       XPathNavigator navigator = doc.CreateNavigator();
       XPathNodeIterator nodes = navigator.Select("/search_api/result");
 
@@ -284,11 +293,20 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         dayForecast.Precipitation = FormatPrecip(forecasts.Current);
         dayForecast.Wind = FormatWind(forecasts.Current);
 
-        node = forecasts.Current.SelectSingleNode("weatherCode");
-        if (node != null)
+        // The new v2 API does provide hourly forecasts. For overall weather symbol we just take the 13:00 weater code.
+        var hourlyForecasts = forecasts.Current.Select("hourly");
+        while (hourlyForecasts.MoveNext())
         {
-          dayForecast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(node.ValueAsInt);
-          dayForecast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(node.ValueAsInt);
+          node = hourlyForecasts.Current.SelectSingleNode("time");
+          if (node != null && node.ValueAsInt == 1300)
+          {
+            node = hourlyForecasts.Current.SelectSingleNode("weatherCode"); // /hourly/[time='1300']/weatherCode
+            if (node != null)
+            {
+              dayForecast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(node.ValueAsInt);
+              dayForecast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(node.ValueAsInt);
+            }
+          }
         }
 
         node = forecasts.Current.SelectSingleNode("weatherDesc");
@@ -320,13 +338,13 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private string FormatTempLow(XPathNavigator condition)
     {
-      string nodeName = _isMetricRegion ? "tempMinC" : "tempMinF";
+      string nodeName = _isMetricRegion ? "mintempC" : "mintempF";
       return FormatTemp(condition.SelectSingleNode(nodeName));
     }
 
     private string FormatTempHigh(XPathNavigator condition)
     {
-      string nodeName = _isMetricRegion ? "tempMaxC" : "tempMaxF";
+      string nodeName = _isMetricRegion ? "maxtempC" : "maxtempF";
       return FormatTemp(condition.SelectSingleNode(nodeName));
     }
 
@@ -345,7 +363,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private static string FormatHumidity(XPathNavigator condition)
     {
-      return FormatDouble(condition, "humidity", PERCENT); 
+      return FormatDouble(condition, "humidity", PERCENT);
     }
 
     private static string FormatPressure(XPathNavigator condition)
@@ -369,7 +387,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private static string BuildRequest(string relativePage, Dictionary<string, string> args)
     {
-      return string.Format("http://api.worldweatheronline.com/free/v1/{0}?{1}", relativePage, BuildRequestArgs(args));
+      return string.Format("http://api.worldweatheronline.com/free/v2/{0}?{1}", relativePage, BuildRequestArgs(args));
     }
 
     private static string BuildRequestArgs(Dictionary<string, string> args)
