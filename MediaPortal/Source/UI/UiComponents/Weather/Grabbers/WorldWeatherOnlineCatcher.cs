@@ -166,7 +166,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private bool ShouldUseCache(string cachefile)
     {
       FileInfo fileInfo = new FileInfo(cachefile);
-      return fileInfo.Exists && (DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration || !NetworkConnectionTracker.IsNetworkConnected);
+      return fileInfo.Exists && fileInfo.Length > 3 && (DateTime.Now - fileInfo.LastWriteTime <= _maxCacheDuration || !NetworkConnectionTracker.IsNetworkConnected);
     }
 
     /// <summary>
