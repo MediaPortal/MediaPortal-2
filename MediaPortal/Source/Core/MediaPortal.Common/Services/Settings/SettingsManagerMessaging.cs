@@ -55,7 +55,7 @@ namespace MediaPortal.Common.Services.Settings
     {
       SystemMessage msg = new SystemMessage(MessageType.SettingsChanged);
       msg.MessageData[SETTINGSTYPE] = settingsType;
-      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>();
+      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>(false);
       if (messageBroker != null)
         messageBroker.Send(CHANNEL, msg);
     }
