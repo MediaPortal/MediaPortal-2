@@ -35,6 +35,8 @@ namespace MediaPortal.Plugins.OneTrueError
   {
     private static Tuple<string, string> KEY_SERVER = new Tuple<string, string>("f2f6310b-1714-4112-bd6d-ec9df98ade37", "814a5a92-c6b7-473e-af9e-59bcd1d5ee35");
     private static Tuple<string, string> KEY_CLIENT = new Tuple<string, string>("9f39363e-e7c7-4e42-acc7-914ec41a52eb", "93dec981-b867-4adb-8e80-6cb86f52c034");
+    private DateTime _lastErrorTime = DateTime.MinValue;
+    private TimeSpan _reportTreshold = TimeSpan.FromHours(1);
 
     public void Activated(PluginRuntime pluginRuntime)
     {
@@ -54,8 +56,13 @@ namespace MediaPortal.Plugins.OneTrueError
 
     private void OnUploadReportFailed(object sender, UploadReportFailedEventArgs uploadReportFailedEventArgs)
     {
-      // Note: don't use the overload with Exception parameter, as this would probably trigger a new send failure.
-      ServiceRegistration.Get<ILogger>().Info("ErrorReportingService: Could not send error report to service: {0}", uploadReportFailedEventArgs.Exception.ToString());
+      // As the online service or local connection can be down, we reduce the logging or errors here.
+      if (DateTime.Now - _lastErrorTime > _reportTreshold)
+      {
+        _lastErrorTime = DateTime.Now;
+        // Note: don't use the overload with Exception parameter, as this would probably trigger a new send failure.
+        ServiceRegistration.Get<ILogger>().Info("ErrorReportingService: Could not send error report to service: {0}", uploadReportFailedEventArgs.Exception.Message);
+      }
     }
 
     public bool RequestEnd()
