@@ -10,6 +10,7 @@
       <PluginFiles Include="$(TargetDir)Antlr4.Runtime.*" />
       <PluginFiles Include="$(TargetDir)MediaServer.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
+      <PluginFiles Include="$(ProjectDir)Profiles\*.xml" />
       <PluginFiles Include="$(ProjectDir)MP2_DLNA_Server_256.png" />
       <PluginFiles Include="$(ProjectDir)MP2_DLNA_Server_120.png" />
     </ItemGroup>

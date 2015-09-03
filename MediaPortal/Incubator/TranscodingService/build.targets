@@ -12,7 +12,13 @@
       <PluginFiles Include="$(ProjectDir)Transcoders\*.*" />
     </ItemGroup>
 
+    <CreateItem Include="$(ProjectDir)Transcoders\**\*.*">
+      <Output TaskParameter="Include" ItemName="fonts" />
+    </CreateItem>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+
+    <Copy SourceFiles="@(fonts)" DestinationFolder="$(PluginDestination)\fonts" />
   </Target>
 
 </Project>
