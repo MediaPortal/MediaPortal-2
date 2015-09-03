@@ -89,10 +89,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
 
-          <!-- Content title, removed for Wizard123 ;-) 
-          <Label Content="{Binding Source={DynamicResource ResourceKey=Header_Text},Path=Resource}" Margin="40,-30,0,0"
-                 FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>-->
-
           <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
                    IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
@@ -135,25 +131,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <Rectangle Fill="{ThemeResource DialogBorderBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
-                   Margin="-120,-85,-120,-80" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.9">
-            <Rectangle.Fill>
-              <ImageBrush ImageSource="blur.png" Stretch="Fill"/>
-            </Rectangle.Fill>
-            <Rectangle.Effect>
-              <ZoomBlurEffect BlurAmount="0.1" />
-            </Rectangle.Effect>
-          </Rectangle>
-
-          <Rectangle Fill="{ThemeResource DialogBackgroundBrush}" RadiusY="{ThemeResource DialogBorderCornerRadius}" RadiusX="{ThemeResource DialogBorderCornerRadius}"
-               Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="1">
-          </Rectangle>
-
-          <Border x:Name="DialogBorder"
-            Background="Black" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
+          <Border Grid.Row="0" Grid.Column="0" x:Name="DialogBorder"
             VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1">
-            <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
-              <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top" Margin="5"
+            <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True" Background="#666666">
+              <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top" Margin="0,5,5,5"
                  VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
@@ -166,10 +147,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   Content="[Menu.Main]" Color="{ThemeResource DialogHeaderColor}"
                   VerticalAlignment="Center" HorizontalAlignment="Left"
                   IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
-
               </Grid>
 
-              <ListView x:Name="DialogMenu" Style="{ThemeResource PopupMenuListViewStyle}" DockPanel.Dock="Center" Margin="0,0,0,10"
+              <ListView x:Name="DialogMenu" Style="{ThemeResource PopupMenuListViewStyle}" DockPanel.Dock="Center" Margin="10"
                 ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}" SetFocusPrio="DefaultLow"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListView.Resources>

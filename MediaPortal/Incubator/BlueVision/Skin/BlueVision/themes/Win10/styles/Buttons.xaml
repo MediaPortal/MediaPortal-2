@@ -376,6 +376,17 @@
   </Style>
 
   <Style x:Key="MenuButtonControlStyle" TargetType="{x:Type Control}" BasedOn="{ThemeResource ButtonControlStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle x:Name="ButtonControlRectangle"
+              Opacity="0"
+              RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+              Margin="-61,0,-101,0" Fill="#003366" Stroke="#213848" StrokeThickness="0">
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="PopupMenuButtonControlStyle" TargetType="{x:Type Control}">
@@ -384,7 +395,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0" Opacity="1">
+              Margin="-12,0,-12,0" Opacity="1">
             <Rectangle.Fill>
               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="{ThemeResource ButtonGradient1Color}" Offset="0"/>
@@ -519,7 +530,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Rectangle RadiusY="17" RadiusX="17" Stroke="Gray" Opacity="1" StrokeThickness="1.5" IsVisible="{Binding Path=Selected}" Margin="-2" />
+            <Rectangle Fill="#333333" Opacity="1" StrokeThickness="0" IsVisible="{Binding Path=Selected}" Margin="-12,0,-12,0" />
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource PopupMenuButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
@@ -565,7 +576,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="-8,0,30,0" Stroke="#213848" StrokeThickness="1">
+            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="1">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>

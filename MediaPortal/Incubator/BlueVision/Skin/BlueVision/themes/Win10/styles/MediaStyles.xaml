@@ -837,7 +837,7 @@
         </Image.Source>
       </Image>
       
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource MovieCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
