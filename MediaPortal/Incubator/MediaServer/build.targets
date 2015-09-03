@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)Antlr4.Runtime.*" />
+      <PluginFiles Include="$(TargetDir)MediaServer.dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+      <PluginFiles Include="$(ProjectDir)MP2_DLNA_Server_256.png" />
+      <PluginFiles Include="$(ProjectDir)MP2_DLNA_Server_120.png" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+  </Target>
+
+</Project>
