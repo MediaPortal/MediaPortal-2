@@ -148,7 +148,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </bvm:GroupMenuListView>
 
       <!-- Time & Date -->
-        <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="5,-5,10,0" VerticalAlignment="Center">
+        <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,5,0" VerticalAlignment="Center">
           <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
                 FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold" 
                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
