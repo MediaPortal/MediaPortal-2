@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profiles version="1.0">
+  <Profile id="Default" name="Generic profile" active="true">
+    <DLNAMediaFormats>
+      <MediaFormat mime="audio/mpeg">MP3</MediaFormat>
+      <MediaFormat mime="audio/mpeg">MP2_MPS</MediaFormat>
+      <MediaFormat mime="audio/L16;rate=44100;channels=1" name="LPCM">LPCM16_44_MONO</MediaFormat>
+      <MediaFormat mime="audio/L16;rate=44100;channels=2" name="LPCM">LPCM16_44_STEREO</MediaFormat>
+      <MediaFormat mime="audio/L16;rate=48000;channels=1" name="LPCM">LPCM16_48_MONO</MediaFormat>
+      <MediaFormat mime="audio/L16;rate=48000;channels=2" name="LPCM">LPCM16_48_STEREO</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMA_BASE</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMA_FULL</MediaFormat>
+      <MediaFormat mime="audio/mp4">AAC_ISO</MediaFormat>
+      <MediaFormat mime="audio/mp4">AAC_ISO_320</MediaFormat>
+      <MediaFormat mime="audio/vnd.dlna.adts">AAC_ADTS</MediaFormat>
+      <MediaFormat mime="audio/vnd.dlna.adts">AAC_ADTS_320</MediaFormat>
+      <MediaFormat mime="audio/flac">FLAC</MediaFormat>
+      <MediaFormat mime="audio/ogg">OGG</MediaFormat>
+      <MediaFormat mime="image/jpeg">JPEG_SM</MediaFormat>
+      <MediaFormat mime="image/jpeg">JPEG_MED</MediaFormat>
+      <MediaFormat mime="image/jpeg">JPEG_LRG</MediaFormat>
+      <MediaFormat mime="image/jpeg">JPEG_TN</MediaFormat>
+      <MediaFormat mime="image/png">PNG_LRG</MediaFormat>
+      <MediaFormat mime="image/png">PNG_TN</MediaFormat>
+      <MediaFormat mime="image/gif">GIF_LRG</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG1</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG_PS_PAL</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG_PS_NTSC</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_SD_EU</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_SD_EU_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG_TS_SD_EU_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_SD_NA</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_SD_NA_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG_TS_SD_NA_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_SD_KO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_SD_KO_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG_TS_SD_KO_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG_TS_JP_T</MediaFormat>
+      <MediaFormat mime="video/x-msvideo">AVI</MediaFormat>
+      <MediaFormat mime="video/x-matroska">MATROSKA</MediaFormat>
+      <MediaFormat mime="video/x-flv">FLV</MediaFormat>
+      <MediaFormat mime="video/x-ms-dvr">DVR_MS</MediaFormat>
+      <MediaFormat mime="video/wtv">WTV</MediaFormat>
+      <MediaFormat mime="video/ogg">OGV</MediaFormat>
+      <MediaFormat mime="application/vnd.apple.mpegurl">HLS</MediaFormat>
+      <MediaFormat mime="video/vnd.rn-realvideo">REAL_VIDEO</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_AAC_MULT5</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_MPEG1_L3</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_AC3</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_HD_720p_AAC</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_HD_1080i_AAC</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_HP_HD_AAC</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_LPCM</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_DTS</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_DTSHD</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_HP_HD_DTS</MediaFormat>
+      <MediaFormat mime="video/mp4">AVC_MP4_HP_HD_DTSHD</MediaFormat>
+      <MediaFormat mime="video/mp4">MPEG4_P2_MP4_ASP_AAC</MediaFormat>
+      <MediaFormat mime="video/mp4">MPEG4_P2_MP4_SP_L6_AAC</MediaFormat>
+      <MediaFormat mime="video/mp4">MPEG4_P2_MP4_NDSD</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_AAC</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_AAC_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG4_P2_TS_ASP_AAC_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_AC3</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_AC3_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG4_P2_TS_ASP_AC3_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_MPEG1_L3</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_MPEG1_L3_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG4_P2_TS_ASP_MPEG2_L2_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_MPEG2_L2</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">MPEG4_P2_TS_ASP_MPEG2_L2_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">MPEG4_P2_TS_ASP_MPEG1_L3_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_SD_AAC_MULT5</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_SD_AAC_MULT5_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_MP_SD_AAC_MULT5_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_SD_MPEG1_L3</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_SD_MPEG1_L3_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_MP_SD_MPEG1_L3_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_SD_AC3</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_SD_AC3_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_MP_SD_AC3_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_HD_AAC_MULT5</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_HD_AAC_MULT5_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_MP_HD_AAC_MULT5_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_HD_MPEG1_L3</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_HD_MPEG1_L3_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_MP_HD_MPEG1_L3_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_HD_AC3</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_MP_HD_AC3_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_MP_HD_AC3_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HD_DTS_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_HD_DTS_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_DTSHD_MA_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_DTSHD_MA_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HD_50_LPCM_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_HP_SD_MPEG1_L2_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HP_SD_MPEG1_L2_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">AVC_TS_HP_HD_MPEG1_L2_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HP_HD_MPEG1_L2_T</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">WMVMED_BASE</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">WMVMED_FULL</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">WMVHIGH_FULL</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">WMVMED_PRO</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">WMVHIGH_PRO</MediaFormat>
+      <MediaFormat mime="video/x-ms-asf">VC1_ASF_AP_L1_WMA</MediaFormat>
+      <MediaFormat mime="video/x-ms-asf">VC1_ASF_AP_L2_WMA</MediaFormat>
+      <MediaFormat mime="video/x-ms-asf">VC1_ASF_AP_L3_WMA</MediaFormat>
+      <MediaFormat mime="video/mpeg">VC1_TS_AP_L1_AC3_ISO</MediaFormat>
+      <MediaFormat mime="video/mpeg">VC1_TS_AP_L2_AC3_ISO</MediaFormat>
+      <MediaFormat mime="video/mpeg">VC1_TS_HD_DTS_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">VC1_TS_HD_DTS_T</MediaFormat>
+      <MediaFormat mime="video/mpeg">VC1_TS_HD_DTSHD_MA_ISO</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">VC1_TS_HD_DTSHD_MA_T</MediaFormat>
+      <MediaFormat mime="video/3gpp">MPEG4_P2_3GPP_SP_L0B_AAC</MediaFormat>
+      <MediaFormat mime="video/3gpp">MPEG4_P2_3GPP_SP_L0B_AMR</MediaFormat>
+      <MediaFormat mime="video/3gpp">AVC_3GPP_BL_QCIF15_AAC</MediaFormat>
+      <MediaFormat mime="video/3gpp">MPEG4_H263_3GPP_P0_L10_AMR</MediaFormat>
+      <MediaFormat mime="video/3gpp">MPEG4_H263_MP4_P0_L10_AAC</MediaFormat>
+    </DLNAMediaFormats>
+    <DLNAProtocolInfo>DLNA</DLNAProtocolInfo>
+    <DirectoryContentBuilder>GenericContentBuilder</DirectoryContentBuilder>
+    <UPNPDeviceDescription>
+      <FriendlyName>MediaPortal ({computerName})</FriendlyName>
+      <Manufacturer>Team Mediaportal</Manufacturer>
+      <ModelName>MediaPortal Media Server</ModelName>
+    </UPNPDeviceDescription>
+    <Settings>
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="All" />
+      <Video h264LevelCheck="Any" maxHeight="1080" qualityFactor="3" h264QualityFactor="25" h264Preset="Veryfast" h264Profile="Baseline" h264Level="3.0" />
+      <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
+      <Audio defaultStereo="false" defaultBitrate="192" />
+      <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
+      <Subtitles support="None" />
+      <Metadata delivery="All" />
+    </Settings>
+    <MediaTranscoding>
+      <ImageTarget forceInheritance="true">
+        <ImageSource container="Raw" />
+        <ImageSource container="Bmp" />
+      </ImageTarget>
+    </MediaTranscoding>
+  </Profile>
+    <Settings>
+      <Subtitles support="Embedded" />
+      <Images autoRotate="true" />
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Mp4" videoCodec="H264" audioCodec="Aac" forceTranscoding="true">
+        <VideoSource />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+</Profiles>

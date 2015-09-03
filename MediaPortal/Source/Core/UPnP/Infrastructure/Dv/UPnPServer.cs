@@ -329,7 +329,7 @@ namespace UPnP.Infrastructure.Dv
               DvDevice rootDevice;
               lock (_serverData.SyncObj)
                 if (config.RootDeviceDescriptionPathsToRootDevices.TryGetValue(pathAndQuery, out rootDevice))
-                  description = rootDevice.BuildRootDeviceDescription(_serverData, config, culture);
+                  description = rootDevice.BuildRootDeviceDescription(request, _serverData, config, culture);
                 else if (config.SCPDPathsToServices.TryGetValue(pathAndQuery, out service))
                   description = service.BuildSCPDDocument(config, _serverData);
               if (description != null)
