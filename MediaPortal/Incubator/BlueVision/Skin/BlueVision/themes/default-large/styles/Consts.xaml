@@ -15,7 +15,7 @@
   <ResourceWrapper x:Key="SmallerFontSize" Resource="28"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="24"/>
 
-  <ResourceWrapper x:Key="OsdTitleFontSize" Resource="46"/>
+  <ResourceWrapper x:Key="OsdTitleFontSize" Resource="40"/>
 
   <!-- Screen transitions -->
   <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.20"/>
