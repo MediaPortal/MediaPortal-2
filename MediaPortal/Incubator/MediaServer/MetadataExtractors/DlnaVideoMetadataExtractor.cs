@@ -37,6 +37,7 @@ using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 using System.Globalization;
+using System.Linq;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Extensions.MediaServer.Aspects;
@@ -322,31 +323,32 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           for (int iAudio = 0; iAudio < valuesStreams.Count; iAudio++)
           {
             AudioStream audio = new AudioStream();
-            if (valuesBitrates[iAudio] != null)
+            Logger.Debug("ValueBitrates.Count={0}, valuesChannels={1} iAudio={2}", valuesBitrates.Count, valuesChannels.Count, iAudio);
+            if (valuesBitrates.ElementAtOrDefault(iAudio) != null)
             {
               audio.Bitrate = Convert.ToInt64(valuesBitrates[iAudio]);
             }
-            if (valuesChannels[iAudio] != null)
+            if (valuesChannels.ElementAtOrDefault(iAudio) != null)
             {
               audio.Channels = Convert.ToInt32(valuesChannels[iAudio]);
             }
-            if (valuesCodecs[iAudio] != null && string.IsNullOrEmpty(valuesCodecs[iAudio].ToString()) == false)
+            if (valuesCodecs.ElementAtOrDefault(iAudio) != null && string.IsNullOrEmpty(valuesCodecs[iAudio].ToString()) == false)
             {
               audio.Codec = (AudioCodec)Enum.Parse(typeof(AudioCodec), valuesCodecs[iAudio].ToString());
             }
-            if (valuesFrequencies[iAudio] != null)
+            if (valuesFrequencies.ElementAtOrDefault(iAudio) != null)
             {
               audio.Frequency = Convert.ToInt64(valuesFrequencies[iAudio]);
             }
-            if (valuesLangs[iAudio] != null && string.IsNullOrEmpty(valuesLangs[iAudio].ToString()) == false)
+            if (valuesLangs.ElementAtOrDefault(iAudio) != null && string.IsNullOrEmpty(valuesLangs[iAudio].ToString()) == false)
             {
               audio.Language = valuesLangs[iAudio].ToString();
             }
-            if (valuesStreams[iAudio] != null)
+            if (valuesStreams.ElementAtOrDefault(iAudio) != null)
             {
               audio.StreamIndex = Convert.ToInt32(valuesStreams[iAudio]);
             }
-            if (valuesDefaults[iAudio] != null)
+            if (valuesDefaults.ElementAtOrDefault(iAudio) != null)
             {
               audio.Default = Convert.ToInt32(valuesDefaults[iAudio]) > 0;
             }
