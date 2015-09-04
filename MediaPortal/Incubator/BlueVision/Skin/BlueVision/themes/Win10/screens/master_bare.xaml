@@ -89,13 +89,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid.RowDefinitions>
 
     <!--Win10-->
-    <Border Grid.Row="0" Grid.RowSpan="2">
+    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderThickness="0">
       <Border.Background>
         <SolidColorBrush Color="#000000" Opacity="0.85"/>
       </Border.Background>
     </Border>
 
-    <Border Grid.Row="4" Grid.RowSpan="2" Margin="0,-60,0,0">
+    <Border Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Margin="0,-60,0,0" BorderThickness="0">
       <Border.Background>
         <SolidColorBrush Color="#000000" Opacity="0.85"/>
       </Border.Background>
