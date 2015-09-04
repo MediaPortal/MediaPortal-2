@@ -9,10 +9,11 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)Antlr4.Runtime.*" />
       <PluginFiles Include="$(TargetDir)MediaServer.dll" />
+      <PluginFiles Include="$(TargetDir)*.pdb" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
       <PluginFiles Include="$(ProjectDir)Profiles\*.xml" />
-      <PluginFiles Include="$(ProjectDir)MP2_DLNA_Server_256.png" />
-      <PluginFiles Include="$(ProjectDir)MP2_DLNA_Server_120.png" />
+      <PluginFiles Include="$(ProjectDir)*.png" />
+      <PluginFiles Include="$(ProjectDir)*.jpg" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
