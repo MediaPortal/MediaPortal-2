@@ -39,8 +39,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public MediaLibraryVideoItem(string baseKey, MediaItem item, EndPointSettings client)
       : base(baseKey, item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item);
-      
       Genre = new List<string>();
       Producer = new List<string>();
       Actor = new List<string>();
