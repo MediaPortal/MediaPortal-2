@@ -152,5 +152,4 @@
         <AudioSource />
       </AudioTarget>
     </MediaTranscoding>
-  </Profile>
 </Profiles>
