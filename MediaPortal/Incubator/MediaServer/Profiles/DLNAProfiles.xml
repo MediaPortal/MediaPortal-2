@@ -140,16 +140,4 @@
       </ImageTarget>
     </MediaTranscoding>
   </Profile>
-    <Settings>
-      <Subtitles support="Embedded" />
-      <Images autoRotate="true" />
-    </Settings>
-    <MediaTranscoding>
-      <VideoTarget container="Mp4" videoCodec="H264" audioCodec="Aac" forceTranscoding="true">
-        <VideoSource />
-      </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource />
-      </AudioTarget>
-    </MediaTranscoding>
 </Profiles>
