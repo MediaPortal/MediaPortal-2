@@ -369,9 +369,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
     public DlnaMediaItem GetDlnaItem(MediaItem item)
     {
-      if(DlnaMediaItems.ContainsKey(item.MediaItemId))
-        return DlnaMediaItems[item.MediaItemId];
-      DlnaMediaItem dlnaItem = new DlnaMediaItem(item, this);
+      DlnaMediaItem dlnaItem;
+      if (DlnaMediaItems.TryGetValue(item.MediaItemId, out dlnaItem))
+        return dlnaItem;
+
+      dlnaItem = new DlnaMediaItem(item, this);
       DlnaMediaItems.Add(item.MediaItemId, dlnaItem);
       return dlnaItem;
     }
