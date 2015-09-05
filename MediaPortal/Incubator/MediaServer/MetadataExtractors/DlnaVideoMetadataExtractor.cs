@@ -366,19 +366,19 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           for (int iSub = 0; iSub < valuesEmSubStreams.Count; iSub++)
           {
             SubtitleStream sub = new SubtitleStream();
-            if (valuesEmSubCodecs[iSub] != null && string.IsNullOrEmpty(valuesEmSubCodecs[iSub].ToString()) == false)
+            if (valuesEmSubCodecs.ElementAtOrDefault(iSub) != null && string.IsNullOrEmpty(valuesEmSubCodecs[iSub].ToString()) == false)
             {
               sub.Codec = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), valuesEmSubCodecs[iSub].ToString());
             }
-            if (valuesEmSubLangs[iSub] != null && string.IsNullOrEmpty(valuesEmSubLangs[iSub].ToString()) == false)
+            if (valuesEmSubLangs.ElementAtOrDefault(iSub) != null && string.IsNullOrEmpty(valuesEmSubLangs[iSub].ToString()) == false)
             {
               sub.Language = valuesEmSubLangs[iSub].ToString();
             }
-            if (valuesEmSubStreams[iSub] != null)
+            if (valuesEmSubStreams.ElementAtOrDefault(iSub) != null)
             {
               sub.StreamIndex = Convert.ToInt32(valuesEmSubStreams[iSub]);
             }
-            if (valuesEmSubDefaults[iSub] != null)
+            if (valuesEmSubDefaults.ElementAtOrDefault(iSub) != null)
             {
               sub.Default = Convert.ToInt32(valuesEmSubDefaults[iSub]) > 0;
             }
