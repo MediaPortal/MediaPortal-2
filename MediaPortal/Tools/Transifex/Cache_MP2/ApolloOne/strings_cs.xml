@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">obrázků</string>
+  <string name="Menu.TV">Televize</string>
+  <string name="Menu.News">Zprávy</string>
+  <string name="Menu.Weather">Počasí</string>
+  <string name="Menu.Settings">Nastavení</string>
+  <string name="Menu.Others">Ostatní</string>
+</resources>

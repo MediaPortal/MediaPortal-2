@@ -120,6 +120,14 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Affiche un message  si le système est déconnecté ou lorsqu\'un serveur MediaPortal 2 devient disponible sur le réseau</string>
   <string name="Settings.General.Connectivity.ClientName">Nom du poste client</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Définir le nom de ce poste client MediaPortal 2</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">Port du serveur HTTP</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Définissez le port du serveur HTTP</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Utiliser IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Définir si ce client  doit utiliser des connexions IPv4 vers le serveur local</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Utiliser IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Définir si ce client  doit utiliser des connexions IPvp6 vers le serveur local</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">Les liens d\'adresse IP</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Définir une liste d\'adresses IP qui devraient être utilisées par ce client  pour des connexions vers le serveur local</string>
   <string name="Settings.Regional">Pays</string>
   <string name="Settings.Regional.Language">Langue</string>
   <string name="Settings.Regional.Language.Main">Langue</string>

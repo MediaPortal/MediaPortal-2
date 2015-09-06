@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configura a letra da unidade remota no da paste de conteúdos do servidor</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Credenciais da rede</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configura o utilizador e palavra-passe para aceder aos recursos de rede do servidor.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Usar as credenciais da sessão interativa no servidor</string>
   <string name="Settings.ServerSettings.UseCredentials">Utilize o utilizador e palavra-passe para aceder á rede</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Utilizador e palavra-passe</string>
   <string name="Settings.ServerSettings.Username">Utilizador:</string>

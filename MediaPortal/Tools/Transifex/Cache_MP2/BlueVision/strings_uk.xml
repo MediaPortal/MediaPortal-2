@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Аудіо</string>
+  <string name="Menu.Image">Зображення</string>
+  <string name="Menu.TV">ТБ</string>
+  <string name="Menu.News">Новини</string>
+  <string name="Menu.Weather">Погода</string>
+  <string name="Menu.Settings">Налаштування</string>
+  <string name="Menu.Home">Дім</string>
+  <string name="Audio.Title">Аудіо</string>
+  <string name="Images.Title">Зображення</string>
+  <string name="Videos.Title">Відео</string>
+  <string name="News.Title">Новини</string>
+  <string name="Weather.Title">Погода</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Immagini</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Notizie</string>
+  <string name="Menu.Weather">Meteo</string>
+  <string name="Menu.Settings">Impostazioni</string>
+  <string name="Menu.Others">Altro</string>
+  <string name="Menu.Home">Home</string>
+  <string name="Movies.Title">Film</string>
+  <string name="Series.Title">Serie</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Images.Title">Immagini</string>
+  <string name="Videos.Title">Filmati</string>
+  <string name="News.Title">Notizie</string>
+  <string name="Weather.Title">Meteo</string>
+  <string name="General.Title">Generale</string>
+</resources>

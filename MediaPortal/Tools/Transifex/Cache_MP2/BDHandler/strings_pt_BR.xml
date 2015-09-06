@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">Filtro de Origem do Bluray</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Configura o Filtro de Origem usado para reprodução de BluRay. Atualmente apenas Gabest e o Divisor de Origem LAV são suportados.</string>
+</resources>

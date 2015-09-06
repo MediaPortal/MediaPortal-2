@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configura la lletra d\'unitat per muntar els recursos remots del servidor.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Credencials de xarxa.</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configura l\'usuari i la clau per accedir als recursos de xarxa des del servidor.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Utilitzar credencials de sessió interactius en el servidor</string>
   <string name="Settings.ServerSettings.UseCredentials">Utilitzar usuari i clau per accedir a la xarxa</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nom d\'usuari i contrasenya</string>
   <string name="Settings.ServerSettings.Username">Nom d\'usuari</string>

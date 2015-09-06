@@ -3,6 +3,7 @@
   <string name="SlimTvClient.Title">Slim TV klient</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV guide</string>
+  <string name="SlimTvClient.SingleChannelGuide">Kanal guide</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programoversigt</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
   <string name="SlimTvClient.ProgramLabel">Program</string>
@@ -14,15 +15,37 @@
   <string name="SlimTvClient.Guide">TV guide</string>
   <string name="SlimTvClient.NoProgram">Ingen program data.</string>
   <string name="SlimTvClient.ChooseProgramAction">Vælg programhandling...</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Vælg kanal gruppe...</string>
   <string name="SlimTvClient.ProgramOver">Programmet er slut</string>
   <string name="SlimTvClient.WatchNow">Se program nu</string>
+  <string name="SlimTvClient.WatchFromBeginning">Se optagelse fra begyndelse</string>
   <string name="SlimTvClient.RecordNow">Optag nu</string>
   <string name="SlimTvClient.DeleteSchedule">Slet planlagt optagelse</string>
   <string name="SlimTvClient.CreateSchedule">Planlæg optagelse</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Optagelses aktioner</string>
+  <string name="SlimTvClient.StopCurrentRecording">Stop nuværende optagelse \'{0}\'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Optag program \'{0}\'</string>
+  <string name="SlimTvClient.RecordManual">Optag indtil manuelt stop</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Manuel optagelse</string>
+  <string name="SlimTvClient.RecordProgram">Optag program</string>
+  <string name="SlimTvClient.DontRecordProgram">Optag ikke</string>
+  <string name="SlimTvClient.RecordSeries">Optag serier</string>
+  <string name="SlimTvClient.ChooseScheduleType">Vælg optagelses tidsplans type</string>
+  <string name="SlimTvClient.DeleteSingle">Slet enkelt program</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Slet fuld serie tidsplan</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Daglig</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Ugentlig</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Hver gang på denne kanal</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Hver gang på alle kanaler</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekender</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Hverdage</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Ugentligt, hver gang på denne kanal</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV udbyder tilgængelig (p.t.)</string>
   <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfHours">Antal af timer i EPG</string>
+  <string name="SlimTvClient.AutoStartTv">Start TV automatisk</string>
   <string name="SlimTvClient.RecordingsMenuItem">Optagelser</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV optagelser</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer pr. kanal</string>

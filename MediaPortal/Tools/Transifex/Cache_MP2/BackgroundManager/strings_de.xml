@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Appearance.Skin.Background.VideoBackground">Videohintergrund</string>
-  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">aktiviere Videohintergrund und markiere das Video</string>
-  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">aktiviere Videohintergrund</string>
-  <string name="Settings.Appearance.Skin.Background.Setup">Videohintergrund Konfiguration</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Videohintergrund aktivieren und Video auswählen</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Videohintergrund aktivieren</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Videohintergrundkonfiguration</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Videodatei</string>
-  <string name="Settings.Appearance.Skin.Background.Setup.Select">auswählen</string>
-  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">markiere das Video um es im HIntergrund abzuspielen</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Auswählen</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Wählen Sie das Video aus, dass im Hintergrund wiedergegeben werden soll</string>
 </resources>

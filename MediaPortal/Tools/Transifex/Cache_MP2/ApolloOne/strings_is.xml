@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Hljóð</string>
+  <string name="Menu.Image">Ljósmyndir</string>
+  <string name="Menu.TV">Sjónvarp</string>
+  <string name="Menu.News">Fréttir</string>
+  <string name="Menu.Weather">Veður</string>
+  <string name="Menu.Settings">Stillingar</string>
+  <string name="Menu.Others">Annað</string>
+</resources>

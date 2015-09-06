@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="VEC.Enable">Habilitar selección automática de efectos de vídeo</string>
+  <string name="VEC.ConfigGroup">Efectos</string>
+  <string name="VEC.LowerEffect">Efecto de baja resolución</string>
+  <string name="VEC.HigherEffect">Efecto de alta resolución</string>
+  <string name="VEC.ResolutionLimit">Límite resolución</string>
+  <string name="Settings.Players.VideoPlayer.VEC">Cargador de efecto de vídeo</string>
+  <string name="Settings.Plugins.VideoPlayer.VEC.Help">Permite definir efectos de sombreado por defecto en la reproducción de vídeo</string>
+</resources>

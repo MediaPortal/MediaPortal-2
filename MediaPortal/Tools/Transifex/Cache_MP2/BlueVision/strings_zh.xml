@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">音频</string>
+  <string name="Menu.Image">图片</string>
+  <string name="Menu.TV">电视</string>
+  <string name="Menu.News">新闻</string>
+  <string name="Menu.Weather">天气</string>
+  <string name="Menu.Settings">设置</string>
+  <string name="Menu.Others">其它的</string>
+  <string name="Menu.Home">主界面</string>
+  <string name="Movies.Title">电影</string>
+  <string name="Series.Title">系列</string>
+  <string name="Audio.Title">音频</string>
+  <string name="Recordings.Title">录制</string>
+  <string name="Images.Title">图片</string>
+  <string name="Videos.Title">视频</string>
+  <string name="News.Title">新闻</string>
+  <string name="Weather.Title">天气</string>
+  <string name="General.Title">常规</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Images</string>
+  <string name="Menu.MediaHub">Concentrateur Vidéo</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Actualités</string>
+  <string name="Menu.Weather">Météo</string>
+  <string name="Menu.Settings">Réglages</string>
+  <string name="Menu.Others">Autres</string>
+  <string name="Menu.Home">Page d\'accueil</string>
+  <string name="Menu.Main">Menu Principal</string>
+  <string name="Movies.Title">Films</string>
+  <string name="Series.Title">Séries</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Enregistrements</string>
+  <string name="Images.Title">Images</string>
+  <string name="Videos.Title">Vidéos</string>
+  <string name="Video.Title">Vidéo</string>
+  <string name="Subtitle.Title">Sous-titre</string>
+  <string name="News.Title">Actualités</string>
+  <string name="Weather.Title">Météo</string>
+  <string name="General.Title">Général</string>
+  <string name="CastCrew.Title">Acteurs et techniciens</string>
+  <string name="MediaInfo.Title">Infos Médias</string>
+  <string name="Media.AudioAlbumArtistsLabel">Artistes de l\'album</string>
+  <string name="Media.AudioTrackLabel">Piste: </string>
+  <string name="Media.AudioBitRateLabel">Bitrate:</string>
+  <string name="Media.AudioComposersLabel">Compositeurs:</string>
+  <string name="Media.AudioMimeTypeLabel">Type:</string>
+  <string name="BlueVision.Configuration">Configuration du thème BlueVision </string>
+  <string name="BlueVision.Configuration.Help">Permet de personnaliser le thème BlueVision </string>
+  <string name="BlueVision.DisableHomeTab">Désactiver l\'onglet \"Accueil\"</string>
+  <string name="BlueVision.DisableAutoSelection">Désactiver l\'onglet automatique du menu</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Utilisez l\'écran de démarrage BlueVision</string>
+</resources>

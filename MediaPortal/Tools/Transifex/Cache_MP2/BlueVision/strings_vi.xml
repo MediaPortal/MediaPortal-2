@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.News">Tin tức</string>
+  <string name="Menu.Settings">Thiết lập</string>
+  <string name="Recordings.Title">Ghi hình</string>
+  <string name="News.Title">Tin tức</string>
+</resources>

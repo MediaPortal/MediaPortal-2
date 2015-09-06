@@ -290,6 +290,7 @@
   <string name="Media.LargeList">Stor liste</string>
   <string name="Media.LargeGrid">Rutenett</string>
   <string name="Media.CoverLayout">Cover</string>
+  <string name="Media.Watched">Sett</string>
   <string name="Media.SwitchSortingMenuItem">Sorter</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorter etter tittel</string>

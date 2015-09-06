@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">配置服务器上安装的远程资源驱动器盘符。</string>
   <string name="Settings.ServerSettings.NetworkCredentials">网络凭据</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">配置用户名密码以访问网络资源</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">使用服务器上交互式会话的凭据</string>
   <string name="Settings.ServerSettings.UseCredentials">使用用户名密码以访问网络</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">用户名和密码</string>
   <string name="Settings.ServerSettings.Username">用户名：</string>

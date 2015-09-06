@@ -21,7 +21,7 @@
   <string name="Keys.Copy">Kopiera</string>
   <string name="Keys.Paste">Klistra in</string>
   <string name="Home.Title">MediaPortal 2</string>
-  <string name="Home.HomeStateDisplayLabel">Hem</string>
+  <string name="Home.HomeStateDisplayLabel">Start</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
   <string name="Dialogs.WarningHeaderText">Varning</string>
   <string name="Dialogs.ErrorHeaderText">Fel</string>
@@ -123,6 +123,14 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Aktivera meddelanden, i frånkopplat läge, för när en MediaPortal 2-server blir tillgänglig på nätverket</string>
   <string name="Settings.General.Connectivity.ClientName">Klientnamn</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Sätt namn på denna MediaPortal 2-klient</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">HTTP server port</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Sätt HTTP Serverns port</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Använd IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Bestäm om den här MediaPortal 2 klienten ska använda IPv4 för att koppla sig tll hemmaservern.</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Använd IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Bestäm om den här MediaPortal 2 klienten ska använda IPv6 för att koppla sig tll hemmaservern.</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">IP-adress bindningar</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Skapa en lista av IP-adresser som ska användas av den här MediaPortal 2 klienten för att koppla upp mot hemmaservern.</string>
   <string name="Settings.Regional">Regionalt</string>
   <string name="Settings.Regional.Language">Språk</string>
   <string name="Settings.Regional.Language.Main">Språk</string>

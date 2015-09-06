@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Home.HomeStateDisplayLabel">Início</string>
   <string name="Media.MyVideos">Vídeos</string>
   <string name="Media.MyPictures">Imagens</string>
   <!--{0} = server name, {1} = host name-->
@@ -12,6 +13,7 @@
   <!--for example "Focus video player"-->
   <!--for example "Audio menu for Lammbock"-->
   <!--for example "Close video player"-->
+  <string name="Settings.General">Geral</string>
   <!--Section name-->
   <!--Group name-->
   <!--Setting-->

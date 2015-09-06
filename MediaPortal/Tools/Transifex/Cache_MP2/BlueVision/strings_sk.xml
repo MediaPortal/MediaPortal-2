@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Fotky</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Novinky</string>
+  <string name="Menu.Weather">Počasie</string>
+  <string name="Menu.Settings">Nastavenie</string>
+  <string name="Menu.Others">Iné</string>
+  <string name="Menu.Home">Domov</string>
+  <string name="Movies.Title">Filmy</string>
+  <string name="Series.Title">Seriály</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Nahrávky</string>
+  <string name="Images.Title">Fotky</string>
+  <string name="Videos.Title">Videá</string>
+  <string name="News.Title">Novinky</string>
+  <string name="Weather.Title">Počasie</string>
+  <string name="General.Title">Všeobecné</string>
+</resources>

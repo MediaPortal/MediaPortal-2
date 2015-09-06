@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="VEC.Enable">Activer la sélection automatique de l\'effet vidéo </string>
+  <string name="VEC.ConfigGroup">Effets</string>
+  <string name="VEC.LowerEffect">Effet Basse résolution</string>
+  <string name="VEC.HigherEffect">Effet Haute résolution</string>
+  <string name="VEC.ResolutionLimit">limite de la résolution</string>
+  <string name="Settings.Plugins.VideoPlayer.VEC.Help">Permet de définir les effets de shader par défaut lors de la lecture vidéo</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.SearchForWirelessNetworks">Skan for trådløse netværk</string>
+  <string name="Network.NoWirelessNetworksFound">Ingen trådløse netværk fundet</string>
+  <string name="Network.Connect">Forbind</string>
+  <string name="Network.Disconnect">Slå fra</string>
+  <string name="Network.EnterWifiPassword">Skriv trådløst netværk Password</string>
+  <string name="Network.DeleteProfile">Slet trådløst netværks Profil</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Trådløs forbindelse</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Forbind til et trådløst netværk</string>
+</resources>

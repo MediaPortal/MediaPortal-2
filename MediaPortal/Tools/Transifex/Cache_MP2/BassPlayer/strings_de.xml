@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players">Wiedergabe</string>
-  <string name="Settings.Players.AudioPlayer">Audio-Player</string>
+  <string name="Settings.Players">Abspieler</string>
+  <string name="Settings.Players.AudioPlayer">Audioabspieler</string>
   <string name="Settings.Players.BassPlayer.Setup">Ausgabegerät konfigurieren</string>
-  <string name="Settings.Players.BassPlayer.Setup.Help">Legt Ausgabegerät und Optionen für den BassPlayer fest</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Konfiguriert das BassPlayer-Ausgabegerät und Optionen</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exklusiver Modus</string>
-  <string name="Settings.Players.Rendering">Ausgabe</string>
+  <string name="Settings.Players.Rendering">Renderung</string>
   <string name="Settings.Players.Rendering.CrossFading">Überblenden</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Überblenden aktiviert</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Legt fest ob MediaPortal Lieder überblenden soll, wenn möglich</string>

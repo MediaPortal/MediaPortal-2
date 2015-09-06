@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Setter stasjonsbokstav for ressurser på serveren</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Nettverkstilgang</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Konfigurerer brukernavn og passord for å få tilgang til ressurser fra server</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Bruk tilgang fra interaktiv sesjon på server</string>
   <string name="Settings.ServerSettings.UseCredentials">Bruk brukernavn og passord for å få tilgang til nettverk</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Brukernavn og passord</string>
   <string name="Settings.ServerSettings.Username">Brukernavn:</string>
