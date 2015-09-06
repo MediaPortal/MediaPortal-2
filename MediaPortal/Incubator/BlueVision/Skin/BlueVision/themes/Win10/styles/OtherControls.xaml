@@ -449,7 +449,7 @@
         </Grid.RowDefinitions>
         
         <!-- Light blue background fill -->
-        <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+        <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" StrokeThickness="0"
             Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Rectangle.Fill>
             <VisualBrush x:Name="TileVisualBrush" AnimationEnabled="True">
@@ -463,6 +463,17 @@
                   </Grid.RowDefinitions>
                   <Image VerticalAlignment="Stretch" Stretch="UniformToFill" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0"
                         Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}">
+                    <!--Image.RenderTransform>
+                      <RotateTransform x:Name="rotate" CenterX="0.5" CenterY="0.5" Angle="0" />
+                    </Image.RenderTransform>
+
+                    <Image.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                        <Setter TargetName="rotate" Property="Angle" value="90">
+                        </Setter>
+                      </DataTrigger>
+                    </Image.Triggers-->  
+                    
                     <!--Image.Triggers>
                       <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="False">
                         <Setter TargetName="TileVisualBrush" Property="Animation"/>
@@ -486,44 +497,14 @@
                 
         <!-- Darkened band -->
 
-        <!--Grid x:Name="ItemBand" Grid.Row="1" Grid.Column="0" Height="0">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          
-          <Rectangle  Grid.Row="0" Grid.Column="0" Fill="#FF000000" Opacity="0.7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"/>
-          <Grid.Resources>
-              <Storyboard x:Key="Storyboard1">
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ItemBand" Storyboard.TargetProperty="Height">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="80"/>
-                </DoubleAnimationUsingKeyFrames>
-              </Storyboard>
-            </Grid.Resources>
-          <Grid.Triggers>
-              <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard x:Name="BandStoryboard" Storyboard="{StaticResource Storyboard1}"/>
-                </DataTrigger.EnterActions>
-                <DataTrigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="BandStoryboard"/>
-                </DataTrigger.ExitActions>
-              </DataTrigger>
-            </Grid.Triggers>
-
-          <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
-                 FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
-          
-        </Grid-->
-
-        <Rectangle x:Name="ItemBand" Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749" Height="60"
+         <Rectangle x:Name="ItemBand" Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749" Height="60" StrokeThickness="0"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
           <Rectangle.Resources>
             <Storyboard x:Key="Storyboard1">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ItemBand" Storyboard.TargetProperty="Height">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="80"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="60"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="90"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="60"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Rectangle.Resources>
@@ -797,18 +778,7 @@
         </MultiBinding>
       </Grid.Width-->
 
-      <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_18}" />
-      <!-- SHADOW -->
-
       <Grid>
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
         <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
                 Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
         </Image>

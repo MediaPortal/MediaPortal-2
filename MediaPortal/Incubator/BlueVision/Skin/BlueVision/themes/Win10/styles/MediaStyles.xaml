@@ -79,7 +79,7 @@
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource FilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -187,7 +187,7 @@
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource ContainerCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -302,7 +302,7 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource SeriesFilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -493,7 +493,7 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource SeriesSeasonFilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -1067,7 +1067,7 @@
         </Image.Source>
       </Image>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource VideoCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -2345,19 +2345,26 @@
     <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>
-    <Setter Property="RenderTransform">
+    <Setter Property="LayoutTransform">
       <Setter.Value>
         <TransformGroup>
           <ScaleTransform ScaleX="0.76" ScaleY="0.76"/>
         </TransformGroup>
       </Setter.Value>
     </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="15,0,0,0"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
 
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center">
-          </VirtualizingWrapPanel>
+          <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" HorizontalAlignment="Center">
+          </WrapPanel>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
