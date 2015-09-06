@@ -30,7 +30,7 @@
       </Border.IsVisible>
     </Border-->
 
-    <Border Grid.Row="0" Margin="-85,-33,-710,7" >
+    <Border Grid.Row="0" Margin="-87,-32,-710,8" BorderThickness="0">
       <Border.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
           <LinearGradientBrush.GradientStops>
