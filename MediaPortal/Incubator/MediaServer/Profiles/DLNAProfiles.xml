@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Profiles version="1.0">
-  <Profile id="Default" name="Generic profile" active="true">
+  <Profile id="DLNADefault" name="Generic profile" active="true">
     <DLNAMediaFormats>
       <MediaFormat mime="audio/mpeg">MP3</MediaFormat>
       <MediaFormat mime="audio/mpeg">MP2_MPS</MediaFormat>
@@ -125,7 +125,7 @@
       <ModelName>MediaPortal Media Server</ModelName>
     </UPNPDeviceDescription>
     <Settings>
-      <Thumbnails maxWidth="160" maxHeight="160" delivery="All" />
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="None" />
       <Video h264LevelCheck="Any" maxHeight="1080" qualityFactor="3" h264QualityFactor="25" h264Preset="Veryfast" h264Profile="Baseline" h264Level="3.0" />
       <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
       <Audio defaultStereo="false" defaultBitrate="192" />
