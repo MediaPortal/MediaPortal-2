@@ -357,6 +357,27 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public List<ImageTranscodingTarget> Images = new List<ImageTranscodingTarget>();
   }
 
+  public class Detection
+  {
+    public HttpHeaders HttpHeaders = new HttpHeaders();
+    public UpnpSearch UPnPSearch = new UpnpSearch();
+  }
+
+  public class UpnpSearch
+  {
+    public string FriendlyName = null;
+    public string ModelName = null;
+    public string ModelNumber = null;
+    public string ProductNumber = null;
+    public string Server = null;
+    public string Manufacturer = null;
+  }
+
+  public class HttpHeaders
+  {
+    public string UserAgent = null;
+  }
+
   public class EndPointSettings
   {
     public EndPointProfile Profile = null;
@@ -435,6 +456,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public ProfileSettings Settings = new ProfileSettings();
     public TranscodingSetup MediaTranscoding = new TranscodingSetup();
     public Dictionary<string, MediaMimeMapping> MediaMimeMap = new Dictionary<string, MediaMimeMapping>();
+    public List<Detection> Detection = new List<Detection>();
 
     public override string ToString()
     {

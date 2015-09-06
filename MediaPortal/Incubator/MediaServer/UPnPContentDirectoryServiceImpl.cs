@@ -310,15 +310,8 @@ namespace MediaPortal.Extensions.MediaServer
       int totalMatches = 0;
       int containterUpdateId;
 
-      EndPointSettings deviceClient = null;
-      if (string.IsNullOrEmpty(context.RemoteAddress) == true)
-      {
-        Logger.Error("MediaServer: IP address was invalid. Access denied");
-      }
-      else
-      {
-        deviceClient = ProfileManager.GetEndPointProfileSettings(IPAddress.Parse(context.RemoteAddress));
-      }
+      EndPointSettings deviceClient = ProfileManager.DetectProfile(context.Request.Headers);
+
       if (deviceClient == null || deviceClient.Profile == null)
       {
         outParams = null;
@@ -448,15 +441,8 @@ namespace MediaPortal.Extensions.MediaServer
         "MediaServer - entry OnSearch(containerId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
         containerId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
 
-      EndPointSettings deviceClient = null;
-      if (string.IsNullOrEmpty(context.RemoteAddress) == true)
-      {
-        Logger.Error("MediaServer: IP address was invalid. Access denied");
-      }
-      else
-      {
-        deviceClient = ProfileManager.GetEndPointProfileSettings(IPAddress.Parse(context.RemoteAddress));
-      }
+      EndPointSettings deviceClient = ProfileManager.DetectProfile(context.Request.Headers);
+
       if (deviceClient == null || deviceClient.Profile == null)
       {
         outParams = null;

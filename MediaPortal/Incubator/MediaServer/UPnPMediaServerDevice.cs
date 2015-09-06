@@ -69,8 +69,9 @@ namespace MediaPortal.Extensions.MediaServer
     private static void GenerateDescriptionFunc(IHttpRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture)
     {
       if (request == null) return;
-      string clientID = request.Headers["remote_addr"];
-      EndPointSettings client = ProfileManager.GetEndPointProfileSettings(IPAddress.Parse(clientID));
+
+      EndPointSettings client = ProfileManager.DetectProfile(request.Headers);
+      
       if (client.Profile == null)
       {
         return;
@@ -97,7 +98,8 @@ namespace MediaPortal.Extensions.MediaServer
     {
       if (request == null) return;
       string clientID = request.Headers["remote_addr"];
-      EndPointSettings client = ProfileManager.GetEndPointProfileSettings(IPAddress.Parse(clientID));
+      EndPointSettings client = ProfileManager.DetectProfile(request.Headers);
+
       if (client.Profile != null)
       {
         if (_customDeviceCache.ContainsKey(client.Profile.ID) == false)

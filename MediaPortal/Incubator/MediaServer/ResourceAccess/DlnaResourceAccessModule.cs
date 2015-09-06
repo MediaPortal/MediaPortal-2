@@ -267,14 +267,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         if (clientID == null)
         {
           clientID = "noip";
-          deviceClient = new EndPointSettings();
-          deviceClient.Profile = ProfileManager.Profiles["default"];
-          Logger.Error("DlnaResourceAccessModule: IP address was invalid reverting to profile {0}", deviceClient.Profile.Name);
         }
-        else
-        {
-          deviceClient = ProfileManager.GetEndPointProfileSettings(IPAddress.Parse(clientID));
-        }
+
+          
+        deviceClient = ProfileManager.DetectProfile(request.Headers);
+
         if (deviceClient == null || deviceClient.Profile == null)
         {
           Logger.Debug("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientID);
