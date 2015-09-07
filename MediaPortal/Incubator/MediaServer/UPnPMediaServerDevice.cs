@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MediaServer
     public const int CONNECTION_MANAGER_SERVICE_TYPE_VERSION = 1;
     public const string CONNECTION_MANAGER_SERVICE_ID = "urn:upnp-org:serviceId:ConnectionManager";
 
-    public const string MEDIARECEIVER_REGISTRAR_SERVICE_TYPE = "urn:microsoft.com:service:X_MS_MediaReceiverRegistrar";
+    public const string MEDIARECEIVER_REGISTRAR_SERVICE_TYPE = "microsoft.com:service:X_MS_MediaReceiverRegistrar";
     public const int MEDIARECEIVER_REGISTRAR_SERVICE_TYPE_VERSION = 1;
     public const string MEDIARECEIVER_REGISTRAR_SERVICE_ID = "urn:microsoft.com:serviceId:X_MS_MediaReceiverRegistrar";
 
