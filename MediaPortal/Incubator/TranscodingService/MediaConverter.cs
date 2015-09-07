@@ -994,6 +994,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         data.OutputArguments.Add(string.Format("-f {0}", GetVideoContainer(video.TargetVideoContainer)));
         data.OutputFilePath = transcodingFile;
       }
+
+      if (video.Movflags != null)
+      {
+        data.OutputArguments.Add(string.Format("-movflags {0}", video.Movflags));
+      }
     }
 
     private void AddStreamMapParameters(int videoStreamIndex, int audioStreamIndex, bool embeddedSubtitle, TranscodeData data)
@@ -1924,7 +1929,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       context.TargetFile = transcodingFile;
 
-      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}'", video.SourceFile, video.TranscodeID);
+      if (Logger != null) Logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceFile, video.TranscodeID, String.Join(", ", data.OutputArguments.ToArray()));
       context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }

@@ -310,6 +310,12 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             {
               IsSegmented = true;
             }
+
+            if (dstVideo.Target.Movflags != null)
+            {
+              video.Movflags = dstVideo.Target.Movflags;
+            }
+
             video.TargetAudioBitrate = client.Profile.Settings.Audio.DefaultBitrate;
             if (dstVideo.Target.AudioBitrate > 0)
             {

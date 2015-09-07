@@ -62,6 +62,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public bool ForceVideoTranscoding = false;
     public bool ForceStereo = false;
     public bool ForceInheritance = false;
+    public string Movflags = null;
 
     public bool Matches(MetadataContainer info, int audioStreamIndex, H264LevelCheck h264LevelCheckType)
     {

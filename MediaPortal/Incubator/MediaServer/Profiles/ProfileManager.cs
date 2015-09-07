@@ -594,6 +594,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             {
               vTranscoding.Target.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
             }
+            else if (reader.Name == "movflags")
+            {
+              vTranscoding.Target.Movflags = reader.ReadContentAsString();
+            }
             else if (reader.Name == "videoCodec")
             {
               vTranscoding.Target.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);

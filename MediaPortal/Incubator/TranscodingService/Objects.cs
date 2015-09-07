@@ -264,6 +264,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public bool TargetForceAudioStereo = false;
     public SubtitleSupport TargetSubtitleSupport = SubtitleSupport.None;
     public SubtitleCodec TargetSubtitleCodec = SubtitleCodec.Srt;
+    public string Movflags = null;
   }
 
   public class ImageTranscoding : BaseTranscoding
