@@ -125,8 +125,8 @@
       <ModelName>MediaPortal Media Server</ModelName>
     </UPNPDeviceDescription>
     <Settings>
-      <Thumbnails maxWidth="160" maxHeight="160" delivery="None" />
-      <Video h264LevelCheck="Any" maxHeight="1080" qualityFactor="3" h264QualityFactor="25" h264Preset="Veryfast" h264Profile="Baseline" h264Level="3.0" />
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="AlbumArt" />
+      <Video h264LevelCheck="Any" maxHeight="1080" qualityFactor="3" h264QualityFactor="25" h264Preset="ultrafast" h264Profile="Baseline" h264Level="3.0" />
       <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
       <Audio defaultStereo="false" defaultBitrate="192" />
       <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
