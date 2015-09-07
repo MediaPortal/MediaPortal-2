@@ -291,7 +291,7 @@
     </DLNAMediaFormats>
     <Detection>
       <HttpSearch>
-        <XAVClient>.*PLAYSTATION 3.*</XAVClient>
+        <X-AV-Client-Info>.*PLAYSTATION 3.*</X-AV-Client-Info>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -391,7 +391,7 @@
   <Profile id="DirecTV" name="DirecTV HD-DVR" baseProfile="DLNADefault" active="true">
     <Detection>
       <HttpSearch>
-        <UserAgent>.*DIRECTV.*</UserAgent>
+        <User-Agent>.*DIRECTV.*</User-Agent>
       </HttpSearch>
       <UPnPSearch>
         <FriendlyName>^DIRECTV.*$</FriendlyName>
@@ -440,7 +440,7 @@
     </UPNPDeviceDescription>
     <Detection>
       <HttpSearch>
-        <UserAgent>(.*SEC_HHP_BD-H.*)|(.*SEC_HHP_\[(HT|BD)\]H.*)|(\[BD\]H.*)</UserAgent>
+        <User-Agent>(.*SEC_HHP_BD-H.*)|(.*SEC_HHP_\[(HT|BD)\]H.*)|(\[BD\]H.*)</User-Agent>
       </HttpSearch>
       <UPnPSearch>
         <FriendlyName>(^\[TV\][A-Z]{2}\d{2}H[A-Z]?\d{3,4}.*)</FriendlyName>
@@ -498,7 +498,7 @@
     </UPNPDeviceDescription>
     <Detection>
       <HttpSearch>
-        <UserAgent>(.*SEC_HHP_BD-[EF].*)|(.*SEC_HHP_\[(HT|BD)\][EF].*)</UserAgent>
+        <User-Agent>(.*SEC_HHP_BD-[EF].*)|(.*SEC_HHP_\[(HT|BD)\][EF].*)</User-Agent>
       </HttpSearch>
       <UPnPSearch>
         <FriendlyName>(^\[TV\][A-Z]{2}\d{2}(E|F)[A-Z]?\d{3,4}.*)|^\[TV\]\s?Samsung(\sLED.*)?</FriendlyName>
@@ -556,7 +556,7 @@
     </UPNPDeviceDescription>
     <Detection>
       <HttpSearch>
-        <UserAgent>(.*SEC_HHP_BD-[CD].*)|(.*SEC_HHP_\[(HT|BD)\][CD].*)</UserAgent>
+        <User-Agent>(.*SEC_HHP_BD-[CD].*)|(.*SEC_HHP_\[(HT|BD)\][CD].*)</User-Agent>
       </HttpSearch>
       <UPnPSearch>
         <FriendlyName>(^TV-\d{2}C\d{3}.*)|(^\[TV\][A-Z]{2}\d{2}(D)[A-Z]?\d{3,4}.*)|^\[TV\] Samsung</FriendlyName>
@@ -586,7 +586,7 @@
     </DLNAMediaFormats>
     <Detection>
       <HttpSearch>
-        <FriendlyName>LG.*</FriendlyName>
+        <friendlyName.dlna.org>LG.*</friendlyName.dlna.org>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -945,7 +945,7 @@
     </UPNPDeviceDescription>
     <Detection>
       <HttpSearch>
-        <XAVClient>.*cn="Sony Corporation"; mn="(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)".*</XAVClient>
+        <X-AV-Client-Info>.*cn="Sony Corporation"; mn="(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)".*</X-AV-Client-Info>
       </HttpSearch>
       <UPnPSearch>
         <FriendlyName>(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)</FriendlyName>
@@ -1169,7 +1169,7 @@
   <Profile id="Manta" name="Manta WIFI Centre" baseProfile="DLNADefault" active="true">
     <Detection>
       <HttpSearch>
-        <UserAgent>.*Manta.*</UserAgent>
+        <User-Agent>.*Manta.*</User-Agent>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -1199,7 +1199,7 @@
   <Profile id="Pure" name="Pure Flow" baseProfile="DLNADefault" active="true">
     <Detection>
       <HttpSearch>
-        <UserAgent>.*PURE.*</UserAgent>
+        <User-Agent>.*PURE.*</User-Agent>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -1226,7 +1226,7 @@
     </DLNAMediaFormats>
     <Detection>
       <HttpSearch>
-        <UserAgent>.*SHARP-AQUOS.*</UserAgent>
+        <User-Agent>.*SHARP-AQUOS.*</User-Agent>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -1393,7 +1393,7 @@
     </UPNPDeviceDescription>
     <Detection>
       <HttpSearch>
-        <XAVClient>.*BRAVIA KDL-\d{2}(([A-Z](1|5|E1|R1|BR45|BR9|[1357]0\d{2}|4\d{3}))|(S55|S57|W51|Z51|Z58)\d0).*</XAVClient>
+        <X-AV-Client-Info>.*BRAVIA KDL-\d{2}(([A-Z](1|5|E1|R1|BR45|BR9|[1357]0\d{2}|4\d{3}))|(S55|S57|W51|Z51|Z58)\d0).*</X-AV-Client-Info>
       </HttpSearch>
       <UPnPSearch>
         <FriendlyName>BRAVIA KDL-\d{2}(WE5|(E53|E55|V55|V56|W55|W57|Z55|Z57)\d0) *</FriendlyName>
@@ -1855,7 +1855,7 @@
     </UPNPDeviceDescription>
     <Detection>
       <HttpSearch>
-        <UserAgent>.*CHANERU.*</UserAgent>
+        <User-Agent>.*CHANERU.*</User-Agent>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -1940,7 +1940,7 @@
     </DLNAMediaFormats>
     <Detection>
       <HttpSearch>
-        <UserAgent>.*ROKU.*</UserAgent>
+        <User-Agent>.*ROKU.*</User-Agent>
       </HttpSearch>
     </Detection>
     <Settings>
@@ -2093,20 +2093,6 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ogg" />
         <AudioSource container="WavPack" />
-      </AudioTarget>
-    </MediaTranscoding>
-  </Profile>
-    <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
-    </Settings>
-    <MediaTranscoding>
-      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Aac" forceTranscoding="true">
-        <VideoSource />
-      </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
