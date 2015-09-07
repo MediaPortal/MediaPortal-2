@@ -2095,13 +2095,6 @@
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Grid>
-                  <Grid.OpacityMask>
-                    <VisualBrush>
-                      <VisualBrush.Visual>
-                        <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
-                      </VisualBrush.Visual>
-                    </VisualBrush>
-                  </Grid.OpacityMask>
                   <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill"
                          FallbackSource="{Binding MediaItem}">
                     <Image.Source>
@@ -2219,13 +2212,12 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
-              CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
+              BorderThickness="0" Margin="0,0,33,0"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Offset="0" Color="{ThemeResource OSDPlayerControlBackgroundColor1}"/>
-                <GradientStop Offset="0.5" Color="{ThemeResource OSDPlayerControlBackgroundColor2}"/>
-                <GradientStop Offset="1" Color="{ThemeResource OSDPlayerControlBackgroundColor3}"/>
+                <GradientStop Offset="0" Color="#CC666666"/>
+                <GradientStop Offset="1" Color="#CC666666"/>
               </LinearGradientBrush >
             </Border.Background>
             <Grid x:Name="PlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0"
@@ -2258,10 +2250,22 @@
                   <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
                       VerticalAlignment="Center" HorizontalAlignment="Center">
                     <!-- Must be located the same as Audio_NoMouse -->
-                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" RenderTransformOrigin="0.5,0.5"
+                        Command="{Command AudioButtonPressed}">
+                      <Button.RenderTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                        </TransformGroup>
+                      </Button.RenderTransform>
+                    </Button>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" RenderTransformOrigin="0.5,0.5"
+                        Command="{Command AudioButtonPressed}">
+                      <Button.RenderTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                        </TransformGroup>
+                      </Button.RenderTransform>
+                    </Button>
                   </Grid>
                 </Grid>
                 <Grid DockPanel.Dock="Center">
@@ -2273,10 +2277,11 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                      HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"
                       MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel>
+              
               <!-- PiPHeaderPanel -->
               <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
                   Style="{ThemeResource PipControlStyle}" RenderTransformOrigin="0.5,0.5"
@@ -2299,7 +2304,7 @@
                 </Button.Triggers>
               </Button>
               <!-- PiPButton -->
-              <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+              <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                   Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" Height="30">
