@@ -154,13 +154,15 @@
         &lt;sec:X_ProductCap&gt;smi,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
       </AdditionalElements>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>^TV$</FriendlyName>
-        <ModelName>Samsung DTV DMR</ModelName>
-        <ModelNumber>1\.0</ModelNumber>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>^TV$</FriendlyName>
+          <ModelName>Samsung DTV DMR</ModelName>
+          <ModelNumber>1\.0</ModelNumber>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Video h264LevelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
@@ -241,11 +243,13 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>12.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <ModelName>Xbox 360</ModelName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <ModelName>Xbox 360</ModelName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Thumbnails maxWidth="320" maxHeight="320" />
       <Subtitles support="HardCoded" />
@@ -289,11 +293,13 @@
       <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L3_WMA</MediaFormat>
       <MediaFormat mime="video/mp4" name="">MPEG4_P2_MP4_ASP_AAC</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <HttpSearch>
-        <X-AV-Client-Info>.*PLAYSTATION 3.*</X-AV-Client-Info>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <X-AV-Client-Info>.*PLAYSTATION 3.*</X-AV-Client-Info>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
@@ -389,14 +395,16 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="DirecTV" name="DirecTV HD-DVR" baseProfile="DLNADefault" active="true">
-    <Detection>
-      <HttpSearch>
-        <User-Agent>.*DIRECTV.*</User-Agent>
-      </HttpSearch>
-      <UPnPSearch>
-        <FriendlyName>^DIRECTV.*$</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*DIRECTV.*</User-Agent>
+        </HttpSearch>
+        <UPnPSearch>
+          <FriendlyName>^DIRECTV.*$</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -438,15 +446,17 @@
         &lt;sec:X_ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
       </AdditionalElements>
     </UPNPDeviceDescription>
-    <Detection>
-      <HttpSearch>
-        <User-Agent>(.*SEC_HHP_BD-H.*)|(.*SEC_HHP_\[(HT|BD)\]H.*)|(\[BD\]H.*)</User-Agent>
-      </HttpSearch>
-      <UPnPSearch>
-        <FriendlyName>(^\[TV\][A-Z]{2}\d{2}H[A-Z]?\d{3,4}.*)</FriendlyName>
-        <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>(.*SEC_HHP_BD-H.*)|(.*SEC_HHP_\[(HT|BD)\]H.*)|(\[BD\]H.*)</User-Agent>
+        </HttpSearch>
+        <UPnPSearch>
+          <FriendlyName>(^\[TV\][A-Z]{2}\d{2}H[A-Z]?\d{3,4}.*)</FriendlyName>
+          <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Video h264LevelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
@@ -496,15 +506,17 @@
         &lt;sec:X_ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
       </AdditionalElements>
     </UPNPDeviceDescription>
-    <Detection>
-      <HttpSearch>
-        <User-Agent>(.*SEC_HHP_BD-[EF].*)|(.*SEC_HHP_\[(HT|BD)\][EF].*)</User-Agent>
-      </HttpSearch>
-      <UPnPSearch>
-        <FriendlyName>(^\[TV\][A-Z]{2}\d{2}(E|F)[A-Z]?\d{3,4}.*)|^\[TV\]\s?Samsung(\sLED.*)?</FriendlyName>
-        <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>(.*SEC_HHP_BD-[EF].*)|(.*SEC_HHP_\[(HT|BD)\][EF].*)</User-Agent>
+        </HttpSearch>
+        <UPnPSearch>
+          <FriendlyName>(^\[TV\][A-Z]{2}\d{2}(E|F)[A-Z]?\d{3,4}.*)|^\[TV\]\s?Samsung(\sLED.*)?</FriendlyName>
+          <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Video h264LevelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
@@ -554,15 +566,17 @@
         &lt;sec:X_ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
       </AdditionalElements>
     </UPNPDeviceDescription>
-    <Detection>
-      <HttpSearch>
-        <User-Agent>(.*SEC_HHP_BD-[CD].*)|(.*SEC_HHP_\[(HT|BD)\][CD].*)</User-Agent>
-      </HttpSearch>
-      <UPnPSearch>
-        <FriendlyName>(^TV-\d{2}C\d{3}.*)|(^\[TV\][A-Z]{2}\d{2}(D)[A-Z]?\d{3,4}.*)|^\[TV\] Samsung</FriendlyName>
-        <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>(.*SEC_HHP_BD-[CD].*)|(.*SEC_HHP_\[(HT|BD)\][CD].*)</User-Agent>
+        </HttpSearch>
+        <UPnPSearch>
+          <FriendlyName>(^TV-\d{2}C\d{3}.*)|(^\[TV\][A-Z]{2}\d{2}(D)[A-Z]?\d{3,4}.*)|^\[TV\] Samsung</FriendlyName>
+          <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Video h264LevelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
@@ -584,11 +598,13 @@
     <DLNAMediaFormats>
       <MediaFormat mime="video/mp4" name="">AVI</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <HttpSearch>
-        <friendlyName.dlna.org>LG.*</friendlyName.dlna.org>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <friendlyName.dlna.org>LG.*</friendlyName.dlna.org>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -628,11 +644,13 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>BRAVIA KDL-\d{2}[A-Z]X\d5(\d|G).*</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>BRAVIA KDL-\d{2}[A-Z]X\d5(\d|G).*</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -732,11 +750,13 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>BRAVIA (KDL-\d{2}W[56789]\d{2}[AB].*)|(KD-\d{2}X[89]\d{3}[AB].*)</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>BRAVIA (KDL-\d{2}W[56789]\d{2}[AB].*)|(KD-\d{2}X[89]\d{3}[AB].*)</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Video h264LevelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
@@ -943,15 +963,17 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <HttpSearch>
-        <X-AV-Client-Info>.*cn="Sony Corporation"; mn="(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)".*</X-AV-Client-Info>
-      </HttpSearch>
-      <UPnPSearch>
-        <FriendlyName>(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)</FriendlyName>
-        <Manufacturer>Sony Corporation</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <X-AV-Client-Info>.*cn="Sony Corporation"; mn="(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)".*</X-AV-Client-Info>
+        </HttpSearch>
+        <UPnPSearch>
+          <FriendlyName>(Blu-ray Disc Player|.*Home Theat(re|er) System|Media Player)</FriendlyName>
+          <Manufacturer>Sony Corporation</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Video h264LevelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
@@ -1131,11 +1153,13 @@
   </Profile>
   <Profile id="Wdtv" name="WDTV Live" baseProfile="DLNADefault" active="true">
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Detection>
-      <UPnPSearch>
-        <ModelName>WD TV HD Live</ModelName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <ModelName>WD TV HD Live</ModelName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -1155,11 +1179,13 @@
   </Profile>
   <Profile id="Lacie" name="LaCie LaCinema Media Player" baseProfile="DLNADefault" active="true">
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Detection>
-      <UPnPSearch>
-        <ModelNumber>LaCinema.*</ModelNumber>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <ModelNumber>LaCinema.*</ModelNumber>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -1167,11 +1193,13 @@
     </Settings>
   </Profile>
   <Profile id="Manta" name="Manta WIFI Centre" baseProfile="DLNADefault" active="true">
-    <Detection>
-      <HttpSearch>
-        <User-Agent>.*Manta.*</User-Agent>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*Manta.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1197,11 +1225,13 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Pure" name="Pure Flow" baseProfile="DLNADefault" active="true">
-    <Detection>
-      <HttpSearch>
-        <User-Agent>.*PURE.*</User-Agent>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*PURE.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1224,11 +1254,13 @@
       <MediaFormat mime="video/mp4">MPEG4_P2_3GPP_SP_L0B_AMR</MediaFormat>
       <MediaFormat mime="video/mp4">AVC_3GPP_BL_QCIF15_AAC</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <HttpSearch>
-        <User-Agent>.*SHARP-AQUOS.*</User-Agent>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*SHARP-AQUOS.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
@@ -1264,11 +1296,13 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>BRAVIA KDL-\d{2}([A-Z]X\d2\d|CX400).*</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>BRAVIA KDL-\d{2}([A-Z]X\d2\d|CX400).*</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1286,11 +1320,13 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>BRAVIA KDL-\d{2}[EHLNPB]X\d[01]\d.*</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>BRAVIA KDL-\d{2}[EHLNPB]X\d[01]\d.*</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1344,11 +1380,13 @@
       <MediaFormat mime="video/x-ms-asf" name="">VC1_ASF_AP_L2_WMA</MediaFormat>
       <MediaFormat mime="video/x-ms-asf" name="">VC1_ASF_AP_L3_WMA</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>.*PHILIPS.*</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>.*PHILIPS.*</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1391,14 +1429,16 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <HttpSearch>
-        <X-AV-Client-Info>.*BRAVIA KDL-\d{2}(([A-Z](1|5|E1|R1|BR45|BR9|[1357]0\d{2}|4\d{3}))|(S55|S57|W51|Z51|Z58)\d0).*</X-AV-Client-Info>
-      </HttpSearch>
-      <UPnPSearch>
-        <FriendlyName>BRAVIA KDL-\d{2}(WE5|(E53|E55|V55|V56|W55|W57|Z55|Z57)\d0) *</FriendlyName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <X-AV-Client-Info>.*BRAVIA KDL-\d{2}(([A-Z](1|5|E1|R1|BR45|BR9|[1357]0\d{2}|4\d{3}))|(S55|S57|W51|Z51|Z58)\d0).*</X-AV-Client-Info>
+        </HttpSearch>
+        <UPnPSearch>
+          <FriendlyName>BRAVIA KDL-\d{2}(WE5|(E53|E55|V55|V56|W55|W57|Z55|Z57)\d0) *</FriendlyName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1413,12 +1453,14 @@
   </Profile>
   <Profile id="Denon" name="Denon AVR" baseProfile="DLNADefault" active="true">
     <DirectoryContentFilter>SimpleContentFilter</DirectoryContentFilter>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>Denon:\[AVR:.*</FriendlyName>
-        <Manufacturer>Denon</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>Denon:\[AVR:.*</FriendlyName>
+          <Manufacturer>Denon</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1437,12 +1479,14 @@
       <MediaFormat mime="video/divx">AVI</MediaFormat>
     </DLNAMediaFormats>
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>(VIERA [DFGVWZ]T6[0-5].*)|(VIERA [ES]T?6[0-5]?.*)</FriendlyName>
-        <Manufacturer>Panasonic</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>(VIERA [DFGVWZ]T6[0-5].*)|(VIERA [ES]T?6[0-5]?.*)</FriendlyName>
+          <Manufacturer>Panasonic</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Thumbnails maxWidth="320" maxHeight="320" />
       <Subtitles support="SoftCoded">
@@ -1495,12 +1539,14 @@
   </Profile>
   <Profile id="Viera2011A" name="Panasonic Viera G/GT/DT/UT/VT (2011/2012)" baseProfile="Viera2013" active="true">
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>(VIERA (G|D|U)T?(3|5)0?.*)|(VIERA VT50.*)</FriendlyName>
-        <Manufacturer>Panasonic</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>(VIERA (G|D|U)T?(3|5)0?.*)|(VIERA VT50.*)</FriendlyName>
+          <Manufacturer>Panasonic</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -1532,12 +1578,14 @@
   </Profile>
   <Profile id="Viera2011" name="Panasonic Viera E/S/ST/VT (2011)" baseProfile="Viera2011A" active="true">
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>(VIERA (E|S)T?(3|5)0?.*)|(VIERA VT30.*)</FriendlyName>
-        <Manufacturer>Panasonic</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>(VIERA (E|S)T?(3|5)0?.*)|(VIERA VT30.*)</FriendlyName>
+          <Manufacturer>Panasonic</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -1625,12 +1673,14 @@
       <ModelName>Windows Media Player Sharing</ModelName>
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>.*Sony STR.*</FriendlyName>
-        <Manufacturer>Sony Corporation</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>.*Sony STR.*</FriendlyName>
+          <Manufacturer>Sony Corporation</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1650,12 +1700,14 @@
       <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
       <MediaFormat mime="audio/x-ms-wma" name="WMAFULL">WMA_FULL</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>.*CMT.*</FriendlyName>
-        <Manufacturer>Sony Corporation</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>.*CMT.*</FriendlyName>
+          <Manufacturer>Sony Corporation</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1735,11 +1787,13 @@
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_T</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_ISO</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <UPnPSearch>
-        <Manufacturer>Microsoft SDK Customer</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <Manufacturer>Microsoft SDK Customer</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -1782,12 +1836,14 @@
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AC3_ISO</MediaFormat>
     </DLNAMediaFormats>
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>DMP-BDT220/221</FriendlyName>
-        <Manufacturer>Panasonic</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>DMP-BDT220/221</FriendlyName>
+          <Manufacturer>Panasonic</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1825,12 +1881,14 @@
     <DLNAMediaFormats>
       <MediaFormat mime="audio/x-flac" name="">FLAC</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>Philips NP.*</FriendlyName>
-        <Manufacturer>Royal Philips Electronics</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>Philips NP.*</FriendlyName>
+          <Manufacturer>Royal Philips Electronics</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -1853,11 +1911,13 @@
       <Manufacturer>Chaneru Inc</Manufacturer>
       <ModelName>Chaneru for MediaPortal</ModelName>
     </UPNPDeviceDescription>
-    <Detection>
-      <HttpSearch>
-        <User-Agent>.*CHANERU.*</User-Agent>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*CHANERU.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
@@ -1938,11 +1998,13 @@
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_T</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_ISO</MediaFormat>
     </DLNAMediaFormats>
-    <Detection>
-      <HttpSearch>
-        <User-Agent>.*ROKU.*</User-Agent>
-      </HttpSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*ROKU.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
@@ -1980,12 +2042,14 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="YamahaBD" name="Yamaha BD-A1020/BD-A1010" baseProfile="DLNADefault" active="true">
-    <Detection>
-      <UPnPSearch>
-        <FriendlyName>BD-A10(1|2)0</FriendlyName>
-        <Manufacturer>YAMAHA CORPORATION</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <FriendlyName>BD-A10(1|2)0</FriendlyName>
+          <Manufacturer>YAMAHA CORPORATION</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
@@ -2004,11 +2068,13 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="TNDC" name="Telenet Yelo TV" baseProfile="DLNADefault" active="true">
-    <Detection>
-      <UPnPSearch>
-        <Manufacturer>.*smosys.*</Manufacturer>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <Manufacturer>.*smosys.*</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
@@ -2050,11 +2116,13 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="XboxOne" name="Xbox One" baseProfile="DLNADefault" active="true">
-    <Detection>
-      <UPnPSearch>
-        <ModelName>Xbox One</ModelName>
-      </UPnPSearch>
-    </Detection>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <ModelName>Xbox One</ModelName>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
     <Settings>
       <Thumbnails maxWidth="320" maxHeight="320" />
       <Subtitles support="HardCoded" />
