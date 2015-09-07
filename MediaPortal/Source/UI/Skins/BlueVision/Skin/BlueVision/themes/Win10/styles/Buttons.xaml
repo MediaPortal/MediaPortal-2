@@ -353,7 +353,7 @@
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0" Fill="{ThemeResource ButtonFillColor}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="1">
+              Margin="0,0,0,0" Fill="{ThemeResource ButtonFillColor}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="0">
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -576,7 +576,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="1">
+            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="0">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>

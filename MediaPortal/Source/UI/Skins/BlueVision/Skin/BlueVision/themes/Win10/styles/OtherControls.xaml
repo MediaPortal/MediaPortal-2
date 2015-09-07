@@ -843,7 +843,7 @@
 
         <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.ColumnSpan="3" Color="{ThemeResource PlayerControlMediaItemColor}" FontSize="{ThemeResource SmallFontSize}"
             Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Scroll="Auto"
-            Margin="10,0,0,0">
+            Margin="0,0,0,0">
           <Label.Triggers>
             <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
               <Setter Property="Color" Value="{ThemeResource PlayerControlInactiveMediaItemColor}"/>
