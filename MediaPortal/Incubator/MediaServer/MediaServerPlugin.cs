@@ -259,7 +259,6 @@ namespace MediaPortal.Extensions.MediaServer
     public void Shutdown()
     {
       SaveTranscodeSettings();
-      ProfileManager.SaveProfileLinks();
       DlnaResourceAccessModule.Shutdown();
     }
 
