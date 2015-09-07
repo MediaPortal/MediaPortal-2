@@ -768,21 +768,11 @@
   <!-- Player control styles -->
 
   <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" 
+    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" Margin="10,10,10,10"
           Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
-      <!--Grid.Width>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
-          <Binding ElementName="ItemTypeImage" Path="HasImage"/>
-          <Binding Source="{StaticResource MEDIA_POSTER_WIDTH}" />
-          <Binding Source="0"/>
-        </MultiBinding>
-      </Grid.Width-->
-
-      <Grid>
         <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
                 Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
         </Image>
-      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -810,9 +800,8 @@
 
   </ControlTemplate>
 
-  <ControlTemplate x:Key="PlayerControlVideoPrimary">
-    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,-5,-25,-5"
-               RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
+  <ControlTemplate x:Key="PlayerControlVideoPrimary" >
+    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,10,0,10">
       <Rectangle.Triggers>
         <EventTrigger RoutedEvent="UIElement.MouseDown">
           <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
@@ -825,8 +814,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlVideoSecondary">
-    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="-25,-5,0,-5"
-               RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
+    <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,10,0,10">
       <Rectangle.Triggers>
         <EventTrigger RoutedEvent="UIElement.MouseDown">
           <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
@@ -840,7 +828,7 @@
 
   <ControlTemplate x:Key="PlayerControlMediaInfo">
     <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical" VerticalAlignment="Stretch">
-      <Grid x:Name="MediaInfoPanel" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid x:Name="MediaInfoPanel" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
           <RowDefinition Height="60"/>
           <RowDefinition Height="30"/>
@@ -915,15 +903,14 @@
 
             <!-- Background of player control panel-->
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       Fill="{ThemeResource PlayerControlBackgroundColor}"
-                       RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
+                       Fill="{ThemeResource PlayerControlBackgroundColor}">
             </Rectangle>
 
-            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="0"/>
+            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="0" />
 
-            <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1"/>
+            <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1" />
 
-            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2"/>
+            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2" />
 
           </Grid>
 
@@ -959,16 +946,11 @@
 
             <!-- Background of player control panel Fill="{ThemeResource PlayerControlBackgroundColor}"-->
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       Fill="{ThemeResource PlayerControlBackgroundColor}"
-                       RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
+                       Fill="{ThemeResource PlayerControlBackgroundColor}">
             </Rectangle>
-
-            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="2"/>
-
-            <Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Column="1" Grid.ColumnSpan="1"/>
-
-            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="0"/>
-
+            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="0" />
+            <Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Row="0" Grid.Column="1" />            
+            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="2" />
           </Grid>
 
           <ControlTemplate.Triggers>
