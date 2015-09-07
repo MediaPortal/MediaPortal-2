@@ -59,6 +59,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     private const string DLNA_DEFAULT_PROFILE_ID = "DLNADefault";
     
     public static Dictionary<IPAddress, EndPointSettings> ProfileLinks = new Dictionary<IPAddress, EndPointSettings>();
+    private static EndPointSettings PreferredLanguages;
     public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
 
 
@@ -929,32 +930,13 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         {
           settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
         }
-          /*}
-          else if (subChildNode.Name == "Subtitles")
-          {
-            foreach (XmlAttribute attribute in childNode.Attributes)
-            {
-              if (attribute.Name == "PreferredLanguages")
-              {
-                settings.PreferredSubtitleLanguages = attribute.InnerText;
-              }
-              else if (attribute.Name == "DefaultEncodings")
-              {
-                settings.DefaultSubtitleEncodings = attribute.InnerText;
-              }
-            }
-          }
-          else if (subChildNode.Name == "Audio")
-          {
-            foreach (XmlAttribute attribute in childNode.Attributes)
-            {
-              if (attribute.Name == "PreferredLanguages")
-              {
-                settings.PreferredAudioLanguages = attribute.InnerText;
-              }
-            }
-          }
-        }*/
+
+        if (PreferredLanguages != null)
+        {
+          settings.PreferredSubtitleLanguages = PreferredLanguages.PreferredSubtitleLanguages;
+          settings.DefaultSubtitleEncodings = PreferredLanguages.DefaultSubtitleEncodings;
+          settings.PreferredAudioLanguages = PreferredLanguages.PreferredAudioLanguages;
+        }
         settings.InitialiseContainerTree();
       }
       catch (Exception e)
@@ -1151,6 +1133,146 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       catch (Exception e)
       {
         Logger.Info("DlnaMediaServer: Exception saving profile links (Text: '{0}')", e.Message);
+      }
+    }
+
+    public static void LoadPreferredLanguages()
+    {
+      try
+      {
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+        string dataPath = pathManager.GetPath("<CONFIG>");
+        string linkFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.PreferredLanguages.xml");
+        if (File.Exists(linkFile))
+        {
+          XmlDocument document = new XmlDocument();
+          document.Load(linkFile);
+          XmlNode configNode = document.SelectSingleNode("Configuration");
+          XmlNode node = null;
+          if (configNode != null)
+          {
+            node = configNode.SelectSingleNode("PreferredLanguages");
+          }
+          if (node != null)
+          {
+            EndPointSettings settings = new EndPointSettings();
+            settings.PreferredSubtitleLanguages = "EN";
+            settings.PreferredAudioLanguages = "EN";
+            settings.DefaultSubtitleEncodings = "";
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+              if (childNode.Name == "Subtitles")
+              {
+                foreach (XmlAttribute attribute in childNode.Attributes)
+                {
+                  if (attribute.Name == "PreferredLanguages")
+                  {
+                    settings.PreferredSubtitleLanguages = attribute.InnerText;
+                  }
+                  else if (attribute.Name == "DefaultEncodings")
+                  {
+                    settings.DefaultSubtitleEncodings = attribute.InnerText;
+                  }
+                }
+              }
+              else if (childNode.Name == "Audio")
+              {
+                foreach (XmlAttribute attribute in childNode.Attributes)
+                {
+                  if (attribute.Name == "PreferredLanguages")
+                  {
+                    settings.PreferredAudioLanguages = attribute.InnerText;
+                  }
+                }
+              }
+            }
+            settings.InitialiseContainerTree();
+            PreferredLanguages = settings;
+            Logger.Info("DlnaMediaServer: Loaded preferred languages.");
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Info("DlnaMediaServer: Exception reading preferred languages (Text: '{0}')", e.Message);
+      }
+    }
+
+    public static void SavePreferredLanguages()
+    {
+      try
+      {
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+        string dataPath = pathManager.GetPath("<CONFIG>");
+        string linkFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.PreferredLanguages.xml");
+        XmlDocument document = new XmlDocument();
+        if (File.Exists(linkFile))
+        {
+          document.Load(linkFile);
+        }
+
+        // setting default values
+        if (PreferredLanguages == null)
+        {
+          PreferredLanguages = new EndPointSettings();
+          PreferredLanguages.PreferredSubtitleLanguages = "EN";
+          PreferredLanguages.PreferredAudioLanguages = "EN";
+          PreferredLanguages.DefaultSubtitleEncodings = "";
+        }
+
+        XmlNode configNode = document.SelectSingleNode("Configuration");
+        XmlNode node;
+        if (configNode != null)
+        {
+          node = configNode.SelectSingleNode("PreferredLanguages");
+          if (node == null)
+          {
+            node = document.CreateElement("PreferredLanguages");
+            configNode.AppendChild(node);
+          }
+        }
+        else
+        {
+          configNode = document.CreateElement("Configuration");
+          document.AppendChild(configNode);
+          node = document.CreateElement("PreferredLanguages");
+          configNode.AppendChild(node);
+        }
+        if (node != null)
+        {
+          node.RemoveAll();
+
+          XmlNode attr;
+            
+          XmlElement subtitleElem = document.CreateElement("Subtitles");
+          attr = document.CreateNode(XmlNodeType.Attribute, "PreferredLanguages", null);
+          attr.InnerText = PreferredLanguages.PreferredSubtitleLanguages;
+          subtitleElem.Attributes.SetNamedItem(attr);
+          attr = document.CreateNode(XmlNodeType.Attribute, "DefaultEncodings", null);
+          attr.InnerText = PreferredLanguages.DefaultSubtitleEncodings;
+          subtitleElem.Attributes.SetNamedItem(attr);
+          node.AppendChild(subtitleElem);
+
+          XmlElement audioElem = document.CreateElement("Audio");
+          attr = document.CreateNode(XmlNodeType.Attribute, "PreferredLanguages", null);
+          attr.InnerText = PreferredLanguages.PreferredAudioLanguages;
+          audioElem.Attributes.SetNamedItem(attr);
+          node.AppendChild(audioElem);
+        }
+
+        XmlWriterSettings settings = new XmlWriterSettings();
+        settings.Indent = true;
+        settings.IndentChars = "\t";
+        settings.NewLineChars = Environment.NewLine;
+        settings.NewLineHandling = NewLineHandling.Replace;
+        using (XmlWriter writer = XmlWriter.Create(linkFile, settings))
+        {
+          document.Save(writer);
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Info("DlnaMediaServer: Exception saving preferred languages (Text: '{0}')", e.Message);
       }
     }
 

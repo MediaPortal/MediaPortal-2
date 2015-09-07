@@ -90,6 +90,7 @@ namespace MediaPortal.Extensions.MediaServer
       LoadTranscodeSettings();
       ProfileManager.LoadProfiles();
       ProfileManager.LoadProfileLinks();
+      ProfileManager.LoadPreferredLanguages();
     }
 
     private void LoadTranscodeSettings()
@@ -259,6 +260,7 @@ namespace MediaPortal.Extensions.MediaServer
     public void Shutdown()
     {
       SaveTranscodeSettings();
+      ProfileManager.SavePreferredLanguages();
       DlnaResourceAccessModule.Shutdown();
     }
 
