@@ -453,7 +453,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public ProfileSettings Settings = new ProfileSettings();
     public TranscodingSetup MediaTranscoding = new TranscodingSetup();
     public Dictionary<string, MediaMimeMapping> MediaMimeMap = new Dictionary<string, MediaMimeMapping>();
-    public Detection Detection = new Detection();
+    public List<Detection> Detections = new List<Detection>();
 
     public override string ToString()
     {

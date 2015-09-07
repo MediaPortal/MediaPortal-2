@@ -77,24 +77,29 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
       foreach (KeyValuePair<string, EndPointProfile> profile in Profiles)
       {
-        // check if HTTP header matches
-        if (profile.Value.Detection.HttpHeaders.Count > 0) match = true;
-        foreach (KeyValuePair<string, string> header in profile.Value.Detection.HttpHeaders)
+        match = false;
+        foreach (Detection detection in profile.Value.Detections)
         {
-          if (headers[header.Key] == null)
+          // check if HTTP header matches
+          if (detection.HttpHeaders.Count > 0) match = true;
+          foreach (KeyValuePair<string, string> header in detection.HttpHeaders)
           {
-            match = false;
-            break;
+            if (headers[header.Key] == null)
+            {
+              match = false;
+              break;
+            }
+            if (header.Value == null || Regex.IsMatch(headers[header.Key], header.Value, RegexOptions.IgnoreCase) == false)
+            {
+              match = false;
+              break;
+            }
           }
-          if (header.Value == null || Regex.IsMatch(headers[header.Key], header.Value, RegexOptions.IgnoreCase) == false)
+          if (match)
           {
-            match = false;
+            Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
+            return GetEndPointSettings(profile.Value.ID);
           }
-        }
-        if (match)
-        {
-          Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
-          return GetEndPointSettings(profile.Value.ID);
         }
       }
 
@@ -225,62 +230,73 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
               profile.ProtocolInfo = (ProtocolInfoFormat)Enum.Parse(typeof(ProtocolInfoFormat), reader.ReadElementContentAsString(), true);
             }
             #region Detections
-            else if (nodeName == "Detection" && reader.NodeType == XmlNodeType.Element)
+            else if (nodeName == "Detections" && reader.NodeType == XmlNodeType.Element)
             {
-              profile.Detection = new Detection();
               while (reader.Read())
               {
-                if (reader.Name == "Detection" && reader.NodeType == XmlNodeType.EndElement)
+                if (reader.Name == "Detections" && reader.NodeType == XmlNodeType.EndElement)
                 {
                   break;
                 }
-                if (reader.Name == "UPnPSearch")
+                if (reader.Name == "Detection" && reader.NodeType == XmlNodeType.Element)
                 {
+                  Detection detection = new Detection();
                   while (reader.Read())
                   {
-                    if (reader.Name == "UPnPSearch" && reader.NodeType == XmlNodeType.EndElement)
+                    if (reader.Name == "Detection" && reader.NodeType == XmlNodeType.EndElement)
                     {
                       break;
                     }
-                    if (reader.Name == "FriendlyName" && reader.NodeType == XmlNodeType.Element)
+                    if (reader.Name == "UPnPSearch")
                     {
-                      profile.Detection.UPnPSearch.FriendlyName = reader.ReadElementContentAsString();
+                      while (reader.Read())
+                      {
+                        if (reader.Name == "UPnPSearch" && reader.NodeType == XmlNodeType.EndElement)
+                        {
+                          break;
+                        }
+                        if (reader.Name == "FriendlyName" && reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.UPnPSearch.FriendlyName = reader.ReadElementContentAsString();
+                        }
+                        else if (reader.Name == "ModelName" && reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.UPnPSearch.ModelName = reader.ReadElementContentAsString();
+                        }
+                        else if (reader.Name == "ModelNumber" && reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.UPnPSearch.ModelNumber = reader.ReadElementContentAsString();
+                        }
+                        else if (reader.Name == "ProductNumber" && reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.UPnPSearch.ProductNumber = reader.ReadElementContentAsString();
+                        }
+                        else if (reader.Name == "Server" && reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.UPnPSearch.Server = reader.ReadElementContentAsString();
+                        }
+                        else if (reader.Name == "Manufacturer" && reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.UPnPSearch.Manufacturer = reader.ReadElementContentAsString();
+                        }
+                      }
                     }
-                    else if (reader.Name == "ModelName" && reader.NodeType == XmlNodeType.Element)
+                    else if (reader.Name == "HttpSearch")
                     {
-                      profile.Detection.UPnPSearch.ModelName = reader.ReadElementContentAsString();
-                    }
-                    else if (reader.Name == "ModelNumber" && reader.NodeType == XmlNodeType.Element)
-                    {
-                      profile.Detection.UPnPSearch.ModelNumber = reader.ReadElementContentAsString();
-                    }
-                    else if (reader.Name == "ProductNumber" && reader.NodeType == XmlNodeType.Element)
-                    {
-                      profile.Detection.UPnPSearch.ProductNumber = reader.ReadElementContentAsString();
-                    }
-                    else if (reader.Name == "Server" && reader.NodeType == XmlNodeType.Element)
-                    {
-                      profile.Detection.UPnPSearch.Server = reader.ReadElementContentAsString();
-                    }
-                    else if (reader.Name == "Manufacturer" && reader.NodeType == XmlNodeType.Element)
-                    {
-                      profile.Detection.UPnPSearch.Manufacturer = reader.ReadElementContentAsString();
+                      while (reader.Read())
+                      {
+                        if (reader.Name == "HttpSearch" && reader.NodeType == XmlNodeType.EndElement)
+                        {
+                          break;
+                        }
+                        if (reader.NodeType == XmlNodeType.Element)
+                        {
+                          detection.HttpHeaders.Add(reader.Name, reader.ReadElementContentAsString());
+                        }
+                      }
                     }
                   }
-                }
-                else if (reader.Name == "HttpSearch")
-                {
-                  while (reader.Read())
-                  {
-                    if (reader.Name == "HttpSearch" && reader.NodeType == XmlNodeType.EndElement)
-                    {
-                      break;
-                    }
-                    if (reader.NodeType == XmlNodeType.Element)
-                    {
-                      profile.Detection.HttpHeaders.Add(reader.Name, reader.ReadElementContentAsString());
-                    }
-                  }
+                  profile.Detections.Add(detection);
                 }
               }
             }
