@@ -160,6 +160,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         AudioFrequency == videoItem.AudioFrequency &&
         SquarePixels == videoItem.SquarePixels &&
         FourCC == videoItem.FourCC &&
+        Movflags == videoItem.Movflags &&
         ForceVideoTranscoding == videoItem.ForceVideoTranscoding &&
         ForceStereo == videoItem.ForceStereo;
     }
@@ -255,7 +256,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
   #endregion
 
-  #region CLient settings
+  #region Client settings
 
   public enum H264LevelCheck
   {
@@ -360,7 +361,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
   public class Detection
   {
-    public HttpHeaders HttpHeaders = new HttpHeaders();
+    public Dictionary<string, string> HttpHeaders = new Dictionary<string, string>();
     public UpnpSearch UPnPSearch = new UpnpSearch();
   }
 
@@ -372,11 +373,6 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public string ProductNumber = null;
     public string Server = null;
     public string Manufacturer = null;
-  }
-
-  public class HttpHeaders
-  {
-    public string UserAgent = null;
   }
 
   public class EndPointSettings
@@ -457,7 +453,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public ProfileSettings Settings = new ProfileSettings();
     public TranscodingSetup MediaTranscoding = new TranscodingSetup();
     public Dictionary<string, MediaMimeMapping> MediaMimeMap = new Dictionary<string, MediaMimeMapping>();
-    public List<Detection> Detection = new List<Detection>();
+    public Detection Detection = new Detection();
 
     public override string ToString()
     {
