@@ -39,60 +39,45 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Contains a human readable title of the media item.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
-
-    /// <summary>
-    /// Contains the mime type of the media item.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MIME_TYPE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
-    /// Online resources like streams might have <c>0</c> as size.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SIZE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TITLE =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the recording time and date of the media item. Can be used for an exact recording time
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RECORDINGTIME =
-        MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RECORDINGTIME =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the user's rating of the media item. Value ranges from 0 (very bad) to 10 (very good).
     /// TODO: once we have user dependent aspects, move this attribute there.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Rating", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains a textual comment to this media item.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Comment", 1000, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMMENT =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Comment", 1000, Cardinality.Inline, false);
 
     /// <summary>
     /// Number of times played.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PLAYCOUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_PLAYCOUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the date when the media item was last played.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
-        MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LASTPLAYED =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
-            ATTR_MIME_TYPE,
-            ATTR_SIZE,
             ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,

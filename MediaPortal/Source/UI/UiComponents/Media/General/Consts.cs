@@ -498,7 +498,7 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
-          SeriesAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_MOVIES_MIAS = new Guid[]

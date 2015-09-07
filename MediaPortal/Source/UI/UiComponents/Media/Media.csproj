@@ -113,6 +113,7 @@
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
+    <Compile Include="FilterCriteria\RelationshipMLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
@@ -121,10 +122,13 @@
     <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
     <Compile Include="MediaItemActions\SetUnwatched.cs" />
+    <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\SeasonAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />

@@ -111,7 +111,7 @@ namespace MediaItemAspectModelBuilder
 
       // Copyright
       _copyright.Add(@"/*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -154,7 +154,7 @@ namespace MediaItemAspectModelBuilder
       // Construct source file
       StringBuilder result = new StringBuilder();
 
-      AppendRegion(result, "Copyright (C) 2007-2014 Team MediaPortal", _copyright, false);
+      AppendRegion(result, "Copyright (C) 2007-2015 Team MediaPortal", _copyright, false);
 
       AppendRegion(result, null, _usings, false);
 
@@ -195,8 +195,8 @@ namespace MediaItemAspectModelBuilder
     {
       string methodStub = @"public void Init(MediaItem mediaItem)
 {{
-  MediaItemAspect aspect;
-  if (mediaItem == null ||!mediaItem.Aspects.TryGetValue({1}.ASPECT_ID, out aspect))
+  SingleMediaItemAspect aspect;
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, {1}.Metadata, out aspect))
   {{
      SetEmpty();
      return;
@@ -235,9 +235,9 @@ namespace MediaItemAspectModelBuilder
         emptyCommands.Add(string.Format("{0} = {1};", attrName, GetEmptyValue(spec)));
       }
 
-      members.Add(string.Format(methodStub, string.Join("\r\n", initCommands.ToArray()), aspectType.Name));
+      members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
 
-      members.Add(string.Format(emptyStub, string.Join("\r\n", emptyCommands.ToArray())));
+      members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
     }
 
     private string GetEmptyValue(MediaItemAspectMetadata.AttributeSpecification spec)

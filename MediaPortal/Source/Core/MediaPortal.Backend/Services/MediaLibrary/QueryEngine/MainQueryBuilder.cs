@@ -35,7 +35,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   /// Builds the SQL statement for the main media item query. The main query requests all Inline and MTO attributes of
   /// media item aspects, filtered by a <see cref="CompiledFilter"/>.
   /// </summary>
-  public class MainQueryBuilder : BaseQueryBuilder
+  public abstract class MainQueryBuilder : BaseQueryBuilder
   {
     #region Inner classes
 
@@ -169,6 +169,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary MIA, so optimize redundant entry
           continue;
+        if (!Include(miaType))
+          continue;
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         RequestedAttribute ra;
@@ -194,6 +196,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary or optional MIA, so optimize redundant entry
           continue;
+        if (!Include(miaType))
+            continue;
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqd,
@@ -205,6 +209,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // + add alias to selectAttributeDeclarations
       foreach (QueryAttribute attr in _selectAttributes)
       {
+        if (!Include(attr.Attr.ParentMIAM))
+          continue;
         RequestedAttribute ra;
         RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
             miaIdAttribute, out ra);
@@ -216,12 +222,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         qualifiedGroupByAliases.Add(ra.GetAlias(ns));
       }
 
-      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+      CompiledFilter compiledFilter = CreateCompiledFilter(ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
       foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
+        if (!Include(attr.Attr.ParentMIAM))
+          continue;
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
         // Tables of Inline and MTO attributes, which are part of a filter, are joined with main table
@@ -235,6 +243,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         compiledSortInformation = new List<CompiledSortInformation>();
         foreach (SortInformation sortInformation in _sortInformation)
         {
+          if (!Include(sortInformation.AttributeType.ParentMIAM))
+            continue;
           MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
           if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
             // Sorting can only be done for Inline and MTO attributes
@@ -336,19 +346,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       statementStr = result.ToString();
     }
 
-    /// <summary>
-    /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
-    /// values and a count column containing the size of each group.
-    /// </summary>
-    /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
-    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-    /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<BindVar> bindVars)
+    protected virtual CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
     {
-      GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
+      return new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
     }
+
+    protected abstract bool Include(MediaItemAspectMetadata miam);
 
     /// <summary>
     /// Generates the SQL statement for the underlaying query specification.

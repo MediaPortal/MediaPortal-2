@@ -103,7 +103,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
     private static Exception HandleUserWebException(string action, WebException ex)
     {
-      Log.Warn("Request not successfull", ex);
+      Log.Warn("Request not successful for {0}", ex, new object[] { action });
       if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         throw new TvdbUserNotFoundException("Couldn't connect to Thetvdb.com to " + action +", are you sure this is the correct user id?");
       throw new TvdbNotAvailableException("Couldn't connect to Thetvdb.com to " + action +
@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
     private static Exception HandleContentWebException(string message, WebException ex)
     {
-      Log.Warn("Request not successfull", ex);
+      Log.Warn("Request not successful", ex);
       if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         throw new TvdbContentNotFoundException(message);
       throw new TvdbNotAvailableException(message);
@@ -120,7 +120,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
     private static Exception HandleWebException(string action, WebException ex)
     {
-      Log.Warn("Request not successfull", ex);
+      Log.Warn("Request not successful for {0}", ex, new object[] { action });
       if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
         throw new TvdbInvalidApiKeyException("Couldn't connect to Thetvdb.com to " + action +
                                              ", you may use an invalid api key or the series doesn't exists");

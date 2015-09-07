@@ -38,9 +38,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect audioAspectX;
-      MediaItemAspect audioAspectY;
-      if (x.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspectX) && y.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspectY))
+      SingleMediaItemAspect audioAspectX;
+      SingleMediaItemAspect audioAspectY;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, AudioAspect.Metadata, out audioAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, AudioAspect.Metadata, out audioAspectY))
       {
         string albumX = (string) audioAspectX.GetAttributeValue(AudioAspect.ATTR_ALBUM);
         string albumY = (string) audioAspectY.GetAttributeValue(AudioAspect.ATTR_ALBUM);

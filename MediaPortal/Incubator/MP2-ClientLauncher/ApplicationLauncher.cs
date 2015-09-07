@@ -96,7 +96,7 @@ namespace MediaPortal.Client.Launcher
       try
       {
         // Check if user wants to override the default Application Data location.
-        ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
+        ApplicationCore.RegisterVitalCoreServices(true, mpOptions.DataDirectory);
 
         logger = ServiceRegistration.Get<ILogger>();
 

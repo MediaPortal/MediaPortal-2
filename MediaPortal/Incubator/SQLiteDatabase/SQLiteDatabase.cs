@@ -65,7 +65,7 @@ namespace MediaPortal.Database.SQLite
     private readonly string _connectionString;
     private ConnectionPool<SQLiteConnection> _connectionPool;
     private readonly SQLiteSettings _settings;
-    private readonly FileLogger _sqliteDebugLogger;
+    private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
 

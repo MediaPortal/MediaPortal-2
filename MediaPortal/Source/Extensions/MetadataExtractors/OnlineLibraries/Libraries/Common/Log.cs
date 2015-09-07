@@ -87,6 +87,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     }
 
     /// <summary>
+    /// Logs the message at level Warn
+    /// </summary>
+    /// <param name="logMessage">Message to log</param>
+    /// <param name="ex">Exception to log</param>
+    /// <param name="args"></param>
+    internal static void Warn(string logMessage, Exception ex, object[] args)
+    {
+      ServiceRegistration.Get<ILogger>().Warn(logMessage, ex, args);
+    }
+
+    /// <summary>
     /// Logs the message at level Error
     /// </summary>
     /// <param name="logMessage">Message to log</param>

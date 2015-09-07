@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
-                SeriesAspect.Metadata
+                EpisodeAspect.Metadata
               });
       _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().OnlyFanArt;
     }
@@ -94,13 +94,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected methods
 
-    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
-      SeriesInfo seriesInfo = null;
+      EpisodeInfo episodeInfo = null;
 
       // First check if we already have a complete match from a previous MDE
       string title;
@@ -112,42 +112,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           MediaItemAspect.TryGetAttribute(extractedAspectData, SeriesAspect.ATTR_SEASON, out seasonNumber) &&
           (episodeNumbers = extractedAspectData[SeriesAspect.ASPECT_ID].GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE)) != null)
       {
-        seriesInfo = new SeriesInfo
+        episodeInfo = new EpisodeInfo
         {
           Series = title,
           TvdbId = tvDbId,
           SeasonNumber = seasonNumber,
         };
-        episodeNumbers.ToList().ForEach(n => seriesInfo.EpisodeNumbers.Add(n));
+        episodeNumbers.ToList().ForEach(n => episodeInfo.EpisodeNumbers.Add(n));
       }
 
       // If there was no complete match, yet, try to get extended information out of matroska files)
-      if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
+      if (episodeInfo == null || !episodeInfo.IsCompleteMatch)
       {
         MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-        if (matroskaMatcher.MatchSeries(lfsra, out seriesInfo, ref extractedAspectData))
+        if (matroskaMatcher.MatchSeries(lfsra, out episodeInfo, ref extractedAspectData))
         {
-          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found SeriesInformation by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
-            seriesInfo.Series, seriesInfo.ImdbId, seriesInfo.TvdbId, seriesInfo.IsCompleteMatch);
+          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
+            episodeInfo.Series, episodeInfo.ImdbId, episodeInfo.TvdbId, episodeInfo.IsCompleteMatch);
         }
       }
 
       // If no information was found before, try name matching
-      if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
+      if (episodeInfo == null || !episodeInfo.IsCompleteMatch)
       {
         // Try to match series from folder and file namings
         SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(lfsra, out seriesInfo);
+        seriesMatcher.MatchSeries(lfsra, out episodeInfo);
       }
 
       // Lookup online information (incl. fanart)
-      if (seriesInfo != null && seriesInfo.IsCompleteMatch)
+      if (episodeInfo != null && episodeInfo.IsCompleteMatch)
       {
-        SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+        SeriesTvDbMatcher.Instance.FindAndUpdateSeries(episodeInfo);
         if (!_onlyFanArt)
-          seriesInfo.SetMetadata(extractedAspectData);
+          episodeInfo.SetMetadata(extractedAspectData);
       }
-      return (seriesInfo != null && seriesInfo.IsCompleteMatch && !_onlyFanArt);
+      return (episodeInfo != null && episodeInfo.IsCompleteMatch);
     }
 
     #endregion
@@ -159,7 +159,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {

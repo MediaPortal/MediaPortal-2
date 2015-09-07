@@ -127,8 +127,9 @@ namespace MediaPortal.UI.SkinEngine.Utils
 
       // Each resolution is cached separately. If we read cache only and our favourite resolution is not yet in cache,
       // we try to find any other existing.
-      if (mediaItem.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))
-        textureData = (byte[])mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ThumbnailLargeAspect.Metadata, out mediaAspect))
+        textureData = (byte[])mediaAspect.GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
 
       ImageRotation miRotation;
       bool flipX;
