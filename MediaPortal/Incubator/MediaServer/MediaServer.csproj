@@ -160,6 +160,7 @@
     <Compile Include="DLNA\DlnaProfiles.cs" />
     <Compile Include="Profiles\ProfileManager.cs" />
     <Compile Include="Profiles\ProfileObjects.cs" />
+    <Compile Include="Profiles\UPnPDeviceTracker.cs" />
     <Compile Include="Protocols\GenericProtocolHandler.cs" />
     <Compile Include="Protocols\SamsungProtocolHandler.cs" />
     <Compile Include="Protocols\XBoxProtocolHandler.cs" />
@@ -225,8 +226,7 @@
   <Import Project="build.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
