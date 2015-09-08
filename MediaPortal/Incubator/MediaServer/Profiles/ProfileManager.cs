@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
   public class ProfileManager
   {
     private const string DLNA_DEFAULT_PROFILE_ID = "DLNADefault";
-    
+
     public static Dictionary<IPAddress, EndPointSettings> ProfileLinks = new Dictionary<IPAddress, EndPointSettings>();
     private static EndPointSettings PreferredLanguages;
     public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
@@ -61,8 +61,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       if (headers["remote_addr"] != null && ProfileLinks.ContainsKey(IPAddress.Parse(headers["remote_addr"])))
       {
         IPAddress ip = IPAddress.Parse(headers["remote_addr"]);
-        Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
-        return ProfileLinks[ip];
+        if (ProfileLinks[ip].Profile != null)
+        {
+          Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
+          return ProfileLinks[ip];
+        }
       }
 
       foreach (KeyValuePair<string, EndPointProfile> profile in Profiles)
@@ -158,9 +161,9 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
               if (trackedDevice.Manufacturer != null && (detection.UPnPSearch.Manufacturer != null && !Regex.IsMatch(trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer, RegexOptions.IgnoreCase)))
               {
                 match = false;
-                #if DEBUG
+#if DEBUG
                 Logger.Info("DetectProfile: No Manufacturer Tracked: {0}, Search: {1}", trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer);
-                #endif
+#endif
                 break;
               }
             }
@@ -1326,7 +1329,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           node.RemoveAll();
 
           XmlNode attr;
-            
+
           XmlElement subtitleElem = document.CreateElement("Subtitles");
           attr = document.CreateNode(XmlNodeType.Attribute, "PreferredLanguages", null);
           attr.InnerText = PreferredLanguages.PreferredSubtitleLanguages;
