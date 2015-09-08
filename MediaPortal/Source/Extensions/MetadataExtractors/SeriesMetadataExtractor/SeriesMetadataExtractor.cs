@@ -104,15 +104,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       // First check if we already have a complete match from a previous MDE
       string title;
-      int tvDbId;
+      string tvDbIdStr;
       int seasonNumber;
+      SingleMediaItemAspect episodeAspect;
+      MediaItemAspect.TryGetAspect(extractedAspectData, EpisodeAspect.Metadata, out episodeAspect);
       IEnumerable<int> episodeNumbers;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
-          MediaItemAspect.TryGetAttribute(extractedAspectData, SeriesAspect.ATTR_TVDB_ID, out tvDbId) &&
-          MediaItemAspect.TryGetAttribute(extractedAspectData, SeriesAspect.ATTR_SEASON, out seasonNumber) &&
-          (episodeNumbers = extractedAspectData[SeriesAspect.ASPECT_ID].GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE)) != null)
+          MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, out tvDbIdStr) &&
+          MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SEASON, out seasonNumber) &&
+          (episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE)) != null)
       {
-          episodeInfo.Series, episodeInfo.ImdbId, episodeInfo.TvdbId, episodeInfo.IsCompleteMatch);
+        int tvDbId;
+        Int32.TryParse(tvDbIdStr, out tvDbId);
         episodeInfo = new EpisodeInfo
         {
           Series = title,

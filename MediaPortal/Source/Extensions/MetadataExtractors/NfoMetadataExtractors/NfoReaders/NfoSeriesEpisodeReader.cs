@@ -938,7 +938,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
       if (seriesName != null && season.HasValue && episode.HasValue && episodeName != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, String.Format(EpisodeInfo.EPISODE_FORMAT_STR, seriesName, season, episode, episodeName));
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, String.Format(EpisodeInfo.EPISODE_FORMAT_STR,
+                                                                                                seriesName,
+                                                                                                season.Value.ToString().PadLeft(2, '0'),
+                                                                                                StringUtils.Join(", ", _stubs.OrderBy(e => e.Episode).Select(e => e.Episode.ToString().PadLeft(2, '0'))),
+                                                                                                string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray())));
         return true;
       }
       return false;
@@ -1179,7 +1183,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
       if (series != null && season.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_SEASON, String.Format(EpisodeInfo.SERIES_SEASON_FORMAT_STR, series, season));
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_SEASON, String.Format(EpisodeInfo.SERIES_SEASON_FORMAT_STR, series, season.ToString().PadLeft(2, '0')));
         return true;
       }
       return false;
@@ -1226,7 +1230,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODENAME, _stubs[0].Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODENAME, string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
         return true;
       }
       return false;
@@ -1257,7 +1261,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // priority 1:
       if (_stubs[0].Rating.HasValue)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_TOTAL_RATING, (double)_stubs[0].Rating.Value);
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_TOTAL_RATING, (double)_stubs.Where(e => e.Rating.HasValue).Average(e => e.Rating.Value));
         return true;
       }
       // priority 2:
