@@ -482,7 +482,7 @@ namespace MediaPortal.Extensions.MediaServer
 
       var msgBuilder = new GenericDidlMessageBuilder();
 
-      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
+      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, containerId, null));
       msgBuilder.BuildAll(filter, objects);
 
       numberReturned = items.Count;

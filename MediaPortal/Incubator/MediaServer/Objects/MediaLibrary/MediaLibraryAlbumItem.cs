@@ -50,6 +50,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
       ServiceRegistration.Get<ILogger>().Debug("Create album {0}={1}", id, title);
       _title = title;
+      BaseKey = MediaLibraryHelper.GetBaseKey(Key);
     }
 
     public override string Class
@@ -104,7 +105,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       {
         IList<MediaItem> items = GetTracks();
 
-        result.AddRange(items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null)));
+        result.AddRange(items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, BaseKey, null)));
       }
       catch (Exception e)
       {
