@@ -86,6 +86,7 @@
     <Content Include="plugin.xml" />
     <Content Include="Skin\BlueVision\fonts\default-font.xml" />
     <Content Include="Skin\BlueVision\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
+    <Content Include="Skin\BlueVision\images\05D4F591-CB92-4204-955A-5FF665BD8727.png" />
     <Content Include="Skin\BlueVision\images\09EAE702-D9EC-4325-82D9-4843502C966B.jpg" />
     <Content Include="Skin\BlueVision\images\1190A648-90F3-413D-88AC-DA89684E9766.png" />
     <Content Include="Skin\BlueVision\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
@@ -907,6 +908,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Win10\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\master_bare_players.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\backgrounds\image-background.xaml">

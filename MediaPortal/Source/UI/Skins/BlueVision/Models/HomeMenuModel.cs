@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -38,6 +39,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.BlueVision.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Xml;
 
@@ -62,7 +64,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected AbstractProperty _lastSelectedItemProperty;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
+    protected AbstractProperty _isPlayerActiveProperty;
     protected bool _noSettingsRefresh;
+    protected bool _isPlayerActive;
+    protected string _lastActiveGroup;
 
     #endregion
 
@@ -119,8 +124,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         if (_menuSettings == null)
           return string.Empty;
-        var item = _menuSettings.Settings.MainMenuGroupNames.FirstOrDefault(m => m.Id.ToString() == _menuSettings.Settings.DefaultMenuGroupId);
-        return item != null ? item.Name : string.Empty;
+        var item = MainMenuGroupList.OfType<GroupMenuListItem>().FirstOrDefault(i => i.IsActive);
+        if (item == null)
+          return string.Empty;
+
+        var gi = item.AdditionalProperties["Item"] as GroupItemSetting;
+        return gi != null ? gi.Name : string.Empty;
       }
     }
 
@@ -183,6 +192,17 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       set { _isHomeProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsPlayerActiveProperty
+    {
+      get { return _isPlayerActiveProperty; }
+    }
+
+    public bool IsPlayerActive
+    {
+      get { return (bool)_isPlayerActiveProperty.GetValue(); }
+      set { _isPlayerActiveProperty.SetValue(value); }
+    }
+
     #endregion
 
     public HomeMenuModel()
@@ -190,7 +210,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _lastSelectedItemProperty = new WProperty(typeof(ListItem), null);
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
       _isHomeProperty = new WProperty(typeof(bool), false);
+      _isPlayerActiveProperty = new WProperty(typeof(bool), false);
       IsHomeProperty.Attach(IsHomeChanged);
+
+      SubscribeToMessages();
 
       ReadPositions();
 
@@ -250,30 +273,100 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         _mainMenuGroupList.Clear();
         if (_menuSettings != null)
         {
-          foreach (var group in _menuSettings.Settings.MainMenuGroupNames)
-          {
-            string groupId = group.Id.ToString();
-            bool isHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
-            if (isHome && _menuSettings.Settings.DisableHomeTab)
-              continue;
-
-            string groupName = group.Name;
-            var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
-            if (_menuSettings.Settings.DisableAutoSelection)
-              groupItem.Command = new MethodDelegateCommand(() => SetGroup(groupId));
-
-            groupItem.AdditionalProperties["Id"] = groupId;
-            if (groupId == _menuSettings.Settings.DefaultMenuGroupId)
-            {
-              IsHome = isHome;
-              groupItem.IsActive = true;
-              groupItem.Selected = true;
-            }
-            _mainMenuGroupList.Add(groupItem);
-          }
+          CreateRegularGroupItems();
+          CreateShortcutItems();
+          SetFallbackSelection();
         }
       }
       _mainMenuGroupList.FireChange();
+    }
+
+    private void CreateRegularGroupItems()
+    {
+      var defaultMenuGroupId = _menuSettings.Settings.DefaultMenuGroupId;
+      foreach (var group in _menuSettings.Settings.MainMenuGroupNames)
+      {
+        string groupId = group.Id.ToString();
+        bool isHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
+        if (isHome && _menuSettings.Settings.DisableHomeTab)
+          continue;
+
+        string groupName = group.Name;
+        var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
+        if (_menuSettings.Settings.DisableAutoSelection)
+          groupItem.Command = new MethodDelegateCommand(() => SetGroup(groupId));
+
+        groupItem.AdditionalProperties["Id"] = groupId;
+        groupItem.AdditionalProperties["Item"] = group;
+        if (groupId == defaultMenuGroupId)
+        {
+          IsHome = isHome;
+          groupItem.IsActive = true;
+          groupItem.Selected = true;
+        }
+        _mainMenuGroupList.Add(groupItem);
+      }
+    }
+
+    // Look for "shortcut items" that will be placed next to the regular groups
+    private void ReCreateShortcutItems()
+    {
+      // Do not remove the "CP" button, because when the WF state is active, the menu item will not be part of available menu items.
+      if (!IsCurrentPlaying())
+      {
+        foreach (var shortutItem in _mainMenuGroupList.Where(groupItem => ((GroupMenuListItem)groupItem).AdditionalProperties.ContainsKey("ActionId")).ToList())
+        {
+          _mainMenuGroupList.Remove(shortutItem);
+        }
+      }
+
+      CreateShortcutItems();
+      _mainMenuGroupList.FireChange();
+    }
+
+    private void CreateShortcutItems()
+    {
+      foreach (var menuItem in MenuItems)
+      {
+        object action;
+        if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
+          continue;
+        WorkflowAction wfAction = action as WorkflowAction;
+        if (wfAction == null)
+          continue;
+
+        var shortCut = _menuSettings.Settings.MainMenuShortCuts.FirstOrDefault(sc => sc.ActionId == wfAction.ActionId);
+        if (shortCut == null)
+          continue;
+
+        string groupId = shortCut.Id.ToString();
+        string groupName = shortCut.Name;
+        var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
+        if (_menuSettings.Settings.DisableAutoSelection)
+          groupItem.Command = new MethodDelegateCommand(() =>
+          {
+            wfAction.Execute();
+            SetGroup(groupId, true);
+          });
+
+        groupItem.AdditionalProperties["Id"] = groupId;
+        groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
+        _mainMenuGroupList.Add(groupItem);
+      }
+    }
+
+    /// <summary>
+    /// Makes sure at least one tab is active.
+    /// </summary>
+    private void SetFallbackSelection()
+    {
+      if (_mainMenuGroupList.OfType<GroupMenuListItem>().Any(item => item.IsActive))
+        return;
+
+      var defaultItem = _mainMenuGroupList.OfType<GroupMenuListItem>().FirstOrDefault(item => string.Equals(item.AdditionalProperties["Id"] as string, MenuSettings.MENU_ID_MEDIAHUB, StringComparison.InvariantCultureIgnoreCase));
+      if (defaultItem == null)
+        return;
+      SetGroup((string)defaultItem.AdditionalProperties["Id"]);
     }
 
     public void OnGroupItemSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -283,6 +376,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       var item = e.FirstAddedItem as GroupMenuListItem;
       if (item != null)
         SetGroup((string)item.AdditionalProperties["Id"]);
+    }
+
+    protected void CreatePositionedItemsIfEmpty()
+    {
+      if (_positionedItems.Count == 0)
+        CreatePositionedItems();
     }
 
     protected void CreatePositionedItems()
@@ -308,7 +407,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         // Under "others" all items are places, that do not fit into any other category
         if (CurrentKey == MenuSettings.MENU_NAME_OTHERS)
         {
-          bool found = _menuSettings.Settings.MenuItems.Keys.Any(key => _menuSettings.Settings.MenuItems[key].ContainsKey(wfAction.ActionId));
+          bool found = IsManuallyPositioned(wfAction);
           if (!found)
           {
             GridListItem gridItem = new GridListItem(menuItem)
@@ -341,26 +440,52 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _positionedItems.FireChange();
     }
 
-    private void SetGroup(string groupId)
+    private bool IsManuallyPositioned(WorkflowAction wfAction)
     {
-      if (_menuSettings.Settings.DefaultMenuGroupId == groupId)
+      return _menuSettings.Settings.MenuItems.Keys.Any(key => _menuSettings.Settings.MenuItems[key].ContainsKey(wfAction.ActionId));
+    }
+
+    private void SetGroup(string groupId, bool isShortCut = false)
+    {
+      if (groupId.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.CurrentCultureIgnoreCase))
         return;
-      _menuSettings.Settings.DefaultMenuGroupId = groupId;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
+
+      if (!IsCurrentPlaying())
+        _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
+
+      _menuSettings.Settings.DefaultMenuGroupId = groupId;
+
       try
       {
         _noSettingsRefresh = true;
         ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
-        if (NavigateToHome())
+        if (isShortCut)
         {
-          CreatePositionedItems();
           UpdateSelectedGroup();
         }
+        else
+          if (NavigateToHome())
+          {
+            UpdateSelectedGroup();
+            CreatePositionedItems();
+          }
       }
-      finally 
+      finally
       {
         _noSettingsRefresh = false;
       }
+    }
+
+    private bool IsCurrentPlaying()
+    {
+      Guid? fullscreenContentWfStateId;
+      Guid? currentlyPlayingWorkflowStateId;
+      if (!GetPlayerWorkflowStates(out fullscreenContentWfStateId, out currentlyPlayingWorkflowStateId))
+        return false;
+
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      return workflowManager.CurrentNavigationContext.WorkflowState.StateId == currentlyPlayingWorkflowStateId;
     }
 
     private void IsHomeChanged(AbstractProperty property, object oldvalue)
@@ -374,6 +499,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         lmm.UpdateItems();
       }
     }
+
+    //private bool NavigateBack()
+    //{
+    //  IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+    //  if (workflowManager == null)
+    //    return false;
+
+    //  workflowManager.NavigatePop(1);
+    //  return true;
+    //}
 
     private bool NavigateToHome()
     {
@@ -396,17 +531,36 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void UpdateSelectedGroup()
     {
+      List<string> groups = new List<string>();
+      if (IsCurrentPlaying() && MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase) ||
+        !MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase))
+        groups.Add(_menuSettings.Settings.DefaultMenuGroupId);
+      if (!string.IsNullOrEmpty(_lastActiveGroup))
+        groups.Add(_lastActiveGroup);
+      foreach (var group in groups)
+      {
+        if (UpdateSelectedGroup(group))
+          break;
+      }
+    }
+    private bool UpdateSelectedGroup(string groupId)
+    {
+      bool anyActive = false;
       lock (_mainMenuGroupList.SyncRoot)
+      {
         foreach (GroupMenuListItem listItem in _mainMenuGroupList)
         {
-          listItem.Selected = listItem.IsActive = (string)listItem.AdditionalProperties["Id"] == _menuSettings.Settings.DefaultMenuGroupId;
+          listItem.Selected = listItem.IsActive = string.Equals(listItem.AdditionalProperties["Id"] as string, groupId, StringComparison.InvariantCultureIgnoreCase);
           // if the group is selected, it is the LastSelectedItem now.
           if (listItem.IsActive)
           {
             LastSelectedItem = listItem;
             LastSelectedItemName = listItem[Consts.KEY_NAME];
+            anyActive = true;
           }
         }
+      }
+      return anyActive;
     }
 
     /// <summary>
@@ -420,17 +574,26 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         _menuSettings.SettingsChanged += OnSettingsChanged;
       }
       var menuSettings = _menuSettings.Settings;
+      if (menuSettings.MainMenuShortCuts.Count == 0)
+      {
+        menuSettings.MainMenuShortCuts = new List<GroupItemSetting>
+        {
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_PLAYING, Id = new Guid(MenuSettings.MENU_ID_PLAYING), ActionId = MenuSettings.WF_ACTION_CP },
+          //new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME, ActionId = MenuSettings.WF_ACTION_FS },
+        };
+        ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+      }
       if (menuSettings.MenuItems.Count == 0)
       {
         menuSettings.MainMenuGroupNames = new List<GroupItemSetting>
         {
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME,        Id = new Guid(MenuSettings.MENU_ID_HOME)}, 
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE,       Id = new Guid(MenuSettings.MENU_ID_IMAGE)}, 
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO,       Id = new Guid(MenuSettings.MENU_ID_AUDIO)}, 
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME,        Id = new Guid(MenuSettings.MENU_ID_HOME)},
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE,       Id = new Guid(MenuSettings.MENU_ID_IMAGE)},
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO,       Id = new Guid(MenuSettings.MENU_ID_AUDIO)},
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_MEDIAHUB,    Id = new Guid(MenuSettings.MENU_ID_MEDIAHUB)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_TV,          Id = new Guid(MenuSettings.MENU_ID_TV)}, 
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_NEWS,        Id = new Guid(MenuSettings.MENU_ID_NEWS)}, 
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS,    Id = new Guid(MenuSettings.MENU_ID_SETTINGS)}, 
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_TV,          Id = new Guid(MenuSettings.MENU_ID_TV)},
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_NEWS,        Id = new Guid(MenuSettings.MENU_ID_NEWS)},
+          new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS,    Id = new Guid(MenuSettings.MENU_ID_SETTINGS)},
           new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS,      Id = new Guid(MenuSettings.MENU_ID_OTHERS)}
         };
         menuSettings.DefaultMenuGroupId = MenuSettings.MENU_ID_MEDIAHUB;
@@ -484,6 +647,80 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         _menuSettings.Settings.MainMenuGroupNames.Add(new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) });
         ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
       }
+    }
+
+    private void SubscribeToMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.SubscribeToMessageChannel(MenuModelMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == MenuModelMessaging.CHANNEL)
+      {
+        if (((MenuModelMessaging.MessageType)message.MessageType) == MenuModelMessaging.MessageType.UpdateMenu)
+          UpdateShortcuts();
+      }
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.StatePushed)
+        {
+          if (!string.Equals(_menuSettings.Settings.DefaultMenuGroupId, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase))
+            _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
+          UpdateSelectedGroup();
+        }
+        if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.StatesPopped)
+        {
+          UpdateSelectedGroup();
+        }
+        if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.NavigationComplete)
+        {
+          CheckShortCutsWorkflows();
+          UpdateSelectedGroup();
+        }
+      }
+    }
+
+    private void CheckShortCutsWorkflows()
+    {
+      if (IsCurrentPlaying())
+      {
+        SetGroup(MenuSettings.MENU_ID_PLAYING, true);
+      }
+    }
+
+    private static bool GetPlayerWorkflowStates(out Guid? fullscreenContentWfStateId, out Guid? currentlyPlayingWorkflowStateId)
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+
+      if (playerContext == null)
+      {
+        fullscreenContentWfStateId = null;
+        currentlyPlayingWorkflowStateId = null;
+        return false;
+      }
+
+      fullscreenContentWfStateId = playerContext.FullscreenContentWorkflowStateId;
+      currentlyPlayingWorkflowStateId = playerContext.CurrentlyPlayingWorkflowStateId;
+      return true;
+    }
+
+    //protected override void UpdateMenus()
+    //{
+    //  base.UpdateMenus();
+    //  ReCreateShortcutItems();
+    //}
+
+    private void UpdateShortcuts()
+    {
+      ReCreateShortcutItems();
+      //CreateMenuGroupItems();
+      //CreatePositionedItems();
     }
   }
 }
