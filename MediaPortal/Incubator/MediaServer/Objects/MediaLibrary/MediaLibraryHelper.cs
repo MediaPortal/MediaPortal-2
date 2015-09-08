@@ -36,6 +36,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   internal static class MediaLibraryHelper
   {
+    public const string CONTAINER_ROOT_KEY = "0";
+    public const string CONTAINER_AUDIO_KEY = "A";
+    public const string CONTAINER_VIDEO_KEY = "V";
+    public const string CONTAINER_IMAGES_KEY = "I";
+    public const string CONTAINER_MEDIA_SHARES_KEY = "M";
+
     public static Guid GetObjectId(string key)
     {
       var split = key.IndexOf(':');
@@ -84,23 +90,27 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       // Choose the appropiate MediaLibrary* object for the media item
       if (item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
       {
+        if (baseKey == null) baseKey = CONTAINER_ROOT_KEY;
         obj = new MediaLibraryContainer(baseKey, item, parent.Client);
       }
       else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
+        if (baseKey == null) baseKey = CONTAINER_AUDIO_KEY;
         obj = new MediaLibraryMusicTrack(baseKey, item, parent.Client);
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
+        if (baseKey == null) baseKey = CONTAINER_IMAGES_KEY;
         obj = new MediaLibraryImageItem(baseKey, item, parent.Client);
       }
       else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
+        if (baseKey == null) baseKey = CONTAINER_VIDEO_KEY;
         obj = new MediaLibraryVideoItem(baseKey, item, parent.Client);
       }
       else
       {
-	    Logger.Warn("MediaServer item {0} {1} contains no valid aspects", item.MediaItemId, title);
+        Logger.Warn("MediaServer item {0} {1} contains no valid aspects", item.MediaItemId, title);
         return null;
       }
       //Logger.Debug("MediaServer converted {0}:[{1}] into {2}", item.MediaItemId, string.Join(",", item.Aspects.Keys), obj.GetType().Name);
