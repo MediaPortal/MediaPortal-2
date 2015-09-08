@@ -26,20 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
 using System.Net;
 using System.Xml;
 using System.IO;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
-using System.Reflection;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.Objects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using MediaPortal.Extensions.MediaServer.DLNA;
@@ -47,7 +40,6 @@ using MediaPortal.Extensions.MediaServer.Protocols;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Extensions.MediaServer.Filters;
 using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Extensions.MediaServer.MetadataExtractors;
 
 //Thanks goes to the Servvio over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
@@ -65,8 +57,6 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
     public static EndPointSettings DetectProfile(NameValueCollection headers)
     {
-      bool match = false;
-
       // overwrite the automatic profile detection
       if (headers["remote_addr"] != null && ProfileLinks.ContainsKey(IPAddress.Parse(headers["remote_addr"])))
       {
@@ -77,7 +67,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
       foreach (KeyValuePair<string, EndPointProfile> profile in Profiles)
       {
-        match = false;
+        var match = false;
         foreach (Detection detection in profile.Value.Detections)
         {
           // check if HTTP header matches
@@ -95,6 +85,87 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
               break;
             }
           }
+
+          // If there are Http Header conditions, but match = false, we can't fulfill the requirements anymore
+          if (detection.HttpHeaders.Count > 0 && !match) break;
+
+          // check UPnP Fields
+          if (match && detection.UPnPSearch.Count() > 0)
+          {
+            Logger.Info("DetectProfile: Matching UPnP Fields");
+            match = true;
+
+            if (headers["remote_addr"] == null)
+            {
+              Logger.Warn("DetectProfile: Couldn't find Header 'remote_addr'!");
+              break;
+            }
+
+            List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(IPAddress.Parse(headers["remote_addr"]));
+            if (trackedDevices == null || trackedDevices.Count == 0)
+            {
+              Logger.Warn("DetectProfile: No matching Devices");
+              break;
+            }
+
+            foreach (TrackedDevice trackedDevice in trackedDevices)
+            {
+              if (trackedDevice.FriendlyName != null && (detection.UPnPSearch.FriendlyName != null && !Regex.IsMatch(trackedDevice.FriendlyName, detection.UPnPSearch.FriendlyName, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+#if DEBUG
+                Logger.Debug("DetectProfile: No FriendlyName Tracked: {0}, Search: {1}", trackedDevice.FriendlyName, detection.UPnPSearch.FriendlyName);
+#endif
+                break;
+              }
+
+              if (trackedDevice.ModelName != null && (detection.UPnPSearch.ModelName != null && !Regex.IsMatch(trackedDevice.ModelName, detection.UPnPSearch.ModelName, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+#if DEBUG
+                Logger.Debug("DetectProfile: No ModelName Tracked: {0}, Search: {1}", trackedDevice.ModelName, detection.UPnPSearch.ModelName);
+#endif
+                break;
+              }
+
+              if (trackedDevice.ModelNumber != null && (detection.UPnPSearch.ModelNumber != null && !Regex.IsMatch(trackedDevice.ModelNumber, detection.UPnPSearch.ModelNumber, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+#if DEBUG
+                Logger.Debug("DetectProfile: No ModelNumber Tracked: {0}, Search: {1}", trackedDevice.ModelNumber, detection.UPnPSearch.ModelNumber);
+#endif
+                break;
+              }
+
+              if (trackedDevice.ProductNumber != null && (detection.UPnPSearch.ProductNumber != null && !Regex.IsMatch(trackedDevice.ProductNumber, detection.UPnPSearch.ProductNumber, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+#if DEBUG
+                Logger.Debug("DetectProfile: No ProductNumber Tracked: {0}, Search: {1}", trackedDevice.ProductNumber, detection.UPnPSearch.ProductNumber);
+#endif
+                break;
+              }
+
+              if (trackedDevice.Server != null && (detection.UPnPSearch.Server != null && !Regex.IsMatch(trackedDevice.Server, detection.UPnPSearch.Server, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+#if DEBUG
+                Logger.Debug("DetectProfile: No Server Tracked: {0}, Search: {1}", trackedDevice.Server, detection.UPnPSearch.Server);
+#endif
+                break;
+              }
+
+              if (trackedDevice.Manufacturer != null && (detection.UPnPSearch.Manufacturer != null && !Regex.IsMatch(trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+                #if DEBUG
+                Logger.Info("DetectProfile: No Manufacturer Tracked: {0}, Search: {1}", trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer);
+                #endif
+                break;
+              }
+            }
+          }
+
           if (match)
           {
             Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));

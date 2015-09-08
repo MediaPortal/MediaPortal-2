@@ -33,6 +33,7 @@ using MediaPortal.Plugins.Transcoding.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -367,12 +368,28 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
   public class UpnpSearch
   {
-    public string FriendlyName = null;
-    public string ModelName = null;
-    public string ModelNumber = null;
-    public string ProductNumber = null;
-    public string Server = null;
-    public string Manufacturer = null;
+    public UpnpSearch()
+    {
+      FriendlyName = null;
+      ModelName = null;
+      ModelNumber = null;
+      ProductNumber = null;
+      Server = null;
+      Manufacturer = null;
+    }
+
+    public string FriendlyName { get; set; }
+    public string ModelName { get; set; }
+    public string ModelNumber { get; set; }
+    public string ProductNumber { get; set; }
+    public string Server { get; set; }
+    public string Manufacturer { get; set; }
+
+    public int Count()
+    {
+      PropertyInfo[] properties = typeof(UpnpSearch).GetProperties();
+      return properties.Count(property => property.GetValue(this) != null);
+    }
   }
 
   public class EndPointSettings

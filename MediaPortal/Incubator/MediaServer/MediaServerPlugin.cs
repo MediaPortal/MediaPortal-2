@@ -45,6 +45,10 @@ namespace MediaPortal.Extensions.MediaServer
   public class MediaServerPlugin : IPluginStateTracker, IMessageReceiver
   {
     private readonly UPnPMediaServerDevice _device;
+    /// <summary>
+    /// Tracks all UPnP Rootdevices available in the Network
+    /// </summary>
+    public static UPnPDeviceTracker Tracker;
 
     public const string DEVICE_UUID = "45F2C54D-8C0A-4736-AA04-E6F91CD45457";
 
@@ -63,6 +67,8 @@ namespace MediaPortal.Extensions.MediaServer
     public MediaServerPlugin()
     {
       _device = new UPnPMediaServerDevice(DEVICE_UUID.ToLower());
+      Tracker = new UPnPDeviceTracker();
+      Tracker.Start();
 
       TranscodingAllowed = true;
       HardcodedSubtitlesAllowed = true;
