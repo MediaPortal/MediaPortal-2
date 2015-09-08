@@ -464,12 +464,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
             if (lfsra != null)
             {
-<<<<<<< HEAD
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, lfsra.Size);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
-=======
               MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
->>>>>>> origin/EXP_MIA_Rework
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
               ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
               ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
               ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);

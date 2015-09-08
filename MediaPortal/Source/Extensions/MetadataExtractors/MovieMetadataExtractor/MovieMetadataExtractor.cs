@@ -145,9 +145,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (!_onlyFanArt)
           movieInfo.SetMetadata(extractedAspectData);
         if (_onlyFanArt && movieInfo.MovieDbId > 0)
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, movieInfo.MovieDbId);
+          MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, movieInfo.MovieDbId.ToString());
         if (_onlyFanArt && movieInfo.CollectionMovieDbId > 0)
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_ID, movieInfo.CollectionMovieDbId);
+          MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, movieInfo.CollectionMovieDbId.ToString());
         return true;
       }
       return false;
