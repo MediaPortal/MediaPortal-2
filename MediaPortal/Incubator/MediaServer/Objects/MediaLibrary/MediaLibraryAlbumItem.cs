@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       {
         IList<MediaItem> items = GetTracks();
 
-        result.AddRange(items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, BaseKey, null)));
+        result.AddRange(items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, BaseKey, (BasicContainer)this.Parent)));
       }
       catch (Exception e)
       {

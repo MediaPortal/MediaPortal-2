@@ -71,8 +71,8 @@ namespace MediaPortal.Extensions.MediaServer
       if (request == null) return;
 
       EndPointSettings client = ProfileManager.DetectProfile(request.Headers);
-      
-      if (client.Profile == null)
+
+      if (client == null || client.Profile == null)
       {
         return;
       }
@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MediaServer
       string clientID = request.Headers["remote_addr"];
       EndPointSettings client = ProfileManager.DetectProfile(request.Headers);
 
-      if (client.Profile != null)
+      if (client != null && client.Profile != null)
       {
         if (_customDeviceCache.ContainsKey(client.Profile.ID) == false)
         {

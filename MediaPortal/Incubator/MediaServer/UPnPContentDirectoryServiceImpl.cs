@@ -42,6 +42,7 @@ using UPnP.Infrastructure.Dv.DeviceTree;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using System.Net;
 using MediaPortal.Extensions.MediaServer.Filters;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
 
 namespace MediaPortal.Extensions.MediaServer
 {
@@ -339,7 +340,6 @@ namespace MediaPortal.Extensions.MediaServer
       // Find the container object requested
       //var parentDirectoryId = objectId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(objectId);
       var o = deviceClient.RootContainer.FindObject(objectId);
-
       if (o == null)
       {
         // We failed to find the container requested
@@ -481,8 +481,14 @@ namespace MediaPortal.Extensions.MediaServer
       IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true);
 
       var msgBuilder = new GenericDidlMessageBuilder();
-
-      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, containerId, null));
+      var o = deviceClient.RootContainer.FindObject(containerId);
+      if (o == null)
+      {
+        // We failed to find the container requested
+        // throw error!
+        throw new ArgumentException("ObjectID not found");
+      }
+      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(containerId), (BasicContainer)o));
       msgBuilder.BuildAll(filter, objects);
 
       numberReturned = items.Count;
