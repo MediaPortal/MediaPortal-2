@@ -66,6 +66,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
           return ProfileLinks[ip];
         }
+        else
+        {
+          Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
+          return null;
+        }
       }
 
       foreach (KeyValuePair<string, EndPointProfile> profile in Profiles)
