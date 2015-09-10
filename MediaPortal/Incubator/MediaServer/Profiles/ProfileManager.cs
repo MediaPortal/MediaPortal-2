@@ -54,13 +54,39 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     private static EndPointSettings PreferredLanguages;
     public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
 
+    public static IPAddress ResolveIpAddress(string address)
+    {
+      try
+      { 
+        // Get host IP addresses
+        IPAddress[] hostIPs = Dns.GetHostAddresses(address);
+        // Get local IP addresses
+        IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+
+        // Test if host IP equals to local IP or localhost
+        foreach (IPAddress hostIP in hostIPs)
+        {
+          // Is localhost
+          if (IPAddress.IsLoopback(hostIP)) 
+            return IPAddress.Loopback;
+          // Is local address
+          foreach (IPAddress localIP in localIPs)
+          {
+            if (hostIP.Equals(localIP))
+              return IPAddress.Loopback;
+          }
+        }
+      }
+      catch { }
+      return IPAddress.Parse(address);
+    }
 
     public static EndPointSettings DetectProfile(NameValueCollection headers)
     {
       // overwrite the automatic profile detection
       if (headers["remote_addr"] != null && ProfileLinks.ContainsKey(IPAddress.Parse(headers["remote_addr"])))
       {
-        IPAddress ip = IPAddress.Parse(headers["remote_addr"]);
+        IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
         if (ProfileLinks[ip].Profile != null)
         {
           Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
