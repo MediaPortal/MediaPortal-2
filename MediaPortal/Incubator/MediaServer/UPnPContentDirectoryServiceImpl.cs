@@ -472,6 +472,7 @@ namespace MediaPortal.Extensions.MediaServer
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
       searchQuery.Offset = startingIndex;
