@@ -60,6 +60,7 @@
   </ResourceWrapper>
 
   <!-- Scrollbar colors -->
+  <!--ResourceWrapper x:Key="ScrollBarBackgroundColor_OSD" Resource="#FFCCCCCC" /-->
   <ResourceWrapper x:Key="ScrollBarBackgroundColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
       <GradientStop Color="#00404040" Offset="0"/>
@@ -69,25 +70,27 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
+  <ResourceWrapper x:Key="ScrollBarBackgroundXColor" Resource="#FFCCCCCC" />
+  <!--ResourceWrapper x:Key="ScrollBarBackgroundXColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
       <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.40"/>
       <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.60"/>
       <GradientStop Color="#00404040" Offset="1"/>
     </LinearGradientBrush>
-  </ResourceWrapper>
+  </ResourceWrapper-->
 
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#666666" />
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF0066CC" />
+  <ResourceWrapper x:Key="OSDProgressBarFillColor" Resource="#FF0066CC" />
 
-  <ResourceWrapper x:Key="OSDProgressBarFillColor">
+  <!--ResourceWrapper x:Key="OSDProgressBarFillColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
       <GradientStop Color="#FF4780A0" Offset="0.60"/>
       <GradientStop Color="#FF4780A0" Offset="1"/>
     </LinearGradientBrush>
-  </ResourceWrapper>
+  </ResourceWrapper-->
 
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
 

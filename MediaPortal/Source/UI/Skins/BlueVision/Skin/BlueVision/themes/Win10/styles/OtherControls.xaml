@@ -258,7 +258,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" Margin="0,0,35,0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -266,10 +266,10 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       Height="1"
+                       Height="3"
                        Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
             <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
-                       Height="1"
+                       Height="3"
                        Fill="{ThemeResource OSDProgressBarFillColor}"/>
             <StackPanel Orientation="Horizontal">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
