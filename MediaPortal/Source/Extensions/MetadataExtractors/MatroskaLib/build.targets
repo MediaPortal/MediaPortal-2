@@ -10,6 +10,10 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+  </ItemGroup>
+
   <ItemGroup>
     <References Include="$(TargetDir)mkvextract.exe" />
     <References Include="$(TargetDir)mkvinfo.exe" />
