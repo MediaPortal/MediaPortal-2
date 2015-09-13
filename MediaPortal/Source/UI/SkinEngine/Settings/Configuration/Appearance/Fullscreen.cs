@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   {
     public override void Load()
     {
-      _yes = SettingsManager.Load<AppSettings>().FullScreen;
+      _yes = SettingsManager.Load<AppSettings>().ScreenMode == ScreenMode.FullScreen;
     }
 
     public override void Save()

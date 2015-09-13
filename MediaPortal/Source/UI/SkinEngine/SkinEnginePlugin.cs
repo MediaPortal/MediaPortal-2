@@ -70,7 +70,11 @@ namespace MediaPortal.UI.SkinEngine
         {
           //switch to fullscreen
           IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
-          sc.SwitchMode(sc.IsFullScreen ? ScreenMode.NormalWindowed : ScreenMode.FullScreen);
+          int nextMode = ((int)sc.CurrentScreenMode) + 1;
+          int totalModes = Enum.GetNames(typeof(ScreenMode)).Length;
+          ScreenMode newMode = (ScreenMode)(nextMode % totalModes);
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine: Switching screen mode from current '{0}' to '{1}'", sc.CurrentScreenMode, newMode);
+          sc.SwitchMode(newMode);
         });
     }
 

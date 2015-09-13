@@ -27,10 +27,23 @@ using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.UI.Presentation.Screens
 {
+  /// <summary>
+  /// Defines the different modes of the main GUI window.
+  /// </summary>
   public enum ScreenMode
   {
+    /// <summary>
+    /// Windowed mode.
+    /// </summary>
     NormalWindowed,
-    FullScreen
+    /// <summary>
+    /// Fullscreen mode.
+    /// </summary>
+    FullScreen,
+    /// <summary>
+    /// Special windowed mode, which forces the window to stay on top.
+    /// </summary>
+    WindowedOnTop
   };
 
   public interface IScreenControl
@@ -56,7 +69,16 @@ namespace MediaPortal.UI.Presentation.Screens
     /// <value>
     /// <c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
     /// </value>
+    [Obsolete("Use CurrentScreenMode property instead.")]
     bool IsFullScreen { get; }
+
+    /// <summary>
+    /// Returns the current selected <see cref="ScreenMode"/>.
+    /// </summary>
+    /// <value>
+    /// A value of <see cref="ScreenMode"/>.
+    /// </value>
+    ScreenMode CurrentScreenMode { get; }
 
     /// <summary>
     /// Returns the window handle of the main window.

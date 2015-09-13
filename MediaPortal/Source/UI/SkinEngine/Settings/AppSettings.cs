@@ -22,8 +22,10 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Presentation.Screens;
 using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Settings
@@ -32,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
   {
     #region Consts
 
-    protected const bool DEFAULT_FULL_SCREEN = true;
+    protected const ScreenMode DEFAULT_SCREEN_MODE = ScreenMode.FullScreen;
     protected const bool DEFAULT_SKIN_SOUNDS = true;
     protected const bool DEFAULT_CELL_PHONE_INPUT_STYLE = false;
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
@@ -42,7 +44,6 @@ namespace MediaPortal.UI.SkinEngine.Settings
 
     #endregion
 
-    protected bool _fullScreen = DEFAULT_FULL_SCREEN;
     protected bool _skinSounds = DEFAULT_SKIN_SOUNDS;
     protected bool _cellPhoneInputStyle = DEFAULT_CELL_PHONE_INPUT_STYLE;
     protected bool _screenSaverEnabled = DEFAULT_SCREEN_SAVER_ENABLED;
@@ -57,12 +58,14 @@ namespace MediaPortal.UI.SkinEngine.Settings
       set { _multisampleType = value; }
     }
 
-    [Setting(SettingScope.User, DEFAULT_FULL_SCREEN)]
-    public bool FullScreen
-    {
-      get { return _fullScreen; }
-      set { _fullScreen = value; }
-    }
+    [Setting(SettingScope.User, DEFAULT_SCREEN_MODE)]
+    public ScreenMode ScreenMode { get; set; }
+
+    [Setting(SettingScope.User, null)]
+    public Point? WindowPosition {  get; set; }
+
+    [Setting(SettingScope.User, null)]
+    public Size? WindowSize { get; set; }
 
     [Setting(SettingScope.User, DEFAULT_SKIN_SOUNDS)]
     public bool SkinSounds

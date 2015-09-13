@@ -81,6 +81,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private FormWindowState _previousWindowState;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
+    private bool _forceOnTop = false;
     private bool _hasFocus = false;
     private readonly ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
@@ -120,8 +121,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       _previousMousePosition = new Point(-1, -1);
 
-      Size desiredWindowedSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
-
       // Default screen for splashscreen is the one from where MP2 was started.
       System.Windows.Forms.Screen preferredScreen = System.Windows.Forms.Screen.FromControl(this);
       int numberOfScreens = System.Windows.Forms.Screen.AllScreens.Length;
@@ -135,16 +134,26 @@ namespace MediaPortal.UI.SkinEngine.GUI
         StartPosition = FormStartPosition.Manual;
       }
 
-      Location = new Point(preferredScreen.WorkingArea.X, preferredScreen.WorkingArea.Y);
+      Size desiredWindowedSize;
+      if (appSettings.WindowPosition.HasValue && appSettings.WindowSize.HasValue)
+      {
+        Location = appSettings.WindowPosition.Value;
+        desiredWindowedSize = appSettings.WindowSize.Value;
+      }
+      else
+      {
+        Location = new Point(preferredScreen.WorkingArea.X, preferredScreen.WorkingArea.Y);
+        desiredWindowedSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+      }
 
       _previousWindowLocation = Location;
       _previousWindowClientSize = desiredWindowedSize;
       _previousWindowState = FormWindowState.Normal;
 
-      if (appSettings.FullScreen)
+      if (appSettings.ScreenMode == ScreenMode.FullScreen)
         SwitchToFullscreen(validScreenNum);
       else
-        SwitchToWindowedSize(Location, desiredWindowedSize, false);
+        SwitchToWindowedSize(appSettings.ScreenMode, Location, desiredWindowedSize, false);
 
       SkinContext.WindowSize = ClientSize;
 
@@ -242,16 +251,25 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _mode = ScreenMode.FullScreen;
     }
 
-    protected void SwitchToWindowedSize(Point location, Size clientSize, bool maximize)
+    protected void SwitchToWindowedSize(ScreenMode mode, Point location, Size clientSize, bool maximize)
     {
+      if (mode == ScreenMode.WindowedOnTop)
+      {
+        _forceOnTop = true;
+        FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      }
+      else
+      {
+        FormBorderStyle = FormBorderStyle.Sizable;
+        _forceOnTop = false;
+      }
       WindowState = FormWindowState.Normal;
-      FormBorderStyle = FormBorderStyle.Sizable;
       Location = location;
       ClientSize = clientSize;
       // We must restore the window state after having set the ClientSize/Location to make the window remember the
       // non-maximized bounds
       WindowState = maximize ? FormWindowState.Maximized : FormWindowState.Normal;
-      _mode = ScreenMode.NormalWindowed;
+      _mode = mode;
     }
 
     public void DisposeDirectX()
@@ -271,8 +289,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
         return;
       // Only store size and position if we are in windowed mode and not maximized. The size for all other modes/states
       // is obvious, only those two values are interesting to be restored on a mode switch from fullscreen to windowed.
-      _previousWindowLocation = Location;
-      _previousWindowClientSize = ClientSize;
+      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      appSettings.WindowPosition = _previousWindowLocation = Location;
+      appSettings.WindowSize = _previousWindowClientSize = ClientSize;
+      ServiceRegistration.Get<ISettingsManager>().Save(appSettings);
     }
 
     public void StopUI()
@@ -316,7 +336,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 #if DEBUG
       TopMost = false;
 #else
-      TopMost = IsFullScreen && (force || this == ActiveForm);
+      TopMost = _forceOnTop || IsFullScreen && (force || this == ActiveForm);
       if (force)
       {
         this.SafeActivate();
@@ -472,7 +492,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (mode == _mode)
         return;
 
-      settings.FullScreen = newFullscreen;
+      settings.ScreenMode = mode;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
       StopUI();
@@ -487,7 +507,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
           SwitchToFullscreen(GetScreenNum());
         }
         else
-          SwitchToWindowedSize(_previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);
+          SwitchToWindowedSize(mode, _previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);
       }
       finally
       {
@@ -505,6 +525,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public bool IsFullScreen
     {
       get { return _mode == ScreenMode.FullScreen; }
+    }
+
+    public ScreenMode CurrentScreenMode
+    {
+      get { return _mode; }
     }
 
     public bool IsScreenSaverActive
