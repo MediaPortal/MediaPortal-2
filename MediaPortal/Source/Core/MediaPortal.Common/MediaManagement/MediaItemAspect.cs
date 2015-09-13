@@ -148,7 +148,9 @@ namespace MediaPortal.Common.MediaManagement
       CheckSingleAttribute(attributeSpecification);
       if (IsIgnore(attributeSpecification))
         return default(T);
-      return (T) _aspectData[attributeSpecification];
+      if (_aspectData[attributeSpecification] == null)
+        return default(T);
+      return (T)_aspectData[attributeSpecification];
     }
 
     /// <summary>
