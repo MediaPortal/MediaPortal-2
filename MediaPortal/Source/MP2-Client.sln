@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -193,6 +193,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{2BAB7B4B-1456-4525-8A27-DEBED86796F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegLib", "Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj", "{D2416E5A-CF6A-4B45-836D-02300D666127}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -493,6 +495,10 @@ Global
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0}.Debug|x86.Build.0 = Debug|x86
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0}.Release|x86.ActiveCfg = Release|x86
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0}.Release|x86.Build.0 = Release|x86
+		{D2416E5A-CF6A-4B45-836D-02300D666127}.Debug|x86.ActiveCfg = Debug|x86
+		{D2416E5A-CF6A-4B45-836D-02300D666127}.Debug|x86.Build.0 = Debug|x86
+		{D2416E5A-CF6A-4B45-836D-02300D666127}.Release|x86.ActiveCfg = Release|x86
+		{D2416E5A-CF6A-4B45-836D-02300D666127}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -587,5 +593,6 @@ Global
 		{48186950-463A-418C-983E-FF4F62B02E02} = {91CC1D84-4327-48CA-8186-D7C3529AEB44}
 		{D8025D85-C4BE-4A3C-8DD1-4B89DB422480} = {9579F1D5-315A-4528-AC60-FA7D61874E27}
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0} = {2BAB7B4B-1456-4525-8A27-DEBED86796F6}
+		{D2416E5A-CF6A-4B45-836D-02300D666127} = {9407EDC5-89CB-476C-AF36-E705C78D1659}
 	EndGlobalSection
 EndGlobal
