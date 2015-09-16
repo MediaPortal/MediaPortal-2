@@ -24,22 +24,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Utilities.Process;
-using System.Globalization;
 using System.Linq;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Utilities;
@@ -98,7 +90,18 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       {
         if (mediaItemAccessor is IFileSystemResourceAccessor)
         {
-          using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          {
+            if (!rah.LocalFsResourceAccessor.IsFile)
+              return false;
+            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor, rah.LocalFsResourceAccessor.LocalFileSystemPath);
+            if (metadata.IsVideo)
+            {
+              ConvertMetadataToAspectData(metadata, extractedAspectData);
+              return true;
+            }
+          }
+          /*using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
           {
             if (!fsra.IsFile)
               return false;
@@ -114,7 +117,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
                 }
               }
             }
-          }
+          }*/
         }
         else if (mediaItemAccessor is INetworkResourceAccessor)
         {

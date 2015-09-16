@@ -24,18 +24,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 using System.IO;
 using System.Threading;
-using System.Diagnostics;
 using System.Globalization;
-using System.Xml;
-using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {

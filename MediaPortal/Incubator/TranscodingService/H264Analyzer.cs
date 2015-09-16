@@ -23,11 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 //Thanks goes to Jay Codec over at https://github.com/jcodec/jcodec
 //His code provided insights into the decoding of the Annex B header

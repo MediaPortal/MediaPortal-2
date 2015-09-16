@@ -24,23 +24,43 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Utilities.Process;
+using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
   public class MediaAnalyzer
   {
+    #region Constants
+
+    /// <summary>
+    /// Maximum duration for creating a single video thumbnail.
+    /// </summary>
+    protected const int PROCESS_TIMEOUT_MS = 30000;
+
+    /// <summary>
+    /// Name of the Assembly to execute
+    /// </summary>
+    protected const string PROCESS_ASSEMBLY_NAME = "ffprobe.exe";
+
+    #endregion
+
+    #region Protected fields and classes
+
+    protected static readonly object FFPROBE_THROTTLE_LOCK = new object();
+
+    #endregion
+
     public string AnalyzerBinPath { get; set; }
     public int TranscoderTimeout { get; set; }
     public int TranscoderMaximumThreads { get; set; }
@@ -48,67 +68,73 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public string SubtitleDefaultLanguage { get; set; }
     public ILogger Logger { get; set;  }
 
-    private Dictionary<string, CultureInfo> countryCodesMapping = new Dictionary<string, CultureInfo>();
-    private Dictionary<float, long> h264MaxDpbMbs = new Dictionary<float, long>();
+    private readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
+    private readonly Dictionary<float, long> _h264MaxDpbMbs = new Dictionary<float, long>();
    
     public MediaAnalyzer()
     {
-      AnalyzerBinPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ffmpeg.exe");
+      AnalyzerBinPath = ServiceRegistration.Get<IFFMpegLib>().FFProbeBinaryPath;
       TranscoderTimeout = 2500;
       TranscoderMaximumThreads = 0;
       SubtitleDefaultEncoding = "";
       SubtitleDefaultLanguage = "";
 
-      h264MaxDpbMbs.Add(1F, 396);
-      h264MaxDpbMbs.Add(1.1F, 396);
-      h264MaxDpbMbs.Add(1.2F, 900);
-      h264MaxDpbMbs.Add(1.3F, 2376);
-      h264MaxDpbMbs.Add(2F, 2376);
-      h264MaxDpbMbs.Add(2.1F, 4752);
-      h264MaxDpbMbs.Add(2.2F, 8100);
-      h264MaxDpbMbs.Add(3F, 8100);
-      h264MaxDpbMbs.Add(3.1F, 18000);
-      h264MaxDpbMbs.Add(3.2F, 20480);
-      h264MaxDpbMbs.Add(4F, 32768);
-      h264MaxDpbMbs.Add(4.1F, 32768);
-      h264MaxDpbMbs.Add(4.2F, 34816);
-      h264MaxDpbMbs.Add(5F, 110400);
-      h264MaxDpbMbs.Add(5.1F, 184320);
-      h264MaxDpbMbs.Add(5.2F, 184320);
+      _h264MaxDpbMbs.Add(1F, 396);
+      _h264MaxDpbMbs.Add(1.1F, 396);
+      _h264MaxDpbMbs.Add(1.2F, 900);
+      _h264MaxDpbMbs.Add(1.3F, 2376);
+      _h264MaxDpbMbs.Add(2F, 2376);
+      _h264MaxDpbMbs.Add(2.1F, 4752);
+      _h264MaxDpbMbs.Add(2.2F, 8100);
+      _h264MaxDpbMbs.Add(3F, 8100);
+      _h264MaxDpbMbs.Add(3.1F, 18000);
+      _h264MaxDpbMbs.Add(3.2F, 20480);
+      _h264MaxDpbMbs.Add(4F, 32768);
+      _h264MaxDpbMbs.Add(4.1F, 32768);
+      _h264MaxDpbMbs.Add(4.2F, 34816);
+      _h264MaxDpbMbs.Add(5F, 110400);
+      _h264MaxDpbMbs.Add(5.1F, 184320);
+      _h264MaxDpbMbs.Add(5.2F, 184320);
 
       CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
       foreach (CultureInfo culture in cultures)
       {
         try
         {
-          countryCodesMapping[culture.ThreeLetterISOLanguageName.ToUpperInvariant()] = culture;
+          _countryCodesMapping[culture.ThreeLetterISOLanguageName.ToUpperInvariant()] = culture;
         }
         catch { }
       }
     }
 
-    public MetadataContainer ParseFile(string fileName)
+    public MetadataContainer ParseFile(ILocalFsResourceAccessor lfsra, string fileName)
     {
       string arguments = string.Format("-threads {0} -i \"{1}\"", TranscoderMaximumThreads, fileName);
 
-      string result;
-      if (TryExecute(AnalyzerBinPath, arguments, out result, ProcessPriorityClass.BelowNormal))
+      ProcessExecutionResult executionResult;
+      lock (FFPROBE_THROTTLE_LOCK)
+        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result;
+      
+      // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
+      // and stderr is used for logging purposes. In your example you use stdout.
+      // http://stackoverflow.com/questions/4246758/why-doesnt-this-method-redirect-my-output-from-exe-ffmpeg
+      if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if(Logger != null) Logger.Debug("DlnaMediaServer: Successfully ran ffmpeg:\n {0}", result);
-        MetadataContainer info = new MetadataContainer();
-        info.Metadata.Source = fileName;
+        if (Logger != null) Logger.Debug("DlnaMediaServer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, executionResult.StandardError);
+        MetadataContainer info = new MetadataContainer { Metadata = { Source = fileName } };
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(info.Metadata.Source);
         info.Metadata.Size = new FileInfo(fileName).Length;
-        ParseFFMpegOutput(result, ref info);
+        ParseFFMpegOutput(executionResult.StandardError, ref info);
         ParseH264Info(ref info);
         ParseMPEG2TSInfo(ref info);
         ParseSubtitleFiles(ref info);
         return info;
       }
+
+      if (executionResult != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
       else
-      {
-        if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}'", fileName);
-      }
+        Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', executionResult=null", fileName);
+
       return null;
     }
 
@@ -123,11 +149,15 @@ namespace MediaPortal.Plugins.Transcoding.Service
       arguments += string.Format("-i \"{0}\"", streamLink);
 
       string result;
-      if (TryExecute(AnalyzerBinPath, arguments, out result, ProcessPriorityClass.BelowNormal))
+      bool success;
+
+      lock (FFPROBE_THROTTLE_LOCK)
+        success = TryExecute(AnalyzerBinPath, arguments, out result, ProcessPriorityClass.BelowNormal);
+
+      if (success)
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran ffmpeg:\n {0}", result);
-        MetadataContainer info = new MetadataContainer();
-        info.Metadata.Source = streamLink;
+        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, result);
+        MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(info.Metadata.Source);
         info.Metadata.Size = 0;
         ParseFFMpegOutput(result, ref info);
@@ -135,10 +165,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
         ParseMPEG2TSInfo(ref info);
         return info;
       }
-      else
-      {
-        if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}'", streamLink);
-      }
+
+      if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}'", streamLink);
+      
       return null;
     }
 
@@ -507,7 +536,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private void ParseFFMpegOutput(string output, ref MetadataContainer info)
     {
       var input = output.Split('\n');
-      if (!input[0].StartsWith("ffmpeg version"))
+      if (!input[0].StartsWith("ffmpeg version") && !input[0].StartsWith("ffprobe version"))
         return;
       ParseFFMpegOutputLines(input, ref info);
     }
@@ -597,9 +626,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
             if (match.Groups.Count == 4)
             {
               string lang = match.Groups["lang"].Value.Trim().ToUpperInvariant();
-              if (countryCodesMapping.ContainsKey(lang))
+              if (_countryCodesMapping.ContainsKey(lang))
               {
-                info.Video.Language = countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
+                info.Video.Language = _countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
               }
             }
           }
@@ -822,9 +851,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
             if (match.Groups.Count == 4)
             {
               string lang = match.Groups["lang"].Value.Trim().ToUpperInvariant();
-              if (countryCodesMapping.ContainsKey(lang))
+              if (_countryCodesMapping.ContainsKey(lang))
               {
-                audio.Language = countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
+                audio.Language = _countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
               }
             }
           }
@@ -900,9 +929,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
         if (match.Groups.Count == 4)
         {
           string lang = match.Groups["lang"].Value.Trim().ToUpperInvariant();
-          if (countryCodesMapping.ContainsKey(lang))
+          if (_countryCodesMapping.ContainsKey(lang))
           {
-            sub.Language = countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
+            sub.Language = _countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
           }
         }
       }
@@ -967,7 +996,12 @@ namespace MediaPortal.Plugins.Transcoding.Service
             arguments += " -bsf:v h264_mp4toannexb";
           }
           arguments += " -an pipe:";
-          if (TryExecuteBinary(AnalyzerBinPath, arguments, out h264Stream, ProcessPriorityClass.BelowNormal) == false || h264Stream == null)
+
+          bool success;
+          lock (FFPROBE_THROTTLE_LOCK)
+            success = TryExecuteBinary(ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, arguments, out h264Stream, ProcessPriorityClass.BelowNormal);
+
+          if (success == false || h264Stream == null)
           {
             ServiceRegistration.Get<ILogger>().Warn("MediaAnalyzer: Failed to extract h264 annex b header information for resource: '{0}'", info.Metadata.VideoContainerType);
             return;
@@ -1008,7 +1042,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
             if (info.Video.Width > 0 && info.Video.Height > 0 && refFrames > 0 && refFrames <= 16)
             {
               long dpbMbs = Convert.ToInt64(((float)info.Video.Width * (float)info.Video.Height * (float)refFrames) / 256F);
-              foreach (KeyValuePair<float, long> levelDbp in h264MaxDpbMbs)
+              foreach (KeyValuePair<float, long> levelDbp in _h264MaxDpbMbs)
               {
                 if (levelDbp.Value > dpbMbs)
                 {

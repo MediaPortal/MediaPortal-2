@@ -95,11 +95,18 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       {
         if (mediaItemAccessor is IFileSystemResourceAccessor)
         {
-          using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           {
-            if (!fsra.IsFile)
+            if (!rah.LocalFsResourceAccessor.IsFile)
               return false;
-            using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor, rah.LocalFsResourceAccessor.LocalFileSystemPath);
+            if (metadata.IsVideo)
+            {
+              ConvertMetadataToAspectData(metadata, extractedAspectData);
+              return true;
+            }
+          }
+          /*using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
             {
               if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
               {
@@ -111,7 +118,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
                 }
               }
             }
-          }
+          }*/
         }
         else if (mediaItemAccessor is INetworkResourceAccessor)
         {
