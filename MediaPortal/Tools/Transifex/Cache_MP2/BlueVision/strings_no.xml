@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Lyd</string>
+  <string name="Menu.Image">Bilder</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Nyheter</string>
+  <string name="Menu.Weather">Vær</string>
+  <string name="Menu.Settings">Innstillinger</string>
+  <string name="Menu.Others">Andre</string>
+  <string name="Menu.Home">Hjem</string>
+  <string name="Movies.Title">Filmer</string>
+  <string name="Series.Title">Serie</string>
+  <string name="Audio.Title">Lyd</string>
+  <string name="Recordings.Title">Opptak</string>
+  <string name="Images.Title">Bilder</string>
+  <string name="Videos.Title">Videoer</string>
+  <string name="News.Title">Nyheter</string>
+  <string name="Weather.Title">Vær</string>
+  <string name="General.Title">Generelt</string>
+</resources>

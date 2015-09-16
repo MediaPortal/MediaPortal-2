@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Lyd</string>
+  <string name="Menu.Image">Billeder</string>
+  <string name="Menu.MediaHub">Videohub</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Nyheder</string>
+  <string name="Menu.Weather">Vejret</string>
+  <string name="Menu.Settings">Indstillinger</string>
+  <string name="Menu.Others">Andet</string>
+  <string name="Menu.Home">Home</string>
+  <string name="Menu.Main">Hoved menu</string>
+  <string name="Movies.Title">Film</string>
+  <string name="Series.Title">Serie</string>
+  <string name="Audio.Title">Lyd</string>
+  <string name="Recordings.Title">Optagelser</string>
+  <string name="Images.Title">Billeder</string>
+  <string name="Videos.Title">Videoer</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Undertekst</string>
+  <string name="News.Title">Nyheder</string>
+  <string name="Weather.Title">Vejret</string>
+  <string name="General.Title">Generelt</string>
+  <string name="CastCrew.Title">Medvirkende + Besætning</string>
+  <string name="MediaInfo.Title">Media Info</string>
+  <string name="Media.AudioAlbumArtistsLabel">Album Kunstnere:</string>
+  <string name="Media.AudioTrackLabel">Spor:</string>
+  <string name="Media.AudioBitRateLabel">Bitrate:</string>
+  <string name="Media.AudioComposersLabel">Komponister:</string>
+  <string name="Media.AudioMimeTypeLabel">Type:</string>
+  <string name="BlueVision.Configuration">BlueVision konfiguration</string>
+  <string name="BlueVision.Configuration.Help">Tillad tilpasning af BlueVision skin</string>
+  <string name="BlueVision.DisableHomeTab">Slå \"Home\" knap fra</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Brug BlueVision startop skærm</string>
+</resources>

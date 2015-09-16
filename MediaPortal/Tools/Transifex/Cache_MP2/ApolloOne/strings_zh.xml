@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">音频</string>
+  <string name="Menu.Image">图片</string>
+  <string name="Menu.TV">电视</string>
+  <string name="Menu.News">新闻</string>
+  <string name="Menu.Weather">天气</string>
+  <string name="Menu.Settings">设置</string>
+  <string name="Menu.Others">其它的</string>
+</resources>

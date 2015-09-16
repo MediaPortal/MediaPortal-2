@@ -120,6 +120,14 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Activar notificación de estado desconectado, cuando el servidor MediaPortal 2 esté disponible en la red</string>
   <string name="Settings.General.Connectivity.ClientName">Nombre del cliente</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Selecciona el nombre para este cliente MediaPortal 2</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">Puerto del servidor HTTP</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Establecer el puerto del servidor HTTP</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Usar IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Establecer si este cliente MediaPortal 2 debe usar conexiones IPv4 al servidor inicial</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Usar IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Establecer si este cliente MediaPortal 2 debe usar conexiones IPv6 al servidor inicial</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">Enlaces de direcciones IP</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Establecer una lista de direcciones IP que deben ser usadas por este cliente MediaPortal 2 para conectarse al servidor principal</string>
   <string name="Settings.Regional">Regional</string>
   <string name="Settings.Regional.Language">Lenguaje</string>
   <string name="Settings.Regional.Language.Main">Lenguaje</string>

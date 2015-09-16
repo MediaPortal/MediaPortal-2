@@ -6,6 +6,7 @@
   <string name="Media.AudioMenuItem">Áudio</string>
   <string name="Media.VideosMenuItem">Vídeos</string>
   <string name="Media.SeriesMenuItem">Séries</string>
+  <string name="Media.MoviesMenuItem">Filmes</string>
   <string name="Media.ImagesMenuItem">Imagens</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrar por artista</string>
@@ -81,6 +82,7 @@
   <string name="Media.VideoItemsHeader">Vídeos</string>
   <string name="Media.AudioItemsHeader">Itens de áudio</string>
   <string name="Media.SeriesItemsHeader">Episódio</string>
+  <string name="Media.MoviesItemsHeader">Filmes</string>
   <string name="Media.ImageItemsHeader">Imagens</string>
   <string name="Media.SimpleSearchHeader">Pesquisa simples</string>
   <string name="Media.ChooseActorHeader">Escolher o ator</string>
@@ -219,4 +221,5 @@
   <string name="Media.SortByAspectRatio">Ordenar pelo aspecto</string>
   <string name="Media.SortByDate">Ordenar pela data de gravação</string>
   <string name="Media.SortByEpisode">Ordenar por eposódio</string>
+  <string name="Settings.Players">Reprodutores</string>
 </resources>

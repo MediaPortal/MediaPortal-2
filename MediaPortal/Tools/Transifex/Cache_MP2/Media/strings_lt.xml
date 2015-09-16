@@ -299,6 +299,7 @@
   <string name="Media.LargeList">Ilgas sąrašas</string>
   <string name="Media.LargeGrid">Tinklelis</string>
   <string name="Media.CoverLayout">Viršeliai</string>
+  <string name="Media.Watched">Peržiūrėta</string>
   <string name="Media.SwitchSortingMenuItem">Rūšiuojama</string>
   <string name="Media.SwitchSortingDialogTitle">Rūšiuojama</string>
   <string name="Media.SortByTitle">Rūšiuoti pagal antraštę</string>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Ääni</string>
+  <string name="Menu.Image">Kuvat</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Uutiset</string>
+  <string name="Menu.Weather">Sää</string>
+  <string name="Menu.Settings">Asetukset</string>
+  <string name="Menu.Others">Muut</string>
+</resources>

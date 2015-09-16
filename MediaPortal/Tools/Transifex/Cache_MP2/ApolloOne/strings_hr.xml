@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Slike</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Vijesti</string>
+  <string name="Menu.Weather">Vrijeme</string>
+  <string name="Menu.Settings">Postavke</string>
+</resources>

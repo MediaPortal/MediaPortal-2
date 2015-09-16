@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Reprodutores</string>
+  <string name="Settings.Players.AudioPlayer">Reprodutor de áudio</string>
+  <string name="Settings.Players.BassPlayer.Setup">Configurar dispositivo de saída</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Configura o dispositivo de saída e opções do BassPlayer</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Modo exclusivo</string>
+  <string name="Settings.Players.Rendering">Renderização</string>
+  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Fading cruzado ativado</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determina se o MediaPortal deve usar fading cruzado em músicas, se possível</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Duração do fading cruzado</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tempo para fading cruzado em segundos</string>
+</resources>

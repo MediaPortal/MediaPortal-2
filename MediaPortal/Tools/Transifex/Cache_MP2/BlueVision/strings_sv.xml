@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Ljud</string>
+  <string name="Menu.Image">Bilder</string>
+  <string name="Menu.MediaHub">Videonav</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Nyheter</string>
+  <string name="Menu.Weather">Väder</string>
+  <string name="Menu.Settings">Inställningar</string>
+  <string name="Menu.Others">Övriga</string>
+  <string name="Menu.Home">Start</string>
+  <string name="Menu.Main">Huvudmeny</string>
+  <string name="Movies.Title">Filmer</string>
+  <string name="Series.Title">TV-serier</string>
+  <string name="Audio.Title">Ljud</string>
+  <string name="Recordings.Title">Inspelningar</string>
+  <string name="Images.Title">Bilder</string>
+  <string name="Videos.Title">Videor</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Undertext</string>
+  <string name="News.Title">Nyheter</string>
+  <string name="Weather.Title">Väder</string>
+  <string name="General.Title">Allmänt</string>
+  <string name="CastCrew.Title">Rollbesättning + filmteam</string>
+  <string name="MediaInfo.Title">Mediainfo</string>
+  <string name="Media.AudioAlbumArtistsLabel">Album Artister:</string>
+  <string name="Media.AudioTrackLabel">Spår:</string>
+  <string name="Media.AudioBitRateLabel">Bittakt:</string>
+  <string name="Media.AudioComposersLabel">Kompositörer:</string>
+  <string name="Media.AudioMimeTypeLabel">Typ:</string>
+  <string name="BlueVision.Configuration">BlueVision konfiguration</string>
+  <string name="BlueVision.Configuration.Help">Skräddarsy BlueVision</string>
+  <string name="BlueVision.DisableHomeTab">Inaktivera startfliken</string>
+  <string name="BlueVision.DisableAutoSelection">Inaktivera automatisk flikval</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Använd BlueVision startbakgrund</string>
+</resources>

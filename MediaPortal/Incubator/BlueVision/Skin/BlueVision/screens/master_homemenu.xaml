@@ -25,8 +25,7 @@
 
         <!--Begin Home Screen-->
         <Grid DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
-              xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
-                  Margin="0,0,0,-50">
+              xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI">
           <Grid.Resources>
             <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
             <Model x:Key="LatestMediaModel" Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870"/>
@@ -45,7 +44,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="15,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -55,14 +54,14 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-60,0">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
             </ListView>
           </Grid>
 
-          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="15,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -72,14 +71,14 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Content="[Audio.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Audio" Grid.Row="1" ItemsSource="{Binding Audio}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+            <ListView x:Name="Audio" Grid.Row="1" ItemsSource="{Binding Audio}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
             </ListView>
           </Grid>
 
-          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="0,0,0,-100" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="15,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -89,14 +88,14 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Content="[Series.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Series" Grid.Row="1" ItemsSource="{Binding Series}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+            <ListView x:Name="Series" Grid.Row="1" ItemsSource="{Binding Series}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
             </ListView>
           </Grid>
 
-          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Margin="0,0,0,-100" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Margin="15,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -106,14 +105,14 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Content="[Images.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Images" Grid.Row="1" ItemsSource="{Binding Images}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+            <ListView x:Name="Images" Grid.Row="1" ItemsSource="{Binding Images}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
             </ListView>
           </Grid>
 
-          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="0,0,0,-100" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="15,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -123,7 +122,7 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Source="shadow_home.png" VerticalAlignment="Bottom" Stretch="Fill" Height="8" Margin="0,-10,0,5"/>
             <Label Grid.Row="0" Content="[Recordings.Title]" Margin="0,-10,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Recordings" Grid.Row="1" ItemsSource="{Binding Recordings}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center" Margin="20,0,-100,0">
+            <ListView x:Name="Recordings" Grid.Row="1" ItemsSource="{Binding Recordings}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Slike</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Vijesti</string>
+  <string name="Menu.Weather">Vrijeme</string>
+  <string name="Menu.Settings">Postavke</string>
+  <string name="Menu.Home">Početni zaslon</string>
+  <string name="Movies.Title">Filmovi</string>
+  <string name="Series.Title">Serije</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Snimci</string>
+  <string name="Images.Title">Slike</string>
+  <string name="Videos.Title">Video</string>
+  <string name="News.Title">Vijesti</string>
+  <string name="Weather.Title">Vrijeme</string>
+</resources>

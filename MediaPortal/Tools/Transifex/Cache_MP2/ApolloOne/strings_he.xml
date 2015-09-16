@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">אודיו</string>
+  <string name="Menu.Image">תמונות</string>
+  <string name="Menu.TV">טלויזיה</string>
+  <string name="Menu.News">חדשות</string>
+  <string name="Menu.Weather">מזג אוויר</string>
+  <string name="Menu.Settings">הגדרות</string>
+  <string name="Menu.Others">אחרים</string>
+</resources>

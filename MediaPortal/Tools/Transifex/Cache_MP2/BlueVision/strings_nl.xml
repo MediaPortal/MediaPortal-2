@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Afbeeldingen</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Nieuws</string>
+  <string name="Menu.Weather">Weer</string>
+  <string name="Menu.Settings">Instellingen</string>
+  <string name="Menu.Others">Overige</string>
+  <string name="Menu.Home">Thuis</string>
+  <string name="Movies.Title">Films</string>
+  <string name="Series.Title">Series</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Opnames</string>
+  <string name="Images.Title">Afbeeldingen</string>
+  <string name="Videos.Title">Video\'s</string>
+  <string name="News.Title">Nieuws</string>
+  <string name="Weather.Title">Weer</string>
+  <string name="General.Title">Algemeen</string>
+</resources>

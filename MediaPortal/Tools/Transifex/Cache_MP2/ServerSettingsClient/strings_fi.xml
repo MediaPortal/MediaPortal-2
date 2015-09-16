@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Määrittää levyasema kirjaimen jota käytetään etäkoneiden resurssien liittämiseen</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Verkkotunnukset</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Määrittelee käyttäjätunnuksen ja salasanan palvelimen verkkoresurssien käyttöä varten</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Käytä vuorovaikutteisen istunnon tunnuksia palvelimella</string>
   <string name="Settings.ServerSettings.UseCredentials">Käytä käyttäjätunnusta ja salasanaa verkkoon pääsemiseksi</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Käyttäjätunnus ja salasana</string>
   <string name="Settings.ServerSettings.Username">Käyttäjätunnus:</string>

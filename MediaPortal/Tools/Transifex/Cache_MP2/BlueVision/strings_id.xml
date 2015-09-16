@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Gambar</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Berita</string>
+  <string name="Menu.Weather">Cuaca</string>
+  <string name="Menu.Settings">Setelan</string>
+  <string name="Menu.Others">Lainnya</string>
+  <string name="Menu.Home">Mulai</string>
+  <string name="Movies.Title">Film</string>
+  <string name="Series.Title">Serial</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Rekaman</string>
+  <string name="Images.Title">Gambar</string>
+  <string name="Videos.Title">Video</string>
+  <string name="News.Title">Berita</string>
+  <string name="Weather.Title">Cuaca</string>
+  <string name="General.Title">Umum</string>
+</resources>

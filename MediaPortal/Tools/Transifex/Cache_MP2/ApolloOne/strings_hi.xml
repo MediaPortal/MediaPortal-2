@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.TV">टेलीविज़न</string>
+  <string name="Menu.Weather">मौसम</string>
+  <string name="Menu.Settings">सेटिंग्स</string>
+  <string name="Menu.Others">अन्य</string>
+</resources>

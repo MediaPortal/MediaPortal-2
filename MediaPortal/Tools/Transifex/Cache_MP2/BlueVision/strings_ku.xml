@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">دەنگ</string>
+  <string name="Menu.Image">وێنە</string>
+  <string name="Menu.TV">تەلەڤزیۆن</string>
+  <string name="Menu.News">هەواڵ</string>
+  <string name="Menu.Weather">کەش و هەوا</string>
+  <string name="Audio.Title">دەنگ</string>
+  <string name="Recordings.Title">تۆمارکراوەکان</string>
+  <string name="Images.Title">وێنە</string>
+  <string name="Videos.Title">ڤیدیۆ</string>
+  <string name="News.Title">هەواڵ</string>
+  <string name="Weather.Title">کەش و هەوا</string>
+</resources>

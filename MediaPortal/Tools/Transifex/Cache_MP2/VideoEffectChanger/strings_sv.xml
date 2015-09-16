@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="VEC.Enable">Aktivera automatiskt val av videoeffekt</string>
+  <string name="VEC.ConfigGroup">Effekter</string>
+  <string name="VEC.LowerEffect">Lågupplösningseffekt</string>
+  <string name="VEC.HigherEffect">Högupplösningseffekt</string>
+  <string name="VEC.ResolutionLimit">Gräns för upplösning</string>
+  <string name="Settings.Players.VideoPlayer.VEC">Ändra videoeffekter</string>
+  <string name="Settings.Plugins.VideoPlayer.VEC.Help">Definiera förvalda effekter vid videouppspelning</string>
+</resources>

@@ -6,14 +6,14 @@
   <string name="ServerStatus.Detached">Vom Server getrennt</string>
   <string name="ServerStatus.Disconnected">Vom Server getrennt</string>
   <string name="ServerStatus.ClientConnected">Client(s) mit dem Server verbunden</string>
-  <string name="MainWindow.ServerStatus">Server-Status</string>
+  <string name="MainWindow.ServerStatus">Serverstatus</string>
   <string name="MainWindow.AttachedClients">Verbundene Clients:</string>
-  <string name="ContextMenu.ShowWin">Zeige Fenster</string>
-  <string name="ContextMenu.HideWin">Verstecke Fenster</string>
-  <string name="ContextMenu.StartService">Starte Service</string>
-  <string name="ContextMenu.StopService">Stoppe Service</string>
-  <string name="ContextMenu.EnableAutostart">Aktiviere Autostart</string>
-  <string name="ContextMenu.DisableAutostart">Deaktiviere Autostart</string>
+  <string name="ContextMenu.ShowWin">Fenster anzeigen</string>
+  <string name="ContextMenu.HideWin">Fenster ausblenden</string>
+  <string name="ContextMenu.StartService">Dienst starten</string>
+  <string name="ContextMenu.StopService">Dienst stoppen</string>
+  <string name="ContextMenu.EnableAutostart">Autostart aktivieren</string>
+  <string name="ContextMenu.DisableAutostart">Autostart deaktivieren</string>
   <string name="ContextMenu.Exit">Beenden</string>
   <string name="SysTrayToolTip.Info">Rechtsklick für weitere Optionen</string>
 </resources>

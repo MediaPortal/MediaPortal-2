@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">אודיו</string>
+  <string name="Menu.Image">תמונות</string>
+  <string name="Menu.TV">טלויזיה</string>
+  <string name="Menu.News">חדשות</string>
+  <string name="Menu.Weather">מזג אוויר</string>
+  <string name="Menu.Settings">הגדרות</string>
+  <string name="Menu.Others">אחרים</string>
+  <string name="Menu.Home">בית</string>
+  <string name="Movies.Title">סרטים</string>
+  <string name="Series.Title">סדרה</string>
+  <string name="Audio.Title">אודיו</string>
+  <string name="Recordings.Title">הקלטות</string>
+  <string name="Images.Title">תמונות</string>
+  <string name="Videos.Title">סרטים</string>
+  <string name="News.Title">חדשות</string>
+  <string name="Weather.Title">מזג אוויר</string>
+  <string name="General.Title">כללי</string>
+</resources>

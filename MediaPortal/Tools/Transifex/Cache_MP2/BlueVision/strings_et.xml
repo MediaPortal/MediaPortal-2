@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Pildid</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Uudised</string>
+  <string name="Menu.Weather">Ilm</string>
+  <string name="Menu.Settings">Seaded</string>
+  <string name="Menu.Others">Veel</string>
+  <string name="Menu.Home">Algvaade</string>
+  <string name="Movies.Title">Filmid</string>
+  <string name="Series.Title">Seeriad</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Images.Title">Pildid</string>
+  <string name="Videos.Title">Videod</string>
+  <string name="News.Title">Uudised</string>
+  <string name="Weather.Title">Ilm</string>
+  <string name="General.Title">Üldine</string>
+</resources>

@@ -299,6 +299,7 @@
   <string name="Media.LargeList">Grootte lijst</string>
   <string name="Media.LargeGrid">Raster</string>
   <string name="Media.CoverLayout">Covers</string>
+  <string name="Media.Watched">Bekeken</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorteer op titel</string>

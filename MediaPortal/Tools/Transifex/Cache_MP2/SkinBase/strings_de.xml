@@ -18,8 +18,8 @@
   <string name="Keys.Shift">Umschalttaste</string>
   <string name="Keys.CapsLock">Feststelltaste</string>
   <string name="Keys.AltGr">Alt Gr</string>
-  <string name="Keys.Copy">kopieren</string>
-  <string name="Keys.Paste">einfügen</string>
+  <string name="Keys.Copy">Kopieren</string>
+  <string name="Keys.Paste">Einfügen</string>
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Start</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
@@ -42,8 +42,8 @@
   <string name="ServerConnection.AttachedText.Before">Dieser MediaPortal-2-Client ist einem Heimserver zugewiesen.</string>
   <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser MediaPortal-2-Client ist momentan keinem Heimserver zugewiesen.</string>
-  <string name="ServerConnection.HomeServerIsConnected">Mit dem Heimserver verbunden.</string>
-  <string name="ServerConnection.HomeServerIsNotConnected">Vom Heimserver getrennt.</string>
+  <string name="ServerConnection.HomeServerIsConnected">Der Heimserver ist derzeit verbunden.</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">Der Heimserver ist derzeit getrennt.</string>
   <string name="ServerConnection.DetachMenu">Abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Vom Heimserver abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen über die lokalen Medienquellen und deren Mediendateien vom Heimserver entfernt. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server \'{0}\' ({1}) abgekoppelt werden?</string>
@@ -51,17 +51,17 @@
   <string name="ServerConnection.DetachFromServer">Vom Server abkoppeln</string>
   <string name="ServerConnection.AttachToServerHeader">An den Server anbinden</string>
   <string name="ServerConnection.AttachToMultipleText">Es sind mehrere MediaPortal-2-Server im Netzwerk verfügbar. Möchtest du einen als Heimserver auswählen?</string>
-  <string name="ServerConnection.AttachToSingleText.Before">Der MediaPortal-2-Server</string>
+  <string name="ServerConnection.AttachToSingleText.Before">Der MP2-Server</string>
   <string name="ServerConnection.AttachToSingleText.After">ist im Netzwerk verfügbar. Soll eine Verbindung hergestellt werden?</string>
   <string name="ServerConnection.AttachToServerNoServerText">Zur Zeit ist kein MediaPortal-2-Server im Netzwerk verfügbar.</string>
   <string name="ServerConnection.AttachButton">Anbinden</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server angebunden</string>
   <string name="ServerConnection.AttachInfoDialogText">Dieser MediaPortal-2-Client wurde mit dem Heimserver \'{0}\' auf Rechner \'{1}\' verbunden.</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="Notifications.Title">Meldungen</string>
+  <string name="Notifications.Title">Benachrichtigungen</string>
   <string name="Notifications.OneMoreNotification">(1 mehr)</string>
   <string name="Notifications.NMoreNotifications">({0} mehr)</string>
-  <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meldungen</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">Benachrichtigungen</string>
   <string name="Notifications.Handle">Details</string>
   <string name="ImporterMessages.ImportStartedTitle">Import gestartet</string>
   <string name="ImporterMessages.ImportStartedText">Der Import \'{0}\' wurde gestartet.</string>
@@ -69,31 +69,31 @@
   <string name="ImporterMessages.ImportCompletedText">Der Import \'{0}\' wurde abgeschlossen.</string>
   <string name="LocalFsResourceProvider.Name">Lokales Dateisystem</string>
   <string name="LocalFsResourceProvider.Description">Zugriff auf das lokale Dateisystem</string>
-  <string name="RemoteResourceProvider.Name">Remote-Ressourcen</string>
+  <string name="RemoteResourceProvider.Name">Fernressourcen</string>
   <string name="RemoteResourceProvider.Description">Zugriff auf Ressourcen, die auf anderen MediaPortal-2-Systemen gespeichert sind</string>
   <string name="RawUrlResourceProvider.Name">Url-Ressourcen</string>
   <string name="RawUrlResourceProvider.Description">Zugriff auf Url-Quellen</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
-  <string name="Players.NoPlayerAvailableNotificationTitle">Fehlender Player</string>
+  <string name="Players.NoPlayerAvailableNotificationTitle">Kein Abspieler</string>
   <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player registriert, um das Medien-Objekt \'{0}\' wiedergeben zu können.</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Wiedergabefehler</string>
   <string name="Players.UnableToPlayMediaItemText">Wiedergabe von Medien-Objekt \'{0}\' nicht möglich.</string>
   <string name="Players.ResourceNotFoundText">Ressource \'{0}\' nicht gefunden</string>
-  <string name="Players.PlayerConfiguration">Player-Einstellungen</string>
-  <string name="Players.CurrentMediaInfo">Aktuelle Medien-Information</string>
-  <string name="Players.FullscreenVideo">Vollbild-{0}</string>
+  <string name="Players.PlayerConfiguration">Abspielerkonfiguration</string>
+  <string name="Players.CurrentMediaInfo">Aktuelle Medieninfo</string>
+  <string name="Players.FullscreenVideo">Vollbild {0}</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.FullscreenImage">Vollbild</string>
-  <string name="Players.AudioVisualization">Audio-Visualisierung</string>
-  <string name="Players.PlayerOfType">{0}-Player</string>
+  <string name="Players.AudioVisualization">Audiovisualisierung</string>
+  <string name="Players.PlayerOfType">{0}-Abspieler</string>
   <!--for example "Video player"-->
   <string name="Players.SlotNo">Slot #{0}</string>
   <string name="Players.FocusPlayer">{0} auswählen</string>
   <!--for example "Focus video player"-->
-  <string name="Players.SwitchPipPlayers">PiP-Player wechseln</string>
-  <string name="Players.ChooseAudioStream">Audiokanal wählen</string>
-  <string name="Players.PlayerSlotAudioMenu">Audio Menü für {0}</string>
+  <string name="Players.SwitchPipPlayers">PiP-Abspieler wechseln</string>
+  <string name="Players.ChooseAudioStream">Audiostream auswählen</string>
+  <string name="Players.PlayerSlotAudioMenu">Audiomenü für {0}</string>
   <!--for example "Audio menu for Lammbock"-->
   <string name="Players.Mute">Stumm</string>
   <string name="Players.MuteOff">Stumm aus</string>
@@ -103,9 +103,9 @@
   <string name="Players.ChoosePlayerEffect">Effekt</string>
   <string name="Settings.Appearance">Erscheinungsbild</string>
   <string name="Settings.Appearance.Skin">Skin</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat">Datums-Format</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">Datumsformat</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datums-Format, das vom Skin verwendet wird. Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Zeit-Format</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Zeitformat</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Zeit-Format, das vom Skin verwendet wird. Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
   <string name="Settings.General">Allgemein</string>
   <string name="Settings.General.System">System</string>
@@ -120,6 +120,14 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Aktiviert Benachrichtigungen, wenn der Client nicht an einen Heimserver angebunden ist und ein Server im Netzwerk verfügbar wird.</string>
   <string name="Settings.General.Connectivity.ClientName">Client-Name</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Legt den Namen dieses MediaPortal-2-Clients fest</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">HTTP-Serverport</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Legen Sie die die Portnummer des HTTP-Servers fest</string>
+  <string name="Settings.General.Connectivity.UseIPv4">IPv4 verwenden</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Legt fest, ob dieser Client IPv4-Verbindungen zum Server verwenden soll.</string>
+  <string name="Settings.General.Connectivity.UseIPv6">IPv6 verwenden</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Legt fest, ob dieser Client IPv6-Verbindungen zum Server verwenden soll.</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">IP-Adressen-Bindungen</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Legt eine Liste von IP-Adressen fest, die von diesem MediaPortal-2-Client für Verbindungen zum Heimserver verwendet werden sollen.</string>
   <string name="Settings.Regional">Spracheinstellungen</string>
   <string name="Settings.Regional.Language">Sprache</string>
   <string name="Settings.Regional.Language.Main">Sprache</string>

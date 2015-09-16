@@ -264,6 +264,7 @@
   <string name="Media.MediumList">Lista media</string>
   <string name="Media.LargeList">lista grande</string>
   <string name="Media.LargeGrid">Griglia</string>
+  <string name="Media.Watched">Visto</string>
   <string name="Media.SwitchSortingMenuItem">Seleziona</string>
   <string name="Media.SwitchSortingDialogTitle">Seleziona</string>
   <string name="Media.SortByTitle">Seleziona per titolo</string>
