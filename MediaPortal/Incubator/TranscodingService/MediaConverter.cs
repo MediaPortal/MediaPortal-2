@@ -51,6 +51,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public string HLSSegmentFileTemplate { get; set; }
     public string SubtitleDefaultEncoding { get; set; }
     public ILogger Logger { get; set; }
+    public bool AllowNvidiaHWAccelleration { get; set; }
+    public bool AllowIntelHWAccelleration { get; set; }
 
     public static Dictionary<string, TranscodeContext> RunningTranscodes = new Dictionary<string, TranscodeContext>();
 
@@ -58,6 +60,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private Dictionary<AudioCodec, int> _maxChannelNumber = new Dictionary<AudioCodec, int>();
     private Dictionary<string, string> _filerPathEncoding = new Dictionary<string, string>();
     private bool _supportHardcodedSubs = true;
+    private bool _supportNvidiaHW = true;
+    private bool _supportIntelHW = true;
 
     private class TranscodeData
     {
@@ -239,6 +243,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       HLSSegmentFileTemplate = "segment%05d.ts";
       SubtitleDefaultEncoding = "";
       TranscoderBinPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ffmpeg.exe");
+      AllowIntelHWAccelleration = false;
+      AllowNvidiaHWAccelleration = false;
       string result;
       using (Process process = new Process { StartInfo = new ProcessStartInfo(TranscoderBinPath, "") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true } })
       {
@@ -255,6 +261,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if(Logger != null) Logger.Warn("MediaConverter: FFMPEG is not compiled with libass support, hardcoded subtitles will not work.");
         _supportHardcodedSubs = false;
+      }
+      if (result.IndexOf("--enable-nvenc") == -1)
+      {
+        if (Logger != null) Logger.Warn("MediaConverter: FFMPEG is not compiled with libnvenc support, Nvidia hardware acceleration will not work.");
+        _supportNvidiaHW = false;
+      }
+      if (result.IndexOf("--enable-libmfx") == -1)
+      {
+        if (Logger != null) Logger.Warn("MediaConverter: FFMPEG is not compiled with libmfx support, Intel hardware acceleration will not work.");
+        _supportIntelHW = false;
       }
     }
 
@@ -590,9 +606,17 @@ namespace MediaPortal.Plugins.Transcoding.Service
       switch (codec)
       {
         case VideoCodec.H265:
-          return "libx265";
+          if(AllowNvidiaHWAccelleration && _supportNvidiaHW)
+            return "hevc_nvenc";
+          else
+            return "libx265";
         case VideoCodec.H264:
-          return "libx264";
+          if (AllowIntelHWAccelleration && _supportIntelHW)
+            return "h264_qsv";
+          else if (AllowNvidiaHWAccelleration && _supportNvidiaHW)
+            return "h264_nvenc";
+          else
+            return "libx264";
         case VideoCodec.H263:
           return "h263";
         case VideoCodec.Vc1:
@@ -602,7 +626,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
         case VideoCodec.MsMpeg4:
           return "msmpeg4";
         case VideoCodec.Mpeg2:
-          return "mpeg2video";
+          if (AllowIntelHWAccelleration && _supportIntelHW)
+            return "mpeg2_qsv";
+          else
+            return "mpeg2video";
         case VideoCodec.Wmv:
           return "wmv1";
         case VideoCodec.Mpeg1:
