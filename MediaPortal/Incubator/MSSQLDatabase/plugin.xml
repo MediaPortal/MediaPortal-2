@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MSSQLDatabase"
+    PluginId="{875769C7-B6B5-441E-BB32-225FA4380E1F}"
+    Author="henso"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides database access to an MS SQL Server database">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2015-09-13 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MSSQLDatabase.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="MSSQLDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.MSSQL.MSSQLDatabase"/>
+  </Register>
+</Plugin>
