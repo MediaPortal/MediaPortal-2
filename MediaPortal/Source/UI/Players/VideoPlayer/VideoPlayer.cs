@@ -398,9 +398,13 @@ namespace MediaPortal.UI.Players.Video
       StreamInfo streamInfo = null;
       if (preferredAudioLCID != 0)
       {
-        CultureInfo ci = new CultureInfo(preferredAudioLCID);
-        string languagePart = ci.EnglishName.Substring(0, ci.EnglishName.IndexOf("(") - 1);
-        streamInfo = audioStreams.FindSimilarStream(languagePart);
+        try
+        {
+          CultureInfo ci = new CultureInfo(preferredAudioLCID);
+          string languagePart = ci.EnglishName.Substring(0, ci.EnglishName.IndexOf("(") - 1);
+          streamInfo = audioStreams.FindSimilarStream(languagePart);
+        }
+        catch { }
       }
 
       // Still no matching languages? Then select the first that matches channelCountPreference.
