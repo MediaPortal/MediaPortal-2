@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -214,7 +215,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
   public abstract class BaseTranscoding
   {
     public string TranscodeID = "";
-    public string SourceFile = "";
+    public IResourceAccessor SourceFile;
     public string TranscoderBinPath = "";
     public string TranscoderArguments = "";
   }
@@ -483,7 +484,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public long Size;
     public long Bitrate;
     public double Duration;
-    public string Source;
+    public IResourceAccessor Source;
     public string Mime;
     public string MajorBrand;
   }

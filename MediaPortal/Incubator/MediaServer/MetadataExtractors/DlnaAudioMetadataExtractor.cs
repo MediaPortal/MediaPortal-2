@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           {
             if (!rah.LocalFsResourceAccessor.IsFile)
               return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor, rah.LocalFsResourceAccessor.LocalFileSystemPath);
+            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -124,7 +124,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         {
           using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
           {
-            MetadataContainer metadata = _analyzer.ParseStream(nra.URL);
+            MetadataContainer metadata = _analyzer.ParseStream(nra);
             if (metadata.IsAudio)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -163,16 +163,16 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
             return null;
           using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
           {
-            info.Metadata.Source = lfsra.LocalFileSystemPath;
+            info.Metadata.Source = lfsra;
+            info.Metadata.Size = lfsra.Size;
           }
         }
-        info.Metadata.Size = new FileInfo(info.Metadata.Source).Length;
       }
       else if (mediaItemAccessor is INetworkResourceAccessor)
       {
         using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
         {
-          info.Metadata.Source = nra.URL;
+          info.Metadata.Source = nra;
         }
         info.Metadata.Size = 0;
       }

@@ -72,6 +72,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.FFMpegLib
       return lfsra.ExecuteWithResourceAccessAsync(_ffProbeBinPath, arguments, priorityClass, maxWaitMs);
     }
 
+    Task<ProcessExecutionResult> IFFMpegLib.FFMpegExecuteAsync(string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
+    {
+      return ProcessUtils.ExecuteAsync(_ffMpegBinPath, arguments, priorityClass, maxWaitMs);
+    }
+
+    Task<ProcessExecutionResult> IFFMpegLib.FFProbeExecuteAsync(string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
+    {
+      return ProcessUtils.ExecuteAsync(_ffProbeBinPath, arguments, priorityClass, maxWaitMs);
+    }
+
     public string FFMpegBinaryPath
     {
       get
@@ -89,5 +99,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.FFMpegLib
     }
 
     #endregion
+
   }
 }

@@ -15,24 +15,23 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -55,42 +54,8 @@
     <Compile Include="SubtitleAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Transcoders\ffmpeg.exe" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
     <None Include="build.targets" />
-    <None Include="Transcoders\fonts\conf.d\10-autohint.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-no-sub-pixel.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-scale-bitmap-fonts.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-sub-pixel-bgr.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-sub-pixel-rgb.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-sub-pixel-vbgr.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-sub-pixel-vrgb.conf" />
-    <None Include="Transcoders\fonts\conf.d\10-unhinted.conf" />
-    <None Include="Transcoders\fonts\conf.d\11-lcdfilter-default.conf" />
-    <None Include="Transcoders\fonts\conf.d\11-lcdfilter-legacy.conf" />
-    <None Include="Transcoders\fonts\conf.d\11-lcdfilter-light.conf" />
-    <None Include="Transcoders\fonts\conf.d\20-unhint-small-vera.conf" />
-    <None Include="Transcoders\fonts\conf.d\25-unhint-nonlatin.conf" />
-    <None Include="Transcoders\fonts\conf.d\30-metric-aliases.conf" />
-    <None Include="Transcoders\fonts\conf.d\30-urw-aliases.conf" />
-    <None Include="Transcoders\fonts\conf.d\40-nonlatin.conf" />
-    <None Include="Transcoders\fonts\conf.d\45-latin.conf" />
-    <None Include="Transcoders\fonts\conf.d\49-sansserif.conf" />
-    <None Include="Transcoders\fonts\conf.d\50-user.conf" />
-    <None Include="Transcoders\fonts\conf.d\51-local.conf" />
-    <None Include="Transcoders\fonts\conf.d\60-latin.conf" />
-    <None Include="Transcoders\fonts\conf.d\65-fonts-persian.conf" />
-    <None Include="Transcoders\fonts\conf.d\65-khmer.conf" />
-    <None Include="Transcoders\fonts\conf.d\65-nonlatin.conf" />
-    <None Include="Transcoders\fonts\conf.d\69-unifont.conf" />
-    <None Include="Transcoders\fonts\conf.d\70-no-bitmaps.conf" />
-    <None Include="Transcoders\fonts\conf.d\70-yes-bitmaps.conf" />
-    <None Include="Transcoders\fonts\conf.d\80-delicious.conf" />
-    <None Include="Transcoders\fonts\conf.d\90-synthetic.conf" />
-    <None Include="Transcoders\fonts\fonts.conf" />
-    <None Include="Transcoders\fonts\fonts.dtd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -101,6 +66,13 @@
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj">
+      <Project>{d2416e5a-cf6a-4b45-836d-02300d666127}</Project>
+      <Name>FFMpegLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Transcoders\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

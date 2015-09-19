@@ -531,7 +531,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             }
             if (resourceStream == null && dlnaItem.IsTranscoded == false)
             {
-              resourceStream = _transcoder.GetReadyFileBuffer(dlnaItem.DlnaMetadata.Metadata.Source);
+              resourceStream = _transcoder.GetReadyFileBuffer((ILocalFsResourceAccessor)dlnaItem.DlnaMetadata.Metadata.Source);
             }
             if (resourceStream == null)
             {

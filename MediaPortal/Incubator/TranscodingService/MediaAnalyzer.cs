@@ -33,7 +33,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 
@@ -107,13 +107,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
     }
 
-    public MetadataContainer ParseFile(ILocalFsResourceAccessor lfsra, string fileName)
+    public MetadataContainer ParseFile(ILocalFsResourceAccessor lfsra)
     {
+      string fileName = lfsra.LocalFileSystemPath;
       string arguments = string.Format("-threads {0} -i \"{1}\"", TranscoderMaximumThreads, fileName);
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result;
+        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result;
       
       // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
       // and stderr is used for logging purposes. In your example you use stdout.
@@ -121,9 +122,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
         if (Logger != null) Logger.Debug("DlnaMediaServer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, executionResult.StandardError);
-        MetadataContainer info = new MetadataContainer { Metadata = { Source = fileName } };
-        info.Metadata.Mime = MimeTypeDetector.GetMimeType(info.Metadata.Source);
-        info.Metadata.Size = new FileInfo(fileName).Length;
+        MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
+        info.Metadata.Mime = MimeTypeDetector.GetMimeType(fileName);
+        info.Metadata.Size = lfsra.Size;
         ParseFFMpegOutput(executionResult.StandardError, ref info);
         ParseH264Info(ref info);
         ParseMPEG2TSInfo(ref info);
@@ -138,29 +139,27 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    public MetadataContainer ParseStream(string streamLink)
+    public MetadataContainer ParseStream(INetworkResourceAccessor streamLink)
     {
       string arguments = "";
-      if (streamLink.StartsWith("rtsp://") == true)
+      if (streamLink.URL.StartsWith("rtsp://") == true)
       {
         arguments += "-rtsp_transport +tcp+udp ";
       }
       arguments += "-analyzeduration 10000000 ";
       arguments += string.Format("-i \"{0}\"", streamLink);
 
-      string result;
-      bool success;
-
+      ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        success = TryExecute(AnalyzerBinPath, arguments, out result, ProcessPriorityClass.BelowNormal);
-
-      if (success)
+        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result;
+      
+      if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, result);
+        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
-        info.Metadata.Mime = MimeTypeDetector.GetMimeType(info.Metadata.Source);
+        info.Metadata.Mime = MimeTypeDetector.GetMimeType(streamLink.URL);
         info.Metadata.Size = 0;
-        ParseFFMpegOutput(result, ref info);
+        ParseFFMpegOutput(executionResult.StandardError, ref info);
         ParseH264Info(ref info);
         ParseMPEG2TSInfo(ref info);
         return info;
@@ -173,94 +172,84 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public void ParseSubtitleFiles(ref MetadataContainer info)
     {
-      if (File.Exists(info.Metadata.Source) == true)
+      ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
+      if (lfsra.Exists)
       {
-        string[] files = Directory.GetFiles(Path.GetDirectoryName(info.Metadata.Source), Path.GetFileNameWithoutExtension(info.Metadata.Source) + "*.*");
-        foreach (string file in files)
+        // Impersionation
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
         {
-          SubtitleStream sub = new SubtitleStream();
-          sub.StreamIndex = -1;
-          sub.Codec = SubtitleCodec.Unknown;
-          if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
+          string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
+          foreach (string file in files)
           {
-            sub.Codec = SubtitleCodec.Srt;
-          }
-          else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
-          {
-            sub.Codec = SubtitleCodec.Smi;
-          }
-          else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
-          {
-            sub.Codec = SubtitleCodec.Ass;
-          }
-          else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
-          {
-            sub.Codec = SubtitleCodec.Ssa;
-          }
-          else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
-          {
-            string subContent = File.ReadAllText(file);
-            if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
-            else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
-          }
-          if (sub.Codec != SubtitleCodec.Unknown)
-          {
-            sub.Source = file;
-            sub.Language = SubtitleAnalyzer.GetLanguage(file, SubtitleDefaultEncoding, SubtitleDefaultLanguage);
-            info.Subtitles.Add(sub);
-          }
-        }
-      }
-    }
-
-    private bool TryExecute(string executable, string arguments, out string result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
-    {
-      using (Process process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true } })
-      {
-        process.Start();
-        process.PriorityClass = priorityClass;
-        using (process.StandardError)
-        {
-          result = process.StandardError.ReadToEnd();
-          if (process.WaitForExit(TranscoderTimeout))
-            return process.ExitCode == 1;
-        }
-        if (!process.HasExited)
-          process.Close();
-      }
-      return false;
-    }
-
-    private bool TryExecuteBinary(string executable, string arguments, out byte[] result, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
-    {
-      using (Process process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
-      {
-        process.Start();
-        process.PriorityClass = priorityClass;
-        List<byte> resultList = new List<byte>();
-        bool abort = false;
-        using (process.StandardOutput)
-        {
-          DateTime dtEnd = DateTime.Now.AddMilliseconds(TranscoderTimeout);
-          using (BinaryReader br = new BinaryReader(process.StandardOutput.BaseStream))
-          {
-            while (abort == false && DateTime.Now < dtEnd)
+            SubtitleStream sub = new SubtitleStream();
+            sub.StreamIndex = -1;
+            sub.Codec = SubtitleCodec.Unknown;
+            if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
             {
-              try
-              {
-                resultList.Add(br.ReadByte());
-              }
-              catch (EndOfStreamException)
-              {
-                abort = true;
-              }
+              sub.Codec = SubtitleCodec.Srt;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Smi;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Ass;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Ssa;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
+            {
+              string subContent = File.ReadAllText(file);
+              if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
+              else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
+            }
+            if (sub.Codec != SubtitleCodec.Unknown)
+            {
+              sub.Source = file;
+              sub.Language = SubtitleAnalyzer.GetLanguage(file, SubtitleDefaultEncoding, SubtitleDefaultLanguage);
+              info.Subtitles.Add(sub);
             }
           }
         }
-        result = resultList.ToArray();
-        process.Close();
-        if (abort == true)
-          return true;
+      }
+    }
+
+    private bool TryExecuteBinary(string executable, string arguments, out byte[] result, ILocalFsResourceAccessor lfsra, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
+    {
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+      {
+        using (Process process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
+        {
+          process.Start();
+          process.PriorityClass = priorityClass;
+          List<byte> resultList = new List<byte>();
+          bool abort = false;
+          using (process.StandardOutput)
+          {
+            DateTime dtEnd = DateTime.Now.AddMilliseconds(TranscoderTimeout);
+            using (BinaryReader br = new BinaryReader(process.StandardOutput.BaseStream))
+            {
+              while (abort == false && DateTime.Now < dtEnd)
+              {
+                try
+                {
+                  resultList.Add(br.ReadByte());
+                }
+                catch (EndOfStreamException)
+                {
+                  abort = true;
+                }
+              }
+            }
+          }
+          result = resultList.ToArray();
+          process.Close();
+          if (abort == true)
+            return true;
+        }
       }
       return false;
     }
@@ -295,7 +284,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return SubtitleCodec.Unknown;
     }
 
-    private VideoContainer ParseVideoContainer(string token, string fileName)
+    private VideoContainer ParseVideoContainer(string token, ILocalFsResourceAccessor lfsra)
     {
       if (token != null)
       {
@@ -313,7 +302,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           return VideoContainer.Matroska;
         if (token.Equals("mov", StringComparison.InvariantCultureIgnoreCase) || token.Equals("mp4", StringComparison.InvariantCultureIgnoreCase))
         {
-          if (fileName != null && fileName.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
+          if (lfsra.LocalFileSystemPath != null && lfsra.LocalFileSystemPath.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
           {
             return VideoContainer.Gp3;
           }
@@ -552,7 +541,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else if (info.IsVideo)
       {
-        info.Metadata.VideoContainerType = ParseVideoContainer(ffmContainer, info.Metadata.Source);
+        info.Metadata.VideoContainerType = ParseVideoContainer(ffmContainer, (ILocalFsResourceAccessor)info.Metadata.Source);
       }
       else if (info.IsImage)
       {
@@ -560,7 +549,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        info.Metadata.VideoContainerType = ParseVideoContainer(ffmContainer, info.Metadata.Source);
+        info.Metadata.VideoContainerType = ParseVideoContainer(ffmContainer, (ILocalFsResourceAccessor)info.Metadata.Source);
         info.Metadata.AudioContainerType = ParseAudioContainer(ffmContainer);
         info.Metadata.ImageContainerType = ParseImageContainer(ffmContainer);
       }
@@ -999,7 +988,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
           bool success;
           lock (FFPROBE_THROTTLE_LOCK)
-            success = TryExecuteBinary(ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, arguments, out h264Stream, ProcessPriorityClass.BelowNormal);
+            success = TryExecuteBinary(ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, arguments, out h264Stream, (ILocalFsResourceAccessor)info.Metadata.Source, ProcessPriorityClass.BelowNormal);
 
           if (success == false || h264Stream == null)
           {
@@ -1071,32 +1060,37 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         info.Video.TimestampType = Timestamp.None;
         FileStream raf = null;
+        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
         try
         {
-          raf = File.OpenRead(info.Metadata.Source);
-          byte[] packetBuffer = new byte[193];
-          raf.Read(packetBuffer, 0, packetBuffer.Length);
-          if (packetBuffer[0] == 0x47) //Sync byte (Standard MPEG2 TS)
+          // Impersionation
+          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
           {
-            info.Video.TimestampType = Timestamp.None;
-            if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video.TimestampType);
-          }
-          else if (packetBuffer[4] == 0x47 && packetBuffer[192] == 0x47) //Sync bytes (BluRay MPEG2 TS)
-          {
-            if (packetBuffer[0] == 0x00 && packetBuffer[1] == 0x00 && packetBuffer[2] == 0x00 && packetBuffer[3] == 0x00)
+            raf = File.OpenRead(lfsra.LocalFileSystemPath);
+            byte[] packetBuffer = new byte[193];
+            raf.Read(packetBuffer, 0, packetBuffer.Length);
+            if (packetBuffer[0] == 0x47) //Sync byte (Standard MPEG2 TS)
             {
-              info.Video.TimestampType = Timestamp.Zeros;
+              info.Video.TimestampType = Timestamp.None;
+              if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video.TimestampType);
+            }
+            else if (packetBuffer[4] == 0x47 && packetBuffer[192] == 0x47) //Sync bytes (BluRay MPEG2 TS)
+            {
+              if (packetBuffer[0] == 0x00 && packetBuffer[1] == 0x00 && packetBuffer[2] == 0x00 && packetBuffer[3] == 0x00)
+              {
+                info.Video.TimestampType = Timestamp.Zeros;
+              }
+              else
+              {
+                info.Video.TimestampType = Timestamp.Valid;
+              }
+              if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video.TimestampType);
             }
             else
             {
-              info.Video.TimestampType = Timestamp.Valid;
+              info.Video.TimestampType = Timestamp.None;
+              if (Logger != null) Logger.Error("MediaAnalyzer: Failed to retreive MPEG2TS timestamp for resource '{0}'", info.Metadata.Source);
             }
-            if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video.TimestampType);
-          }
-          else
-          {
-            info.Video.TimestampType = Timestamp.None;
-            if (Logger != null) Logger.Error("MediaAnalyzer: Failed to retreive MPEG2TS timestamp for resource '{0}'", info.Metadata.Source);
           }
         }
         finally

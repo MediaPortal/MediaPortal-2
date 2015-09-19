@@ -67,6 +67,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.FFMpegLib
     Task<ProcessExecutionResult> FFProbeExecuteWithResourceAccessAsync(ILocalFsResourceAccessor lfsra, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT);
 
     /// <summary>
+    /// Executes FFMpeg. This function doesn't check if impersionation is necessary
+    /// </summary>
+    /// <param name="arguments">Arguments for FFMpeg</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns>A <see cref="Task"/> representing the result of executing FFMpeg</returns>
+    /// <remarks>
+    /// This is a convenience method that enables executing FFMpeg directly.
+    /// </remarks>
+    Task<ProcessExecutionResult> FFMpegExecuteAsync(string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT);
+
+    /// <summary>
+    /// Executes FFProbe. This function doesn't check if impersionation is necessary
+    /// </summary>
+    /// <param name="arguments">Arguments for FFProbe</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns>A <see cref="Task"/> representing the result of executing FFProbe</returns>
+    /// <remarks>
+    /// This is a convenience method that enables executing FFProbe directly.
+    /// </remarks>
+    Task<ProcessExecutionResult> FFProbeExecuteAsync(string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT);
+
+    /// <summary>
     /// Returns the absolute path to FFMpeg binary.
     /// </summary>
     string FFMpegBinaryPath
