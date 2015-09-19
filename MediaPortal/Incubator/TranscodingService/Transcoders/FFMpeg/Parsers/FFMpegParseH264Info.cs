@@ -1,0 +1,153 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
+
+namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+{
+  public class FFMpegParseH264Info
+  {
+
+    #region Protected fields and classes
+
+    protected static readonly object FFPROBE_THROTTLE_LOCK = new object();
+
+    #endregion
+
+    private static int TranscoderTimeout { get; set; }
+
+    internal static void ParseH264Info(ref MetadataContainer info, Dictionary<float, long> h264MaxDpbMbs, int transcoderTimeout)
+    {
+      TranscoderTimeout = transcoderTimeout;
+
+      if (info.Video.Codec == VideoCodec.H264)
+      {
+        try
+        {
+          byte[] h264Stream = null;
+          string arguments = string.Format("-i \"{0}\" -frames:v 1 -c:v copy -f h264", info.Metadata.Source);
+          if (info.Metadata.VideoContainerType != VideoContainer.Mpeg2Ts)
+          {
+            arguments += " -bsf:v h264_mp4toannexb";
+          }
+          arguments += " -an pipe:";
+
+          bool success;
+          lock (FFPROBE_THROTTLE_LOCK)
+            success = TryExecuteBinary(ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, arguments, out h264Stream, (ILocalFsResourceAccessor)info.Metadata.Source, ProcessPriorityClass.BelowNormal);
+
+          if (success == false || h264Stream == null)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MediaAnalyzer: Failed to extract h264 annex b header information for resource: '{0}'", info.Metadata.VideoContainerType);
+            return;
+          }
+
+          H264Analyzer avcAnalyzer = new H264Analyzer();
+          if (avcAnalyzer.Parse(h264Stream) == true)
+          {
+            switch (avcAnalyzer.HeaderProfile)
+            {
+              case H264Analyzer.H264HeaderProfile.ConstrainedBaseline:
+                info.Video.H264ProfileType = H264Profile.Baseline;
+                break;
+              case H264Analyzer.H264HeaderProfile.Baseline:
+                info.Video.H264ProfileType = H264Profile.Baseline;
+                break;
+              case H264Analyzer.H264HeaderProfile.Main:
+                info.Video.H264ProfileType = H264Profile.Main;
+                break;
+              case H264Analyzer.H264HeaderProfile.Extended:
+                info.Video.H264ProfileType = H264Profile.Main;
+                break;
+              case H264Analyzer.H264HeaderProfile.High:
+                info.Video.H264ProfileType = H264Profile.High;
+                break;
+              case H264Analyzer.H264HeaderProfile.High_10:
+                info.Video.H264ProfileType = H264Profile.High10;
+                break;
+              case H264Analyzer.H264HeaderProfile.High_422:
+                info.Video.H264ProfileType = H264Profile.High422;
+                break;
+              case H264Analyzer.H264HeaderProfile.High_444:
+                info.Video.H264ProfileType = H264Profile.High444;
+                break;
+            }
+            info.Video.H264HeaderLevel = avcAnalyzer.HeaderLevel;
+            int refFrames = avcAnalyzer.HeaderRefFrames;
+            if (info.Video.Width > 0 && info.Video.Height > 0 && refFrames > 0 && refFrames <= 16)
+            {
+              long dpbMbs = Convert.ToInt64(((float)info.Video.Width * (float)info.Video.Height * (float)refFrames) / 256F);
+              foreach (KeyValuePair<float, long> levelDbp in h264MaxDpbMbs)
+              {
+                if (levelDbp.Value > dpbMbs)
+                {
+                  info.Video.H264RefLevel = levelDbp.Key;
+                  break;
+                }
+              }
+            }
+            if (info.Video.H264HeaderLevel == 0 && info.Video.H264RefLevel == 0)
+            {
+              if (Logger != null) Logger.Warn("MediaAnalyzer: Couldn't resolve H264 profile/level/reference frames for resource: '{0}'", info.Metadata.Source);
+            }
+          }
+          if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully decoded H264 header: H264 profile {0}, level {1}/level {2}", info.Video.H264ProfileType, info.Video.H264HeaderLevel, info.Video.H264RefLevel);
+        }
+        catch (Exception e)
+        {
+          if (Logger != null) Logger.Error("MediaAnalyzer: Failed to analyze H264 information for resource '{0}':\n {1}", info.Metadata.Source, e.Message);
+        }
+      }
+    }
+
+    // TODO: Should be in the FFMpegLib
+    private static bool TryExecuteBinary(string executable, string arguments, out byte[] result, ILocalFsResourceAccessor lfsra, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
+    {
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+      {
+        using (Process process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
+        {
+          process.Start();
+          process.PriorityClass = priorityClass;
+          List<byte> resultList = new List<byte>();
+          bool abort = false;
+          using (process.StandardOutput)
+          {
+            DateTime dtEnd = DateTime.Now.AddMilliseconds(TranscoderTimeout);
+            using (BinaryReader br = new BinaryReader(process.StandardOutput.BaseStream))
+            {
+              while (abort == false && DateTime.Now < dtEnd)
+              {
+                try
+                {
+                  resultList.Add(br.ReadByte());
+                }
+                catch (EndOfStreamException)
+                {
+                  abort = true;
+                }
+              }
+            }
+          }
+          result = resultList.ToArray();
+          process.Close();
+          if (abort == true)
+            return true;
+        }
+      }
+      return false;
+    }
+
+    private static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
+    }
+  }
+}
