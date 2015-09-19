@@ -41,6 +41,7 @@ using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
@@ -54,7 +55,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
     protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Image };
 
-    private static MediaAnalyzer _analyzer = new MediaAnalyzer();
+    private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
 
     static DlnaImageMetadataExtractor()
     {

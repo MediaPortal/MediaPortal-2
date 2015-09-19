@@ -34,6 +34,7 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using System.Linq;
 using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
@@ -47,7 +48,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
     protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Video };
 
-    private static MediaAnalyzer _analyzer = new MediaAnalyzer();
+    private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
 
     static DlnaVideoMetadataExtractor()
     {

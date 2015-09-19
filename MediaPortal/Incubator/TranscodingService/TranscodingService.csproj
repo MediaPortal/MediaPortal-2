@@ -52,6 +52,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="H264Analyzer.cs" />
+    <Compile Include="Interfaces\IMediaAnalyzer.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="MediaAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

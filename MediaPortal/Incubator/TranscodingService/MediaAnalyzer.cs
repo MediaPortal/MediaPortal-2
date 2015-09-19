@@ -25,22 +25,19 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Utilities.SystemAPI;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
+using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
-  public class MediaAnalyzer
+  public class MediaAnalyzer : IMediaAnalyzer
   {
     #region Constants
 
@@ -49,20 +46,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
     /// </summary>
     protected const int PROCESS_TIMEOUT_MS = 30000;
 
-    /// <summary>
-    /// Name of the Assembly to execute
-    /// </summary>
-    protected const string PROCESS_ASSEMBLY_NAME = "ffprobe.exe";
-
     #endregion
 
-    #region Protected fields and classes
+    #region Protected fields
 
     protected static readonly object FFPROBE_THROTTLE_LOCK = new object();
 
     #endregion
 
-    public string AnalyzerBinPath { get; set; }
     public int TranscoderTimeout { get; set; }
     public int TranscoderMaximumThreads { get; set; }
     public string SubtitleDefaultEncoding { get; set; }
@@ -74,7 +65,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
    
     public MediaAnalyzer()
     {
-      AnalyzerBinPath = ServiceRegistration.Get<IFFMpegLib>().FFProbeBinaryPath;
       TranscoderTimeout = 2500;
       TranscoderMaximumThreads = 0;
       SubtitleDefaultEncoding = "";
@@ -122,7 +112,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // http://stackoverflow.com/questions/4246758/why-doesnt-this-method-redirect-my-output-from-exe-ffmpeg
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("DlnaMediaServer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, executionResult.StandardError);
+        if (Logger != null) Logger.Debug("DlnaMediaServer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(fileName);
         info.Metadata.Size = lfsra.Size;
@@ -156,7 +146,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran {0}:\n {1}", PROCESS_ASSEMBLY_NAME, executionResult.StandardError);
+        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(streamLink.URL);
         info.Metadata.Size = 0;
