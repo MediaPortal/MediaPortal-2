@@ -57,6 +57,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public ILogger Logger { get; set; }
     public bool AllowNvidiaHWAccelleration { get; set; }
     public bool AllowIntelHWAccelleration { get; set; }
+    public int MaximumNvidiaHWStreams { get; set; }
+    public int MaximumIntelHWStreams { get; set; }
+    public List<VideoCodec> SupportedNvidiaHWCodecs { get; set; }
+    public List<VideoCodec> SupportedIntelHWCodecs { get; set; }
 
     public static Dictionary<string, TranscodeContext> RunningTranscodes = new Dictionary<string, TranscodeContext>();
 
@@ -66,6 +70,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private bool _supportHardcodedSubs = true;
     private bool _supportNvidiaHW = true;
     private bool _supportIntelHW = true;
+    private List<string> _nvidiaTranscodes = new List<string>();
+    private List<string> _intelTranscodes = new List<string>();
 
     private class TranscodeData
     {
@@ -186,6 +192,79 @@ namespace MediaPortal.Plugins.Transcoding.Service
       InitSettings();
     }
 
+    #region HW Acceleration
+
+    private bool StartHWTranscode(VideoCodec codec, string transcodeId)
+    {
+      if (StartHWTranscode(codec, transcodeId, AllowIntelHWAccelleration, _supportIntelHW, SupportedIntelHWCodecs, MaximumIntelHWStreams, _intelTranscodes))
+      {
+        return true;
+      }
+      if (StartHWTranscode(codec, transcodeId, AllowNvidiaHWAccelleration, _supportNvidiaHW, SupportedNvidiaHWCodecs, MaximumNvidiaHWStreams, _nvidiaTranscodes))
+      {
+        return true;
+      }
+      return false;
+    }
+
+    private bool StartHWTranscode(VideoCodec codec, string transcodeId, bool allowHW, bool supportHW, List<VideoCodec> supportCodec, int maxStreams, List<string> transocodingStreams)
+    {
+      //Check support
+      if (allowHW == false || supportHW == false)
+        return false;
+      //Check codec support
+      if (supportCodec.Contains(codec) == false)
+        return false;
+      //Check maximum stream support
+      lock (transocodingStreams)
+      {
+        if (maxStreams > 0 && maxStreams <= _nvidiaTranscodes.Count)
+          return false;
+        if (transocodingStreams.Contains(transcodeId) == true)
+          return true;
+        transocodingStreams.Add(transcodeId);
+        return true;
+      }
+    }
+
+    private bool IsNvidiaHWTranscode(string transcodeId)
+    {
+      lock (_nvidiaTranscodes)
+      {
+        return _nvidiaTranscodes.Contains(transcodeId);
+      }
+    }
+
+    private bool IsIntelHWTranscode(string transcodeId)
+    {
+      lock (_intelTranscodes)
+      {
+        return _intelTranscodes.Contains(transcodeId);
+      }
+    }
+
+    private void EndHWTranscode(string transcodeId)
+    {
+      lock (_intelTranscodes)
+      {
+        if (_intelTranscodes.Contains(transcodeId) == true)
+        {
+          _intelTranscodes.Remove(transcodeId);
+          return;
+        }
+      }
+      lock (_nvidiaTranscodes)
+      {
+        if (_nvidiaTranscodes.Contains(transcodeId) == true)
+        {
+          _nvidiaTranscodes.Remove(transcodeId);
+          return;
+        }
+      }
+    }
+
+    #endregion
+
     #region Cache
 
     private void InitSettings()
@@ -243,6 +322,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
       TranscoderMaximumCacheAge = 30; //Days
       TranscoderMaximumThreads = 0;
       TranscoderTimeout = 5000;
+      MaximumIntelHWStreams = 0;
+      MaximumNvidiaHWStreams = 2; //Geforce
+      SupportedIntelHWCodecs = new List<VideoCodec>() { VideoCodec.Mpeg2, VideoCodec.H264, VideoCodec.H265 };
+      SupportedNvidiaHWCodecs = new List<VideoCodec>() { VideoCodec.H264, VideoCodec.H265 };
       HLSSegmentTimeInSeconds = 10;
       HLSSegmentFileTemplate = "segment%05d.ts";
       SubtitleDefaultEncoding = "";
@@ -268,7 +351,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       if (result.IndexOf("--enable-nvenc") == -1)
       {
-        if (Logger != null) Logger.Warn("MediaConverter: FFMPEG is not compiled with libnvenc support, Nvidia hardware acceleration will not work.");
+        if (Logger != null) Logger.Warn("MediaConverter: FFMPEG is not compiled with nvenc support, Nvidia hardware acceleration will not work.");
         _supportNvidiaHW = false;
       }
       if (result.IndexOf("--enable-libmfx") == -1)
@@ -482,7 +565,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public bool IsFileInTranscodeCache(string transcodeId)
     {
-      if (RunningTranscodes.ContainsKey(transcodeId) == false)
+      if (IsTranscodingRunning(transcodeId) == false)
       {
         List<string> dirObjects = new List<string>(Directory.GetFiles(TranscoderCachePath, "*.mp*"));
         foreach (string file in dirObjects)
@@ -605,20 +688,22 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    private string GetVideoCodec(VideoCodec codec)
+    private string GetVideoCodec(VideoCodec codec, string transcodeID)
     {
       switch (codec)
       {
         case VideoCodec.H265:
-          if(AllowNvidiaHWAccelleration && _supportNvidiaHW)
-            return "hevc_nvenc";
+          if (IsIntelHWTranscode(transcodeID))
+            return "hevc_qsv";
+          else if (IsNvidiaHWTranscode(transcodeID))
+            return "nvenc_hevc";
           else
             return "libx265";
         case VideoCodec.H264:
-          if (AllowIntelHWAccelleration && _supportIntelHW)
+          if (IsIntelHWTranscode(transcodeID))
             return "h264_qsv";
-          else if (AllowNvidiaHWAccelleration && _supportNvidiaHW)
-            return "h264_nvenc";
+          else if (IsNvidiaHWTranscode(transcodeID))
+            return "nvenc_h264";
           else
             return "libx264";
         case VideoCodec.H263:
@@ -630,7 +715,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         case VideoCodec.MsMpeg4:
           return "msmpeg4";
         case VideoCodec.Mpeg2:
-          if (AllowIntelHWAccelleration && _supportIntelHW)
+          if (IsIntelHWTranscode(transcodeID))
             return "mpeg2_qsv";
           else
             return "mpeg2video";
@@ -1302,6 +1387,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         video.TargetVideoMaxHeight = 1080;
       }
+      bool isIntel = IsIntelHWTranscode(video.TranscodeId);
+      bool isNvidia = IsNvidiaHWTranscode(video.TranscodeId);
       bool vCodecCopy = false;
       if (IsVideoStreamChanged(video) == false)
       {
@@ -1311,7 +1398,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        data.OutputArguments.Add(string.Format("-c:v {0}", GetVideoCodec(video.TargetVideoCodec)));
+        data.OutputArguments.Add(string.Format("-c:v {0}", GetVideoCodec(video.TargetVideoCodec, video.TranscodeId)));
 
         if (video.TargetPixelFormat == PixelFormat.Unknown)
         {
@@ -1321,50 +1408,130 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         if (video.TargetVideoCodec == VideoCodec.H265)
         {
-          if (video.TargetH264Preset == H264Preset.Ultrafast)
+          if (video.TargetPreset == EncodingPreset.Ultrafast)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset ultrafast");
           }
-          else if (video.TargetH264Preset == H264Preset.Superfast)
+          }
+          else if (video.TargetPreset == EncodingPreset.Superfast)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset superfast");
           }
-          else if (video.TargetH264Preset == H264Preset.Default || video.TargetH264Preset == H264Preset.Veryfast)
+          }
+          else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Veryfast)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset veryfast");
           }
-          else if (video.TargetH264Preset == H264Preset.Faster)
+          }
+          else if (video.TargetPreset == EncodingPreset.Faster)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset faster");
           }
-          else if (video.TargetH264Preset == H264Preset.Fast)
+          }
+          else if (video.TargetPreset == EncodingPreset.Fast)
           {
             data.OutputArguments.Add("-preset fast");
           }
-          else if (video.TargetH264Preset == H264Preset.Medium)
+          else if (video.TargetPreset == EncodingPreset.Medium)
           {
             data.OutputArguments.Add("-preset medium");
           }
-          else if (video.TargetH264Preset == H264Preset.Slow)
+          else if (video.TargetPreset == EncodingPreset.Slow)
           {
             data.OutputArguments.Add("-preset slow");
           }
-          else if (video.TargetH264Preset == H264Preset.Slower)
+          else if (video.TargetPreset == EncodingPreset.Slower)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset slow");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
           {
             data.OutputArguments.Add("-preset slower");
           }
-          else if (video.TargetH264Preset == H264Preset.Veryslow)
+          }
+          else if (video.TargetPreset == EncodingPreset.Veryslow)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset slow");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
           {
             data.OutputArguments.Add("-preset veryslow");
           }
-          else if (video.TargetH264Preset == H264Preset.Placebo)
+          }
+          else if (video.TargetPreset == EncodingPreset.Placebo)
+          {
+            if (isIntel)
+            {
+              //Use auto
+            }
+            else if (isNvidia)
+            {
+              //Use auto
+            }
+            else
           {
             data.OutputArguments.Add("-preset placebo");
+          }
+          }
+          if (isIntel)
+          {
+            data.OutputArguments.Add("-profile:v main");
           }
 
           AddVideoBitrateParameters(video, data);
 
-          data.OutputArguments.Add("-x265-params");
           if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
           {
             data.OutputArguments.Add("-crf 10");
@@ -1373,70 +1540,203 @@ namespace MediaPortal.Plugins.Transcoding.Service
           {
             data.OutputArguments.Add(string.Format("-crf {0}", video.TargetH264QualityFactor));
           }
+
+          if (isIntel)
+          {
+            //Ignore
+          }
+          else if (isNvidia)
+          {
+            //Ignore
+          }
+          else
+          {
+          data.OutputArguments.Add("-x265-params");
+            string args = "";
+          if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
+          {
+              args += "crf=10";
+          }
+          else
+          {
+              args += string.Format("crf={0}", video.TargetH264QualityFactor);
+          }
+            if (video.SourceFrameRate > 0)
+            {
+              args += string.Format(":fps={0}", GetValidFramerate(video.SourceFrameRate));
+            }
+            if (video.TargetLevel > 0)
+            {
+              args += string.Format(":level={0}", video.TargetLevel.ToString("0.0", CultureInfo.InvariantCulture));
+            }
+            data.OutputArguments.Add(args);
+          }
         }
         else if (video.TargetVideoCodec == VideoCodec.H264)
         {
-          if (video.TargetH264Profile == H264Profile.Baseline)
+          if (video.TargetProfile == EncodingProfile.Baseline)
           {
             data.OutputArguments.Add("-profile:v baseline");
           }
-          else if (video.TargetH264Profile == H264Profile.Main)
+          else if (video.TargetProfile == EncodingProfile.Main)
           {
             data.OutputArguments.Add("-profile:v main");
           }
-          else if (video.TargetH264Profile == H264Profile.High && video.TargetPixelFormat == PixelFormat.Yuv422)
+          else if (video.TargetProfile == EncodingProfile.High && video.TargetPixelFormat == PixelFormat.Yuv422)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else
           {
             data.OutputArguments.Add("-profile:v high422");
           }
-          else if (video.TargetH264Profile == H264Profile.High && video.TargetPixelFormat == PixelFormat.Yuv444)
+          }
+          else if (video.TargetProfile == EncodingProfile.High && video.TargetPixelFormat == PixelFormat.Yuv444)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else
           {
             data.OutputArguments.Add("-profile:v high444");
           }
-          else if (video.TargetH264Profile == H264Profile.High)
+          }
+          else if (video.TargetProfile == EncodingProfile.High)
           {
             data.OutputArguments.Add("-profile:v high");
           }
-          data.OutputArguments.Add(string.Format("-level {0}", video.TargetH264Level.ToString("0.0", CultureInfo.InvariantCulture)));
+          if (video.TargetLevel > 0)
+          {
+            data.OutputArguments.Add(string.Format("-level {0}", video.TargetLevel.ToString("0.0", CultureInfo.InvariantCulture)));
+          }
 
-          if (video.TargetH264Preset == H264Preset.Ultrafast)
+          if (video.TargetPreset == EncodingPreset.Ultrafast)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset ultrafast");
           }
-          else if (video.TargetH264Preset == H264Preset.Superfast)
+          }
+          else if (video.TargetPreset == EncodingPreset.Superfast)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset superfast");
           }
-          else if (video.TargetH264Preset == H264Preset.Default || video.TargetH264Preset == H264Preset.Veryfast)
+          }
+          else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Veryfast)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
           {
             data.OutputArguments.Add("-preset veryfast");
           }
-          else if (video.TargetH264Preset == H264Preset.Faster)
+          }
+          else if (video.TargetPreset == EncodingPreset.Faster)
+          {
+            if (isIntel)
           {
             data.OutputArguments.Add("-preset faster");
           }
-          else if (video.TargetH264Preset == H264Preset.Fast)
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+            data.OutputArguments.Add("-preset faster");
+          }
+          }
+          else if (video.TargetPreset == EncodingPreset.Fast)
           {
             data.OutputArguments.Add("-preset fast");
           }
-          else if (video.TargetH264Preset == H264Preset.Medium)
+          else if (video.TargetPreset == EncodingPreset.Medium)
           {
             data.OutputArguments.Add("-preset medium");
           }
-          else if (video.TargetH264Preset == H264Preset.Slow)
+          else if (video.TargetPreset == EncodingPreset.Slow)
           {
             data.OutputArguments.Add("-preset slow");
           }
-          else if (video.TargetH264Preset == H264Preset.Slower)
+          else if (video.TargetPreset == EncodingPreset.Slower)
+          {
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset slower");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
           {
             data.OutputArguments.Add("-preset slower");
           }
-          else if (video.TargetH264Preset == H264Preset.Veryslow)
+          }
+          else if (video.TargetPreset == EncodingPreset.Veryslow)
+          {
+            if (isIntel)
+            {
+            data.OutputArguments.Add("-preset veryslow");
+          }
+            else if (isNvidia)
+          {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
           {
             data.OutputArguments.Add("-preset veryslow");
           }
-          else if (video.TargetH264Preset == H264Preset.Placebo)
+          }
+          else if (video.TargetPreset == EncodingPreset.Placebo)
+          {
+            if (isIntel)
+            {
+              //Use auto
+            }
+            else if (isNvidia)
+            {
+              //Use auto
+            }
+            else
           {
             data.OutputArguments.Add("-preset placebo");
+          }
           }
 
           AddVideoBitrateParameters(video, data);
@@ -1451,6 +1751,77 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         else
         {
+          if (video.TargetVideoCodec == VideoCodec.Mpeg2)
+          {
+            if (isIntel)
+            {
+              if (video.TargetProfile == EncodingProfile.Baseline)
+              {
+                data.OutputArguments.Add("-profile:v simple");
+              }
+              else if (video.TargetProfile == EncodingProfile.Main)
+              {
+                data.OutputArguments.Add("-profile:v main");
+              }
+              else if (video.TargetProfile == EncodingProfile.High)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+              else if (video.TargetProfile == EncodingProfile.High10)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+              else if (video.TargetProfile == EncodingProfile.High422)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+              else if (video.TargetProfile == EncodingProfile.High444)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+
+              if (video.TargetPreset == EncodingPreset.Ultrafast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Superfast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if ( video.TargetPreset == EncodingPreset.Veryfast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Faster)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Fast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Medium)
+              {
+                data.OutputArguments.Add("-preset medium");
+              }
+              else if (video.TargetPreset == EncodingPreset.Slow)
+              {
+                data.OutputArguments.Add("-preset slow");
+              }
+              else if (video.TargetPreset == EncodingPreset.Slower)
+              {
+                data.OutputArguments.Add("-preset slow");
+              }
+              else if (video.TargetPreset == EncodingPreset.Veryslow)
+              {
+                data.OutputArguments.Add("-preset slow");
+              }
+              else if (video.TargetPreset == EncodingPreset.Placebo)
+              {
+                //Use default
+              }
+            }
+          }
           if (AddVideoBitrateParameters(video, data) == false)
           {
             if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
@@ -1511,6 +1882,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       if (video.TargetVideoBitrate > 0)
       {
+        if (video.TargetVideoCodec == VideoCodec.H264 || video.TargetVideoCodec == VideoCodec.H265)
+        {
+          if (IsNvidiaHWTranscode(video.TranscodeId))
+          {
+            data.OutputArguments.Add("-cbr 1");
+          }
+        }
         data.OutputArguments.Add(string.Format("-b:v {0}", video.TargetVideoBitrate + "k"));
         data.OutputArguments.Add(string.Format("-maxrate:v {0}", video.TargetVideoBitrate + "k"));
         data.OutputArguments.Add(string.Format("-bufsize:v {0}", video.TargetVideoBitrate + "k"));
@@ -1751,9 +2129,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
         TargetAudioCodec = video.TargetAudioCodec,
         TargetAudioFrequency = video.TargetAudioFrequency,
         TargetVideoFrameRate = video.SourceFrameRate,
-        TargetH264Level = video.TargetH264Level,
-        TargetH264Preset = video.TargetH264Preset,
-        TargetH264Profile = video.TargetH264Profile,
+        TargetLevel = video.TargetLevel,
+        TargetPreset = video.TargetPreset,
+        TargetProfile = video.TargetProfile,
         TargetVideoPixelFormat = video.TargetPixelFormat
       };
       if (metadata.TargetVideoPixelFormat == PixelFormat.Unknown)
@@ -1836,7 +2214,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       InitSettings();
       if (((ILocalFsResourceAccessor)transcodingInfo.SourceFile).Exists == false)
       {
-        if (Logger != null) Logger.Error("MediaConverter: File '{0}' does not exist for transcode '{1}'", transcodingInfo.SourceFile, transcodingInfo.TranscodeID);
+        if (Logger != null) Logger.Error("MediaConverter: File '{0}' does not exist for transcode '{1}'", transcodingInfo.SourceFile, transcodingInfo.TranscodeId);
         return null;
       }
       else if (transcodingInfo is ImageTranscoding)
@@ -1851,7 +2229,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         return TranscodeVideoFile(transcodingInfo as VideoTranscoding, waitForBuffer);
       }
-      if (Logger != null) Logger.Error("MediaConverter: Transcoding info is not valid for transcode '{0}'", transcodingInfo.TranscodeID);
+      if (Logger != null) Logger.Error("MediaConverter: Transcoding info is not valid for transcode '{0}'", transcodingInfo.TranscodeId);
       return null;
     }
 
@@ -1859,7 +2237,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext();
       context.Failed = false;
-      string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeID);
+      string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
       transcodingFile += ".A" + video.SourceAudioStreamIndex;
       bool embeddedSupported = false;
       SubtitleCodec embeddedSubCodec = SubtitleCodec.Unknown;
@@ -1896,12 +2274,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       if (File.Exists(transcodingFile) == true)
       {
-        if (RunningTranscodes.ContainsKey(video.TranscodeID) == false)
+        lock (RunningTranscodes)
         {
-          TouchFile(transcodingFile);
+          if (RunningTranscodes.ContainsKey(video.TranscodeId) == true)
+          {
+            return RunningTranscodes[video.TranscodeId];
+          }
         }
+        TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile));
+        context.Start(GetReadyFileBuffer(transcodingFile), false);
         return context;
       }
       if(video.TargetVideoContainer == VideoContainer.Hls)
@@ -1910,19 +2292,23 @@ namespace MediaPortal.Plugins.Transcoding.Service
         string playlist = Path.Combine(pathName, "playlist.m3u8");
         if (File.Exists(playlist) == true)
         {
-          if (RunningTranscodes.ContainsKey(video.TranscodeID) == false)
+          lock (RunningTranscodes)
           {
-            TouchDirectory(pathName);
+            if (RunningTranscodes.ContainsKey(video.TranscodeId) == true)
+            {
+              return RunningTranscodes[video.TranscodeId];
+            }
           }
+          TouchDirectory(pathName);
           context.TargetFile = playlist;
           context.SegmentDir = pathName;
-          context.Start(GetReadyFileBuffer(playlist));
+          context.Start(GetReadyFileBuffer(playlist), false);
           return context;
         }
       }
 
       TranscodeData data = new TranscodeData(TranscoderBinPath, TranscoderCachePath);
-      data.TranscodeId = video.TranscodeID;
+      data.TranscodeId = video.TranscodeId;
       if (string.IsNullOrEmpty(video.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = video.TranscoderBinPath;
@@ -1939,6 +2325,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
+        StartHWTranscode(video.TargetVideoCodec, video.TranscodeId);
         InitTranscodingParameters(video.SourceFile, data);
 
         bool useX26XLib = false;
@@ -1964,8 +2351,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       context.TargetFile = transcodingFile;
 
-      if (Logger != null) Logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceFile, video.TranscodeID, String.Join(", ", data.OutputArguments.ToArray()));
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer));
+      if (Logger != null) Logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceFile, video.TranscodeId, String.Join(", ", data.OutputArguments.ToArray()));
+      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
       return context;
     }
 
@@ -1973,20 +2360,24 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext();
       context.Failed = false;
-      string transcodingFile = Path.Combine(TranscoderCachePath, audio.TranscodeID + ".mpta");
+      string transcodingFile = Path.Combine(TranscoderCachePath, audio.TranscodeId + ".mpta");
       if (File.Exists(transcodingFile) == true)
       {
-        if (RunningTranscodes.ContainsKey(audio.TranscodeID) == false)
+        lock (RunningTranscodes)
         {
-          TouchFile(transcodingFile);
+          if (RunningTranscodes.ContainsKey(audio.TranscodeId) == true)
+          {
+            return RunningTranscodes[audio.TranscodeId];
+          }
         }
+        TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile));
+        context.Start(GetReadyFileBuffer(transcodingFile), false);
         return context;
       }
 
       TranscodeData data = new TranscodeData(TranscoderBinPath, TranscoderCachePath);
-      data.TranscodeId = audio.TranscodeID;
+      data.TranscodeId = audio.TranscodeId;
       if (string.IsNullOrEmpty(audio.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = audio.TranscoderBinPath;
@@ -2009,8 +2400,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       data.OutputFilePath = transcodingFile;
       context.TargetFile = transcodingFile;
 
-      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode audio file '{0}' for transcode '{1}'", audio.SourceFile, audio.TranscodeID);
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer));
+      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode audio file '{0}' for transcode '{1}'", audio.SourceFile, audio.TranscodeId);
+      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
       return context;
     }
 
@@ -2018,20 +2409,24 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext();
       context.Failed = false;
-      string transcodingFile = Path.Combine(TranscoderCachePath, image.TranscodeID + ".mpti");
+      string transcodingFile = Path.Combine(TranscoderCachePath, image.TranscodeId + ".mpti");
       if (File.Exists(transcodingFile) == true)
       {
-        if (RunningTranscodes.ContainsKey(image.TranscodeID) == false)
+        lock (RunningTranscodes)
         {
-          TouchFile(transcodingFile);
+          if (RunningTranscodes.ContainsKey(image.TranscodeId) == true)
+          {
+            return RunningTranscodes[image.TranscodeId];
+          }
         }
+        TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile));
+        context.Start(GetReadyFileBuffer(transcodingFile), false);
         return context;
       }
 
       TranscodeData data = new TranscodeData(TranscoderBinPath, TranscoderCachePath);
-      data.TranscodeId = image.TranscodeID;
+      data.TranscodeId = image.TranscodeId;
       if (string.IsNullOrEmpty(image.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = image.TranscoderBinPath;
@@ -2053,8 +2448,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       data.OutputFilePath = transcodingFile;
       context.TargetFile = transcodingFile;
 
-      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode image file '{0}' for transcode '{1}'", image.SourceFile, image.TranscodeID);
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer));
+      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode image file '{0}' for transcode '{1}'", image.SourceFile, image.TranscodeId);
+      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
       return context;
     }
 
@@ -2065,7 +2460,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         return null;
       }
-      if (RunningTranscodes.ContainsKey(video.TranscodeID) == false)
+      if (IsTranscodingRunning(video.TranscodeId) == false)
       {
         TouchFile(sub.SourceFile);
       }
@@ -2105,7 +2500,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
 
       // create a file name for the output file which contains the subtitle informations
-      string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeID);
+      string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
       if (video.SourceSubtitle != null && string.IsNullOrEmpty(video.SourceSubtitle.Language) == false)
       {
         transcodingFile += "." + video.SourceSubtitle.Language;
@@ -2120,7 +2515,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // the file already exists in the cache -> just return
       if (File.Exists(transcodingFile))
       {
-        if (RunningTranscodes.ContainsKey(video.TranscodeID) == false)
+        if (IsTranscodingRunning(video.TranscodeId) == false)
         {
           TouchFile(transcodingFile);
         }
@@ -2154,7 +2549,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
 
       TranscodeData data = new TranscodeData(TranscoderBinPath, TranscoderCachePath);
-      data.TranscodeId = video.TranscodeID + "_sub";
+      data.TranscodeId = video.TranscodeId + "_sub";
       if (string.IsNullOrEmpty(video.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = video.TranscoderBinPath;
@@ -2214,6 +2609,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return res;
       }
       return null;
+    }
+
+    private bool IsTranscodingRunning(string transcodeID)
+    {
+      lock (RunningTranscodes)
+      {
+        return RunningTranscodes.ContainsKey(transcodeID);
+      }
     }
 
     public BufferedStream GetReadyFileBuffer(ILocalFsResourceAccessor lfsra)
@@ -2284,7 +2687,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         filePath = Path.Combine(data.WorkPath, data.OutputFilePath);
       }
 
-      TranscodeContext context = RunningTranscodes[data.TranscodeId];
+      TranscodeContext context = null;
+      lock (RunningTranscodes)
+      {
+        context = RunningTranscodes[data.TranscodeId];
+      }
       int iTry = 60;
       while (iTry > 0 && context.Failed == false && context.Aborted == false)
       {
@@ -2312,12 +2719,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private BufferedStream ExecuteTranscodingProcess(TranscodeData data, TranscodeContext context, bool waitForBuffer)
     {
-      if (RunningTranscodes.ContainsKey(data.TranscodeId) == false)
+      if (IsTranscodingRunning(data.TranscodeId) == false)
       {
         try
         {
-
-          RunningTranscodes.Add(data.TranscodeId, context);
+          lock (RunningTranscodes)
+          {
+            RunningTranscodes.Add(data.TranscodeId, context);
+          }
           Thread transcodeThread = new Thread(TranscodeProcessor)
           {
             IsBackground = true,
@@ -2328,7 +2737,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         catch
         {
-          RunningTranscodes.Remove(data.TranscodeId);
+          lock (RunningTranscodes)
+          {
+            RunningTranscodes.Remove(data.TranscodeId);
+          }
+          EndHWTranscode(data.TranscodeId);
           context.Running = false;
           context.Failed = true;
           throw;
@@ -2344,7 +2757,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       TranscodeData data = (TranscodeData)args;
 
       //Process ffmpeg = new Process();
-      TranscodeContext context = RunningTranscodes[data.TranscodeId];
+      TranscodeContext context = null;
+      lock (RunningTranscodes)
+      {
+        context = RunningTranscodes[data.TranscodeId];
+      }
       context.TargetFile = Path.Combine(data.WorkPath, data.SegmentPlaylist != null ? data.SegmentPlaylist : data.OutputFilePath);
       context.SegmentDir = null;
       if(data.SegmentPlaylist != null)
@@ -2388,7 +2805,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       //ffmpeg.WaitForExit();
       //iExitCode = ffmpeg.ExitCode;
       iExitCode = executionResult.Result.ExitCode;
-      RunningTranscodes.Remove(data.TranscodeId);
+      lock (RunningTranscodes)
+      {
+        RunningTranscodes.Remove(data.TranscodeId);
+      }
+      EndHWTranscode(data.TranscodeId);
       //ffmpeg.Close();
       //ffmpeg.Dispose();
       if(iExitCode > 0)
@@ -2526,9 +2947,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       _standardOutput.Append(e.Data);
     }
 
-    public void Start(BufferedStream stream)
+    public void Start(BufferedStream stream, bool running)
     {
-      Running = true;
+      Running = running;
       Aborted = false;
       TranscodedStream = stream;
     }

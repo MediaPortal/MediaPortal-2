@@ -55,31 +55,31 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
             switch (avcAnalyzer.HeaderProfile)
             {
               case H264Analyzer.H264HeaderProfile.ConstrainedBaseline:
-                info.Video.H264ProfileType = H264Profile.Baseline;
+                info.Video.ProfileType = EncodingProfile.Baseline;
                 break;
               case H264Analyzer.H264HeaderProfile.Baseline:
-                info.Video.H264ProfileType = H264Profile.Baseline;
+                info.Video.ProfileType = EncodingProfile.Baseline;
                 break;
               case H264Analyzer.H264HeaderProfile.Main:
-                info.Video.H264ProfileType = H264Profile.Main;
+                info.Video.ProfileType = EncodingProfile.Main;
                 break;
               case H264Analyzer.H264HeaderProfile.Extended:
-                info.Video.H264ProfileType = H264Profile.Main;
+                info.Video.ProfileType = EncodingProfile.Main;
                 break;
               case H264Analyzer.H264HeaderProfile.High:
-                info.Video.H264ProfileType = H264Profile.High;
+                info.Video.ProfileType = EncodingProfile.High;
                 break;
               case H264Analyzer.H264HeaderProfile.High_10:
-                info.Video.H264ProfileType = H264Profile.High10;
+                info.Video.ProfileType = EncodingProfile.High10;
                 break;
               case H264Analyzer.H264HeaderProfile.High_422:
-                info.Video.H264ProfileType = H264Profile.High422;
+                info.Video.ProfileType = EncodingProfile.High422;
                 break;
               case H264Analyzer.H264HeaderProfile.High_444:
-                info.Video.H264ProfileType = H264Profile.High444;
+                info.Video.ProfileType = EncodingProfile.High444;
                 break;
             }
-            info.Video.H264HeaderLevel = avcAnalyzer.HeaderLevel;
+            info.Video.HeaderLevel = avcAnalyzer.HeaderLevel;
             int refFrames = avcAnalyzer.HeaderRefFrames;
             if (info.Video.Width > 0 && info.Video.Height > 0 && refFrames > 0 && refFrames <= 16)
             {
@@ -88,17 +88,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
               {
                 if (levelDbp.Value > dpbMbs)
                 {
-                  info.Video.H264RefLevel = levelDbp.Key;
+                  info.Video.RefLevel = levelDbp.Key;
                   break;
                 }
               }
             }
-            if (info.Video.H264HeaderLevel == 0 && info.Video.H264RefLevel == 0)
+            if (info.Video.HeaderLevel == 0 && info.Video.RefLevel == 0)
             {
               if (Logger != null) Logger.Warn("MediaAnalyzer: Couldn't resolve H264 profile/level/reference frames for resource: '{0}'", info.Metadata.Source);
             }
           }
-          if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully decoded H264 header: H264 profile {0}, level {1}/level {2}", info.Video.H264ProfileType, info.Video.H264HeaderLevel, info.Video.H264RefLevel);
+          if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully decoded H264 header: H264 profile {0}, level {1}/level {2}", info.Video.ProfileType, info.Video.HeaderLevel, info.Video.RefLevel);
         }
         catch (Exception e)
         {

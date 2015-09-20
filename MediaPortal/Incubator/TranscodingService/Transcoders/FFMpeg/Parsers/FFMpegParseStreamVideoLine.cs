@@ -82,7 +82,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           }
           if (info.Video.Codec == VideoCodec.H264)
           {
-            info.Video.H264ProfileType = FFMpegParseH264Profile.ParseH264Profile(codecDetails);
+            info.Video.ProfileType = FFMpegParseProfile.ParseProfile(codecDetails);
           }
 
           string fourCC = token.Trim();
