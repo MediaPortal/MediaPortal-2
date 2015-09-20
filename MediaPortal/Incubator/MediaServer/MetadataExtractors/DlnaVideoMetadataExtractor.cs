@@ -151,9 +151,9 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_BRAND, StringUtils.TrimToNull(info.Metadata.MajorBrand));
       MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_PIXEL_FORMAT, info.Video.PixelFormatType.ToString());
       MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_PIXEL_ASPECTRATIO, info.Video.PixelAspectRatio);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_PROFILE, info.Video.H264ProfileType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_HEADER_LEVEL, info.Video.H264HeaderLevel);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.H264RefLevel);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_PROFILE, info.Video.ProfileType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_HEADER_LEVEL, info.Video.HeaderLevel);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.RefLevel);
       MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_TS_TIMESTAMP, info.Video.TimestampType.ToString());
 
       List<string> valuesLangs = new List<string>();
@@ -286,17 +286,17 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_H264_PROFILE);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
-          info.Video.H264ProfileType = (H264Profile)Enum.Parse(typeof(H264Profile), oValue.ToString());
+          info.Video.ProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), oValue.ToString());
         }
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_H264_HEADER_LEVEL);
         if (oValue != null)
         {
-          info.Video.H264HeaderLevel = Convert.ToSingle(oValue);
+          info.Video.HeaderLevel = Convert.ToSingle(oValue);
         }
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_H264_REF_LEVEL);
         if (oValue != null)
         {
-          info.Video.H264RefLevel = Convert.ToSingle(oValue);
+          info.Video.RefLevel = Convert.ToSingle(oValue);
         }
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
         if (oValue != null)

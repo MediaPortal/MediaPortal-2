@@ -166,7 +166,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
 
             audio.TranscoderBinPath = dstAudio.TranscoderBinPath;
             audio.TranscoderArguments = dstAudio.TranscoderArguments;
-            audio.TranscodeID = MediaSource.MediaItemId.ToString()  + "_" +  Client.Profile.ID;
+            audio.TranscodeId = MediaSource.MediaItemId.ToString()  + "_" +  Client.Profile.ID;
             TranscodingParameter = audio;
           }
         }
@@ -226,7 +226,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             image.TranscoderBinPath = dstImage.TranscoderBinPath;
             image.TranscoderArguments = dstImage.TranscoderArguments;
 
-            image.TranscodeID = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
+            image.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
             TranscodingParameter = image;
           }
         }
@@ -335,20 +335,20 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
               video.TargetForceAudioStereo = dstVideo.Target.ForceStereo;
             }
 
-            video.TargetH264Level = client.Profile.Settings.Video.H264Level;
+            video.TargetLevel = client.Profile.Settings.Video.H264Level;
             if (dstVideo.Target.H264LevelMinimum > 0)
             {
-              video.TargetH264Level = dstVideo.Target.H264LevelMinimum;
+              video.TargetLevel = dstVideo.Target.H264LevelMinimum;
             }
-            video.TargetH264Profile = client.Profile.Settings.Video.H264TargetProfile;
-            if (dstVideo.Target.H264EncodingProfileType != H264Profile.Unknown)
+            video.TargetProfile = client.Profile.Settings.Video.H264TargetProfile;
+            if (dstVideo.Target.H264EncodingProfileType != EncodingProfile.Unknown)
             {
-              video.TargetH264Profile = dstVideo.Target.H264EncodingProfileType;
+              video.TargetProfile = dstVideo.Target.H264EncodingProfileType;
             }
-            video.TargetH264Preset = client.Profile.Settings.Video.H264TargetPreset;
-            if (dstVideo.Target.H264TargetPresetType != H264Preset.Default)
+            video.TargetPreset = client.Profile.Settings.Video.H264TargetPreset;
+            if (dstVideo.Target.H264TargetPresetType != EncodingPreset.Default)
             {
-              video.TargetH264Preset = dstVideo.Target.H264TargetPresetType;
+              video.TargetPreset = dstVideo.Target.H264TargetPresetType;
             }
             video.TargetVideoQuality = client.Profile.Settings.Video.Quality;
             if (dstVideo.Target.QualityType != QualityMode.Default)
@@ -390,7 +390,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
 
             video.TranscoderBinPath = dstVideo.TranscoderBinPath;
             video.TranscoderArguments = dstVideo.TranscoderArguments;
-            video.TranscodeID = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
+            video.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
             TranscodingParameter = video;
           }
         }
@@ -403,7 +403,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         {
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
         }
-        subtitle.TranscodeID = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
+        subtitle.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
         SubtitleTranscodingParameter = subtitle;
       }
 
@@ -539,9 +539,9 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           DlnaMetadata.Video.Bitrate = metadata.TargetVideoBitrate;
           DlnaMetadata.Video.Codec = metadata.TargetVideoCodec;
           DlnaMetadata.Video.Framerate = metadata.TargetVideoFrameRate;
-          DlnaMetadata.Video.H264HeaderLevel = metadata.TargetH264Level;
-          DlnaMetadata.Video.H264ProfileType = metadata.TargetH264Profile;
-          DlnaMetadata.Video.H264RefLevel = metadata.TargetH264Level;
+          DlnaMetadata.Video.HeaderLevel = metadata.TargetLevel;
+          DlnaMetadata.Video.ProfileType = metadata.TargetProfile;
+          DlnaMetadata.Video.RefLevel = metadata.TargetLevel;
           DlnaMetadata.Video.Height = metadata.TargetVideoMaxHeight;
           DlnaMetadata.Video.PixelAspectRatio = metadata.TargetVideoPixelAspectRatio;
           DlnaMetadata.Video.PixelFormatType = metadata.TargetVideoPixelFormat;
@@ -560,7 +560,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       }
       else if (info.IsVideo)
       {
-        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Video.H264ProfileType, DlnaMetadata.Video.H264HeaderLevel, 
+        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Video.ProfileType, DlnaMetadata.Video.HeaderLevel, 
           DlnaMetadata.Video.Framerate, DlnaMetadata.Video.Width, DlnaMetadata.Video.Height, DlnaMetadata.Video.Bitrate, DlnaMetadata.Audio[0].Bitrate, DlnaMetadata.Video.TimestampType);
       }
 
@@ -580,7 +580,10 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         {
           return false;
         }
-        return MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeID);
+        lock (MediaConverter.RunningTranscodes)
+        {
+          return MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeId);
+        }
       }
     }
 
@@ -594,9 +597,12 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
     {
       if (TranscodingParameter != null)
       {
-        if(MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeID))
+        lock (MediaConverter.RunningTranscodes)
         {
-          MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeID].Stop();
+          if (MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeId))
+          {
+            MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId].Stop();
+          }
         }
       }
     }

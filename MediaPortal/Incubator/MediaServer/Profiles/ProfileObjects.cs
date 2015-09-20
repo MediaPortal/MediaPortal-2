@@ -46,10 +46,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public VideoContainer VideoContainerType = VideoContainer.Unknown;
     public VideoCodec VideoCodecType = VideoCodec.Unknown;
     public AudioCodec AudioCodecType = AudioCodec.Unknown;
-    public H264Profile H264EncodingProfileType = H264Profile.Unknown;
+    public EncodingProfile H264EncodingProfileType = EncodingProfile.Unknown;
     public PixelFormat PixelFormatType = PixelFormat.Unknown;
     public QualityMode QualityType = QualityMode.Default;
-    public H264Preset H264TargetPresetType = H264Preset.Default;
+    public EncodingPreset H264TargetPresetType = EncodingPreset.Default;
     public string BrandExclusion = null;
     public float AspectRatio = 0;
     public float H264LevelMinimum = 0;
@@ -105,37 +105,37 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
       if (info.Video.Codec == VideoCodec.H264)
       {
-        if (H264EncodingProfileType != H264Profile.Unknown)
+        if (H264EncodingProfileType != EncodingProfile.Unknown)
         {
-          bPass &= (info.Video.H264ProfileType != H264Profile.Unknown && H264EncodingProfileType == info.Video.H264ProfileType);
+          bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && H264EncodingProfileType == info.Video.ProfileType);
           if (H264LevelMinimum > 0)
           {
             float videoH264Level = 0;
             if (h264LevelCheckType == H264LevelCheck.RefFramesLevel)
             {
-              videoH264Level = info.Video.H264RefLevel;
+              videoH264Level = info.Video.RefLevel;
             }
             else if (h264LevelCheckType == H264LevelCheck.HeaderLevel)
             {
-              videoH264Level = info.Video.H264HeaderLevel;
+              videoH264Level = info.Video.HeaderLevel;
             }
             else
             {
-              if (info.Video.H264HeaderLevel <= 0)
+              if (info.Video.HeaderLevel <= 0)
               {
-                videoH264Level = info.Video.H264RefLevel;
+                videoH264Level = info.Video.RefLevel;
               }
-              if (info.Video.H264RefLevel <= 0)
+              if (info.Video.RefLevel <= 0)
               {
-                videoH264Level = info.Video.H264HeaderLevel;
+                videoH264Level = info.Video.HeaderLevel;
               }
-              if (info.Video.H264HeaderLevel > info.Video.H264RefLevel)
+              if (info.Video.HeaderLevel > info.Video.RefLevel)
               {
-                videoH264Level = info.Video.H264HeaderLevel;
+                videoH264Level = info.Video.HeaderLevel;
               }
               else
               {
-                videoH264Level = info.Video.H264RefLevel;
+                videoH264Level = info.Video.RefLevel;
               }
             }
             bPass &= (videoH264Level > 0 && videoH264Level >= H264LevelMinimum);
@@ -295,8 +295,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public QualityMode Quality = QualityMode.Default;
     public int QualityFactor = 3;
     public int H264QualityFactor = 25;
-    public H264Preset H264TargetPreset = H264Preset.Default;
-    public H264Profile H264TargetProfile = H264Profile.Baseline;
+    public EncodingPreset H264TargetPreset = EncodingPreset.Default;
+    public EncodingProfile H264TargetProfile = EncodingProfile.Baseline;
     public float H264Level = 3.0F;
     public Coder CoderType = Coder.Default;
   }

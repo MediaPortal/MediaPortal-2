@@ -218,7 +218,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       return valuesProfiles;
     }
 
-    public static List<string> ResolveVideoProfile(VideoContainer container, VideoCodec videoCodec, AudioCodec audioCodec, H264Profile h264Profile, float h264Level, float fps, int width, int height, long videoBitrate, long audioBitrate, Timestamp timestampType)
+    public static List<string> ResolveVideoProfile(VideoContainer container, VideoCodec videoCodec, AudioCodec audioCodec, EncodingProfile h264Profile, float h264Level, float fps, int width, int height, long videoBitrate, long audioBitrate, Timestamp timestampType)
     {
       List<string> valuesProfiles = new List<string>();
       if (container == VideoContainer.Asf)
@@ -360,7 +360,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         {
           if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3)
           {
-            if (h264Profile == H264Profile.Baseline)
+            if (h264Profile == EncodingProfile.Baseline)
             {
               if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 3000)
               {
@@ -388,7 +388,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           {
             if (audioCodec == AudioCodec.Aac)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 3000)
                 {
@@ -433,7 +433,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           {
             if (audioCodec == AudioCodec.Aac)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (h264Level <= 3.1 && bitrate > 0 && bitrate <= 15000)
                 {
@@ -461,7 +461,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           {
             if (audioCodec == AudioCodec.Aac)
             {
-              if (h264Profile == H264Profile.High || h264Profile == H264Profile.High10 || h264Profile == H264Profile.High422 || h264Profile == H264Profile.High444)
+              if (h264Profile == EncodingProfile.High || h264Profile == EncodingProfile.High10 || h264Profile == EncodingProfile.High422 || h264Profile == EncodingProfile.High444)
               {
                 valuesProfiles.Add("AVC_MP4_HP_HD_AAC");
               }
@@ -582,7 +582,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           {
             if (timestampType == Timestamp.None)
             {
-              if(h264Profile == H264Profile.Baseline)
+              if(h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 384)
                 {
@@ -593,7 +593,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
                   valuesProfiles.Add("AVC_TS_BL_CIF30_AC3_ISO");
                 }
               }
-              else if (h264Profile == H264Profile.High || h264Profile == H264Profile.High10 || h264Profile == H264Profile.High422 || h264Profile == H264Profile.High444)
+              else if (h264Profile == EncodingProfile.High || h264Profile == EncodingProfile.High10 || h264Profile == EncodingProfile.High422 || h264Profile == EncodingProfile.High444)
               {
                 if (isHD)
                 {
@@ -617,7 +617,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             else if (timestampType == Timestamp.Valid)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 384)
                 {
@@ -628,7 +628,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
                   valuesProfiles.Add("AVC_TS_BL_CIF30_AC3_T");
                 }
               }
-              else if (h264Profile == H264Profile.High || h264Profile == H264Profile.High10 || h264Profile == H264Profile.High422 || h264Profile == H264Profile.High444)
+              else if (h264Profile == EncodingProfile.High || h264Profile == EncodingProfile.High10 || h264Profile == EncodingProfile.High422 || h264Profile == EncodingProfile.High444)
               {
                 if (isHD)
                 {
@@ -652,7 +652,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             else
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 384)
                 {
@@ -663,7 +663,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
                   valuesProfiles.Add("AVC_TS_BL_CIF30_AC3");
                 }
               }
-              else if (h264Profile == H264Profile.High || h264Profile == H264Profile.High10 || h264Profile == H264Profile.High422 || h264Profile == H264Profile.High444)
+              else if (h264Profile == EncodingProfile.High || h264Profile == EncodingProfile.High10 || h264Profile == EncodingProfile.High422 || h264Profile == EncodingProfile.High444)
               {
                 if (isHD)
                 {
@@ -747,7 +747,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           {
             if (timestampType == Timestamp.None)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 384)
                 {
@@ -771,7 +771,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             else if (timestampType == Timestamp.Valid)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 384)
                 {
@@ -795,7 +795,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             else
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 384)
                 {
@@ -822,7 +822,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           {
             if (timestampType == Timestamp.None)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 3000)
                 {
@@ -842,7 +842,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             else if (timestampType == Timestamp.Valid)
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 3000)
                 {
@@ -862,7 +862,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             else
             {
-              if (h264Profile == H264Profile.Baseline)
+              if (h264Profile == EncodingProfile.Baseline)
               {
                 if (width <= 352 && height <= 288 && videoBitrate > 0 && videoBitrate <= 3000)
                 {
