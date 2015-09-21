@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();

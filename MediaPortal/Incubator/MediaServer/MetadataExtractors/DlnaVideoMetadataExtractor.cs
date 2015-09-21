@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
       _analyzer.SubtitleDefaultEncoding = MediaServerPlugin.SubtitleDefaultEncoding;
       _analyzer.SubtitleDefaultLanguage = MediaServerPlugin.SubtitleDefaultLanguage;
 
@@ -217,16 +217,21 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
     public static void AddExternalSubtitles(ref MetadataContainer info)
     {
+      ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
+      if (!lfsra.IsFile || info.Metadata.Source == null)
+        return;
+
       //Remove previously found external subtitles
       for (int iSubtitle = 0; iSubtitle < info.Subtitles.Count; iSubtitle++)
       {
-        if (info.Subtitles[iSubtitle].StreamIndex < 0)
+        if (info.Subtitles[iSubtitle].StreamIndex < 0) //No stream index means external subtitle
         {
           info.Subtitles.RemoveAt(iSubtitle);
           iSubtitle--;
         }
       }
-      _analyzer.ParseSubtitleFiles(ref info);
+      
+      info.Subtitles.AddRange(_analyzer.ParseFileExternalSubtitles(lfsra));
     }
 
     public static MetadataContainer ParseMediaItem(MediaItem item)
