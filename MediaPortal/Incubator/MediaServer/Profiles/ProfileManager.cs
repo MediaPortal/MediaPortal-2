@@ -41,7 +41,7 @@ using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Extensions.MediaServer.Filters;
 using MediaPortal.Plugins.Transcoding.Service;
 
-//Thanks goes to the Servvio over at http://www.serviio.org/
+//Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
 
 namespace MediaPortal.Extensions.MediaServer.Profiles
