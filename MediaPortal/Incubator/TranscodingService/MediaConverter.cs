@@ -39,6 +39,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Plugins.Transcoding.Service
@@ -498,242 +499,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #endregion
 
-    #region Converters
-
-    private string GetSubtitleContainer(SubtitleCodec codec)
-    {
-      switch (codec)
-      {
-        case SubtitleCodec.Srt:
-          return "srt";
-        case SubtitleCodec.MicroDvd:
-          return "microdvd";
-        case SubtitleCodec.SubView:
-          return "subviewer";
-        case SubtitleCodec.Ass:
-          return "ass";
-        case SubtitleCodec.Ssa:
-          return "ssa";
-        case SubtitleCodec.Smi:
-          return "sami";
-        case SubtitleCodec.MovTxt:
-          return "mov_text";
-        case SubtitleCodec.DvbSub:
-          return "dvbsub";
-      }
-      return "copy";
-    }
-
-    private string GetVideoContainer(VideoContainer container)
-    {
-      switch (container)
-      {
-        case VideoContainer.Unknown:
-          return null;
-        case VideoContainer.Avi:
-          return "avi";
-        case VideoContainer.Matroska:
-          return "matroska";
-        case VideoContainer.Asf:
-          return "asf";
-        case VideoContainer.Mp4:
-          return "mp4";
-        case VideoContainer.Mpeg2Ps:
-          return "mpeg";
-        case VideoContainer.Mpeg2Ts:
-          return "mpegts";
-        case VideoContainer.Mpeg1:
-          return "mpegvideo";
-        case VideoContainer.Flv:
-          return "flv";
-        case VideoContainer.Wtv:
-          return "wtv";
-        case VideoContainer.Ogg:
-          return "ogg";
-        case VideoContainer.Gp3:
-          return "3gp";
-        case VideoContainer.M2Ts:
-          return "mpegts";
-        case VideoContainer.Hls:
-          return "segment";
-        case VideoContainer.Rtp:
-          return "rtp";
-        case VideoContainer.Rtsp:
-          return "rtsp";
-        case VideoContainer.RealMedia:
-          return "rm";
-      }
-
-      return null;
-    }
-
-    private string GetAudioContainer(AudioContainer container)
-    {
-      switch (container)
-      {
-        case AudioContainer.Unknown:
-          return null;
-        case AudioContainer.Mp3:
-          return "mp3";
-        case AudioContainer.Mp2:
-          return "mp2";
-        case AudioContainer.Asf:
-          return "asf";
-        case AudioContainer.Lpcm:
-          return "lpcm";
-        case AudioContainer.Mp4:
-          return "mp4";
-        case AudioContainer.Flac:
-          return "flac";
-        case AudioContainer.Ogg:
-          return "ogg";
-        case AudioContainer.Flv:
-          return "flv";
-        case AudioContainer.Rtp:
-          return "rtp";
-        case AudioContainer.Rtsp:
-          return "rtsp";
-        case AudioContainer.Adts:
-          return "adts";
-        case AudioContainer.WavPack:
-          return "wavpack";
-        case AudioContainer.Ape:
-          return "ape";
-        case AudioContainer.MusePack:
-          return "musepack";
-      }
-      return null;
-    }
-
-    private string GetVideoCodec(VideoCodec codec)
-    {
-      switch (codec)
-      {
-        case VideoCodec.H265:
-          if(AllowNvidiaHWAccelleration && _supportNvidiaHW)
-            return "hevc_nvenc";
-          else
-            return "libx265";
-        case VideoCodec.H264:
-          if (AllowIntelHWAccelleration && _supportIntelHW)
-            return "h264_qsv";
-          else if (AllowNvidiaHWAccelleration && _supportNvidiaHW)
-            return "h264_nvenc";
-          else
-            return "libx264";
-        case VideoCodec.H263:
-          return "h263";
-        case VideoCodec.Vc1:
-          return "vc1";
-        case VideoCodec.Mpeg4:
-          return "mpeg4";
-        case VideoCodec.MsMpeg4:
-          return "msmpeg4";
-        case VideoCodec.Mpeg2:
-          if (AllowIntelHWAccelleration && _supportIntelHW)
-            return "mpeg2_qsv";
-          else
-            return "mpeg2video";
-        case VideoCodec.Wmv:
-          return "wmv1";
-        case VideoCodec.Mpeg1:
-          return "mpeg1video";
-        case VideoCodec.MJpeg:
-          return "mjpeg";
-        case VideoCodec.Flv:
-          return "flv";
-        case VideoCodec.Vp6:
-          return "vp6";
-        case VideoCodec.Vp8:
-          return "vp8";
-        case VideoCodec.Theora:
-          return "theora";
-        case VideoCodec.DvVideo:
-          return "dvvideo";
-        case VideoCodec.Real:
-          return "rv";
-      }
-      return null;
-    }
-
-    private string GetAudioCodec(AudioCodec codec)
-    {
-      switch (codec)
-      {
-        case AudioCodec.Mp3:
-          return "mp3";
-        case AudioCodec.Mp2:
-          return "mp2";
-        case AudioCodec.Mp1:
-          return "mp1";
-        case AudioCodec.Aac:
-          return "libvo_aacenc";
-        case AudioCodec.Ac3:
-          return "ac3";
-        case AudioCodec.Lpcm:
-          return "pcm_s16le";
-        case AudioCodec.Dts:
-          return "dts";
-        case AudioCodec.DtsHd:
-          return "dts-hd";
-        case AudioCodec.Wma:
-          return "wmav1";
-        case AudioCodec.WmaPro:
-          return "wmapro";
-        case AudioCodec.Flac:
-          return "flac";
-        case AudioCodec.Vorbis:
-          return "vorbis";
-        case AudioCodec.TrueHd:
-          return "truehd";
-        case AudioCodec.Amr:
-          return "amrnb";
-        case AudioCodec.Real:
-          return "ralf";
-      }
-      return null;
-    }
-
-    private string GetImageCodec(ImageContainer container)
-    {
-      switch (container)
-      {
-        case ImageContainer.Jpeg:
-          return "mjpeg";
-        case ImageContainer.Png:
-          return "png";
-        case ImageContainer.Gif:
-          return "gif";
-        case ImageContainer.Bmp:
-          return "bmp";
-        case ImageContainer.Raw:
-          return "raw";
-      }
-      return null;
-    }
-
-    private string GetPixelFormat(PixelFormat pixelFormat)
-    {
-      switch (pixelFormat)
-      {
-        case PixelFormat.Unknown:
-          return "yuv420p";
-        case PixelFormat.Yuv444:
-          return "yuv444p";
-        case PixelFormat.Yuv440:
-          return "yuv440p";
-        case PixelFormat.Yuv422:
-          return "yuv422p";
-        case PixelFormat.Yuv420:
-          return "yuv420p";
-        case PixelFormat.Yuv411:
-          return "yuv411p";
-      }
-      return null;
-    }
-
-    #endregion
-
     #region Validators
 
     private string GetValidFramerate(double validFramerate)
@@ -1024,7 +789,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        data.OutputArguments.Add(string.Format("-f {0}", GetVideoContainer(video.TargetVideoContainer)));
+        data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetVideoContainer.GetVideoContainer(video.TargetVideoContainer)));
         data.OutputFilePath = transcodingFile;
       }
 
@@ -1064,9 +829,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       if (subtitle.Codec != targetCodec)
       {
-        subtitleEncoder = GetSubtitleContainer(targetCodec);
+        subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(targetCodec);
       }
-      string subtitleFormat = GetSubtitleContainer(subtitle.Codec);
+      string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
       TranscodeData data = new TranscodeData(TranscoderBinPath, TranscoderCachePath);
       InitTranscodingParameters(video.SourceFile, data);
       AddSubtitleExtractionParameters(video, subtitle, subtitleEncoding, subtitleEncoder, subtitleFormat, data);
@@ -1089,9 +854,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       data.InputSubtitleFilePath = subtitle.SourceFile;
 
-      string subtitleFormat = GetSubtitleContainer(subtitle.Codec);
+      string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
       data.InputSubtitleArguments.Add(string.Format("-f {0}", subtitleFormat));
-      string subtitleEncoder = GetSubtitleContainer(codec);
+      string subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(codec);
       data.OutputArguments.Add(string.Format("-c:s {0}", subtitleEncoder));
       if(string.IsNullOrEmpty(subtitle.Language) == false)
       {
@@ -1246,7 +1011,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         AddImageFilterParameters(image, data);
         if (image.TargetPixelFormat != PixelFormat.Unknown)
         {
-          data.OutputArguments.Add(string.Format("-pix_fmt {0}", GetPixelFormat(image.TargetPixelFormat)));
+          data.OutputArguments.Add(string.Format("-pix_fmt {0}", FFMpegGetPixelFormat.GetPixelFormat(image.TargetPixelFormat)));
         }
         if (image.TargetImageQuality == QualityMode.Default || image.TargetImageQuality == QualityMode.Best)
         {
@@ -1258,7 +1023,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         if (image.TargetImageCodec != ImageContainer.Unknown)
         {
-          data.OutputArguments.Add(string.Format("-c:v {0}", GetImageCodec(image.TargetImageCodec)));
+          data.OutputArguments.Add(string.Format("-c:v {0}", FFMpegGetImageCodec.GetImageCodec(image.TargetImageCodec)));
         }
       }
 
@@ -1311,13 +1076,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        data.OutputArguments.Add(string.Format("-c:v {0}", GetVideoCodec(video.TargetVideoCodec)));
+        data.OutputArguments.Add(string.Format("-c:v {0}", FFMpegGetVideoCodec.GetVideoCodec(video.TargetVideoCodec, AllowNvidiaHWAccelleration, AllowIntelHWAccelleration, _supportNvidiaHW, _supportIntelHW)));
 
         if (video.TargetPixelFormat == PixelFormat.Unknown)
         {
           video.TargetPixelFormat = PixelFormat.Yuv420;
         }
-        data.OutputArguments.Add(string.Format("-pix_fmt {0}", GetPixelFormat(video.TargetPixelFormat)));
+        data.OutputArguments.Add(string.Format("-pix_fmt {0}", FFMpegGetPixelFormat.GetPixelFormat(video.TargetPixelFormat)));
 
         if (video.TargetVideoCodec == VideoCodec.H265)
         {
@@ -1631,7 +1396,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        data.OutputArguments.Add(string.Format("-c:a {0}", GetAudioCodec(video.TargetAudioCodec)));
+        data.OutputArguments.Add(string.Format("-c:a {0}", FFMpegGetAudioCodec.GetAudioCodec(video.TargetAudioCodec)));
         //if (video.TargetAudioCodec == AudioCodec.Aac || video.TargetAudioCodec == AudioCodec.Dts) //aac encoder not libvo_aacenc is experimental
         if (video.TargetAudioCodec == AudioCodec.Dts)
         {
@@ -2003,7 +1768,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         AddAudioParameters(audio, data);
 
-        data.OutputArguments.Add(string.Format("-f {0}", GetAudioContainer(audio.TargetAudioContainer)));
+        data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetAudioContainer.GetAudioContainer(audio.TargetAudioContainer)));
         data.OutputArguments.Add("-vn");
       }
       data.OutputFilePath = transcodingFile;
@@ -2186,7 +1951,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
         IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
         InitTranscodingParameters(resourceAccessor, data);
-        data.InputArguments.Add(string.Format("-f {0}", GetSubtitleContainer(video.SourceSubtitle.Codec)));
+        data.InputArguments.Add(string.Format("-f {0}", FFMpegGetSubtitleContainer.GetSubtitleContainer(video.SourceSubtitle.Codec)));
 
         res.Codec = targetCodec;
         string subtitleEncoder = "copy";
@@ -2196,9 +1961,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         if (video.SourceSubtitle.Codec != res.Codec)
         {
-          subtitleEncoder = GetSubtitleContainer(res.Codec);
+          subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(res.Codec);
         }
-        string subtitleFormat = GetSubtitleContainer(res.Codec);
+        string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(res.Codec);
         data.OutputArguments.Add("-vn");
         data.OutputArguments.Add("-an");
         data.OutputArguments.Add(string.Format("-c:s {0}", subtitleEncoder));

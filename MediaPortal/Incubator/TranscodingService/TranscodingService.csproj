@@ -58,6 +58,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MediaConverter.cs" />
     <Compile Include="SubtitleAnalyzer.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetAudioCodec.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetAudioContainer.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetImageCodec.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetPixelFormat.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetSubtitleContainer.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetVideoCodec.cs" />
+    <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetVideoContainer.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseAudioCodec.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseAudioContainer.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseDurationLine.cs" />

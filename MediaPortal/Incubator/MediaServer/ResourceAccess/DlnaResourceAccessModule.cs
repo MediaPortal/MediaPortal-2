@@ -274,7 +274,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
         if (deviceClient == null || deviceClient.Profile == null)
         {
-          Logger.Debug("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientID);
+          Logger.Warn("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientID);
           return false;
         }
         Logger.Debug("DlnaResourceAccessModule: Using profile {0} for client {1}", deviceClient.Profile.Name, clientID);
