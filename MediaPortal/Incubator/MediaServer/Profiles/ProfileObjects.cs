@@ -161,7 +161,6 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         AudioFrequency == videoItem.AudioFrequency &&
         SquarePixels == videoItem.SquarePixels &&
         FourCC == videoItem.FourCC &&
-        Movflags == videoItem.Movflags &&
         ForceVideoTranscoding == videoItem.ForceVideoTranscoding &&
         ForceStereo == videoItem.ForceStereo;
     }
