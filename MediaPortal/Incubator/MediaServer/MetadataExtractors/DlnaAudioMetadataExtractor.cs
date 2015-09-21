@@ -43,6 +43,9 @@ using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
+using MediaPortal.Extensions.MediaServer.MetadataExtractors.Settings;
+using MediaPortal.Common.Settings;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 {
@@ -53,7 +56,8 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     /// </summary>
     public static Guid MetadataExtractorId = new Guid("520172B9-F72D-4954-A055-66568E12F678");
 
-    protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Audio };
+    protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Audio };
+    protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
 
     private static readonly IMediaAnalyzer _analyzer = new MediaAnalyzer();
 
@@ -69,6 +73,18 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(DlnaItemAudioAspect.Metadata);
+
+      DlnaAudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<DlnaAudioMetadataExtractorSettings>();
+      InitializeExtensions(settings);
+    }
+
+    /// <summary>
+    /// (Re)initializes the audio extensions for which this <see cref="DlnaAudioMetadataExtractorSettings"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeExtensions(DlnaAudioMetadataExtractorSettings settings)
+    {
+      AUDIO_EXTENSIONS = new List<string>(settings.AudioExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public DlnaAudioMetadataExtractor()
@@ -78,7 +94,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         "DLNA audio metadata extractor",
         MetadataExtractorPriority.Core,
         true,
-        MediaCategories,
+        MEDIA_CATEGORIES,
         new[]
           {
             MediaAspect.Metadata,
@@ -86,72 +102,8 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           });
     }
 
-    #region IMetadataExtractor implementation
+    #region Static methods
 
-    public MetadataExtractorMetadata Metadata { get; private set; }
-
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
-    {
-      try
-      {
-        if (mediaItemAccessor is IFileSystemResourceAccessor)
-        {
-          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          {
-            if (!rah.LocalFsResourceAccessor.IsFile)
-              return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.IsVideo)
-            {
-              ConvertMetadataToAspectData(metadata, extractedAspectData);
-              return true;
-            }
-          }
-          /*using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-            {
-              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
-              {
-                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
-                if (metadata.IsAudio)
-                {
-                  ConvertMetadataToAspectData(metadata, extractedAspectData);
-                  return true;
-                }
-              }
-            }
-          }*/
-        }
-        else if (mediaItemAccessor is INetworkResourceAccessor)
-        {
-          using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
-          {
-            MetadataContainer metadata = _analyzer.ParseStream(nra);
-            if (metadata.IsAudio)
-            {
-              ConvertMetadataToAspectData(metadata, extractedAspectData);
-              return true;
-            }
-          }
-        }
-      }
-      catch (Exception e)
-      {
-        // Only log at the info level here - And simply return false. This lets the caller know that we
-        // couldn't perform our task here.
-        Logger.Info("DlnaMediaServer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
-      }
-      return false;
-    }
-
-    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_CONTAINER, info.Metadata.AudioContainerType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_STREAM, info.Audio[0].StreamIndex);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_CODEC, info.Audio[0].Codec.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_CHANNELS, info.Audio[0].Channels);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_FREQUENCY, info.Audio[0].Frequency);
-    }
-  
     public static MetadataContainer ParseMediaItem(MediaItem item)
     {
       MetadataContainer info = new MetadataContainer();
@@ -237,6 +189,83 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       return info;
     }
 
+    public static bool HasAudioExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return AUDIO_EXTENSIONS.Contains(ext);
+    }
+
+    #endregion
+
+    #region IMetadataExtractor implementation
+
+    public MetadataExtractorMetadata Metadata { get; private set; }
+
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    {
+      try
+      {
+        if (mediaItemAccessor is IFileSystemResourceAccessor)
+        {
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          {
+            if (!rah.LocalFsResourceAccessor.IsFile)
+              return false;
+            string fileName = rah.LocalFsResourceAccessor.ResourceName;
+            if (!HasAudioExtension(fileName))
+              return false;
+            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
+            if (metadata.IsVideo)
+            {
+              ConvertMetadataToAspectData(metadata, extractedAspectData);
+              return true;
+            }
+          }
+          /*using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+            {
+              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
+              {
+                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
+                if (metadata.IsAudio)
+                {
+                  ConvertMetadataToAspectData(metadata, extractedAspectData);
+                  return true;
+                }
+              }
+            }
+          }*/
+        }
+        else if (mediaItemAccessor is INetworkResourceAccessor)
+        {
+          using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
+          {
+            MetadataContainer metadata = _analyzer.ParseStream(nra);
+            if (metadata.IsAudio)
+            {
+              ConvertMetadataToAspectData(metadata, extractedAspectData);
+              return true;
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        // Only log at the info level here - And simply return false. This lets the caller know that we
+        // couldn't perform our task here.
+        Logger.Info("DlnaMediaServer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+      }
+      return false;
+    }
+
+    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_CONTAINER, info.Metadata.AudioContainerType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_STREAM, info.Audio[0].StreamIndex);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_CODEC, info.Audio[0].Codec.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_CHANNELS, info.Audio[0].Channels);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemAudioAspect.ATTR_FREQUENCY, info.Audio[0].Frequency);
+    }
+  
     #endregion
 
     private static ILogger Logger
