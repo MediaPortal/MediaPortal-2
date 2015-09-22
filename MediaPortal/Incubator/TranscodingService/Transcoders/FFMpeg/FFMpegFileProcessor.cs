@@ -22,19 +22,39 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
-  public class FFMpegParseFFMpegOutput
+  internal class FFMpegFileProcessor
   {
-    internal static void ParseFFMpegOutput(string output, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
+    internal static void FileProcessor(ref FFMpegTranscodeData data, int transcoderTimeout)
     {
-      var input = output.Split('\n');
-      if (!input[0].StartsWith("ffmpeg version") && !input[0].StartsWith("ffprobe version"))
-        return;
-      FFMpegParseFFMpegOutputLines.ParseFFMpegOutputLines(input, ref info, countryCodesMapping);
+      DateTime dtStart = DateTime.Now;
+      Process ffmpeg = new Process
+      {
+        StartInfo =
+        {
+          FileName = data.TranscoderBinPath,
+          Arguments = data.TranscoderArguments,
+          WorkingDirectory = data.WorkPath,
+          CreateNoWindow = true,
+          WindowStyle = ProcessWindowStyle.Hidden
+        }
+      };
+      ffmpeg.Start();
+      while (ffmpeg.HasExited == false && DateTime.Now < dtStart.AddMilliseconds(transcoderTimeout))
+      {
+        Thread.Sleep(5);
+      }
+      ffmpeg.Close();
+      ffmpeg.Dispose();
     }
   }
 }

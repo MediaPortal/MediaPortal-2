@@ -22,19 +22,15 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Globalization;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+
+namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
-  public class FFMpegParseFFMpegOutput
+  internal class Subtitle
   {
-    internal static void ParseFFMpegOutput(string output, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
-    {
-      var input = output.Split('\n');
-      if (!input[0].StartsWith("ffmpeg version") && !input[0].StartsWith("ffprobe version"))
-        return;
-      FFMpegParseFFMpegOutputLines.ParseFFMpegOutputLines(input, ref info, countryCodesMapping);
-    }
+    public SubtitleCodec Codec = SubtitleCodec.Unknown;
+    public string Language = "";
+    public string SourceFile = "";
+    public string CharacterEncoding = "";
   }
 }
