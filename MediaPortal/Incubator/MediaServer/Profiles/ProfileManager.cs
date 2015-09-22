@@ -273,11 +273,18 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                     profile.Settings.Thumbnails.Delivery = Profiles[parentProfileId].Settings.Thumbnails.Delivery;
 
                     profile.Settings.Video.MaxHeight = Profiles[parentProfileId].Settings.Video.MaxHeight;
+                    profile.Settings.Video.H262QualityFactor = Profiles[parentProfileId].Settings.Video.H262QualityFactor;
+                    profile.Settings.Video.H262TargetPreset = Profiles[parentProfileId].Settings.Video.H262TargetPreset;
+                    profile.Settings.Video.H262TargetProfile = Profiles[parentProfileId].Settings.Video.H262TargetProfile;
                     profile.Settings.Video.H264LevelCheckMethod = Profiles[parentProfileId].Settings.Video.H264LevelCheckMethod;
                     profile.Settings.Video.H264Level = Profiles[parentProfileId].Settings.Video.H264Level;
                     profile.Settings.Video.H264QualityFactor = Profiles[parentProfileId].Settings.Video.H264QualityFactor;
                     profile.Settings.Video.H264TargetPreset = Profiles[parentProfileId].Settings.Video.H264TargetPreset;
                     profile.Settings.Video.H264TargetProfile = Profiles[parentProfileId].Settings.Video.H264TargetProfile;
+                    profile.Settings.Video.H265Level = Profiles[parentProfileId].Settings.Video.H265Level;
+                    profile.Settings.Video.H265QualityFactor = Profiles[parentProfileId].Settings.Video.H265QualityFactor;
+                    profile.Settings.Video.H265TargetPreset = Profiles[parentProfileId].Settings.Video.H265TargetPreset;
+                    profile.Settings.Video.H265TargetProfile = Profiles[parentProfileId].Settings.Video.H265TargetProfile;
                     profile.Settings.Video.Quality = Profiles[parentProfileId].Settings.Video.Quality;
                     profile.Settings.Video.QualityFactor = Profiles[parentProfileId].Settings.Video.QualityFactor;
                     profile.Settings.Video.CoderType = Profiles[parentProfileId].Settings.Video.CoderType;
@@ -532,11 +539,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                 {
                   while (reader.MoveToNextAttribute()) // Read the attributes.
                   {
-                    if (reader.Name == "h264LevelCheck")
-                    {
-                      profile.Settings.Video.H264LevelCheckMethod = (H264LevelCheck)Enum.Parse(typeof(H264LevelCheck), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "maxHeight")
+                    if (reader.Name == "maxHeight")
                     {
                       profile.Settings.Video.MaxHeight = reader.ReadContentAsInt();
                     }
@@ -548,25 +551,75 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                     {
                       profile.Settings.Video.QualityFactor = reader.ReadContentAsInt();
                     }
-                    else if (reader.Name == "h264QualityFactor")
-                    {
-                      profile.Settings.Video.H264QualityFactor = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "h264Preset")
-                    {
-                      profile.Settings.Video.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "h264Profile")
-                    {
-                      profile.Settings.Video.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "h264Level")
-                    {
-                      profile.Settings.Video.H264Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-                    }
                     else if (reader.Name == "coder")
                     {
                       profile.Settings.Video.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
+                    }
+                  }
+                }
+                else if (reader.Name == "H262Video" && reader.NodeType == XmlNodeType.Element)
+                {
+                  while (reader.MoveToNextAttribute()) // Read the attributes.
+                  {
+                    if (reader.Name == "qualityFactor")
+                    {
+                      profile.Settings.Video.QualityFactor = reader.ReadContentAsInt();
+                    }
+                    else if (reader.Name == "preset")
+                    {
+                      profile.Settings.Video.H262TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+                    }
+                    else if (reader.Name == "profile")
+                    {
+                      profile.Settings.Video.H262TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                    }
+                  }
+                }
+                else if (reader.Name == "H264Video" && reader.NodeType == XmlNodeType.Element)
+                {
+                  while (reader.MoveToNextAttribute()) // Read the attributes.
+                  {
+                    if (reader.Name == "levelCheck")
+                    {
+                      profile.Settings.Video.H264LevelCheckMethod = (LevelCheck)Enum.Parse(typeof(LevelCheck), reader.ReadContentAsString(), true);
+                    }
+                    else if (reader.Name == "qualityFactor")
+                    {
+                      profile.Settings.Video.H264QualityFactor = reader.ReadContentAsInt();
+                    }
+                    else if (reader.Name == "preset")
+                    {
+                      profile.Settings.Video.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+                    }
+                    else if (reader.Name == "profile")
+                    {
+                      profile.Settings.Video.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                    }
+                    else if (reader.Name == "level")
+                    {
+                      profile.Settings.Video.H264Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+                    }
+                  }
+                }
+                else if (reader.Name == "H265Video" && reader.NodeType == XmlNodeType.Element)
+                {
+                  while (reader.MoveToNextAttribute()) // Read the attributes.
+                  {
+                    if (reader.Name == "qualityFactor")
+                    {
+                      profile.Settings.Video.H265QualityFactor = reader.ReadContentAsInt();
+                    }
+                    else if (reader.Name == "preset")
+                    {
+                      profile.Settings.Video.H265TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+                    }
+                    else if (reader.Name == "profile")
+                    {
+                      profile.Settings.Video.H265TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                    }
+                    else if (reader.Name == "level")
+                    {
+                      profile.Settings.Video.H265Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
                     }
                   }
                 }
@@ -736,17 +789,17 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             {
               vTranscoding.Target.AspectRatio = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
             }
-            else if (reader.Name == "videoH264Profile")
+            else if (reader.Name == "videoProfile")
             {
-              vTranscoding.Target.H264EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+              vTranscoding.Target.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
             }
-            else if (reader.Name == "videoH264Level")
+            else if (reader.Name == "videoLevel")
             {
-              vTranscoding.Target.H264LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+              vTranscoding.Target.LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
             }
-            else if (reader.Name == "videoH264Preset")
+            else if (reader.Name == "videoPreset")
             {
-              vTranscoding.Target.H264TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+              vTranscoding.Target.TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "qualityMode")
             {
@@ -841,13 +894,13 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                 {
                   src.AspectRatio = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
                 }
-                else if (reader.Name == "videoH264Profile")
+                else if (reader.Name == "videoProfile")
                 {
-                  src.H264EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                  src.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                 }
-                else if (reader.Name == "videoH264Level")
+                else if (reader.Name == "videoLevel")
                 {
-                  src.H264LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+                  src.LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
                 }
                 else if (reader.Name == "videoBrandExclusion")
                 {

@@ -46,13 +46,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public VideoContainer VideoContainerType = VideoContainer.Unknown;
     public VideoCodec VideoCodecType = VideoCodec.Unknown;
     public AudioCodec AudioCodecType = AudioCodec.Unknown;
-    public EncodingProfile H264EncodingProfileType = EncodingProfile.Unknown;
     public PixelFormat PixelFormatType = PixelFormat.Unknown;
     public QualityMode QualityType = QualityMode.Default;
-    public EncodingPreset H264TargetPresetType = EncodingPreset.Default;
     public string BrandExclusion = null;
     public float AspectRatio = 0;
-    public float H264LevelMinimum = 0;
     public long MaxVideoBitrate = 0;
     public int MaxVideoHeight = 0;
     public long AudioBitrate = 0;
@@ -64,8 +61,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public bool ForceStereo = false;
     public bool ForceInheritance = false;
     public string Movflags = null;
+    public EncodingPreset TargetPresetType = EncodingPreset.Default;
+    public EncodingProfile EncodingProfileType = EncodingProfile.Unknown;
+    public float LevelMinimum = 0;
 
-    public bool Matches(MetadataContainer info, int audioStreamIndex, H264LevelCheck h264LevelCheckType)
+    public bool Matches(MetadataContainer info, int audioStreamIndex, LevelCheck levelCheckType)
     {
       bool bPass = true;
       bPass &= (VideoContainerType == VideoContainer.Unknown || VideoContainerType == info.Metadata.VideoContainerType);
@@ -105,40 +105,51 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
       if (info.Video.Codec == VideoCodec.H264)
       {
-        if (H264EncodingProfileType != EncodingProfile.Unknown)
+        if (EncodingProfileType != EncodingProfile.Unknown)
         {
-          bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && H264EncodingProfileType == info.Video.ProfileType);
-          if (H264LevelMinimum > 0)
+          bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video.ProfileType);
+          if (LevelMinimum > 0)
           {
-            float videoH264Level = 0;
-            if (h264LevelCheckType == H264LevelCheck.RefFramesLevel)
+            float videoLevel = 0;
+            if (levelCheckType == LevelCheck.RefFramesLevel)
             {
-              videoH264Level = info.Video.RefLevel;
+              videoLevel = info.Video.RefLevel;
             }
-            else if (h264LevelCheckType == H264LevelCheck.HeaderLevel)
+            else if (levelCheckType == LevelCheck.HeaderLevel)
             {
-              videoH264Level = info.Video.HeaderLevel;
+              videoLevel = info.Video.HeaderLevel;
             }
             else
             {
               if (info.Video.HeaderLevel <= 0)
               {
-                videoH264Level = info.Video.RefLevel;
+                videoLevel = info.Video.RefLevel;
               }
               if (info.Video.RefLevel <= 0)
               {
-                videoH264Level = info.Video.HeaderLevel;
+                videoLevel = info.Video.HeaderLevel;
               }
               if (info.Video.HeaderLevel > info.Video.RefLevel)
               {
-                videoH264Level = info.Video.HeaderLevel;
+                videoLevel = info.Video.HeaderLevel;
               }
               else
               {
-                videoH264Level = info.Video.RefLevel;
+                videoLevel = info.Video.RefLevel;
               }
             }
-            bPass &= (videoH264Level > 0 && videoH264Level >= H264LevelMinimum);
+            bPass &= (videoLevel > 0 && videoLevel >= LevelMinimum);
+          }
+        }
+      }
+      else if (info.Video.Codec == VideoCodec.H265)
+      {
+        if (EncodingProfileType != EncodingProfile.Unknown)
+        {
+          bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video.ProfileType);
+          if (LevelMinimum > 0)
+          {
+            bPass &= (info.Video.HeaderLevel > 0 && info.Video.HeaderLevel >= LevelMinimum);
           }
         }
       }
@@ -151,10 +162,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       return VideoContainerType == videoItem.VideoContainerType &&
         VideoCodecType == videoItem.VideoCodecType &&
         AudioCodecType == videoItem.AudioCodecType &&
-        H264EncodingProfileType == videoItem.H264EncodingProfileType &&
+        EncodingProfileType == videoItem.EncodingProfileType &&
         BrandExclusion == videoItem.BrandExclusion &&
         AspectRatio == videoItem.AspectRatio &&
-        H264LevelMinimum == videoItem.H264LevelMinimum &&
+        LevelMinimum == videoItem.LevelMinimum &&
         MaxVideoBitrate == videoItem.MaxVideoBitrate &&
         MaxVideoHeight == videoItem.MaxVideoHeight &&
         AudioBitrate == videoItem.AudioBitrate &&
@@ -258,7 +269,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
   #region Client settings
 
-  public enum H264LevelCheck
+  public enum LevelCheck
   {
     Any,
     RefFramesLevel,
@@ -289,15 +300,25 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
   public class VideoSettings
   {
-    public H264LevelCheck H264LevelCheckMethod = H264LevelCheck.Any;
     public int MaxHeight = 1080;
     public QualityMode Quality = QualityMode.Default;
+    public Coder CoderType = Coder.Default;
     public int QualityFactor = 3;
+
+    public LevelCheck H264LevelCheckMethod = LevelCheck.Any;
     public int H264QualityFactor = 25;
     public EncodingPreset H264TargetPreset = EncodingPreset.Default;
     public EncodingProfile H264TargetProfile = EncodingProfile.Baseline;
     public float H264Level = 3.0F;
-    public Coder CoderType = Coder.Default;
+
+    public int H265QualityFactor = 25;
+    public EncodingPreset H265TargetPreset = EncodingPreset.Default;
+    public EncodingProfile H265TargetProfile = EncodingProfile.Main;
+    public float H265Level = 3.0F;
+
+    public int H262QualityFactor = 3;
+    public EncodingPreset H262TargetPreset = EncodingPreset.Default;
+    public EncodingProfile H262TargetProfile = EncodingProfile.Main;
   }
 
   public class ImageSettings

@@ -127,7 +127,10 @@
     </UPNPDeviceDescription>
     <Settings>
       <Thumbnails maxWidth="160" maxHeight="160" delivery="AlbumArt" />
-      <Video h264LevelCheck="Any" maxHeight="1080" qualityFactor="3" h264QualityFactor="25" h264Preset="Ultrafast" h264Profile="Baseline" h264Level="3.0" />
+      <Video maxHeight="1080" qualityFactor="3" />
+      <H262Video qualityFactor="3" preset="Fast" profile="Main" />
+      <H264Video levelCheck="Any" qualityFactor="25" preset="Ultrafast" profile="Baseline" level="3.0" />
+      <H265Video qualityFactor="25" preset="Ultrafast" profile="Main" level="3.0" />
       <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
       <Audio defaultStereo="false" defaultBitrate="192" />
       <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
@@ -164,7 +167,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="smi/caption" />
@@ -172,9 +175,9 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="M2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="192">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.2" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
       </VideoTarget>
       <VideoTarget container="M2Ts" audioCodec="Ac3">
         <VideoSource container="Matroska" videoCodec="H264" audioCodec="Dts" />
@@ -306,8 +309,8 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.1" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
         <VideoSource container="Avi" videoCodec="DvVideo" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
         <VideoSource videoCodec="H265" />
@@ -355,7 +358,7 @@
       </AdditionalElements>
     </UPNPDeviceDescription>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="smi/caption" />
@@ -458,7 +461,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
       <Communication allowChunckedTransfer="false" />
       <Subtitles support="SoftCoded">
@@ -467,9 +470,9 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="192" forceInheritance="true">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.2" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
         <VideoSource videoCodec="H265" />
         <VideoSource container="Mp4" videoCodec="Mpeg4" audioCodec="Lpcm" />
         <VideoSource container="Mp4" videoCodec="DvVideo" />
@@ -518,7 +521,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
       <Communication allowChunckedTransfer="false" />
       <Subtitles support="SoftCoded">
@@ -578,7 +581,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
       <Communication allowChunckedTransfer="false" />
       <Subtitles support="SoftCoded">
@@ -656,11 +659,11 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High422" />
-        <VideoSource videoCodec="H264" videoH264Profile="High444" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.1" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High422" />
+        <VideoSource videoCodec="H264" videoProfile="High444" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Avi" videoCodec="H264" audioCodec="Ac3" />
@@ -758,17 +761,17 @@
       </Detection>
     </Detections>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" forceInheritance="true">
         <VideoSource videoCodec="H265" />
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High444" />
-        <VideoSource videoCodec="H264" videoH264Profile="High422" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.2" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High444" />
+        <VideoSource videoCodec="H264" videoProfile="High422" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Avi" videoCodec="H264" audioCodec="Ac3" />
@@ -821,7 +824,7 @@
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
@@ -831,11 +834,11 @@
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
         <VideoSource videoCodec="H265" />
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High444" />
-        <VideoSource videoCodec="H264" videoH264Profile="High422" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.2" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High444" />
+        <VideoSource videoCodec="H264" videoProfile="High422" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
@@ -869,16 +872,16 @@
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High444" />
-        <VideoSource videoCodec="H264" videoH264Profile="High422" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.1" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High444" />
+        <VideoSource videoCodec="H264" videoProfile="High422" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="640">
@@ -975,7 +978,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
@@ -1016,7 +1019,7 @@
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
   </Profile>
@@ -1029,7 +1032,7 @@
       <ModelNumber>3.0</ModelNumber>
     </UPNPDeviceDescription>
     <Settings>
-      <Video h264LevelCheck="RefFramesLevel" />
+      <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
@@ -1332,11 +1335,11 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High422" />
-        <VideoSource videoCodec="H264" videoH264Profile="High444" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.1" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High422" />
+        <VideoSource videoCodec="H264" videoProfile="High444" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Mp4" videoCodec="H264" audioCodec="Ac3" />
@@ -1444,7 +1447,7 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="192">
-        <VideoSource container="Mp4" videoCodec="H264" videoH264Profile="Baseline" videoBrandExclusion="isom" />
+        <VideoSource container="Mp4" videoCodec="H264" videoProfile="Baseline" videoBrandExclusion="isom" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ps" audioCodec="Ac3">
         <VideoSource container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Mp2" />
@@ -1495,9 +1498,9 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.1" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
         <VideoSource videoCodec="H263" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
@@ -2012,9 +2015,9 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="12000" audioCodec="Ac3" audioBitrate="320" forceTranscoding="true">
-        <VideoSource videoCodec="H264" videoH264Profile="High10" />
-        <VideoSource videoCodec="H264" videoH264Profile="High" videoH264Level="4.1" />
-        <VideoSource videoCodec="H264" videoH264Profile="Main" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts">
         <VideoSource videoCodec="Mpeg4" audioCodec="Aac" />
@@ -2102,7 +2105,7 @@
         <VideoSource audioCodec="Real" />
         <VideoSource audioCodec="Dts" />
         <VideoSource audioCodec="DtsHd" />
-        <VideoSource videoCodec="H264" videoH264Level="4.1" />
+        <VideoSource videoCodec="H264" videoLevel="4.1" />
       </VideoTarget>
       <AudioTarget container="Mp3" audioBitrate="320">
         <AudioSource container="Flac" />

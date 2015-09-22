@@ -335,21 +335,6 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
               video.TargetForceAudioStereo = dstVideo.Target.ForceStereo;
             }
 
-            video.TargetLevel = client.Profile.Settings.Video.H264Level;
-            if (dstVideo.Target.H264LevelMinimum > 0)
-            {
-              video.TargetLevel = dstVideo.Target.H264LevelMinimum;
-            }
-            video.TargetProfile = client.Profile.Settings.Video.H264TargetProfile;
-            if (dstVideo.Target.H264EncodingProfileType != EncodingProfile.Unknown)
-            {
-              video.TargetProfile = dstVideo.Target.H264EncodingProfileType;
-            }
-            video.TargetPreset = client.Profile.Settings.Video.H264TargetPreset;
-            if (dstVideo.Target.H264TargetPresetType != EncodingPreset.Default)
-            {
-              video.TargetPreset = dstVideo.Target.H264TargetPresetType;
-            }
             video.TargetVideoQuality = client.Profile.Settings.Video.Quality;
             if (dstVideo.Target.QualityType != QualityMode.Default)
             {
@@ -378,8 +363,52 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
             video.TargetForceVideoTranscoding = dstVideo.Target.ForceVideoTranscoding;
 
+            if (dstVideo.Target.VideoCodecType == VideoCodec.Mpeg2)
+            {
+              video.TargetQualityFactor = client.Profile.Settings.Video.H262QualityFactor;
+              video.TargetProfile = client.Profile.Settings.Video.H262TargetProfile;
+              video.TargetPreset = client.Profile.Settings.Video.H262TargetPreset;
+            }
+            else if (dstVideo.Target.VideoCodecType == VideoCodec.H264)
+            {
+              video.TargetQualityFactor = client.Profile.Settings.Video.H264QualityFactor;
+              video.TargetLevel = client.Profile.Settings.Video.H264Level;
+              if (dstVideo.Target.LevelMinimum > 0)
+              {
+                video.TargetLevel = dstVideo.Target.LevelMinimum;
+              }
+              video.TargetProfile = client.Profile.Settings.Video.H264TargetProfile;
+              if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
+              {
+                video.TargetProfile = dstVideo.Target.EncodingProfileType;
+              }
+              video.TargetPreset = client.Profile.Settings.Video.H264TargetPreset;
+              if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
+              {
+                video.TargetPreset = dstVideo.Target.TargetPresetType;
+              }
+            }
+            else if (dstVideo.Target.VideoCodecType == VideoCodec.H265)
+            {
+              video.TargetQualityFactor = client.Profile.Settings.Video.H265QualityFactor;
+              video.TargetLevel = client.Profile.Settings.Video.H265Level;
+              if (dstVideo.Target.LevelMinimum > 0)
+              {
+                video.TargetLevel = dstVideo.Target.LevelMinimum;
+              }
+              video.TargetProfile = client.Profile.Settings.Video.H265TargetProfile;
+              if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
+              {
+                video.TargetProfile = dstVideo.Target.EncodingProfileType;
+              }
+              video.TargetPreset = client.Profile.Settings.Video.H265TargetPreset;
+              if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
+              {
+                video.TargetPreset = dstVideo.Target.TargetPresetType;
+              }
+            }
+
             video.TargetVideoQualityFactor = client.Profile.Settings.Video.QualityFactor;
-            video.TargetH264QualityFactor = client.Profile.Settings.Video.H264QualityFactor;
             video.TargetCoder = client.Profile.Settings.Video.CoderType;
 
             video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
