@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
 {
@@ -36,12 +37,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
     /// <summary>
     /// Sets the timeout after which the Thread gets stopped
     /// </summary>
-    int TranscoderTimeout { get; set; }
+    int AnalyzerTimeout { get; set; }
 
     /// <summary>
     /// The maximum number of threads to use
     /// </summary>
-    int TranscoderMaximumThreads { get; set; }
+    int AnalyzerMaximumThreads { get; set; }
 
     /// <summary>
     /// Sets or gets the default encoding for the Subtitle
@@ -52,6 +53,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
     /// Sets or gets the default language to use for Subtitles
     /// </summary>
     string SubtitleDefaultLanguage { get; set; }
+
+    /// <summary>
+    /// Sets or gets the logger implementation to use for logging.
+    /// </summary>
     ILogger Logger { get; set; }
     
     /// <summary>
@@ -69,9 +74,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
     MetadataContainer ParseStream(INetworkResourceAccessor streamLink);
 
     /// <summary>
-    /// Gets information about the used external subtitle file
+    /// Gets available external subtitles for the file
     /// </summary>
-    /// <param name="info"></param>
-    void ParseSubtitleFiles(ref MetadataContainer info);
+    /// <param name="lfsra">ILocalFsResourceAccessor to the file</param>
+    List<SubtitleStream> ParseFileExternalSubtitles(ILocalFsResourceAccessor lfsra);
   }
 }

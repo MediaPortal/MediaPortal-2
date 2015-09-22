@@ -85,6 +85,9 @@
     <Compile Include="MetadataExtractors\DlnaImageMetadataExtractor.cs" />
     <Compile Include="MetadataExtractors\DlnaVideoMetadataExtractor.cs" />
     <Compile Include="MetadataExtractors\DlnaAudioMetadataExtractor.cs" />
+    <Compile Include="MetadataExtractors\Settings\DlnaAudioMetadataExtractorSettings.cs" />
+    <Compile Include="MetadataExtractors\Settings\DlnaVideoMetadataExtractorSettings.cs" />
+    <Compile Include="MetadataExtractors\Settings\DlnaImageMetadataExtractorSettings.cs" />
     <Compile Include="Objects\Basic\BasicContainer.cs" />
     <Compile Include="Objects\Basic\BasicItem.cs" />
     <Compile Include="Objects\Basic\BasicObject.cs" />

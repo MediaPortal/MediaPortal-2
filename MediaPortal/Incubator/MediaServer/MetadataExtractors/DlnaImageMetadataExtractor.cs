@@ -43,6 +43,9 @@ using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
+using MediaPortal.Extensions.MediaServer.MetadataExtractors.Settings;
+using MediaPortal.Common.Settings;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 {
@@ -53,7 +56,8 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     /// </summary>
     public static Guid MetadataExtractorId = new Guid("C34C94FF-AD39-4162-80A5-38CFC3B291C2");
 
-    protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Image };
+    protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Image };
+    protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
 
     private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
 
@@ -64,11 +68,22 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(DlnaItemImageAspect.Metadata);
+      DlnaImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<DlnaImageMetadataExtractorSettings>();
+      InitializeExtensions(settings);
+    }
+
+    /// <summary>
+    /// (Re)initializes the movie extensions for which this <see cref="ImageMetadataExtractorSettings"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeExtensions(DlnaImageMetadataExtractorSettings settings)
+    {
+      IMAGE_FILE_EXTENSIONS = new List<string>(settings.ImageFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public DlnaImageMetadataExtractor()
@@ -78,13 +93,84 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         "DLNA image metadata extractor",
         MetadataExtractorPriority.Core,
         true,
-        MediaCategories,
+        MEDIA_CATEGORIES,
         new[]
           {
             MediaAspect.Metadata,
             DlnaItemImageAspect.Metadata
           });
     }
+
+    #region Static methods
+
+    public static MetadataContainer ParseMediaItem(MediaItem item)
+    {
+      MetadataContainer info = new MetadataContainer();
+      IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
+      if (mediaItemAccessor is IFileSystemResourceAccessor)
+      {
+        using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
+        {
+          if (!fsra.IsFile)
+            return null;
+          using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+          {
+            info.Metadata.Source = lfsra;
+            info.Metadata.Size = lfsra.Size;
+          }
+        }
+      }
+
+      if (item.Aspects.ContainsKey(DlnaItemImageAspect.ASPECT_ID) == true)
+      {
+        object oValue = null;
+        oValue = item.Aspects[DlnaItemImageAspect.ASPECT_ID].GetAttributeValue(DlnaItemImageAspect.ATTR_CONTAINER);
+        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+        {
+          info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
+        }
+        oValue = item.Aspects[DlnaItemImageAspect.ASPECT_ID].GetAttributeValue(DlnaItemImageAspect.ATTR_PIXEL_FORMAT);
+        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+        {
+          info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
+        }
+        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
+        {
+          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+          if (oValue != null)
+          {
+            info.Image.Height = Convert.ToInt32(oValue);
+          }
+          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_WIDTH);
+          if (oValue != null)
+          {
+            info.Image.Width = Convert.ToInt32(oValue);
+          }
+          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
+          if (oValue != null)
+          {
+            info.Image.Orientation = Convert.ToInt32(oValue);
+          }
+        }
+        if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
+        {
+          oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
+          if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+          {
+            info.Metadata.Mime = oValue.ToString();
+          }
+        }
+      }
+      return info;
+    }
+
+    public static bool HasImageExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return IMAGE_FILE_EXTENSIONS.Contains(ext);
+    }
+
+    #endregion
 
     #region IMetadataExtractor implementation
 
@@ -99,6 +185,9 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           {
             if (!rah.LocalFsResourceAccessor.IsFile)
+              return false;
+            string fileName = rah.LocalFsResourceAccessor.ResourceName;
+            if (!HasImageExtension(fileName))
               return false;
             MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
             if (metadata.IsVideo)
@@ -149,67 +238,6 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemImageAspect.ATTR_PIXEL_FORMAT, info.Image.PixelFormatType.ToString());
     }
   
-    public static MetadataContainer ParseMediaItem(MediaItem item)
-    {
-      MetadataContainer info = new MetadataContainer();
-      IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
-      if (mediaItemAccessor is IFileSystemResourceAccessor)
-      {
-        using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
-        {
-          if (!fsra.IsFile)
-            return null;
-          using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-          {
-            info.Metadata.Source = lfsra;
-            info.Metadata.Size = lfsra.Size;
-          }
-        }
-      }
-     
-      if (item.Aspects.ContainsKey(DlnaItemImageAspect.ASPECT_ID) == true)
-      {
-        object oValue = null;
-        oValue = item.Aspects[DlnaItemImageAspect.ASPECT_ID].GetAttributeValue(DlnaItemImageAspect.ATTR_CONTAINER);
-        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
-        {
-          info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
-        }
-        oValue = item.Aspects[DlnaItemImageAspect.ASPECT_ID].GetAttributeValue(DlnaItemImageAspect.ATTR_PIXEL_FORMAT);
-        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
-        {
-          info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
-        }
-        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
-        {
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
-          if (oValue != null)
-          {
-            info.Image.Height = Convert.ToInt32(oValue);
-          }
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_WIDTH);
-          if (oValue != null)
-          {
-            info.Image.Width = Convert.ToInt32(oValue);
-          }
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
-          if (oValue != null)
-          {
-            info.Image.Orientation = Convert.ToInt32(oValue);
-          }
-        }
-        if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
-        {
-          oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
-          if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
-          {
-            info.Metadata.Mime = oValue.ToString();
-          }
-        }
-      }
-      return info;
-    }
-
     #endregion
 
     private static ILogger Logger

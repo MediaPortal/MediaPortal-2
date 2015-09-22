@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     HardCoded
   }
 
-  public enum H264Preset
+  public enum EncodingPreset
   {
     Default,
     Ultrafast,
@@ -70,7 +70,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     Placebo
   }
 
-  public enum H264Profile
+  public enum EncodingProfile
   {
     Unknown,
     Baseline,
@@ -214,7 +214,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
   public abstract class BaseTranscoding
   {
-    public string TranscodeID = "";
+    public string TranscodeId = "";
     public IResourceAccessor SourceFile;
     public string TranscoderBinPath = "";
     public string TranscoderArguments = "";
@@ -253,10 +253,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public QualityMode TargetVideoQuality = QualityMode.Default;
     public int TargetVideoQualityFactor = -1;
     public int TargetH264QualityFactor = -1;
-    public H264Preset TargetH264Preset = H264Preset.Default;
-    public H264Profile TargetH264Profile = H264Profile.Baseline;
+    public EncodingPreset TargetPreset = EncodingPreset.Default;
+    public EncodingProfile TargetProfile = EncodingProfile.Baseline;
     public PixelFormat TargetPixelFormat = PixelFormat.Yuv420;
-    public float TargetH264Level = 3.0F;
+    public float TargetLevel = -1;
     public Coder TargetCoder = Coder.Default;
     public bool TargetForceVideoTranscoding = false;
     public bool TargetForceAudioStereo = false;
@@ -317,10 +317,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public long TargetAudioBitrate = -1;
     public int TargetAudioChannels = -1;
     public float TargetVideoPixelAspectRatio = -1;
-    public H264Preset TargetH264Preset = H264Preset.Default;
-    public H264Profile TargetH264Profile = H264Profile.Baseline;
+    public EncodingPreset TargetPreset = EncodingPreset.Default;
+    public EncodingProfile TargetProfile = EncodingProfile.Baseline;
     public PixelFormat TargetVideoPixelFormat = PixelFormat.Yuv420;
-    public float TargetH264Level = 3.0F;
+    public float TargetLevel = -1;
     public float TargetVideoFrameRate = -1;
     public Timestamp TargetVideoTimestamp = Timestamp.None;
   }
@@ -448,9 +448,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public PixelFormat PixelFormatType;
     public long Bitrate;
     public float Framerate;
-    public H264Profile H264ProfileType;
-    public float H264HeaderLevel;
-    public float H264RefLevel;
+    public EncodingProfile ProfileType;
+    public float HeaderLevel;
+    public float RefLevel;
     public Timestamp TimestampType;
     public int Width;
     public int Height;

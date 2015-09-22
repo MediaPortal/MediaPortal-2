@@ -1,7 +1,7 @@
 ﻿#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,9 +42,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
     #region Constants
 
     /// <summary>
-    /// Maximum duration for creating a single video thumbnail.
+    /// Default maximum duration for analyzing file.
     /// </summary>
     protected const int PROCESS_TIMEOUT_MS = 30000;
+
+    /// <summary>
+    /// Maximum duration for analyzing H264 stream.
+    /// </summary>
+    protected const int H264_TIMEOUT_MS = 3000;
 
     #endregion
 
@@ -54,8 +59,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #endregion
 
-    public int TranscoderTimeout { get; set; }
-    public int TranscoderMaximumThreads { get; set; }
+    public int AnalyzerTimeout { get; set; }
+    public int AnalyzerMaximumThreads { get; set; }
     public string SubtitleDefaultEncoding { get; set; }
     public string SubtitleDefaultLanguage { get; set; }
     public ILogger Logger { get; set;  }
@@ -65,8 +70,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
    
     public MediaAnalyzer()
     {
-      TranscoderTimeout = 2500;
-      TranscoderMaximumThreads = 0;
+      AnalyzerTimeout = PROCESS_TIMEOUT_MS;
+      AnalyzerMaximumThreads = 0;
       SubtitleDefaultEncoding = "";
       SubtitleDefaultLanguage = "";
 
@@ -101,11 +106,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public MetadataContainer ParseFile(ILocalFsResourceAccessor lfsra)
     {
       string fileName = lfsra.LocalFileSystemPath;
-      string arguments = string.Format("-threads {0} -i \"{1}\"", TranscoderMaximumThreads, fileName);
+      string arguments = string.Format("-threads {0} -i \"{1}\"", AnalyzerMaximumThreads, fileName);
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result;
+        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
       
       // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
       // and stderr is used for logging purposes. In your example you use stdout.
@@ -117,13 +122,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(fileName);
         info.Metadata.Size = lfsra.Size;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
-        FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, TranscoderTimeout);
+        FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
         FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(ref info);
-        ParseSubtitleFiles(ref info);
+        info.Subtitles.AddRange(ParseFileExternalSubtitles(lfsra));
         return info;
       }
 
-      if (executionResult != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+      if (executionResult != null) 
+        Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
       else
         Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', executionResult=null", fileName);
 
@@ -151,7 +157,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(streamLink.URL);
         info.Metadata.Size = 0;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
-        FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, TranscoderTimeout);
+        FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
         FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(ref info);
         return info;
       }
@@ -161,12 +167,12 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    public void ParseSubtitleFiles(ref MetadataContainer info)
+    public List<SubtitleStream> ParseFileExternalSubtitles(ILocalFsResourceAccessor lfsra)
     {
-      ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
+      List<SubtitleStream> externalSubtitles = new List<SubtitleStream>();
       if (lfsra.Exists)
       {
-        // Impersionation
+        // Impersonation
         using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
         {
           string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
@@ -201,12 +207,12 @@ namespace MediaPortal.Plugins.Transcoding.Service
             {
               sub.Source = file;
               sub.Language = SubtitleAnalyzer.GetLanguage(file, SubtitleDefaultEncoding, SubtitleDefaultLanguage);
-              info.Subtitles.Add(sub);
+              externalSubtitles.Add(sub);
             }
           }
         }
       }
+      return externalSubtitles;
     }
-
   }
 }

@@ -41,7 +41,7 @@ using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Extensions.MediaServer.Filters;
 using MediaPortal.Plugins.Transcoding.Service;
 
-//Thanks goes to the Servvio over at http://www.serviio.org/
+//Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
 
 namespace MediaPortal.Extensions.MediaServer.Profiles
@@ -554,11 +554,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                     }
                     else if (reader.Name == "h264Preset")
                     {
-                      profile.Settings.Video.H264TargetPreset = (H264Preset)Enum.Parse(typeof(H264Preset), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "h264Profile")
                     {
-                      profile.Settings.Video.H264TargetProfile = (H264Profile)Enum.Parse(typeof(H264Profile), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "h264Level")
                     {
@@ -738,7 +738,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             }
             else if (reader.Name == "videoH264Profile")
             {
-              vTranscoding.Target.H264EncodingProfileType = (H264Profile)Enum.Parse(typeof(H264Profile), reader.ReadContentAsString(), true);
+              vTranscoding.Target.H264EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "videoH264Level")
             {
@@ -746,7 +746,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             }
             else if (reader.Name == "videoH264Preset")
             {
-              vTranscoding.Target.H264TargetPresetType = (H264Preset)Enum.Parse(typeof(H264Preset), reader.ReadContentAsString(), true);
+              vTranscoding.Target.H264TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "qualityMode")
             {
@@ -843,7 +843,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                 }
                 else if (reader.Name == "videoH264Profile")
                 {
-                  src.H264EncodingProfileType = (H264Profile)Enum.Parse(typeof(H264Profile), reader.ReadContentAsString(), true);
+                  src.H264EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "videoH264Level")
                 {

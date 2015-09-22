@@ -36,6 +36,8 @@ using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
+using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MediaServer.MetadataExtractors.Settings;
 
 namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 {
@@ -46,7 +48,8 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
     /// </summary>
     public static Guid MetadataExtractorId = new Guid("E45F4CBB-B349-479F-8F0A-158AACBF5ECA");
 
-    protected static List<MediaCategory> MediaCategories = new List<MediaCategory> { DefaultMediaCategories.Video };
+    protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Video };
+    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new HashSet<string>();
 
     private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
 
@@ -57,13 +60,24 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
 
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
       _analyzer.SubtitleDefaultEncoding = MediaServerPlugin.SubtitleDefaultEncoding;
       _analyzer.SubtitleDefaultLanguage = MediaServerPlugin.SubtitleDefaultLanguage;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(DlnaItemVideoAspect.Metadata);
+      DlnaVideoMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<DlnaVideoMetadataExtractorSettings>();
+      InitializeExtensions(settings);
+    }
+
+    /// <summary>
+    /// (Re)initializes the video extensions for which this <see cref="DlnaVideoMetadataExtractorSettings"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeExtensions(DlnaVideoMetadataExtractorSettings settings)
+    {
+      VIDEO_FILE_EXTENSIONS = new HashSet<string>(settings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public DlnaVideoMetadataExtractor()
@@ -73,7 +87,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         "DLNA video metadata extractor",
         MetadataExtractorPriority.Core,
         true,
-        MediaCategories,
+        MEDIA_CATEGORIES,
         new[]
           {
             MediaAspect.Metadata,
@@ -81,152 +95,25 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
           });
     }
 
-    #region IMetadataExtractor implementation
-
-    public MetadataExtractorMetadata Metadata { get; private set; }
-
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
-    {
-      try
-      {
-        if (mediaItemAccessor is IFileSystemResourceAccessor)
-        {
-          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          {
-            if (!rah.LocalFsResourceAccessor.IsFile)
-              return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.IsVideo)
-            {
-              ConvertMetadataToAspectData(metadata, extractedAspectData);
-              return true;
-            }
-          }
-          /*using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
-          {
-            if (!fsra.IsFile)
-              return false;
-            using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-            {
-              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
-              {
-                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
-                if (metadata.IsVideo)
-                {
-                  ConvertMetadataToAspectData(metadata, extractedAspectData);
-                  return true;
-                }
-              }
-            }
-          }*/
-        }
-        else if (mediaItemAccessor is INetworkResourceAccessor)
-        {
-          using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
-          {
-            MetadataContainer metadata = _analyzer.ParseStream(nra);
-            if (metadata.IsVideo)
-            {
-              ConvertMetadataToAspectData(metadata, extractedAspectData);
-              return true;
-            }
-          }
-        }
-      }
-      catch (Exception e)
-      {
-        // Only log at the info level here - And simply return false. This lets the caller know that we
-        // couldn't perform our task here.
-        Logger.Info("DlnaMediaServer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
-      }
-      return false;
-    }
-
-    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, MediaItemAspect> extractedAspectData)
-    {
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_CODEC, info.Video.Codec.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_FOURCC, StringUtils.TrimToNull(info.Video.FourCC));
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_BRAND, StringUtils.TrimToNull(info.Metadata.MajorBrand));
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_PIXEL_FORMAT, info.Video.PixelFormatType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_PIXEL_ASPECTRATIO, info.Video.PixelAspectRatio);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_PROFILE, info.Video.H264ProfileType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_HEADER_LEVEL, info.Video.H264HeaderLevel);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.H264RefLevel);
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_TS_TIMESTAMP, info.Video.TimestampType.ToString());
-
-      List<string> valuesLangs = new List<string>();
-      List<string> valuesCodecs = new List<string>();
-      List<string> valuesStreams = new List<string>();
-      List<string> valuesBitrates = new List<string>();
-      List<string> valuesChannels = new List<string>();
-      List<string> valuesFrequencies = new List<string>();
-      List<string> valuesDefaults = new List<string>();
-      foreach (AudioStream audio in info.Audio)
-      {
-        valuesStreams.Add(audio.StreamIndex.ToString());
-        valuesCodecs.Add(audio.Codec.ToString());
-        if (audio.Language == null)
-        {
-          valuesLangs.Add("");
-        }
-        else
-        {
-          valuesLangs.Add(audio.Language);
-        }
-        valuesBitrates.Add(audio.Bitrate.ToString());
-        valuesChannels.Add(audio.Channels.ToString());
-        valuesFrequencies.Add(audio.Frequency.ToString());
-        valuesDefaults.Add(audio.Default ? "1" : "0");
-      }
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOLANGUAGES, valuesLangs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOCODECS, valuesCodecs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOSTREAMS, valuesStreams);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOBITRATES, valuesBitrates);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOCHANNELS, valuesChannels);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOFREQUENCIES, valuesFrequencies);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIODEFAULTS, valuesDefaults);
-
-      List<string> valuesEmSubStreams = new List<string>();
-      List<string> valuesEmSubCodecs = new List<string>();
-      List<string> valuesEmSubLangs = new List<string>();
-      List<string> valuesEmSubDefaults = new List<string>();
-      foreach (SubtitleStream sub in info.Subtitles)
-      {
-        if (sub.IsEmbedded)
-        {
-          valuesEmSubStreams.Add(sub.StreamIndex.ToString());
-          valuesEmSubCodecs.Add(sub.Codec.ToString());
-          if (sub.Language == null)
-          {
-            valuesEmSubLangs.Add("");
-          }
-          else
-          {
-            valuesEmSubLangs.Add(sub.Language);
-          }
-          valuesEmSubDefaults.Add(sub.Default ? "1" : "0");
-        }
-      }
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBSTREAMS, valuesEmSubStreams);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBCODECS, valuesEmSubCodecs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBLANGUAGES, valuesEmSubLangs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBDEFAULTS, valuesEmSubDefaults);
-    }
+    #region Static methods
 
     public static void AddExternalSubtitles(ref MetadataContainer info)
     {
+      ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
+      if (!lfsra.IsFile || info.Metadata.Source == null)
+        return;
+
       //Remove previously found external subtitles
       for (int iSubtitle = 0; iSubtitle < info.Subtitles.Count; iSubtitle++)
       {
-        if (info.Subtitles[iSubtitle].StreamIndex < 0)
+        if (info.Subtitles[iSubtitle].StreamIndex < 0) //No stream index means external subtitle
         {
           info.Subtitles.RemoveAt(iSubtitle);
           iSubtitle--;
         }
       }
-      _analyzer.ParseSubtitleFiles(ref info);
+
+      info.Subtitles.AddRange(_analyzer.ParseFileExternalSubtitles(lfsra));
     }
 
     public static MetadataContainer ParseMediaItem(MediaItem item)
@@ -286,17 +173,17 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_H264_PROFILE);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
-          info.Video.H264ProfileType = (H264Profile)Enum.Parse(typeof(H264Profile), oValue.ToString());
+          info.Video.ProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), oValue.ToString());
         }
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_H264_HEADER_LEVEL);
         if (oValue != null)
         {
-          info.Video.H264HeaderLevel = Convert.ToSingle(oValue);
+          info.Video.HeaderLevel = Convert.ToSingle(oValue);
         }
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_H264_REF_LEVEL);
         if (oValue != null)
         {
-          info.Video.H264RefLevel = Convert.ToSingle(oValue);
+          info.Video.RefLevel = Convert.ToSingle(oValue);
         }
         oValue = item.Aspects[DlnaItemVideoAspect.ASPECT_ID].GetAttributeValue(DlnaItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
         if (oValue != null)
@@ -437,6 +324,151 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
         }
       }
       return info;
+    }
+
+    public static bool HasVideoExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return VIDEO_FILE_EXTENSIONS.Contains(ext);
+    }
+
+    #endregion
+
+    #region IMetadataExtractor implementation
+
+    public MetadataExtractorMetadata Metadata { get; private set; }
+
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    {
+      try
+      {
+        if (mediaItemAccessor is IFileSystemResourceAccessor)
+        {
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          {
+            if (!rah.LocalFsResourceAccessor.IsFile)
+              return false;
+            string filePath = rah.LocalFsResourceAccessor.ResourcePathName;
+            if (!HasVideoExtension(filePath))
+              return false;
+            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
+            if (metadata.IsVideo)
+            {
+              ConvertMetadataToAspectData(metadata, extractedAspectData);
+              return true;
+            }
+          }
+          /*using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
+          {
+            if (!fsra.IsFile)
+              return false;
+            using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+            {
+              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
+              {
+                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
+                if (metadata.IsVideo)
+                {
+                  ConvertMetadataToAspectData(metadata, extractedAspectData);
+                  return true;
+                }
+              }
+            }
+          }*/
+        }
+        else if (mediaItemAccessor is INetworkResourceAccessor)
+        {
+          using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
+          {
+            MetadataContainer metadata = _analyzer.ParseStream(nra);
+            if (metadata.IsVideo)
+            {
+              ConvertMetadataToAspectData(metadata, extractedAspectData);
+              return true;
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        // Only log at the info level here - And simply return false. This lets the caller know that we
+        // couldn't perform our task here.
+        Logger.Info("DlnaMediaServer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+      }
+      return false;
+    }
+
+    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_CODEC, info.Video.Codec.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_FOURCC, StringUtils.TrimToNull(info.Video.FourCC));
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_BRAND, StringUtils.TrimToNull(info.Metadata.MajorBrand));
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_PIXEL_FORMAT, info.Video.PixelFormatType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_PIXEL_ASPECTRATIO, info.Video.PixelAspectRatio);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_PROFILE, info.Video.ProfileType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_HEADER_LEVEL, info.Video.HeaderLevel);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.RefLevel);
+      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_TS_TIMESTAMP, info.Video.TimestampType.ToString());
+
+      List<string> valuesLangs = new List<string>();
+      List<string> valuesCodecs = new List<string>();
+      List<string> valuesStreams = new List<string>();
+      List<string> valuesBitrates = new List<string>();
+      List<string> valuesChannels = new List<string>();
+      List<string> valuesFrequencies = new List<string>();
+      List<string> valuesDefaults = new List<string>();
+      foreach (AudioStream audio in info.Audio)
+      {
+        valuesStreams.Add(audio.StreamIndex.ToString());
+        valuesCodecs.Add(audio.Codec.ToString());
+        if (audio.Language == null)
+        {
+          valuesLangs.Add("");
+        }
+        else
+        {
+          valuesLangs.Add(audio.Language);
+        }
+        valuesBitrates.Add(audio.Bitrate.ToString());
+        valuesChannels.Add(audio.Channels.ToString());
+        valuesFrequencies.Add(audio.Frequency.ToString());
+        valuesDefaults.Add(audio.Default ? "1" : "0");
+      }
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOLANGUAGES, valuesLangs);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOCODECS, valuesCodecs);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOSTREAMS, valuesStreams);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOBITRATES, valuesBitrates);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOCHANNELS, valuesChannels);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIOFREQUENCIES, valuesFrequencies);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_AUDIODEFAULTS, valuesDefaults);
+
+      List<string> valuesEmSubStreams = new List<string>();
+      List<string> valuesEmSubCodecs = new List<string>();
+      List<string> valuesEmSubLangs = new List<string>();
+      List<string> valuesEmSubDefaults = new List<string>();
+      foreach (SubtitleStream sub in info.Subtitles)
+      {
+        if (sub.IsEmbedded)
+        {
+          valuesEmSubStreams.Add(sub.StreamIndex.ToString());
+          valuesEmSubCodecs.Add(sub.Codec.ToString());
+          if (sub.Language == null)
+          {
+            valuesEmSubLangs.Add("");
+          }
+          else
+          {
+            valuesEmSubLangs.Add(sub.Language);
+          }
+          valuesEmSubDefaults.Add(sub.Default ? "1" : "0");
+        }
+      }
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBSTREAMS, valuesEmSubStreams);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBCODECS, valuesEmSubCodecs);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBLANGUAGES, valuesEmSubLangs);
+      MediaItemAspect.SetCollectionAttribute(extractedAspectData, DlnaItemVideoAspect.ATTR_EMBEDDED_SUBDEFAULTS, valuesEmSubDefaults);
     }
 
     #endregion

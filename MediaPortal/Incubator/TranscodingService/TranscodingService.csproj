@@ -79,7 +79,7 @@
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseFFMpegOutput.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseFFMpegOutputLines.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseH264Info.cs" />
-    <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseH264Profile.cs" />
+    <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseProfile.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseImageContainer.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseInputLine.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseMPEG2TSInfo.cs" />

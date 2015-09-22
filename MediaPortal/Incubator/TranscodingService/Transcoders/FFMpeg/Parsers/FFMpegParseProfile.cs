@@ -26,28 +26,28 @@ using System;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
-  public class FFMpegParseH264Profile
+  public class FFMpegParseProfile
   {
-    internal static H264Profile ParseH264Profile(string token)
+    internal static EncodingProfile ParseProfile(string token)
     {
       if (token != null)
       {
         if (token.Equals("constrained baseline", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.Baseline;
+          return EncodingProfile.Baseline;
         if (token.Equals("baseline", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.Baseline;
+          return EncodingProfile.Baseline;
         if (token.Equals("main", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.Main;
+          return EncodingProfile.Main;
         if (token.Equals("high", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.High;
+          return EncodingProfile.High;
         if (token.Equals("high10", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.High;
+          return EncodingProfile.High;
         if (token.Equals("high422", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.High;
+          return EncodingProfile.High;
         if (token.Equals("high444", StringComparison.InvariantCultureIgnoreCase))
-          return H264Profile.High;
+          return EncodingProfile.High;
       }
-      return H264Profile.Unknown;
+      return EncodingProfile.Unknown;
     }
   }
 }
