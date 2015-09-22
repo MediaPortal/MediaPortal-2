@@ -394,7 +394,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal void AddVideoParameters(VideoTranscoding video, Subtitle subtitle, ref FFMpegTranscodeData data)
+    internal void AddVideoParameters(VideoTranscoding video, string transcodeId, Subtitle subtitle, ref FFMpegTranscodeData data, ref List<string> intelTranscodes, ref List<string> nvidiaTranscodes)
     {
       if (video.TargetVideoCodec == VideoCodec.Unknown)
       {
@@ -412,6 +412,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       {
         video.TargetVideoMaxHeight = 1080;
       }
+      bool isIntel = Checks.IsIntelHWTranscode(video.TranscodeId, intelTranscodes);
+      bool isNvidia = Checks.IsNvidiaHWTranscode(video.TranscodeId, nvidiaTranscodes);
       bool vCodecCopy = false;
       if (Checks.IsVideoStreamChanged(video, _supportHardcodedSubs) == false)
       {
@@ -421,7 +423,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       else
       {
-        data.OutputArguments.Add(string.Format("-c:v {0}", FFMpegGetVideoCodec.GetVideoCodec(video.TargetVideoCodec, _allowNvidiaHwAccelleration, _allowIntelHwAccelleration, _supportNvidiaHW, _supportIntelHW)));
+        data.OutputArguments.Add(string.Format("-c:v {0}", FFMpegGetVideoCodec.GetVideoCodec(video.TargetVideoCodec, transcodeId, _allowNvidiaHwAccelleration, _allowIntelHwAccelleration, _supportNvidiaHW, _supportIntelHW, intelTranscodes, nvidiaTranscodes)));
 
         if (video.TargetPixelFormat == PixelFormat.Unknown)
         {
@@ -431,50 +433,130 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
         if (video.TargetVideoCodec == VideoCodec.H265)
         {
-          if (video.TargetH264Preset == H264Preset.Ultrafast)
+          if (video.TargetPreset == EncodingPreset.Ultrafast)
           {
-            data.OutputArguments.Add("-preset ultrafast");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset ultrafast");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Superfast)
+          else if (video.TargetPreset == EncodingPreset.Superfast)
           {
-            data.OutputArguments.Add("-preset superfast");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset superfast");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Default || video.TargetH264Preset == H264Preset.Veryfast)
+          else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Veryfast)
           {
-            data.OutputArguments.Add("-preset veryfast");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Faster)
+          else if (video.TargetPreset == EncodingPreset.Faster)
           {
-            data.OutputArguments.Add("-preset faster");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset fast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset faster");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Fast)
+          else if (video.TargetPreset == EncodingPreset.Fast)
           {
             data.OutputArguments.Add("-preset fast");
           }
-          else if (video.TargetH264Preset == H264Preset.Medium)
+          else if (video.TargetPreset == EncodingPreset.Medium)
           {
             data.OutputArguments.Add("-preset medium");
           }
-          else if (video.TargetH264Preset == H264Preset.Slow)
+          else if (video.TargetPreset == EncodingPreset.Slow)
           {
             data.OutputArguments.Add("-preset slow");
           }
-          else if (video.TargetH264Preset == H264Preset.Slower)
+          else if (video.TargetPreset == EncodingPreset.Slower)
           {
-            data.OutputArguments.Add("-preset slower");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset slow");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset slower");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Veryslow)
+          else if (video.TargetPreset == EncodingPreset.Veryslow)
           {
-            data.OutputArguments.Add("-preset veryslow");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset slow");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset veryslow");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Placebo)
+          else if (video.TargetPreset == EncodingPreset.Placebo)
           {
-            data.OutputArguments.Add("-preset placebo");
+            if (isIntel)
+            {
+              //Use auto
+            }
+            else if (isNvidia)
+            {
+              //Use auto
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset placebo");
+            }
+          }
+          if (isIntel)
+          {
+            data.OutputArguments.Add("-profile:v main");
           }
 
-          AddVideoBitrateParameters(video, ref data);
+          AddVideoBitrateParameters(video, ref data, ref nvidiaTranscodes);
 
-          data.OutputArguments.Add("-x265-params");
           if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
           {
             data.OutputArguments.Add("-crf 10");
@@ -483,73 +565,206 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             data.OutputArguments.Add(string.Format("-crf {0}", video.TargetH264QualityFactor));
           }
+
+          if (isIntel)
+          {
+            //Ignore
+          }
+          else if (isNvidia)
+          {
+            //Ignore
+          }
+          else
+          {
+            data.OutputArguments.Add("-x265-params");
+            string args = "";
+            if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
+            {
+              args += "crf=10";
+            }
+            else
+            {
+              args += string.Format("crf={0}", video.TargetH264QualityFactor);
+            }
+            if (video.SourceFrameRate > 0)
+            {
+              args += string.Format(":fps={0}", Validators.GetValidFramerate(video.SourceFrameRate));
+            }
+            if (video.TargetLevel > 0)
+            {
+              args += string.Format(":level={0}", video.TargetLevel.ToString("0.0", CultureInfo.InvariantCulture));
+            }
+            data.OutputArguments.Add(args);
+          }
         }
         else if (video.TargetVideoCodec == VideoCodec.H264)
         {
-          if (video.TargetH264Profile == H264Profile.Baseline)
+          if (video.TargetProfile == EncodingProfile.Baseline)
           {
             data.OutputArguments.Add("-profile:v baseline");
           }
-          else if (video.TargetH264Profile == H264Profile.Main)
+          else if (video.TargetProfile == EncodingProfile.Main)
           {
             data.OutputArguments.Add("-profile:v main");
           }
-          else if (video.TargetH264Profile == H264Profile.High && video.TargetPixelFormat == PixelFormat.Yuv422)
+          else if (video.TargetProfile == EncodingProfile.High && video.TargetPixelFormat == PixelFormat.Yuv422)
           {
-            data.OutputArguments.Add("-profile:v high422");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else
+            {
+              data.OutputArguments.Add("-profile:v high422");
+            }
           }
-          else if (video.TargetH264Profile == H264Profile.High && video.TargetPixelFormat == PixelFormat.Yuv444)
+          else if (video.TargetProfile == EncodingProfile.High && video.TargetPixelFormat == PixelFormat.Yuv444)
           {
-            data.OutputArguments.Add("-profile:v high444");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-profile:v high");
+            }
+            else
+            {
+              data.OutputArguments.Add("-profile:v high444");
+            }
           }
-          else if (video.TargetH264Profile == H264Profile.High)
+          else if (video.TargetProfile == EncodingProfile.High)
           {
             data.OutputArguments.Add("-profile:v high");
           }
-          data.OutputArguments.Add(string.Format("-level {0}", video.TargetH264Level.ToString("0.0", CultureInfo.InvariantCulture)));
+          if (video.TargetLevel > 0)
+          {
+            data.OutputArguments.Add(string.Format("-level {0}", video.TargetLevel.ToString("0.0", CultureInfo.InvariantCulture)));
+          }
 
-          if (video.TargetH264Preset == H264Preset.Ultrafast)
+          if (video.TargetPreset == EncodingPreset.Ultrafast)
           {
-            data.OutputArguments.Add("-preset ultrafast");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset ultrafast");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Superfast)
+          else if (video.TargetPreset == EncodingPreset.Superfast)
           {
-            data.OutputArguments.Add("-preset superfast");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset superfast");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Default || video.TargetH264Preset == H264Preset.Veryfast)
+          else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Veryfast)
           {
-            data.OutputArguments.Add("-preset veryfast");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset veryfast");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Faster)
+          else if (video.TargetPreset == EncodingPreset.Faster)
           {
-            data.OutputArguments.Add("-preset faster");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset faster");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hp");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset faster");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Fast)
+          else if (video.TargetPreset == EncodingPreset.Fast)
           {
             data.OutputArguments.Add("-preset fast");
           }
-          else if (video.TargetH264Preset == H264Preset.Medium)
+          else if (video.TargetPreset == EncodingPreset.Medium)
           {
             data.OutputArguments.Add("-preset medium");
           }
-          else if (video.TargetH264Preset == H264Preset.Slow)
+          else if (video.TargetPreset == EncodingPreset.Slow)
           {
             data.OutputArguments.Add("-preset slow");
           }
-          else if (video.TargetH264Preset == H264Preset.Slower)
+          else if (video.TargetPreset == EncodingPreset.Slower)
           {
-            data.OutputArguments.Add("-preset slower");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset slower");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset slower");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Veryslow)
+          else if (video.TargetPreset == EncodingPreset.Veryslow)
           {
-            data.OutputArguments.Add("-preset veryslow");
+            if (isIntel)
+            {
+              data.OutputArguments.Add("-preset veryslow");
+            }
+            else if (isNvidia)
+            {
+              data.OutputArguments.Add("-preset hq");
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset veryslow");
+            }
           }
-          else if (video.TargetH264Preset == H264Preset.Placebo)
+          else if (video.TargetPreset == EncodingPreset.Placebo)
           {
-            data.OutputArguments.Add("-preset placebo");
+            if (isIntel)
+            {
+              //Use auto
+            }
+            else if (isNvidia)
+            {
+              //Use auto
+            }
+            else
+            {
+              data.OutputArguments.Add("-preset placebo");
+            }
           }
 
-          AddVideoBitrateParameters(video, ref data);
+          AddVideoBitrateParameters(video, ref data, ref nvidiaTranscodes);
           if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
           {
             data.OutputArguments.Add("-crf 10");
@@ -561,7 +776,78 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         }
         else
         {
-          if (AddVideoBitrateParameters(video, ref data) == false)
+          if (video.TargetVideoCodec == VideoCodec.Mpeg2)
+          {
+            if (isIntel)
+            {
+              if (video.TargetProfile == EncodingProfile.Baseline)
+              {
+                data.OutputArguments.Add("-profile:v simple");
+              }
+              else if (video.TargetProfile == EncodingProfile.Main)
+              {
+                data.OutputArguments.Add("-profile:v main");
+              }
+              else if (video.TargetProfile == EncodingProfile.High)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+              else if (video.TargetProfile == EncodingProfile.High10)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+              else if (video.TargetProfile == EncodingProfile.High422)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+              else if (video.TargetProfile == EncodingProfile.High444)
+              {
+                data.OutputArguments.Add("-profile:v high");
+              }
+
+              if (video.TargetPreset == EncodingPreset.Ultrafast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Superfast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Veryfast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Faster)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Fast)
+              {
+                data.OutputArguments.Add("-preset fast");
+              }
+              else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Medium)
+              {
+                data.OutputArguments.Add("-preset medium");
+              }
+              else if (video.TargetPreset == EncodingPreset.Slow)
+              {
+                data.OutputArguments.Add("-preset slow");
+              }
+              else if (video.TargetPreset == EncodingPreset.Slower)
+              {
+                data.OutputArguments.Add("-preset slow");
+              }
+              else if (video.TargetPreset == EncodingPreset.Veryslow)
+              {
+                data.OutputArguments.Add("-preset slow");
+              }
+              else if (video.TargetPreset == EncodingPreset.Placebo)
+              {
+                //Use default
+              }
+            }
+          }
+          if (AddVideoBitrateParameters(video, ref data, ref nvidiaTranscodes) == false)
           {
             if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
             {
@@ -617,10 +903,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    private bool AddVideoBitrateParameters(VideoTranscoding video, ref FFMpegTranscodeData data)
+    private bool AddVideoBitrateParameters(VideoTranscoding video, ref FFMpegTranscodeData data, ref List<string> nvidiaTranscodes)
     {
       if (video.TargetVideoBitrate > 0)
       {
+        if (video.TargetVideoCodec == VideoCodec.H264 || video.TargetVideoCodec == VideoCodec.H265)
+        {
+          if (Checks.IsNvidiaHWTranscode(video.TranscodeId, nvidiaTranscodes))
+          {
+            data.OutputArguments.Add("-cbr 1");
+          }
+        }
         data.OutputArguments.Add(string.Format("-b:v {0}", video.TargetVideoBitrate + "k"));
         data.OutputArguments.Add(string.Format("-maxrate:v {0}", video.TargetVideoBitrate + "k"));
         data.OutputArguments.Add(string.Format("-bufsize:v {0}", video.TargetVideoBitrate + "k"));

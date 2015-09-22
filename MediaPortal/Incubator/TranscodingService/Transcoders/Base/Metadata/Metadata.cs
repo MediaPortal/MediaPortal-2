@@ -155,9 +155,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base.Metadata
         TargetAudioCodec = video.TargetAudioCodec,
         TargetAudioFrequency = video.TargetAudioFrequency,
         TargetVideoFrameRate = video.SourceFrameRate,
-        TargetH264Level = video.TargetH264Level,
-        TargetH264Preset = video.TargetH264Preset,
-        TargetH264Profile = video.TargetH264Profile,
+        TargetLevel = video.TargetLevel,
+        TargetPreset = video.TargetPreset,
+        TargetProfile = video.TargetProfile,
         TargetVideoPixelFormat = video.TargetPixelFormat
       };
       if (metadata.TargetVideoPixelFormat == PixelFormat.Unknown)

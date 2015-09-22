@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
@@ -126,5 +127,33 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
       return notChanged == false;
     }
+
+    internal static bool IsTranscodingRunning(string transcodeID, ref Dictionary<string, TranscodeContext>  runningTranscodes)
+    {
+      lock (runningTranscodes)
+      {
+        return runningTranscodes.ContainsKey(transcodeID);
+      }
+    }
+
+    #region HW Acceleration
+
+    internal static bool IsNvidiaHWTranscode(string transcodeId, List<string> nvidiaTranscodes)
+    {
+      lock (nvidiaTranscodes)
+      {
+        return nvidiaTranscodes.Contains(transcodeId);
+      }
+    }
+
+    internal static bool IsIntelHWTranscode(string transcodeId, List<string> intelTranscodes)
+    {
+      lock (intelTranscodes)
+      {
+        return intelTranscodes.Contains(transcodeId);
+      }
+    }
+
+    #endregion
   }
 }

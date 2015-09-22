@@ -22,13 +22,14 @@
 
 #endregion
 
-
+using System.Collections.Generic;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
 {
   internal class FFMpegGetVideoCodec
   {
-    public static string GetVideoCodec(VideoCodec codec, bool allowNvidiaHwAccelleration, bool allowIntelHwAccelleration, bool supportNvidiaHw, bool supportIntelHw)
+    public static string GetVideoCodec(VideoCodec codec, string transcodeID, bool allowNvidiaHwAccelleration, bool allowIntelHwAccelleration, bool supportNvidiaHw, bool supportIntelHw, List<string> intelTranscodes, List<string> nvidiaTranscodes)
     {
       switch (codec)
       {
@@ -38,10 +39,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
           else
             return "libx265";
         case VideoCodec.H264:
-          if (allowIntelHwAccelleration && supportIntelHw)
+          if (Checks.IsIntelHWTranscode(transcodeID, intelTranscodes))
             return "h264_qsv";
-          else if (allowNvidiaHwAccelleration && supportNvidiaHw)
-            return "h264_nvenc";
+          else if (Checks.IsNvidiaHWTranscode(transcodeID, nvidiaTranscodes))
+            return "nvenc_h264";
           else
             return "libx264";
         case VideoCodec.H263:
@@ -53,7 +54,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case VideoCodec.MsMpeg4:
           return "msmpeg4";
         case VideoCodec.Mpeg2:
-          if (allowIntelHwAccelleration && supportIntelHw)
+          if (Checks.IsIntelHWTranscode(transcodeID, intelTranscodes))
             return "mpeg2_qsv";
           else
             return "mpeg2video";
