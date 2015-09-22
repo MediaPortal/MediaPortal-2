@@ -66,6 +66,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     private string _serverOsVersion = null;
     private string _product = null;
     private Dictionary<string, Guid> _lastMediaItem = new Dictionary<string, Guid>();
+    private Dictionary<string, TranscodeContext> _lastClientTranscode = new Dictionary<string, TranscodeContext>();
     private MediaConverter _transcoder = new MediaConverter();
 
     protected enum StreamMode
@@ -263,10 +264,10 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       try
       {
         EndPointSettings deviceClient = null;
-        string clientID = request.Headers["remote_addr"];
-        if (clientID == null)
+        string clientId = request.Headers["remote_addr"];
+        if (clientId == null)
         {
-          clientID = "noip";
+          clientId = "noip";
         }
 
           
@@ -274,10 +275,10 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
         if (deviceClient == null || deviceClient.Profile == null)
         {
-          Logger.Warn("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientID);
+          Logger.Warn("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientId);
           return false;
         }
-        Logger.Debug("DlnaResourceAccessModule: Using profile {0} for client {1}", deviceClient.Profile.Name, clientID);
+        Logger.Debug("DlnaResourceAccessModule: Using profile {0} for client {1}", deviceClient.Profile.Name, clientId);
 
         GenericAccessProtocol protocolResource = GenericAccessProtocol.GetProtocolResourceHandler(deviceClient.Profile.ResourceAccessHandler);
         response.AddHeader("Server", _serverOsVersion + " UPnP/1.1 DLNADOC/1.50, " + _product);
@@ -310,22 +311,26 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         if (bHandled == false)
         {
           // Grab the media item given in the request.
-          if (_lastMediaItem.ContainsKey(clientID) == false)
+          lock (_lastMediaItem)
           {
-            _lastMediaItem.Add(clientID, Guid.Empty);
-          }
-          if (!DlnaResourceAccessUtils.ParseMediaItem(uri, out mediaItemGuid))
-          {
-            if (_lastMediaItem[clientID] == Guid.Empty)
+            if (_lastMediaItem.ContainsKey(clientId) == false)
             {
-              throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
+              _lastMediaItem.Add(clientId, Guid.Empty);
             }
-            mediaItemGuid = _lastMediaItem[clientID];
-            Logger.Debug("DlnaResourceAccessModule: Attempting to reload last mediaitem {0}", mediaItemGuid.ToString());
-          }
-          else
-          {
-            Logger.Debug("DlnaResourceAccessModule: Attempting to load mediaitem {0}", mediaItemGuid.ToString());
+
+            if (!DlnaResourceAccessUtils.ParseMediaItem(uri, out mediaItemGuid))
+            {
+              if (_lastMediaItem[clientId] == Guid.Empty)
+              {
+                throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
+              }
+              mediaItemGuid = _lastMediaItem[clientId];
+              Logger.Debug("DlnaResourceAccessModule: Attempting to reload last mediaitem {0}", mediaItemGuid.ToString());
+            }
+            else
+            {
+              Logger.Debug("DlnaResourceAccessModule: Attempting to load mediaitem {0}", mediaItemGuid.ToString());
+            }
           }
 
           DlnaMediaItem dlnaItem = null;
@@ -344,7 +349,10 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           }
           if (dlnaItem == null)
             throw new BadRequestException(string.Format("DLNA media item '{0}' not found.", mediaItemGuid));
-          _lastMediaItem[clientID] = mediaItemGuid;
+          lock (_lastMediaItem)
+          {
+            _lastMediaItem[clientId] = mediaItemGuid;
+          }
 
           SubtitleStream subSource = null;
           SubtitleCodec subTargetCodec = SubtitleCodec.Unknown;
@@ -538,6 +546,22 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               TranscodeContext context = _transcoder.GetMediaStream(dlnaItem.TranscodingParameter, true);
               dlnaItem.SegmentDir = context.SegmentDir;
               resourceStream = context.TranscodedStream;
+              lock(_lastClientTranscode)
+              {
+                if (_lastClientTranscode.ContainsKey(clientId) == false)
+                {
+                  _lastClientTranscode.Add(clientId, context);
+                }
+                else
+                {
+                  if (_lastClientTranscode[clientId].Running == true && _lastClientTranscode[clientId] != context)
+                  {
+                    //Don't waste resources on transcoding if the client wants different media item
+                    _lastClientTranscode[clientId].Stop();
+                  }
+                  _lastClientTranscode[clientId] = context;
+                }
+              }
             }
             using (resourceStream)
             {
