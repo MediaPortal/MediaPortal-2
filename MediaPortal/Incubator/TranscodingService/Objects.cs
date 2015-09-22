@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
   public enum Coder
   {
     Default = -1,
+    None,
     VariableLength,
     Arithmic,
     Raw,
@@ -73,8 +74,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
   public enum EncodingProfile
   {
     Unknown,
+    Simple,
     Baseline,
     Main,
+    Main10,
     High,
     High10,
     High422,
@@ -252,7 +255,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public long TargetAudioBitrate = -1;
     public QualityMode TargetVideoQuality = QualityMode.Default;
     public int TargetVideoQualityFactor = -1;
-    public int TargetH264QualityFactor = -1;
+    public int TargetQualityFactor = -1;
     public EncodingPreset TargetPreset = EncodingPreset.Default;
     public EncodingProfile TargetProfile = EncodingProfile.Baseline;
     public PixelFormat TargetPixelFormat = PixelFormat.Yuv420;

@@ -552,7 +552,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           }
           if (isIntel)
           {
-            data.OutputArguments.Add("-profile:v main");
+            if (video.TargetProfile == EncodingProfile.Main)
+            {
+              data.OutputArguments.Add("-profile:v main");
+            }
+            else if (video.TargetProfile == EncodingProfile.Main10)
+            {
+              data.OutputArguments.Add("-profile:v main10");
+            }
           }
 
           AddVideoBitrateParameters(video, ref data, ref nvidiaTranscodes);
@@ -563,7 +570,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           }
           else
           {
-            data.OutputArguments.Add(string.Format("-crf {0}", video.TargetH264QualityFactor));
+            data.OutputArguments.Add(string.Format("-crf {0}", video.TargetQualityFactor));
           }
 
           if (isIntel)
@@ -584,7 +591,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             }
             else
             {
-              args += string.Format("crf={0}", video.TargetH264QualityFactor);
+              args += string.Format("crf={0}", video.TargetQualityFactor);
             }
             if (video.SourceFrameRate > 0)
             {
@@ -771,7 +778,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           }
           else
           {
-            data.OutputArguments.Add(string.Format("-crf {0}", video.TargetH264QualityFactor));
+            data.OutputArguments.Add(string.Format("-crf {0}", video.TargetQualityFactor));
           }
         }
         else
@@ -780,7 +787,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             if (isIntel)
             {
-              if (video.TargetProfile == EncodingProfile.Baseline)
+              if (video.TargetProfile == EncodingProfile.Simple)
               {
                 data.OutputArguments.Add("-profile:v simple");
               }
@@ -789,18 +796,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
                 data.OutputArguments.Add("-profile:v main");
               }
               else if (video.TargetProfile == EncodingProfile.High)
-              {
-                data.OutputArguments.Add("-profile:v high");
-              }
-              else if (video.TargetProfile == EncodingProfile.High10)
-              {
-                data.OutputArguments.Add("-profile:v high");
-              }
-              else if (video.TargetProfile == EncodingProfile.High422)
-              {
-                data.OutputArguments.Add("-profile:v high");
-              }
-              else if (video.TargetProfile == EncodingProfile.High444)
               {
                 data.OutputArguments.Add("-profile:v high");
               }
@@ -821,11 +816,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               {
                 data.OutputArguments.Add("-preset fast");
               }
-              else if (video.TargetPreset == EncodingPreset.Fast)
+              else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Fast)
               {
                 data.OutputArguments.Add("-preset fast");
               }
-              else if (video.TargetPreset == EncodingPreset.Default || video.TargetPreset == EncodingPreset.Medium)
+              else if (video.TargetPreset == EncodingPreset.Medium)
               {
                 data.OutputArguments.Add("-preset medium");
               }
