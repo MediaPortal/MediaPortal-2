@@ -101,7 +101,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           {
             info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(codecValue);
           }
-          if (info.Video.Codec == VideoCodec.H264)
+          if (info.Video.Codec == VideoCodec.H264 || info.Video.Codec == VideoCodec.H265)
           {
             info.Video.ProfileType = FFMpegParseProfile.ParseProfile(codecDetails);
           }
