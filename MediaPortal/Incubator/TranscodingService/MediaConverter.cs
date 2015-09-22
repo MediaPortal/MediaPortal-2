@@ -1093,7 +1093,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     #endregion
   }
 
-  public class TranscodeContext
+  public class TranscodeContext : IDisposable
   {
     StringBuilder _errorOutput = new StringBuilder();
     StringBuilder _standardOutput = new StringBuilder();
@@ -1132,12 +1132,21 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       Running = running;
       Aborted = false;
+      if (TranscodedStream != null)
+        TranscodedStream.Dispose();
       TranscodedStream = stream;
     }
 
     public void Stop()
     {
       Running = false;
+    }
+
+    public void Dispose()
+    {
+      Stop();
+      if (TranscodedStream != null)
+        TranscodedStream.Dispose();
     }
   }
 }
