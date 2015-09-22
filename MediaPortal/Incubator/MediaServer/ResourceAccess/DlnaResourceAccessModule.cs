@@ -270,7 +270,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           clientId = "noip";
         }
 
-          
+
         deviceClient = ProfileManager.DetectProfile(request.Headers);
 
         if (deviceClient == null || deviceClient.Profile == null)
@@ -367,7 +367,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               video.SourceSubtitle = subSource;
               video.TargetSubtitleCodec = subTargetCodec;
             }
-            else if(dlnaItem.IsVideo)
+            else if (dlnaItem.IsVideo)
             {
               VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
               subtitle.SourceSubtitle = subSource;
@@ -508,7 +508,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               return true;
             }
 
-            BufferedStream resourceStream = null;
+            Stream resourceStream = null;
             if (resourceStream == null && dlnaItem.IsSegmented)
             {
               int startIndex = request.Uri.AbsoluteUri.LastIndexOf("/") + 1;
@@ -546,7 +546,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               TranscodeContext context = _transcoder.GetMediaStream(dlnaItem.TranscodingParameter, true);
               dlnaItem.SegmentDir = context.SegmentDir;
               resourceStream = context.TranscodedStream;
-              lock(_lastClientTranscode)
+              lock (_lastClientTranscode)
               {
                 if (_lastClientTranscode.ContainsKey(clientId) == false)
                 {
@@ -563,160 +563,158 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
                 }
               }
             }
-            using (resourceStream)
+
+            if (resourceStream == null)
             {
-              if (resourceStream == null)
+              response.Status = HttpStatusCode.InternalServerError;
+              response.Chunked = false;
+              response.ContentLength = 0;
+              response.ContentType = null;
+#if DEBUG
+              Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
+#else
+                response.SendHeaders();
+#endif
+              return true;
+            }
+
+            if (dlnaItem.IsStreamable == false)
+            {
+              Logger.Debug("DlnaResourceAccessModule: Live transcoding of mediaitem {0} is not possible because of media container", mediaItemGuid.ToString());
+            }
+
+            IList<Range> ranges = null;
+            if (requestedStreamingMode == StreamMode.TimeRange)
+            {
+              double duration = dlnaItem.DlnaMetadata.Metadata.Duration;
+              if (dlnaItem.IsSegmented)
               {
-                response.Status = HttpStatusCode.InternalServerError;
+                //Is this possible?
+                duration = MediaServerPlugin.HLSSegmentTimeInSeconds;
+              }
+              ranges = ParseTimeRanges(byteRangesSpecifier, duration);
+              if (ranges == null || ranges.Count != 1)
+              {
+                //Only support 1 range
+                response.Status = HttpStatusCode.RequestedRangeNotSatisfiable;
                 response.Chunked = false;
                 response.ContentLength = 0;
                 response.ContentType = null;
 #if DEBUG
                 Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
 #else
-                response.SendHeaders();
+                  response.SendHeaders();
 #endif
                 return true;
               }
-
-              if (dlnaItem.IsStreamable == false)
-              {
-                Logger.Debug("DlnaResourceAccessModule: Live transcoding of mediaitem {0} is not possible because of media container", mediaItemGuid.ToString());
-              }
-
-              IList<Range> ranges = null;
-              if (requestedStreamingMode == StreamMode.TimeRange)
-              {
-                double duration = dlnaItem.DlnaMetadata.Metadata.Duration;
-                if (dlnaItem.IsSegmented)
-                {
-                  //Is this possible?
-                  duration = MediaServerPlugin.HLSSegmentTimeInSeconds;
-                }
-                ranges = ParseTimeRanges(byteRangesSpecifier, duration);
-                if (ranges == null || ranges.Count != 1)
-                {
-                  //Only support 1 range
-                  response.Status = HttpStatusCode.RequestedRangeNotSatisfiable;
-                  response.Chunked = false;
-                  response.ContentLength = 0;
-                  response.ContentType = null;
-#if DEBUG
-                  Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
-#else
-                  response.SendHeaders();
-#endif
-                  return true;
-                }
-              }
-              else if (requestedStreamingMode == StreamMode.ByteRange)
-              {
-                long lSize = dlnaItem.IsTranscoding ? GetStreamSize(dlnaItem) : resourceStream.Length;
-                if (dlnaItem.IsSegmented)
-                {
-                  lSize = resourceStream.Length;
-                }
-                ranges = ParseByteRanges(byteRangesSpecifier, lSize);
-                if (ranges == null || ranges.Count != 1)
-                {
-                  //Only support 1 range
-                  response.Status = HttpStatusCode.RequestedRangeNotSatisfiable;
-                  response.Chunked = false;
-                  response.ContentLength = 0;
-                  response.ContentType = null;
-#if DEBUG
-                  Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
-#else
-                  response.SendHeaders();
-#endif
-                  return true;
-                }
-              }
-
-              if (dlnaItem.IsSegmented == false && dlnaItem.IsTranscoding && mediaTransferMode == TransferMode.Streaming)
-              {
-                if ((requestedStreamingMode == StreamMode.ByteRange || requestedStreamingMode == StreamMode.TimeRange) && ranges == null)
-                {
-                  //Only support 1 range
-                  response.Status = HttpStatusCode.RequestedRangeNotSatisfiable;
-                  response.Chunked = false;
-                  response.ContentLength = 0;
-                  response.ContentType = null;
-#if DEBUG
-                  Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
-#else
-                  response.SendHeaders();
-#endif
-                  return true;
-                }
-              }
-
-              // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-              if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
-              {
-                DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
-                if (lastRequest.CompareTo(dlnaItem.LastUpdated) <= 0)
-                  response.Status = HttpStatusCode.NotModified;
-              }
-
-              // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-              response.AddHeader("Last-Modified", dlnaItem.LastUpdated.ToUniversalTime().ToString("r"));
-
-              // DLNA Requirement: [7.4.26.1-6]
-              // Since the DLNA spec allows contentFeatures.dlna.org with any request, we'll put it in.
-              if (!string.IsNullOrEmpty(request.Headers["getcontentFeatures.dlna.org"]))
-              {
-                if (request.Headers["getcontentFeatures.dlna.org"] != "1")
-                {
-                  // DLNA Requirement [7.4.26.5]
-                  throw new BadRequestException("Illegal value for getcontentFeatures.dlna.org");
-                }
-
-                var dlnaString = DlnaProtocolInfoFactory.GetProfileInfo(dlnaItem, deviceClient.Profile.ProtocolInfo).ToString();
-                response.AddHeader("contentFeatures.dlna.org", dlnaString);
-                Logger.Debug("DlnaResourceAccessModule: Returning contentFeatures {0}", dlnaString);
-              }
-
-              // DLNA Requirement: [7.4.55-57]
-              // TODO: Bad implementation of requirement
-              if (mediaTransferMode == TransferMode.Streaming)
-              {
-                response.AddHeader("transferMode.dlna.org", "Streaming");
-              }
-              else if (mediaTransferMode == TransferMode.Interactive)
-              {
-                response.AddHeader("transferMode.dlna.org", "Interactive");
-              }
-              else if (mediaTransferMode == TransferMode.Background)
-              {
-                response.AddHeader("transferMode.dlna.org", "Background");
-              }
-              response.AddHeader("realTimeInfo.dlna.org", "DLNA.ORG_TLAG=*");
-
-              bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
-              if (requestedStreamingMode == StreamMode.TimeRange)
-              {
-                Logger.Debug("DlnaResourceAccessModule: Sending time range header only: {0}", onlyHeaders.ToString());
-                if (ranges != null && ranges.Count == 1)
-                {
-                  // We only support one range
-                  SendTimeRange(request, response, resourceStream, dlnaItem, deviceClient, ranges[0], onlyHeaders, mediaTransferMode);
-                  return true;
-                }
-              }
-              else if (requestedStreamingMode == StreamMode.ByteRange)
-              {
-                Logger.Debug("DlnaResourceAccessModule: Sending byte range header only: {0}", onlyHeaders.ToString());
-                if (ranges != null && ranges.Count == 1)
-                {
-                  // We only support one range
-                  SendByteRange(request, response, resourceStream, dlnaItem, deviceClient, ranges[0], onlyHeaders, mediaTransferMode);
-                  return true;
-                }
-              }
-              Logger.Debug("DlnaResourceAccessModule: Sending file header only: {0}", onlyHeaders.ToString());
-              SendWholeFile(request, response, resourceStream, dlnaItem, deviceClient, onlyHeaders, mediaTransferMode);
             }
+            else if (requestedStreamingMode == StreamMode.ByteRange)
+            {
+              long lSize = dlnaItem.IsTranscoding ? GetStreamSize(dlnaItem) : resourceStream.Length;
+              if (dlnaItem.IsSegmented)
+              {
+                lSize = resourceStream.Length;
+              }
+              ranges = ParseByteRanges(byteRangesSpecifier, lSize);
+              if (ranges == null || ranges.Count != 1)
+              {
+                //Only support 1 range
+                response.Status = HttpStatusCode.RequestedRangeNotSatisfiable;
+                response.Chunked = false;
+                response.ContentLength = 0;
+                response.ContentType = null;
+#if DEBUG
+                Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
+#else
+                  response.SendHeaders();
+#endif
+                return true;
+              }
+            }
+
+            if (dlnaItem.IsSegmented == false && dlnaItem.IsTranscoding && mediaTransferMode == TransferMode.Streaming)
+            {
+              if ((requestedStreamingMode == StreamMode.ByteRange || requestedStreamingMode == StreamMode.TimeRange) && ranges == null)
+              {
+                //Only support 1 range
+                response.Status = HttpStatusCode.RequestedRangeNotSatisfiable;
+                response.Chunked = false;
+                response.ContentLength = 0;
+                response.ContentType = null;
+#if DEBUG
+                Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
+#else
+                  response.SendHeaders();
+#endif
+                return true;
+              }
+            }
+
+            // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
+            if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
+            {
+              DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+              if (lastRequest.CompareTo(dlnaItem.LastUpdated) <= 0)
+                response.Status = HttpStatusCode.NotModified;
+            }
+
+            // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
+            response.AddHeader("Last-Modified", dlnaItem.LastUpdated.ToUniversalTime().ToString("r"));
+
+            // DLNA Requirement: [7.4.26.1-6]
+            // Since the DLNA spec allows contentFeatures.dlna.org with any request, we'll put it in.
+            if (!string.IsNullOrEmpty(request.Headers["getcontentFeatures.dlna.org"]))
+            {
+              if (request.Headers["getcontentFeatures.dlna.org"] != "1")
+              {
+                // DLNA Requirement [7.4.26.5]
+                throw new BadRequestException("Illegal value for getcontentFeatures.dlna.org");
+              }
+
+              var dlnaString = DlnaProtocolInfoFactory.GetProfileInfo(dlnaItem, deviceClient.Profile.ProtocolInfo).ToString();
+              response.AddHeader("contentFeatures.dlna.org", dlnaString);
+              Logger.Debug("DlnaResourceAccessModule: Returning contentFeatures {0}", dlnaString);
+            }
+
+            // DLNA Requirement: [7.4.55-57]
+            // TODO: Bad implementation of requirement
+            if (mediaTransferMode == TransferMode.Streaming)
+            {
+              response.AddHeader("transferMode.dlna.org", "Streaming");
+            }
+            else if (mediaTransferMode == TransferMode.Interactive)
+            {
+              response.AddHeader("transferMode.dlna.org", "Interactive");
+            }
+            else if (mediaTransferMode == TransferMode.Background)
+            {
+              response.AddHeader("transferMode.dlna.org", "Background");
+            }
+            response.AddHeader("realTimeInfo.dlna.org", "DLNA.ORG_TLAG=*");
+
+            bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
+            if (requestedStreamingMode == StreamMode.TimeRange)
+            {
+              Logger.Debug("DlnaResourceAccessModule: Sending time range header only: {0}", onlyHeaders.ToString());
+              if (ranges != null && ranges.Count == 1)
+              {
+                // We only support one range
+                SendTimeRange(request, response, resourceStream, dlnaItem, deviceClient, ranges[0], onlyHeaders, mediaTransferMode);
+                return true;
+              }
+            }
+            else if (requestedStreamingMode == StreamMode.ByteRange)
+            {
+              Logger.Debug("DlnaResourceAccessModule: Sending byte range header only: {0}", onlyHeaders.ToString());
+              if (ranges != null && ranges.Count == 1)
+              {
+                // We only support one range
+                SendByteRange(request, response, resourceStream, dlnaItem, deviceClient, ranges[0], onlyHeaders, mediaTransferMode);
+                return true;
+              }
+            }
+            Logger.Debug("DlnaResourceAccessModule: Sending file header only: {0}", onlyHeaders.ToString());
+            SendWholeFile(request, response, resourceStream, dlnaItem, deviceClient, onlyHeaders, mediaTransferMode);
           }
         }
       }
