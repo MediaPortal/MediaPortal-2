@@ -542,9 +542,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
         bool useX26XLib = video.TargetVideoCodec == VideoCodec.H264 || video.TargetVideoCodec == VideoCodec.H265;
         _ffMpegCommandline.AddTranscodingThreadsParameters(!useX26XLib, ref data);
 
-        lock(_intelTranscodes)
-          lock (_nvidiaTranscodes)
-            _ffMpegCommandline.AddVideoParameters(video, data.TranscodeId, currentSub, ref data, ref _intelTranscodes, ref _nvidiaTranscodes);
+        
+        _ffMpegCommandline.AddVideoParameters(video, data.TranscodeId, currentSub, ref data, ref _intelTranscodes, ref _nvidiaTranscodes);
         _ffMpegCommandline.AddTargetVideoFormatAndOutputFileParameters(video, transcodingFile, ref data);
         _ffMpegCommandline.AddVideoAudioParameters(video, ref data);
         if (currentSub != null && embeddedSupported)
@@ -875,7 +874,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #region Transcoder
 
-    private BufferedStream GetTranscodedFileBuffer(FFMpegTranscodeData data)
+    private Stream GetTranscodedFileBuffer(FFMpegTranscodeData data)
     {
       string filePath = "";
       if (data.SegmentPlaylist != null)
@@ -906,7 +905,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           if (length > 0)
           {
             if (Logger != null) Logger.Debug(string.Format("MediaConverter: Serving transcoded file '{0}'", filePath));
-            BufferedStream stream = new BufferedStream(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+            Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             return stream;
           }
         }
@@ -917,7 +916,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    private BufferedStream ExecuteTranscodingProcess(FFMpegTranscodeData data, TranscodeContext context, bool waitForBuffer)
+    private Stream ExecuteTranscodingProcess(FFMpegTranscodeData data, TranscodeContext context, bool waitForBuffer)
     {
       if (Checks.IsTranscodingRunning(data.TranscodeId, ref RunningTranscodes) == false)
       {
@@ -1117,7 +1116,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
     }
     public bool Running { get; internal set; }
-    public BufferedStream TranscodedStream { get; private set; }
+    public Stream TranscodedStream { get; private set; }
 
     internal void FFMPEG_ErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
@@ -1129,7 +1128,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       _standardOutput.Append(e.Data);
     }
 
-    public void Start(BufferedStream stream, bool running)
+    public void Start(Stream stream, bool running)
     {
       Running = running;
       Aborted = false;
