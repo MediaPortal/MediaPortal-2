@@ -55,8 +55,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public string HLSSegmentFileTemplate { get; set; }
     public string SubtitleDefaultEncoding { get; set; }
     public ILogger Logger { get; set; }
-    public bool AllowNvidiaHWAccelleration { get; set; }
-    public bool AllowIntelHWAccelleration { get; set; }
+    public bool AllowNvidiaHWAcceleration { get; set; }
+    public bool AllowIntelHWAcceleration { get; set; }
     public int MaximumNvidiaHWStreams { get; set; }
     public int MaximumIntelHWStreams { get; set; }
     public List<VideoCodec> SupportedNvidiaHWCodecs { get; set; }
@@ -81,11 +81,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private bool StartHWTranscode(VideoCodec codec, string transcodeId)
     {
-      if (StartHWTranscode(codec, transcodeId, AllowIntelHWAccelleration, _supportIntelHW, SupportedIntelHWCodecs, MaximumIntelHWStreams, _intelTranscodes))
+      if (StartHWTranscode(codec, transcodeId, AllowIntelHWAcceleration, _supportIntelHW, SupportedIntelHWCodecs, MaximumIntelHWStreams, _intelTranscodes))
       {
         return true;
       }
-      if (StartHWTranscode(codec, transcodeId, AllowNvidiaHWAccelleration, _supportNvidiaHW, SupportedNvidiaHWCodecs, MaximumNvidiaHWStreams, _nvidiaTranscodes))
+      if (StartHWTranscode(codec, transcodeId, AllowNvidiaHWAcceleration, _supportNvidiaHW, SupportedNvidiaHWCodecs, MaximumNvidiaHWStreams, _nvidiaTranscodes))
       {
         return true;
       }
@@ -163,8 +163,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       HLSSegmentFileTemplate = "segment%05d.ts";
       SubtitleDefaultEncoding = "";
       TranscoderBinPath = ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath;
-      AllowIntelHWAccelleration = false;
-      AllowNvidiaHWAccelleration = false;
+      AllowIntelHWAcceleration = false;
+      AllowNvidiaHWAcceleration = false;
       string result;
       using (Process process = new Process { StartInfo = new ProcessStartInfo(TranscoderBinPath, "") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true } })
       {
