@@ -39,6 +39,9 @@ using System.Xml;
 using System;
 using System.Threading;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Service;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace MediaPortal.Extensions.MediaServer
 {
@@ -63,6 +66,27 @@ namespace MediaPortal.Extensions.MediaServer
     public static string HLSSegmentFileTemplate { get; private set; }
     public static string SubtitleDefaultEncoding { get; private set; }
     public static string SubtitleDefaultLanguage { get; private set; }
+    public static bool NvidiaHWAccelerationAllowed { get; private set; }
+    public static bool IntelHWAccelerationAllowed { get; private set; }
+    public static int NvidiaHWMaximumStreams { get; private set; }
+    public static int IntelHWMaximumStreams { get; private set; }
+    public static ReadOnlyCollection<VideoCodec> NvidiaHWSupportedCodecs
+    {
+      get
+      {
+        return _nvidiaCodecs.AsReadOnly();
+      }
+    }
+    public static ReadOnlyCollection<VideoCodec> IntelHWSupportedCodecs 
+    { 
+      get 
+      {
+        return _intelCodecs.AsReadOnly(); 
+      } 
+    }
+
+    private static List<VideoCodec> _intelCodecs = new List<VideoCodec>() {VideoCodec.Mpeg2, VideoCodec.H264, VideoCodec.H265};
+    private static List<VideoCodec> _nvidiaCodecs = new List<VideoCodec>() {VideoCodec.H264, VideoCodec.H265};
 
     public MediaServerPlugin()
     {
@@ -81,6 +105,10 @@ namespace MediaPortal.Extensions.MediaServer
       HLSSegmentFileTemplate = "segment%05d.ts";
       SubtitleDefaultEncoding = "";
       SubtitleDefaultLanguage = "";
+      NvidiaHWAccelerationAllowed = false;
+      NvidiaHWMaximumStreams = 2; //For Gforce GPU
+      IntelHWAccelerationAllowed = false;
+      IntelHWMaximumStreams = 0;
     }
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -166,6 +194,48 @@ namespace MediaPortal.Extensions.MediaServer
             {
               SubtitleDefaultLanguage = childNode.InnerText;
             }
+            else if (childNode.Name == "IntelHWAccelerationAllowed")
+            {
+              IntelHWAccelerationAllowed = Convert.ToInt32(childNode.InnerText) > 0;
+            }
+            else if (childNode.Name == "IntelHWMaximumStreams")
+            {
+              IntelHWMaximumStreams = Convert.ToInt32(childNode.InnerText);
+            }
+            else if (childNode.Name == "IntelHWSupportedCodecs")
+            {
+              _intelCodecs.Clear();
+              string[] codecs = childNode.InnerText.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+              foreach(string codec in codecs)
+              {
+                VideoCodec vCodec;
+                if(Enum.TryParse<VideoCodec>(codec, out vCodec) == true)
+                {
+                  _intelCodecs.Add(vCodec);
+                }
+              }
+            }
+            else if (childNode.Name == "NvidiaHWAccelerationAllowed")
+            {
+              NvidiaHWAccelerationAllowed = Convert.ToInt32(childNode.InnerText) > 0;
+            }
+            else if (childNode.Name == "NvidiaHWMaximumStreams")
+            {
+              NvidiaHWMaximumStreams = Convert.ToInt32(childNode.InnerText);
+            }
+            else if (childNode.Name == "NvidiaHWSupportedCodecs")
+            {
+              _nvidiaCodecs.Clear();
+              string[] codecs = childNode.InnerText.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+              foreach(string codec in codecs)
+              {
+                VideoCodec vCodec;
+                if(Enum.TryParse<VideoCodec>(codec, out vCodec) == true)
+                {
+                  _nvidiaCodecs.Add(vCodec);
+                }
+              }
+            }
           }
         }
       }
@@ -235,6 +305,24 @@ namespace MediaPortal.Extensions.MediaServer
         node.AppendChild(elem);
         elem = document.CreateElement("SubtitleDefaultLanguage");
         elem.InnerText = SubtitleDefaultLanguage;
+        node.AppendChild(elem);
+        elem = document.CreateElement("IntelHWAccelerationAllowed");
+        elem.InnerText = Convert.ToString(IntelHWAccelerationAllowed ? 1 : 0);
+        node.AppendChild(elem);
+        elem = document.CreateElement("IntelHWMaximumStreams");
+        elem.InnerText = Convert.ToString(IntelHWMaximumStreams);
+        node.AppendChild(elem);
+        elem = document.CreateElement("IntelHWSupportedCodecs");
+        elem.InnerText = string.Join(",", IntelHWSupportedCodecs);
+        node.AppendChild(elem);
+        elem = document.CreateElement("NvidiaHWAccelerationAllowed");
+        elem.InnerText = Convert.ToString(NvidiaHWAccelerationAllowed ? 1 : 0);
+        node.AppendChild(elem);
+        elem = document.CreateElement("NvidiaHWMaximumStreams");
+        elem.InnerText = Convert.ToString(NvidiaHWMaximumStreams);
+        node.AppendChild(elem);
+        elem = document.CreateElement("NvidiaHWSupportedCodecs");
+        elem.InnerText = string.Join(",", NvidiaHWSupportedCodecs);
         node.AppendChild(elem);
       }
 

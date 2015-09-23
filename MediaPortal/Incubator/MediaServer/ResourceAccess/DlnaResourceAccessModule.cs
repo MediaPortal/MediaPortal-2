@@ -103,6 +103,14 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       _transcoder.TranscoderMaximumCacheSize = MediaServerPlugin.TranscoderMaximumCacheSizeInGB;
       _transcoder.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
       _transcoder.SubtitleDefaultEncoding = MediaServerPlugin.SubtitleDefaultEncoding;
+      _transcoder.AllowIntelHWAcceleration = MediaServerPlugin.IntelHWAccelerationAllowed;
+      _transcoder.MaximumIntelHWStreams = MediaServerPlugin.IntelHWMaximumStreams;
+      _transcoder.SupportedIntelHWCodecs.Clear();
+      _transcoder.SupportedIntelHWCodecs.AddRange(MediaServerPlugin.NvidiaHWSupportedCodecs);
+      _transcoder.AllowNvidiaHWAcceleration = MediaServerPlugin.NvidiaHWAccelerationAllowed;
+      _transcoder.MaximumNvidiaHWStreams = MediaServerPlugin.NvidiaHWMaximumStreams;
+      _transcoder.SupportedNvidiaHWCodecs.Clear();
+      _transcoder.SupportedNvidiaHWCodecs.AddRange(MediaServerPlugin.NvidiaHWSupportedCodecs);
       ClearCache();
     }
 
