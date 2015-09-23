@@ -757,6 +757,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         iTrans = new List<ImageTranscodingTarget>();
       }
 
+      List<VideoTranscodingTarget> vList = new List<VideoTranscodingTarget>();
+      List<AudioTranscodingTarget> aList = new List<AudioTranscodingTarget>();
+      List<ImageTranscodingTarget> iList = new List<ImageTranscodingTarget>();
+
       VideoTranscodingTarget vTranscoding = new VideoTranscodingTarget();
       AudioTranscodingTarget aTranscoding = new AudioTranscodingTarget();
       ImageTranscodingTarget iTranscoding = new ImageTranscodingTarget();
@@ -866,7 +870,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           {
             if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
-              vTrans.Add(vTranscoding);
+              vList.Add(vTranscoding);
               break;
             }
             if (reader.Name == "VideoSource" && reader.NodeType == XmlNodeType.Element)
@@ -982,7 +986,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           {
             if (reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
-              aTrans.Add(aTranscoding);
+              aList.Add(aTranscoding);
               break;
             }
             if (reader.Name == "AudioSource" && reader.NodeType == XmlNodeType.Element)
@@ -1046,7 +1050,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           {
             if (reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
-              iTrans.Add(iTranscoding);
+              iList.Add(iTranscoding);
               break;
             }
             if (reader.Name == "ImageSource" && reader.NodeType == XmlNodeType.Element)
@@ -1076,6 +1080,14 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           break;
         }
       }
+
+      //Own transcoding profiles should have higher priority than inherited ones
+      vList.AddRange(vTrans);
+      aList.AddRange(aTrans);
+      iList.AddRange(iTrans);
+      vTrans = vList;
+      aTrans = aList;
+      iTrans = iList;
     }
 
     public static EndPointSettings GetEndPointSettings(string profileId)
