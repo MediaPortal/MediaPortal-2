@@ -62,6 +62,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
           return "amrnb";
         case AudioCodec.Real:
           return "ralf";
+        case AudioCodec.Alac:
+          return "alac";
+        case AudioCodec.Speex:
+          return "libspeex";
       }
       return null;
     }

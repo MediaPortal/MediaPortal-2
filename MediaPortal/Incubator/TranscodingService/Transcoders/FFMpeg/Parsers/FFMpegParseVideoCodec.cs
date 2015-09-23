@@ -63,8 +63,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return VideoCodec.Vc1;
         if (token.StartsWith("vp6", StringComparison.InvariantCultureIgnoreCase))
           return VideoCodec.Vp6;
-        if (token.StartsWith("vp8", StringComparison.InvariantCultureIgnoreCase))
+        if (token.StartsWith("vp7", StringComparison.InvariantCultureIgnoreCase))
+          return VideoCodec.Vp7;
+        if (token.StartsWith("vp8", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("libvpx", StringComparison.InvariantCultureIgnoreCase))
           return VideoCodec.Vp8;
+        if (token.StartsWith("vp9", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("libvpx-vp9", StringComparison.InvariantCultureIgnoreCase))
+          return VideoCodec.Vp9;
         if (token.Equals("wmv1", StringComparison.InvariantCultureIgnoreCase) || token.Equals("wmv2", StringComparison.InvariantCultureIgnoreCase) ||
           token.Equals("wmv3", StringComparison.InvariantCultureIgnoreCase))
           return VideoCodec.Wmv;

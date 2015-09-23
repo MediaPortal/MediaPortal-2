@@ -73,6 +73,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return AudioCodec.Wma;
         if (token.Equals("wmapro", StringComparison.InvariantCultureIgnoreCase) || token.Equals("0x0162", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.WmaPro;
+        if (token.Equals("wmalossless", StringComparison.InvariantCultureIgnoreCase))
+          return AudioCodec.WmaLossless;
+        if (token.Equals("alac", StringComparison.InvariantCultureIgnoreCase))
+          return AudioCodec.Alac;
+        if (token.Equals("speex", StringComparison.InvariantCultureIgnoreCase) || token.Equals("libspeex", StringComparison.InvariantCultureIgnoreCase))
+          return AudioCodec.Speex;
+        if (token.Equals("ape", StringComparison.InvariantCultureIgnoreCase))
+          return AudioCodec.Ape;
       }
       return AudioCodec.Unknown;
     }

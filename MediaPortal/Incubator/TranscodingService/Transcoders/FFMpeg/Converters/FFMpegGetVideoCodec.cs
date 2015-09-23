@@ -66,10 +66,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
           return "mjpeg";
         case VideoCodec.Flv:
           return "flv";
-        case VideoCodec.Vp6:
-          return "vp6";
         case VideoCodec.Vp8:
-          return "vp8";
+          return "libvpx";
+        case VideoCodec.Vp9:
+          return "libvpx-vp9";
         case VideoCodec.Theora:
           return "theora";
         case VideoCodec.DvVideo:

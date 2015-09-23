@@ -121,7 +121,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
     TrueHd,
     Vorbis,
     Wma,
-    WmaPro
+    WmaPro,
+    WmaLossless,
+    Alac,
+    Speex,
+    Ape
   }
 
   public enum ImageContainer
@@ -176,7 +180,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
     Theora,
     Vc1,
     Vp6,
+    Vp7,
     Vp8,
+    Vp9,
     Wmv
   }
 
