@@ -29,12 +29,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
 {
   internal class FFMpegGetVideoCodec
   {
-    public static string GetVideoCodec(VideoCodec codec, string transcodeID, bool allowNvidiaHwAccelleration, bool allowIntelHwAccelleration, bool supportNvidiaHw, bool supportIntelHw, List<string> intelTranscodes, List<string> nvidiaTranscodes)
+    public static string GetVideoCodec(VideoCodec codec, string transcodeID, List<string> intelTranscodes, List<string> nvidiaTranscodes)
     {
       switch (codec)
       {
         case VideoCodec.H265:
-          if (allowNvidiaHwAccelleration && supportNvidiaHw)
+          if (Checks.IsIntelHWTranscode(transcodeID, intelTranscodes))
+            return "hevc_qsv";
+          else if (Checks.IsNvidiaHWTranscode(transcodeID, nvidiaTranscodes))
             return "hevc_nvenc";
           else
             return "libx265";

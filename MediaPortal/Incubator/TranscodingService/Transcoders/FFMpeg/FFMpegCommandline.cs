@@ -46,11 +46,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     private string _transcoderCachePath;
     private int _hlsSegmentTimeInSeconds;
     private string _hlsSegmentFileTemplate;
-    private bool _allowNvidiaHwAccelleration;
-    private bool _allowIntelHwAccelleration;
     private bool _supportHardcodedSubs;
-    private bool _supportNvidiaHW;
-    private bool _supportIntelHW;
     private readonly Dictionary<string, string> _filerPathEncoding = new Dictionary<string, string>()
     {
       {@"\", @"\\"},
@@ -69,11 +65,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       _transcoderCachePath = mediaConverter.TranscoderCachePath;
       _hlsSegmentTimeInSeconds = mediaConverter.HLSSegmentTimeInSeconds;
       _hlsSegmentFileTemplate = mediaConverter.HLSSegmentFileTemplate;
-      _allowNvidiaHwAccelleration = mediaConverter.AllowNvidiaHWAccelleration;
-      _allowIntelHwAccelleration = mediaConverter.AllowIntelHWAccelleration;
       _supportHardcodedSubs = mediaConverter._supportHardcodedSubs;
-      _supportNvidiaHW = mediaConverter._supportNvidiaHW;
-      _supportIntelHW = mediaConverter._supportIntelHW;
     }
 
     internal void InitTranscodingParameters(IResourceAccessor sourceFile, ref FFMpegTranscodeData data)
@@ -423,7 +415,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       else
       {
-        data.OutputArguments.Add(string.Format("-c:v {0}", FFMpegGetVideoCodec.GetVideoCodec(video.TargetVideoCodec, transcodeId, _allowNvidiaHwAccelleration, _allowIntelHwAccelleration, _supportNvidiaHW, _supportIntelHW, intelTranscodes, nvidiaTranscodes)));
+        data.OutputArguments.Add(string.Format("-c:v {0}", FFMpegGetVideoCodec.GetVideoCodec(video.TargetVideoCodec, transcodeId, intelTranscodes, nvidiaTranscodes)));
 
         if (video.TargetPixelFormat == PixelFormat.Unknown)
         {
