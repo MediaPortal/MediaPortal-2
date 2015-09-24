@@ -494,7 +494,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile), false);
+        context.AssignStream(GetReadyFileBuffer(transcodingFile));
         return context;
       }
       if (video.TargetVideoContainer == VideoContainer.Hls)
@@ -513,7 +513,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           TouchDirectory(pathName);
           context.TargetFile = playlist;
           context.SegmentDir = pathName;
-          context.Start(GetReadyFileBuffer(playlist), false);
+          context.AssignStream(GetReadyFileBuffer(playlist));
           return context;
         }
       }
@@ -560,7 +560,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.TargetFile = transcodingFile;
 
       if (Logger != null) Logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceFile, video.TranscodeId, String.Join(", ", data.OutputArguments.ToArray()));
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
+      context.Start();
+      context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }
 
@@ -580,7 +581,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile), false);
+        context.AssignStream(GetReadyFileBuffer(transcodingFile));
         return context;
       }
 
@@ -609,7 +610,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.TargetFile = transcodingFile;
 
       if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode audio file '{0}' for transcode '{1}'", audio.SourceFile, audio.TranscodeId);
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
+      context.Start();
+      context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }
 
@@ -629,7 +631,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile), false);
+        context.AssignStream(GetReadyFileBuffer(transcodingFile));
         return context;
       }
 
@@ -656,7 +658,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.TargetFile = transcodingFile;
 
       if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode image file '{0}' for transcode '{1}'", image.SourceFile, image.TranscodeId);
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
+      context.Start();
+      context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }
 
@@ -1128,10 +1131,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
       _standardOutput.Append(e.Data);
     }
 
-    public void Start(Stream stream, bool running)
+    public void Start()
     {
-      Running = running;
+      Running = true;
       Aborted = false;
+    }
+
+    public void AssignStream(Stream stream)
+    {
       if (TranscodedStream != null)
         TranscodedStream.Dispose();
       TranscodedStream = stream;
