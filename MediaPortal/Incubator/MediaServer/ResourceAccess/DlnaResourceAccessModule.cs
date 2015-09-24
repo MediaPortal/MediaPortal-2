@@ -48,6 +48,7 @@ using System.Threading;
 using MediaPortal.Extensions.MediaServer.Protocols;
 using System.Drawing.Imaging;
 using System.Drawing;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {

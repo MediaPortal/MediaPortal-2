@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     public FFMpegTranscodeData(string workPath) : base(BIN_TRANSCODER, workPath) { }
 
-    public string TranscoderArguments
+    public override string TranscoderArguments
     {
       set
       {

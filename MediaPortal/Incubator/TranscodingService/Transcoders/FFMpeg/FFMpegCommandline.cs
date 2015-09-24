@@ -958,11 +958,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     private string EncodeFilePath(string filePath)
     {
-      foreach (KeyValuePair<string, string> enc in _filerPathEncoding)
-      {
-        filePath = filePath.Replace(enc.Key, enc.Value);
-      }
-      return filePath;
+      return _filerPathEncoding.Aggregate(filePath, (current, enc) => current.Replace(enc.Key, enc.Value));
     }
 
     internal void AddVideoAudioParameters(VideoTranscoding video, ref FFMpegTranscodeData data)

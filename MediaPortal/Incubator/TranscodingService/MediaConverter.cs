@@ -363,10 +363,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
               continue;
             }
             FileInfo[] folderFiles = info.GetFiles();
-            foreach (FileInfo folderFile in folderFiles)
-            {
-              cacheSize -= folderFile.Length;
-            }
+            cacheSize = folderFiles.Aggregate(cacheSize, (current, folderFile) => current - folderFile.Length);
             fileList.Remove(dirObject.Key);
             try
             {
@@ -403,13 +400,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (Checks.IsTranscodingRunning(transcodeId, ref RunningTranscodes) == false)
       {
         List<string> dirObjects = new List<string>(Directory.GetFiles(TranscoderCachePath, "*.mp*"));
-        foreach (string file in dirObjects)
-        {
-          if (file.StartsWith(transcodeId + ".mp") == true)
-          {
-            return true;
-          }
-        }
+        return dirObjects.Any(file => file.StartsWith(transcodeId + ".mp"));
       }
       return false;
     }
@@ -446,8 +437,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private TranscodeContext TranscodeVideoFile(VideoTranscoding video, bool waitForBuffer)
     {
-      TranscodeContext context = new TranscodeContext();
-      context.Failed = false;
+      TranscodeContext context = new TranscodeContext { Failed = false };
       string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
       transcodingFile += ".A" + video.SourceAudioStreamIndex;
       bool embeddedSupported = false;
@@ -483,11 +473,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       transcodingFile += ".mptv";
 
-      if (File.Exists(transcodingFile) == true)
+      if (File.Exists(transcodingFile))
       {
         lock (RunningTranscodes)
         {
-          if (RunningTranscodes.ContainsKey(video.TranscodeId) == true)
+          if (RunningTranscodes.ContainsKey(video.TranscodeId))
           {
             return RunningTranscodes[video.TranscodeId];
           }
@@ -518,8 +508,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
       }
 
-      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath);
-      data.TranscodeId = video.TranscodeId;
+      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath) { TranscodeId = video.TranscodeId };
       if (string.IsNullOrEmpty(video.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = video.TranscoderBinPath;
@@ -566,8 +555,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private TranscodeContext TranscodeAudioFile(AudioTranscoding audio, bool waitForBuffer)
     {
-      TranscodeContext context = new TranscodeContext();
-      context.Failed = false;
+      TranscodeContext context = new TranscodeContext { Failed = false };
       string transcodingFile = Path.Combine(TranscoderCachePath, audio.TranscodeId + ".mpta");
       if (File.Exists(transcodingFile) == true)
       {
@@ -584,8 +572,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return context;
       }
 
-      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath);
-      data.TranscodeId = audio.TranscodeId;
+      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath) { TranscodeId = audio.TranscodeId };
       if (string.IsNullOrEmpty(audio.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = audio.TranscoderBinPath;
@@ -615,8 +602,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private TranscodeContext TranscodeImageFile(ImageTranscoding image, bool waitForBuffer)
     {
-      TranscodeContext context = new TranscodeContext();
-      context.Failed = false;
+      TranscodeContext context = new TranscodeContext { Failed = false };
       string transcodingFile = Path.Combine(TranscoderCachePath, image.TranscodeId + ".mpti");
       if (File.Exists(transcodingFile) == true)
       {
@@ -755,8 +741,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return null;
       }
 
-      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath);
-      data.TranscodeId = video.TranscodeId + "_sub";
+      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath) { TranscodeId = video.TranscodeId + "_sub" };
       if (string.IsNullOrEmpty(video.TranscoderBinPath) == false)
       {
         data.TranscoderBinPath = video.TranscoderBinPath;
@@ -894,7 +879,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       int iTry = 60;
       while (iTry > 0 && context.Failed == false && context.Aborted == false)
       {
-        if (File.Exists(filePath) == true)
+        if (File.Exists(filePath))
         {
           long length = 0;
           try
@@ -989,7 +974,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       ffmpeg.BeginErrorReadLine();
       ffmpeg.BeginOutputReadLine();*/
       int iExitCode = -1;
-      Logger.Info("Above While");
+      
       while (executionResult.Status == TaskStatus.Running)
       {
         if (context.Running == false)
@@ -1091,62 +1076,5 @@ namespace MediaPortal.Plugins.Transcoding.Service
     }
 
     #endregion
-  }
-
-  public class TranscodeContext : IDisposable
-  {
-    StringBuilder _errorOutput = new StringBuilder();
-    StringBuilder _standardOutput = new StringBuilder();
-    public string TargetFile { get; internal set; }
-    public string SegmentDir { get; internal set; }
-    public bool Aborted { get; internal set; }
-    public bool Failed { get; internal set; }
-    public string ConsoleErrorOutput 
-    { 
-      get
-      {
-        return _errorOutput.ToString();
-      }
-    }
-    public string ConsoleOutput
-    {
-      get
-      {
-        return _standardOutput.ToString();
-      }
-    }
-    public bool Running { get; internal set; }
-    public Stream TranscodedStream { get; private set; }
-
-    internal void FFMPEG_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-    {
-      _errorOutput.Append(e.Data);
-    }
-
-    internal void FFMPEG_OutputDataReceived(object sender, DataReceivedEventArgs e)
-    {
-      _standardOutput.Append(e.Data);
-    }
-
-    public void Start(Stream stream, bool running)
-    {
-      Running = running;
-      Aborted = false;
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
-      TranscodedStream = stream;
-    }
-
-    public void Stop()
-    {
-      Running = false;
-    }
-
-    public void Dispose()
-    {
-      Stop();
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
-    }
   }
 }
