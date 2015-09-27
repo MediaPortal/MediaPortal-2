@@ -103,7 +103,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       //Check maximum stream support
       lock (transocodingStreams)
       {
-        if (maxStreams > 0 && maxStreams <= _nvidiaTranscodes.Count)
+        if (maxStreams > 0 && maxStreams <= transocodingStreams.Count)
           return false;
         if (transocodingStreams.Contains(transcodeId) == true)
           return true;
@@ -448,6 +448,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext();
       context.Failed = false;
+      if(video.TargetVideoContainer == VideoContainer.Unknown)
+      {
+        video.TargetVideoContainer = video.SourceVideoContainer;
+      }
       string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
       transcodingFile += ".A" + video.SourceAudioStreamIndex;
       bool embeddedSupported = false;
@@ -569,6 +573,54 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext();
       context.Failed = false;
+      if (audio.TargetAudioContainer == AudioContainer.Unknown)
+      {
+        audio.TargetAudioContainer = audio.SourceAudioContainer;
+      }
+      if (audio.TargetAudioCodec == AudioCodec.Unknown)
+      {
+        switch (audio.TargetAudioContainer)
+        {
+          case AudioContainer.Unknown:
+            break;
+          case AudioContainer.Ac3:
+            audio.TargetAudioCodec = AudioCodec.Ac3;
+            break;
+          case AudioContainer.Adts:
+            audio.TargetAudioCodec = AudioCodec.Aac;
+            break;
+          case AudioContainer.Asf:
+            audio.TargetAudioCodec = AudioCodec.Wma;
+            break;
+          case AudioContainer.Flac:
+            audio.TargetAudioCodec = AudioCodec.Flac;
+            break;
+          case AudioContainer.Lpcm:
+            audio.TargetAudioCodec = AudioCodec.Lpcm;
+            break;
+          case AudioContainer.Mp4:
+            audio.TargetAudioCodec = AudioCodec.Aac;
+            break;
+          case AudioContainer.Mp3:
+            audio.TargetAudioCodec = AudioCodec.Mp3;
+            break;
+          case AudioContainer.Mp2:
+            audio.TargetAudioCodec = AudioCodec.Mp2;
+            break;
+          case AudioContainer.Ogg:
+            audio.TargetAudioCodec = AudioCodec.Vorbis;
+            break;
+          case AudioContainer.Rtp:
+            audio.TargetAudioCodec = AudioCodec.Lpcm;
+            break;
+          case AudioContainer.Rtsp:
+            audio.TargetAudioCodec = AudioCodec.Lpcm;
+            break;
+          default:
+            audio.TargetAudioCodec = audio.SourceAudioCodec;
+            break;
+        }
+      }
       string transcodingFile = Path.Combine(TranscoderCachePath, audio.TranscodeId + ".mpta");
       if (File.Exists(transcodingFile) == true)
       {
@@ -787,7 +839,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
 
         // TODO: not sure if this is working
-        data.TranscoderArguments = video.TranscoderArguments;
         LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
         IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
         _ffMpegCommandline.InitTranscodingParameters(resourceAccessor, ref data);

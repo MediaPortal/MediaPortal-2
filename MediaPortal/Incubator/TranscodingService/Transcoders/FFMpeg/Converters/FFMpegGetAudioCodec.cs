@@ -33,33 +33,25 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
       switch (codec)
       {
         case AudioCodec.Mp3:
-          return "mp3";
+          return "libmp3lame";
         case AudioCodec.Mp2:
           return "mp2";
-        case AudioCodec.Mp1:
-          return "mp1";
         case AudioCodec.Aac:
-          return "libvo_aacenc";
+          return "libfdk_aac";
         case AudioCodec.Ac3:
           return "ac3";
         case AudioCodec.Lpcm:
           return "pcm_s16le";
         case AudioCodec.Dts:
-          return "dts";
-        case AudioCodec.DtsHd:
-          return "dts-hd";
+          return "dca -strict -2";
         case AudioCodec.Wma:
           return "wmav1";
-        case AudioCodec.WmaPro:
-          return "wmapro";
         case AudioCodec.Flac:
           return "flac";
         case AudioCodec.Vorbis:
-          return "vorbis";
-        case AudioCodec.TrueHd:
-          return "truehd";
+          return "libvorbis";
         case AudioCodec.Amr:
-          return "amrnb";
+          return "libopencore_amrnb";
         case AudioCodec.Real:
           return "ralf";
         case AudioCodec.Alac:
@@ -67,7 +59,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case AudioCodec.Speex:
           return "libspeex";
       }
-      return null;
+      return "copy";
     }
   }
 }

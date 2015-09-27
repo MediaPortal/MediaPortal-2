@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
@@ -124,10 +125,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         else if (nextTokenIsPixelFormat)
         {
           nextTokenIsPixelFormat = false;
-          info.Image.PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
-          info.Video.PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
+          if (info.IsImage)
+            info.Image.PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
+          else
+            info.Video.PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
         }
-        else if (token.IndexOf("x", StringComparison.InvariantCultureIgnoreCase) > -1)
+        else if (token.IndexOf("x", StringComparison.InvariantCultureIgnoreCase) > -1 && token.Contains("max") == false)
         {
           string resolution = token.Trim();
           int aspectStart = resolution.IndexOf(" [");
@@ -159,7 +162,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
             resolution = resolution.Substring(0, aspectStart);
           }
           string[] res = resolution.Split('x');
-          if (res.Length == 2)
+          if (res.Length == 2 && res[0].All(Char.IsDigit) && res[1].All(Char.IsDigit))
           {
             try
             {
@@ -210,11 +213,19 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         }
         else if (token.IndexOf("kb/s", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
-          info.Video.Bitrate = int.Parse(token.Substring(0, token.IndexOf("kb/s", StringComparison.InvariantCultureIgnoreCase)).Trim(), CultureInfo.InvariantCulture);
+          string[] parts = token.Split(' ');
+          //if (parts.Length == 3 && parts[1].All(Char.IsDigit))
+          //  info.Video.Bitrate = long.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
+          if (parts.Length == 2 && parts[0].All(Char.IsDigit))
+            info.Video.Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture);
         }
         else if (token.IndexOf("mb/s", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
-          info.Video.Bitrate = int.Parse(token.Substring(0, token.IndexOf("mb/s", StringComparison.InvariantCultureIgnoreCase)).Trim(), CultureInfo.InvariantCulture) * 1024;
+          string[] parts = token.Split(' ');
+          //if (parts.Length == 3 && parts[1].All(Char.IsDigit))
+          //  info.Video.Bitrate = long.Parse(parts[1].Trim(), CultureInfo.InvariantCulture) * 1024;
+          if (parts.Length == 2 && parts[0].All(Char.IsDigit))
+            info.Video.Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture) * 1024;
         }
         else if (token.IndexOf("tbr", StringComparison.InvariantCultureIgnoreCase) > -1 || token.IndexOf("fps", StringComparison.InvariantCultureIgnoreCase) > -1)
         {

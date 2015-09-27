@@ -34,6 +34,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
   {
     Default,
     Best,
+    Normal,
+    Low,
     Custom
   }
 

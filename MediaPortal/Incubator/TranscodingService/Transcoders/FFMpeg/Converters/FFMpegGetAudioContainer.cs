@@ -32,8 +32,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
     {
       switch (container)
       {
-        case AudioContainer.Unknown:
-          return null;
+        case AudioContainer.Ac3:
+          return "ac3";
         case AudioContainer.Mp3:
           return "mp3";
         case AudioContainer.Mp2:
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case AudioContainer.Asf:
           return "asf";
         case AudioContainer.Lpcm:
-          return "lpcm";
+          return "s16le";
         case AudioContainer.Mp4:
           return "mp4";
         case AudioContainer.Flac:
@@ -56,12 +56,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
           return "rtsp";
         case AudioContainer.Adts:
           return "adts";
-        case AudioContainer.WavPack:
-          return "wavpack";
-        case AudioContainer.Ape:
-          return "ape";
-        case AudioContainer.MusePack:
-          return "musepack";
       }
       return null;
     }

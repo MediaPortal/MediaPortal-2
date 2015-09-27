@@ -298,6 +298,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       else
       {
+        data.OutputArguments.Add(string.Format("-c:a {0}", FFMpegGetAudioCodec.GetAudioCodec(audio.TargetAudioCodec)));
         long frequency = Validators.GetAudioFrequency(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioFrequency, audio.TargetAudioFrequency);
         if (frequency > 0)
         {
@@ -350,9 +351,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         {
           data.OutputArguments.Add(string.Format("-pix_fmt {0}", FFMpegGetPixelFormat.GetPixelFormat(image.TargetPixelFormat)));
         }
-        if (image.TargetImageQuality == QualityMode.Default || image.TargetImageQuality == QualityMode.Best)
+        if (image.TargetImageQuality == QualityMode.Best)
         {
           data.OutputArguments.Add("-q:v 0");
+        }
+        else if (image.TargetImageQuality == QualityMode.Default || image.TargetImageQuality == QualityMode.Normal)
+        {
+          data.OutputArguments.Add("-q:v 2");
+        }
+        else if (image.TargetImageQuality == QualityMode.Low)
+        {
+          data.OutputArguments.Add("-q:v 10");
         }
         else
         {
@@ -394,7 +403,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       if (video.TargetVideoAspectRatio <= 0)
       {
-        video.TargetVideoAspectRatio = 16.0F / 9.0F;
+        if (video.SourceVideoHeight > 0 && video.SourceVideoWidth > 0)
+        {
+          video.TargetVideoAspectRatio = (float)video.SourceVideoWidth / (float)video.SourceVideoHeight;
+        }
+        else
+        {
+          video.TargetVideoAspectRatio = 16.0F / 9.0F;
+        }
       }
       if (video.SourceVideoPixelAspectRatio <= 0)
       {
@@ -556,9 +572,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
           AddVideoBitrateParameters(video, ref data, ref nvidiaTranscodes);
 
-          if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
+          if (video.TargetVideoQuality == QualityMode.Best)
           {
             data.OutputArguments.Add("-crf 10");
+          }
+          else if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Normal)
+          {
+            data.OutputArguments.Add("-crf 25");
+          }
+          else if (video.TargetVideoQuality == QualityMode.Low)
+          {
+            data.OutputArguments.Add("-crf 35");
           }
           else
           {
@@ -577,9 +601,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             data.OutputArguments.Add("-x265-params");
             string args = "";
-            if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
+            if (video.TargetVideoQuality == QualityMode.Best)
             {
               args += "crf=10";
+            }
+            else if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Normal)
+            {
+              args += "crf=25";
+            }
+            else if (video.TargetVideoQuality == QualityMode.Low)
+            {
+              args += "crf=35";
             }
             else
             {
@@ -764,9 +796,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           }
 
           AddVideoBitrateParameters(video, ref data, ref nvidiaTranscodes);
-          if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Best)
+          if (video.TargetVideoQuality == QualityMode.Best)
           {
             data.OutputArguments.Add("-crf 10");
+          }
+          else if (video.TargetVideoQuality == QualityMode.Default || video.TargetVideoQuality == QualityMode.Normal)
+          {
+            data.OutputArguments.Add("-crf 25");
+          }
+          else if (video.TargetVideoQuality == QualityMode.Low)
+          {
+            data.OutputArguments.Add("-crf 35");
           }
           else
           {
