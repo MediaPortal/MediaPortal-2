@@ -148,7 +148,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result;
+        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
       
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {

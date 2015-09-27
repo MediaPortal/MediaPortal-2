@@ -40,10 +40,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
           return "gif";
         case ImageContainer.Bmp:
           return "bmp";
-        case ImageContainer.Raw:
-          return "raw";
       }
-      return null;
+      return "copy";
     }
   }
 }

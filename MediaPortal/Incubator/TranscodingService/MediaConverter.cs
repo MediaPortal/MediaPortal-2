@@ -103,7 +103,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       //Check maximum stream support
       lock (transocodingStreams)
       {
-        if (maxStreams > 0 && maxStreams <= _nvidiaTranscodes.Count)
+        if (maxStreams > 0 && maxStreams <= transocodingStreams.Count)
           return false;
         if (transocodingStreams.Contains(transcodeId) == true)
           return true;
@@ -438,6 +438,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private TranscodeContext TranscodeVideoFile(VideoTranscoding video, bool waitForBuffer)
     {
       TranscodeContext context = new TranscodeContext { Failed = false };
+      if(video.TargetVideoContainer == VideoContainer.Unknown)
+      {
+        video.TargetVideoContainer = video.SourceVideoContainer;
+      }
       string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
       transcodingFile += ".A" + video.SourceAudioStreamIndex;
       bool embeddedSupported = false;
@@ -484,7 +488,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile), false);
+        context.AssignStream(GetReadyFileBuffer(transcodingFile));
         return context;
       }
       if (video.TargetVideoContainer == VideoContainer.Hls)
@@ -503,7 +507,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           TouchDirectory(pathName);
           context.TargetFile = playlist;
           context.SegmentDir = pathName;
-          context.Start(GetReadyFileBuffer(playlist), false);
+          context.AssignStream(GetReadyFileBuffer(playlist));
           return context;
         }
       }
@@ -549,13 +553,62 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.TargetFile = transcodingFile;
 
       if (Logger != null) Logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceFile, video.TranscodeId, String.Join(", ", data.OutputArguments.ToArray()));
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
+      context.Start();
+      context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }
 
     private TranscodeContext TranscodeAudioFile(AudioTranscoding audio, bool waitForBuffer)
     {
       TranscodeContext context = new TranscodeContext { Failed = false };
+      if (audio.TargetAudioContainer == AudioContainer.Unknown)
+      {
+        audio.TargetAudioContainer = audio.SourceAudioContainer;
+      }
+      if (audio.TargetAudioCodec == AudioCodec.Unknown)
+      {
+        switch (audio.TargetAudioContainer)
+        {
+          case AudioContainer.Unknown:
+            break;
+          case AudioContainer.Ac3:
+            audio.TargetAudioCodec = AudioCodec.Ac3;
+            break;
+          case AudioContainer.Adts:
+            audio.TargetAudioCodec = AudioCodec.Aac;
+            break;
+          case AudioContainer.Asf:
+            audio.TargetAudioCodec = AudioCodec.Wma;
+            break;
+          case AudioContainer.Flac:
+            audio.TargetAudioCodec = AudioCodec.Flac;
+            break;
+          case AudioContainer.Lpcm:
+            audio.TargetAudioCodec = AudioCodec.Lpcm;
+            break;
+          case AudioContainer.Mp4:
+            audio.TargetAudioCodec = AudioCodec.Aac;
+            break;
+          case AudioContainer.Mp3:
+            audio.TargetAudioCodec = AudioCodec.Mp3;
+            break;
+          case AudioContainer.Mp2:
+            audio.TargetAudioCodec = AudioCodec.Mp2;
+            break;
+          case AudioContainer.Ogg:
+            audio.TargetAudioCodec = AudioCodec.Vorbis;
+            break;
+          case AudioContainer.Rtp:
+            audio.TargetAudioCodec = AudioCodec.Lpcm;
+            break;
+          case AudioContainer.Rtsp:
+            audio.TargetAudioCodec = AudioCodec.Lpcm;
+            break;
+          default:
+            audio.TargetAudioCodec = audio.SourceAudioCodec;
+            break;
+        }
+      }
       string transcodingFile = Path.Combine(TranscoderCachePath, audio.TranscodeId + ".mpta");
       if (File.Exists(transcodingFile) == true)
       {
@@ -568,7 +621,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile), false);
+        context.AssignStream(GetReadyFileBuffer(transcodingFile));
         return context;
       }
 
@@ -596,7 +649,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.TargetFile = transcodingFile;
 
       if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode audio file '{0}' for transcode '{1}'", audio.SourceFile, audio.TranscodeId);
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
+      context.Start();
+      context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }
 
@@ -615,7 +669,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         TouchFile(transcodingFile);
         context.TargetFile = transcodingFile;
-        context.Start(GetReadyFileBuffer(transcodingFile), false);
+        context.AssignStream(GetReadyFileBuffer(transcodingFile));
         return context;
       }
 
@@ -642,7 +696,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.TargetFile = transcodingFile;
 
       if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode image file '{0}' for transcode '{1}'", image.SourceFile, image.TranscodeId);
-      context.Start(ExecuteTranscodingProcess(data, context, waitForBuffer), true);
+      context.Start();
+      context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
     }
 
@@ -769,7 +824,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
 
         // TODO: not sure if this is working
-        data.TranscoderArguments = video.TranscoderArguments;
         LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
         IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
         _ffMpegCommandline.InitTranscodingParameters(resourceAccessor, ref data);

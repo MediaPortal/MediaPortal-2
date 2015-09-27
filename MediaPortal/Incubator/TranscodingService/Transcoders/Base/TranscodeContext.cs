@@ -43,10 +43,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       _standardOutput.Append(e.Data);
     }
 
-    public void Start(Stream stream, bool running)
+    public void Start()
     {
-      Running = running;
+      Running = true;
       Aborted = false;
+    }
+
+    public void AssignStream(Stream stream)
+    {
       if (TranscodedStream != null)
         TranscodedStream.Dispose();
       TranscodedStream = stream;

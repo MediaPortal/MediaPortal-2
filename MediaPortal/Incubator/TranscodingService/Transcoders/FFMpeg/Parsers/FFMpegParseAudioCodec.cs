@@ -67,7 +67,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return AudioCodec.Real;
         if (token.Equals("truehd", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.TrueHd;
-        if (token.Equals("vorbis", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("vorbis", StringComparison.InvariantCultureIgnoreCase) || token.Equals("libvorbis", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.Vorbis;
         if (token.Equals("wmav1", StringComparison.InvariantCultureIgnoreCase) || token.Equals("wmav2", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.Wma;

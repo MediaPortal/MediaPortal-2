@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
@@ -103,11 +104,19 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         }
         else if (token.IndexOf("kb/s", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
-          audio.Bitrate = int.Parse(token.Substring(0, token.IndexOf("kb/s", StringComparison.InvariantCultureIgnoreCase)).Trim(), CultureInfo.InvariantCulture);
+          string[] parts = token.Split(' ');
+          //if (parts.Length == 3 && parts[1].All(Char.IsDigit))
+          //  audio.Bitrate = long.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
+          if (parts.Length == 2 && parts[0].All(Char.IsDigit))
+            audio.Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture);
         }
         else if (token.IndexOf("mb/s", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
-          audio.Bitrate = long.Parse(token.Substring(0, token.IndexOf("mb/s", StringComparison.InvariantCultureIgnoreCase)).Trim(), CultureInfo.InvariantCulture) * 1024;
+          string[] parts = token.Split(' ');
+          //if (parts.Length == 3 && parts[1].All(Char.IsDigit))
+          //  audio.Bitrate = long.Parse(parts[1].Trim(), CultureInfo.InvariantCulture) * 1024;
+          if (parts.Length == 2 && parts[0].All(Char.IsDigit))
+            audio.Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture) * 1024;
         }
       }
       audio.Default = streamAudioLine.IndexOf("(default)", StringComparison.InvariantCultureIgnoreCase) > -1;

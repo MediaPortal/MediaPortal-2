@@ -73,13 +73,13 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case VideoCodec.Vp9:
           return "libvpx-vp9";
         case VideoCodec.Theora:
-          return "theora";
+          return "libtheora";
         case VideoCodec.DvVideo:
           return "dvvideo";
         case VideoCodec.Real:
-          return "rv";
+          return "rv10";
       }
-      return null;
+      return "copy";
     }
   }
 }
