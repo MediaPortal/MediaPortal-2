@@ -46,6 +46,10 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="TestMediaItemAspectTypeRegistration.cs" />
+    <Compile Include="MultipleTestMIA.cs" />
+    <Compile Include="SingleTestMIA.cs" />
+    <Compile Include="TestUtils.cs" />
     <Compile Include="TestMediaItemAspectMetadata.cs" />
     <Compile Include="TestMediaItemQuery.cs" />
     <Compile Include="TestMediaItem.cs" />
@@ -55,10 +59,6 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj">
-      <Project>{F1A04140-5C63-4688-8A9E-A195AAF95DE1}</Project>
-      <Name>MediaPortal.Mock</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,11 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
-  
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
+
     <ItemGroup>
       <LanguageFiles Include="$(ProjectDir)Language\*.*" />
     </ItemGroup>
