@@ -649,22 +649,46 @@ namespace MediaPortal.Common.MediaManagement
 
   public class MultipleMediaItemAspectMetadata : MediaItemAspectMetadata
   {
-    protected IList<AttributeSpecification> _uniqueAttributeSpecifications;
+    protected IList<String> _uniqueAttributeNames = new List<String>();
 
     public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
         IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
         IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications)
       : base(aspectId, aspectName, attributeSpecifications)
     {
-      _uniqueAttributeSpecifications = new List<AttributeSpecification>(uniqueAttributeSpecifications);
+      foreach (MultipleAttributeSpecification uniqueAttributeSpecification in uniqueAttributeSpecifications)
+      {
+        _uniqueAttributeNames.Add(uniqueAttributeSpecification.AttributeName);
+      }
     }
 
-    public IList<AttributeSpecification> UniqueAttributeSpecifications
-    {
-      get { return _uniqueAttributeSpecifications; }
-    }
+    public IList<AttributeSpecification> UniqueAttributeSpecifications { get { return _attributeSpecifications.Values.Where(x => _uniqueAttributeNames.Contains(x.AttributeName)).ToList(); } }
 
     #region Additional members for the XML serialization
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("UniqueAttributes")]
+    [XmlArrayItem("UniqueAttribute")]
+    // We use an array here because when using a List, stupid XML serializer only uses the property getter and fills the
+    // List with its deserialized entries. When using an array, the property setter is invoked.
+    public String[] XML_UniqueAttributes
+    {
+      get
+      {
+        return _uniqueAttributeNames.ToArray();
+      }
+      set
+      {
+        _uniqueAttributeNames.Clear();
+        foreach(String uniqueAttributeName in value)
+        {
+          _uniqueAttributeNames.Add(uniqueAttributeName);
+        }
+      }
+    }
+
     internal MultipleMediaItemAspectMetadata() { }
 
     new protected static XmlSerializer GetOrCreateXMLSerializer()
