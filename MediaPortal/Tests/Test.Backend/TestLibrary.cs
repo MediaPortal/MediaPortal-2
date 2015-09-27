@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Mock;
 using NUnit.Framework;
+using Test.Common;
 
 namespace Test.Backend
 {
@@ -61,14 +62,14 @@ namespace Test.Backend
     [Test]
     public void TestMediaItemAspectStorage()
     {
-      TestUtils.CreateSingleMIA("SINGLE", Cardinality.Inline, true, true);
+      TestBackendUtils.CreateSingleMIA("SINGLE", Cardinality.Inline, true, true);
       MockCommand singleCommand = MockDBUtils.FindCommand("CREATE TABLE M_SINGLE");
       Assert.IsNotNull(singleCommand, "Single create table command");
       // Columns and objects will be what we asked for
       Assert.AreEqual("CREATE TABLE M_SINGLE (MEDIA_ITEM_ID Guid, ATTR_STRING TEXT, ATTR_INTEGER Int32, CONSTRAINT PK PRIMARY KEY (MEDIA_ITEM_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", singleCommand.CommandText, "Single1 create table command");
 
       MockDBUtils.Reset();
-      TestUtils.CreateMultipleMIA("MULTIPLE", Cardinality.Inline, true, false);
+      TestBackendUtils.CreateMultipleMIA("MULTIPLE", Cardinality.Inline, true, false);
       MockCommand multipleCommand = MockDBUtils.FindCommand("CREATE TABLE M_MULTIPLE");
       Assert.IsNotNull(multipleCommand, "Multiple create table command");
       // Columns and objects will be suffixed with _0 because the alises we asked for have already been given to Multiple1
@@ -87,8 +88,8 @@ namespace Test.Backend
     [Test]
     public void TestMediaItemLoader_SingleMIAs_IdFilter()
     {
-      SingleTestMIA single1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
-      SingleTestMIA single2 = TestUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
+      SingleTestMIA single1 = TestBackendUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
+      SingleTestMIA single2 = TestBackendUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
 
       Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
       IList<Guid> ids = new List<Guid>();
@@ -113,9 +114,9 @@ namespace Test.Backend
     [Test]
     public void TestMediaItemLoader_SingleMIAs_LikeFilter()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
-        SingleTestMIA mia2 = TestUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
-        SingleTestMIA mia3 = TestUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, true, true);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
+      SingleTestMIA mia2 = TestBackendUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
+      SingleTestMIA mia3 = TestBackendUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, true, true);
 
         Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
 
@@ -148,8 +149,8 @@ namespace Test.Backend
     [Test]
     public void TestMediaItemLoader_MultipleMIAs_IdFilter()
     {
-      MultipleTestMIA mia1 = TestUtils.CreateMultipleMIA("MULTIPLE1", Cardinality.Inline, true, false);
-      MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, false, true);
+      MultipleTestMIA mia1 = TestBackendUtils.CreateMultipleMIA("MULTIPLE1", Cardinality.Inline, true, false);
+      MultipleTestMIA mia2 = TestBackendUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, false, true);
 
       Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
       IList<Guid> ids = new List<Guid>();
@@ -186,9 +187,9 @@ namespace Test.Backend
     [Test]
     public void TestMediaItemsLoader_SingleAndMultipleMIAs_BooleanLikeFilter()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
-      MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
-      MultipleTestMIA mia3 = TestUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      MultipleTestMIA mia2 = TestBackendUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+      MultipleTestMIA mia3 = TestBackendUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
 
       Guid itemId0 = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
       Guid itemId1 = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
@@ -259,10 +260,10 @@ namespace Test.Backend
     [Test]
     public void TestMediaItemLoader_SingleMIAsUnusedOptional_IdFilter()
     {
-      SingleTestMIA single1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
-      SingleTestMIA single2 = TestUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
-      SingleTestMIA single3 = TestUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, false, true);
-      SingleTestMIA single4 = TestUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, false, true);
+      SingleTestMIA single1 = TestBackendUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, false);
+      SingleTestMIA single2 = TestBackendUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
+      SingleTestMIA single3 = TestBackendUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, false, true);
+      SingleTestMIA single4 = TestBackendUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, false, true);
 
         Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
         IList<Guid> ids = new List<Guid>();
@@ -296,9 +297,9 @@ namespace Test.Backend
     {
         MockCore.SetupLibrary();
 
-        SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
-        MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
-        MultipleTestMIA mia3 = TestUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+        SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+        MultipleTestMIA mia2 = TestCommonUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+        MultipleTestMIA mia3 = TestCommonUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
 
         MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
         MockCore.Management.AddMediaItemAspectStorage(mia2.Metadata);
@@ -344,7 +345,7 @@ namespace Test.Backend
     {
       MockCore.SetupLibrary();
 
-      MultipleTestMIA mia1 = TestUtils.CreateMultipleMIA("MULTIPLE1", Cardinality.Inline, true, false);
+      MultipleTestMIA mia1 = TestCommonUtils.CreateMultipleMIA("MULTIPLE1", Cardinality.Inline, true, false);
       MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
 
       MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
@@ -388,16 +389,16 @@ namespace Test.Backend
     {
         MockCore.SetupLibrary();
 
-        SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+        SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
         MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
 
-        MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+        MultipleTestMIA mia2 = TestCommonUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
         MockCore.Management.AddMediaItemAspectStorage(mia2.Metadata);
 
-        MultipleTestMIA mia3 = TestUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+        MultipleTestMIA mia3 = TestCommonUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
         MockCore.Management.AddMediaItemAspectStorage(mia3.Metadata);
 
-        SingleTestMIA mia4 = TestUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, true, true);
+        SingleTestMIA mia4 = TestCommonUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, true, true);
         MockCore.Management.AddMediaItemAspectStorage(mia4.Metadata);
 
         MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
@@ -466,7 +467,7 @@ namespace Test.Backend
     {
       MockCore.SetupLibrary();
 
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
       MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
 
       MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);

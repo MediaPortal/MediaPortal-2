@@ -22,14 +22,13 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using MediaPortal.Mock;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using NUnit.Framework;
 
 namespace Test.Common
@@ -40,7 +39,7 @@ namespace Test.Common
     [TestFixtureSetUp]
     public void OneTimeSetUp()
     {
-      IMediaItemAspectTypeRegistration miatr = new MockMediaItemAspectTypeRegistration();
+      IMediaItemAspectTypeRegistration miatr = new TestMediaItemAspectTypeRegistration();
       ServiceRegistration.Set(miatr);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
