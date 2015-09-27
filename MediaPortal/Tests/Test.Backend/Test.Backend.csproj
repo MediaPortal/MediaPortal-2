@@ -55,8 +55,6 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="MultipleTestMIA.cs" />
-    <Compile Include="SingleTestMIA.cs" />
     <Compile Include="TestLibrary.cs" />
     <Compile Include="TestQueryEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +77,10 @@
     <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj">
       <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
       <Name>MediaPortal.Mock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Test.Common\Test.Common.csproj">
+      <Project>{80A1F03E-F333-420D-8C62-3FFEE778A47C}</Project>
+      <Name>Test.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Mock;
 using NUnit.Framework;
+using Test.Common;
 
 namespace Test.Backend
 {
@@ -86,7 +87,7 @@ namespace Test.Backend
     [Test]
     public void TestSingleMIALikeFilter()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+      SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
 
       IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -108,7 +109,7 @@ namespace Test.Backend
     [Test]
     public void TestMultipleMIALikeFilter()
     {
-      MultipleTestMIA mia1 = TestUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, true);
+      MultipleTestMIA mia1 = TestBackendUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, true);
 
       IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -171,8 +172,8 @@ namespace Test.Backend
     [Test]
     public void TestSingleMIAOnlyLikeQueryBuilder()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, false);
-      SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, false);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, false);
+      SingleTestMIA mia2 = TestBackendUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, false);
 
       IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -205,8 +206,8 @@ namespace Test.Backend
     [Test]
     public void TestMultipleMIAOnlyLikeQueryBuilder()
     {
-      MultipleTestMIA mia1 = TestUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, false);
-      MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("Meta2", Cardinality.Inline, true, false);
+      MultipleTestMIA mia1 = TestBackendUtils.CreateMultipleMIA("Meta1", Cardinality.Inline, true, false);
+      MultipleTestMIA mia2 = TestBackendUtils.CreateMultipleMIA("Meta2", Cardinality.Inline, true, false);
 
       IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
@@ -239,8 +240,8 @@ namespace Test.Backend
     [Test]
     public void TestSingleAndMultipleMIAQueryBuilder()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("single1", Cardinality.Inline, true, false);
-      MultipleTestMIA mia2 = TestUtils.CreateMultipleMIA("multi1", Cardinality.Inline, true, false);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("single1", Cardinality.Inline, true, false);
+      MultipleTestMIA mia2 = TestBackendUtils.CreateMultipleMIA("multi1", Cardinality.Inline, true, false);
 
       IFilter filter1 = new LikeFilter(mia1.ATTR_STRING, "%", null);
       IFilter filter2 = new LikeFilter(mia2.ATTR_STRING, "%", null);
@@ -283,8 +284,8 @@ namespace Test.Backend
       // Use the real RelationshipFilter because CompiledFilter is hard coded to look for it
       MockCore.AddMediaItemAspectStorage(RelationshipAspect.Metadata);
 
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-      SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+      SingleTestMIA mia2 = TestBackendUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
 
       ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
       requiredMIATypes.Add(mia1.Metadata);
@@ -326,8 +327,8 @@ namespace Test.Backend
     [Test]
     public void TestAndQueryBuilder()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-      SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+      SingleTestMIA mia2 = TestBackendUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
 
       IList<IFilter> filters = new List<IFilter>();
       filters.Add(new LikeFilter(mia1.ATTR_STRING, "%", null));
@@ -367,8 +368,8 @@ namespace Test.Backend
     [Test]
     public void TestExternalQueryBuilder()
     {
-      SingleTestMIA mia1 = TestUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
-      SingleTestMIA mia2 = TestUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("Meta1", Cardinality.Inline, true, true);
+      SingleTestMIA mia2 = TestBackendUtils.CreateSingleMIA("Meta2", Cardinality.Inline, true, true);
       MockCore.AddMediaItemAspectStorage(ExternalIdentifierAspect.Metadata);
 
       string source = "test";

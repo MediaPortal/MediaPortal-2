@@ -23,17 +23,26 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 
-namespace Test.Backend
+namespace Test.Common
 {
-  public class SingleTestMIA
+  public class TestMediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
-    public Guid ASPECT_ID;
+    protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
 
-    public MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STRING;
-    public MediaItemAspectMetadata.SingleAttributeSpecification ATTR_INTEGER;
+    public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
+    {
+      get { return _locallyKnownMediaItemAspectTypes; }
+    }
 
-    public SingleMediaItemAspectMetadata Metadata;
+    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType)
+    {
+      Console.WriteLine("Registering " + miaType.Name);
+      if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
+        return;
+      _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+    }
   }
 }

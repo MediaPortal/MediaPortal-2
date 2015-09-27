@@ -25,16 +25,15 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 
-namespace Test.Backend
+namespace Test.Common
 {
-  public class MultipleTestMIA
+  public class SingleTestMIA
   {
     public Guid ASPECT_ID;
 
-    public MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ID;
-    public MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_STRING;
-    public MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_INTEGER;
+    public MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STRING;
+    public MediaItemAspectMetadata.SingleAttributeSpecification ATTR_INTEGER;
 
-    public MultipleMediaItemAspectMetadata Metadata;
+    public SingleMediaItemAspectMetadata Metadata;
   }
 }
