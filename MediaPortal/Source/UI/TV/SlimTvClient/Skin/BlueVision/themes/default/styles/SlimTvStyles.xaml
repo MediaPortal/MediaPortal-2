@@ -520,6 +520,7 @@
 
             <Grid>
               <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
@@ -529,6 +530,10 @@
               <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                      Margin="2,0,0,0"
                      FontFamily="DefaultBold"/>
+
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Margin="10,0,0,0"
+                     FontFamily="Default"/>
             </Grid>
           </Button>
         </ControlTemplate>
