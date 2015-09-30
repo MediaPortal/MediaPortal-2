@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case AudioCodec.Lpcm:
           return "pcm_s16le";
         case AudioCodec.Dts:
-          return "dca -strict -2";
+          return "dca";
         case AudioCodec.Wma:
           return "wmav1";
         case AudioCodec.Flac:

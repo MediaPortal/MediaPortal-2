@@ -61,8 +61,10 @@
     <Compile Include="Transcoders\Base\Checks.cs" />
     <Compile Include="Transcoders\Base\Metadata\Metadata.cs" />
     <Compile Include="Transcoders\Base\Subtitle.cs" />
+    <Compile Include="Transcoders\Base\TranscodeContext.cs" />
     <Compile Include="Transcoders\Base\TranscodeData.cs" />
     <Compile Include="Transcoders\Base\Validators.cs" />
+    <Compile Include="Transcoders\FFMpeg\Encoders\FFMpegEncoderConfig.cs" />
     <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetAudioCodec.cs" />
     <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetAudioContainer.cs" />
     <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetImageCodec.cs" />
@@ -71,6 +73,7 @@
     <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetVideoCodec.cs" />
     <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetVideoContainer.cs" />
     <Compile Include="Transcoders\FFMpeg\FFMpegCommandline.cs" />
+    <Compile Include="Transcoders\FFMpeg\Encoders\FFMpegEncoderHandler.cs" />
     <Compile Include="Transcoders\FFMpeg\FFMpegFileProcessor.cs" />
     <Compile Include="Transcoders\FFMpeg\FFMpegTranscodeData.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseAudioCodec.cs" />

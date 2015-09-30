@@ -217,6 +217,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
     Valid
   }
 
+  public enum EncoderHandler
+  {
+    Software,
+    HardwareIntel,
+    HardwareNvidia
+  }
+
   #endregion
 
   #region Classes

@@ -35,7 +35,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     private static readonly string BIN_TRANSCODER = ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath;
 
-    public FFMpegTranscodeData(string workPath) : base(BIN_TRANSCODER, workPath) { }
+    public EncoderHandler Encoder { get; set; } 
+
+    public FFMpegTranscodeData(string workPath) : base(BIN_TRANSCODER, workPath) 
+    {
+      Encoder = EncoderHandler.Software;
+    }
 
     public string TranscoderArguments
     {

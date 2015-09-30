@@ -135,25 +135,5 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         return runningTranscodes.ContainsKey(transcodeID);
       }
     }
-
-    #region HW Acceleration
-
-    internal static bool IsNvidiaHWTranscode(string transcodeId, List<string> nvidiaTranscodes)
-    {
-      lock (nvidiaTranscodes)
-      {
-        return nvidiaTranscodes.Contains(transcodeId);
-      }
-    }
-
-    internal static bool IsIntelHWTranscode(string transcodeId, List<string> intelTranscodes)
-    {
-      lock (intelTranscodes)
-      {
-        return intelTranscodes.Contains(transcodeId);
-      }
-    }
-
-    #endregion
   }
 }

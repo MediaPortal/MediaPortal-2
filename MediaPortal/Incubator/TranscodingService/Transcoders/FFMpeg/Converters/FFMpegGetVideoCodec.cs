@@ -29,21 +29,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
 {
   internal class FFMpegGetVideoCodec
   {
-    public static string GetVideoCodec(VideoCodec codec, string transcodeID, List<string> intelTranscodes, List<string> nvidiaTranscodes)
+    public static string GetVideoCodec(VideoCodec codec, EncoderHandler encoder)
     {
       switch (codec)
       {
         case VideoCodec.H265:
-          if (Checks.IsIntelHWTranscode(transcodeID, intelTranscodes))
+          if (encoder == EncoderHandler.HardwareIntel)
             return "hevc_qsv";
-          else if (Checks.IsNvidiaHWTranscode(transcodeID, nvidiaTranscodes))
+          else if (encoder == EncoderHandler.HardwareNvidia)
             return "hevc_nvenc";
           else
             return "libx265";
         case VideoCodec.H264:
-          if (Checks.IsIntelHWTranscode(transcodeID, intelTranscodes))
+          if (encoder == EncoderHandler.HardwareIntel)
             return "h264_qsv";
-          else if (Checks.IsNvidiaHWTranscode(transcodeID, nvidiaTranscodes))
+          else if (encoder == EncoderHandler.HardwareNvidia)
             return "nvenc_h264";
           else
             return "libx264";
@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case VideoCodec.MsMpeg4:
           return "msmpeg4";
         case VideoCodec.Mpeg2:
-          if (Checks.IsIntelHWTranscode(transcodeID, intelTranscodes))
+          if (encoder == EncoderHandler.HardwareIntel)
             return "mpeg2_qsv";
           else
             return "mpeg2video";

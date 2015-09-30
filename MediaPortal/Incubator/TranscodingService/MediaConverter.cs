@@ -40,6 +40,8 @@ using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base.Metadata;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Utilities.Process;
+using System.Collections.ObjectModel;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -55,82 +57,52 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public string HLSSegmentFileTemplate { get; set; }
     public string SubtitleDefaultEncoding { get; set; }
     public ILogger Logger { get; set; }
-    public bool AllowNvidiaHWAcceleration { get; set; }
-    public bool AllowIntelHWAcceleration { get; set; }
-    public int MaximumNvidiaHWStreams { get; set; }
-    public int MaximumIntelHWStreams { get; set; }
-    public List<VideoCodec> SupportedNvidiaHWCodecs { get; set; }
-    public List<VideoCodec> SupportedIntelHWCodecs { get; set; }
+    public bool SupportHardcodedSubs
+    {
+      get
+      {
+        return _supportHardcodedSubs;
+      }
+    }
 
-    public static Dictionary<string, TranscodeContext> RunningTranscodes = new Dictionary<string, TranscodeContext>();
-    
+    public static ReadOnlyDictionary<string, TranscodeContext> RunningTranscodes
+    {
+      get
+      {
+        return new ReadOnlyDictionary<string, TranscodeContext>(_runningTranscodes);
+      }
+    }
+    private static Dictionary<string, TranscodeContext> _runningTranscodes = new Dictionary<string,TranscodeContext>();
     
     private FFMpegCommandline _ffMpegCommandline;
-    internal bool _supportHardcodedSubs = true;
-    internal bool _supportNvidiaHW = true;
-    internal bool _supportIntelHW = true;
-    private List<string> _nvidiaTranscodes = new List<string>();
-    private List<string> _intelTranscodes = new List<string>();
+    private bool _supportHardcodedSubs = true;
+    private bool _supportNvidiaHW = true;
+    private bool _supportIntelHW = true;
+    private FFMpegEncoderHandler _ffMpegEncoderHandler;
+    
 
     public MediaConverter()
     {
       InitSettings();
     }
 
-    #region HW Acceleration
+    #region HW Acelleration
 
-    private bool StartHWTranscode(VideoCodec codec, string transcodeId)
+    public bool RegisterHardwareEncoder(EncoderHandler encoder, int maximumStreams, List<VideoCodec> supportedCodecs)
     {
-      if (StartHWTranscode(codec, transcodeId, AllowIntelHWAcceleration, _supportIntelHW, SupportedIntelHWCodecs, MaximumIntelHWStreams, _intelTranscodes))
-      {
-        return true;
-      }
-      if (StartHWTranscode(codec, transcodeId, AllowNvidiaHWAcceleration, _supportNvidiaHW, SupportedNvidiaHWCodecs, MaximumNvidiaHWStreams, _nvidiaTranscodes))
-      {
-        return true;
-      }
-      return false;
+      if(encoder == EncoderHandler.Software) 
+        return false;
+      else if(encoder == EncoderHandler.HardwareIntel && _supportIntelHW == false)
+        return false;
+      else if(encoder == EncoderHandler.HardwareNvidia && _supportNvidiaHW == false)
+        return false;
+      _ffMpegEncoderHandler.RegisterEncoder(encoder, maximumStreams, supportedCodecs);
+      return true;
     }
 
-    private bool StartHWTranscode(VideoCodec codec, string transcodeId, bool allowHW, bool supportHW, List<VideoCodec> supportCodec, int maxStreams, List<string> transocodingStreams)
+    public void UnregisterHardwareEncoder(EncoderHandler encoder)
     {
-      //Check support
-      if (allowHW == false || supportHW == false)
-        return false;
-      //Check codec support
-      if (supportCodec.Contains(codec) == false)
-        return false;
-      //Check maximum stream support
-      lock (transocodingStreams)
-      {
-        if (maxStreams > 0 && maxStreams <= transocodingStreams.Count)
-          return false;
-        if (transocodingStreams.Contains(transcodeId) == true)
-          return true;
-        transocodingStreams.Add(transcodeId);
-        return true;
-      }
-    }
-
-
-    private void EndHWTranscode(string transcodeId)
-    {
-      lock (_intelTranscodes)
-      {
-        if (_intelTranscodes.Contains(transcodeId) == true)
-        {
-          _intelTranscodes.Remove(transcodeId);
-          return;
-        }
-      }
-      lock (_nvidiaTranscodes)
-      {
-        if (_nvidiaTranscodes.Contains(transcodeId) == true)
-        {
-          _nvidiaTranscodes.Remove(transcodeId);
-          return;
-        }
-      }
+      _ffMpegEncoderHandler.UnregisterEncoder(encoder);
     }
 
     #endregion
@@ -155,16 +127,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
       TranscoderMaximumCacheAge = 30; //Days
       TranscoderMaximumThreads = 0;
       TranscoderTimeout = 5000;
-      MaximumIntelHWStreams = 0;
-      MaximumNvidiaHWStreams = 2; //Geforce
-      SupportedIntelHWCodecs = new List<VideoCodec>() { VideoCodec.Mpeg2, VideoCodec.H264, VideoCodec.H265 };
-      SupportedNvidiaHWCodecs = new List<VideoCodec>() { VideoCodec.H264, VideoCodec.H265 };
       HLSSegmentTimeInSeconds = 10;
       HLSSegmentFileTemplate = "segment%05d.ts";
       SubtitleDefaultEncoding = "";
       TranscoderBinPath = ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath;
-      AllowIntelHWAcceleration = false;
-      AllowNvidiaHWAcceleration = false;
       string result;
       using (Process process = new Process { StartInfo = new ProcessStartInfo(TranscoderBinPath, "") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true } })
       {
@@ -194,6 +160,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
 
       _ffMpegCommandline = new FFMpegCommandline(this);
+      _ffMpegEncoderHandler = new FFMpegEncoderHandler();
     }
 
     private void TouchFile(string filePath)
@@ -400,7 +367,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public bool IsFileInTranscodeCache(string transcodeId)
     {
-      if (Checks.IsTranscodingRunning(transcodeId, ref RunningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(transcodeId, ref _runningTranscodes) == false)
       {
         List<string> dirObjects = new List<string>(Directory.GetFiles(TranscoderCachePath, "*.mp*"));
         foreach (string file in dirObjects)
@@ -419,7 +386,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #region Transcoding
     
-
     public TranscodeContext GetMediaStream(BaseTranscoding transcodingInfo, bool waitForBuffer)
     {
       InitSettings();
@@ -540,14 +506,15 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        StartHWTranscode(video.TargetVideoCodec, video.TranscodeId);
+        data.Encoder = _ffMpegEncoderHandler.StartEncoding(video.TranscodeId, video.TargetVideoCodec);
         _ffMpegCommandline.InitTranscodingParameters(video.SourceFile, ref data);
 
         bool useX26XLib = video.TargetVideoCodec == VideoCodec.H264 || video.TargetVideoCodec == VideoCodec.H265;
         _ffMpegCommandline.AddTranscodingThreadsParameters(!useX26XLib, ref data);
 
-        
-        _ffMpegCommandline.AddVideoParameters(video, data.TranscodeId, currentSub, ref data, ref _intelTranscodes, ref _nvidiaTranscodes);
+        FFMpegEncoderConfig encoderConfig = _ffMpegEncoderHandler.GetEncoderConfig(data.Encoder);
+        _ffMpegCommandline.AddVideoParameters(video, data.TranscodeId, currentSub, encoderConfig, ref data);
+
         _ffMpegCommandline.AddTargetVideoFormatAndOutputFileParameters(video, transcodingFile, ref data);
         _ffMpegCommandline.AddVideoAudioParameters(video, ref data);
         if (currentSub != null && embeddedSupported)
@@ -722,7 +689,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         return null;
       }
-      if (Checks.IsTranscodingRunning(video.TranscodeId, ref RunningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
       {
         TouchFile(sub.SourceFile);
       }
@@ -777,7 +744,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // the file already exists in the cache -> just return
       if (File.Exists(transcodingFile))
       {
-        if (Checks.IsTranscodingRunning(video.TranscodeId, ref RunningTranscodes) == false)
+        if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
         {
           TouchFile(transcodingFile);
         }
@@ -972,13 +939,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private Stream ExecuteTranscodingProcess(FFMpegTranscodeData data, TranscodeContext context, bool waitForBuffer)
     {
-      if (Checks.IsTranscodingRunning(data.TranscodeId, ref RunningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(data.TranscodeId, ref _runningTranscodes) == false)
       {
         try
         {
-          lock (RunningTranscodes)
+          lock (_runningTranscodes)
           {
-            RunningTranscodes.Add(data.TranscodeId, context);
+            _runningTranscodes.Add(data.TranscodeId, context);
           }
           Thread transcodeThread = new Thread(TranscodeProcessor)
           {
@@ -992,9 +959,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           lock (RunningTranscodes)
           {
-            RunningTranscodes.Remove(data.TranscodeId);
+            _runningTranscodes.Remove(data.TranscodeId);
           }
-          EndHWTranscode(data.TranscodeId);
+          _ffMpegEncoderHandler.EndEncoding(data.Encoder, data.TranscodeId);
           context.Running = false;
           context.Failed = true;
           throw;
@@ -1058,11 +1025,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       //ffmpeg.WaitForExit();
       //iExitCode = ffmpeg.ExitCode;
       iExitCode = executionResult.Result.ExitCode;
-      lock (RunningTranscodes)
+      lock (_runningTranscodes)
       {
-        RunningTranscodes.Remove(data.TranscodeId);
+        _runningTranscodes.Remove(data.TranscodeId);
       }
-      EndHWTranscode(data.TranscodeId);
+      _ffMpegEncoderHandler.EndEncoding(data.Encoder, data.TranscodeId);
       //ffmpeg.Close();
       //ffmpeg.Dispose();
       if (iExitCode > 0)
@@ -1145,66 +1112,5 @@ namespace MediaPortal.Plugins.Transcoding.Service
     }
 
     #endregion
-  }
-
-  public class TranscodeContext : IDisposable
-  {
-    StringBuilder _errorOutput = new StringBuilder();
-    StringBuilder _standardOutput = new StringBuilder();
-    public string TargetFile { get; internal set; }
-    public string SegmentDir { get; internal set; }
-    public bool Aborted { get; internal set; }
-    public bool Failed { get; internal set; }
-    public string ConsoleErrorOutput 
-    { 
-      get
-      {
-        return _errorOutput.ToString();
-      }
-    }
-    public string ConsoleOutput
-    {
-      get
-      {
-        return _standardOutput.ToString();
-      }
-    }
-    public bool Running { get; internal set; }
-    public Stream TranscodedStream { get; private set; }
-
-    internal void FFMPEG_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-    {
-      _errorOutput.Append(e.Data);
-    }
-
-    internal void FFMPEG_OutputDataReceived(object sender, DataReceivedEventArgs e)
-    {
-      _standardOutput.Append(e.Data);
-    }
-
-    public void Start()
-    {
-      Running = true;
-      Aborted = false;
-    }
-
-    public void AssignStream(Stream stream)
-    {
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
-      TranscodedStream = stream;
-    }
-
-    public void Stop()
-    {
-      Running = false;
-    }
-
-    public void Dispose()
-    {
-      Stop();
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
-    }
   }
 }
