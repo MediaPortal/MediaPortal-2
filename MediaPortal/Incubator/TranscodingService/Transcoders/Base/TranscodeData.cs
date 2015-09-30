@@ -60,5 +60,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       uint result = GetShortPathName(fileName, shortNameBuffer, 256);
       return shortNameBuffer.ToString();
     }
+
+    public virtual string TranscoderArguments { get; set; }
   }
 }

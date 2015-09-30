@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       Encoder = EncoderHandler.Software;
     }
 
-    public string TranscoderArguments
+    public override string TranscoderArguments
     {
       set
       {
