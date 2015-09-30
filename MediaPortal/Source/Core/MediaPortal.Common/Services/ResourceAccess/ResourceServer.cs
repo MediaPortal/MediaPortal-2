@@ -161,22 +161,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     #region IResourceServer implementation
 
-    public int PortIPv4
+    public int GetPortForIP(IPAddress ipAddress)
     {
-      get
-      {
-        var server = _httpServers.Values.FirstOrDefault(s => s.IsIPv4);
-        return server != null ? server.Port : 0;
-      }
-    }
+      HttpServer.HttpServer server;
+      if (_httpServers.TryGetValue(ipAddress, out server))
+        return server.Port;
 
-    public int PortIPv6
-    {
-      get
-      {
-        var server = _httpServers.Values.FirstOrDefault(s => s.IsIPv6);
-        return server != null ? server.Port : 0;
-      }
+      server = _httpServers.Values.FirstOrDefault(s => ipAddress.AddressFamily == AddressFamily.InterNetwork ? s.IsIPv4 : s.IsIPv6);
+      return server != null ? server.Port : 0;
     }
 
     public void Startup()

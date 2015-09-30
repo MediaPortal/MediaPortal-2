@@ -22,15 +22,19 @@
 
 #endregion
 
+using System.Net;
 using HttpServer.HttpModules;
 
 namespace MediaPortal.Common.ResourceAccess
 {
   public interface IResourceServer
   {
-    int PortIPv4 { get; }
-
-    int PortIPv6 { get; }
+    /// <summary>
+    /// Gets the port number on which the HttpServer with give IP is listening.
+    /// </summary>
+    /// <param name="ipAddress">Bound IP address</param>
+    /// <returns>Port number</returns>
+    int GetPortForIP(IPAddress ipAddress);
 
     void Startup();
 
