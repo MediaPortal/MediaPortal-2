@@ -48,6 +48,7 @@ using System.Threading;
 using MediaPortal.Extensions.MediaServer.Protocols;
 using System.Drawing.Imaging;
 using System.Drawing;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
@@ -103,14 +104,20 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       _transcoder.TranscoderMaximumCacheSize = MediaServerPlugin.TranscoderMaximumCacheSizeInGB;
       _transcoder.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
       _transcoder.SubtitleDefaultEncoding = MediaServerPlugin.SubtitleDefaultEncoding;
-      _transcoder.AllowIntelHWAcceleration = MediaServerPlugin.IntelHWAccelerationAllowed;
-      _transcoder.MaximumIntelHWStreams = MediaServerPlugin.IntelHWMaximumStreams;
-      _transcoder.SupportedIntelHWCodecs.Clear();
-      _transcoder.SupportedIntelHWCodecs.AddRange(MediaServerPlugin.NvidiaHWSupportedCodecs);
-      _transcoder.AllowNvidiaHWAcceleration = MediaServerPlugin.NvidiaHWAccelerationAllowed;
-      _transcoder.MaximumNvidiaHWStreams = MediaServerPlugin.NvidiaHWMaximumStreams;
-      _transcoder.SupportedNvidiaHWCodecs.Clear();
-      _transcoder.SupportedNvidiaHWCodecs.AddRange(MediaServerPlugin.NvidiaHWSupportedCodecs);
+      if (MediaServerPlugin.IntelHWAccelerationAllowed)
+      {
+        if(_transcoder.RegisterHardwareEncoder(EncoderHandler.HardwareIntel, MediaServerPlugin.IntelHWMaximumStreams, new List<VideoCodec>(MediaServerPlugin.IntelHWSupportedCodecs)) == false)
+        {
+          Logger.Warn("ResourceAccessModule: Failed to register Intel hardware acceleration");
+        }
+      }
+      if (MediaServerPlugin.NvidiaHWAccelerationAllowed)
+      {
+        if (_transcoder.RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, MediaServerPlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(MediaServerPlugin.NvidiaHWSupportedCodecs)) == false)
+        {
+          Logger.Warn("ResourceAccessModule: Failed to register Nvidia hardware acceleration");
+        }
+      }
       ClearCache();
     }
 
