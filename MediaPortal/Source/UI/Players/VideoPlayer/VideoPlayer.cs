@@ -90,7 +90,8 @@ namespace MediaPortal.UI.Players.Video
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
-    public const string VSFILTER_CLSID = "{93A22E7A-5091-45EF-BA61-6DA26156A5D0}";
+    // Auto loading version of VSFilter
+    public const string VSFILTER_CLSID = "{9852A670-F845-491b-9BE6-EBD841B8A613}";
     public const string VSFILTER_NAME = "xy-VSFilter";
     public const string VSFILTER_FILENAME = "VSFilter.dll";
 
@@ -178,11 +179,10 @@ namespace MediaPortal.UI.Players.Video
       AddEvr();
     }
 
-    protected override void AddSourceFilter()
+    protected override void AddSubtitleFilter()
     {
       var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
       _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
-      base.AddSourceFilter();
     }
 
     #endregion
