@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         IsAudio = true;
         if (item.Aspects.ContainsKey(DlnaItemAudioAspect.ASPECT_ID) == false)
         {
-          throw new InvalidOperationException(string.Format("Mediaitem {0} contains no DLNA audio information", item.MediaItemId));
+          throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no DLNA audio information", item.MediaItemId));
         }
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         IsImage = true;
         if (item.Aspects.ContainsKey(DlnaItemImageAspect.ASPECT_ID) == false)
         {
-          throw new InvalidOperationException(string.Format("Mediaitem {0} contains no DLNA image information", item.MediaItemId));
+          throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no DLNA image information", item.MediaItemId));
         }
       }
       else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
@@ -71,12 +71,12 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         IsVideo = true;
         if (item.Aspects.ContainsKey(DlnaItemVideoAspect.ASPECT_ID) == false)
         {
-          throw new InvalidOperationException(string.Format("Mediaitem {0} contains no DLNA video information", item.MediaItemId));
+          throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no DLNA video information", item.MediaItemId));
         }
       }
       else
       {
-        throw new InvalidOperationException(string.Format("Mediaitem {0} contains no requied aspect information", item.MediaItemId));
+        throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no requied aspect information", item.MediaItemId));
       }
 
       Client = client;

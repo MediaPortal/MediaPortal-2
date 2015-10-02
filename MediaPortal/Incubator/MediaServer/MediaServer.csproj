@@ -73,6 +73,7 @@
     <Compile Include="DIDL\PropertyFilter.cs" />
     <Compile Include="DIDL\SamsungDidlMessageBuilder.cs" />
     <Compile Include="DIDL\SonyDidlMessageBuilder.cs" />
+    <Compile Include="DLNA\DlnaAspectMissingException.cs" />
     <Compile Include="DLNA\DlnaMediaItem.cs" />
     <Compile Include="DLNA\DlnaProtocolInfo.cs" />
     <Compile Include="DLNA\DlnaProtocolInfoFactory.cs" />
