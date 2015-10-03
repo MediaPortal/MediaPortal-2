@@ -182,6 +182,11 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddSubtitleFilter()
     {
       var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
+      if (vsFilter == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, VSFILTER_NAME);
+        return;
+      }
       _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
     }
 
