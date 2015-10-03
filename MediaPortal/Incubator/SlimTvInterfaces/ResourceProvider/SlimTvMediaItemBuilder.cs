@@ -76,16 +76,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      SingleMediaItemAspect providerResourceAspect;
-      SingleMediaItemAspect mediaAspect;
 
       SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
-      MediaItemAspect.SetAspect(aspects, providerResourceAspect = new SingleMediaItemAspect(ProviderResourceAspect.Metadata));
-      MediaItemAspect.SetAspect(aspects, mediaAspect = new SingleMediaItemAspect(MediaAspect.Metadata));
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
+      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
       string title;
       string mimeType;
@@ -103,8 +99,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
         title = "Live Radio";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
-      mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
+      MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_TITLE, title);
+      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
       LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
       return tvStream;
     }
