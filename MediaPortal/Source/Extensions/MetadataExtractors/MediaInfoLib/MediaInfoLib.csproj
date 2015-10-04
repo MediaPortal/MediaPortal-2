@@ -20,7 +20,6 @@
     <UpgradeBackupLocation />
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>f55ec370</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -68,10 +67,5 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <Import Project="..\..\..\..\Packages\MediaInfo.0.7.69\build\MediaInfo.targets" Condition="Exists('..\..\..\..\Packages\MediaInfo.0.7.69\build\MediaInfo.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\Packages\MediaInfo.0.7.69\build\MediaInfo.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaInfo.0.7.69\build\MediaInfo.targets'))" />
-  </Target>
 </Project>
+

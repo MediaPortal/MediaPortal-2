@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Helpers\ProgramCache.cs" />
@@ -70,19 +70,19 @@
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
+    <ProjectReference Include="..\..\..\Core\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>

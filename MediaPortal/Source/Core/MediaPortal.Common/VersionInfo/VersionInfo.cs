@@ -10,4 +10,4 @@ using System.Reflection;
 [assembly: AssemblyVersion("2.0.0.1510")]
 [assembly: AssemblyFileVersion("2.0.0.1510")]
 // Note: This line will be filled by AssemblyInfoHelper in build process.
-[assembly: AssemblyInformationalVersion("REWORK_FolderStructure-a32be3")]
+[assembly: AssemblyInformationalVersion("morpheusxx/REWORK_FolderStructure-7b277d")]

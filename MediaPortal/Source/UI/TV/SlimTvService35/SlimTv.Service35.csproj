@@ -14,6 +14,7 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>da41ce4d</NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -52,47 +53,47 @@
   <ItemGroup>
     <Reference Include="Common.Utils, Version=1.8.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Common.Utils.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Common.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.Plugins.Base">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.Plugins.Base.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.Plugins.Base.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.SetupControls">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.SetupControls.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.SetupControls.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVControl">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVControl.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVControl.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVDatabase.Entities">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.Entities.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.Entities.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVDatabase.EntityModel">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.EntityModel.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.EntityModel.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVDatabase.Presentation">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.Presentation.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.Presentation.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVDatabase.TVBusinessLayer">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVLibrary">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVLibrary.Interfaces">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVLibrary.Services">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.Services.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.Services.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TvLibrary.Utils">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TvLibrary.Utils.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TvLibrary.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVService.Interfaces">
-      <HintPath>..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVService.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core.1.0.4\lib\Mediaportal.TV.Server.TVService.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -105,7 +106,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="..\SlimTvService\AbstractSlimTvService.cs">
@@ -274,19 +275,19 @@
     <Content Include="References\StreamingServer.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
       <Name>MediaPortal.Backend</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
+    <ProjectReference Include="..\..\..\Core\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>
@@ -325,11 +326,6 @@
   <Target Name="BeforeBuild">
     <NugetContentRestoreTask SolutionDir="$(SolutionDir)" ProjectDir="$(ProjectDir)" AdditionalFolders="References" />
   </Target>
-  <Import Project="..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets" Condition="Exists('..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Aktivieren Sie die Wiederherstellung von NuGet-Paketen, um die fehlende Datei herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets'))" />
-  </Target>
+  <Import Project="..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets" Condition="Exists('..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets')" />
 </Project>
+

@@ -15,7 +15,6 @@
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -69,3 +68,4 @@
   <Import Project="build.targets" />
   <Import Project="..\..\..\..\Packages\FreeImage.3.15.4\build\FreeImage.targets" Condition="Exists('..\..\..\..\Packages\FreeImage.3.15.4\build\FreeImage.targets')" />
 </Project>
+

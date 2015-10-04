@@ -13,7 +13,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>5b933947</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>fb05149b</NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -52,12 +53,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpDX">
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpDX.Direct3D9">
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -131,14 +130,7 @@ IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
 </PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\..\Packages\MediaPortal.BDReader.1.7.1.1\build\MediaPortal.BDReader.targets" Condition="Exists('..\..\Packages\MediaPortal.BDReader.1.7.1.1\build\MediaPortal.BDReader.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Aktivieren Sie die Wiederherstellung von NuGet-Paketen, um die fehlende Datei herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\Packages\MediaPortal.BDReader.1.7.1.1\build\MediaPortal.BDReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\MediaPortal.BDReader.1.7.1.1\build\MediaPortal.BDReader.targets'))" />
-    <Error Condition="!Exists('..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets'))" />
-  </Target>
-  <Import Project="..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\..\Packages\SharpDX.2.6.2\build\SharpDX.targets')" />
+  <Import Project="..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -147,3 +139,4 @@ IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
   </Target>
   -->
 </Project>
+

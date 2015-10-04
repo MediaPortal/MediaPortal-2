@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="MovieFanartProvider.cs" />
@@ -53,15 +53,15 @@
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
       <Name>MediaPortal.Backend</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+    <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
       <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
       <Name>OnlineLibraries</Name>
     </ProjectReference>

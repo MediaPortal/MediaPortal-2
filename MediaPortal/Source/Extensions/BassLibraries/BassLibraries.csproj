@@ -18,7 +18,6 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>568041ba</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -84,29 +83,6 @@
   <Import Project="..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets" Condition="Exists('..\..\..\Packages\bass.cd.2.4.5\build\bass.cd.targets')" />
   <Import Project="..\..\..\Packages\bass.mix.2.4.7.2\build\bass.mix.targets" Condition="Exists('..\..\..\Packages\bass.mix.2.4.7.2\build\bass.mix.targets')" />
   <Import Project="..\..\..\Packages\bass.wasapi.2.4.0.2\build\bass.wasapi.targets" Condition="Exists('..\..\..\Packages\bass.wasapi.2.4.0.2\build\bass.wasapi.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Aktivieren Sie die Wiederherstellung von NuGet-Paketen, um die fehlende Datei herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\Packages\bass.wasapi.2.4.0.2\build\bass.wasapi.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.wasapi.2.4.0.2\build\bass.wasapi.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.adx.2.4.1.1\build\bass.adx.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.adx.2.4.1.1\build\bass.adx.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.aix.2.4.1.1\build\bass.aix.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.aix.2.4.1.1\build\bass.aix.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.alac.2.4.3\build\bass.alac.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.alac.2.4.3\build\bass.alac.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.ape.2.4.1\build\bass.ape.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.ape.2.4.1\build\bass.ape.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.dsd.0.0.1\build\bass.dsd.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.dsd.0.0.1\build\bass.dsd.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.flac.2.4.1\build\bass.flac.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.flac.2.4.1\build\bass.flac.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.fx.2.4.10.1\build\bass.fx.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.fx.2.4.10.1\build\bass.fx.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.midi.2.4.8\build\bass.midi.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.midi.2.4.8\build\bass.midi.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.mpc.2.4.1.1\build\bass.mpc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.mpc.2.4.1.1\build\bass.mpc.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.ofr.2.4.0.2\build\bass.ofr.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.ofr.2.4.0.2\build\bass.ofr.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.spx.2.4.2\build\bass.spx.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.spx.2.4.2\build\bass.spx.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.tags.0.0.17\build\bass.tags.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.tags.0.0.17\build\bass.tags.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets'))" />
-    <Error Condition="!Exists('..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets'))" />
-  </Target>
   <Import Project="..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets" Condition="Exists('..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets')" />
   <Import Project="..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets" Condition="Exists('..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets')" />
   <Import Project="..\..\..\Packages\bass.adx.2.4.1.1\build\bass.adx.targets" Condition="Exists('..\..\..\Packages\bass.adx.2.4.1.1\build\bass.adx.targets')" />
@@ -125,3 +101,4 @@
   <Import Project="..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets" Condition="Exists('..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets')" />
   <Import Project="..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets" Condition="Exists('..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets')" />
 </Project>
+

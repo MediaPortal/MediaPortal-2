@@ -60,7 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Converters\StringCaseConverter.cs" />
@@ -190,23 +190,23 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
       <Name>SkinBase</Name>
     </ProjectReference>

@@ -54,7 +54,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScimoreDb", "Backend\Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipResourceProvider", "Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BluRayMetadaExtractor\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "Extensions\MetadataExtractors\BluRayMetadaExtractor\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCDResourceProvider", "Extensions\ResourceProviders\AudioCDResourceProvider\AudioCDResourceProvider.csproj", "{A492604D-592C-425F-9DDD-A121BD6DE0B5}"
 EndProject
@@ -62,13 +62,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IsoResourceProvider", "Exte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkNeighborhoodResourceProvider", "Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj", "{29184FFE-9BDD-4A49-B326-83D362211004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tve3RecordingMetadataExtractor", "..\Incubator\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj", "{BD0AD1E7-48A9-404E-9C82-291CE3B41657}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tve3RecordingMetadataExtractor", "Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj", "{BD0AD1E7-48A9-404E-9C82-291CE3B41657}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineLibraries", "Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj", "{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService", "..\Incubator\FanArtService\FanArtService.csproj", "{294C9C0A-FE21-4857-957A-14A433E3254E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService", "UI\FanArt\FanArtService\FanArtService.csproj", "{294C9C0A-FE21-4857-957A-14A433E3254E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Interfaces", "..\Incubator\FanArtService.Interfaces\FanArtService.Interfaces.csproj", "{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Interfaces", "UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj", "{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesMetadataExtractor", "Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj", "{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}"
 EndProject
@@ -80,7 +80,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoThumbnailer", "Extensi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLDatabase", "Backend\Database\MySQLDatabase\MySQLDatabase.csproj", "{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Interfaces", "..\Incubator\SlimTvInterfaces\SlimTv.Interfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Interfaces", "UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{D78DACAE-6316-45F4-B7D7-31A50791E977}"
 EndProject
@@ -88,15 +88,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FanArt", "FanArt", "{1FEC24
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeTv", "NativeTv", "{1D7CBAB2-F708-4A74-8DF9-610497AED552}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Integration", "..\Incubator\SlimTvIntegration\SlimTv.Integration.csproj", "{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Integration", "UI\TV\SlimTvIntegration\SlimTv.Integration.csproj", "{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Resources", "..\Incubator\SlimTvResources\SlimTv.Resources.csproj", "{9158967E-4FEB-4504-8C1E-02BE96045D34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Resources", "UI\TV\SlimTvResources\SlimTv.Resources.csproj", "{9158967E-4FEB-4504-8C1E-02BE96045D34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Service", "..\Incubator\ServerSettings.Service\ServerSettings.Service.csproj", "{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Service", "Backend\BackendComponents\ServerSettings.Service\ServerSettings.Service.csproj", "{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerSettings", "ServerSettings", "{5086CCE5-ECFD-4C02-95CA-7CC79526E231}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Interfaces", "..\Incubator\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj", "{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Interfaces", "Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj", "{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{F7CD0109-EDD1-4265-9D15-DA808A6F01F3}"
 EndProject
@@ -104,13 +104,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeImageLib", "Extensions\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThumbnailProviders", "ThumbnailProviders", "{35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteDatabase", "..\Incubator\SQLiteDatabase\SQLiteDatabase.csproj", "{8A791C9C-5D72-42E8-B8D3-ED25ADC24188}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteDatabase", "Backend\Database\SQLiteDatabase\SQLiteDatabase.csproj", "{8A791C9C-5D72-42E8-B8D3-ED25ADC24188}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellThumbnailProvider", "Extensions\MetadataExtractors\ShellThumbnailProvider\ShellThumbnailProvider.csproj", "{927AA852-186A-4880-A7B6-C11C543B97A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Local", "..\Incubator\FanArtService.Local\FanArtService.Local.csproj", "{CCF5076B-FDA7-4174-BBAF-E73EBD96B8B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Local", "UI\FanArt\FanArtService.Local\FanArtService.Local.csproj", "{CCF5076B-FDA7-4174-BBAF-E73EBD96B8B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.TMDB", "..\Incubator\FanArtService.TMDB\FanArtService.TMDB.csproj", "{92CA1D17-632A-4C23-B7AE-1F092CEABD78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.TMDB", "UI\FanArt\FanArtService.TMDB\FanArtService.TMDB.csproj", "{92CA1D17-632A-4C23-B7AE-1F092CEABD78}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
@@ -120,9 +120,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NfoMetadataExtractors", "Ex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WICThumbnailProvider", "Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj", "{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "..\Incubator\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "UI\TV\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "..\Incubator\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "UI\TV\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
