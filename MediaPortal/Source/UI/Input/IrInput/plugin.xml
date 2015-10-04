@@ -1,0 +1,24 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="IrInput"
+    PluginId="{851D53DA-A2BC-443c-9FC7-E14D7EDBA436}"
+    Author="and-81, Albert"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Ir input service plugin">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+  
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />    
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="IrInput.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.IrInput.IrInputPlugin"/>
+  </Runtime>
+</Plugin>
