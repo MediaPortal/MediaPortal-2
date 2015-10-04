@@ -38,7 +38,7 @@
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\Release"
+      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.LogCollector.TargetDir"
       ComponentGroupName="LogCollector.Heat"
       DirectoryRefId="INSTALLDIR_LOG_COLLECTOR"
