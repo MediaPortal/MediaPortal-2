@@ -71,17 +71,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// <returns><c>true</c> if successful.</returns>
     public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo episodeInfo)
     {
-      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out seriesInfo);
+      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out episodeInfo);
     }
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
-    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// if the <see cref="EpisodeInfo.IsCompleteMatch"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileName">Full path to file</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
+    public bool MatchSeries(string folderOrFileName, out EpisodeInfo episodeInfo)
     {
       foreach (Regex matcher in _matchers)
       {

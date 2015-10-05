@@ -147,23 +147,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
       // and keep the current episode details.
       // Use this way only for single episodes.
-      if (seriesInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
+      if (episodeInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
       {
         episode = episodes[0];
         SetEpisodeDetails(episodeInfo, seriesDetail, episode);
         return true;
       }
 
-      episode = seriesDetail.Episodes.Find(e => e.EpisodeNumber == episodeInfo.EpisodeNumbers.FirstOrDefault() && e.SeasonNumber == episodeInfo.SeasonNumber);
-      if (episode != null)
+      episodes = seriesDetail.Episodes.Where(e => episodeInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == episodeInfo.SeasonNumber).ToList();
+      if (episodes.Count == 0)
+        return false;
+
+      // Single episode entry
+      if (episodes.Count == 1)
       {
+        episode = episodes[0];
         episodeInfo.Episode = episode.EpisodeName;
         SetEpisodeDetails(episodeInfo, seriesDetail, episode);
         return true;
       }
 
       // Multiple episodes
-      SetMultiEpisodeDetailsl(seriesInfo, episodes);
+      SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
       return true;
     }
 
@@ -177,7 +182,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       episodeInfo.FirstAired = episodes.First().FirstAired;
       episodeInfo.DvdEpisodeNumbers.Clear();
       episodeInfo.DvdEpisodeNumbers.ToList().AddRange(episodes.Select(x => x.DvdEpisodeNumber));
-	  
+
       episodeInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
       episodeInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
       episodeInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
@@ -239,8 +244,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
 
       // Use cached values before doing online query
-      SeriesMatch match = matches.Find(m => string.Equals(m.ItemName, seriesName, StringComparison.OrdinalIgnoreCase) ||
-                                            string.Equals(m.TvDBName, seriesName, StringComparison.OrdinalIgnoreCase));
+      SeriesMatch match = matches.Find(m => m.ItemName == seriesName || m.TvDBName == seriesName);
       if (match != null && match.Id != 0)
       {
         tvDbId = match.Id;
@@ -335,11 +339,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", seriesDetail.SeriesName);
           // Add this match to cache
           SeriesMatch onlineMatch = new SeriesMatch
-              {
-                ItemName = seriesNameOrImdbId,
-                Id = seriesDetail.Id,
-                TvDBName = seriesDetail.SeriesName
-              };
+          {
+            ItemName = seriesNameOrImdbId,
+            Id = seriesDetail.Id,
+            TvDBName = seriesDetail.SeriesName
+          };
 
           // Save cache
           _storage.TryAddMatch(onlineMatch);

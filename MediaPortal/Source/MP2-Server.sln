@@ -114,8 +114,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.TMDB", "..\In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests", "_Tests", "{4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Backend", "..\Tests\Test.Backend\Test.Backend.csproj", "{80E4232E-0C76-4E0C-9B9A-F1C269BDB2B7}"

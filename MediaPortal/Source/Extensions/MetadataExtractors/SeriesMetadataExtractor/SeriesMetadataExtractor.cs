@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       MediaCategory seriesCategory;
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
-        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> {DefaultMediaCategories.Video});
+        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(seriesCategory);
     }
 
@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
-      EpisodeInfo episodeInfo;
+      EpisodeInfo episodeInfo = null;
 
       // First check if we already have a complete match from a previous MDE
       string title;
@@ -129,15 +129,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (episodeInfo == null || !episodeInfo.IsCompleteMatch)
       {
         MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-        if (matroskaMatcher.MatchSeries(lfsra, out seriesInfo, ref extractedAspectData))
+        if (matroskaMatcher.MatchSeries(lfsra, out episodeInfo, ref extractedAspectData))
         {
-          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found SeriesInformation by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
-            seriesInfo.Series, seriesInfo.ImdbId, seriesInfo.TvdbId, seriesInfo.IsCompleteMatch);
+          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, IsCompleteMatch {3}",
+            episodeInfo.Series, episodeInfo.ImdbId, episodeInfo.TvdbId, episodeInfo.IsCompleteMatch);
         }
       }
 
       // If no information was found before, try name matching
-      if (seriesInfo == null || !seriesInfo.IsCompleteMatch)
+      if (episodeInfo == null || !episodeInfo.IsCompleteMatch)
       {
         // Try to match series from folder and file namings
         SeriesMatcher seriesMatcher = new SeriesMatcher();
@@ -148,7 +148,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (episodeInfo != null && episodeInfo.IsCompleteMatch)
       {
         SeriesTvDbMatcher.Instance.FindAndUpdateSeries(episodeInfo);
-        episodeInfo.SetMetadata(extractedAspectData);
+        if (!_onlyFanArt)
+          episodeInfo.SetMetadata(extractedAspectData);
       }
       return (episodeInfo != null && episodeInfo.IsCompleteMatch);
     }
