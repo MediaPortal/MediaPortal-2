@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -123,6 +123,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "UI\TV\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "UI\TV\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2Extended", "..\Incubator\MP2Extended\MP2Extended.csproj", "{9E212C3D-E0D5-4A71-B445-39EC24373823}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -304,6 +306,10 @@ Global
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.Build.0 = Release|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Debug|x86.ActiveCfg = Debug|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Release|x86.ActiveCfg = Release|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Debug|x86.ActiveCfg = Debug|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Debug|x86.Build.0 = Debug|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Release|x86.ActiveCfg = Release|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -365,5 +371,6 @@ Global
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
 		{C239225E-CA92-4482-AFE7-F54006C48922} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
+		{9E212C3D-E0D5-4A71-B445-39EC24373823} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 	EndGlobalSection
 EndGlobal
