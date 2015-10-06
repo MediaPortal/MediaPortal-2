@@ -1,27 +1,21 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   // TODO: Rework after MIA Rework
-  class GetTVShowGenres : IRequestMicroModuleHandler
+  class GetMovieGenres : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -31,12 +25,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+      necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
 
       IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
 
       if (items.Count == 0)
-        throw new BadRequestException("No Tv Episodes found");
+        throw new BadRequestException("No Movies found");
 
       var output = new List<WebGenre>();
 

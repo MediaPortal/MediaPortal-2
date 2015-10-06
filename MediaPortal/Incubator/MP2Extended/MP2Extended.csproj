@@ -74,11 +74,21 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MAS\General\WebBackendProvider.cs" />
+    <Compile Include="MAS\General\WebDictionary.cs" />
     <Compile Include="MAS\General\WebMediaItem.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MAS\General\WebMediaServiceDescription.cs" />
     <Compile Include="MAS\Interfaces.cs" />
+    <Compile Include="MAS\Movie\EnumerableExtensionMethods.cs" />
+    <Compile Include="MAS\Movie\WebMovieBasic.cs" />
+    <Compile Include="MAS\Movie\WebMovieDetailed.cs" />
+    <Compile Include="MAS\Music\EnumerableExtensionMethods.cs" />
+    <Compile Include="MAS\Music\WebMusicAlbumBasic.cs" />
+    <Compile Include="MAS\Music\WebMusicArtistBasic.cs" />
+    <Compile Include="MAS\Music\WebMusicArtistDetailed.cs" />
+    <Compile Include="MAS\Music\WebMusicTrackBasic.cs" />
+    <Compile Include="MAS\Music\WebMusicTrackDetailed.cs" />
     <Compile Include="MAS\SortInterfaces.cs" />
     <Compile Include="MAS\TvShow\EnumerableExtensionMethods.cs" />
     <Compile Include="MAS\TvShow\WebTVEpisodeBasic.cs" />
@@ -100,9 +110,18 @@
     <Compile Include="ResourceAccess\IRequestMicroModuleHandler.cs" />
     <Compile Include="ResourceAccess\IRequestModuleHandler.cs" />
     <Compile Include="ResourceAccess\MainRequestHandler.cs" />
+    <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetMediaItem.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMoviesBasic.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMovieGenres.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMovieDetailedById.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMoviesDetailedByRange.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicAlbumBasicById.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicTrackBasicById.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicGenres.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicTracksBasicForAlbum.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodeCount.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodesDetailedForSeason.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodesDetailedByRange.cs" />
@@ -124,12 +143,14 @@
     <Compile Include="ResourceAccess\MediaAccessServiceHandler.cs" />
     <Compile Include="ResourceAccess\ResourceAccessUtils.cs" />
     <Compile Include="ResourceAccess\WSS\ISubRequestModuleHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\json\StreamInfo\GetMediaInfo.cs" />
     <Compile Include="ResourceAccess\WSS\StreamingServiceStreamHandler.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetArtworkResized.cs" />
     <Compile Include="ResourceAccess\WSS\stream\IStreamRequestMicroModuleHandler.cs" />
     <Compile Include="Utils\EnumerableComparer.cs" />
     <Compile Include="WSS\Images.cs" />
     <Compile Include="WSS\Resolution.cs" />
+    <Compile Include="WSS\StreamInfo\WebMediaInfo.cs" />
     <Compile Include="WSS\WebResolution.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -168,9 +189,7 @@
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ResourceAccess\WSS\json\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

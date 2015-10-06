@@ -15,7 +15,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
   {
     internal static byte[] GetBytes(string str)
     {
-      ASCIIEncoding enc = new ASCIIEncoding();
+      //ASCIIEncoding enc = new ASCIIEncoding();
+      UTF8Encoding enc = new UTF8Encoding();
       return enc.GetBytes(str);
     }
 
