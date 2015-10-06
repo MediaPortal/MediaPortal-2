@@ -95,7 +95,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
         }
       }
 
-      // sort and filter
+      // sort
       string sort = httpParam["sort"].Value;
       string order = httpParam["order"].Value;
       if (sort != null && order != null)

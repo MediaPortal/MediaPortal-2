@@ -102,7 +102,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
         startInt = output.Count - 1;
 
       if (endInt > output.Count - 1)
-        endInt = 1;
+        endInt = output.Count - 1;
 
       if ((endInt - startInt) < 0)
         throw new BadRequestException(String.Format("Invalid range: {0}", (endInt - startInt)));

@@ -11,7 +11,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
+using GetTVShowGenres = MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.GetTVShowGenres;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -20,9 +24,26 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
     {
       // General
+      { "GetExternalMediaInfo", new GetExternalMediaInfo()},
       { "GetMediaItem", new GetMediaItem()},
       { "GetServiceDescription", new GetServiceDescription()},
       { "TestConnection", new TestConnection()},
+      // Movie
+      { "GetMovieDetailedById", new GetMovieDetailedById()},
+      { "GetMovieGenres", new GetMovieGenres()},
+      { "GetMoviesBasic", new GetMoviesBasic()},
+      { "GetMoviesDetailedByRange", new GetMoviesDetailedByRange()},
+      // Music
+      { "GetMusicAlbumBasicById", new GetMusicAlbumBasicById()},
+      { "GetMusicGenres", new GetMusicGenres()},
+      { "GetMusicTrackBasicById", new GetMusicTrackBasicById()},
+      { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum()},
+      // Playlist
+      { "AddPlaylistItem", new AddPlaylistItem()},
+      { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum()},
+      { "CreatePlaylist", new CreatePlaylist()},
+      { "DeletePlaylist", new DeletePlaylist()},
+      { "GetPlaylists", new GetPlaylists()},
       // TvShow
       { "GetTVEpisodeBasicById", new GetTVEpisodeBasicById()},
       { "GetTVEpisodeCount", new GetTVEpisodeCount()},
