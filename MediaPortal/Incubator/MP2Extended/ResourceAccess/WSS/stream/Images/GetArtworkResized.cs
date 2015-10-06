@@ -21,7 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
     readonly Dictionary<WebMediaType, FanArtConstants.FanArtMediaType> _fanArtMediaTypeMapping = new Dictionary<WebMediaType, FanArtConstants.FanArtMediaType>
     {
       { WebMediaType.Movie, FanArtConstants.FanArtMediaType.Movie },
-      { WebMediaType.TVEpisode, FanArtConstants.FanArtMediaType.Series },
+      { WebMediaType.TVEpisode, FanArtConstants.FanArtMediaType.Episode },
       { WebMediaType.TVSeason, FanArtConstants.FanArtMediaType.SeriesSeason },
       { WebMediaType.TVShow, FanArtConstants.FanArtMediaType.Series },
       { WebMediaType.MusicTrack, FanArtConstants.FanArtMediaType.Audio },
@@ -127,8 +127,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
 
       string name = (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+      // Tv Episode
       if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      {
         name = (string)item.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODENAME];
+        fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
+        fanartType = FanArtConstants.FanArtType.Thumbnail;
+      }
 
       if (isSeason)
         name = String.Format("{0} S{1}", (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE], seasonId);
