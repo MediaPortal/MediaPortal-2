@@ -89,6 +89,8 @@
     <Compile Include="MAS\Music\WebMusicArtistDetailed.cs" />
     <Compile Include="MAS\Music\WebMusicTrackBasic.cs" />
     <Compile Include="MAS\Music\WebMusicTrackDetailed.cs" />
+    <Compile Include="MAS\Playlist\WebPlaylist.cs" />
+    <Compile Include="MAS\Playlist\WebPlaylistItem.cs" />
     <Compile Include="MAS\SortInterfaces.cs" />
     <Compile Include="MAS\TvShow\EnumerableExtensionMethods.cs" />
     <Compile Include="MAS\TvShow\WebTVEpisodeBasic.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="ResourceAccess\MAS\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetMediaItem.cs" />
+    <Compile Include="ResourceAccess\MAS\General\WebStringResult.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMoviesBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieDetailedById.cs" />
@@ -122,6 +125,12 @@
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTrackBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTracksBasicForAlbum.cs" />
+    <Compile Include="ResourceAccess\MAS\Playlist\ClearAndAddPlaylistItems.cs" />
+    <Compile Include="ResourceAccess\MAS\Playlist\AddPlaylistItems.cs" />
+    <Compile Include="ResourceAccess\MAS\Playlist\AddPlaylistItem.cs" />
+    <Compile Include="ResourceAccess\MAS\Playlist\DeletePlaylist.cs" />
+    <Compile Include="ResourceAccess\MAS\Playlist\CreatePlaylist.cs" />
+    <Compile Include="ResourceAccess\MAS\Playlist\GetPlaylists.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodeCount.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodesDetailedForSeason.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodesDetailedByRange.cs" />

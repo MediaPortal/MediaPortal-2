@@ -40,10 +40,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum()},
       // Playlist
       { "AddPlaylistItem", new AddPlaylistItem()},
-      { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum()},
+      { "AddPlaylistItems", new GetMusicTracksBasicForAlbum()},
       { "CreatePlaylist", new CreatePlaylist()},
       { "DeletePlaylist", new DeletePlaylist()},
       { "GetPlaylists", new GetPlaylists()},
+      { "ClearAndAddPlaylistItems", new ClearAndAddPlaylistItems()},
       // TvShow
       { "GetTVEpisodeBasicById", new GetTVEpisodeBasicById()},
       { "GetTVEpisodeCount", new GetTVEpisodeCount()},
