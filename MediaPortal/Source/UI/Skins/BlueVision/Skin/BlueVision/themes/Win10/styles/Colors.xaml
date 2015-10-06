@@ -47,7 +47,7 @@
 
   <!-- Text colors -->
   <ResourceWrapper x:Key="WatchedTextColor" Resource="#00A7FF"/>
-
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#000000"/>
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="#D1FFED"/>
 
   <!-- Semi transparent black used to darken the background when showing a dialog -->
@@ -70,15 +70,15 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ScrollBarBackgroundXColor" Resource="#FFCCCCCC" />
-  <!--ResourceWrapper x:Key="ScrollBarBackgroundXColor">
+  <!--ResourceWrapper x:Key="ScrollBarBackgroundXColor" Resource="#FFCCCCCC" /-->
+  <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
       <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.40"/>
       <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.60"/>
       <GradientStop Color="#00404040" Offset="1"/>
     </LinearGradientBrush>
-  </ResourceWrapper-->
+  </ResourceWrapper>
 
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#666666" />
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF0066CC" />

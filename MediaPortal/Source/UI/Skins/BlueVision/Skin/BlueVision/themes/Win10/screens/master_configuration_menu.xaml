@@ -50,7 +50,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
-        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch">
+       
+        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,0,-100,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="480"/>
           </Grid.ColumnDefinitions>
@@ -68,12 +69,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <SolidColorBrush Color="#000000" Opacity="0.85"/>
             </Border.Background>
           </Border>
-          <Border Grid.Row="1" Grid.Column="0" Margin="-60,-19,-100,61">
+          <Border Grid.Row="1" Grid.Column="0" Margin="-60,-19,0,61">
             <Border.Background>
               <SolidColorBrush Color="Gray" Opacity="1"/>
             </Border.Background>
           </Border>
-          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Margin="-50,5,-20,0" Style="{ThemeResource MainMenuListViewStyle}"
+          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Margin="-30,5,0,0" Style="{ThemeResource MainMenuListViewStyle}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
@@ -83,7 +84,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh">
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="98,0,-57,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -96,7 +97,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <SolidColorBrush Color="#000000" Opacity="0.85"/>
             </Border.Background>
           </Border>
-          <Border Grid.Column="0" Grid.Row="0" Margin="98,-19,-57,61">
+          <Border Grid.Column="0" Grid.Row="0" Margin="0,-19, 0,61">
             <Border.Background>
               <SolidColorBrush Color="#555555" Opacity="1"/>
             </Border.Background>
@@ -104,15 +105,35 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"
               IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
-              Grid.Row="0" Grid.Column="0" Margin="108,5,23,15"/>
+              Grid.Row="0" Grid.Column="0" Margin="31,5,32,15"/>
 
-          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0" Margin="108,5,23,15"
+          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0" Margin="31,5,32,15"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
         </Grid>
       </DockPanel>
     </ControlTemplate>
+
+    <!-- Footer_Template >
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <DockPanel LastChildFill="True">
+
+        <Grid DockPanel.Dock="Center" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.Resources>
+            <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+          </Grid.Resources>
+           <Control x:Name="FooterControl" Template="{DynamicResource ResourceKey=Footer_Template}"
+                    Grid.Row="0" Grid.Column="0" Margin="10,5,10,10"/>
+        </Grid>
+      </DockPanel>
+    </ControlTemplate-->
 
   </Include.Resources>
 </Include>

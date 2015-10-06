@@ -382,7 +382,8 @@
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="-61,0,-101,0" Fill="#003366" Stroke="#213848" StrokeThickness="0">
+              Margin="-82,0,-53,0" Fill="#003366" Stroke="#213848" StrokeThickness="0">
+            <!--Margin="-61,0,-101,0" Fill="#003366" Stroke="#213848" StrokeThickness="0"-->
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -616,7 +617,7 @@
               IsVisible ="False"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="2.5"
-              Margin="0,80,0,-5">
+              Margin="2.5">
           </Border>
         </ControlTemplate>
       </Setter.Value>
@@ -735,7 +736,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
