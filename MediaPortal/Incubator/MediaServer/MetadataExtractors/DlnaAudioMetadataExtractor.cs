@@ -215,7 +215,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
             if (!HasAudioExtension(fileName))
               return false;
             MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.IsVideo)
+            if (metadata.IsAudio)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
               return true;

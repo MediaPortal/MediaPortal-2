@@ -190,7 +190,7 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
             if (!HasImageExtension(fileName))
               return false;
             MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.IsVideo)
+            if (metadata.IsImage)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
               return true;

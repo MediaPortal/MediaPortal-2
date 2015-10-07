@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.DIDL;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Filters;
@@ -440,9 +441,9 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       RootContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_ROOT_KEY, this) { Title = "MediaPortal Media Library" };
 
       var audioContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY, this) { Title = "Audio" };
-      audioContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AS", this, "Audio") { Title = "Shares" });
       audioContainer.Add(new MediaLibraryAlbumContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "A", this) { Title = "Albums" });
-      audioContainer.Add(new MediaLibraryGenreContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "G", this) { Title = "Genres" });
+      audioContainer.Add(new MediaLibraryMusicGenreContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "G", this) { Title = "Genres" });
+      audioContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AS", this, "Audio") { Title = "Shares" });
       RootContainer.Add(audioContainer);
 
       var pictureContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_IMAGES_KEY, this) { Title = "Images" };
@@ -450,10 +451,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       RootContainer.Add(pictureContainer);
 
       var videoContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY, this) { Title = "Video" };
+      videoContainer.Add(new MediaLibraryMovieGenreContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "G", this) { Title = "Genres" });
       videoContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "VS", this, "Video") { Title = "Shares" });
-      videoContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MS", this, "Movie") { Title = "Movie Shares" });
-      videoContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "SS", this, "Series") { Title = "Series Shares" });
-      videoContainer.Add(new MediaLibraryGenreContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "G", this) { Title = "Genres" });
       RootContainer.Add(videoContainer);
 
       RootContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_MEDIA_SHARES_KEY, this) { Title = "Shares" });

@@ -23,31 +23,29 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
-using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Common.General;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common;
+using System.Collections.Generic;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.MediaServer.Tree;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MediaServer.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryAlbumContainer : BasicContainer
+  internal class MediaLibraryMovieGenreContainer : BasicContainer
   {
     protected Guid ObjectId { get; set; }
     protected string BaseKey { get; set; }
 
     private bool _initialised = false;
-    private Dictionary<string, MediaLibraryAlbumItem> _albumDictionary = new Dictionary<string, MediaLibraryAlbumItem>();
+    private Dictionary<string, MediaLibraryMovieGenreItem> _genreDictionary = new Dictionary<string, MediaLibraryMovieGenreItem>();
 
-    public MediaLibraryAlbumContainer(string id, EndPointSettings client)
+    public MediaLibraryMovieGenreContainer(string id, EndPointSettings client)
       : base(id, client)
     {
       BaseKey = MediaLibraryHelper.GetBaseKey(id);
@@ -56,7 +54,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-      HomogenousMap items = Albums();
+      _genreDictionary.Clear();
+      HomogenousMap items = MovieGenres();
       foreach (var item in items)
       {
         try
@@ -66,12 +65,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
             title = "<Unknown>";
           string key = Id + ":" + title;
 
-          _albumDictionary.Add(key, new MediaLibraryAlbumItem(key, title, Client));
+          _genreDictionary.Add(key, new MediaLibraryMovieGenreItem(key, title, Client));
           _initialised = true;
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Music genre initialise failed", e);
+          ServiceRegistration.Get<ILogger>().Error("Movie genre initialise failed", e);
         }
       }
     }
@@ -81,8 +80,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       get
       {
         if (!_initialised) Initialise();
-        return ChildCount = _albumDictionary.Count;
+        return ChildCount = _genreDictionary.Count;
       }
+      set { }
     }
 
     public override TreeNode<object> FindNode(string key)
@@ -91,28 +91,29 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       if (key == Key) return this;
 
       if (!_initialised) Initialise();
-      MediaLibraryAlbumItem container;
-      _albumDictionary.TryGetValue(key, out container);
+      MediaLibraryMovieGenreItem container;
+      _genreDictionary.TryGetValue(key, out container);
       return container;
     }
 
-    private HomogenousMap Albums()
+    private HomogenousMap MovieGenres()
     {
-        var necessaryMiaTypeIDs = new Guid[]
+      var necessaryMiaTypeIDs = new Guid[]
                                   {
                                     MediaAspect.ASPECT_ID,
-                                    DlnaItemAudioAspect.ASPECT_ID
+                                    MovieAspect.ASPECT_ID,
+                                    DlnaItemVideoAspect.ASPECT_ID
                                   };
-        var library = ServiceRegistration.Get<IMediaLibrary>();
+      var library = ServiceRegistration.Get<IMediaLibrary>();
 
-        return library.GetValueGroups(AudioAspect.ATTR_ALBUM, null, ProjectionFunction.None, necessaryMiaTypeIDs, null, true);
+      return library.GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMiaTypeIDs, null, true);
     }
 
     public override List<IDirectoryObject> Search(string filter, string sortCriteria)
     {
       if (!_initialised) Initialise();
       var result = new List<IDirectoryObject>();
-      foreach (var item in _albumDictionary.Values)
+      foreach (var item in _genreDictionary.Values)
       {
         try
         {
@@ -125,7 +126,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Album search failed", e);
+          ServiceRegistration.Get<ILogger>().Error("Movie genre search failed", e);
         }
       }
       return result;

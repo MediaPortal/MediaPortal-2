@@ -131,7 +131,10 @@
     <Compile Include="Objects\MediaLibrary\MediaLibraryAudioItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryContainer.cs" />
     <Compile Include="DIDL\ObjectRenderer.cs" />
-    <Compile Include="Objects\MediaLibrary\MediaLibraryGenreContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMusicGenreContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieGenreContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieGenreItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMusicGenreItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryHelper.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryImageItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryItem.cs" />
