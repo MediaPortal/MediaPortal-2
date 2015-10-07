@@ -29,6 +29,11 @@
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF003366"/>
   <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#FFFFFF"/>
 
+  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#000000"/>
+  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="#FFFFFF"/>
+  <ResourceWrapper x:Key="TextBoxDisabledBackgroundColor" Resource="#CCCCCC"/>
+
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
   <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00A0C0FF" />

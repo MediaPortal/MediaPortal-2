@@ -378,7 +378,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource HomeButtonStyle}" Margin="8"
+          <Button Style="{ThemeResource HomeButtonStyle}" Margin="5"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>             
@@ -1076,6 +1076,57 @@
     </Setter>
   </Style>
 
+  <!--*****************Textbox *********************styles-->
+  <Style x:Key="DefaultTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+              BorderThickness="{ThemeResource TextBoxBorderThickness}">
+            <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
+                CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}" Margin="5,0,5,0" 
+                IsEnabled="{TemplateBinding IsEnabled}"/>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
+                <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PasswordTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+              BorderThickness="{ThemeResource TextBoxBorderThickness}" >
+            <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
+                CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}" Margin="5,0,5,0"
+                IsEnabled="{TemplateBinding IsEnabled}" IsPassword="True"/>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
+                <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  
+  
   <Storyboard x:Key="ShowScreenStoryboard" FillBehavior="Stop">
     <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
