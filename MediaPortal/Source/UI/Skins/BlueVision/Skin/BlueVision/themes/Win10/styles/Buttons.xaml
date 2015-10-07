@@ -20,7 +20,7 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
-  
+
     <Storyboard x:Key="FocusedButtonStoryboard_Tile" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
@@ -366,9 +366,8 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
-              RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0" Fill="Gray" Stroke="#213848" StrokeThickness="1">
-            <!--Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1"-->
+              RadiusX="15" RadiusY="15"
+              Margin="0" Fill="Transparent" Stroke="#999999" StrokeThickness="2">
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -425,6 +424,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
+            <Rectangle Grid.Column="0" Grid.Row="0" Fill="#000000" Opacity="0.2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
@@ -436,16 +436,6 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -1176,9 +1166,8 @@
               </Grid.RenderTransform>
               <Control Grid.Column="0" Grid.Row="0" Width="{ThemeResource CheckBoxControlWidth}" Height="{ThemeResource CheckBoxControlHeight}"
                        Style="{ThemeResource DialogButtonControlStyle}"/>
-              <Ellipse Grid.Column="0" Grid.Row="0" Height="26" Width="26" Fill="White" Opacity="0.1" />
-              <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
-                    Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
+              <Ellipse Grid.Column="0" Grid.Row="0" Height="26" Width="26" Fill="#000000" Opacity="0.4" />
+              <Ellipse x:Name="Check" Grid.Column="0" Grid.Row="0" Width="15" Height="15" Visibility="Hidden" Fill="White"/>
             </Grid>
             <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </DockPanel>
@@ -1193,16 +1182,6 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                                 HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">

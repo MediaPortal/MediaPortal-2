@@ -11,6 +11,8 @@
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
+  
 
   <!-- Button background and effects-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#00003366"/>
@@ -21,7 +23,7 @@
   <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF0F3369"/>
   <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF050F20"/>
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#213848"/>
-  <ResourceWrapper x:Key="ButtonFillColor" Resource="#284161"/>
+  <ResourceWrapper x:Key="ButtonFillColor" Resource="#003366"/>
   <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF003366"/>
   <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FF003366"/>
   <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FF003366"/>

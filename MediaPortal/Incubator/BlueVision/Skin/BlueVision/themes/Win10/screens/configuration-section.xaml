@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20"
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="-570,0,20,-100"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Label Color="{ThemeResource HintTextColor}" DockPanel.Dock="Center"
               HorizontalAlignment="Stretch"

@@ -343,7 +343,7 @@
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/> 
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
@@ -405,9 +405,9 @@
   <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
+          HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-45,0,0,0"
           FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-          Opacity="0.6"/>
+          Opacity="1"/> 
     </DockPanel>
   </DataTemplate>
 
@@ -417,8 +417,8 @@
   <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32"
-          Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}" Margin="-40,0,0,0"/> 
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="-40,0,0,0"
           HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
           Color="{ThemeResource TextColor}"/>
     </DockPanel>
