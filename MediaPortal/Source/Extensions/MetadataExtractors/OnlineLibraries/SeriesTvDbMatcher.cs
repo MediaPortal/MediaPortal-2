@@ -182,7 +182,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       episodeInfo.FirstAired = episodes.First().FirstAired;
       episodeInfo.DvdEpisodeNumbers.Clear();
       episodeInfo.DvdEpisodeNumbers.ToList().AddRange(episodes.Select(x => x.DvdEpisodeNumber));
-
+	  
       episodeInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
       episodeInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
       episodeInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
@@ -339,11 +339,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", seriesDetail.SeriesName);
           // Add this match to cache
           SeriesMatch onlineMatch = new SeriesMatch
-          {
-            ItemName = seriesNameOrImdbId,
-            Id = seriesDetail.Id,
-            TvDBName = seriesDetail.SeriesName
-          };
+              {
+                ItemName = seriesNameOrImdbId,
+                Id = seriesDetail.Id,
+                TvDBName = seriesDetail.SeriesName
+              };
 
           // Save cache
           _storage.TryAddMatch(onlineMatch);
