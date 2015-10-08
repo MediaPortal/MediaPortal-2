@@ -61,8 +61,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public int AnalyzerTimeout { get; set; }
     public int AnalyzerMaximumThreads { get; set; }
-    public string SubtitleDefaultEncoding { get; set; }
-    public string SubtitleDefaultLanguage { get; set; }
+   
     public ILogger Logger { get; set;  }
 
     private readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
@@ -72,8 +71,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       AnalyzerTimeout = PROCESS_TIMEOUT_MS;
       AnalyzerMaximumThreads = 0;
-      SubtitleDefaultEncoding = "";
-      SubtitleDefaultLanguage = "";
 
       _h264MaxDpbMbs.Add(1F, 396);
       _h264MaxDpbMbs.Add(1.1F, 396);
@@ -117,14 +114,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // http://stackoverflow.com/questions/4246758/why-doesnt-this-method-redirect-my-output-from-exe-ffmpeg
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("DlnaMediaServer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
         info.Metadata.Mime = MimeTypeDetector.GetMimeType(fileName);
         info.Metadata.Size = lfsra.Size;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
         FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
         FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(ref info);
-        info.Subtitles.AddRange(ParseFileExternalSubtitles(lfsra));
         return info;
       }
 
@@ -165,54 +161,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}'", streamLink);
       
       return null;
-    }
-
-    public List<SubtitleStream> ParseFileExternalSubtitles(ILocalFsResourceAccessor lfsra)
-    {
-      List<SubtitleStream> externalSubtitles = new List<SubtitleStream>();
-      if (lfsra.Exists)
-      {
-        // Impersonation
-        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
-        {
-          string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
-          foreach (string file in files)
-          {
-            SubtitleStream sub = new SubtitleStream();
-            sub.StreamIndex = -1;
-            sub.Codec = SubtitleCodec.Unknown;
-            if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Srt;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Smi;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Ass;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Ssa;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
-            {
-              string subContent = File.ReadAllText(file);
-              if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
-              else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
-            }
-            if (sub.Codec != SubtitleCodec.Unknown)
-            {
-              sub.Source = file;
-              sub.Language = SubtitleAnalyzer.GetLanguage(file, SubtitleDefaultEncoding, SubtitleDefaultLanguage);
-              externalSubtitles.Add(sub);
-            }
-          }
-        }
-      }
-      return externalSubtitles;
     }
   }
 }

@@ -66,7 +66,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       bool notChanged = true;
       notChanged &= video.TargetForceVideoTranscoding == false;
-      notChanged &= (video.TargetSubtitleSupport == SubtitleSupport.None || video.SourceSubtitle == null || (video.TargetSubtitleSupport == SubtitleSupport.HardCoded && supportHardcodedSubs == false));
+      notChanged &= (video.TargetSubtitleSupport == SubtitleSupport.None || video.SourceSubtitleAvailable == false || (video.TargetSubtitleSupport == SubtitleSupport.HardCoded && supportHardcodedSubs == false));
       notChanged &= (video.TargetVideoCodec == VideoCodec.Unknown || video.TargetVideoCodec == video.SourceVideoCodec);
       notChanged &= IsVideoDimensionChanged(video) == false;
       notChanged &= video.TargetVideoBitrate <= 0;

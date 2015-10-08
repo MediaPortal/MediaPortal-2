@@ -42,6 +42,7 @@ using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Utilities.Process;
 using System.Collections.ObjectModel;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
+using System.Globalization;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -56,6 +57,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public int HLSSegmentTimeInSeconds { get; set; }
     public string HLSSegmentFileTemplate { get; set; }
     public string SubtitleDefaultEncoding { get; set; }
+    public string SubtitleDefaultLanguage { get; set; }
     public ILogger Logger { get; set; }
     public bool SupportHardcodedSubs
     {
@@ -76,14 +78,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
     }
     private static Dictionary<string, TranscodeContext> _runningTranscodes = new Dictionary<string,TranscodeContext>();
-    
+    private static FFMpegEncoderHandler _ffMpegEncoderHandler;
+
     private FFMpegCommandline _ffMpegCommandline;
     private bool _supportHardcodedSubs = true;
     private bool _supportNvidiaHW = true;
     private bool _supportIntelHW = true;
-    private FFMpegEncoderHandler _ffMpegEncoderHandler;
     
-
     public MediaConverter()
     {
       InitSettings();
@@ -132,6 +133,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       TranscoderTimeout = 5000;
       HLSSegmentTimeInSeconds = 10;
       HLSSegmentFileTemplate = "segment%05d.ts";
+      SubtitleDefaultLanguage = "";
       SubtitleDefaultEncoding = "";
       TranscoderBinPath = ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath;
       string result;
@@ -160,6 +162,21 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if (Logger != null) Logger.Warn("MediaConverter: FFMPEG is not compiled with libmfx support, Intel hardware acceleration will not work.");
         _supportIntelHW = false;
+      }
+
+      if (TranscodingServicePlugin.IntelHWAccelerationAllowed && _supportIntelHW)
+      {
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.IntelHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.IntelHWSupportedCodecs)) == false)
+        {
+          Logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
+        }
+      }
+      if (TranscodingServicePlugin.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
+      {
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.NvidiaHWSupportedCodecs)) == false)
+        {
+          Logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
+        }
       }
 
       _ffMpegCommandline = new FFMpegCommandline(this);
@@ -377,9 +394,374 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #endregion
 
+    #region Subtitles
+
+    private SubtitleStream FindSubtitle(VideoTranscoding video)
+    {
+      SubtitleStream currentEmbeddedSub = null;
+      SubtitleStream currentExternalSub = null;
+
+      SubtitleStream defaultEmbeddedSub = null;
+      SubtitleStream englishEmbeddedSub = null;
+      List<SubtitleStream> subsEmbedded = new List<SubtitleStream>();
+      List<SubtitleStream> langSubsEmbedded = new List<SubtitleStream>();
+      List<SubtitleStream> allSubs = new List<SubtitleStream>(video.SourceSubtitles);
+      if (video.SourceFile is ILocalFsResourceAccessor)
+      {
+        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)video.SourceFile;
+        allSubs.AddRange(FindExternalSubtitles(lfsra));
+      }
+
+      foreach (SubtitleStream sub in allSubs)
+      {
+        if (sub.IsEmbedded == false)
+        {
+          continue;
+        }
+        if (sub.Default == true)
+        {
+          defaultEmbeddedSub = sub;
+        }
+        else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
+        {
+          englishEmbeddedSub = sub;
+        }
+        if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
+        {
+          string[] langs = video.TargetSubtitleLanguages.Split(',');
+          foreach (string lang in langs)
+          {
+            if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
+            {
+              langSubsEmbedded.Add(sub);
+            }
+          }
+        }
+        else
+        {
+          subsEmbedded.Add(sub);
+        }
+      }
+      if (currentEmbeddedSub == null && langSubsEmbedded.Count > 0)
+      {
+        currentEmbeddedSub = langSubsEmbedded[0];
+      }
+
+      SubtitleStream defaultSub = null;
+      SubtitleStream englishSub = null;
+      List<SubtitleStream> subs = new List<SubtitleStream>();
+      List<SubtitleStream> langSubs = new List<SubtitleStream>();
+      foreach (SubtitleStream sub in allSubs)
+      {
+        if (sub.IsEmbedded == true)
+        {
+          continue;
+        }
+        if (sub.Default == true)
+        {
+          defaultSub = sub;
+        }
+        else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
+        {
+          englishSub = sub;
+        }
+        if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
+        {
+          string[] langs = video.TargetSubtitleLanguages.Split(',');
+          foreach (string lang in langs)
+          {
+            if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
+            {
+              langSubs.Add(sub);
+            }
+          }
+        }
+        else
+        {
+          subs.Add(sub);
+        }
+      }
+      if (currentExternalSub == null && langSubs.Count > 0)
+      {
+        currentExternalSub = langSubs[0];
+      }
+
+      //Best language subtitle
+      if (currentExternalSub != null)
+      {
+        return currentExternalSub;
+      }
+      if (currentEmbeddedSub != null)
+      {
+        return currentEmbeddedSub;
+      }
+
+      //Best default subtitle
+      if (currentExternalSub == null && defaultSub != null)
+      {
+        currentExternalSub = defaultSub;
+      }
+      if (currentEmbeddedSub == null && defaultEmbeddedSub != null)
+      {
+        currentEmbeddedSub = defaultEmbeddedSub;
+      }
+      if (currentExternalSub != null)
+      {
+        return currentExternalSub;
+      }
+      if (currentEmbeddedSub != null)
+      {
+        return currentEmbeddedSub;
+      }
+
+      //Best english
+      if (currentExternalSub == null && englishSub != null)
+      {
+        currentExternalSub = englishSub;
+      }
+      if (currentEmbeddedSub == null && englishEmbeddedSub != null)
+      {
+        currentEmbeddedSub = englishEmbeddedSub;
+      }
+      if (currentExternalSub != null)
+      {
+        return currentExternalSub;
+      }
+      if (currentEmbeddedSub != null)
+      {
+        return currentEmbeddedSub;
+      }
+
+      //Best remaining subtitle
+      if (currentExternalSub == null && subs.Count > 0)
+      {
+        currentExternalSub = subs[0];
+      }
+      if (currentEmbeddedSub == null && subsEmbedded.Count > 0)
+      {
+        currentEmbeddedSub = subsEmbedded[0];
+      }
+      if (currentExternalSub != null)
+      {
+        return currentExternalSub;
+      }
+      if (currentEmbeddedSub != null)
+      {
+        return currentEmbeddedSub;
+      }
+      return null;
+    }
+
+    private List<SubtitleStream> FindExternalSubtitles(ILocalFsResourceAccessor lfsra)
+    {
+      List<SubtitleStream> externalSubtitles = new List<SubtitleStream>();
+      if (lfsra.Exists)
+      {
+        // Impersonation
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+        {
+          string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
+          foreach (string file in files)
+          {
+            SubtitleStream sub = new SubtitleStream();
+            sub.StreamIndex = -1;
+            sub.Codec = SubtitleCodec.Unknown;
+            if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Srt;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Smi;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Ass;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.Ssa;
+            }
+            else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
+            {
+              string subContent = File.ReadAllText(file);
+              if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
+              else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
+            }
+            if (sub.Codec != SubtitleCodec.Unknown)
+            {
+              sub.Source = file;
+              sub.Language = SubtitleAnalyzer.GetLanguage(file, SubtitleDefaultEncoding, SubtitleDefaultLanguage);
+              externalSubtitles.Add(sub);
+            }
+          }
+        }
+      }
+      return externalSubtitles;
+    }
+
+    public BufferedStream GetSubtitleStream(VideoTranscoding video)
+    {
+      Subtitle sub = GetSubtitle(video);
+      if (sub == null || sub.SourceFile == null)
+      {
+        return null;
+      }
+      if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
+      {
+        TouchFile(sub.SourceFile);
+      }
+      return GetReadyFileBuffer(sub.SourceFile);
+    }
+
+    private bool SubtitleIsUnicode(string encoding)
+    {
+      if (string.IsNullOrEmpty(encoding))
+      {
+        return false;
+      }
+      if (encoding.ToUpperInvariant().StartsWith("UTF-") || encoding.ToUpperInvariant().StartsWith("UNICODE"))
+      {
+        return true;
+      }
+      return false;
+    }
+
+    private Subtitle GetSubtitle(VideoTranscoding video)
+    {
+      SubtitleStream sourceSubtitle = FindSubtitle(video);
+      if (sourceSubtitle == null) return null;
+      if (video.TargetSubtitleSupport == SubtitleSupport.None) return null;
+
+      Subtitle res = new Subtitle
+      {
+        Codec = sourceSubtitle.Codec,
+        Language = sourceSubtitle.Language,
+        SourceFile = sourceSubtitle.Source,
+        CharacterEncoding = SubtitleAnalyzer.GetEncoding(sourceSubtitle.Source, sourceSubtitle.Language, SubtitleDefaultEncoding)
+      };
+
+      // SourceSubtitle == TargetSubtitleCodec -> just return
+      if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == sourceSubtitle.Codec)
+      {
+        return res;
+      }
+
+      // create a file name for the output file which contains the subtitle informations
+      string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
+      if (sourceSubtitle != null && string.IsNullOrEmpty(sourceSubtitle.Language) == false)
+      {
+        transcodingFile += "." + sourceSubtitle.Language;
+      }
+      transcodingFile += ".mpts";
+      SubtitleCodec targetCodec = video.TargetSubtitleCodec;
+      if (targetCodec == SubtitleCodec.Unknown)
+      {
+        targetCodec = sourceSubtitle.Codec;
+      }
+
+      // the file already exists in the cache -> just return
+      if (File.Exists(transcodingFile))
+      {
+        if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
+        {
+          TouchFile(transcodingFile);
+        }
+        res.Codec = targetCodec;
+        res.SourceFile = transcodingFile;
+        if (SubtitleIsUnicode(res.CharacterEncoding) == false)
+        {
+          res.CharacterEncoding = "UTF-8";
+        }
+        return res;
+      }
+
+      // subtitle is embedded in the source file
+      if (sourceSubtitle.IsEmbedded)
+      {
+        _ffMpegCommandline.ExtractSubtitleFile(video, sourceSubtitle, res.CharacterEncoding, transcodingFile);
+        if (File.Exists(transcodingFile))
+        {
+          res.Codec = targetCodec;
+          res.CharacterEncoding = "UTF-8";
+          res.SourceFile = transcodingFile;
+          return res;
+        }
+        return null;
+      }
+
+      // Burn external subtitle into video
+      if (res.SourceFile == null)
+      {
+        return null;
+      }
+
+      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath) { TranscodeId = video.TranscodeId + "_sub" };
+      if (string.IsNullOrEmpty(video.TranscoderBinPath) == false)
+      {
+        data.TranscoderBinPath = video.TranscoderBinPath;
+      }
+      if (string.IsNullOrEmpty(video.TranscoderArguments) == false)
+      {
+        // TODO: not sure if this is working
+        data.TranscoderArguments = video.TranscoderArguments;
+        LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
+        IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
+        data.InputResourceAccessor = resourceAccessor;
+      }
+      else
+      {
+        if (SubtitleIsUnicode(res.CharacterEncoding) == false)
+        {
+          if (string.IsNullOrEmpty(res.CharacterEncoding) == false)
+          {
+            string newFile = transcodingFile.Replace(".mpts", ".utf8.mpts");
+            File.WriteAllText(newFile, File.ReadAllText(res.SourceFile, Encoding.GetEncoding(res.CharacterEncoding)), Encoding.UTF8);
+            res.CharacterEncoding = "UTF-8";
+            res.SourceFile = newFile;
+            if (Logger != null) Logger.Debug("MediaConverter: Converted subtitle file '{0}' to UTF-8 for transcode '{1}'", sourceSubtitle.Source, data.TranscodeId);
+          }
+        }
+
+        // TODO: not sure if this is working
+        LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
+        IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
+        _ffMpegCommandline.InitTranscodingParameters(resourceAccessor, ref data);
+        data.InputArguments.Add(string.Format("-f {0}", FFMpegGetSubtitleContainer.GetSubtitleContainer(sourceSubtitle.Codec)));
+
+        res.Codec = targetCodec;
+        string subtitleEncoder = "copy";
+        if (res.Codec == SubtitleCodec.Unknown)
+        {
+          res.Codec = SubtitleCodec.Ass;
+        }
+        if (sourceSubtitle.Codec != res.Codec)
+        {
+          subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(res.Codec);
+        }
+        string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(res.Codec);
+        data.OutputArguments.Add("-vn");
+        data.OutputArguments.Add("-an");
+        data.OutputArguments.Add(string.Format("-c:s {0}", subtitleEncoder));
+        data.OutputArguments.Add(string.Format("-f {0}", subtitleFormat));
+      }
+      data.OutputFilePath = transcodingFile;
+
+      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode subtitle file '{0}' for transcode '{1}'", res.SourceFile, data.TranscodeId);
+      FFMpegFileProcessor.FileProcessor(ref data, TranscoderTimeout);
+      if (File.Exists(transcodingFile) == true)
+      {
+        res.SourceFile = transcodingFile;
+        return res;
+      }
+      return null;
+    }
+
+    #endregion
+
 
     #region Transcoding
-    
+
     public TranscodeContext GetMediaStream(BaseTranscoding transcodingInfo, bool waitForBuffer)
     {
       InitSettings();
@@ -436,7 +818,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
         //  video.TargetSubtitleCodec = SubtitleCodec.Ass;
         //}
       }
+
       Subtitle currentSub = GetSubtitle(video);
+      if (currentSub != null) video.SourceSubtitleAvailable = true;
+      else video.SourceSubtitleAvailable = false;
       if (currentSub != null && _supportHardcodedSubs == true && (embeddedSupported || video.TargetSubtitleSupport == SubtitleSupport.HardCoded))
       {
         if (string.IsNullOrEmpty(currentSub.Language) == false)
@@ -452,7 +837,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           if (_runningTranscodes.ContainsKey(video.TranscodeId))
           {
-            return _runningTranscodes[video.TranscodeId];
+            context = _runningTranscodes[video.TranscodeId];
           }
         }
         TouchFile(transcodingFile);
@@ -490,9 +875,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         data.TranscoderArguments = video.TranscoderArguments;
         data.InputResourceAccessor = video.SourceFile;
-        if (video.SourceSubtitle != null)
+        if (currentSub != null && string.IsNullOrEmpty(currentSub.SourceFile) == false)
         {
-          data.InputSubtitleFilePath = video.SourceSubtitle.Source;
+          data.InputSubtitleFilePath = currentSub.SourceFile;
         }
         data.OutputFilePath = transcodingFile;
       }
@@ -586,7 +971,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           if (_runningTranscodes.ContainsKey(audio.TranscodeId) == true)
           {
-            return _runningTranscodes[audio.TranscodeId];
+            context = _runningTranscodes[audio.TranscodeId];
           }
         }
         TouchFile(transcodingFile);
@@ -634,7 +1019,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           if (_runningTranscodes.ContainsKey(image.TranscodeId) == true)
           {
-            return _runningTranscodes[image.TranscodeId];
+            context = _runningTranscodes[image.TranscodeId];
           }
         }
         TouchFile(transcodingFile);
@@ -669,162 +1054,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       context.Start();
       context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
       return context;
-    }
-
-    public BufferedStream GetSubtitleStream(VideoTranscoding video)
-    {
-      Subtitle sub = GetSubtitle(video);
-      if (sub == null || sub.SourceFile == null)
-      {
-        return null;
-      }
-      if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
-      {
-        TouchFile(sub.SourceFile);
-      }
-      return GetReadyFileBuffer(sub.SourceFile);
-    }
-
-    private bool SubtitleIsUnicode(string encoding)
-    {
-      if(string.IsNullOrEmpty(encoding))
-      {
-        return false;
-      }
-      if(encoding.ToUpperInvariant().StartsWith("UTF-") || encoding.ToUpperInvariant().StartsWith("UNICODE"))
-      {
-        return true;
-      }
-      return false;
-    }
-
-    private Subtitle GetSubtitle(VideoTranscoding video)
-    {
-      if (video.SourceSubtitle == null) return null;
-      if (video.TargetSubtitleSupport == SubtitleSupport.None) return null;
-
-      Subtitle res = new Subtitle
-      {
-        Codec = video.SourceSubtitle.Codec,
-        Language = video.SourceSubtitle.Language,
-        SourceFile = video.SourceSubtitle.Source,
-        CharacterEncoding = SubtitleAnalyzer.GetEncoding(video.SourceSubtitle.Source, video.SourceSubtitle.Language, SubtitleDefaultEncoding)
-      };
-
-      // SourceSubtitle == TargetSubtitleCodec -> just return
-      if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == video.SourceSubtitle.Codec)
-      {
-        return res;
-      }
-
-      // create a file name for the output file which contains the subtitle informations
-      string transcodingFile = Path.Combine(TranscoderCachePath, video.TranscodeId);
-      if (video.SourceSubtitle != null && string.IsNullOrEmpty(video.SourceSubtitle.Language) == false)
-      {
-        transcodingFile += "." + video.SourceSubtitle.Language;
-      }
-      transcodingFile += ".mpts";
-      SubtitleCodec targetCodec = video.TargetSubtitleCodec;
-      if (targetCodec == SubtitleCodec.Unknown)
-      {
-        targetCodec = video.SourceSubtitle.Codec;
-      }
-
-      // the file already exists in the cache -> just return
-      if (File.Exists(transcodingFile))
-      {
-        if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
-        {
-          TouchFile(transcodingFile);
-        }
-        res.Codec = targetCodec;
-        res.SourceFile = transcodingFile;
-        if (SubtitleIsUnicode(res.CharacterEncoding) == false)
-        {
-          res.CharacterEncoding = "UTF-8";
-        }
-        return res;
-      }
-
-      // subtitle is embedded in the source file
-      if (video.SourceSubtitle.IsEmbedded)
-      {
-        _ffMpegCommandline.ExtractSubtitleFile(video, video.SourceSubtitle, res.CharacterEncoding, transcodingFile);
-        if (File.Exists(transcodingFile))
-        {
-          res.Codec = targetCodec;
-          res.CharacterEncoding = "UTF-8";
-          res.SourceFile = transcodingFile;
-          return res;
-        }
-        return null;
-      }
-
-      // Burn external subtitle into video
-      if (res.SourceFile == null)
-      {
-        return null;
-      }
-
-      FFMpegTranscodeData data = new FFMpegTranscodeData(TranscoderCachePath) { TranscodeId = video.TranscodeId + "_sub" };
-      if (string.IsNullOrEmpty(video.TranscoderBinPath) == false)
-      {
-        data.TranscoderBinPath = video.TranscoderBinPath;
-      }
-      if (string.IsNullOrEmpty(video.TranscoderArguments) == false)
-      {
-        // TODO: not sure if this is working
-        data.TranscoderArguments = video.TranscoderArguments;
-        LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
-        IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
-        data.InputResourceAccessor = resourceAccessor;
-      }
-      else
-      {
-        if (SubtitleIsUnicode(res.CharacterEncoding) == false)
-        {
-          if (string.IsNullOrEmpty(res.CharacterEncoding) == false)
-          {
-            string newFile = transcodingFile.Replace(".mpts", ".utf8.mpts");
-            File.WriteAllText(newFile, File.ReadAllText(res.SourceFile, Encoding.GetEncoding(res.CharacterEncoding)), Encoding.UTF8);
-            res.CharacterEncoding = "UTF-8";
-            res.SourceFile = newFile;
-            if (Logger != null) Logger.Debug("MediaConverter: Converted subtitle file '{0}' to UTF-8 for transcode '{1}'", video.SourceSubtitle.Source, data.TranscodeId);
-          }
-        }
-
-        // TODO: not sure if this is working
-        LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
-        IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
-        _ffMpegCommandline.InitTranscodingParameters(resourceAccessor, ref data);
-        data.InputArguments.Add(string.Format("-f {0}", FFMpegGetSubtitleContainer.GetSubtitleContainer(video.SourceSubtitle.Codec)));
-
-        res.Codec = targetCodec;
-        string subtitleEncoder = "copy";
-        if (res.Codec == SubtitleCodec.Unknown)
-        {
-          res.Codec = SubtitleCodec.Ass;
-        }
-        if (video.SourceSubtitle.Codec != res.Codec)
-        {
-          subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(res.Codec);
-        }
-        string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(res.Codec);
-        data.OutputArguments.Add("-vn");
-        data.OutputArguments.Add("-an");
-        data.OutputArguments.Add(string.Format("-c:s {0}", subtitleEncoder));
-        data.OutputArguments.Add(string.Format("-f {0}", subtitleFormat));
-      }
-      data.OutputFilePath = transcodingFile;
-
-      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to transcode subtitle file '{0}' for transcode '{1}'", res.SourceFile, data.TranscodeId);
-      FFMpegFileProcessor.FileProcessor(ref data, TranscoderTimeout);
-      if (File.Exists(transcodingFile) == true)
-      {
-        res.SourceFile = transcodingFile;
-        return res;
-      }
-      return null;
     }
 
     public BufferedStream GetReadyFileBuffer(ILocalFsResourceAccessor lfsra)

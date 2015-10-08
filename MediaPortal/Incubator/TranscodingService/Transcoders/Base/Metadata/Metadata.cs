@@ -22,8 +22,12 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base.Metadata
@@ -232,7 +236,58 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base.Metadata
       {
         metadata.TargetAudioBitrate = Validators.GetAudioBitrate(video.SourceAudioBitrate, video.TargetAudioBitrate);
       }
+      if (video.TargetSubtitleSupport == SubtitleSupport.SoftCoded)
+      {
+        if (video.SourceSubtitles.Count > 0)
+        {
+          metadata.TargetSubtitled = true;
+        }
+        else
+        {
+          metadata.TargetSubtitled = IsExternalSubtitleAvaialable(video);
+        }
+      }
       return metadata;
+    }
+
+    private bool IsExternalSubtitleAvaialable(VideoTranscoding video)
+    {
+      if (video.SourceFile is ILocalFsResourceAccessor)
+      {
+        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)video.SourceFile;
+        if (lfsra.Exists)
+        {
+          // Impersonation
+          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+          {
+            string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
+            foreach (string file in files)
+            {
+              if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
+              {
+                return true;
+              }
+              else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
+              {
+                return true;
+              }
+              else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
+              {
+                return true;
+              }
+              else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
+              {
+                return true;
+              }
+              else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
+              {
+                return true;
+              }
+            }
+          }
+        }
+      }
+      return false;
     }
   }
 }

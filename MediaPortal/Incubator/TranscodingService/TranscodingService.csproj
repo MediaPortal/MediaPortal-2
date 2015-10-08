@@ -51,8 +51,18 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Aspects\TranscodeItemAudioAspect.cs" />
+    <Compile Include="Aspects\TranscodeItemImageAspect.cs" />
+    <Compile Include="Aspects\TranscodeItemVideoAspect.cs" />
     <Compile Include="H264Analyzer.cs" />
     <Compile Include="Interfaces\IMediaAnalyzer.cs" />
+    <Compile Include="MetadataExtractors\TranscodeAudioMetadataExtractor.cs" />
+    <Compile Include="MetadataExtractors\TranscodeImageMetadataExtractor.cs" />
+    <Compile Include="MetadataExtractors\TranscodeVideoMetadataExtractor.cs" />
+    <Compile Include="MetadataExtractors\Settings\TranscodeAudioMetadataExtractorSettings.cs" />
+    <Compile Include="MetadataExtractors\Settings\TranscodeImageMetadataExtractorSettings.cs" />
+    <Compile Include="MetadataExtractors\Settings\TranscodeVideoMetadataExtractorSettings.cs" />
+    <Compile Include="TranscodingServicePlugin.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="MediaAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -112,7 +122,9 @@
       <Name>FFMpegLib</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <PropertyGroup>

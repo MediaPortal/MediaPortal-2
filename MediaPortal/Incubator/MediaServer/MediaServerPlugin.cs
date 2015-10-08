@@ -55,38 +55,10 @@ namespace MediaPortal.Extensions.MediaServer
 
     public const string DEVICE_UUID = "45F2C54D-8C0A-4736-AA04-E6F91CD45457";
 
+    private const string SETTINGS_FILE = "MediaPortal.Extensions.MediaServer.Settings.xml";
+
     public static bool TranscodingAllowed { get; private set; }
     public static bool HardcodedSubtitlesAllowed { get; private set; }
-    public static string TranscoderCachePath { get; private set; }
-    public static long TranscoderMaximumCacheSizeInGB { get; private set; }
-    public static long TranscodeMaximumCacheAgeInDays { get; private set; }
-    public static int TranscoderMaximumThreads { get; private set; }
-    public static int TranscoderTimeout { get; private set; }
-    public static int HLSSegmentTimeInSeconds { get; private set; }
-    public static string HLSSegmentFileTemplate { get; private set; }
-    public static string SubtitleDefaultEncoding { get; private set; }
-    public static string SubtitleDefaultLanguage { get; private set; }
-    public static bool NvidiaHWAccelerationAllowed { get; private set; }
-    public static bool IntelHWAccelerationAllowed { get; private set; }
-    public static int NvidiaHWMaximumStreams { get; private set; }
-    public static int IntelHWMaximumStreams { get; private set; }
-    public static ReadOnlyCollection<VideoCodec> NvidiaHWSupportedCodecs
-    {
-      get
-      {
-        return _nvidiaCodecs.AsReadOnly();
-      }
-    }
-    public static ReadOnlyCollection<VideoCodec> IntelHWSupportedCodecs 
-    { 
-      get 
-      {
-        return _intelCodecs.AsReadOnly(); 
-      } 
-    }
-
-    private static List<VideoCodec> _intelCodecs = new List<VideoCodec>() {VideoCodec.Mpeg2, VideoCodec.H264, VideoCodec.H265};
-    private static List<VideoCodec> _nvidiaCodecs = new List<VideoCodec>() {VideoCodec.H264, VideoCodec.H265};
 
     public MediaServerPlugin()
     {
@@ -96,19 +68,6 @@ namespace MediaPortal.Extensions.MediaServer
 
       TranscodingAllowed = true;
       HardcodedSubtitlesAllowed = true;
-      TranscoderMaximumCacheSizeInGB = 0; //GB
-      TranscodeMaximumCacheAgeInDays = 30; //Days
-      TranscoderMaximumThreads = 0;
-      TranscoderCachePath = Path.Combine(Path.GetTempPath(), "MPTranscodes");
-      TranscoderTimeout = 5000;
-      HLSSegmentTimeInSeconds = 10;
-      HLSSegmentFileTemplate = "segment%05d.ts";
-      SubtitleDefaultEncoding = "";
-      SubtitleDefaultLanguage = "";
-      NvidiaHWAccelerationAllowed = false;
-      NvidiaHWMaximumStreams = 2; //For Gforce GPU
-      IntelHWAccelerationAllowed = false;
-      IntelHWMaximumStreams = 0;
     }
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -121,17 +80,17 @@ namespace MediaPortal.Extensions.MediaServer
       Logger.Debug("MediaServerPlugin: Adding UPNP device as a root device");
       ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.AddRootDevice(_device);
 
-      LoadTranscodeSettings();
+      LoadSettings();
       ProfileManager.LoadProfiles();
       ProfileManager.LoadProfileLinks();
       ProfileManager.LoadPreferredLanguages();
     }
 
-    private void LoadTranscodeSettings()
+    private void LoadSettings()
     {
       IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string dataPath = pathManager.GetPath("<CONFIG>");
-      string settingsFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.Settings.xml");
+      string settingsFile = Path.Combine(dataPath, SETTINGS_FILE);
       if (File.Exists(settingsFile) == true)
       {
         XmlDocument document = new XmlDocument();
@@ -146,15 +105,7 @@ namespace MediaPortal.Extensions.MediaServer
         {
           foreach (XmlNode childNode in node.ChildNodes)
           {
-            if (childNode.Name == "TranscoderCachePath")
-            {
-              TranscoderCachePath = childNode.InnerText;
-              if (Directory.Exists(TranscoderCachePath) == false)
-              {
-                Directory.CreateDirectory(TranscoderCachePath);
-              }
-            }
-            else if (childNode.Name == "TranscodingAllowed")
+            if (childNode.Name == "TranscodingAllowed")
             {
               TranscodingAllowed = Convert.ToInt32(childNode.InnerText) > 0;
             }
@@ -162,90 +113,16 @@ namespace MediaPortal.Extensions.MediaServer
             {
               HardcodedSubtitlesAllowed = Convert.ToInt32(childNode.InnerText) > 0;
             }
-            else if (childNode.Name == "TranscoderMaximumCacheSizeInGB")
-            {
-              TranscoderMaximumCacheSizeInGB = Convert.ToInt64(childNode.InnerText);
-            }
-            else if (childNode.Name == "TranscodeMaximumCacheAgeInDays")
-            {
-              TranscodeMaximumCacheAgeInDays = Convert.ToInt64(childNode.InnerText);
-            }
-            else if (childNode.Name == "TranscoderMaximumThreads")
-            {
-              TranscoderMaximumThreads = Convert.ToInt32(childNode.InnerText);
-            }
-            else if (childNode.Name == "TranscoderTimeout")
-            {
-              TranscoderTimeout = Convert.ToInt32(childNode.InnerText);
-            }
-            else if (childNode.Name == "HLSSegmentTimeInSeconds")
-            {
-              HLSSegmentTimeInSeconds = Convert.ToInt32(childNode.InnerText);
-            }
-            else if (childNode.Name == "HLSSegmentFileTemplate")
-            {
-              HLSSegmentFileTemplate = childNode.InnerText;
-            }
-            else if (childNode.Name == "SubtitleDefaultEncoding")
-            {
-              SubtitleDefaultEncoding = childNode.InnerText;
-            }
-            else if (childNode.Name == "SubtitleDefaultLanguage")
-            {
-              SubtitleDefaultLanguage = childNode.InnerText;
-            }
-            else if (childNode.Name == "IntelHWAccelerationAllowed")
-            {
-              IntelHWAccelerationAllowed = Convert.ToInt32(childNode.InnerText) > 0;
-            }
-            else if (childNode.Name == "IntelHWMaximumStreams")
-            {
-              IntelHWMaximumStreams = Convert.ToInt32(childNode.InnerText);
-            }
-            else if (childNode.Name == "IntelHWSupportedCodecs")
-            {
-              _intelCodecs.Clear();
-              string[] codecs = childNode.InnerText.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
-              foreach(string codec in codecs)
-              {
-                VideoCodec vCodec;
-                if(Enum.TryParse<VideoCodec>(codec, out vCodec) == true)
-                {
-                  _intelCodecs.Add(vCodec);
-                }
-              }
-            }
-            else if (childNode.Name == "NvidiaHWAccelerationAllowed")
-            {
-              NvidiaHWAccelerationAllowed = Convert.ToInt32(childNode.InnerText) > 0;
-            }
-            else if (childNode.Name == "NvidiaHWMaximumStreams")
-            {
-              NvidiaHWMaximumStreams = Convert.ToInt32(childNode.InnerText);
-            }
-            else if (childNode.Name == "NvidiaHWSupportedCodecs")
-            {
-              _nvidiaCodecs.Clear();
-              string[] codecs = childNode.InnerText.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
-              foreach(string codec in codecs)
-              {
-                VideoCodec vCodec;
-                if(Enum.TryParse<VideoCodec>(codec, out vCodec) == true)
-                {
-                  _nvidiaCodecs.Add(vCodec);
-                }
-              }
-            }
           }
         }
       }
     }
 
-    private void SaveTranscodeSettings()
+    private void SaveSettings()
     {
       IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string dataPath = pathManager.GetPath("<CONFIG>");
-      string settingsFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.Settings.xml");
+      string settingsFile = Path.Combine(dataPath, SETTINGS_FILE);
       XmlDocument document = new XmlDocument();
       if (File.Exists(settingsFile) == true)
       {
@@ -273,56 +150,11 @@ namespace MediaPortal.Extensions.MediaServer
       {
         node.RemoveAll();
 
-        XmlElement elem = document.CreateElement("TranscoderCachePath");
-        elem.InnerText = TranscoderCachePath;
-        node.AppendChild(elem);
-        elem = document.CreateElement("TranscodingAllowed");
+        XmlElement elem = document.CreateElement("TranscodingAllowed");
         elem.InnerText = Convert.ToString(TranscodingAllowed ? 1 : 0);
         node.AppendChild(elem);
         elem = document.CreateElement("HardcodedSubtitlesAllowed");
         elem.InnerText = Convert.ToString(HardcodedSubtitlesAllowed ? 1 : 0);
-        node.AppendChild(elem);
-        elem = document.CreateElement("TranscoderMaximumCacheSizeInGB");
-        elem.InnerText = Convert.ToString(TranscoderMaximumCacheSizeInGB);
-        node.AppendChild(elem);
-        elem = document.CreateElement("TranscodeMaximumCacheAgeInDays");
-        elem.InnerText = Convert.ToString(TranscodeMaximumCacheAgeInDays);
-        node.AppendChild(elem);
-        elem = document.CreateElement("TranscoderMaximumThreads");
-        elem.InnerText = Convert.ToString(TranscoderMaximumThreads);
-        node.AppendChild(elem);
-        elem = document.CreateElement("TranscoderTimeout");
-        elem.InnerText = Convert.ToString(TranscoderTimeout);
-        node.AppendChild(elem);
-        elem = document.CreateElement("HLSSegmentTimeInSeconds");
-        elem.InnerText = Convert.ToString(HLSSegmentTimeInSeconds);
-        node.AppendChild(elem);
-        elem = document.CreateElement("HLSSegmentFileTemplate");
-        elem.InnerText = HLSSegmentFileTemplate;
-        node.AppendChild(elem);
-        elem = document.CreateElement("SubtitleDefaultEncoding");
-        elem.InnerText = SubtitleDefaultEncoding;
-        node.AppendChild(elem);
-        elem = document.CreateElement("SubtitleDefaultLanguage");
-        elem.InnerText = SubtitleDefaultLanguage;
-        node.AppendChild(elem);
-        elem = document.CreateElement("IntelHWAccelerationAllowed");
-        elem.InnerText = Convert.ToString(IntelHWAccelerationAllowed ? 1 : 0);
-        node.AppendChild(elem);
-        elem = document.CreateElement("IntelHWMaximumStreams");
-        elem.InnerText = Convert.ToString(IntelHWMaximumStreams);
-        node.AppendChild(elem);
-        elem = document.CreateElement("IntelHWSupportedCodecs");
-        elem.InnerText = string.Join(",", IntelHWSupportedCodecs);
-        node.AppendChild(elem);
-        elem = document.CreateElement("NvidiaHWAccelerationAllowed");
-        elem.InnerText = Convert.ToString(NvidiaHWAccelerationAllowed ? 1 : 0);
-        node.AppendChild(elem);
-        elem = document.CreateElement("NvidiaHWMaximumStreams");
-        elem.InnerText = Convert.ToString(NvidiaHWMaximumStreams);
-        node.AppendChild(elem);
-        elem = document.CreateElement("NvidiaHWSupportedCodecs");
-        elem.InnerText = string.Join(",", NvidiaHWSupportedCodecs);
         node.AppendChild(elem);
       }
 
@@ -348,12 +180,12 @@ namespace MediaPortal.Extensions.MediaServer
 
     public void Continue()
     {
-      LoadTranscodeSettings();
+      LoadSettings();
     }
 
     public void Shutdown()
     {
-      SaveTranscodeSettings();
+      SaveSettings();
       ProfileManager.SavePreferredLanguages();
       DlnaResourceAccessModule.Shutdown();
     }
@@ -369,7 +201,7 @@ namespace MediaPortal.Extensions.MediaServer
       {
         if (((SystemMessaging.MessageType)message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
         {
-          SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+          SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
           if (newState == SystemState.Running)
           {
             RegisterWithServices();

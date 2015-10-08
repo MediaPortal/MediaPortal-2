@@ -25,14 +25,14 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MediaServer.Aspects
+namespace MediaPortal.Plugins.Transcoding.Aspects
 {
-  public class DlnaItemVideoAspect
+  public class TranscodeItemVideoAspect
   {
     /// <summary>
     /// Media item aspect id of the recording aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("6a7f6e4d-81ed-45c5-9932-a26795864330");
+    public static readonly Guid ASPECT_ID = new Guid("C267359B-9243-4DAE-8C59-91D20B54BC3F");
 
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CONTAINER =
       MediaItemAspectMetadata.CreateStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MediaServer.Aspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("EmbeddedSubDefaults", 1, Cardinality.ManyToMany, false);
 
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
-        ASPECT_ID, "DlnaItemVideo", new[] {
+        ASPECT_ID, "TranscodeItemVideo", new[] {
             ATTR_CONTAINER,
             ATTR_STREAM,
             ATTR_CODEC,

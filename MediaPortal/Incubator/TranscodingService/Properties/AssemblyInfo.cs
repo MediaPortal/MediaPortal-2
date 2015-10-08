@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("TranscodingService")]
-[assembly: AssemblyDescription("Transcoding library for MediaPortal 2")]
+[assembly: AssemblyDescription("Transcoding service for MediaPortal 2")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

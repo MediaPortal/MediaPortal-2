@@ -25,25 +25,37 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MediaServer.Aspects
+namespace MediaPortal.Plugins.Transcoding.Aspects
 {
-  public class DlnaItemImageAspect
+  public class TranscodeItemAudioAspect
   {
     /// <summary>
     /// Media item aspect id of the recording aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("04fc0c49-876c-4faa-a9c1-c707fb14aa19");
+    public static readonly Guid ASPECT_ID = new Guid("B387AE89-803E-494E-87AC-D763DE09EAC0");
 
     public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CONTAINER =
       MediaItemAspectMetadata.CreateStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PIXEL_FORMAT =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("PixelFmt", 10, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STREAM =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Stream", typeof(int), Cardinality.Inline, false);
+
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CODEC =
+      MediaItemAspectMetadata.CreateStringAttributeSpecification("Codec", 20, Cardinality.Inline, false);
+
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CHANNELS =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Channels", typeof(int), Cardinality.Inline, false);
+
+    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FREQUENCY =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Frequency", typeof(long), Cardinality.Inline, false);
 
     public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
-           ASPECT_ID, "DlnaItemImage", new[] {
+        ASPECT_ID, "TranscodeItemAudio", new[] {
             ATTR_CONTAINER,
-            ATTR_PIXEL_FORMAT
+            ATTR_STREAM,
+            ATTR_CODEC,
+            ATTR_CHANNELS,
+            ATTR_FREQUENCY
         });
   }
 }

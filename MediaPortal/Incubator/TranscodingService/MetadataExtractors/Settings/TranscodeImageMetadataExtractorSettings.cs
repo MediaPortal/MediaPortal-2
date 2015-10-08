@@ -25,39 +25,32 @@
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MediaServer.MetadataExtractors.Settings
+namespace MediaPortal.Plugins.Transcoding.MetadataExtractors.Settings
 {
-  public class DlnaAudioMetadataExtractorSettings
+  public class TranscodeImageMetadataExtractorSettings
   {
-    protected readonly static List<string> DEFAULT_AUDIO_FILE_EXTENSIONS = new List<string>
+    protected readonly static List<string> DEFAULT_IMAGE_FILE_EXTENSIONS = new List<string>
       {
-          ".ape",
-          ".flac",
-          ".mp3",
-          ".ogg",
-          ".wv",
-          ".wav",
-          ".wma",
-          ".mp4",
-          ".m4a",
-          ".m4p",
-          ".mpc",
-          ".mp+",
-          ".mpp",
-          ".dsf",
-          ".dff",
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".bmp",
+          ".gif",
+          ".tga",
+          ".tiff",
+          ".tif",
       };
 
-    protected List<string> _audioExtensions = new List<string>(DEFAULT_AUDIO_FILE_EXTENSIONS);
+    protected List<string> _imageFileExtensions = new List<string>(DEFAULT_IMAGE_FILE_EXTENSIONS);
 
     /// <summary>
-    /// Audio extensions for which the <see cref="AudioMetadataExtractor"/> should be used.
+    /// Image file extensions for which the <see cref="TranscodeImageMetadataExtractor"/> should be used.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> AudioExtensions
+    public List<string> ImageFileExtensions
     {
-      get { return _audioExtensions; }
-      set { _audioExtensions = value; }
+      get { return _imageFileExtensions; }
+      set { _imageFileExtensions = value; }
     }
   }
 }

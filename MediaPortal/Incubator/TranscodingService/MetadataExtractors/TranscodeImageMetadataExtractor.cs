@@ -33,148 +33,78 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
 using System.Globalization;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
-using MediaPortal.Extensions.MediaServer.MetadataExtractors.Settings;
 using MediaPortal.Common.Settings;
 using System.Linq;
+using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.MetadataExtractors.Settings;
 
-namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
+namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
 {
-  public class DlnaImageMetadataExtractor : IMetadataExtractor
+  public class TranscodeImageMetadataExtractor : IMetadataExtractor
   {
     /// <summary>
     /// Image metadata extractor GUID.
     /// </summary>
-    public static Guid MetadataExtractorId = new Guid("C34C94FF-AD39-4162-80A5-38CFC3B291C2");
+    public static Guid MetadataExtractorId = new Guid("DFC8E367-C255-4B54-8FC9-236D4C6EBA55");
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Image };
     protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
 
     private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
 
-    static DlnaImageMetadataExtractor()
+    static TranscodeImageMetadataExtractor()
     {
-      //ImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImageMetadataExtractorSettings>();
-      //InitializeExtensions(settings);
-
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.AnalyzerMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.TranscoderMaximumThreads;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(DlnaItemImageAspect.Metadata);
-      DlnaImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<DlnaImageMetadataExtractorSettings>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemImageAspect.Metadata);
+      TranscodeImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeImageMetadataExtractorSettings>();
       InitializeExtensions(settings);
     }
 
     /// <summary>
-    /// (Re)initializes the movie extensions for which this <see cref="ImageMetadataExtractorSettings"/> used.
+    /// (Re)initializes the movie extensions for which this <see cref="TranscodeImageMetadataExtractorSettings"/> used.
     /// </summary>
     /// <param name="settings">Settings object to read the data from.</param>
-    internal static void InitializeExtensions(DlnaImageMetadataExtractorSettings settings)
+    internal static void InitializeExtensions(TranscodeImageMetadataExtractorSettings settings)
     {
       IMAGE_FILE_EXTENSIONS = new List<string>(settings.ImageFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
-    public DlnaImageMetadataExtractor()
+    public TranscodeImageMetadataExtractor()
     {
       Metadata = new MetadataExtractorMetadata(
         MetadataExtractorId,
-        "DLNA image metadata extractor",
+        "Transcode image metadata extractor",
         MetadataExtractorPriority.Core,
         true,
         MEDIA_CATEGORIES,
         new[]
           {
             MediaAspect.Metadata,
-            DlnaItemImageAspect.Metadata
+            TranscodeItemImageAspect.Metadata
           });
     }
-
-    #region Static methods
-
-    public static MetadataContainer ParseMediaItem(MediaItem item)
-    {
-      MetadataContainer info = new MetadataContainer();
-      IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
-      if (mediaItemAccessor is IFileSystemResourceAccessor)
-      {
-        using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
-        {
-          if (!fsra.IsFile)
-            return null;
-          using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-          {
-            info.Metadata.Source = lfsra;
-            info.Metadata.Size = lfsra.Size;
-          }
-        }
-      }
-
-      if (item.Aspects.ContainsKey(DlnaItemImageAspect.ASPECT_ID) == true)
-      {
-        object oValue = null;
-        oValue = item.Aspects[DlnaItemImageAspect.ASPECT_ID].GetAttributeValue(DlnaItemImageAspect.ATTR_CONTAINER);
-        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
-        {
-          info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
-        }
-        oValue = item.Aspects[DlnaItemImageAspect.ASPECT_ID].GetAttributeValue(DlnaItemImageAspect.ATTR_PIXEL_FORMAT);
-        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
-        {
-          info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
-        }
-        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
-        {
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
-          if (oValue != null)
-          {
-            info.Image.Height = Convert.ToInt32(oValue);
-          }
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_WIDTH);
-          if (oValue != null)
-          {
-            info.Image.Width = Convert.ToInt32(oValue);
-          }
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
-          if (oValue != null)
-          {
-            info.Image.Orientation = Convert.ToInt32(oValue);
-          }
-        }
-        if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
-        {
-          oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
-          if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
-          {
-            info.Metadata.Mime = oValue.ToString();
-          }
-        }
-      }
-      return info;
-    }
-
-    public static bool HasImageExtension(string fileName)
-    {
-      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
-      return IMAGE_FILE_EXTENSIONS.Contains(ext);
-    }
-
-    #endregion
 
     #region IMetadataExtractor implementation
 
     public MetadataExtractorMetadata Metadata { get; private set; }
+
+    private bool HasImageExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return IMAGE_FILE_EXTENSIONS.Contains(ext);
+    }
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
@@ -227,15 +157,15 @@ namespace MediaPortal.Extensions.MediaServer.MetadataExtractors
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here.
-        Logger.Info("DlnaMediaServer: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+        Logger.Info("TranscodeMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }
 
     private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemImageAspect.ATTR_CONTAINER, info.Metadata.ImageContainerType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, DlnaItemImageAspect.ATTR_PIXEL_FORMAT, info.Image.PixelFormatType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_CONTAINER, info.Metadata.ImageContainerType.ToString());
+      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_PIXEL_FORMAT, info.Image.PixelFormatType.ToString());
     }
   
     #endregion

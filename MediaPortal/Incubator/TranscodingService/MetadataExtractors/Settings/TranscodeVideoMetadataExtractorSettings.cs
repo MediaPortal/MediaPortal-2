@@ -25,32 +25,40 @@
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MediaServer.MetadataExtractors.Settings
+namespace MediaPortal.Plugins.Transcoding.MetadataExtractors.Settings
 {
-  public class DlnaImageMetadataExtractorSettings
+  public class TranscodeVideoMetadataExtractorSettings
   {
-    protected readonly static List<string> DEFAULT_IMAGE_FILE_EXTENSIONS = new List<string>
+    // Don't add .ifo here because they are processed while processing the video DVD directory
+    protected readonly static List<string> DEFAULT_VIDEO_FILE_EXTENSIONS = new List<string>
       {
-          ".jpg",
-          ".jpeg",
-          ".png",
-          ".bmp",
-          ".gif",
-          ".tga",
-          ".tiff",
-          ".tif",
+          ".mkv",
+          ".mk3d",
+          ".ogm",
+          ".avi",
+          ".wmv",
+          ".mpg",
+          ".mp4",
+          ".m4v",
+          ".ts",
+          ".flv",
+          ".m2ts",
+          ".mts",
+          ".mov",
+          ".wtv",
+          ".dvr-ms",
       };
 
-    protected List<string> _imageFileExtensions = new List<string>(DEFAULT_IMAGE_FILE_EXTENSIONS);
+    protected List<string> _videoFileExtensions = new List<string>(DEFAULT_VIDEO_FILE_EXTENSIONS);
 
     /// <summary>
-    /// Image file extensions for which the <see cref="ImageMetadataExtractor"/> should be used.
+    /// Video extensions for which the <see cref="TranscodeVideoMetadataExtractor"/> should be used.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> ImageFileExtensions
+    public List<string> VideoFileExtensions
     {
-      get { return _imageFileExtensions; }
-      set { _imageFileExtensions = value; }
+      get { return _videoFileExtensions; }
+      set { _videoFileExtensions = value; }
     }
   }
 }
