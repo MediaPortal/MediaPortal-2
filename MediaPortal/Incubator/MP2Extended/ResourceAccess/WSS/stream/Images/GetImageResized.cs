@@ -11,6 +11,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -26,18 +27,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       string borders = httpParam["borders"].Value;
 
       if (id == null)
-        throw new BadRequestException("GetImage: id is null");
+        throw new BadRequestException("GetImageResized: id is null");
       if (maxWidth == null)
-        throw new BadRequestException("GetArtworkResized: maxWidth is null");
+        throw new BadRequestException("GetImageResized: maxWidth is null");
       if (maxHeight == null)
-        throw new BadRequestException("GetArtworkResized: maxHeight is null");
+        throw new BadRequestException("GetImageResized: maxHeight is null");
+
+      Guid idGuid;
+      if (!Guid.TryParse(id, out idGuid))
+        throw new BadRequestException(String.Format("GetImageResized: Couldn't parse if '{0}' to Guid", id));
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(idGuid, necessaryMIATypes);
 
       var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
@@ -51,21 +56,33 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       int maxWidthInt;
       if (!Int32.TryParse(maxWidth, out maxWidthInt))
       {
-        throw new BadRequestException(String.Format("GetArtworkResized: Couldn't convert maxWidth to int: {0}", maxWidth));
+        throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxWidth to int: {0}", maxWidth));
       }
 
       int maxHeightInt;
       if (!Int32.TryParse(maxHeight, out maxHeightInt))
       {
-        throw new BadRequestException(String.Format("GetArtworkResized: Couldn't convert maxHeight to int: {0}", maxHeight));
+        throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxHeight to int: {0}", maxHeight));
       }
 
       byte[] resizedImage;
-      using (var resourceStream = fsra.OpenRead())
+
+      if (ImageCache.TryGetImageFromCache(idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders, out resizedImage))
       {
-        byte[] buffer = new byte[resourceStream.Length];
-        resourceStream.Read(buffer, 0, Convert.ToInt32(resourceStream.Length));
-        resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(buffer, maxWidthInt, maxHeightInt, borders);
+        Logger.Info("GetImageResized: Got image from cache");
+      }
+      else
+      {
+        using (var resourceStream = fsra.OpenRead())
+        {
+          byte[] buffer = new byte[resourceStream.Length];
+          resourceStream.Read(buffer, 0, Convert.ToInt32(resourceStream.Length));
+          resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(buffer, maxWidthInt, maxHeightInt, borders);
+        }
+
+        // Add to cache
+        if (ImageCache.AddImageToCache(resizedImage, idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders))
+          Logger.Info("GetImageResized: Added image to cache");
       }
 
 

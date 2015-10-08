@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
@@ -15,6 +16,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   {
     public byte[] Process(IHttpRequest request)
     {
+      Stopwatch stopWatch = new Stopwatch();
+      stopWatch.Start();
+      
       HttpParam httpParam = request.Param;
       string id = httpParam["id"].Value;
       string artworktype = httpParam["artworktype"].Value;
@@ -55,13 +59,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       }
 
       Guid idGuid;
-      if (!Guid.TryParse(id, out idGuid))
-        throw new BadRequestException(String.Format("GetArtworkResized: Couldn't parse if '{0}' to Guid", id));
+      if (!Guid.TryParse(isSeason ? showId : id, out idGuid))
+        throw new BadRequestException(String.Format("GetArtworkResized: Couldn't parse if '{0}' to Guid", isSeason ? showId : id));
 
       byte[] data;
       if (ImageCache.TryGetImageFromCache(idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders, out data))
       {
         Logger.Info("GetArtworkResized: got image from cache");
+        stopWatch.Stop();
+        Logger.Info("GetArtworkTime: {0}", stopWatch.Elapsed);
         return data;
       }
 
@@ -73,9 +79,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(fanart[r].BinaryData, maxWidthInt, maxHeightInt, borders);
 
       // Add to cache
-      if (ImageCache.AddImageToCache(resizedImage, idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders));
+      if (ImageCache.AddImageToCache(resizedImage, idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders))
         Logger.Info("GetArtworkResized: Added image to cache");
 
+      stopWatch.Stop();
+      Logger.Info("GetArtworkTime: {0}", stopWatch.Elapsed);
       return resizedImage;
     }
 
