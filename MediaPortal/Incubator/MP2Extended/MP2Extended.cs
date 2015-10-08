@@ -7,12 +7,11 @@ namespace MediaPortal.Plugins.MP2Extended
 {
   public class MP2Extended : IPluginStateTracker
   {
-
     private void StartUp()
     {
       ServiceRegistration.Get<IResourceServer>().AddHttpModule(new MainRequestHandler());
     }
-    
+
     #region IPluginStateTracker
 
     public void Activated(PluginRuntime pluginRuntime)

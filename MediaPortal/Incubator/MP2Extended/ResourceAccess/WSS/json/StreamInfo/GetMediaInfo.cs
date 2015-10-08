@@ -6,13 +6,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
-  // TODO: don't really know what the pupose of this method is.
-  class GetMediaInfo : IRequestMicroModuleHandler
+  internal class GetMediaInfo : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -33,7 +31,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       optionalMIATypes.Add(AudioAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes, optionalMIATypes);
 
       if (item == null)
         throw new BadRequestException(String.Format("GetMediaInfo: No MediaItem found with id: {0}", httpParam["id"].Value));
@@ -43,25 +41,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       List<WebVideoStream> webVideoStreams = new List<WebVideoStream>();
       List<WebAudioStream> webAudioStreams = new List<WebAudioStream>();
       List<WebSubtitleStream> webSubtitleStreams = new List<WebSubtitleStream>();
-      
+
       // decide which type of media item we have
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
         duration = (long)videoAspect[VideoAspect.ATTR_DURATION];
         //container not in DB
-        
+
         // Video Stream
         WebVideoStream webVideoStream = new WebVideoStream();
         webVideoStream.Codec = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
-        //webVideoStream.DisplayAspectRatio;
+        webVideoStream.DisplayAspectRatio = Convert.ToDecimal((float)videoAspect[VideoAspect.ATTR_ASPECTRATIO]);
         //webVideoStream.DisplayAspectRatioString;
         webVideoStream.Height = (int)videoAspect[VideoAspect.ATTR_HEIGHT];
         //webVideoStream.ID;
         //webVideoStream.Index;
         //webVideoStream.Interlaced;
         webVideoStream.Width = (int)videoAspect[VideoAspect.ATTR_WIDTH];
-        
+
         webVideoStreams.Add(webVideoStream);
 
         // Audio streams
@@ -83,8 +81,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       }
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        var audiAspect = item.Aspects[AudioAspect.ASPECT_ID];
-        duration = (long)audiAspect[AudioAspect.ATTR_DURATION];
+        var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
+        duration = (long)audioAspect[AudioAspect.ATTR_DURATION];
         //container not in DB
       }
       if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))

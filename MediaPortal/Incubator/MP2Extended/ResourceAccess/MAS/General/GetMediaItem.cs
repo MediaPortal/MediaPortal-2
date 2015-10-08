@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Text;
 using HttpServer;
 using HttpServer.Exceptions;
-using HttpServer.Sessions;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
-  class GetMediaItem : IRequestMicroModuleHandler
+  internal class GetMediaItem : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

@@ -26,40 +26,30 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Mime;
 using System.Reflection;
-using System.Threading;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Threading;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
   public class MainRequestHandler : HttpModule, IDisposable
   {
     private const string RESOURCE_ACCESS_PATH = "/MPExtended";
-    private readonly Dictionary<string, IRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestModuleHandler>
-    {
-      {"MediaAccessService", new MediaAccessServiceHandler()},
-      {"StreamingService", new StreamingServiceHandler()}
-    };
-    
 
+    private readonly Dictionary<string, IRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestModuleHandler>(StringComparer.OrdinalIgnoreCase)
+    {
+      { "MediaAccessService", new MediaAccessServiceHandler() },
+      { "TVAccessService", new TVAccessServiceHandler() },
+      { "StreamingService", new StreamingServiceHandler() }
+    };
 
 
     private readonly string _serverOsVersion = null;
     private readonly string _product = null;
-
-
 
 
     public MainRequestHandler()
@@ -96,10 +86,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       }
     }
 
-    
+
     public static void Shutdown()
     {
-      
     }
 
     protected IList<Range> ParseTimeRanges(string timeRangesSpecifier, double duration)
@@ -173,14 +162,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
       try
       {
-        response.AddHeader("Server", _serverOsVersion  + _product);
+        response.AddHeader("Server", _serverOsVersion + _product);
         response.AddHeader("Cache-control", "no-cache");
         response.Connection = ConnectionType.Close;
 
         // Check the request path to see if it's for us.
         if (!uri.AbsolutePath.StartsWith(RESOURCE_ACCESS_PATH))
         {
-            return false;
+          return false;
         }
 
 
@@ -197,26 +186,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
             ServiceRegistration.Get<ILogger>().Warn("RequestModule not found: {0}", uriParts[2]);
         }
       }
-      catch (FileNotFoundException ex)
+      catch (Exception ex)
       {
-        throw new InternalServerException("Failed to proccess '{0}'", ex);
+        Logger.Error("MainRequestHandler: Exception: {0}", ex);
+        throw new InternalServerException("Failed to proccess! - Exception: {0}", ex);
       }
 
       return true;
     }
 
-    
-
 
     protected void Send(IHttpRequest request, IHttpResponse response, Stream resourceStream, bool onlyHeaders, long start, long length)
     {
-
-      
     }
 
     public void Dispose()
     {
-      
     }
 
     internal static ILogger Logger

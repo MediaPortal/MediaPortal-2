@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -193,6 +193,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{2BAB7B4B-1456-4525-8A27-DEBED86796F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WifiRemote", "..\Incubator\WifiRemote\WifiRemote.csproj", "{8D67F134-C122-46B3-B393-329B06981045}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -461,7 +463,6 @@ Global
 		{E1D617B6-75E2-4CB4-BC20-D983BB4F05C0}.Debug|x86.Build.0 = Debug|x86
 		{E1D617B6-75E2-4CB4-BC20-D983BB4F05C0}.Release|x86.ActiveCfg = Release|x86
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Debug|x86.ActiveCfg = Debug|x86
-		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Debug|x86.Build.0 = Debug|x86
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Release|x86.ActiveCfg = Release|x86
 		{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}.Debug|x86.ActiveCfg = Debug|x86
 		{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}.Debug|x86.Build.0 = Debug|x86
@@ -472,7 +473,6 @@ Global
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.ActiveCfg = Release|x86
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.Build.0 = Release|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.ActiveCfg = Debug|x86
-		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.Build.0 = Debug|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.ActiveCfg = Release|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.Build.0 = Release|x86
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}.Debug|x86.ActiveCfg = Debug|x86
@@ -493,6 +493,10 @@ Global
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0}.Debug|x86.Build.0 = Debug|x86
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0}.Release|x86.ActiveCfg = Release|x86
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0}.Release|x86.Build.0 = Release|x86
+		{8D67F134-C122-46B3-B393-329B06981045}.Debug|x86.ActiveCfg = Debug|x86
+		{8D67F134-C122-46B3-B393-329B06981045}.Debug|x86.Build.0 = Debug|x86
+		{8D67F134-C122-46B3-B393-329B06981045}.Release|x86.ActiveCfg = Release|x86
+		{8D67F134-C122-46B3-B393-329B06981045}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -587,5 +591,6 @@ Global
 		{48186950-463A-418C-983E-FF4F62B02E02} = {91CC1D84-4327-48CA-8186-D7C3529AEB44}
 		{D8025D85-C4BE-4A3C-8DD1-4B89DB422480} = {9579F1D5-315A-4528-AC60-FA7D61874E27}
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0} = {2BAB7B4B-1456-4525-8A27-DEBED86796F6}
+		{8D67F134-C122-46B3-B393-329B06981045} = {F224DD1D-3FEB-4B90-B7CE-D87FCAD892B9}
 	EndGlobalSection
 EndGlobal

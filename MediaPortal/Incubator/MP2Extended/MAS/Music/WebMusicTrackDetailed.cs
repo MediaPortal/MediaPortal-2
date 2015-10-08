@@ -2,15 +2,15 @@
 
 namespace MediaPortal.Plugins.MP2Extended.MAS.Music
 {
-    public class WebMusicTrackDetailed : WebMusicTrackBasic
+  public class WebMusicTrackDetailed : WebMusicTrackBasic
+  {
+    public WebMusicTrackDetailed()
     {
-        public WebMusicTrackDetailed()
-        {
-            Artists = new List<WebMusicArtistBasic>();
-            AlbumArtistObject = new WebMusicArtistBasic();
-        }
-
-        public IList<WebMusicArtistBasic> Artists { get; set; }
-        public WebMusicArtistBasic AlbumArtistObject { get; set; }
+      Artists = new List<WebMusicArtistBasic>();
+      AlbumArtistObject = new WebMusicArtistBasic();
     }
+
+    public IList<WebMusicArtistBasic> Artists { get; set; }
+    public WebMusicArtistBasic AlbumArtistObject { get; set; }
+  }
 }

@@ -48,11 +48,13 @@
   <ItemGroup>
     <Compile Include="Common\WebBoolResult.cs" />
     <Compile Include="Common\WebFileType.cs" />
+    <Compile Include="Common\WebFilterOperator.cs" />
     <Compile Include="Common\WebIntResult.cs" />
     <Compile Include="Common\WebSortField.cs" />
     <Compile Include="Common\WebSortOrder.cs" />
     <Compile Include="Extensions\ByteArrayExtensionMethods.cs" />
     <Compile Include="Extensions\EnumerableExtensionMethods.cs" />
+    <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Extensions\NaturalSorting.cs" />
     <Compile Include="Extensions\QueryableExtensionMethods.cs" />
     <Compile Include="Extensions\StringExtensionMethods.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="Filters\ParseException.cs" />
     <Compile Include="Filters\Tokenizer.cs" />
     <Compile Include="Filters\Tokens.cs" />
+    <Compile Include="GlobalVersion.cs" />
     <Compile Include="MAS\General\WebActor.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -89,6 +92,8 @@
     <Compile Include="MAS\Music\WebMusicArtistDetailed.cs" />
     <Compile Include="MAS\Music\WebMusicTrackBasic.cs" />
     <Compile Include="MAS\Music\WebMusicTrackDetailed.cs" />
+    <Compile Include="MAS\Picture\WebPictureBasic.cs" />
+    <Compile Include="MAS\Picture\WebPictureDetailed.cs" />
     <Compile Include="MAS\Playlist\WebPlaylist.cs" />
     <Compile Include="MAS\Playlist\WebPlaylistItem.cs" />
     <Compile Include="MAS\SortInterfaces.cs" />
@@ -112,25 +117,37 @@
     <Compile Include="ResourceAccess\IRequestMicroModuleHandler.cs" />
     <Compile Include="ResourceAccess\IRequestModuleHandler.cs" />
     <Compile Include="ResourceAccess\MainRequestHandler.cs" />
+    <Compile Include="ResourceAccess\MAS\Filter\GetFilterOperators.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetMediaItem.cs" />
     <Compile Include="ResourceAccess\MAS\General\WebStringResult.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMovieCount.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMoviesBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieDetailedById.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMoviesBasicByRange.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMoviesDetailedByRange.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicAlbumBasicById.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicArtistsBasicByRange.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicArtistsBasic.cs" />
+    <Compile Include="ResourceAccess\MAS\Music\GetMusicArtistCount.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTrackBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTracksBasicForAlbum.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPictureCount.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPictureDetailedById.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPicturesDetailed.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPicturesBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\ClearAndAddPlaylistItems.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\AddPlaylistItems.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\AddPlaylistItem.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\DeletePlaylist.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\CreatePlaylist.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\GetPlaylists.cs" />
+    <Compile Include="ResourceAccess\MAS\TvShow\BaseClasses\BaseEpisodeBasic.cs" />
+    <Compile Include="ResourceAccess\MAS\TvShow\BaseClasses\BaseEpisodesDetailed.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodeCount.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodesDetailedForSeason.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodesDetailedByRange.cs" />
@@ -148,15 +165,58 @@
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodeBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodeCountForTvShow.cs" />
     <Compile Include="ResourceAccess\MAS\TvShow\GetTVEpisodeCountForSeason.cs" />
+    <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\AddSchedule.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\GetGroupCount.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\GetGroupById.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\GetGroups.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\GetChannelsBasic.cs" />
+    <Compile Include="ResourceAccess\TVAccessServiceHandler.cs" />
     <Compile Include="ResourceAccess\StreamingServiceHandler.cs" />
     <Compile Include="ResourceAccess\MediaAccessServiceHandler.cs" />
     <Compile Include="ResourceAccess\ResourceAccessUtils.cs" />
+    <Compile Include="ResourceAccess\TAS\Misc\GetActiveCards.cs" />
+    <Compile Include="ResourceAccess\WSS\Cache\ImageCache.cs" />
     <Compile Include="ResourceAccess\WSS\ISubRequestModuleHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Control\StartStream.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Control\InitStream.cs" />
+    <Compile Include="ResourceAccess\WSS\json\General\GetItemSupportStatus.cs" />
+    <Compile Include="ResourceAccess\WSS\json\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\WSS\json\StreamInfo\GetMediaInfo.cs" />
+    <Compile Include="ResourceAccess\WSS\ProfileObject.cs" />
+    <Compile Include="ResourceAccess\WSS\StreamControl.cs" />
+    <Compile Include="ResourceAccess\WSS\StreamingServiceJsonHandler.cs" />
     <Compile Include="ResourceAccess\WSS\StreamingServiceStreamHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\General\GetMediaItem.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\GetImageResized.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\GetImage.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\GetArtwork.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\BaseClasses\BaseGetArtwork.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetArtworkResized.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\IStreamRequestMicroModuleHandler2.cs" />
     <Compile Include="ResourceAccess\WSS\stream\IStreamRequestMicroModuleHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\SendDataBase.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\StreamItem.cs" />
+    <Compile Include="ResourceAccess\WSS\TranscodingObjects.cs" />
+    <Compile Include="TAS\Enumerations.cs" />
+    <Compile Include="TAS\Misc\WebTVServiceDescription.cs" />
+    <Compile Include="TAS\Misc\WebUser.cs" />
+    <Compile Include="TAS\Misc\WebVirtualCard.cs" />
+    <Compile Include="TAS\Tv\EnumerableExtensionMethods.cs" />
+    <Compile Include="TAS\Tv\WebChannelBasic.cs" />
+    <Compile Include="TAS\Tv\WebChannelDetailed.cs" />
+    <Compile Include="TAS\Tv\WebChannelGroup.cs" />
+    <Compile Include="TAS\Tv\WebChannelPrograms.cs" />
+    <Compile Include="TAS\Tv\WebChannelState.cs" />
+    <Compile Include="TAS\Tv\WebProgramBasic.cs" />
+    <Compile Include="TAS\Tv\WebProgramDetailed.cs" />
+    <Compile Include="TAS\Tv\WebRecordingBasic.cs" />
+    <Compile Include="TAS\Tv\WebRecordingFileInfo.cs" />
+    <Compile Include="TAS\Tv\WebScheduleBasic.cs" />
+    <Compile Include="TAS\Tv\WebScheduledRecording.cs" />
     <Compile Include="Utils\EnumerableComparer.cs" />
+    <Compile Include="WSS\General\WebItemSupportStatus.cs" />
+    <Compile Include="WSS\General\WebStreamServiceDescription.cs" />
     <Compile Include="WSS\Images.cs" />
     <Compile Include="WSS\Resolution.cs" />
     <Compile Include="WSS\StreamInfo\WebMediaInfo.cs" />
@@ -175,6 +235,10 @@
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
       <Name>FanArtService.Interfaces</Name>
@@ -190,6 +254,10 @@
     <ProjectReference Include="..\FanArtService\FanArtService.csproj">
       <Project>{294c9c0a-fe21-4857-957a-14a433e3254e}</Project>
       <Name>FanArtService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

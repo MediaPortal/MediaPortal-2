@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
-  class StreamingServiceHandler : IRequestModuleHandler
+  internal class StreamingServiceHandler : IRequestModuleHandler
   {
     private readonly Dictionary<string, ISubRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, ISubRequestModuleHandler>
     {
       // stream
-      { "stream", new StreamingServiceStreamHandler()},
+      { "stream", new StreamingServiceStreamHandler() },
+      // json
+      { "json", new StreamingServiceJsonHandler() },
     };
-    
+
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
       string[] uriParts = request.Uri.AbsolutePath.Split('/');

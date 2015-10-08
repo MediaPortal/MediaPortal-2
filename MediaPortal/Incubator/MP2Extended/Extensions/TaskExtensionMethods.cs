@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2012-2013 MPExtended
+
 // Copyright (C) 2012-2013 MPExtended Developers, http://www.mpextended.com/
 // 
 // MPExtended is free software: you can redistribute it and/or modify
@@ -13,6 +14,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
+
 #endregion
 
 using System.Threading.Tasks;
@@ -21,15 +23,12 @@ using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Plugins.MP2Extended.Extensions
 {
-    public static class TaskExtensionMethods
+  public static class TaskExtensionMethods
+  {
+    public static void LogOnException(this Task task)
     {
-        public static void LogOnException(this Task task)
-        {
-            task.ContinueWith(t =>
-                {
-                    ServiceRegistration.Get<ILogger>().Error("Exception thrown in task started with LogOnException()", t.Exception);
-                },
-                TaskContinuationOptions.OnlyOnFaulted);
-        }
+      task.ContinueWith(t => { ServiceRegistration.Get<ILogger>().Error("Exception thrown in task started with LogOnException()", t.Exception); },
+        TaskContinuationOptions.OnlyOnFaulted);
     }
+  }
 }

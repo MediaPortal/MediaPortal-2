@@ -10,16 +10,12 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   // TODO: Hack, rework after MIA rework
-  class GetMusicAlbumBasicById : IRequestMicroModuleHandler
+  internal class GetMusicAlbumBasicById : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

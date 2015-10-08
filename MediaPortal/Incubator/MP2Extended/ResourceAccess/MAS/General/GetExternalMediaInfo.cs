@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using HttpServer;
+﻿using HttpServer;
 using HttpServer.Exceptions;
-using HttpServer.Sessions;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   // TODO: don't really know what the pupose of this method is.
-  class GetExternalMediaInfo : IRequestMicroModuleHandler
+  internal class GetExternalMediaInfo : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -29,10 +19,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         throw new BadRequestException("GetMediaItem: no id is null");
 
 
-
       WebDictionary<string> webDictionary = new WebDictionary<string>
       {
-        {"Id", id}
+        { "Id", id }
       };
 
       return webDictionary;

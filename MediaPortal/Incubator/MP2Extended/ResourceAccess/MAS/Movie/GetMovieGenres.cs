@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   // TODO: Rework after MIA Rework
-  class GetMovieGenres : IRequestMicroModuleHandler
+  internal class GetMovieGenres : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

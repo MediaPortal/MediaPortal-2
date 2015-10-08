@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 
@@ -46,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.MAS.TvShow
       }
     }
 
-    public static IEnumerable<T> SortWebTVEpisodeDetailed<T>(this IEnumerable<T> list, WebSortField? sortInput, WebSortOrder? orderInput) where T : WebTVEpisodeDetailed  
+    public static IEnumerable<T> SortWebTVEpisodeDetailed<T>(this IEnumerable<T> list, WebSortField? sortInput, WebSortOrder? orderInput) where T : WebTVEpisodeDetailed
     {
       switch (sortInput)
       {

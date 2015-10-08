@@ -1,14 +1,11 @@
-﻿using System.Net;
-using HttpServer;
-using HttpServer.Sessions;
+﻿using HttpServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
-  class TestConnection : IRequestMicroModuleHandler
+  internal class TestConnection : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

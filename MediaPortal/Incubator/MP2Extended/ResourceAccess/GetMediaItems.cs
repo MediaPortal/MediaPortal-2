@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
@@ -19,7 +16,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     {
       return GetMediaItemById(id, necessaryMIATypes, null);
     }
-    
+
     internal static MediaItem GetMediaItemById(string id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
     {
       return GetMediaItemById(Guid.Parse(id), necessaryMIATypes, optionalMIATypes);
@@ -104,7 +101,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return GetMediaItemsByString(name, necessaryMIATypes, optionalMIATypes, MediaAspect.ATTR_TITLE, limit);
     }
 
-    internal static IList<MediaItem> GetMediaItemsByString(string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, MediaItemAspectMetadata.AttributeSpecification attributeSpecification,  uint? limit)
+    internal static IList<MediaItem> GetMediaItemsByString(string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, MediaItemAspectMetadata.AttributeSpecification attributeSpecification, uint? limit)
     {
       IFilter searchFilter = new RelationalFilter(attributeSpecification, RelationalOperator.EQ, name);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = limit };

@@ -1,0 +1,24 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="WifiRemote"
+    PluginId="{B0052E71-BBF0-47C7-86C1-C53E2ABC6679}"
+    Author="FreakyJ"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="WifiRemote for MP2">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+  
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />    
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="WifiRemote.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.WifiRemote.WifiRemote"/>
+  </Runtime>
+</Plugin>

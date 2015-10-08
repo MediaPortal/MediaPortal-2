@@ -9,7 +9,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  class GetTVEpisodeCount : IRequestMicroModuleHandler
+  internal class GetTVEpisodeCount : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
