@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PluginFiles Include="$(TargetDir)Newtonsoft.Json.Net35.dll" />
+      <PluginFiles Include="$(TargetDir)Newtonsoft.Json.dll" />
     </ItemGroup>
     
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />

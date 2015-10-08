@@ -33,6 +33,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     private static string GetFilePath(Guid id, CacheIdentifier identifier, int width, int height, string borders)
     {
       string dataDirectory = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\"+CHACHE_DIR);
+      if (!Directory.Exists(dataDirectory))
+        Directory.CreateDirectory(dataDirectory);
       string filename = string.Format(FILENAME_PATTERN, id, identifier.Id, width, height, borders);
 
       return Path.Combine(dataDirectory, filename);
@@ -59,6 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
         return false;
       FileStream stream = File.OpenWrite(GetFilePath(id, identifier, width, height, borders));
       stream.Write(data, 0, data.Length);
+      stream.Close();
       return true;
     }
 
@@ -72,7 +75,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
       FileStream stream = File.OpenRead(GetFilePath(id, identifier, width, height, borders));
       data = new byte[Convert.ToInt32(stream.Length)];
       stream.Read(data, 0, Convert.ToInt32(stream.Length));
-
+      stream.Close();
       return true;
     }
 
@@ -101,7 +104,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
 
     internal static CacheIdentifier GetIdentifier()
     {
-      return new CacheIdentifier { Id = new StackFrame(1, true).GetMethod().Name };
+      var mth = new StackTrace().GetFrame(1).GetMethod();
+      var identifier = mth.ReflectedType == null ? mth.Name : mth.ReflectedType.Name;
+
+      return new CacheIdentifier { Id = identifier };
     }
 
     internal class CacheIdentifier
