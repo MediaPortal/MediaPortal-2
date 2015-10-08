@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2012-2013 MPExtended
+
 // Copyright (C) 2012-2013 MPExtended Developers, http://www.mpextended.com/
 // 
 // MPExtended is free software: you can redistribute it and/or modify
@@ -13,21 +14,22 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
 
 namespace MediaPortal.Plugins.MP2Extended.Filters
 {
-    public class ParseException : Exception
+  public class ParseException : Exception
+  {
+    public ParseException()
     {
-        public ParseException()
-        {
-        }
-
-        public ParseException(string message, params string[] arguments)
-            : base (String.Format(message, arguments))
-        {
-        }
     }
+
+    public ParseException(string message, params string[] arguments)
+      : base(String.Format(message, arguments))
+    {
+    }
+  }
 }

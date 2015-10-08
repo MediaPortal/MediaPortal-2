@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
@@ -13,8 +10,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Newtonsoft.Json;
 
@@ -22,7 +17,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   // This is a work around -> wait for MIA rework
   // Add more details
-  class GetTVSeasonsDetailedForTVShow : IRequestMicroModuleHandler
+  internal class GetTVSeasonsDetailedForTVShow : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

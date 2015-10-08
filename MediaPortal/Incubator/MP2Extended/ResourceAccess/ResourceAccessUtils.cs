@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Common;
@@ -29,7 +24,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     {
       return GetBytes(JsonConvert.SerializeObject(input).Replace("\0", string.Empty));
     }
-      
+
     internal static WebMediaType GetWebMediaType(MediaItem mediaItem)
     {
       if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))

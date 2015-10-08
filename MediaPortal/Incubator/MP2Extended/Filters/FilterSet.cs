@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2012-2013 MPExtended
+
 // Copyright (C) 2012-2013 MPExtended Developers, http://www.mpextended.com/
 // 
 // MPExtended is free software: you can redistribute it and/or modify
@@ -13,6 +14,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -21,30 +23,30 @@ using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.Filters
 {
-    internal abstract class FilterSet : List<IFilter>, IFilter
-    {    
-        public void ExpectType(Type type)
-        {
-            foreach(var filter in this)
-                filter.ExpectType(type);
-        }
-
-        abstract public bool Matches<T>(T obj);
-    }
-
-    internal class FilterAndSet : FilterSet
+  internal abstract class FilterSet : List<IFilter>, IFilter
+  {
+    public void ExpectType(Type type)
     {
-        public override bool  Matches<T>(T obj)
-        {
-            return this.All(x => x.Matches(obj));
-        }
+      foreach (var filter in this)
+        filter.ExpectType(type);
     }
 
-    internal class FilterOrSet : FilterSet
+    public abstract bool Matches<T>(T obj);
+  }
+
+  internal class FilterAndSet : FilterSet
+  {
+    public override bool Matches<T>(T obj)
     {
-        public override bool Matches<T>(T obj)
-        {
-            return this.Any(x => x.Matches(obj));
-        }
+      return this.All(x => x.Matches(obj));
     }
+  }
+
+  internal class FilterOrSet : FilterSet
+  {
+    public override bool Matches<T>(T obj)
+    {
+      return this.Any(x => x.Matches(obj));
+    }
+  }
 }

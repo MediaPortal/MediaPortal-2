@@ -1,16 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
-  class GetServiceDescription : IRequestMicroModuleHandler
+  internal class GetServiceDescription : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -22,25 +18,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         {
           Id = 10,
           Name = "MP Movie Shares",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         },
         new WebBackendProvider
         {
           Id = 11,
           Name = "MP Picture Shares",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         },
         new WebBackendProvider
         {
           Id = 5,
           Name = "MP Shares",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         },
         new WebBackendProvider
         {
           Id = 9,
           Name = "MP Music Shares",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         }
       };
       webMediaServiceDescription.AvailableMovieLibraries = new List<WebBackendProvider>
@@ -49,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         {
           Id = 7,
           Name = "MP MyVideo",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         }
       };
       webMediaServiceDescription.AvailableMusicLibraries = new List<WebBackendProvider>
@@ -58,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         {
           Id = 4,
           Name = "MP MyMusic",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         }
       };
       webMediaServiceDescription.AvailablePictureLibraries = new List<WebBackendProvider>
@@ -67,7 +63,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         {
           Id = 8,
           Name = "MP Picture Shares",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         }
       };
       webMediaServiceDescription.AvailableTvShowLibraries = new List<WebBackendProvider>
@@ -76,7 +72,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         {
           Id = 6,
           Name = "MP-TVSeries",
-          Version = "0.4.99.1"
+          Version = GlobalVersion.VERSION
         }
       };
       webMediaServiceDescription.DefaultFileSystemLibrary = 5;
@@ -84,7 +80,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       webMediaServiceDescription.DefaultMusicLibrary = 4;
       webMediaServiceDescription.DefaultPictureLibrary = 0;
       webMediaServiceDescription.DefaultTvShowLibrary = 6;
-      webMediaServiceDescription.ServiceVersion = "0.4.99.1";
+      webMediaServiceDescription.ServiceVersion = GlobalVersion.VERSION;
 
       return webMediaServiceDescription;
     }

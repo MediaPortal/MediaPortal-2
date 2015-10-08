@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Newtonsoft.Json;
@@ -21,7 +15,7 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   // TODO: Rework after MIA Rework
-  class GetTVShowGenres : IRequestMicroModuleHandler
+  internal class GetTVShowGenres : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -58,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
         }
       }
 
-      // sort and filter
+      // sort
       HttpParam httpParam = request.Param;
       string sort = httpParam["sort"].Value;
       string order = httpParam["order"].Value;

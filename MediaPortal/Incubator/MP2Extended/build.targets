@@ -8,7 +8,12 @@
   <Target Name="AfterBuild">
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PluginFiles Include="$(TargetDir)*.pdb" />
     </ItemGroup>
 
     <ItemGroup>

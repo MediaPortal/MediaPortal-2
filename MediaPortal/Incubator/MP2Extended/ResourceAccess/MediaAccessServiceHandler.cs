@@ -2,69 +2,79 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
-using GetTVShowGenres = MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.GetTVShowGenres;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
-  class MediaAccessServiceHandler : IRequestModuleHandler
+  internal class MediaAccessServiceHandler : IRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
     {
       // General
-      { "GetExternalMediaInfo", new GetExternalMediaInfo()},
-      { "GetMediaItem", new GetMediaItem()},
-      { "GetServiceDescription", new GetServiceDescription()},
-      { "TestConnection", new TestConnection()},
+      { "GetExternalMediaInfo", new GetExternalMediaInfo() },
+      { "GetMediaItem", new GetMediaItem() },
+      { "GetServiceDescription", new GetServiceDescription() },
+      { "TestConnection", new TestConnection() },
+      // Filter
+      { "GetFilterOperators", new GetFilterOperators() },
       // Movie
-      { "GetMovieDetailedById", new GetMovieDetailedById()},
-      { "GetMovieGenres", new GetMovieGenres()},
-      { "GetMoviesBasic", new GetMoviesBasic()},
-      { "GetMoviesDetailedByRange", new GetMoviesDetailedByRange()},
+      { "GetMovieCount", new GetMovieCount() },
+      { "GetMovieDetailedById", new GetMovieDetailedById() },
+      { "GetMovieGenres", new GetMovieGenres() },
+      { "GetMoviesBasic", new GetMoviesBasic() },
+      { "GetMoviesBasicByRange", new GetMoviesBasicByRange() },
+      { "GetMoviesDetailedByRange", new GetMoviesDetailedByRange() },
       // Music
-      { "GetMusicAlbumBasicById", new GetMusicAlbumBasicById()},
-      { "GetMusicGenres", new GetMusicGenres()},
-      { "GetMusicTrackBasicById", new GetMusicTrackBasicById()},
-      { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum()},
+      { "GetMusicAlbumBasicById", new GetMusicAlbumBasicById() },
+      { "GetMusicArtistCount", new GetMusicArtistCount() },
+      { "GetMusicArtistsBasic", new GetMusicArtistsBasic() },
+      { "GetMusicArtistsBasicByRange", new GetMusicArtistsBasicByRange() },
+      { "GetMusicGenres", new GetMusicGenres() },
+      { "GetMusicTrackBasicById", new GetMusicTrackBasicById() },
+      { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum() },
       // Playlist
-      { "AddPlaylistItem", new AddPlaylistItem()},
-      { "AddPlaylistItems", new GetMusicTracksBasicForAlbum()},
-      { "CreatePlaylist", new CreatePlaylist()},
-      { "DeletePlaylist", new DeletePlaylist()},
-      { "GetPlaylists", new GetPlaylists()},
-      { "ClearAndAddPlaylistItems", new ClearAndAddPlaylistItems()},
+      { "AddPlaylistItem", new AddPlaylistItem() },
+      { "AddPlaylistItems", new GetMusicTracksBasicForAlbum() },
+      { "CreatePlaylist", new CreatePlaylist() },
+      { "DeletePlaylist", new DeletePlaylist() },
+      { "GetPlaylists", new GetPlaylists() },
+      { "ClearAndAddPlaylistItems", new ClearAndAddPlaylistItems() },
+      // Picture
+      { "GetPictureCount", new GetPictureCount() },
+      { "GetPictureDetailedById", new GetPictureDetailedById() },
+      { "GetPicturesBasic", new GetPicturesBasic() },
+      { "GetPicturesDetailed", new GetPicturesDetailed() },
       // TvShow
-      { "GetTVEpisodeBasicById", new GetTVEpisodeBasicById()},
-      { "GetTVEpisodeCount", new GetTVEpisodeCount()},
-      { "GetTVEpisodeCountForSeason", new GetTVEpisodeCountForSeason()},
-      { "GetTVEpisodeCountForTVShow", new GetTVEpisodeCountForTVShow()},
-      { "GetTVEpisodeDetailedById", new GetTVEpisodeDetailedById()},
-      { "GetTVEpisodesBasic", new GetTVEpisodesBasic()},
-      { "GetTVEpisodesBasicForSeason", new GetTVEpisodesBasicForSeason()},
-      { "GetTVEpisodesDetailedByRange", new GetTVEpisodesDetailedByRange()},
-      { "GetTVEpisodesDetailedForSeason", new GetTVEpisodesDetailedForSeason()},
-      { "GetTVSeasonCountForTVShow", new GetTVSeasonCountForTVShow()},
-      { "GetTVSeasonsBasicForTVShow", new GetTVSeasonsBasicForTVShow()},
-      { "GetTVSeasonsDetailedForTVShow", new GetTVSeasonsDetailedForTVShow()},
-      { "GetTVShowCount", new GetTVShowCount()},
-      { "GetTVShowDetailedById", new GetTVShowDetailedById()},
-      { "GetTVShowGenres", new GetTVShowGenres()},
-      { "GetTVShowsBasic", new GetTVShowsBasic()},
-      { "GetTVShowsBasicByRange", new GetTVShowsBasicByRange()},
+      { "GetTVEpisodeBasicById", new GetTVEpisodeBasicById() },
+      { "GetTVEpisodeCount", new GetTVEpisodeCount() },
+      { "GetTVEpisodeCountForSeason", new GetTVEpisodeCountForSeason() },
+      { "GetTVEpisodeCountForTVShow", new GetTVEpisodeCountForTVShow() },
+      { "GetTVEpisodeDetailedById", new GetTVEpisodeDetailedById() },
+      { "GetTVEpisodesBasic", new GetTVEpisodesBasic() },
+      { "GetTVEpisodesBasicForSeason", new GetTVEpisodesBasicForSeason() },
+      { "GetTVEpisodesDetailedByRange", new GetTVEpisodesDetailedByRange() },
+      { "GetTVEpisodesDetailedForSeason", new GetTVEpisodesDetailedForSeason() },
+      { "GetTVSeasonCountForTVShow", new GetTVSeasonCountForTVShow() },
+      { "GetTVSeasonsBasicForTVShow", new GetTVSeasonsBasicForTVShow() },
+      { "GetTVSeasonsDetailedForTVShow", new GetTVSeasonsDetailedForTVShow() },
+      { "GetTVShowCount", new GetTVShowCount() },
+      { "GetTVShowDetailedById", new GetTVShowDetailedById() },
+      { "GetTVShowGenres", new GetTVShowGenres() },
+      { "GetTVShowsBasic", new GetTVShowsBasic() },
+      { "GetTVShowsBasicByRange", new GetTVShowsBasicByRange() },
     };
-    
+
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
       string[] uriParts = request.Uri.AbsolutePath.Split('/');
@@ -83,6 +93,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         Logger.Warn("MAS: Micromodule not found: {0}", action);
         throw new BadRequestException(String.Format("MAS: Micromodule not found: {0}", action));
       }
+
+      // TODO: remove in final version
+      Logger.Debug("MAS response: {0}", returnValue);
 
       byte[] output = ResourceAccessUtils.GetBytesFromDynamic(returnValue);
 

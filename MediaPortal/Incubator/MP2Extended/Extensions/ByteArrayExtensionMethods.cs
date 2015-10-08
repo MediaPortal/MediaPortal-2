@@ -1,4 +1,5 @@
 ﻿#region Copyright (C) 2013 MPExtended
+
 // Copyright (C) 2013 MPExtended Developers, http://www.mpextended.com/
 // 
 // MPExtended is free software: you can redistribute it and/or modify
@@ -13,17 +14,18 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
 
 namespace MediaPortal.Plugins.MP2Extended.Extensions
 {
-    public static class ByteArrayExtensionMethods
+  public static class ByteArrayExtensionMethods
+  {
+    public static string ToHexString(this byte[] self)
     {
-        public static string ToHexString(this byte[] self)
-        {
-            return BitConverter.ToString(self).Replace("-", String.Empty).ToLower();
-        }
+      return BitConverter.ToString(self).Replace("-", String.Empty).ToLower();
     }
+  }
 }

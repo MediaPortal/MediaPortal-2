@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   // TODO: Rework after MIA Rework
-  class GetMusicGenres : IRequestMicroModuleHandler
+  internal class GetMusicGenres : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

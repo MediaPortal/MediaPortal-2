@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
-  class GetMoviesBasic : IRequestMicroModuleHandler
+  internal class GetMoviesBasic : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -36,7 +36,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 
       foreach (var item in items)
       {
-
         MediaItemAspect movieAspects = item.Aspects[MovieAspect.ASPECT_ID];
 
         WebMovieBasic webMovieBasic = new WebMovieBasic();
@@ -62,10 +61,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 
         webMovieBasic.Runtime = (int)movieAspects[MovieAspect.ATTR_RUNTIME_M];
         webMovieBasic.IsProtected = false; //??
-        webMovieBasic.Rating = Convert.ToSingle((double)movieAspects[MovieAspect.ATTR_TOTAL_RATING]);
+        var rating = movieAspects.GetAttributeValue(MovieAspect.ATTR_TOTAL_RATING);
+        if (rating != null)
+          webMovieBasic.Rating = Convert.ToSingle(rating);
         webMovieBasic.Type = WebMediaType.Movie;
         webMovieBasic.Watched = ((int)(item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
-        webMovieBasic.Rating = Convert.ToSingle((double)movieAspects[MovieAspect.ATTR_TOTAL_RATING]);
         //webTvEpisodeBasic.Path = ;
         //webTvEpisodeBasic.Artwork = ;
         //webMovieBasic.Year =;

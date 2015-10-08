@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 
 namespace MediaPortal.Plugins.MP2Extended.MAS.Music
 {
@@ -29,6 +28,5 @@ namespace MediaPortal.Plugins.MP2Extended.MAS.Music
           return list.OrderBy(x => x.Title, orderInput);
       }
     }
-
   }
 }

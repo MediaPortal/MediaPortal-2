@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
@@ -10,12 +7,10 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  class GetTVEpisodeCountForTVShow : IRequestMicroModuleHandler
+  internal class GetTVEpisodeCountForTVShow : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

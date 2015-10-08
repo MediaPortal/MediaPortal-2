@@ -193,6 +193,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{2BAB7B4B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
 EndProject
+
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InputComponents", "InputComponents", "{5C7EF6A4-14D2-4E7B-AF42-61E62B41DBAE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FanArt", "FanArt", "{9071010C-1A5E-41A1-B6F9-5D683A304F82}"

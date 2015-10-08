@@ -11,14 +11,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
-  class GetMusicTracksBasicForAlbum : IRequestMicroModuleHandler
+  internal class GetMusicTracksBasicForAlbum : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
