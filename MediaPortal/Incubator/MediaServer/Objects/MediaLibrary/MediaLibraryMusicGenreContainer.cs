@@ -33,7 +33,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.Aspects;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var necessaryMiaTypeIDs = new Guid[]
                                   {
                                     MediaAspect.ASPECT_ID,
-                                    DlnaItemAudioAspect.ASPECT_ID
+                                    TranscodeItemAudioAspect.ASPECT_ID
                                   };
       var library = ServiceRegistration.Get<IMediaLibrary>();
 

@@ -38,7 +38,6 @@ using MediaPortal.Plugins.Transcoding.Service;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.MetadataExtractors;
 using MediaPortal.Common.MediaManagement;
 using System.IO;
 
@@ -119,9 +118,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return "text/plain";
     }
 
-    public static bool FindSubtitle(MediaItem item, EndPointSettings client, out SubtitleStream source, out SubtitleCodec targetCodec, out string targetMime)
+    public static bool FindSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
     {
-      source = null;
       targetCodec = SubtitleCodec.Unknown;
       targetMime = "text/plain";
       if (client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.SoftCoded)
@@ -131,163 +129,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           targetMime = client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime;
         else
           targetMime = GetSubtitleMime(targetCodec);
-      }
-
-      MetadataContainer video = DlnaVideoMetadataExtractor.ParseMediaItem(item);
-      DlnaVideoMetadataExtractor.AddExternalSubtitles(ref video);
-
-      SubtitleStream currentEmbeddedSub = null;
-      SubtitleStream currentExternalSub = null;
-
-      SubtitleStream defaultEmbeddedSub = null;
-      SubtitleStream englishEmbeddedSub = null;
-      List<SubtitleStream> subsEmbedded = new List<SubtitleStream>();
-      List<SubtitleStream> langSubsEmbedded = new List<SubtitleStream>();
-
-      foreach (SubtitleStream sub in video.Subtitles)
-      {
-        if (sub.IsEmbedded == false)
-        {
-          continue;
-        }
-        if (sub.Default == true)
-        {
-          defaultEmbeddedSub = sub;
-        }
-        else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
-        {
-          englishEmbeddedSub = sub;
-        }
-        if (string.IsNullOrEmpty(client.PreferredSubtitleLanguages) == false)
-        {
-          string[] langs = client.PreferredSubtitleLanguages.Split(',');
-          foreach (string lang in langs)
-          {
-            if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
-            {
-              langSubsEmbedded.Add(sub);
-            }
-          }
-        }
-        else
-        {
-          subsEmbedded.Add(sub);
-        }
-      }
-      if (currentEmbeddedSub == null && langSubsEmbedded.Count > 0)
-      {
-        currentEmbeddedSub = langSubsEmbedded[0];
-      }
-
-      SubtitleStream defaultSub = null;
-      SubtitleStream englishSub = null;
-      List<SubtitleStream> subs = new List<SubtitleStream>();
-      List<SubtitleStream> langSubs = new List<SubtitleStream>();
-      foreach (SubtitleStream sub in video.Subtitles)
-      {
-        if (sub.IsEmbedded == true)
-        {
-          continue;
-        }
-        if (sub.Default == true)
-        {
-          defaultSub = sub;
-        }
-        else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
-        {
-          englishSub = sub;
-        }
-        if (string.IsNullOrEmpty(client.PreferredSubtitleLanguages) == false)
-        {
-          string[] langs = client.PreferredSubtitleLanguages.Split(',');
-          foreach (string lang in langs)
-          {
-            if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
-            {
-              langSubs.Add(sub);
-            }
-          }
-        }
-        else
-        {
-          subs.Add(sub);
-        }
-      }
-      if (currentExternalSub == null && langSubs.Count > 0)
-      {
-        currentExternalSub = langSubs[0];
-      }
-
-      //Best language subtitle
-      if (currentExternalSub != null)
-      {
-        source = currentExternalSub;
-        return source.Codec == targetCodec;
-      }
-      if (currentEmbeddedSub != null)
-      {
-        source = currentEmbeddedSub;
-        return false;
-      }
-
-      //Best default subtitle
-      if (currentExternalSub == null && defaultSub != null)
-      {
-        currentExternalSub = defaultSub;
-      }
-      if (currentEmbeddedSub == null && defaultEmbeddedSub != null)
-      {
-        currentEmbeddedSub = defaultEmbeddedSub;
-      }
-      if (currentExternalSub != null)
-      {
-        source = currentExternalSub;
-        return source.Codec == targetCodec;
-      }
-      if (currentEmbeddedSub != null)
-      {
-        source = currentEmbeddedSub;
-        return false;
-      }
-
-      //Best english
-      if (currentExternalSub == null && englishSub != null)
-      {
-        currentExternalSub = englishSub;
-      }
-      if (currentEmbeddedSub == null && englishEmbeddedSub != null)
-      {
-        currentEmbeddedSub = englishEmbeddedSub;
-      }
-      if (currentExternalSub != null)
-      {
-        source = currentExternalSub;
-        return source.Codec == targetCodec;
-      }
-      if (currentEmbeddedSub != null)
-      {
-        source = currentEmbeddedSub;
-        return false;
-      }
-
-      //Best remaining subtitle
-      if (currentExternalSub == null && subs.Count > 0)
-      {
-        currentExternalSub = subs[0];
-      }
-      if (currentEmbeddedSub == null && subsEmbedded.Count > 0)
-      {
-        currentEmbeddedSub = subsEmbedded[0];
-      }
-      if (currentExternalSub != null)
-      {
-        source = currentExternalSub;
-        return source.Codec == targetCodec;
-      }
-      if (currentEmbeddedSub != null)
-      {
-        source = currentEmbeddedSub;
-        return false;
+        return true;
       }
       return false;
     }
@@ -327,12 +169,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     public static string GetSubtitleBaseURL(MediaItem item, EndPointSettings client, out string subMime, out string subExtension)
     {
-      SubtitleStream source = null; 
       SubtitleCodec codec = SubtitleCodec.Unknown;
       subMime = null;
       subExtension = null;
 
-      if (FindSubtitle(item, client, out source, out codec, out subMime) == false)
+      if (FindSubtitle(client, out codec, out subMime) == false)
       {
         subExtension = "srt";
         string subType = codec.ToString();

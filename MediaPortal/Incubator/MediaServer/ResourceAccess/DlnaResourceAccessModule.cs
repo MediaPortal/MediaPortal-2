@@ -96,28 +96,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       _product = "MediaPortal 2 DLNA Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
 
       _transcoder.Logger = Logger;
-      _transcoder.TranscoderCachePath = MediaServerPlugin.TranscoderCachePath;
-      _transcoder.TranscoderTimeout = MediaServerPlugin.TranscoderTimeout;
-      _transcoder.HLSSegmentFileTemplate = MediaServerPlugin.HLSSegmentFileTemplate;
-      _transcoder.HLSSegmentTimeInSeconds = MediaServerPlugin.HLSSegmentTimeInSeconds;
-      _transcoder.TranscoderMaximumCacheAge = MediaServerPlugin.TranscodeMaximumCacheAgeInDays;
-      _transcoder.TranscoderMaximumCacheSize = MediaServerPlugin.TranscoderMaximumCacheSizeInGB;
-      _transcoder.TranscoderMaximumThreads = MediaServerPlugin.TranscoderMaximumThreads;
-      _transcoder.SubtitleDefaultEncoding = MediaServerPlugin.SubtitleDefaultEncoding;
-      if (MediaServerPlugin.IntelHWAccelerationAllowed)
-      {
-        if(_transcoder.RegisterHardwareEncoder(EncoderHandler.HardwareIntel, MediaServerPlugin.IntelHWMaximumStreams, new List<VideoCodec>(MediaServerPlugin.IntelHWSupportedCodecs)) == false)
-        {
-          Logger.Warn("ResourceAccessModule: Failed to register Intel hardware acceleration");
-        }
-      }
-      if (MediaServerPlugin.NvidiaHWAccelerationAllowed)
-      {
-        if (_transcoder.RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, MediaServerPlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(MediaServerPlugin.NvidiaHWSupportedCodecs)) == false)
-        {
-          Logger.Warn("ResourceAccessModule: Failed to register Nvidia hardware acceleration");
-        }
-      }
+
       ClearCache();
     }
 
@@ -375,18 +354,18 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           bool subUseLocal = false;
           if (dlnaItem.IsSubtitled)
           {
-            subUseLocal = DlnaResourceAccessUtils.FindSubtitle(dlnaItem.MediaSource, deviceClient, out subSource, out subTargetCodec, out subTargetMime);
+            subUseLocal = DlnaResourceAccessUtils.FindSubtitle(deviceClient, out subTargetCodec, out subTargetMime);
             if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
             {
               VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-              video.SourceSubtitle = subSource;
               video.TargetSubtitleCodec = subTargetCodec;
+              video.TargetSubtitleLanguages = deviceClient.PreferredSubtitleLanguages;
             }
             else if (dlnaItem.IsVideo)
             {
               VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
-              subtitle.SourceSubtitle = subSource;
               subtitle.TargetSubtitleCodec = subTargetCodec;
+              subtitle.TargetSubtitleLanguages = deviceClient.PreferredSubtitleLanguages;
             }
           }
 
@@ -605,7 +584,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               if (dlnaItem.IsSegmented)
               {
                 //Is this possible?
-                duration = MediaServerPlugin.HLSSegmentTimeInSeconds;
+                duration = _transcoder.HLSSegmentTimeInSeconds;
               }
               ranges = ParseTimeRanges(byteRangesSpecifier, duration);
               if (ranges == null || ranges.Count != 1)

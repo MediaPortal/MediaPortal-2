@@ -30,8 +30,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Tree;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -72,9 +72,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                    AudioAspect.ASPECT_ID,
                                    ImageAspect.ASPECT_ID,
                                    VideoAspect.ASPECT_ID,
-                                   DlnaItemAudioAspect.ASPECT_ID,
-                                   DlnaItemImageAspect.ASPECT_ID,
-                                   DlnaItemVideoAspect.ASPECT_ID,
+                                   TranscodeItemAudioAspect.ASPECT_ID,
+                                   TranscodeItemImageAspect.ASPECT_ID,
+                                   TranscodeItemVideoAspect.ASPECT_ID,
                                  };
 
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);

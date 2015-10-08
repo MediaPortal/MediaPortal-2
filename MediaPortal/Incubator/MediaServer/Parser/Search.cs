@@ -6,7 +6,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.ANTLR;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.Aspects;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Parser
 {
@@ -340,31 +340,31 @@ namespace MediaPortal.Extensions.MediaServer.Parser
         else if (exp.op == Op.EQUALS && exp.propertyClass == PropertyClass.MUSIC_ALBUM)
         {
           types.Add(AudioAspect.ASPECT_ID);
-          types.Add(DlnaItemAudioAspect.ASPECT_ID);
+          types.Add(TranscodeItemAudioAspect.ASPECT_ID);
           return new PropertyClassFilter(exp.propertyClass.Value);
         }
         else if (exp.op == Op.EQUALS && exp.propertyClass == PropertyClass.MUSIC_ARTIST)
         {
           types.Add(AudioAspect.ASPECT_ID);
-          types.Add(DlnaItemAudioAspect.ASPECT_ID);
+          types.Add(TranscodeItemAudioAspect.ASPECT_ID);
           return new PropertyClassFilter(exp.propertyClass.Value);
         }
         else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.VIDEO_ITEM)
         {
           types.Add(VideoAspect.ASPECT_ID);
-          types.Add(DlnaItemVideoAspect.ASPECT_ID);
+          types.Add(TranscodeItemVideoAspect.ASPECT_ID);
           return null;
         }
         else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.PLAYLIST_CONTAINER)
         {
           types.Add(VideoAspect.ASPECT_ID);
-          types.Add(DlnaItemVideoAspect.ASPECT_ID);
+          types.Add(TranscodeItemVideoAspect.ASPECT_ID);
           return null;
         }
         else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.IMAGE_ITEM)
         {
           types.Add(ImageAspect.ASPECT_ID);
-          types.Add(DlnaItemImageAspect.ASPECT_ID);
+          types.Add(TranscodeItemImageAspect.ASPECT_ID);
           return null;
         }
         else

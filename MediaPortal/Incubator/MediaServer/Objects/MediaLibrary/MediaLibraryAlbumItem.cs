@@ -34,8 +34,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Utilities;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -114,7 +114,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var necessaryMiaTypeIDs = new Guid[] {
                                     MediaAspect.ASPECT_ID,
                                     AudioAspect.ASPECT_ID,
-                                    DlnaItemAudioAspect.ASPECT_ID,
+                                    TranscodeItemAudioAspect.ASPECT_ID,
                                     ProviderResourceAspect.ASPECT_ID
                                   };
       var optionalMIATypeIDs = new Guid[]

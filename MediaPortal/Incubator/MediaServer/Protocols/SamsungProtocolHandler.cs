@@ -29,7 +29,6 @@ using System.Text;
 using HttpServer;
 using MediaPortal.Common.MediaManagement;
 using HttpServer.Sessions;
-using MediaPortal.Extensions.MediaServer.Aspects;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;

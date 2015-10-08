@@ -129,8 +129,8 @@
       <Thumbnails maxWidth="160" maxHeight="160" delivery="AlbumArt" />
       <Video maxHeight="1080" qualityFactor="3" />
       <H262Video qualityFactor="3" preset="Fast" profile="Main" />
-      <H264Video levelCheck="Any" qualityFactor="25" preset="Ultrafast" profile="Baseline" level="3.0" />
-      <H265Video qualityFactor="25" preset="Ultrafast" profile="Main" level="3.0" />
+      <H264Video levelCheck="Any" qualityFactor="25" preset="Veryfast" profile="Baseline" level="3.0" />
+      <H265Video qualityFactor="25" preset="Veryfast" profile="Main" level="3.0" />
       <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
       <Audio defaultStereo="false" defaultBitrate="192" />
       <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
@@ -138,7 +138,7 @@
       <Subtitles support="None" />
     </Settings>
     <MediaTranscoding>
-      <ImageTarget forceInheritance="true">
+      <ImageTarget container="Jpeg" forceInheritance="true">
         <ImageSource container="Raw" />
         <ImageSource container="Bmp" />
       </ImageTarget>
@@ -715,7 +715,7 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
       </AudioTarget>
-      <ImageTarget forceInheritance="true">
+      <ImageTarget container="Jpeg" pixelFormat="Yuv420" forceInheritance="true">
         <ImageSource container="Jpeg" pixelFormat="Yuv444" />
       </ImageTarget>
     </MediaTranscoding>
@@ -899,7 +899,7 @@
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Flac" />
       </AudioTarget>
-      <ImageTarget forceInheritance="true">
+      <ImageTarget container="Jpeg" pixelFormat="Yuv420" forceInheritance="true">
         <ImageSource container="Jpeg" pixelFormat="Yuv444" />
       </ImageTarget>
     </MediaTranscoding>

@@ -65,9 +65,6 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aspects\DlnaItemImageAspect.cs" />
-    <Compile Include="Aspects\DlnaItemAudioAspect.cs" />
-    <Compile Include="Aspects\DlnaItemVideoAspect.cs" />
     <Compile Include="Database\MediaServer_SubSchema.cs" />
     <Compile Include="DIDL\PacketVideoDidlMessageBuilder.cs" />
     <Compile Include="DIDL\PropertyFilter.cs" />
@@ -83,12 +80,9 @@
     <Compile Include="Filters\WMPContentDirectoryFilter.cs" />
     <Compile Include="Filters\XBoxContentDirectoryFilter.cs" />
     <Compile Include="MediaServerUPnPDeviceInformation.cs" />
-    <Compile Include="MetadataExtractors\DlnaImageMetadataExtractor.cs" />
-    <Compile Include="MetadataExtractors\DlnaVideoMetadataExtractor.cs" />
-    <Compile Include="MetadataExtractors\DlnaAudioMetadataExtractor.cs" />
-    <Compile Include="MetadataExtractors\Settings\DlnaAudioMetadataExtractorSettings.cs" />
-    <Compile Include="MetadataExtractors\Settings\DlnaVideoMetadataExtractorSettings.cs" />
-    <Compile Include="MetadataExtractors\Settings\DlnaImageMetadataExtractorSettings.cs" />
+    <Compile Include="Metadata\DlnaAudioMetadata.cs" />
+    <Compile Include="Metadata\DlnaImageMetadata.cs" />
+    <Compile Include="Metadata\DlnaVideoMetadata.cs" />
     <Compile Include="Objects\Basic\BasicContainer.cs" />
     <Compile Include="Objects\Basic\BasicItem.cs" />
     <Compile Include="Objects\Basic\BasicObject.cs" />
@@ -211,6 +205,7 @@
       <Listener>True</Listener>
     </Antlr4>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <PropertyGroup>

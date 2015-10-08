@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     public virtual int ChildCount
     {
       get { return Children.Count; }
-      set { throw new IllegalCallException("Meaningless in this implementation"); }
+      set { } //Meaningless in this implementation
     }
 
     public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }
