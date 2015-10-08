@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
-  internal class GetPicturesBasic : BasePictureBasic, IRequestMicroModuleHandler
+  internal class GetPictureCategories : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -33,22 +33,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
       if (items.Count == 0)
         throw new BadRequestException("No Images found");
 
-      var output = items.Select(item => PictureBasic(item)).ToList();
+      var output = new List<WebCategory>();
 
-      // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
-      if (sort != null && order != null)
+      foreach (var item in items)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
+        var recodringTime = item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_RECORDINGTIME];
+        if (recodringTime == null)
+          continue;
+        string recordingTimeString = ((DateTime)recodringTime).ToString("yyyy");
 
-        output = output.AsQueryable().Filter(filter).SortMediaItemList(webSortField, webSortOrder).ToList();
+        if (output.FindIndex(x => x.Title == recordingTimeString) == -1)
+          output.Add(new WebCategory
+          {
+            Id = JsonConvert.SerializeObject((DateTime)recodringTime),
+            Title = recordingTimeString,
+            PID = 0
+          });
+
       }
-      else
-        output = output.Filter(filter).ToList();
 
       return output;
     }
