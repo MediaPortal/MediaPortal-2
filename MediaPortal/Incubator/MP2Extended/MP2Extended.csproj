@@ -139,8 +139,12 @@
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTrackBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTracksBasicForAlbum.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\BaseClasses\BasePictureBasic.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPictureSubCategories.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\GetPictureCount.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\GetPictureDetailedById.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPictureCategories.cs" />
+    <Compile Include="ResourceAccess\MAS\Picture\GetPicturesBasicByCategory.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\GetPicturesDetailed.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\GetPicturesBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Playlist\ClearAndAddPlaylistItems.cs" />

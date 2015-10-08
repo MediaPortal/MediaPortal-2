@@ -51,10 +51,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetPlaylists", new GetPlaylists() },
       { "ClearAndAddPlaylistItems", new ClearAndAddPlaylistItems() },
       // Picture
+      { "GetPictureCategories", new GetPictureCategories() },
       { "GetPictureCount", new GetPictureCount() },
       { "GetPictureDetailedById", new GetPictureDetailedById() },
       { "GetPicturesBasic", new GetPicturesBasic() },
+      { "GetPicturesBasicByCategory", new GetPicturesBasicByCategory() },
       { "GetPicturesDetailed", new GetPicturesDetailed() },
+      { "GetPictureSubCategories", new GetPictureSubCategories() },
       // TvShow
       { "GetTVEpisodeBasicById", new GetTVEpisodeBasicById() },
       { "GetTVEpisodeCount", new GetTVEpisodeCount() },
