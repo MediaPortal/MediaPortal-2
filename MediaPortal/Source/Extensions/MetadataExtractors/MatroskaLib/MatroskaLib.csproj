@@ -92,7 +92,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <Import Project="..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets" Condition="Exists('..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets')" />
   <Import Project="..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets" Condition="Exists('..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
