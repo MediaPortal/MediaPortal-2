@@ -8,6 +8,7 @@ using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
@@ -22,6 +23,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       // Control
       { "InitStream", new InitStream() },
       { "StartStream", new StartStream() },
+      { "StartStreamWithStreamSelection", new StartStreamWithStreamSelection() },
+      // Profiles
+      { "GetTranscoderProfilesForTarget", new GetTranscoderProfilesForTarget() },
       // StreamInfo
       { "GetMediaInfo", new GetMediaInfo() },
     };

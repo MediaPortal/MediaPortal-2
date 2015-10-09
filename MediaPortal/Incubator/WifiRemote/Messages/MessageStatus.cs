@@ -155,7 +155,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       }
     }
 
-    private Guid? windowId = Guid.Empty;
+    /*private Guid? windowId = Guid.Empty;
 
     public Guid? WindowId
     {
@@ -170,6 +170,17 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
           ServiceRegistration.Get<ILogger>().Error("Error on retrieving current window id: {0}", ex.ToString());
         }
         return windowId;
+      }
+    }*/
+
+    private int windowId = 0;
+
+    public int WindowId
+    {
+      get
+      {
+        
+        return 0;
       }
     }
 

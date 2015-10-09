@@ -16,6 +16,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     private readonly Dictionary<string, IStreamRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IStreamRequestMicroModuleHandler>
     {
       // Images
+      { "ExtractImageResized", new ExtractImageResized() },
       { "GetArtwork", new GetArtwork() },
       { "GetArtworkResized", new GetArtworkResized() },
     };

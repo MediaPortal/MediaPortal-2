@@ -23,6 +23,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     {
       // General
       { "GetExternalMediaInfo", new GetExternalMediaInfo() },
+      { "GetFileInfo", new GetFileInfo() },
       { "GetMediaItem", new GetMediaItem() },
       { "GetServiceDescription", new GetServiceDescription() },
       { "TestConnection", new TestConnection() },

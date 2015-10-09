@@ -14,8 +14,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   {
     public dynamic Process(IHttpRequest request)
     {
-      Logger.Info("MAS-GetMediaItem: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath);
-
       HttpParam httpParam = request.Param;
       if (httpParam["id"].Value == null)
         throw new BadRequestException("GetMediaItem: no id is null");

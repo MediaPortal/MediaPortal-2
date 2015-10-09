@@ -14,12 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
   {
     public dynamic Process(IHttpRequest request)
     {
-      Logger.Info("MAS-GetMediaItem: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath);
-
       HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
+      string id = httpParam["itemId"].Value;
       if (id == null)
-        throw new BadRequestException("GetMediaItem: no id is null");
+        throw new BadRequestException("GetMediaInfo: no itemId is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -31,10 +29,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       optionalMIATypes.Add(AudioAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes, optionalMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes, optionalMIATypes);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMediaInfo: No MediaItem found with id: {0}", httpParam["id"].Value));
+        throw new BadRequestException(String.Format("GetMediaInfo: No MediaItem found with id: {0}", id));
 
       long duration = 0;
       string container = string.Empty;

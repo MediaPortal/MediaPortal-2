@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="MAS\General\WebBackendProvider.cs" />
     <Compile Include="MAS\General\WebDictionary.cs" />
+    <Compile Include="MAS\General\WebFileInfo.cs" />
     <Compile Include="MAS\General\WebMediaItem.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -121,6 +122,7 @@
     <Compile Include="ResourceAccess\IRequestModuleHandler.cs" />
     <Compile Include="ResourceAccess\MainRequestHandler.cs" />
     <Compile Include="ResourceAccess\MAS\Filter\GetFilterOperators.cs" />
+    <Compile Include="ResourceAccess\MAS\General\GetFileInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
@@ -185,16 +187,19 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetActiveCards.cs" />
     <Compile Include="ResourceAccess\WSS\Cache\ImageCache.cs" />
     <Compile Include="ResourceAccess\WSS\ISubRequestModuleHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Control\StartStreamWithStreamSelection.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\StartStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\InitStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\General\GetItemSupportStatus.cs" />
     <Compile Include="ResourceAccess\WSS\json\General\GetServiceDescription.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfilesForTarget.cs" />
     <Compile Include="ResourceAccess\WSS\json\StreamInfo\GetMediaInfo.cs" />
     <Compile Include="ResourceAccess\WSS\ProfileObject.cs" />
     <Compile Include="ResourceAccess\WSS\StreamControl.cs" />
     <Compile Include="ResourceAccess\WSS\StreamingServiceJsonHandler.cs" />
     <Compile Include="ResourceAccess\WSS\StreamingServiceStreamHandler.cs" />
     <Compile Include="ResourceAccess\WSS\stream\General\GetMediaItem.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\ExtractImageResized.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetImageResized.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetImage.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetArtwork.cs" />
@@ -225,6 +230,7 @@
     <Compile Include="WSS\General\WebItemSupportStatus.cs" />
     <Compile Include="WSS\General\WebStreamServiceDescription.cs" />
     <Compile Include="WSS\Images.cs" />
+    <Compile Include="WSS\Profiles\WebTranscoderProfile.cs" />
     <Compile Include="WSS\Resolution.cs" />
     <Compile Include="WSS\StreamInfo\WebMediaInfo.cs" />
     <Compile Include="WSS\WebResolution.cs" />

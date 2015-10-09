@@ -48,15 +48,15 @@ namespace MediaPortal.Plugins.WifiRemote
       { "facade", new Func<int, int, int>(Func1) },*/
       { "powermode", ParserPowermode.Parse },
       { "volume", ParserVolume.Parse },
-      /*{ "position", new Func<int, int, int>(Func1) },
-      { "playfile", new Func<int, int, int>(Func1) },
-      { "playchannel", new Func<int, int, int>(Func1) },
+      { "position", ParserPosition.Parse },
+      { "playfile", ParserPlayFile.Parse },
+      /*{ "playchannel", new Func<int, int, int>(Func1) },
       { "playradiochannel", new Func<int, int, int>(Func1) },
-      { "playrecording", new Func<int, int, int>(Func1) },
-      { "mpext", new Func<int, int, int>(Func1) },
-      { "plugins", new Func<int, int, int>(Func1) },
-      { "properties", new Func<int, int, int>(Func1) },
-      { "image", new Func<int, int, int>(Func1) },
+      { "playrecording", new Func<int, int, int>(Func1) },*/
+      { "mpext", ParserMPExt.Parse },
+      /*{ "plugins", new Func<int, int, int>(Func1) },
+      { "properties", ParserProperties.Parse },
+      /*{ "image", new Func<int, int, int>(Func1) },
       { "screenshot", new Func<int, int, int>(Func1) },
       { "playlist", new Func<int, int, int>(Func1) },
       { "requeststatus", new Func<int, int, int>(Func1) },
@@ -336,7 +336,12 @@ namespace MediaPortal.Plugins.WifiRemote
           Func<JObject, SocketServer, AsyncSocket, bool> function;
           if (MessageType.TryGetValue(type, out function))
           {
+            Logger.Info("WifiRemote: MessageType: {0} got called", type);
             function.Invoke(message, this, sender);
+          }
+          else
+          {
+            Logger.Info("WifiRemote: Couldn't get MessageType: {0}", type);
           }
 
         }
