@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             {
               result.Append(arg + " ");
             }
-            result.Append("-i \"" + GetFileShortName(((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath) + "\" ");
+            result.Append("-i \"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\" ");
           }
           if (string.IsNullOrEmpty(InputSubtitleFilePath) == false)
           {
@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             {
               result.Append(arg + " ");
             }
-            result.Append("-i \"" + GetFileShortName(InputSubtitleFilePath) + "\" ");
+            result.Append("-i \"" + InputSubtitleFilePath + "\" ");
           }
           if (string.IsNullOrEmpty(OutputFilePath) == false)
           {
@@ -100,11 +100,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           string arg = _overrideParams;
           if (InputResourceAccessor != null)
           {
-            arg = arg.Replace("{input}", "\"" + GetFileShortName(((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath) + "\"");
+            arg = arg.Replace("{input}", "\"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\"");
           }
           if (string.IsNullOrEmpty(InputSubtitleFilePath) == false)
           {
-            arg = arg.Replace("{subtitle}", "\"" + GetFileShortName(InputSubtitleFilePath) + "\"");
+            arg = arg.Replace("{subtitle}", "\"" + InputSubtitleFilePath) + "\"";
           }
           if (string.IsNullOrEmpty(OutputFilePath) == false)
           {

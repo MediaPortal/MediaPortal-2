@@ -42,7 +42,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
 {
   public class TranscodingServicePlugin : IPluginStateTracker
   {
-    public static bool TranscodeDataUseShortPath { get; private set; }
     public static string TranscoderCachePath { get; private set; }
     public static long TranscoderMaximumCacheSizeInGB { get; private set; }
     public static long TranscodeMaximumCacheAgeInDays { get; private set; }
@@ -79,7 +78,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public TranscodingServicePlugin()
     {
-      TranscodeDataUseShortPath = false;
       TranscoderMaximumCacheSizeInGB = 0; //GB
       TranscodeMaximumCacheAgeInDays = 30; //Days
       TranscoderMaximumThreads = 0;
