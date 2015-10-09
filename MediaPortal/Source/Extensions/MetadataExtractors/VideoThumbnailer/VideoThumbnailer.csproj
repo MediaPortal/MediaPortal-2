@@ -14,7 +14,7 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>5d86de6d</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>f34f6082</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -80,6 +80,10 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FFMpegLib\FFMpegLib.csproj">
+      <Project>{d2416e5a-cf6a-4b45-836d-02300d666127}</Project>
+      <Name>FFMpegLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -88,10 +92,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="..\..\..\..\Packages\ffmpeg.2.7.1\build\ffmpeg.targets" Condition="Exists('..\..\..\..\Packages\ffmpeg.2.7.1\build\ffmpeg.targets')" />
 </Project>
-
