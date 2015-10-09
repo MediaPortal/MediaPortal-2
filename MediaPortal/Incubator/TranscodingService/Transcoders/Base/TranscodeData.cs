@@ -56,6 +56,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     protected static extern uint GetShortPathName([MarshalAs(UnmanagedType.LPTStr)] string lpszLongPath, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpszShortPath, uint cchBuffer);
     protected string GetFileShortName(string fileName)
     {
+      if (!TranscodingServicePlugin.TranscodeDataUseShortPath)
+        return fileName;
+
       StringBuilder shortNameBuffer = new StringBuilder(256);
       uint result = GetShortPathName(fileName, shortNameBuffer, 256);
       return shortNameBuffer.ToString();
