@@ -349,21 +349,6 @@
     <DLNAMediaFormats>
       <MediaFormat mime="video/mpeg">AVI</MediaFormat>
     </DLNAMediaFormats>
-    <DirectoryContentBuilder>SamsungContentBuilder</DirectoryContentBuilder>
-    <ResourceAccessProtocol>SamsungAccessProtocol</ResourceAccessProtocol>
-    <UPNPDeviceDescription>
-      <AdditionalElements>
-        &lt;sec:ProductCap&gt;smi,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:ProductCap&gt;
-        &lt;sec:X_ProductCap&gt;smi,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
-      </AdditionalElements>
-    </UPNPDeviceDescription>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Images autoRotate="true" />
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="smi/caption" />
-      </Subtitles>
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" forceTranscoding="true">
         <VideoSource container="Asf" videoCodec="Mpeg2" />
@@ -500,15 +485,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="SamsungEF" name="Samsung TV / player (E/F-series)" baseProfile="SamsungH" active="true">
-    <DirectoryContentBuilder>SamsungContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>SamsungContentFilter</DirectoryContentFilter>
-    <ResourceAccessProtocol>SamsungAccessProtocol</ResourceAccessProtocol>
-    <UPNPDeviceDescription>
-      <AdditionalElements>
-        &lt;sec:ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:ProductCap&gt;
-        &lt;sec:X_ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
-      </AdditionalElements>
-    </UPNPDeviceDescription>
     <Detections>
       <Detection>
         <HttpSearch>
@@ -520,14 +496,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Images autoRotate="true" />
-      <Communication allowChunckedTransfer="false" />
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="smi/caption" />
-      </Subtitles>
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" forceInheritance="true">
         <VideoSource container="Mp4" audioCodec="Lpcm" />
@@ -560,15 +528,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="SamsungCD" name="Samsung TV / player (C/D-series)" baseProfile="SamsungEF" active="true">
-    <DirectoryContentBuilder>SamsungContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>SamsungContentFilter</DirectoryContentFilter>
-    <ResourceAccessProtocol>SamsungAccessProtocol</ResourceAccessProtocol>
-    <UPNPDeviceDescription>
-      <AdditionalElements>
-        &lt;sec:ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:ProductCap&gt;
-        &lt;sec:X_ProductCap&gt;smi,DCM10,getMediaInfo.sec,getCaptionInfo.sec&lt;/sec:X_ProductCap&gt;
-      </AdditionalElements>
-    </UPNPDeviceDescription>
     <Detections>
       <Detection>
         <HttpSearch>
@@ -580,14 +539,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Images autoRotate="true" />
-      <Communication allowChunckedTransfer="false" />
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="smi/caption" />
-      </Subtitles>
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Asf" audioCodec="Ac3" audioBitrate="256">
         <VideoSource container="Asf" audioCodec="WmaPro" />
@@ -864,17 +815,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Bdp2012" name="Sony BDP-Sx90 (2012)" baseProfile="Bdp2013" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
         <VideoSource videoCodec="H264" videoProfile="High10" />
@@ -959,13 +899,6 @@
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_T</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_ISO</MediaFormat>
     </DLNAMediaFormats>
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
     <Detections>
       <Detection>
         <HttpSearch>
@@ -977,10 +910,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
         <VideoSource container="Matroska" audioCodec="DtsHd" />
@@ -1011,30 +940,8 @@
       <MediaFormat mime="video/mpeg" name="MPEG_PS_PAL,MPEG_PS_NTSC">AVI</MediaFormat>
       <MediaFormat mime="video/mpeg">MATROSKA</MediaFormat>
     </DLNAMediaFormats>
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Subtitles support="HardCoded" />
-    </Settings>
   </Profile>
   <Profile id="Bdp2011" name="Sony BDP-Sx80/SMP-N200 (2011)" baseProfile="Bdp2010" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
-    <Settings>
-      <H264Video levelCheck="RefFramesLevel" />
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320">
         <VideoSource container="Avi" videoCodec="Mpeg4" videoFourCC="div3,div4,div5,divx,dm4v,dx50" />
@@ -1292,13 +1199,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Sony2011" name="Sony Bravia TV (2011)" baseProfile="Sony2012" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
     <Detections>
       <Detection>
         <UPnPSearch>
@@ -1306,9 +1206,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Mp4" />
@@ -1316,13 +1213,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Sony2010" name="Sony Bravia TV (2010)" baseProfile="Sony2011" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
     <Detections>
       <Detection>
         <UPnPSearch>
@@ -1330,9 +1220,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
         <VideoSource videoCodec="H264" videoProfile="High10" />
@@ -1404,9 +1291,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Philips" name="Philips (2009)" baseProfile="Philips2010" active="true">
-    <Settings>
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3">
         <VideoSource container="Matroska" />
@@ -1425,13 +1309,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Sony2009" name="Sony Bravia TV (2009)" baseProfile="Sony2010" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
     <Detections>
       <Detection>
         <HttpSearch>
@@ -1442,9 +1319,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="192">
         <VideoSource container="Mp4" videoCodec="H264" videoProfile="Baseline" videoBrandExclusion="isom" />
@@ -1541,7 +1415,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Viera2011A" name="Panasonic Viera G/GT/DT/UT/VT (2011/2012)" baseProfile="Viera2013" active="true">
-    <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
     <Detections>
       <Detection>
         <UPnPSearch>
@@ -1551,9 +1424,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
+      <Thumbnails maxWidth="160" maxHeight="160" />
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" forceInheritance="true">
@@ -1580,7 +1451,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Viera2011" name="Panasonic Viera E/S/ST/VT (2011)" baseProfile="Viera2011A" active="true">
-    <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
     <Detections>
       <Detection>
         <UPnPSearch>
@@ -1589,11 +1459,6 @@
         </UPnPSearch>
       </Detection>
     </Detections>
-    <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3">
         <VideoSource container="Avi" />
@@ -1601,12 +1466,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Viera2010" name="Panasonic Viera (2010)" baseProfile="Viera2011A" active="true">
-    <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
-    <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" audioBitrate="384">
         <VideoSource container="Matroska" />
@@ -1620,16 +1479,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Sony2012US" name="Sony Bravia TV (2012) - US" baseProfile="Sony2012" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
-    <Settings>
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
         <VideoSource container="Avi" videoCodec="Mpeg4" />
@@ -1639,16 +1488,6 @@
     </MediaTranscoding>
   </Profile>
   <Profile id="Sony2011US" name="Sony Bravia TV (2011) - US" baseProfile="Sony2012US" active="true">
-    <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <Manufacturer>Microsoft Corporation</Manufacturer>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>3.0</ModelNumber>
-    </UPNPDeviceDescription>
-    <Settings>
-      <Subtitles support="HardCoded" />
-    </Settings>
     <MediaTranscoding>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Mp4" />
