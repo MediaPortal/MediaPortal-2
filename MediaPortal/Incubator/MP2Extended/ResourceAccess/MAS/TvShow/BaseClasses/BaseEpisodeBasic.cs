@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         webTvEpisodeBasic.ShowId = showItem.MediaItemId.ToString();
       webTvEpisodeBasic.Type = WebMediaType.TVEpisode;
       webTvEpisodeBasic.Watched = ((int)(item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
-      //webTvEpisodeBasic.Path = ;
+      webTvEpisodeBasic.Path = new List<string> { item.MediaItemId.ToString() };
       //webTvEpisodeBasic.Artwork = ;
       webTvEpisodeBasic.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
       webTvEpisodeBasic.Id = item.MediaItemId.ToString();

@@ -22,9 +22,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
       necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
 
       IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);

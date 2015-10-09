@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Deusty.Net;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
@@ -25,6 +26,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
     public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
     {
+      ServiceRegistration.Get<ILogger>().Debug("ParserCommand: command: {0}", (string)message["Command"]);
       SendCommand((string)message["Command"]);
       return true;
     }
@@ -83,7 +85,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;
 
         case "pause":
-          button = Key.Pause;
+          button = Key.PlayPause;
           break;
 
         case "play":

@@ -54,6 +54,10 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserPosition.cs" />
+    <Compile Include="MessageParser\ParserMPExt.cs" />
+    <Compile Include="MessageParser\ParserProperties.cs" />
+    <Compile Include="MessageParser\ParserPlayFile.cs" />
     <Compile Include="MessageParser\ParserKey.cs" />
     <Compile Include="MessageParser\ParserPowermode.cs" />
     <Compile Include="MessageParser\ParserVolume.cs" />
@@ -62,6 +66,7 @@
     <Compile Include="Messages\MessageNowPlaying.cs" />
     <Compile Include="Messages\MessageNowPlayingBase.cs" />
     <Compile Include="Messages\MessageNowPlayingUpdate.cs" />
+    <Compile Include="Messages\MessageProperties.cs" />
     <Compile Include="Messages\MessageStatus.cs" />
     <Compile Include="Messages\MessageVolume.cs" />
     <Compile Include="Messages\MessageWelcome.cs" />
@@ -80,6 +85,7 @@
     <Compile Include="Messages\StatusUpdater.cs" />
     <Compile Include="MP Messages\HandlePlayerMessages.cs" />
     <Compile Include="MP Messages\MPMessageHandler.cs" />
+    <Compile Include="Property.cs" />
     <Compile Include="RemoteClient.cs" />
     <Compile Include="SendMessages\ISendMessage.cs" />
     <Compile Include="SendMessages\SendMessageOverviewInformation.cs" />

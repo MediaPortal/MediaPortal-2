@@ -11,12 +11,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   {
     public dynamic Process(IHttpRequest request)
     {
-      Logger.Info("MAS-GetMediaItem: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath);
-
       HttpParam httpParam = request.Param;
       string id = httpParam["id"].Value;
       if (id == null)
-        throw new BadRequestException("GetMediaItem: no id is null");
+        throw new BadRequestException("GetExternalMediaInfo: no id is null");
 
 
       WebDictionary<string> webDictionary = new WebDictionary<string>

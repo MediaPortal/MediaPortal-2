@@ -20,7 +20,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       HttpParam httpParam = request.Param;
       if (httpParam["id"].Value == null)
-        throw new BadRequestException("GetMediaItem: no id is null");
+        throw new BadRequestException("GetTVEpisodeDetailedById: no id is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
