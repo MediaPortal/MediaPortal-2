@@ -22,7 +22,7 @@
     </ControlTemplate-->
 
     <ControlTemplate x:Key="Menu_Button_Dummy">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="48,-6,2,-32"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="False">
       </Button>
@@ -61,7 +61,7 @@
               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <LinearGradientBrush.GradientStops>
                   <GradientStop Color="#00000000" Offset="0"  />
-                  <GradientStop Color="#D9000000" Offset="1"  />
+                  <GradientStop Color="#CC000000" Offset="1"  />
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Border.Background>

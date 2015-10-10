@@ -91,13 +91,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!--Win10-->
     <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderThickness="0">
       <Border.Background>
-        <SolidColorBrush Color="#000000" Opacity="0.85"/>
+        <SolidColorBrush Color="#000000" Opacity="0.80"/>
       </Border.Background>
     </Border>
 
     <Border Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Margin="0,-60,0,0" BorderThickness="0">
       <Border.Background>
-        <SolidColorBrush Color="#000000" Opacity="0.85"/>
+        <SolidColorBrush Color="#000000" Opacity="0.80"/>
       </Border.Background>
     </Border>
     <!--Win10-->
@@ -185,17 +185,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </Border>
 
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="0,-20,50,-20"
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="9,-20,60,20"
           HorizontalAlignment="Center" VerticalAlignment="Center"
           IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="1"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
       </Button>    
       
       <!--Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" /-->

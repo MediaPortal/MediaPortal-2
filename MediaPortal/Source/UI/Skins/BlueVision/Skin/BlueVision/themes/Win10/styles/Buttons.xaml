@@ -1146,10 +1146,74 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MenuButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource MenuControlTemplate}" />
-    </Style.Resources>
+  <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0" Opacity="0.6" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="72"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="72"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1.6"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <Control Grid.Row="0" Grid.Column="0" Style="{ThemeResource PowerControlTemplate}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <Style x:Key="MenuButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0" Opacity="0.6" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="72"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="72"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-1" Opacity="1.6"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <Control Grid.Row="0" Grid.Column="0" Style="{ThemeResource MenuControlTemplate}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">

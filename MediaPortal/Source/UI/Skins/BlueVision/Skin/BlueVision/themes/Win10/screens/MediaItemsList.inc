@@ -35,8 +35,8 @@
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
           <LinearGradientBrush.GradientStops>
             <GradientStop Color="#00000000" Offset="3"  />
-            <GradientStop Color="#D9000000" Offset="0.55"  />
-            <GradientStop Color="#D9000000" Offset="0"  />
+            <GradientStop Color="#CC000000" Offset="0.55"  />
+            <GradientStop Color="#CC000000" Offset="0"  />
           </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
       </Border.Background>
@@ -50,7 +50,7 @@
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
           <LinearGradientBrush.GradientStops>
             <GradientStop Color="#00000000" Offset="0"  />
-            <GradientStop Color="#D9000000" Offset="1"  />
+            <GradientStop Color="#CC000000" Offset="1"  />
           </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
       </Border.Background>

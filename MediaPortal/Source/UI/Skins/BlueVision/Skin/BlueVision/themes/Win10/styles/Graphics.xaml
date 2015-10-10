@@ -155,27 +155,35 @@
     <Image Source="PlayerControls.Large.Dark\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
-  <ControlTemplate x:Key="PowerControlTemplate">
-    <Grid Width="72" Height="72" Margin="0,-20,0,20" VerticalAlignment="Center">
-      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
-        <Border.Background>
-          <SolidColorBrush Color="#FF6600"/>
-        </Border.Background>
-        <Image Source="ShutdownIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="40" Height="40" Opacity="1" Margin="0"/>
-      </Border>
-    </Grid>
-  </ControlTemplate>
+  <Style x:Key="PowerControlTemplate" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>   
+          <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+            <Border.Background>
+              <SolidColorBrush Color="#FF6600"/>
+            </Border.Background>
+            <Image Source="ShutdownIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="40" Height="40" Opacity="1" Margin="0"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-  <ControlTemplate x:Key="MenuControlTemplate">
-    <Grid Width="72" Height="72" Margin="0,-20,0,20" VerticalAlignment="Center">
-      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center">
-        <Border.Background>
-          <SolidColorBrush Color="#FF6600"/>
-        </Border.Background>
-        <Image Source="MP2_logo_bw.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1"  Width="50" Height="50"  />
-      </Border>
-    </Grid>
-  </ControlTemplate>
+  <Style x:Key="MenuControlTemplate" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Width="72" Height="72" Margin="0" VerticalAlignment="Center">
+            <Border.Background>
+              <SolidColorBrush Color="#FF6600"/>
+            </Border.Background>
+            <Image Source="MP2_logo_bw.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1"  Width="50" Height="50"  />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <ControlTemplate x:Key="WindowCloseControlTemplate">
     <Grid>
