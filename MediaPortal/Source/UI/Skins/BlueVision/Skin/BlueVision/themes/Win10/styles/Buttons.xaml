@@ -1162,7 +1162,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1.6"
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             <Control Grid.Row="0" Grid.Column="0" Style="{ThemeResource PowerControlTemplate}" />
           </Grid>
@@ -1197,7 +1197,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-1" Opacity="1.6"
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-1" Opacity="1"
                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             <Control Grid.Row="0" Grid.Column="0" Style="{ThemeResource MenuControlTemplate}" />
           </Grid>
