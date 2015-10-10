@@ -35,6 +35,8 @@ namespace MediaPortal.Server
       this.colSystem = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.colConnectionState = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.lbAttachedClients = new System.Windows.Forms.Label();
+      this.label1 = new System.Windows.Forms.Label();
+      this.lblHttpPort = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
       // serverTrayIcon
@@ -87,11 +89,31 @@ namespace MediaPortal.Server
       this.lbAttachedClients.TabIndex = 0;
       this.lbAttachedClients.Text = "Attached &clients";
       // 
+      // label1
+      // 
+      this.label1.AutoSize = true;
+      this.label1.Location = new System.Drawing.Point(429, 4);
+      this.label1.Name = "label1";
+      this.label1.Size = new System.Drawing.Size(61, 13);
+      this.label1.TabIndex = 3;
+      this.label1.Text = "HTTP-Port:";
+      // 
+      // lblHttpPort
+      // 
+      this.lblHttpPort.AutoSize = true;
+      this.lblHttpPort.Location = new System.Drawing.Point(491, 5);
+      this.lblHttpPort.Name = "lblHttpPort";
+      this.lblHttpPort.Size = new System.Drawing.Size(35, 13);
+      this.lblHttpPort.TabIndex = 4;
+      this.lblHttpPort.Text = "label2";
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(538, 209);
+      this.Controls.Add(this.lblHttpPort);
+      this.Controls.Add(this.label1);
       this.Controls.Add(this.lbAttachedClients);
       this.Controls.Add(this.lvClients);
       this.Name = "MainForm";
@@ -111,5 +133,7 @@ namespace MediaPortal.Server
     private System.Windows.Forms.ColumnHeader colSystem;
     private System.Windows.Forms.ColumnHeader colConnectionState;
     private System.Windows.Forms.Label lbAttachedClients;
+    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.Label lblHttpPort;
   }
 }

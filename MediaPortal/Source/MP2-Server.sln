@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -133,6 +133,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OnlineLibraries", "..\Tests\Test.OnlineLibraries\Test.OnlineLibraries.csproj", "{B9B6B0F4-1AED-48D5-927A-45BC3F3461C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Mock", "..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj", "{F1A04140-5C63-4688-8A9E-A195AAF95DE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2Extended", "..\Incubator\MP2Extended\MP2Extended.csproj", "{9E212C3D-E0D5-4A71-B445-39EC24373823}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -332,6 +334,10 @@ Global
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1}.Debug|x86.Build.0 = Debug|x86
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1}.Release|x86.ActiveCfg = Release|x86
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1}.Release|x86.Build.0 = Release|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Debug|x86.ActiveCfg = Debug|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Debug|x86.Build.0 = Debug|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Release|x86.ActiveCfg = Release|x86
+		{9E212C3D-E0D5-4A71-B445-39EC24373823}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -397,5 +403,6 @@ Global
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{B9B6B0F4-1AED-48D5-927A-45BC3F3461C1} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
+		{9E212C3D-E0D5-4A71-B445-39EC24373823} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 	EndGlobalSection
 EndGlobal

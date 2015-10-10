@@ -106,6 +106,7 @@
     <Error Condition="!Exists('..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets'))" />
     <Error Condition="!Exists('..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets'))" />
     <Error Condition="!Exists('..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <Import Project="..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets" Condition="Exists('..\..\..\Packages\bass.aac.2.4.4.4\build\bass.aac.targets')" />
   <Import Project="..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets" Condition="Exists('..\..\..\Packages\bass.ac3.2.4.0.3\build\bass.ac3.targets')" />
@@ -124,4 +125,5 @@
   <Import Project="..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets" Condition="Exists('..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets')" />
   <Import Project="..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets" Condition="Exists('..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets')" />
   <Import Project="..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets" Condition="Exists('..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
