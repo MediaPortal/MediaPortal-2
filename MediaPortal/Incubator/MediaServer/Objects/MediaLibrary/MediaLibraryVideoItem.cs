@@ -47,8 +47,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
       if (client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-        MediaItemAspect videoAspect;
-        if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+        SingleMediaItemAspect videoAspect;
+        if (MediaItemAspect.TryGetAspect(item.Aspects, VideoAspect.Metadata, out videoAspect))
         {
           // TODO: type issue again :-/
           var genreObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_GENRES);
@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
             Description = descriptionObj.ToString();
         }
       }
-      object oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

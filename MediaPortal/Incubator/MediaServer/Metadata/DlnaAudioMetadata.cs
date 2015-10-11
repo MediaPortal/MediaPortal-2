@@ -62,48 +62,52 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
       }
       if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == true)
       {
+        SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
+        SingleMediaItemAspect transcodeAudioAspect = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata);
+        SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
+
         object oValue = null;
-        oValue = item.Aspects[TranscodeItemAudioAspect.ASPECT_ID].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
+        oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), oValue.ToString());
         }
         AudioStream audio = new AudioStream();
-        oValue = item.Aspects[TranscodeItemAudioAspect.ASPECT_ID].GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
+        oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
         if (oValue != null)
         {
           audio.StreamIndex = Convert.ToInt32(oValue);
-          oValue = (string)item.Aspects[TranscodeItemAudioAspect.ASPECT_ID].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
+          oValue = (string)transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             audio.Codec = (AudioCodec)Enum.Parse(typeof(AudioCodec), oValue.ToString());
           }
-          oValue = item.Aspects[TranscodeItemAudioAspect.ASPECT_ID].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
+          oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
           if (oValue != null)
           {
             audio.Channels = Convert.ToInt32(oValue);
           }
-          oValue = item.Aspects[TranscodeItemAudioAspect.ASPECT_ID].GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
+          oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
           if (oValue != null)
           {
             audio.Frequency = Convert.ToInt64(oValue);
           }
           if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID) == true)
           {
-            oValue = item.Aspects[AudioAspect.ASPECT_ID].GetAttributeValue(AudioAspect.ATTR_BITRATE);
+            oValue = audioAspect.GetAttributeValue(AudioAspect.ATTR_BITRATE);
             if (oValue != null)
             {
               audio.Bitrate = Convert.ToInt64(oValue);
             }
-            oValue = item.Aspects[AudioAspect.ASPECT_ID].GetAttributeValue(AudioAspect.ATTR_DURATION);
+            oValue = audioAspect.GetAttributeValue(AudioAspect.ATTR_DURATION);
             if (oValue != null)
             {
               info.Metadata.Duration = Convert.ToDouble(oValue);
             }
           }
-          if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
+          if (providerResourceAspect != null)
           {
-            oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
+            oValue = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
             if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
             {
               info.Metadata.Mime = oValue.ToString();

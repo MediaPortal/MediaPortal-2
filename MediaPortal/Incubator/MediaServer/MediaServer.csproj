@@ -224,7 +224,6 @@
     <Error Condition="!Exists('..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets'))" />
   </Target>
   <Import Project="..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets" Condition="Exists('..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
