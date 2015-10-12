@@ -69,7 +69,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       if (key == Key) return this;
 
       var item = MediaLibraryHelper.GetMediaItem(MediaLibraryHelper.GetObjectId(key));
-      var parentId = new Guid(item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
+      SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
+      var parentId = new Guid(providerResourceAspect.GetAttributeValue(
         ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID).ToString());
 
       BasicContainer parent;

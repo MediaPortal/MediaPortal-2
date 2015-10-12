@@ -100,7 +100,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
       return VIDEO_FILE_EXTENSIONS.Contains(ext);
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -160,7 +160,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
       return false;
     }
 
-    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);
@@ -174,63 +174,47 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.RefLevel);
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP, info.Video.TimestampType.ToString());
 
-      List<string> valuesLangs = new List<string>();
-      List<string> valuesCodecs = new List<string>();
-      List<string> valuesStreams = new List<string>();
-      List<string> valuesBitrates = new List<string>();
-      List<string> valuesChannels = new List<string>();
-      List<string> valuesFrequencies = new List<string>();
-      List<string> valuesDefaults = new List<string>();
       foreach (AudioStream audio in info.Audio)
       {
-        valuesStreams.Add(audio.StreamIndex.ToString());
-        valuesCodecs.Add(audio.Codec.ToString());
+        MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(TranscodeItemVideoAudioAspect.Metadata);
+        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOSTREAM, audio.StreamIndex.ToString());
+        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC, audio.Codec.ToString());
         if (audio.Language == null)
         {
-          valuesLangs.Add("");
+          aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE, "");
         }
         else
         {
-          valuesLangs.Add(audio.Language);
+          aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE, audio.Language);
         }
-        valuesBitrates.Add(audio.Bitrate.ToString());
-        valuesChannels.Add(audio.Channels.ToString());
-        valuesFrequencies.Add(audio.Frequency.ToString());
-        valuesDefaults.Add(audio.Default ? "1" : "0");
+        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOBITRATE, audio.Bitrate.ToString());
+        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOCHANNEL, audio.Channels.ToString());
+        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOFREQUENCY, audio.Frequency.ToString());
+        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIODEFAULT, audio.Default ? "1" : "0");
+        MediaItemAspect.AddOrUpdateAspect(extractedAspectData, aspect);
       }
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIOLANGUAGES, valuesLangs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIOCODECS, valuesCodecs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIOSTREAMS, valuesStreams);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIOBITRATES, valuesBitrates);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIOCHANNELS, valuesChannels);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIOFREQUENCIES, valuesFrequencies);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_AUDIODEFAULTS, valuesDefaults);
 
-      List<string> valuesEmSubStreams = new List<string>();
-      List<string> valuesEmSubCodecs = new List<string>();
-      List<string> valuesEmSubLangs = new List<string>();
-      List<string> valuesEmSubDefaults = new List<string>();
       foreach (SubtitleStream sub in info.Subtitles)
       {
+        MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(TranscodeItemVideoEmbeddedAspect.Metadata);
         if (sub.IsEmbedded)
         {
-          valuesEmSubStreams.Add(sub.StreamIndex.ToString());
-          valuesEmSubCodecs.Add(sub.Codec.ToString());
+          aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM, sub.StreamIndex.ToString());
+          aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC, sub.Codec.ToString());
+
           if (sub.Language == null)
           {
-            valuesEmSubLangs.Add("");
+            aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE, "");
           }
           else
           {
-            valuesEmSubLangs.Add(sub.Language);
+            aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE, sub.Language);
           }
-          valuesEmSubDefaults.Add(sub.Default ? "1" : "0");
+
+          aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT, sub.Default ? "1" : "0");
+          MediaItemAspect.AddOrUpdateAspect(extractedAspectData, aspect);
         }
       }
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBSTREAMS, valuesEmSubStreams);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBCODECS, valuesEmSubCodecs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBLANGUAGES, valuesEmSubLangs);
-      MediaItemAspect.SetCollectionAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBDEFAULTS, valuesEmSubDefaults);
     }
 
     #endregion

@@ -389,7 +389,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             bHandled = true;
             Logger.Debug("DlnaResourceAccessModule: Attempting to load media item thumbnail");
 
-            byte[] thumb = (byte[])dlnaItem.MediaSource.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+            SingleMediaItemAspect thumbnailLargeAspect = MediaItemAspect.GetAspect(dlnaItem.MediaSource.Aspects, ThumbnailLargeAspect.Metadata);
+            byte[] thumb = (byte[])thumbnailLargeAspect.GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
             if (thumb != null && thumb.Length > 0)
             {
               response.ContentType = "image/jpeg";

@@ -44,7 +44,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Playlist = new List<string>();
       Contributor = new List<string>();
 
-      var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
+      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+      SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
       var album = audioAspect.GetAttributeValue(AudioAspect.ATTR_ALBUM);
       if (album != null) Album.Add(album.ToString());
 
@@ -57,7 +58,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var originalTrack = audioAspect.GetAttributeValue(AudioAspect.ATTR_TRACK);
       if (originalTrack != null) OriginalTrackNumber = Convert.ToInt32(originalTrack.ToString());
 
-      object oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

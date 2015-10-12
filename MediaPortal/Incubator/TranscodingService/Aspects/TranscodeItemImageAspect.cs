@@ -34,13 +34,13 @@ namespace MediaPortal.Plugins.Transcoding.Aspects
     /// </summary>
     public static readonly Guid ASPECT_ID = new Guid("A4444443-F31D-440E-8F2B-D7068F3C426F");
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CONTAINER =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_CONTAINER =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PIXEL_FORMAT =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("PixelFmt", 10, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_PIXEL_FORMAT =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("PixelFmt", 10, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
            ASPECT_ID, "TranscodeItemImage", new[] {
             ATTR_CONTAINER,
             ATTR_PIXEL_FORMAT

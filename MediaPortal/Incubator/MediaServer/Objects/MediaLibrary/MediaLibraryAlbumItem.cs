@@ -72,8 +72,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
         if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
         {
-          MediaItemAspect audioAspect;
-          if (item.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+          SingleMediaItemAspect audioAspect;
+          if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect))
           {
             // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
             var genreObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_GENRES);

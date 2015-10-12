@@ -218,9 +218,9 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       }
       var rs = ServiceRegistration.Get<IResourceServer>();
       if (useIPv4)
-        return "http://" + GetLocalIp() + ":" + rs.PortIPv4;
+        return "http://" + GetLocalIp() + ":" + rs.GetPortForIP();
       else
-        return "http://" + GetLocalIp() + ":" + rs.PortIPv6;
+        return "http://" + GetLocalIp() + ":" + rs.GetPortForIP();
     }
   }
 }

@@ -37,10 +37,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       : base(baseKey, item, client)
     {
       DlnaMediaItem dlnaItem = client.GetDlnaItem(item);
+      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
       
       Publisher = new List<string>();
       Rights = new List<string>();
-      object oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");
