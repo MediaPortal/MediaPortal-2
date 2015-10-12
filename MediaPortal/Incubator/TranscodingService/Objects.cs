@@ -283,6 +283,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public SubtitleCodec TargetSubtitleCodec = SubtitleCodec.Srt;
     public string TargetSubtitleLanguages = "EN";
     public string Movflags = null;
+    public string HlsBaseUrl = null;
   }
 
   public class ImageTranscoding : BaseTranscoding

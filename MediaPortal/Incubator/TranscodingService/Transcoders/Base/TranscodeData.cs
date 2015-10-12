@@ -50,6 +50,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public string InputSubtitleFilePath;
     public string OutputFilePath;
     public string SegmentPlaylist = null;
+    public string HlsBaseUrl = null;
     public string WorkPath;
 
     public virtual string TranscoderArguments { get; set; }
