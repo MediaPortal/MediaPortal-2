@@ -172,8 +172,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       {
         data.OutputArguments.Add(string.Format("-movflags {0}", video.Movflags));
       }
-
-      Logger.Info("TranscoderArguments: {0}", video.TranscoderArguments);
     }
 
     internal void AddStreamMapParameters(int videoStreamIndex, int audioStreamIndex, bool embeddedSubtitle, ref FFMpegTranscodeData data)
