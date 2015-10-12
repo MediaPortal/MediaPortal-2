@@ -1,7 +1,7 @@
 #region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -132,7 +132,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           }
           catch (Exception e)
           {
-            UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'",
+            UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'", e,
                 e.Message);
           }
         }
@@ -169,7 +169,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         catch (Exception e)
         {
-          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming unicast UDP packet. Error message: '{0}'", e.Message);
+          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming unicast UDP packet. Error message: '{0}'", e, e.Message);
         }
         StartUnicastReceive(state);
       }
@@ -646,7 +646,9 @@ namespace UPnP.Infrastructure.CP.SSDP
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp);
+      string error;
+      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp, out error))
+        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle SSDP response from {0}:{1} - {2}:\n{3}", remoteEndPoint.Address, remoteEndPoint.Port, error, header);
     }
 
     protected void HandleNotifyRequest(SimpleHTTPRequest header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
@@ -670,37 +672,42 @@ namespace UPnP.Infrastructure.CP.SSDP
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp);
+      string error;
+      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp, out error))
+        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle notify request from {0}:{1} - {2}:\n{3}", remoteEndPoint.Address, remoteEndPoint.Port, error, header);
     }
 
-    protected void HandleNotifyPacket(EndpointConfiguration config, IPEndPoint remoteEndPoint, HTTPVersion httpVersion,
-        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp)
+    protected bool HandleNotifyPacket(EndpointConfiguration config, IPEndPoint remoteEndPoint, HTTPVersion httpVersion,
+        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp, out string error)
     {
+      error = "Invalid message";
       uint bootID = 0;
       if (bi != null && !uint.TryParse(bi, out bootID))
         // Invalid message
-        return;
+        return false;
       uint configID = 0;
       if (ci != null && !uint.TryParse(ci, out configID))
         // Invalid message
-        return;
-      if (!usn.StartsWith("uuid:"))
-        // Invalid usn
-        return;
+        return false;
+      if (usn == null || !usn.StartsWith("uuid:"))
+      {
+        // Invalid usn - ignore message
+        return true;
+      }
       string deviceUUID;
       string messageType;
       if (!ParserHelper.TryParseUSN(usn, out deviceUUID, out messageType))
         // We only use messages of the type "uuid:device-UUID::..." and discard the "uuid:device-UUID" message
-        return;
+        return true;
       if (nts == "ssdp:alive")
       {
         if (server == null)
           // Invalid message
-          return;
+          return false;
         int maxAge;
         if (!TryParseMaxAge(cacheControl, out maxAge))
           // Invalid message
-          return;
+          return false;
         DateTime d;
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
@@ -719,26 +726,26 @@ namespace UPnP.Infrastructure.CP.SSDP
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
         if (upnpVersionInfo == null)
           // Invalid message
-          return;
+          return false;
         // upnpVersionInfo = 'UPnP/1.0', 'UPnP/1.1', 'UPnP/1.0 DLNADOC/1.50', ..., the UPnP version is always the first token
         string[] upnpVersionInfoTokens = upnpVersionInfo.Split(' ');
         string upnpVersionInfoToken = upnpVersionInfoTokens[0];
         UPnPVersion upnpVersion;
         if (!UPnPVersion.TryParse(upnpVersionInfoToken, out upnpVersion))
           // Invalid message
-          return;
+          return false;
         if (upnpVersion.VerMax != 1)
           // Incompatible UPnP version
-          return;
+          return false;
         int searchPort = 1900;
         if (upnpVersion.VerMin >= 1)
         {
           if (bi == null || ci == null)
             // Invalid message
-            return;
+            return false;
           if (sp != null && (!int.TryParse(sp, out searchPort) || searchPort < 49152 || searchPort > 65535))
             // Invalid message
-            return;
+            return false;
         }
         RootEntry rootEntry;
         DeviceEntry deviceEntry = null;
@@ -758,7 +765,7 @@ namespace UPnP.Infrastructure.CP.SSDP
               productVersion, expirationTime, config, httpVersion, searchPort, out rootEntryAdded);
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
-            return;
+            return false;
           uint currentConfigId = rootEntry.GetConfigID(remoteEndPoint);
           if (currentConfigId != 0 && currentConfigId != configID)
             fireConfigurationChanged = true;
@@ -791,7 +798,7 @@ namespace UPnP.Infrastructure.CP.SSDP
               int deviceTypeVersion;
               if (!ParserHelper.TryParseTypeVersion_URN(messageType, out deviceType, out deviceTypeVersion))
                 // Invalid message
-                return;
+                return false;
               deviceEntry = rootEntry.GetOrCreateDeviceEntry(deviceUUID);
               fireDeviceAdded = string.IsNullOrEmpty(deviceEntry.DeviceType);
               deviceEntry.DeviceType = deviceType;
@@ -802,14 +809,18 @@ namespace UPnP.Infrastructure.CP.SSDP
               deviceEntry = rootEntry.GetOrCreateDeviceEntry(deviceUUID);
               serviceType = messageType;
               if (deviceEntry.Services.Contains(serviceType))
-                return;
+			    // Ignore
+                return true;
               deviceEntry.Services.Add(serviceType);
               fireServiceAdded = true;
             }
           }
           else
+          {
             // Invalid message
-            return;
+            error = "Unknown message type";
+            return false;
+          }
         }
         // Raise events after returning the lock
         if (fireDeviceRebooted)
@@ -830,11 +841,12 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
-            return;
+            return false;
           RemoveRootEntry(rootEntry);
           InvokeRootDeviceRemoved(rootEntry);
         }
       }
+      return true;
     }
 
     protected void HandleUpdatePacket(SimpleHTTPRequest header, EndpointConfiguration config)

@@ -1,7 +1,7 @@
 #region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -223,7 +223,7 @@ namespace UPnP.Infrastructure.CP.GENA
         }
         catch (Exception e)
         {
-          UPnPConfiguration.LOGGER.Debug("GENAClientController: Problem parsing incoming multicast packet at IP endpoint '{0}'. Error message: '{1}'",
+          UPnPConfiguration.LOGGER.Debug("GENAClientController: Problem parsing incoming multicast packet at IP endpoint '{0}'. Error message: '{1}'", e,
               NetworkHelper.IPAddrToString(config.EndPointIPAddress), e.Message);
         }
         StartReceive(state);
