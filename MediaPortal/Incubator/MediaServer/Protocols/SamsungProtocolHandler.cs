@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       {
         if (request.Headers["getMediaInfo.sec"] == "1")
         {
-          object durationSeconds = item.MediaSource.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_DURATION);
+          object durationSeconds = MediaItemAspect.GetAspect(item.MediaSource.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_DURATION);
           if (durationSeconds != null)
           {
             response.AddHeader("MediaInfo.sec", string.Format("SEC_Duration={0};", Convert.ToInt32(durationSeconds) * 1000));
