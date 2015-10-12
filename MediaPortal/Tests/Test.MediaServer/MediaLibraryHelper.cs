@@ -29,6 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Extensions.MediaServer.Tree;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
@@ -76,23 +77,30 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, string baseKey, BasicContainer parent, string title)
     {
+      EndPointSettings settings = new EndPointSettings
+      {
+        PreferredSubtitleLanguages = "EN",
+        PreferredAudioLanguages = "EN",
+        DefaultSubtitleEncodings = ""
+      };
+
       IDirectoryObject obj;
       // Choose the appropiate MediaLibrary* object for the media item
       if (item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
       {
-        obj = new MediaLibraryContainer(baseKey, item);
+        obj = new MediaLibraryContainer(baseKey, item, settings);
       }
       else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        obj = new MediaLibraryMusicTrack(baseKey, item);
+        obj = new MediaLibraryMusicTrack(baseKey, item, settings);
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
-        obj = new MediaLibraryImageItem(baseKey, item);
+        obj = new MediaLibraryImageItem(baseKey, item, settings);
       }
       else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        obj = new MediaLibraryVideoItem(baseKey, item);
+        obj = new MediaLibraryVideoItem(baseKey, item, settings);
       }
       else
       {

@@ -34,6 +34,7 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.Extensions.MediaServer.DIDL;
 using MediaPortal.Extensions.MediaServer.Objects;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using NUnit.Framework;
 
 namespace Test.MediaServer
@@ -85,11 +86,16 @@ namespace Test.MediaServer
       {
           throw new NotImplementedException();
       }
+
+      public int GetPortForIP(System.Net.IPAddress ipAddress)
+      {
+        throw new NotImplementedException();
+      }
     }
 
     class TestMediaLibraryAlbumItem : MediaLibraryAlbumItem
     {
-        public TestMediaLibraryAlbumItem(string id, string title) : base(id, title) {}
+        public TestMediaLibraryAlbumItem(string id, string title, EndPointSettings settings) : base(id, title, settings) {}
 
         public override int ChildCount
         {
@@ -140,9 +146,16 @@ namespace Test.MediaServer
         [Test]
         public void TestAlbumItem()
         {
+            EndPointSettings settings = new EndPointSettings
+            {
+              PreferredSubtitleLanguages = "EN",
+              PreferredAudioLanguages = "EN",
+              DefaultSubtitleEncodings = ""
+            };
+
             IList<IDirectoryObject> objects = new List<IDirectoryObject>();
 
-            MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem("abc123", "The Album");
+            MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem("abc123", "The Album", settings);
             item.Initialise();
             objects.Add(item);
 
