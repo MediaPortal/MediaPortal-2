@@ -14,17 +14,13 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  // This is a work around -> wait for MIA rework
   // Add more details
   internal class GetTVShowsBasic : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
-      // we can't select only for shows, so we take all episodes and filter the shows.
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
 
       IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
@@ -36,11 +32,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 
       foreach (var item in items)
       {
-        var seriesAspect = item.Aspects[SeriesAspect.ASPECT_ID];
+        SingleMediaItemAspect seriesAspect = MediaItemAspect.GetAspect(item.Aspects, SeriesAspect.Metadata);
         int index = output.FindIndex(x => x.Title == (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
         if (index == -1)
         {
-          var episodesInThisShow = items.ToList().FindAll(x => (string)x.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SERIESNAME] == (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
+          var episodesInThisShow = items.ToList().FindAll(x => (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME] == (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
           var episodesInThisShowUnwatched = episodesInThisShow.FindAll(x => x.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] == 0);
           necessaryMIATypes = new HashSet<Guid>();
           necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

@@ -81,7 +81,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       if (!_fanArtMediaTypeMapping.TryGetValue(webMediaType, out fanArtMediaType))
         fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
 
-      string name = (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+      string name = (string)mediaAspect[MediaAspect.ATTR_TITLE];
       // Tv Episode
       if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
       {
@@ -92,7 +93,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       }
 
       if (isSeason)
-        name = String.Format("{0} S{1}", (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE], seasonId);
+        name = String.Format("{0} S{1}", (string)mediaAspect[MediaAspect.ATTR_TITLE], seasonId);
 
       IList<FanArtImage> fanart = ServiceRegistration.Get<IFanArtService>().GetFanArt(fanArtMediaType, fanartType, name, 0, 0, true);
 

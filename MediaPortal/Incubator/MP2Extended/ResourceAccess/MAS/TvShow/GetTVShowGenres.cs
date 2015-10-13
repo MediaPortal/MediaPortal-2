@@ -36,7 +36,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 
       foreach (var item in items)
       {
-        var videoGenres = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
+        SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
+        var videoGenres = (HashSet<object>)videoAspect[VideoAspect.ATTR_GENRES];
         List<string> videoGenresList = new List<string>();
         if (videoGenres != null)
           videoGenresList = videoGenres.Cast<string>().ToList();

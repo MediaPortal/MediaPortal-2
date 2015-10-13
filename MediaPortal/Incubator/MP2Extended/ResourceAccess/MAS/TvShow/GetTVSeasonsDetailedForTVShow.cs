@@ -41,7 +41,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       string showName;
       try
       {
-        showName = (string)showItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+        SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+        showName = (string)mediaAspect[MediaAspect.ATTR_TITLE];
       }
       catch (Exception ex)
       {

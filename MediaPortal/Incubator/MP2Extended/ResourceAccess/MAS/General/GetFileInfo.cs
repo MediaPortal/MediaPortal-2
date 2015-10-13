@@ -33,7 +33,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       if (item == null)
         throw new BadRequestException("GetFileInfo: no media tiem found");
 
-      var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
+      var resourcePathStr = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
       var ra = GetResourceAccessor(resourcePath);

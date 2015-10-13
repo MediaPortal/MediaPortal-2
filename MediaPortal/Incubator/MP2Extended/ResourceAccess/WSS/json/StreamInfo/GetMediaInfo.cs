@@ -43,7 +43,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       // decide which type of media item we have
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
+        SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
+
         duration = (long)videoAspect[VideoAspect.ATTR_DURATION];
         //container not in DB
 
@@ -79,7 +80,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       }
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
+        SingleMediaItemAspect audioAspect;
+        MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect);
         duration = (long)audioAspect[AudioAspect.ATTR_DURATION];
         //container not in DB
       }

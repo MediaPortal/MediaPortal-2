@@ -37,7 +37,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 
       foreach (var item in items)
       {
-        var recodringTime = item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_RECORDINGTIME];
+        SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+        var recodringTime = mediaAspect[MediaAspect.ATTR_RECORDINGTIME];
         if (recodringTime == null)
           continue;
         string recordingTimeString = ((DateTime)recodringTime).ToString("yyyy");

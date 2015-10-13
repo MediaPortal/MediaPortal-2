@@ -7,6 +7,7 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
@@ -42,11 +43,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         if (item == null)
           throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
+        SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
+
         // Grab the mimetype from the media item and set the Content Type header.
-        response.ContentType = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE).ToString();
+        response.ContentType = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString();
 
         // Grab the resource path for the media item.
-        var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        var resourcePathStr = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
         var ra = GetResourceAccessor(resourcePath);

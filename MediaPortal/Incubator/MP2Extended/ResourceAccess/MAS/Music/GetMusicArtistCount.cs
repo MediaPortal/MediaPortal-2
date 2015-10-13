@@ -36,9 +36,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 
       foreach (var item in items)
       {
-        MediaItemAspect audioAspects = item.Aspects[AudioAspect.ASPECT_ID];
+        SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
 
-        var albumArtists = (HashSet<object>)audioAspects[AudioAspect.ATTR_ALBUMARTISTS];
+        var albumArtists = (HashSet<object>)audioAspect[AudioAspect.ATTR_ALBUMARTISTS];
         if (albumArtists != null)
           foreach (var artist in albumArtists.Cast<string>())
           {

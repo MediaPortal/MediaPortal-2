@@ -57,55 +57,60 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 
       foreach (var item in items)
       {
-        MediaItemAspect movieAspects = item.Aspects[MovieAspect.ASPECT_ID];
+        SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+        SingleMediaItemAspect movieAspect = MediaItemAspect.GetAspect(item.Aspects, MovieAspect.Metadata);
+        SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
+        SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata);
 
         WebMovieDetailed webMovieDetailed = new WebMovieDetailed();
-        var TMDBId = movieAspects[MovieAspect.ATTR_TMDB_ID];
+        string TMDBId;
+        MediaItemAspect.TryGetExternalAttribute(item.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out TMDBId);
         if (TMDBId != null)
         {
           webMovieDetailed.ExternalId.Add(new WebExternalId
           {
             Site = "TMDB",
-            Id = ((int)TMDBId).ToString()
+            Id = TMDBId
           });
         }
-        var ImdbId = movieAspects[MovieAspect.ATTR_IMDB_ID];
+        string ImdbId;
+        MediaItemAspect.TryGetExternalAttribute(item.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out ImdbId);
         if (ImdbId != null)
         {
           webMovieDetailed.ExternalId.Add(new WebExternalId
           {
             Site = "IMDB",
-            Id = (string)movieAspects[MovieAspect.ATTR_IMDB_ID]
+            Id = ImdbId
           });
         }
 
         webMovieDetailed.IsProtected = false; //??
-        var rating = movieAspects.GetAttributeValue(MovieAspect.ATTR_TOTAL_RATING);
+        var rating = movieAspect.GetAttributeValue(MovieAspect.ATTR_TOTAL_RATING);
         if (rating != null)
           webMovieDetailed.Rating = Convert.ToSingle(rating);
         webMovieDetailed.Type = WebMediaType.Movie;
-        webMovieDetailed.Watched = ((int)(item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
+        webMovieDetailed.Watched = ((int)(mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
         //webMovieDetailed.Path = ;
         //webMovieDetailed.Artwork = ;
         //webMovieDetailed.Year = ;
         //webMovieDetailed.Language = ;
-        webMovieDetailed.Runtime = (int)(movieAspects[MovieAspect.ATTR_RUNTIME_M] ?? 0);
-        webMovieDetailed.Tagline = (string)(movieAspects[MovieAspect.ATTR_TAGLINE] ?? string.Empty);
-        webMovieDetailed.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+        webMovieDetailed.Runtime = (int)(movieAspect[MovieAspect.ATTR_RUNTIME_M] ?? 0);
+        webMovieDetailed.Tagline = (string)(movieAspect[MovieAspect.ATTR_TAGLINE] ?? string.Empty);
+        webMovieDetailed.DateAdded = (DateTime)importerAspect[ImporterAspect.ATTR_DATEADDED];
         webMovieDetailed.Id = item.MediaItemId.ToString();
         webMovieDetailed.PID = 0;
-        webMovieDetailed.Title = (string)item[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
-        webMovieDetailed.Summary = (string)(item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_STORYPLOT] ?? string.Empty);
-        var videoWriters = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_WRITERS];
+        webMovieDetailed.Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+        webMovieDetailed.Summary = (string)(videoAspect[VideoAspect.ATTR_STORYPLOT] ?? string.Empty);
+        var videoWriters = (HashSet<object>)videoAspect[VideoAspect.ATTR_WRITERS];
         if (videoWriters != null)
           webMovieDetailed.Writers = videoWriters.Cast<string>().ToList();
-        var videoDirectors = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_DIRECTORS];
+        var videoDirectors = (HashSet<object>)videoAspect[VideoAspect.ATTR_DIRECTORS];
         if (videoDirectors != null)
           webMovieDetailed.Directors = videoDirectors.Cast<string>().ToList();
-        var movieGenres = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
+        var movieGenres = (HashSet<object>)videoAspect[VideoAspect.ATTR_GENRES];
         if (movieGenres != null)
           webMovieDetailed.Genres = movieGenres.Cast<string>().ToList();
-        var movieActors = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_ACTORS];
+        var movieActors = (HashSet<object>)videoAspect[VideoAspect.ATTR_ACTORS];
         if (movieActors != null)
         {
           webMovieDetailed.Actors = new List<WebActor>();

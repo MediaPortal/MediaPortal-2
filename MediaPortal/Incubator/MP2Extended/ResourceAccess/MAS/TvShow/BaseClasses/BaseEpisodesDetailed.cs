@@ -15,57 +15,61 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   {
     internal WebTVEpisodeDetailed EpisodeDetailed(MediaItem item)
     {
-      MediaItemAspect seriesAspects = item.Aspects[SeriesAspect.ASPECT_ID];
+      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+      SingleMediaItemAspect episodeAspect = MediaItemAspect.GetAspect(item.Aspects, EpisodeAspect.Metadata);
+      SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
 
       WebTVEpisodeDetailed webTvEpisodeDetailed = new WebTVEpisodeDetailed();
-      var episodeNumber = ((HashSet<object>)item[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODE]).Cast<int>().ToList();
+      var episodeNumber = ((HashSet<object>)episodeAspect[EpisodeAspect.ATTR_EPISODE]).Cast<int>().ToList();
       webTvEpisodeDetailed.EpisodeNumber = episodeNumber[0];
-      var TvDbId = seriesAspects[SeriesAspect.ATTR_TVDB_ID];
+      string TvDbId;
+      MediaItemAspect.TryGetExternalAttribute(item.Aspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_EPISODE, out TvDbId);
       if (TvDbId != null)
       {
         webTvEpisodeDetailed.ExternalId.Add(new WebExternalId
         {
           Site = "TVDB",
-          Id = ((int)TvDbId).ToString()
+          Id = TvDbId
         });
       }
-      var ImdbId = seriesAspects[SeriesAspect.ATTR_TVDB_ID];
+      string ImdbId;
+      MediaItemAspect.TryGetExternalAttribute(item.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
       if (ImdbId != null)
       {
         webTvEpisodeDetailed.ExternalId.Add(new WebExternalId
         {
           Site = "IMDB",
-          Id = (string)seriesAspects[SeriesAspect.ATTR_IMDB_ID]
+          Id = ImdbId
         });
       }
 
-      var firstAired = seriesAspects[SeriesAspect.ATTR_FIRSTAIRED];
+      var firstAired = episodeAspect[EpisodeAspect.ATTR_FIRSTAIRED];
       if (firstAired != null)
-        webTvEpisodeDetailed.FirstAired = (DateTime)seriesAspects[SeriesAspect.ATTR_FIRSTAIRED];
+        webTvEpisodeDetailed.FirstAired = (DateTime)episodeAspect[EpisodeAspect.ATTR_FIRSTAIRED];
       webTvEpisodeDetailed.IsProtected = false; //??
-      webTvEpisodeDetailed.Rating = Convert.ToSingle((double)seriesAspects[SeriesAspect.ATTR_TOTAL_RATING]);
+      webTvEpisodeDetailed.Rating = Convert.ToSingle((double)episodeAspect[EpisodeAspect.ATTR_TOTAL_RATING]);
       // TODO: Check => doesn't work
-      MediaItem seasonItem = GetMediaItems.GetMediaItemByName((string)seriesAspects[SeriesAspect.ATTR_SERIES_SEASON], null);
+      MediaItem seasonItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIES_SEASON], null);
       if (seasonItem != null)
         webTvEpisodeDetailed.SeasonId = seasonItem.MediaItemId.ToString();
-      webTvEpisodeDetailed.SeasonNumber = (int)seriesAspects[SeriesAspect.ATTR_SEASON];
-      MediaItem showItem = GetMediaItems.GetMediaItemByName((string)seriesAspects[SeriesAspect.ATTR_SERIESNAME], null);
+      webTvEpisodeDetailed.SeasonNumber = (int)episodeAspect[EpisodeAspect.ATTR_SEASON];
+      MediaItem showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME], null);
       if (showItem != null)
         webTvEpisodeDetailed.ShowId = showItem.MediaItemId.ToString();
       webTvEpisodeDetailed.Type = WebMediaType.TVEpisode;
-      webTvEpisodeDetailed.Watched = ((int)(item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
+      webTvEpisodeDetailed.Watched = ((int)(mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
       webTvEpisodeDetailed.Path = new List<string> { item.MediaItemId.ToString() };
       //webTvEpisodeBasic.Artwork = ;
-      webTvEpisodeDetailed.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+      webTvEpisodeDetailed.DateAdded = (DateTime)mediaAspect[ImporterAspect.ATTR_DATEADDED];
       webTvEpisodeDetailed.Id = item.MediaItemId.ToString();
       webTvEpisodeDetailed.PID = 0;
-      webTvEpisodeDetailed.Title = (string)seriesAspects[SeriesAspect.ATTR_EPISODENAME];
-      webTvEpisodeDetailed.Summary = (string)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_STORYPLOT];
-      webTvEpisodeDetailed.Show = (string)item[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SERIESNAME];
-      var videoWriters = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_WRITERS];
+      webTvEpisodeDetailed.Title = (string)episodeAspect[EpisodeAspect.ATTR_EPISODENAME];
+      webTvEpisodeDetailed.Summary = (string)videoAspect[VideoAspect.ATTR_STORYPLOT];
+      webTvEpisodeDetailed.Show = (string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME];
+      var videoWriters = (HashSet<object>)videoAspect[VideoAspect.ATTR_WRITERS];
       if (videoWriters != null)
         webTvEpisodeDetailed.Writers = videoWriters.Cast<string>().ToList();
-      var videoDirectors = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_DIRECTORS];
+      var videoDirectors = (HashSet<object>)videoAspect[VideoAspect.ATTR_DIRECTORS];
       if (videoDirectors != null)
         webTvEpisodeDetailed.Directors = videoDirectors.Cast<string>().ToList();
       // webTVEpisodeDetailed.GuestStars not in the MP DB

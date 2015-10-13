@@ -252,23 +252,23 @@
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+    <ProjectReference Include="..\..\Incubator\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
       <Name>FanArtService.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.Local\FanArtService.Local.csproj">
+    <ProjectReference Include="..\..\Incubator\FanArtService.Local\FanArtService.Local.csproj">
       <Project>{ccf5076b-fda7-4174-bbaf-e73ebd96b8b1}</Project>
       <Name>FanArtService.Local</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.TMDB\FanArtService.TMDB.csproj">
+    <ProjectReference Include="..\..\Incubator\FanArtService.TMDB\FanArtService.TMDB.csproj">
       <Project>{92ca1d17-632a-4c23-b7ae-1f092ceabd78}</Project>
       <Name>FanArtService.TMDB</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService\FanArtService.csproj">
+    <ProjectReference Include="..\..\Incubator\FanArtService\FanArtService.csproj">
       <Project>{294c9c0a-fe21-4857-957a-14a433e3254e}</Project>
       <Name>FanArtService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+    <ProjectReference Include="..\..\Incubator\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
@@ -283,13 +283,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

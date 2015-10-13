@@ -96,7 +96,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
       if (item == null)
         return false;
-      DateTime dateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+      SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata);
+      DateTime dateAdded = (DateTime)importerAspect[ImporterAspect.ATTR_DATEADDED];
       
       string filepath = GetFilePath(id, identifier, width, height, borders);
       return (File.Exists(GetFilePath(id, identifier, width, height, borders)) && DateTime.Compare(GetLastModifiedTime(filepath), dateAdded) >= 0);
