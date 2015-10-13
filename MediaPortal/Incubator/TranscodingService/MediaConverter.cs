@@ -862,6 +862,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           context.TargetFile = playlist;
           context.SegmentDir = pathName;
           context.AssignStream(GetReadyFileBuffer(playlist));
+          context.HlsBaseUrl = video.HlsBaseUrl;
           return context;
         }
       }
@@ -1144,6 +1145,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           {
             if (Logger != null) Logger.Debug(string.Format("MediaConverter: Serving transcoded file '{0}'", filePath));
             Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
             return stream;
           }
         }
@@ -1206,7 +1208,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         context.SegmentDir = data.WorkPath;
       }
 
-      if (Logger != null) Logger.Debug("MediaConverter: Transcoder '{0}' invoked with command line arguments '{1}'", ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, data.TranscoderArguments);
+      ServiceRegistration.Get<ILogger>().Debug("MediaConverter: Transcoder '{0}' invoked with command line arguments '{1}'", ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, data.TranscoderArguments);
       Task<ProcessExecutionResult> executionResult = ServiceRegistration.Get<IFFMpegLib>().FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)data.InputResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, ProcessUtils.INFINITE);
 
       //ffmpeg.StartInfo.FileName = data.TranscoderBinPath;

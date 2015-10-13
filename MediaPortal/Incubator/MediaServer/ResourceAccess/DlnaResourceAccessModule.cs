@@ -1031,6 +1031,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       }
       finally
       {
+        // closes the Stream so that FFMpeg can replace the playlist file in case of HLS
+        resourceStream.Close();
         item.StopStreaming(streamID);
         Logger.Debug("Sending complete");
       }

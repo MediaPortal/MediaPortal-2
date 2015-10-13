@@ -138,7 +138,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           Directory.CreateDirectory(pathName);
         }
         data.WorkPath = pathName;
-        data.SegmentPlaylist = "playlist.m3u8";
+        data.SegmentPlaylist = Path.Combine(pathName, "playlist.m3u8");
+        data.HlsBaseUrl = video.HlsBaseUrl;
+        string fileSegments = Path.Combine(pathName, _hlsSegmentFileTemplate);
 
         //Segment muxer
         //data.OutputArguments.Add(string.Format("-f {0}", GetVideoContainer(video.TargetVideoContainer)));
@@ -154,7 +156,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         data.OutputArguments.Add("-hls_list_size 0");
         data.OutputArguments.Add("-hls_allow_cache 0");
         data.OutputArguments.Add(string.Format("-hls_time {0}", _hlsSegmentTimeInSeconds));
-        data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + _hlsSegmentFileTemplate + "\""));
+        data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
+        data.OutputArguments.Add("-segment_list_flags +live");
+        if (data.HlsBaseUrl != null)
+          data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + data.HlsBaseUrl + "\""));
         data.OutputFilePath = data.SegmentPlaylist;
       }
       else
