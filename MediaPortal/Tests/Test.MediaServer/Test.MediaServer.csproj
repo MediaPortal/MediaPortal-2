@@ -16,7 +16,7 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\MediaPortal-2\MediaPortal\Source\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime.net45">
-      <HintPath>..\..\..\..\MediaPortal-2\MediaPortal\Packages\Antlr4.Runtime.4.3.0\lib\net45\Antlr4.Runtime.net45.dll</HintPath>
+      <HintPath>..\..\Packages\Antlr4.Runtime.4.3.0\lib\net45\Antlr4.Runtime.net45.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\Packages\NUnitTestAdapter.WithFramework.1.2\lib\nunit.framework.dll</HintPath>
@@ -59,15 +59,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\MediaPortal-2\MediaPortal\Source\Core\HttpServer\HttpServer.csproj">
+    <ProjectReference Include="..\..\Source\Core\HttpServer\HttpServer.csproj">
       <Project>{b1c97bb7-8e27-4c1b-b086-a1204ef8fb79}</Project>
       <Name>HttpServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\MediaPortal-2\MediaPortal\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5b27eb95-b829-40f4-b445-0225ca206f85}</Project>
       <Name>MediaPortal.Backend</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\MediaPortal-2\MediaPortal\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
