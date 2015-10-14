@@ -27,5 +27,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
   public interface IProgramRecordingStatus : IProgram
   {
     RecordingStatus RecordingStatus { get; set; }
+    bool HasConflict { get; set; }
   }
 }

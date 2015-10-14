@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 #if TVE3
@@ -54,6 +55,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Description = tvProgram.Description,
         StartTime = tvProgram.StartTime,
         EndTime = tvProgram.EndTime,
+        OriginalAirDate = tvProgram.OriginalAirDate,
+        Classification = tvProgram.Classification,
+        ParentalRating = tvProgram.ParentalRating,
+        StarRating = tvProgram.StarRating
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -61,6 +66,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         program.RecordingStatus |= RecordingStatus.Scheduled;
       if (tvProgram.IsRecordingSeriesPending)
         program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+      program.HasConflict = tvProgram.HasConflict;
 
       return program;
     }
@@ -69,14 +75,27 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       if (tvChannel == null)
         return null;
-      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = tvChannel.IsTv ? MediaType.TV : MediaType.Radio };
+      return new Channel
+      {
+        ChannelId = tvChannel.IdChannel,
+        Name = tvChannel.DisplayName,
+        MediaType = tvChannel.IsTv ? MediaType.TV : MediaType.Radio,
+        EpgHasGaps = tvChannel.EpgHasGaps,
+        ExternalId = tvChannel.ExternalId,
+        GrapEpg = tvChannel.GrabEpg,
+        LastGrabTime = tvChannel.LastGrabTime,
+        TimesWatched = tvChannel.TimesWatched,
+        TotalTimeWatched = tvChannel.TotalTimeWatched,
+        VisibleInGuide = tvChannel.VisibleInGuide,
+        GroupNames = tvChannel.GroupNames
+      };
     }
 
     public static IChannelGroup ToChannelGroup(this TvDatabase.ChannelGroup tvGroup)
     {
       if (tvGroup == null)
         return null;
-      return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName };
+      return new ChannelGroup { ChannelGroupId = tvGroup.IdGroup, Name = tvGroup.GroupName, MediaType = MediaType.TV, SortOrder = tvGroup.SortOrder};
     }
 
     public static IChannelGroup ToChannelGroup(this TvDatabase.RadioChannelGroup radioGroup)
@@ -85,7 +104,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
       // Note: this temporary workaround uses negative group ids to be able to separate them later. This can be removed once there is a 
       // dedicated radio group interface (if required).
-      return new ChannelGroup { ChannelGroupId = -radioGroup.IdGroup, Name = radioGroup.GroupName };
+      return new ChannelGroup { ChannelGroupId = -radioGroup.IdGroup, Name = radioGroup.GroupName, MediaType = MediaType.Radio, SortOrder = radioGroup.SortOrder};
     }
 
     public static ISchedule ToSchedule(this TvDatabase.Schedule schedule)
@@ -121,6 +140,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
           Description = tvProgram.Description,
           StartTime = tvProgram.StartTime,
           EndTime = tvProgram.EndTime,
+          OriginalAirDate = tvProgram.OriginalAirDate,
+          Classification = tvProgram.Classification,
+          ParentalRating = tvProgram.ParentalRating,
+          StarRating = tvProgram.StarRating
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
@@ -129,18 +152,32 @@ namespace MediaPortal.Plugins.SlimTv.Service
         program.RecordingStatus |= RecordingStatus.Scheduled;
       if (programLogic.IsRecordingSeriesPending)
         program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+      program.HasConflict = programLogic.HasConflict;
 
       return program;
     }
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = (MediaType)tvChannel.MediaType };
+      return new Channel
+      {
+        ChannelId = tvChannel.IdChannel,
+        Name = tvChannel.DisplayName,
+        MediaType = (MediaType)tvChannel.MediaType,
+        EpgHasGaps = tvChannel.EpgHasGaps,
+        ExternalId = tvChannel.ExternalId,
+        GrapEpg = tvChannel.GrabEpg,
+        LastGrabTime = tvChannel.LastGrabTime,
+        TimesWatched = tvChannel.TimesWatched,
+        TotalTimeWatched = tvChannel.TotalTimeWatched,
+        VisibleInGuide = tvChannel.VisibleInGuide,
+        GroupNames = tvChannel.GroupMaps.Select(group => group.ChannelGroup.GroupName).ToList()
+      };
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup radioGroup)
     {
-      return new ChannelGroup { ChannelGroupId = radioGroup.IdGroup, Name = radioGroup.GroupName };
+      return new ChannelGroup { ChannelGroupId = radioGroup.IdGroup, Name = radioGroup.GroupName, MediaType = radioGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio, SortOrder = radioGroup.SortOrder};
     }
 
     public static ISchedule ToSchedule(this Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule)
