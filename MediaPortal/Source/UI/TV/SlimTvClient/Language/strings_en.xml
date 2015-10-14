@@ -72,6 +72,8 @@
   <string name="SlimTvClient.EpgNumberOfHours.Help">Defines the number of hours (programs) shown in EPG</string>
   <string name="SlimTvClient.AutoStartTv">Automatically start TV</string>
   <string name="SlimTvClient.AutoStartTv.Help">If enabled, the last selected channel will be started when entering TV home</string>
+  <string name="SlimTvClient.ShowSeriesInfo">Show series infos</string>
+  <string name="SlimTvClient.ShowSeriesInfo.Help">If enabled, the program guide will show series and episode information if available.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>

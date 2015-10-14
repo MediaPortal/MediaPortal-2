@@ -54,6 +54,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Description = tvProgram.Description,
         StartTime = tvProgram.StartTime,
         EndTime = tvProgram.EndTime,
+        SeasonNumber = tvProgram.SeriesNum,
+        EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeTitle = tvProgram.EpisodeName
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -121,6 +124,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
           Description = tvProgram.Description,
           StartTime = tvProgram.StartTime,
           EndTime = tvProgram.EndTime,
+          SeasonNumber = tvProgram.SeriesNum,
+          EpisodeNumber = tvProgram.EpisodeNum,
+          EpisodeTitle = tvProgram.EpisodeName
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
