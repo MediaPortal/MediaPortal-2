@@ -65,5 +65,25 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// Gets or Sets the End time.
     /// </summary>
     DateTime EndTime { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Original Air Date.
+    /// </summary>
+    DateTime? OriginalAirDate { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Classification.
+    /// </summary>
+    String Classification { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Parental Rating.
+    /// </summary>
+    int ParentalRating { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Star Rating.
+    /// </summary>
+    int StarRating { get; set; }
   }
 }
