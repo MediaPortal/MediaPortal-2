@@ -17,6 +17,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         return new WebProgramDetailed();
 
       IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      IProgramSeries programSeries = program as IProgramSeries;
 
       WebProgramDetailed webProgramDetailed = new WebProgramDetailed
       {
@@ -28,7 +29,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         Title = program.Title,
         Id = program.ProgramId,
         DurationInMinutes = Convert.ToInt32(program.EndTime.Subtract(program.StartTime).TotalMinutes),
+        Classification = program.Classification,
+        OriginalAirDate = program.OriginalAirDate ?? DateTime.Now,
+        ParentalRating = program.ParentalRating,
+        StarRating = program.StarRating,
+
         IsRecording = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.Recording,
+        EpisodeNumber = programSeries.EpisodeNumber,
+        EpisodeName = programSeries.EpisodeTitle,
       };
 
       /*webProgramDetailed.Classification;

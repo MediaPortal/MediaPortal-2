@@ -11,7 +11,9 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
@@ -36,8 +38,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetGroupById", new GetGroupById()},
       { "GetGroupCount", new GetGroupCount()},
       { "GetGroups", new GetGroups()},
+      // Timeshiftings
+      { "CancelCurrentTimeShifting", new CancelCurrentTimeShifting()},
+      { "SwitchTVServerToChannelAndGetStreamingUrl", new SwitchTVServerToChannelAndGetStreamingUrl()},
       // Schedule
       { "AddSchedule", new AddSchedule()},
+      { "GetSchedules", new GetSchedules()},
+      { "GetSchedulesByRange", new GetSchedulesByRange()},
+      // Recording
+      { "GetRecordingCount", new GetRecordingCount()},
+      { "GetRecordings", new GetRecordings()},
+      { "GetRecordingsByRange", new GetRecordingsByRange()},
       // EPG
       { "GetCurrentProgramOnChannel", new GetCurrentProgramOnChannel()},
       { "GetNextProgramOnChannel", new GetNextProgramOnChannel()},

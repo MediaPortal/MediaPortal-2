@@ -7,17 +7,19 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.MAS.Movie;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
-  internal class GetMoviesDetailedByRange : BaseMovieDetailed, IRequestMicroModuleHandler
+  internal class GetRecordingsByRange : BaseRecordingBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -25,36 +27,35 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       string start = httpParam["start"].Value;
       string end = httpParam["end"].Value;
 
-      Logger.Info("GetMoviesDetailedByRange: start: {0}, end: {1}", start, end);
-
       if (start == null || end == null)
         throw new BadRequestException("start or end parameter is missing");
 
       int startInt;
       if (!Int32.TryParse(start, out startInt))
       {
-        throw new BadRequestException(String.Format("GetMoviesDetailedByRange: Couldn't convert start to int: {0}", start));
+        throw new BadRequestException(String.Format("GetRecordingsByRange: Couldn't convert start to int: {0}", start));
       }
 
       int endInt;
       if (!Int32.TryParse(end, out endInt))
       {
-        throw new BadRequestException(String.Format("GetMoviesDetailedByRange: Couldn't convert end to int: {0}", end));
+        throw new BadRequestException(String.Format("GetRecordingsByRange: Couldn't convert end to int: {0}", end));
       }
+      
+      if (!ServiceRegistration.IsRegistered<ITvProvider>())
+        throw new BadRequestException("GetRecordingsByRange: ITvProvider not found");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
+      necessaryMIATypes.Add(RecordingAspect.ASPECT_ID);
 
       IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
 
-      if (items.Count == 0)
-        throw new BadRequestException("No Tv Episodes found");
 
-      var output = items.Select(item => MovieDetailed(item)).ToList();
+      List<WebRecordingBasic> output = items.Select(item => RecordingBasic(item)).ToList();
 
       // sort and filter
       string sort = httpParam["sort"].Value;
@@ -65,12 +66,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
         WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
         WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
 
-        output = output.Filter(filter).SortWebMovieDetailed(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortRecordingList(webSortField, webSortOrder).ToList();
       }
       else
         output = output.Filter(filter).ToList();
 
-      // get range
+      // Get Range
       output = output.TakeRange(startInt, endInt).ToList();
 
       return output;

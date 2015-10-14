@@ -131,6 +131,8 @@
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetMediaItem.cs" />
     <Compile Include="ResourceAccess\MAS\General\WebStringResult.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\BaseClasses\BaseMovieBasic.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\BaseClasses\BaseMovieDetailed.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieCount.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMoviesBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieGenres.cs" />
@@ -192,9 +194,20 @@
     <Compile Include="ResourceAccess\TAS\EPG\GetNextProgramOnChannel.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetCurrentProgramOnChannel.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\BaseClasses\BaseRecordingBasic.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\GetRecordingCount.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\GetRecordingsByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\GetRecordings.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\BaseClasses\BaseScheduleBasic.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetSchedulesByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetSchedules.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\AddSchedule.cs" />
+    <Compile Include="ResourceAccess\TAS\Timeshiftings\SlotControl.cs" />
+    <Compile Include="ResourceAccess\TAS\Timeshiftings\CancelCurrentTimeShifting.cs" />
+    <Compile Include="ResourceAccess\TAS\Timeshiftings\SwitchTVServerToChannelAndGetStreamingUrl.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\BaseClasses\BaseChannelDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\BaseClasses\BaseChannelBasic.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\BaseClasses\BaseChannelGroup.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelCount.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelBasicById.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelsDetailedByRange.cs" />
@@ -281,6 +294,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
+      <Project>{bd0ad1e7-48a9-404e-9c82-291ce3b41657}</Project>
+      <Name>Tve3RecordingMetadataExtractor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>

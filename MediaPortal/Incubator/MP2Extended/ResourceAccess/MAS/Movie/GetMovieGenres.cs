@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
         }
       }
 
-      // sort and filter
+      // sort
       HttpParam httpParam = request.Param;
       string sort = httpParam["sort"].Value;
       string order = httpParam["order"].Value;

@@ -10,7 +10,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClass
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
-  internal class GetArtwork : IStreamRequestMicroModuleHandler
+  internal class GetArtwork : BaseGetArtwork, IStreamRequestMicroModuleHandler
   {
     public byte[] Process(IHttpRequest request)
     {
@@ -30,11 +30,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       if (mediatype == null)
         throw new BadRequestException("GetArtworkResized: mediatype is null");
 
+      MapTypes(artworktype, mediatype);
+
       // if teh Id contains a ':' it is a season
       if (id.Contains(":"))
         isSeason = true;
 
-      IList<FanArtImage> fanart = BaseGetArtwork.GetFanArtImages(artworktype, mediatype, id, showId, seasonId, isSeason);
+      bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
+
+      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio);
 
       // get a random FanArt from the List
       Random rnd = new Random();

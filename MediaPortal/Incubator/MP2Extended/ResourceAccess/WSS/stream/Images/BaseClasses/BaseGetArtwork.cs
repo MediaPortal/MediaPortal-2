@@ -7,6 +7,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses
@@ -37,11 +39,26 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       { WebFileType.Poster, FanArtConstants.FanArtType.Poster },
     };
 
-    internal static IList<FanArtImage> GetFanArtImages(string artworktype, string mediatype, string id, string showId, string seasonId, bool isSeason)
+    internal FanArtConstants.FanArtType fanartType;
+    internal FanArtConstants.FanArtMediaType fanArtMediaType;
+
+    internal void MapTypes(string artworktype, string mediatype)
     {
       WebFileType webFileType = (WebFileType)JsonConvert.DeserializeObject(artworktype, typeof(WebFileType));
       WebMediaType webMediaType = (WebMediaType)JsonConvert.DeserializeObject(mediatype, typeof(WebMediaType));
 
+      // Map the Fanart Type
+      if (!_fanArtTypeMapping.TryGetValue(webFileType, out fanartType))
+        fanartType = FanArtConstants.FanArtType.Undefined;
+
+
+      // Map the Fanart MediaType
+      if (!_fanArtMediaTypeMapping.TryGetValue(webMediaType, out fanArtMediaType))
+        fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
+    }
+
+    internal IList<FanArtImage> GetFanArtImages(string id, string showId, string seasonId, bool isSeason, bool isTvRadio)
+    {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
 
@@ -52,7 +69,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       optionalMIATypes.Add(AudioAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
-      MediaItem item;
+      MediaItem item = null;
       if (isSeason)
       {
         string[] ids = id.Split(':');
@@ -64,35 +81,40 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
 
         item = GetMediaItems.GetMediaItemById(showId, necessaryMIATypes, optionalMIATypes);
       }
-      else
+      else if (!isTvRadio)
         item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes, optionalMIATypes);
 
-      if (item == null)
+      if (item == null && !isTvRadio)
         throw new BadRequestException(String.Format("GetArtworkResized: No MediaItem found with id: {0}", id));
 
-      // Map the Fanart Type
-      FanArtConstants.FanArtType fanartType;
-      if (!_fanArtTypeMapping.TryGetValue(webFileType, out fanartType))
-        fanartType = FanArtConstants.FanArtType.Undefined;
-
-
-      // Map the Fanart MediaType
-      FanArtConstants.FanArtMediaType fanArtMediaType;
-      if (!_fanArtMediaTypeMapping.TryGetValue(webMediaType, out fanArtMediaType))
-        fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
-
-      string name = (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
-      // Tv Episode
-      if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      string name;
+      if (!isTvRadio)
       {
-        //name = (string)item.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODENAME];
-        name = item.MediaItemId.ToString();
-        fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
-        fanartType = FanArtConstants.FanArtType.Thumbnail;
-      }
+        name = (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+        // Tv Episode
+        if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        {
+          //name = (string)item.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODENAME];
+          name = item.MediaItemId.ToString();
+          fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
+          fanartType = FanArtConstants.FanArtType.Thumbnail;
+        }
 
-      if (isSeason)
-        name = String.Format("{0} S{1}", (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE], seasonId);
+        if (isSeason)
+          name = String.Format("{0} S{1}", (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE], seasonId);
+      }
+      else
+      {
+        name = id;
+        if (ServiceRegistration.IsRegistered<ITvProvider>())
+        {
+          IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+          IChannel channel;
+          int idInt = int.Parse(id);
+          channelAndGroupInfo.GetChannel(idInt, out channel);
+          name = channel.Name;
+        }
+      }
 
       IList<FanArtImage> fanart = ServiceRegistration.Get<IFanArtService>().GetFanArt(fanArtMediaType, fanartType, name, 0, 0, true);
 
@@ -103,6 +125,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       }
 
       return fanart;
+    }
+
+    internal Guid IntToGuid(int value)
+    {
+      byte[] bytes = new byte[16];
+      BitConverter.GetBytes(value).CopyTo(bytes, 0);
+      return new Guid(bytes);
     }
 
     internal static ILogger Logger

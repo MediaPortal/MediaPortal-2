@@ -29,6 +29,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
         Title = channel.Name,
         CurrentProgram = ProgramDetailed(programNow),
         NextProgram = ProgramDetailed(programNext),
+        EpgHasGaps = channel.EpgHasGaps,
+        ExternalId = channel.ExternalId,
+        GrabEpg = channel.GrapEpg,
+        GroupNames = channel.GroupNames,
+        LastGrabTime = channel.LastGrabTime ?? DateTime.Now,
+        TimesWatched = channel.TimesWatched,
+        TotalTimeWatched = channel.TotalTimeWatched ?? DateTime.Now,
+        VisibleInGuide = channel.VisibleInGuide
       };
 
       return webChannelDetailed;

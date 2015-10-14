@@ -7,6 +7,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -17,7 +18,7 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   // TODO: add more group information
-  internal class GetGroupById : IRequestMicroModuleHandler
+  internal class GetGroupById : BaseChannelGroup, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -44,13 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       if (group == null)
         throw new BadRequestException(string.Format("GetGroupById: group with id: {0} not found", groupIdInt));
 
-      WebChannelGroup webChannelGroup = new WebChannelGroup();
-      webChannelGroup.GroupName = group.Name;
-      webChannelGroup.Id = group.ChannelGroupId;
-      //webChannelGroup.IsChanged;
-      //webChannelGroup.IsRadio;
-      //webChannelGroup.IsTv;
-      //webChannelGroup.SortOrder;
+      WebChannelGroup webChannelGroup = ChannelGroup(group);
 
 
       return webChannelGroup;

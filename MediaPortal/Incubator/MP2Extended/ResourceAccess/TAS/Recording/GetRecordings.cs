@@ -7,33 +7,36 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.MAS.Movie;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
-  internal class GetMoviesBasic : BaseMovieBasic, IRequestMicroModuleHandler
+  internal class GetRecordings : BaseRecordingBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
+      if (!ServiceRegistration.IsRegistered<ITvProvider>())
+        throw new BadRequestException("GetRecordings: ITvProvider not found");
+
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
+      necessaryMIATypes.Add(RecordingAspect.ASPECT_ID);
 
       IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
 
-      if (items.Count == 0)
-        throw new BadRequestException("No Movies found");
 
-      var output = items.Select(item => MovieBasic(item)).ToList();
+      List<WebRecordingBasic> output = items.Select(item => RecordingBasic(item)).ToList();
 
       // sort and filter
       HttpParam httpParam = request.Param;
@@ -45,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
         WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
         WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
 
-        output = output.Filter(filter).SortWebMovieBasic(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortRecordingList(webSortField, webSortOrder).ToList();
       }
       else
         output = output.Filter(filter).ToList();

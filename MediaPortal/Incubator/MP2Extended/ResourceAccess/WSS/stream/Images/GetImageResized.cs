@@ -66,9 +66,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxHeight to int: {0}", maxHeight));
       }
 
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
       byte[] resizedImage;
 
-      if (ImageCache.TryGetImageFromCache(idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders, out resizedImage))
+      if (ImageCache.TryGetImageFromCache(identifier, out resizedImage))
       {
         Logger.Info("GetImageResized: Got image from cache");
       }
@@ -82,7 +83,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         }
 
         // Add to cache
-        if (ImageCache.AddImageToCache(resizedImage, idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders))
+        if (ImageCache.AddImageToCache(resizedImage, identifier))
           Logger.Info("GetImageResized: Added image to cache");
       }
 

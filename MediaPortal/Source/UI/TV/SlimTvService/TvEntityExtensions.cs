@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EndTime = tvProgram.EndTime,
         SeasonNumber = tvProgram.SeriesNum,
         EpisodeNumber = tvProgram.EpisodeNum,
-        EpisodeTitle = tvProgram.EpisodeName
+        EpisodeTitle = tvProgram.EpisodeName,
         OriginalAirDate = tvProgram.OriginalAirDate,
         Classification = tvProgram.Classification,
         ParentalRating = tvProgram.ParentalRating,
@@ -145,7 +145,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           EndTime = tvProgram.EndTime,
           SeasonNumber = tvProgram.SeriesNum,
           EpisodeNumber = tvProgram.EpisodeNum,
-          EpisodeTitle = tvProgram.EpisodeName
+          EpisodeTitle = tvProgram.EpisodeName,
           OriginalAirDate = tvProgram.OriginalAirDate,
           Classification = tvProgram.Classification,
           ParentalRating = tvProgram.ParentalRating,

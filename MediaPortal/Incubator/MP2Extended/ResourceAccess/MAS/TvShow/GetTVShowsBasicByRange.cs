@@ -24,8 +24,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       string start = httpParam["start"].Value;
       string end = httpParam["end"].Value;
 
-      Logger.Info("GetTVShowsBasicByRange: start: {0}, end: {1}", start, end);
-
       if (start == null || end == null)
         throw new BadRequestException("start or end parameter is missing");
 
