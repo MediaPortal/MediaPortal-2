@@ -282,23 +282,23 @@
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+    <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
       <Name>FanArtService.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.Local\FanArtService.Local.csproj">
+    <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.Local\FanArtService.Local.csproj">
       <Project>{ccf5076b-fda7-4174-bbaf-e73ebd96b8b1}</Project>
       <Name>FanArtService.Local</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.TMDB\FanArtService.TMDB.csproj">
+    <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.TMDB\FanArtService.TMDB.csproj">
       <Project>{92ca1d17-632a-4c23-b7ae-1f092ceabd78}</Project>
       <Name>FanArtService.TMDB</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService\FanArtService.csproj">
+    <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService\FanArtService.csproj">
       <Project>{294c9c0a-fe21-4857-957a-14a433e3254e}</Project>
       <Name>FanArtService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>

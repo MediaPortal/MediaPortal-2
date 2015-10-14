@@ -19,6 +19,7 @@
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <NuGetPackageImportStamp>568041ba</NuGetPackageImportStamp>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -100,5 +101,11 @@
   <Import Project="..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets" Condition="Exists('..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets')" />
   <Import Project="..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets" Condition="Exists('..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets')" />
   <Import Project="..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets" Condition="Exists('..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
 </Project>
-
