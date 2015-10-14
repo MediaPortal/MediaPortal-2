@@ -7,6 +7,7 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo;

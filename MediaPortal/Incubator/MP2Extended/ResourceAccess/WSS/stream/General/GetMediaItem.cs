@@ -9,11 +9,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Threading;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
 {
-  internal class GetMediaItem : SendDataBase, IStreamRequestMicroModuleHandler2
+  internal class GetMediaItem : BaseSendData, IStreamRequestMicroModuleHandler2
   {
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {

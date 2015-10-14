@@ -9,6 +9,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
 
@@ -25,20 +26,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 
       List<WebTranscoderProfile> output = new List<WebTranscoderProfile>();
 
-      WebTranscoderProfile webTranscoderProfile = new WebTranscoderProfile
+      foreach (var profile in ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target)))
       {
-        Bandwidth = 2280,
-        Description = "HD-quality Android profile based on ffmpeg",
-        HasVideoStream = true,
-        MIME = "videoMP2T",
-        MaxOutputHeight = 1280,
-        MaxOutputWidth = 720,
-        Name = "Android FFmpeg HD",
-        Targets = new List<string> { "android" },
-        Transport = "http"
-      };
+        WebTranscoderProfile webTranscoderProfile = new WebTranscoderProfile
+        {
+          Bandwidth = 2280,
+          Description = profile.Value.Name,
+          HasVideoStream = true,
+          MIME = "videoMP2T",
+          MaxOutputHeight = profile.Value.Settings.Video.MaxHeight,
+          MaxOutputWidth = profile.Value.Settings.Video.MaxHeight,
+          Name = profile.Key,
+          Targets = profile.Value.Targets,
+          Transport = "http"
+        };
 
-      output.Add(webTranscoderProfile);
+        output.Add(webTranscoderProfile);
+      }
 
 
       return output;

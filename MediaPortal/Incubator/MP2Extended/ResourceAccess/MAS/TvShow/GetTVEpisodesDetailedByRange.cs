@@ -8,6 +8,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses;
@@ -67,18 +68,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       }
 
       // get range
-      if (startInt > output.Count - 1)
-        startInt = output.Count - 1;
-
-      if (endInt > output.Count - 1)
-        endInt = output.Count - 1;
-
-      if ((endInt - startInt) < 0)
-        throw new BadRequestException(String.Format("Invalid range: {0}", (endInt - startInt)));
-
-      int count = (endInt - startInt) + 1;
-
-      output = output.GetRange(startInt, count);
+      output = output.TakeRange(startInt, endInt).ToList();
 
       return output;
     }

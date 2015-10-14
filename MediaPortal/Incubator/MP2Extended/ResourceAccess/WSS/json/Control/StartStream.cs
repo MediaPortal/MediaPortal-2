@@ -6,6 +6,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 
@@ -32,13 +33,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
       if (!long.TryParse(startPosition, out startPositionLong))
         throw new BadRequestException(string.Format("InitStream: Couldn't parse startPosition '{0}' to long", startPosition));
 
-      if (!StreamControl.PROFILES.ContainsKey(profileName))
+      if (!ProfileManager.Profiles.ContainsKey(profileName))
         throw new BadRequestException(string.Format("InitStream: unknown profile: {0}", profileName));
 
       if (!StreamControl.ValidateIdentifie(identifier))
         throw new BadRequestException(string.Format("InitStream: unknown identifier: {0}", identifier));
 
-      EndPointProfile profile = StreamControl.PROFILES[profileName];
+      EndPointProfile profile = ProfileManager.Profiles[profileName];
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;

@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         webChannelGroup.Id = group.ChannelGroupId;
         //webChannelGroup.IsChanged;
         //webChannelGroup.IsRadio;
-        //webChannelGroup.IsTv;
+        //webChannelGroup.IsTv = true;
         //webChannelGroup.SortOrder;
 
         output.Add(webChannelGroup);

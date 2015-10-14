@@ -50,6 +50,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public string InputSubtitleFilePath;
     public string OutputFilePath;
     public string SegmentPlaylist = null;
+    public string HlsBaseUrl = null;
     public string WorkPath;
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -58,7 +59,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       StringBuilder shortNameBuffer = new StringBuilder(256);
       uint result = GetShortPathName(fileName, shortNameBuffer, 256);
-      return shortNameBuffer.ToString();
+      //return shortNameBuffer.ToString();
+      return fileName;
     }
 
     public virtual string TranscoderArguments { get; set; }

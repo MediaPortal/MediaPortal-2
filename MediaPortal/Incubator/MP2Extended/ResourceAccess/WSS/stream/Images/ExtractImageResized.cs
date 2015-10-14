@@ -76,7 +76,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       // get a random FanArt from the List
       Random rnd = new Random();
       int r = rnd.Next(fanart.Count);
-      byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(fanart[r].BinaryData, maxWidthInt, maxHeightInt, borders);
+      byte[] resizedImage;
+      if (maxWidthInt != 0 && maxHeightInt != 0)
+        resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(fanart[r].BinaryData, maxWidthInt, maxHeightInt, borders);
+      else
+        resizedImage = fanart[r].BinaryData;
 
       // Add to cache
       if (ImageCache.AddImageToCache(resizedImage, idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders))

@@ -10,11 +10,12 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
-  internal class GetFileInfo : SendDataBase, IRequestMicroModuleHandler
+  internal class GetFileInfo : BaseSendData, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {

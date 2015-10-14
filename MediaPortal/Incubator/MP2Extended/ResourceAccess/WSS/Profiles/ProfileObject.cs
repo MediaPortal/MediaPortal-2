@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
@@ -371,12 +372,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public List<ImageTranscodingTarget> Images = new List<ImageTranscodingTarget>();
   }
 
-  public class Detection
-  {
-    public Dictionary<string, string> HttpHeaders = new Dictionary<string, string>();
-    public UpnpSearch UPnPSearch = new UpnpSearch();
-  }
-
   public class UpnpSearch
   {
     public UpnpSearch()
@@ -441,7 +436,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public ProfileSettings Settings = new ProfileSettings();
     public TranscodingSetup MediaTranscoding = new TranscodingSetup();
     public Dictionary<string, MediaMimeMapping> MediaMimeMap = new Dictionary<string, MediaMimeMapping>();
-    public List<Detection> Detections = new List<Detection>();
+    public List<string> Targets = new List<string>();
 
     public override string ToString()
     {

@@ -7,6 +7,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -17,7 +18,7 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   // TODO: not integrated into slimTvInterface
-  internal class GetChannelsBasic : IRequestMicroModuleHandler
+  internal class GetChannelsBasic : BaseChannelBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -52,13 +53,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 
         foreach (var channel in channels)
         {
-          WebChannelBasic webChannelBasic = new WebChannelBasic
-          {
-            Id = channel.ChannelId,
-            IsRadio = channel.MediaType == MediaType.Radio,
-            IsTv = channel.MediaType == MediaType.TV,
-            Title = channel.Name
-          };
+          WebChannelBasic webChannelBasic = ChannelBasic(channel);
 
           if (channel.MediaType == MediaType.TV)
             output.Add(webChannelBasic);

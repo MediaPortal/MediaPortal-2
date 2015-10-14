@@ -1,0 +1,376 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profiles version="1.0">
+  <Profile id="WebDefault" name="Direct (Original Quality)" active="true">
+    <Settings>
+      <Video maxHeight="1080" qualityFactor="3" />
+      <H262Video qualityFactor="3" preset="Fast" profile="Main" />
+      <H264Video levelCheck="Any" qualityFactor="25" preset="Veryfast" profile="Baseline" level="3.0" />
+      <H265Video qualityFactor="25" preset="Veryfast" profile="Main" level="3.0" />
+      <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
+      <Audio defaultStereo="false" defaultBitrate="192" />
+      <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
+      <Subtitles support="None" />
+    </Settings>
+    <MediaTranscoding>
+      <ImageTarget container="Jpeg" forceInheritance="true">
+        <ImageSource container="Raw" />
+        <ImageSource container="Bmp" />
+      </ImageTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="FlashHQ" name="Flash player (High Quality)" baseProfile="WebDefault" active="true">
+    <Settings>
+      <H264Video levelCheck="RefFramesLevel" />
+      <Subtitles support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
+      </Subtitles>
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Flv">
+        <VideoSource container="Flv" />
+      </VideoTarget>
+      <VideoTarget container="Flv" audioCodec="Mp3" audioFrequency="44100" forceStereo="true">
+        <VideoSource container="Matroska" videoCodec="H264" videoSquarePixels="true" />
+        <VideoSource container="Mp4" videoCodec="H264" videoSquarePixels="true" />
+        <VideoSource container="Avi" videoCodec="H264" videoSquarePixels="true" />
+        <VideoSource container="Mpeg2Ts" videoCodec="H264" videoSquarePixels="true" />
+        <VideoSource container="Gp3" videoCodec="H264" videoSquarePixels="true" />
+        <VideoSource videoCodec="H264" videoSquarePixels="true" audioCodec="Speex" />
+      </VideoTarget>
+      <VideoTarget container="Flv" videoCodec="Flv" audioCodec="Mp3" audioFrequency="44100" forceStereo="true">
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mp4" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Gp3" />
+        <VideoSource container="Asf" />
+        <VideoSource container="Mpeg2Ps" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Flv" audioCodec="Speex" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Mp4" />
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Asf" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="FlashMQ" name="Flash player (Medium Quality)" baseProfile="FlashHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Flv" videoCodec="Flv" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="Mp3" audioFrequency="44100" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="FlashLQ" name="Flash player (Low Quality)" baseProfile="FlashHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Flv" videoCodec="Flv" videoMaxBitrate="500" videoMaxHeight="200" audioCodec="Mp3" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="iOSHQ" name="iOS (High Quality)" baseProfile="WebDefault" active="true">
+    <Targets>
+      <Target>ios</Target>
+      <Target>android</Target>
+    </Targets>
+    <Settings>
+      <Images autoRotate="true" />
+      <Subtitles support="HardCoded" />
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" forceTranscoding="true" forceStereo="true">
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+      </VideoTarget>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" forceStereo="true">
+        <VideoSource container="Gp3" />
+        <VideoSource container="Asf" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Flv" />
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mpeg2Ps" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Mp4" videoCodec="Mpeg4" />
+        <VideoSource container="Mp4" videoCodec="MsMpeg4" />
+        <VideoSource container="Mp4" audioCodec="Ac3" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Asf" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="iOSMQ" name="iOS (Medium Quality)" baseProfile="iOSHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="Aac" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="iOSLQ" name="iOS (Low Quality)" baseProfile="iOSHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="500" videoMaxHeight="240" audioCodec="Aac" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="HTML5HQ" name="HTML5" baseProfile="WebDefault" active="true">
+    <Settings>
+      <Images autoRotate="true" />
+      <Subtitles support="HardCoded" />
+    </Settings>
+    <MediaTranscoding>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Asf" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="AndroidHQ" name="Android  (High Quality)" baseProfile="WebDefault" active="true">
+    <Targets>
+      <Target>android</Target>
+    </Targets>
+    <Settings>
+      <Subtitles support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
+      </Subtitles>
+    </Settings>
+    <MediaTranscoding>
+      <AudioTarget container="Mp3" forceInheritance="true">
+        <AudioSource container="Mp4" />
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Flv" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Adts" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="AndroidMQ" name="Android (Medium Quality)" baseProfile="AndroidHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="AAC" audioBitrate="128" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="AndroidLQ" name="Android (Low Quality)" baseProfile="AndroidHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="500" videoMaxHeight="240" audioCodec="AAC" audioBitrate="128" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="AndroidOldHQ" name="Android Legacy (High Quality)" baseProfile="AndroidHQ" active="true" />
+  <Profile id="AndroidOldMQ" name="Android Legacy (Medium Quality)" baseProfile="AndroidOldHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="Mp3" audioBitrate="128" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="AndroidOldLQ" name="Android Legacy (Low Quality)" baseProfile="AndroidOldHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="500" videoMaxHeight="240" audioCodec="Mp3" audioBitrate="128" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="GtvHQ" name="Google TV  (High Quality)" baseProfile="HlsHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="GtvMQ" name="Google TV (Medium Quality)" baseProfile="GtvHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="1200" videoMaxHeight="480" audioCodec="Aac" audioBitrate="128" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="GtvLQ" name="Google TV (Low Quality)" baseProfile="GtvHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="800" videoMaxHeight="360" audioCodec="Aac" audioBitrate="128" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="GoogleCastHQ" name="Google Cast (High Quality)" baseProfile="WebDefault" active="true">
+    <Settings>
+      <Subtitles support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
+      </Subtitles>
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="10000" videoMaxHeight="720" audioCodec="Aac" forceTranscoding="true">
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="5.0" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="5.0" />
+      </VideoTarget>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac">
+        <VideoSource container="Matroska" videoCodec="H264" />
+        <VideoSource container="Mpeg2Ts" videoCodec="H264" />
+        <VideoSource container="Flv" videoCodec="H264" />
+        <VideoSource container="Gp3" videoCodec="H264" />
+        <VideoSource container="Avi" videoCodec="H264" />
+      </VideoTarget>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="10000" videoMaxHeight="720" audioCodec="Aac">
+        <VideoSource container="Gp3" />
+        <VideoSource container="Asf" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Flv" />
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mpeg2Ps" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Mp4" videoCodec="Mpeg4" />
+        <VideoSource container="Mp4" videoCodec="MsMpeg4" />
+        <VideoSource container="Mp4" audioCodec="Ac3" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Asf" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="GoogleCastMQ" name="Google Cast (Medium Quality)" baseProfile="GoogleCastHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="1200" videoMaxHeight="480" audioCodec="Aac" audioBitrate="128" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="GoogleCastLQ" name="Google Cast (Low Quality)" baseProfile="GoogleCastHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="800" videoMaxHeight="360" audioCodec="Aac" audioBitrate="128" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="ChromeCastHQ" name="Chromecast (High Quality)" baseProfile="GoogleCastHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="7000" videoMaxHeight="720" audioCodec="Aac" forceTranscoding="true">
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="5.0" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="5.0" />
+        <VideoSource container="Gp3" />
+        <VideoSource container="Asf" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Flv" />
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mpeg2Ps" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Mp4" videoCodec="Mpeg4" />
+        <VideoSource container="Mp4" videoCodec="MsMpeg4" />
+        <VideoSource container="Mp4" audioCodec="Ac3" />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="ChromeCastMQ" name="Chromecast (Medium Quality)" baseProfile="ChromeCastHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="1200" videoMaxHeight="480" audioCodec="Aac" audioBitrate="128" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="ChromeCasttLQ" name="Chromecast (Low Quality)" baseProfile="ChromeCastHQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="800" videoMaxHeight="360" audioCodec="Aac" audioBitrate="128" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="WP8HQ" name="Windows Phone 8+ (High Quality)" baseProfile="WebDefault" active="true">
+    <Targets>
+      <Target>windowsPhone</Target>
+    </Targets>
+    <Settings>
+      <Subtitles support="HardCoded" />
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" forceTranscoding="true" forceStereo="true">
+        <VideoSource videoCodec="H264" videoProfile="High" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.0" />
+      </VideoTarget>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" forceStereo="true">
+        <VideoSource container="Flv" />
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mpeg2Ps" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Flv" />
+        <VideoSource container="Avi" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Asf" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="WP8MQ" name="Windows Phone 8+ (Medium Quality)" baseProfile="WP8HQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="Aac" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="WP8LQ" name="Windows Phone 8+ (Low Quality)" baseProfile="WP8HQ" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="500" videoMaxHeight="240" audioCodec="Aac" audioFrequency="22050" forceStereo="true">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+</Profiles>
