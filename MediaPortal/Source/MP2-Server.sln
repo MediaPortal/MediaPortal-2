@@ -132,13 +132,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService", "..\In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegLib", "Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj", "{D2416E5A-CF6A-4B45-836D-02300D666127}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{757DEA9F-06F0-4367-8121-91ED7E7D7D32}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2Extended", "..\Incubator\MP2Extended\MP2Extended.csproj", "{9E212C3D-E0D5-4A71-B445-39EC24373823}"
 EndProject
 Global
@@ -274,7 +267,6 @@ Global
 		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Debug|x86.ActiveCfg = Debug|x86
 		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Debug|x86.Build.0 = Debug|x86
 		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Release|x86.ActiveCfg = Release|x86
-		{9158967E-4FEB-4504-8C1E-02BE96045D34}.Release|x86.Build.0 = Release|x86
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}.Debug|x86.ActiveCfg = Debug|x86
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}.Debug|x86.Build.0 = Debug|x86
 		{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}.Release|x86.ActiveCfg = Release|x86
@@ -318,12 +310,12 @@ Global
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.ActiveCfg = Release|x86
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.Build.0 = Release|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Debug|x86.ActiveCfg = Debug|x86
+		{C239225E-CA92-4482-AFE7-F54006C48922}.Debug|x86.Build.0 = Debug|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.ActiveCfg = Release|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.Build.0 = Release|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Debug|x86.ActiveCfg = Debug|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Debug|x86.Build.0 = Debug|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Release|x86.ActiveCfg = Release|x86
-		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Release|x86.Build.0 = Release|x86
 		{1BA81EB2-6556-4213-A7A5-9E5B508F186F}.Debug|x86.ActiveCfg = Debug|x86
 		{1BA81EB2-6556-4213-A7A5-9E5B508F186F}.Release|x86.ActiveCfg = Release|x86
 		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}.Debug|x86.ActiveCfg = Debug|x86
