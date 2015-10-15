@@ -61,7 +61,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     readonly ItemsList _mainMenuGroupList = new ItemsList();
     readonly ItemsList _positionedItems = new ItemsList();
     protected SettingsChangeWatcher<MenuSettings> _menuSettings;
-    protected AbstractProperty _lastSelectedItemProperty;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
     protected AbstractProperty _isPlayerActiveProperty;
@@ -84,33 +83,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         RowSpan = 1;
         ColumnSpan = 1;
-      }
-    }
-
-    /// <summary>
-    /// Command that intercepts the menu item command and sets the <see cref="LastSelectedItem"/> property
-    /// before the original command is executed.
-    /// </summary>
-    private class MenuItemCommandInterceptor : ICommand
-    {
-      public MenuItemCommandInterceptor(HomeMenuModel model, ListItem menuItem)
-      {
-        Model = model;
-        MenuItem = menuItem;
-        OriginalCommand = menuItem.Command;
-      }
-
-      public HomeMenuModel Model { get; private set; }
-
-      public ListItem MenuItem { get; private set; }
-
-      public ICommand OriginalCommand { get; private set; }
-
-      public void Execute()
-      {
-        Model.LastSelectedItem = MenuItem;
-        Model.LastSelectedItemName = MenuItem["Name"];
-        OriginalCommand.Execute();
       }
     }
 
@@ -159,17 +131,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       get { return _positionedItems; }
     }
 
-    public AbstractProperty LastSelectedItemProperty
-    {
-      get { return _lastSelectedItemProperty; }
-    }
-
-    public ListItem LastSelectedItem
-    {
-      get { return (ListItem)_lastSelectedItemProperty.GetValue(); }
-      set { _lastSelectedItemProperty.SetValue(value); }
-    }
-
     public AbstractProperty LastSelectedItemNameProperty
     {
       get { return _lastSelectedItemNameProperty; }
@@ -207,7 +168,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     public HomeMenuModel()
     {
-      _lastSelectedItemProperty = new WProperty(typeof(ListItem), null);
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
       _isHomeProperty = new WProperty(typeof(bool), false);
       _isPlayerActiveProperty = new WProperty(typeof(bool), false);
@@ -230,26 +190,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     public void CloseMenu(MouseButtons buttons, float x, float y)
     {
       ToggleMenu();
-    }
-
-    public void OnScreenShow()
-    {
-      // if the home screen is shown, we need to restore the selected group item as LastSelectedItem.
-      var screenManager = ServiceRegistration.Get<IScreenManager>();
-      // unfortunately we can not access ScreenManager.HOME_SCREEN without adding another reference to the plugin
-      if (String.Equals(screenManager.ActiveScreenName, "home"))
-      {
-        lock (_mainMenuGroupList.SyncRoot)
-          foreach (GroupMenuListItem listItem in _mainMenuGroupList)
-          {
-            if (listItem.IsActive)
-            {
-              LastSelectedItem = listItem;
-              LastSelectedItemName = listItem[Consts.KEY_NAME];
-              break;
-            }
-          }
-      }
     }
 
     private void OnSettingsChanged(object sender, EventArgs e)
@@ -396,13 +336,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         WorkflowAction wfAction = action as WorkflowAction;
         if (wfAction == null)
           continue;
-
-        // intercept the menu item commands, so we can set the item as LastSelectedItem
-        // since the menu items are recreated when an sub screen is opened we have to check if the item is already intercepted each time
-        if (!(menuItem.Command is MenuItemCommandInterceptor))
-        {
-          menuItem.Command = new MenuItemCommandInterceptor(this, menuItem);
-        }
 
         // Under "others" all items are places, that do not fit into any other category
         if (CurrentKey == MenuSettings.MENU_NAME_OTHERS)
@@ -554,14 +487,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           // if the group is selected, it is the LastSelectedItem now.
           if (listItem.IsActive)
           {
-            LastSelectedItem = listItem;
-            LastSelectedItemName = listItem[Consts.KEY_NAME];
+            if (IsHomeScreen)
+              LastSelectedItemName = listItem[Consts.KEY_NAME];
             anyActive = true;
           }
         }
       }
       return anyActive;
     }
+
+    public bool IsHomeScreen { get; set; }
 
     /// <summary>
     /// Reads actions/positon from settings.
@@ -679,10 +614,18 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         }
         if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
+          IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
           CheckShortCutsWorkflows();
           UpdateSelectedGroup();
+          SetWorkflowName();
         }
       }
+    }
+
+    private void SetWorkflowName()
+    {
+      if (!IsHomeScreen)
+        LastSelectedItemName = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.DisplayLabel;
     }
 
     private void CheckShortCutsWorkflows()
@@ -710,17 +653,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       return true;
     }
 
-    //protected override void UpdateMenus()
-    //{
-    //  base.UpdateMenus();
-    //  ReCreateShortcutItems();
-    //}
-
     private void UpdateShortcuts()
     {
       ReCreateShortcutItems();
-      //CreateMenuGroupItems();
-      //CreatePositionedItems();
     }
   }
 }

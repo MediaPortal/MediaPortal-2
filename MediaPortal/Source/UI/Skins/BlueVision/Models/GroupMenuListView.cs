@@ -56,7 +56,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
             {
               // get the real ListItem from the DataContext and check if this is the currently focused item
               IDataDescriptor listItem;
-              var lastSelectedItem =  HomeMenuModel.MainMenuGroupList.OfType<GroupMenuListItem>().FirstOrDefault(i => i.IsActive) ?? HomeMenuModel.LastSelectedItem;
+              var lastSelectedItem =  HomeMenuModel.MainMenuGroupList.OfType<GroupMenuListItem>().FirstOrDefault(i => i.IsActive);
               if (item.DataContext.Evaluate(out listItem) && ReferenceEquals(listItem.Value, lastSelectedItem))
               {
                 // if LastSelectedItem is not currently focused, then the focus comes from the outside, and it's the focus candidate then
