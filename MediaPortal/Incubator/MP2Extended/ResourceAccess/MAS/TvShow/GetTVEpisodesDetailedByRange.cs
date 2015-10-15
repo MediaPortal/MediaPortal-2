@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
         throw new BadRequestException("No Tv Episodes found");
 
       // output
-      var output = items.Select(EpisodeDetailed).ToList();
+      var output = items.Select(item => EpisodeDetailed(item)).ToList();
 
       // sort
       string sort = httpParam["sort"].Value;
