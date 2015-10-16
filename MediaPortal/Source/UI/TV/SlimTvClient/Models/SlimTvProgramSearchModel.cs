@@ -193,9 +193,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
-    protected override void UpdateCurrentChannel()
-    {
-    }
+    //protected override void UpdateCurrentChannel()
+    //{
+    //}
 
     protected override void UpdateProgramStatus(IProgram program)
     {
@@ -219,7 +219,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// For extended scheduling we will load all programs with same title independent from channel.
     /// </summary>
-    protected override void UpdatePrograms()
+    protected void UpdatePrograms()
     {
       if (_tvHandler.ProgramInfo == null)
         return;

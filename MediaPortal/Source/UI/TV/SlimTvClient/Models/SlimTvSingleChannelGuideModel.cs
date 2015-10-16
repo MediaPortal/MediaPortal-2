@@ -103,30 +103,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void Update()
     { }
 
-    protected override void UpdateCurrentChannel()
+    protected override void UpdateGuiProperties()
     {
-      SetGroupName();
+      base.UpdateGuiProperties();
 
-      if (CurrentChannel != null)
-      {
-        _channel = CurrentChannel;
-        ChannelName = CurrentChannel.Name;
-        // Now current channel group / channel is only set for tuning
-        // SetCurrentChannel();
-      }
-      else
-      {
-        _channel = null;
-        ChannelName = String.Empty;
-      }
+      ChannelName = CurrentChannel != null ? CurrentChannel.Name : String.Empty;
+      _channel = CurrentChannel;
     }
 
-    protected override void UpdatePrograms()
+    protected void UpdatePrograms()
     {
+      UpdateGuiProperties();
       _programsList.Clear();
-      if (_channel != null)
+      if (CurrentChannel != null)
       {
-        if (_tvHandler.ProgramInfo.GetPrograms(_channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
+        if (_tvHandler.ProgramInfo.GetPrograms(CurrentChannel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
         {
           foreach (IProgram program in _programs)
           {
@@ -178,6 +169,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return MODEL_ID; }
     }
 
+    protected override void OnCurrentChannelChanged(int oldindex, int newindex)
+    {
+      base.OnCurrentChannelChanged(oldindex, newindex);
+      UpdatePrograms();
+    }
+
+    protected override void OnCurrentGroupChanged(int oldindex, int newindex)
+    {
+      base.OnCurrentGroupChanged(oldindex, newindex);
+      UpdatePrograms();
+    }
+
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
@@ -186,13 +189,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_GROUP_ID, out groupIdObject) &&
           newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_CHANNEL_ID, out channelIdObject))
       {
-        if (ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject))
-          SetGroup();
+        ChannelContext.Instance.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject);
+        ChannelContext.Instance.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject);
 
-        if (ChannelContext.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject))
-          SetChannel();
-
-        UpdateCurrentChannel();
         UpdatePrograms();
       }
     }

@@ -263,13 +263,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
-    protected override void UpdateCurrentChannel()
-    {
-    }
+    //protected override void UpdateCurrentChannel()
+    //{
+    //}
 
-    protected override void UpdatePrograms()
-    {
-    }
+    //protected override void UpdatePrograms()
+    //{
+    //}
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
