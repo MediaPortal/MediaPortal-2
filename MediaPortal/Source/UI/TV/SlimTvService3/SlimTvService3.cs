@@ -345,8 +345,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       else
       {
-      foreach (var channel in _tvBusiness.GetTVGuideChannelsForGroup(channelGroup.ChannelGroupId))
-        CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
+        foreach (var channel in _tvBusiness.GetTVGuideChannelsForGroup(channelGroup.ChannelGroupId))
+          CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
       }
       return programs.Count > 0;
     }
@@ -425,14 +425,99 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
-      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (int)recordingType);
-      tvSchedule.ScheduleType = (int)recordingType;
-      tvSchedule.PreRecordInterval = Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
-      tvSchedule.PostRecordInterval = Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
-      tvSchedule.Persist();
-      _tvControl.OnNewSchedule();
-      schedule = tvSchedule.ToSchedule();
-      return true;
+      var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
+      if (tvProgram == null)
+      {
+        schedule = null;
+        return false;
+      }
+      if (CreateProgram(tvProgram, (int)recordingType, out schedule))
+      {
+        _tvControl.OnNewSchedule();
+      }
+      return schedule != null;
+    }
+
+    public static bool CreateProgram(TvDatabase.Program program, int scheduleType, out ISchedule currentSchedule)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("SlimTvService3.CreateProgram: program = {0}", program.ToString());
+      TvDatabase.Schedule schedule;
+      TvDatabase.Schedule saveSchedule = null;
+      TvBusinessLayer layer = new TvBusinessLayer();
+      if (IsRecordingProgram(program, out schedule, false)) // check if schedule is already existing
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SlimTvService3.CreateProgram - series schedule found ID={0}, Type={1}", schedule.IdSchedule, schedule.ScheduleType);
+        ServiceRegistration.Get<ILogger>().Debug("                            - schedule= {0}", schedule.ToString());
+        if (schedule.IsSerieIsCanceled(schedule.GetSchedStartTimeForProg(program), program.IdChannel))
+        {
+          // Delete the cancelled schedule.
+          saveSchedule = schedule;
+          schedule = new TvDatabase.Schedule(program.IdChannel, program.Title, program.StartTime, program.EndTime)
+          {
+            PreRecordInterval = saveSchedule.PreRecordInterval,
+            PostRecordInterval = saveSchedule.PostRecordInterval,
+            ScheduleType = (int)ScheduleRecordingType.Once
+          };
+        }
+      }
+      else
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SlimTvService3.CreateProgram - no series schedule");
+        // No series schedule => create it
+        schedule = new TvDatabase.Schedule(program.IdChannel, program.Title, program.StartTime, program.EndTime)
+        {
+          PreRecordInterval = Int32.Parse(layer.GetSetting("preRecordInterval", "5").Value),
+          PostRecordInterval = Int32.Parse(layer.GetSetting("postRecordInterval", "5").Value),
+          ScheduleType = scheduleType
+        };
+      }
+
+      if (saveSchedule != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SlimTvService3.CreateProgram - UnCancelSerie at {0}", program.StartTime);
+        saveSchedule.UnCancelSerie(program.StartTime, program.IdChannel);
+        saveSchedule.Persist();
+        currentSchedule = saveSchedule.ToSchedule();
+      }
+      else
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SlimTvService3.CreateProgram - create schedule = {0}", schedule.ToString());
+        schedule.Persist();
+        currentSchedule = schedule.ToSchedule();
+      }
+      return currentSchedule != null;
+    }
+
+    public static bool IsRecordingProgram(TvDatabase.Program program, out TvDatabase.Schedule recordingSchedule, bool filterCanceledRecordings)
+    {
+      recordingSchedule = null;
+
+      IList<TvDatabase.Schedule> schedules = TvDatabase.Schedule.ListAll();
+      foreach (TvDatabase.Schedule schedule in schedules)
+      {
+        if (schedule.Canceled != TvDatabase.Schedule.MinSchedule || (filterCanceledRecordings && schedule.IsSerieIsCanceled(schedule.GetSchedStartTimeForProg(program), program.IdChannel)))
+        {
+          continue;
+        }
+        if (schedule.IsManual && schedule.IdChannel == program.IdChannel && schedule.EndTime >= program.EndTime)
+        {
+          TvDatabase.Schedule manual = schedule.Clone();
+          manual.ProgramName = program.Title;
+          manual.EndTime = program.EndTime;
+          manual.StartTime = program.StartTime;
+          if (manual.IsRecordingProgram(program, filterCanceledRecordings))
+          {
+            recordingSchedule = schedule;
+            return true;
+          }
+        }
+        else if (schedule.IsRecordingProgram(program, filterCanceledRecordings))
+        {
+          recordingSchedule = schedule;
+          return true;
+        }
+      }
+      return false;
     }
 
     public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
@@ -460,7 +545,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
             _tvControl.OnNewSchedule();
             break;
           default:
-            CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, schedule.StartTime);
+            CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, program.StartTime);
             canceledSchedule.Persist();
             _tvControl.OnNewSchedule();
             break;
