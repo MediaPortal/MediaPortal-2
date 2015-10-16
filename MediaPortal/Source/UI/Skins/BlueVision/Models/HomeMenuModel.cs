@@ -433,16 +433,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
-    //private bool NavigateBack()
-    //{
-    //  IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-    //  if (workflowManager == null)
-    //    return false;
-
-    //  workflowManager.NavigatePop(1);
-    //  return true;
-    //}
-
     private bool NavigateToHome()
     {
       try
