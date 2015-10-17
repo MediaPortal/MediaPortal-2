@@ -53,6 +53,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected readonly AbstractProperty _disableAutoSelectionProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _disableHomeTabProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _useAlternativeSplashscreenProperty = new WProperty(typeof(bool), false);
+    protected readonly AbstractProperty _resetGroupLayoutProperty = new WProperty(typeof(bool), false);
 
     #endregion
 
@@ -91,6 +92,17 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       set { _useAlternativeSplashscreenProperty.SetValue(value); }
     }
 
+    public AbstractProperty ResetGroupLayoutProperty
+    {
+      get { return _resetGroupLayoutProperty; }
+    }
+
+    public bool ResetGroupLayout
+    {
+      get { return (bool)_resetGroupLayoutProperty.GetValue(); }
+      set { _resetGroupLayoutProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public methods - Commands
@@ -105,6 +117,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       settings.DisableHomeTab = DisableHomeTab;
       settings.DisableAutoSelection = DisableAutoSelection;
       settings.UseAlternativeSplashscreen = UseAlternativeSplashscreen;
+
+      // Used to restore the default layout from settings. When the MenuItems are cleared, the defaults will be applied.
+      if (ResetGroupLayout)
+        settings.MenuItems.Clear();
+
       // Save
       settingsManager.Save(settings);
 
