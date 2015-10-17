@@ -557,6 +557,14 @@ namespace MediaPortal.Common.MediaManagement
       aspect.SetAttribute(attributeSpecification, value);
     }
 
+    public static SingleMediaItemAspect GetAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      SingleMediaItemAspectMetadata mediaItemAspectMetadata)
+    {
+      SingleMediaItemAspect value;
+      TryGetAspect(aspectData, mediaItemAspectMetadata, out value);
+      return value;
+    }
+
     public static bool TryGetAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
         SingleMediaItemAspectMetadata mediaItemAspectMetadata, out SingleMediaItemAspect value)
     {

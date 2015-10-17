@@ -1,7 +1,7 @@
 #region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -118,7 +118,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
           catch (Exception e)
           {
             UPnPConfiguration.LOGGER.Debug(
-                "SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'",
+                "SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'", e,
                 NetworkHelper.IPAddrToString(config.EndPointIPAddress), e.Message);
           }
         }
