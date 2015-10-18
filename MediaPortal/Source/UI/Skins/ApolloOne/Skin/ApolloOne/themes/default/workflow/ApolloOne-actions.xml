@@ -9,7 +9,7 @@
       SortOrder="b"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
-      DisplayTitle="Multi TV Guide"/>
+      DisplayTitle="[SlimTvClient.TvGuide]"/>
 
     <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
       Name="SlimTvClient->Schedules"
@@ -17,7 +17,7 @@
       SortOrder="c"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
-      DisplayTitle="Schedules"/>
+      DisplayTitle="[SlimTvClient.Schedules]"/>
 
     <WorkflowContributorAction Id="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"
       Name="SlimTvClient->Recordings"
