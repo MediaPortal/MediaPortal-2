@@ -195,10 +195,14 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     private void OnSettingsChanged(object sender, EventArgs e)
     {
       // Invoked from internal update, so skip refreshs
-      if (_noSettingsRefresh)
-        return;
-      CreateMenuGroupItems();
-      CreatePositionedItems();
+      lock (_syncObj)
+      {
+        if (_noSettingsRefresh)
+          return;
+        ReadPositions();
+        CreateMenuGroupItems();
+        CreatePositionedItems();
+      }
     }
 
     protected void MenuItemsOnObjectChanged(IObservable observable)
@@ -391,7 +395,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
       try
       {
-        _noSettingsRefresh = true;
+        lock (_syncObj) _noSettingsRefresh = true;
         ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings.Settings);
         if (isShortCut)
         {
@@ -406,7 +410,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
       finally
       {
-        _noSettingsRefresh = false;
+        lock (_syncObj) _noSettingsRefresh = false;
       }
     }
 
@@ -499,78 +503,85 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         _menuSettings.SettingsChanged += OnSettingsChanged;
       }
       var menuSettings = _menuSettings.Settings;
-      if (menuSettings.MainMenuShortCuts.Count == 0)
+      try
       {
-        menuSettings.MainMenuShortCuts = new List<GroupItemSetting>
+        lock (_syncObj) _noSettingsRefresh = true;
+        if (menuSettings.MainMenuShortCuts.Count == 0)
         {
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_PLAYING, Id = new Guid(MenuSettings.MENU_ID_PLAYING), ActionId = MenuSettings.WF_ACTION_CP },
-          //new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME, ActionId = MenuSettings.WF_ACTION_FS },
-        };
-        ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
-      }
-      if (menuSettings.MenuItems.Count == 0)
-      {
-        menuSettings.MainMenuGroupNames = new List<GroupItemSetting>
+          menuSettings.MainMenuShortCuts = new List<GroupItemSetting>
+          {
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_PLAYING, Id = new Guid(MenuSettings.MENU_ID_PLAYING), ActionId = MenuSettings.WF_ACTION_CP },
+            //new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME, ActionId = MenuSettings.WF_ACTION_FS },
+          };
+          ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+        }
+        if (menuSettings.MenuItems.Count == 0)
         {
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME,        Id = new Guid(MenuSettings.MENU_ID_HOME)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE,       Id = new Guid(MenuSettings.MENU_ID_IMAGE)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO,       Id = new Guid(MenuSettings.MENU_ID_AUDIO)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_MEDIAHUB,    Id = new Guid(MenuSettings.MENU_ID_MEDIAHUB)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_TV,          Id = new Guid(MenuSettings.MENU_ID_TV)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_NEWS,        Id = new Guid(MenuSettings.MENU_ID_NEWS)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS,    Id = new Guid(MenuSettings.MENU_ID_SETTINGS)},
-          new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS,      Id = new Guid(MenuSettings.MENU_ID_OTHERS)}
-        };
-        menuSettings.DefaultMenuGroupId = MenuSettings.MENU_ID_MEDIAHUB;
+          menuSettings.MainMenuGroupNames = new List<GroupItemSetting>
+          {
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME, Id = new Guid(MenuSettings.MENU_ID_HOME) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE, Id = new Guid(MenuSettings.MENU_ID_IMAGE) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO, Id = new Guid(MenuSettings.MENU_ID_AUDIO) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_MEDIAHUB, Id = new Guid(MenuSettings.MENU_ID_MEDIAHUB) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_TV, Id = new Guid(MenuSettings.MENU_ID_TV) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_NEWS, Id = new Guid(MenuSettings.MENU_ID_NEWS) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS, Id = new Guid(MenuSettings.MENU_ID_SETTINGS) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) }
+          };
+          menuSettings.DefaultMenuGroupId = MenuSettings.MENU_ID_MEDIAHUB;
 
-        var positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("A4DF2DF6-8D66-479a-9930-D7106525EB07")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Videos
-        positions[new Guid("80D2E2CC-BAAA-4750-807B-F37714153751")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Movies
-        positions[new Guid("30F57CBA-459C-4202-A587-09FFF5098251")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Series
-        positions[new Guid("C33E39CC-910E-41C8-BFFD-9ECCD340B569")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // OnlineVideos
+          var positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("A4DF2DF6-8D66-479a-9930-D7106525EB07")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Videos
+          positions[new Guid("80D2E2CC-BAAA-4750-807B-F37714153751")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Movies
+          positions[new Guid("30F57CBA-459C-4202-A587-09FFF5098251")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Series
+          positions[new Guid("C33E39CC-910E-41C8-BFFD-9ECCD340B569")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // OnlineVideos
 
-        positions[new Guid("93442DF7-186D-42e5-A0F5-CF1493E68F49")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Media
-        positions[new Guid("17D2390E-5B05-4fbd-89F6-24D60CEB427F")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Local (exclusive)
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_MEDIAHUB] = positions;
+          positions[new Guid("93442DF7-186D-42e5-A0F5-CF1493E68F49")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Media
+          positions[new Guid("17D2390E-5B05-4fbd-89F6-24D60CEB427F")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Browse Local (exclusive)
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_MEDIAHUB] = positions;
 
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("55556593-9FE9-436c-A3B6-A971E10C9D44")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_IMAGE] = positions;
+          positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("55556593-9FE9-436c-A3B6-A971E10C9D44")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_IMAGE] = positions;
 
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("94961A9E-4C81-4bf7-9EE4-DF9712C3DCF2")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_HOME] = positions;
+          positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("94961A9E-4C81-4bf7-9EE4-DF9712C3DCF2")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Images
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_HOME] = positions;
 
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("30715D73-4205-417f-80AA-E82F0834171F")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Audio
-        positions[new Guid("E00B8442-8230-4D7B-B871-6AC77755A0D5")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // PartyMusicPlayer
-        positions[new Guid("2DED75C0-5EAE-4E69-9913-6B50A9AB2956")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL + MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // WebRadio
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_AUDIO] = positions;
+          positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("30715D73-4205-417f-80AA-E82F0834171F")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Audio
+          positions[new Guid("E00B8442-8230-4D7B-B871-6AC77755A0D5")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // PartyMusicPlayer
+          positions[new Guid("2DED75C0-5EAE-4E69-9913-6B50A9AB2956")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_NORMAL + MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // WebRadio
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_AUDIO] = positions;
 
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("B4A9199F-6DD4-4bda-A077-DE9C081F7703")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // TV Home
-        positions[new Guid("A298DFBE-9DA8-4C16-A3EA-A9B354F3910C")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Apollo EPG Link
-        positions[new Guid("7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_LARGE + MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Apollo Recordings Link
-        positions[new Guid("87355E05-A15B-452A-85B8-98D4FC80034E")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Apollo Schedules Link
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_TV] = positions;
+          positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("B4A9199F-6DD4-4bda-A077-DE9C081F7703")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // TV Home
+          positions[new Guid("A298DFBE-9DA8-4C16-A3EA-A9B354F3910C")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Apollo EPG Link
+          positions[new Guid("7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_LARGE + MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Apollo Recordings Link
+          positions[new Guid("87355E05-A15B-452A-85B8-98D4FC80034E")] = new GridPosition { Column = MenuSettings.DEFAULT_COLSPAN_LARGE, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_NORMAL, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Apollo Schedules Link
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_TV] = positions;
 
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("BB49A591-7705-408F-8177-45D633FDFAD0")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // News
-        positions[new Guid("BD93C5B3-402C-40A2-B323-DA891ED5F50E")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Kino
-        positions[new Guid("E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Weather
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_NEWS] = positions;
+          positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("BB49A591-7705-408F-8177-45D633FDFAD0")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // News
+          positions[new Guid("BD93C5B3-402C-40A2-B323-DA891ED5F50E")] = new GridPosition { Column = 0, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = MenuSettings.DEFAULT_ROWSPAN_NORMAL, RowSpan = MenuSettings.DEFAULT_ROWSPAN_NORMAL }; // Kino
+          positions[new Guid("E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Weather
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_NEWS] = positions;
 
-        positions = new SerializableDictionary<Guid, GridPosition>();
-        positions[new Guid("F6255762-C52A-4231-9E67-14C28735216E")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Configuration
-        menuSettings.MenuItems[MenuSettings.MENU_NAME_SETTINGS] = positions;
+          positions = new SerializableDictionary<Guid, GridPosition>();
+          positions[new Guid("F6255762-C52A-4231-9E67-14C28735216E")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Configuration
+          menuSettings.MenuItems[MenuSettings.MENU_NAME_SETTINGS] = positions;
 
-        ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+          ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+        }
+        if (_menuSettings.Settings.MainMenuGroupNames.All(key => key.Name != MenuSettings.MENU_NAME_OTHERS))
+        {
+          _menuSettings.Settings.MainMenuGroupNames.Add(new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) });
+          ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+        }
       }
-      //_menuSettings = menuSettings;
-      if (_menuSettings.Settings.MainMenuGroupNames.All(key => key.Name != MenuSettings.MENU_NAME_OTHERS))
+      finally
       {
-        _menuSettings.Settings.MainMenuGroupNames.Add(new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) });
-        ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+        lock (_syncObj) _noSettingsRefresh = false;
       }
     }
 
