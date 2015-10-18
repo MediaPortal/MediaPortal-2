@@ -519,14 +519,14 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         {
           menuSettings.MainMenuGroupNames = new List<GroupItemSetting>
           {
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME, Id = new Guid(MenuSettings.MENU_ID_HOME) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE, Id = new Guid(MenuSettings.MENU_ID_IMAGE) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO, Id = new Guid(MenuSettings.MENU_ID_AUDIO) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_MEDIAHUB, Id = new Guid(MenuSettings.MENU_ID_MEDIAHUB) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_TV, Id = new Guid(MenuSettings.MENU_ID_TV) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_NEWS, Id = new Guid(MenuSettings.MENU_ID_NEWS) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS, Id = new Guid(MenuSettings.MENU_ID_SETTINGS) },
-            new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS, Id = new Guid(MenuSettings.MENU_ID_OTHERS) }
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_HOME,        Id = new Guid(MenuSettings.MENU_ID_HOME)},
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_IMAGE,       Id = new Guid(MenuSettings.MENU_ID_IMAGE)},
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_AUDIO,       Id = new Guid(MenuSettings.MENU_ID_AUDIO)},
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_MEDIAHUB,    Id = new Guid(MenuSettings.MENU_ID_MEDIAHUB) },
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_TV,          Id = new Guid(MenuSettings.MENU_ID_TV)},
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_NEWS,        Id = new Guid(MenuSettings.MENU_ID_NEWS)},
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_SETTINGS,    Id = new Guid(MenuSettings.MENU_ID_SETTINGS)},
+            new GroupItemSetting { Name = MenuSettings.MENU_NAME_OTHERS,      Id = new Guid(MenuSettings.MENU_ID_OTHERS) }
           };
           menuSettings.DefaultMenuGroupId = MenuSettings.MENU_ID_MEDIAHUB;
 
@@ -589,8 +589,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       if (_messageQueue == null)
         return;
-      _messageQueue.SubscribeToMessageChannel(MenuModelMessaging.CHANNEL);
-      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
@@ -617,7 +615,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         {
           IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
           CheckShortCutsWorkflows();
-          UpdateSelectedGroup();
           SetWorkflowName();
         }
       }
