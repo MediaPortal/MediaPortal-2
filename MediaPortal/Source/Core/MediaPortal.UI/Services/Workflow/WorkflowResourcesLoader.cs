@@ -164,6 +164,7 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       string targetState = null;
@@ -198,6 +199,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayTitle":
               displayTitle = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -211,7 +215,8 @@ namespace MediaPortal.UI.Services.Workflow
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
       PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), new Guid(targetState), navigationContextDisplayLabel)
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText),
+          new Guid(targetState), navigationContextDisplayLabel)
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder
@@ -225,6 +230,7 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       int numPop = -1;
@@ -256,6 +262,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayTitle":
               displayTitle = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -269,7 +278,7 @@ namespace MediaPortal.UI.Services.Workflow
       if (numPop == -1)
         throw new ArgumentException(string.Format("{0} '{1}': 'NumPop' attribute missing", actionNav.Name, name));
       PopNavigationTransition result = new PopNavigationTransition(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), numPop)
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), numPop)
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder
@@ -283,6 +292,7 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       string contributorModel = null;
@@ -313,6 +323,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayTitle":
               displayTitle = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -326,7 +339,7 @@ namespace MediaPortal.UI.Services.Workflow
       if (string.IsNullOrEmpty(contributorModel))
         throw new ArgumentException(string.Format("{0} '{1}': 'ContributorModelId' attribute missing", actionNav.Name, name));
       WorkflowContributorAction result = new WorkflowContributorAction(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), new Guid(contributorModel))
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), new Guid(contributorModel))
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder
@@ -340,6 +353,7 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       string modelId = null;
@@ -361,6 +375,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "DisplayCategory":
               displayCategory = attrNav.Value;
+              break;
+            case "HelpText":
+              helpText = attrNav.Value;
               break;
             case "SortOrder":
               sortOrder = attrNav.Value;
@@ -389,7 +406,8 @@ namespace MediaPortal.UI.Services.Workflow
       if (string.IsNullOrEmpty(methodName))
         throw new ArgumentException(string.Format("{0} '{1}': 'MethodName' attribute missing", actionNav.Name, name));
       MethodCallAction result = new MethodCallAction(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), new Guid(modelId), methodName)
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText),
+          new Guid(modelId), methodName)
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder

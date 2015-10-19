@@ -41,7 +41,13 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     public MethodDelegateAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle,
         ParameterlessMethod executor) :
-        base(actionId, name, sourceStateIds, displayTitle)
+        this(actionId, name, sourceStateIds, displayTitle, null, executor)
+    {
+    }
+
+    public MethodDelegateAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText,
+        ParameterlessMethod executor) :
+        base(actionId, name, sourceStateIds, displayTitle, helpText)
     {
       _executor = executor;
     }
