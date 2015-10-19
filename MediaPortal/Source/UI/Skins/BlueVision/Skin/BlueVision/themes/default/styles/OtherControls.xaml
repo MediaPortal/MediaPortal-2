@@ -651,6 +651,7 @@
 
   <!-- ListView style to be used for main groups menu -->
   <Style x:Key="HomeGroupListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>

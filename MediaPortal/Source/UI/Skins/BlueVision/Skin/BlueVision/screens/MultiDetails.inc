@@ -17,6 +17,7 @@
 
   <Grid.Resources>
     <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
+    <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   </Grid.Resources>
 
   <Control x:Name="AudioDetails">
@@ -76,4 +77,6 @@
       <Include Source="screens\MediaItemOthersDetails.inc"/>
     </Control.TemplateControl>
   </Control>
+
+  <Label DataContext ="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
 </Grid>
