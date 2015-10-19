@@ -281,9 +281,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             return false;
           // Check and update all properties of the current item
           IResourceString rs;
-          if (!item.Labels.TryGetValue("Name", out rs) || rs != action.DisplayTitle)
+          if (!item.Labels.TryGetValue("Name", out rs) || !Equals(rs, action.DisplayTitle))
           {
             item.SetLabel("Name", action.DisplayTitle);
+            wasChanged = true;
+          }
+          if (!item.Labels.TryGetValue("Help", out rs) || !Equals(rs, action.HelpText))
+          {
+            item.SetLabel("Help", action.HelpText);
             wasChanged = true;
           }
           // Not easy to check equality of the command - doesn't matter, simply recreate it
@@ -334,6 +339,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
                 Enabled = action.IsEnabled(context),
               };
           item.AdditionalProperties[Consts.KEY_ITEM_ACTION] = action;
+          item.SetLabel("Help", action.HelpText);
           menuItems.Add(item);
         }
       }
