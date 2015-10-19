@@ -63,7 +63,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected SettingsChangeWatcher<MenuSettings> _menuSettings;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
-    protected AbstractProperty _isPlayerActiveProperty;
     protected bool _noSettingsRefresh;
     protected bool _isPlayerActive;
     protected string _lastActiveGroup;
@@ -153,33 +152,15 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       set { _isHomeProperty.SetValue(value); }
     }
 
-    public AbstractProperty IsPlayerActiveProperty
-    {
-      get { return _isPlayerActiveProperty; }
-    }
-
-    public bool IsPlayerActive
-    {
-      get { return (bool)_isPlayerActiveProperty.GetValue(); }
-      set { _isPlayerActiveProperty.SetValue(value); }
-    }
-
     #endregion
 
     public HomeMenuModel()
     {
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
       _isHomeProperty = new WProperty(typeof(bool), false);
-      _isPlayerActiveProperty = new WProperty(typeof(bool), false);
       IsHomeProperty.Attach(IsHomeChanged);
 
       SubscribeToMessages();
-
-      ReadPositions();
-
-      CreateMenuGroupItems();
-      CreatePositionedItems();
-      MenuItems.ObjectChanged += MenuItemsOnObjectChanged;
     }
 
     public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
@@ -199,10 +180,18 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         if (_noSettingsRefresh)
           return;
-        ReadPositions();
-        CreateMenuGroupItems();
-        CreatePositionedItems();
+        UpdateMenu();
       }
+    }
+
+    private void UpdateMenu(bool firstTimeOnly = false)
+    {
+      var doUpdate = !firstTimeOnly || _menuSettings == null;
+      if (!doUpdate)
+        return;
+      ReadPositions();
+      CreateMenuGroupItems();
+      CreatePositionedItems();
     }
 
     protected void MenuItemsOnObjectChanged(IObservable observable)
@@ -501,6 +490,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         _menuSettings = new SettingsChangeWatcher<MenuSettings>();
         _menuSettings.SettingsChanged += OnSettingsChanged;
+        MenuItems.ObjectChanged += MenuItemsOnObjectChanged;
       }
       var menuSettings = _menuSettings.Settings;
       try
@@ -594,10 +584,14 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      UpdateMenu(true);
+
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {
         if (((MenuModelMessaging.MessageType)message.MessageType) == MenuModelMessaging.MessageType.UpdateMenu)
+        {
           UpdateShortcuts();
+        }
       }
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
