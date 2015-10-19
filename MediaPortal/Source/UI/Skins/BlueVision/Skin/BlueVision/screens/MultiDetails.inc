@@ -78,5 +78,5 @@
     </Control.TemplateControl>
   </Control>
 
-  <Label DataContext ="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+  <Label DataContext ="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Help]}" Color="{ThemeResource TextColor}"/>
 </Grid>

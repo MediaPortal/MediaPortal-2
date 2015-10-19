@@ -9,7 +9,8 @@
       SortOrder="b"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
-      DisplayTitle="[SlimTvClient.TvGuide]"/>
+      DisplayTitle="[SlimTvClient.TvGuide]"
+      HelpText="[SlimTvClient.TvGuide.Help]"/>
 
     <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
       Name="SlimTvClient->Schedules"
