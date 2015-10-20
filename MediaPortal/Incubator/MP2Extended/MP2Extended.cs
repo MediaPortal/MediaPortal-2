@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess;

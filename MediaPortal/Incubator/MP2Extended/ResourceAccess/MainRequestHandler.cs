@@ -28,11 +28,14 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using HttpServer;
+using HttpServer.Authentication;
 using HttpServer.Exceptions;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.Authentication;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -50,6 +53,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     private readonly string _serverOsVersion = null;
     private readonly string _product = null;
+    private AuthRequestHandler _authRequestHandler;
 
 
     public MainRequestHandler()
@@ -57,6 +61,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       _serverOsVersion = "1.0";
       Assembly assembly = Assembly.GetExecutingAssembly();
       _product = "MediaPortal 2 MPExtended/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
+
+      // Authentication
+      //_authRequestHandler = new AuthRequestHandler(RESOURCE_ACCESS_PATH);
     }
 
     protected class Range

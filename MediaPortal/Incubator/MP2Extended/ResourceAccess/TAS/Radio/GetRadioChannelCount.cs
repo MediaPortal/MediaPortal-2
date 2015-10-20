@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using MediaPortal.Plugins.MP2Extended.TAS.Misc;
-using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
-  internal class GetChannelCount : IRequestMicroModuleHandler
+  // TODO actually count RadioChannels
+  internal class GetRadioChannelCount : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -25,7 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
      
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
-        throw new BadRequestException("GetChannelCount: ITvProvider not found");
+        throw new BadRequestException("GetRadioChannelCount: ITvProvider not found");
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
         
@@ -37,13 +33,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       {
         int channelGroupIdInt;
         if (!int.TryParse(groupId, out channelGroupIdInt))
-          throw new BadRequestException(string.Format("GetChannelCount: Couldn't convert groupId to int: {0}", groupId));
+          throw new BadRequestException(string.Format("GetRadioChannelCount: Couldn't convert groupId to int: {0}", groupId));
         channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt });
       }
 
       int output = 0;
 
-      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.Radio))
       {
         // get channel for goup
         IList<IChannel> channels = new List<IChannel>();

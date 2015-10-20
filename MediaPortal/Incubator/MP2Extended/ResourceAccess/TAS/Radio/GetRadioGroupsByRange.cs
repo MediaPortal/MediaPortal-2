@@ -7,24 +7,21 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
-using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
-  // TODO: not integrated into slimTvInterface
-  internal class GetChannelsBasicByRange : BaseChannelBasic, IRequestMicroModuleHandler
+  // TODO: add more group information
+  // TODO: filter by Group type (return only TV)
+  internal class GetRadioGroupsByRange : BaseChannelGroup, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
       HttpParam httpParam = request.Param;
-      string groupId = httpParam["groupId"].Value;
       string start = httpParam["start"].Value;
       string end = httpParam["end"].Value;
 
@@ -34,42 +31,28 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       int startInt;
       if (!Int32.TryParse(start, out startInt))
       {
-        throw new BadRequestException(String.Format("GetChannelsBasicByRange: Couldn't convert start to int: {0}", start));
+        throw new BadRequestException(String.Format("GetRadioGroupsByRange: Couldn't convert start to int: {0}", start));
       }
 
       int endInt;
       if (!Int32.TryParse(end, out endInt))
       {
-        throw new BadRequestException(String.Format("GetChannelsBasicByRange: Couldn't convert end to int: {0}", end));
+        throw new BadRequestException(String.Format("GetRadioGroupsByRange: Couldn't convert end to int: {0}", end));
       }
       
-      List<WebChannelBasic> output = new List<WebChannelBasic>();
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
-        throw new BadRequestException("GetChannelsBasicByRange: ITvProvider not found");
-
+        throw new BadRequestException("GetRadioGroupsByRange: ITvProvider not found");
+      
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-        
 
       IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      if (groupId == null)
-        channelAndGroupInfo.GetChannelGroups(out channelGroups);
-      else
-      {
-        int channelGroupIdInt;
-        if (!int.TryParse(groupId, out channelGroupIdInt))
-          throw new BadRequestException(string.Format("GetChannelsBasicByRange: Couldn't convert groupId to int: {0}", groupId));
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt, MediaType = MediaType.TV });
-      }
+      channelAndGroupInfo.GetChannelGroups(out channelGroups);
 
-      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
-      {
-        // get channel for goup
-        IList<IChannel> channels = new List<IChannel>();
-        if (!channelAndGroupInfo.GetChannels(group, out channels))
-          continue;
+      List<WebChannelGroup> output = new List<WebChannelGroup>();
 
-        output.AddRange(channels.Where(x => x.MediaType == MediaType.TV).Select(channel => ChannelBasic(channel)));
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.Radio))
+      {
+        output.Add(ChannelGroup(group));
       }
 
       // sort
@@ -80,7 +63,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
         WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
 
-        output = output.SortChannelList(webSortField, webSortOrder).ToList();
+        output = output.SortGroupList(webSortField, webSortOrder).ToList();
       }
 
       // get range

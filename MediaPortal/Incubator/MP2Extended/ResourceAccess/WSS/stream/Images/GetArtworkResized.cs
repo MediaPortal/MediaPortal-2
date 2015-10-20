@@ -16,9 +16,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   {
     public byte[] Process(IHttpRequest request)
     {
-      Stopwatch stopWatch = new Stopwatch();
-      stopWatch.Start();
-      
       HttpParam httpParam = request.Param;
       string id = httpParam["id"].Value;
       string artworktype = httpParam["artworktype"].Value;
@@ -46,7 +43,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 
       // if teh Id contains a ':' it is a season
       if (id.Contains(":"))
+      {
         isSeason = true;
+        showId = id.Split(':')[0];
+      }
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
 
@@ -66,17 +66,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       int idInt;
       if (!Guid.TryParse(isSeason ? showId : id, out idGuid) && !isTvRadio)
         throw new BadRequestException(String.Format("GetArtworkResized: Couldn't parse if '{0}' to Guid", isSeason ? showId : id));
-      else if (int.TryParse(id, out idInt) && (fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio))
+      if (int.TryParse(id, out idInt) && (fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio))
         idGuid = IntToGuid(idInt);
 
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, maxWidthInt, maxHeightInt, borders, fanartType, fanArtMediaType);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(isSeason ? StringToGuid(id) : idGuid, isTvRadio, maxWidthInt, maxHeightInt, borders, fanartType, fanArtMediaType);
 
       byte[] data;
       if (ImageCache.TryGetImageFromCache(identifier, out data))
       {
         Logger.Info("GetArtworkResized: got image from cache");
-        stopWatch.Stop();
-        Logger.Info("GetArtworkTime: {0}", stopWatch.Elapsed);
         return data;
       }
 
@@ -91,8 +89,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       if (ImageCache.AddImageToCache(resizedImage, identifier))
         Logger.Info("GetArtworkResized: Added image to cache");
 
-      stopWatch.Stop();
-      Logger.Info("GetArtworkTime: {0}", stopWatch.Elapsed);
       return resizedImage;
     }
 

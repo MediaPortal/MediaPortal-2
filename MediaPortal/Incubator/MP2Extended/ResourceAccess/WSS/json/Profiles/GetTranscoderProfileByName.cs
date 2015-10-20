@@ -16,17 +16,17 @@ using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
-  internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile, IRequestMicroModuleHandler
+  internal class GetTranscoderProfileByName : BaseTranscoderProfile, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
       HttpParam httpParam = request.Param;
-      string target = httpParam["target"].Value;
-      if (target == null)
-        throw new BadRequestException("GetTranscoderProfilesForTarget: target is null");
+      string name = httpParam["name"].Value;
+      if (name == null)
+        throw new BadRequestException("GetTranscoderProfileByName: name is null");
 
 
-      return ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target)).Select(profile => TranscoderProfile(profile)).ToList();
+      return ProfileManager.Profiles.Where(x => x.Value.Name == name).Select(profile => TranscoderProfile(profile)).ToList();
     }
 
     internal static ILogger Logger

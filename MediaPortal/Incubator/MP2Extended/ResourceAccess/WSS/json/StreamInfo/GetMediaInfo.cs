@@ -20,7 +20,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       HttpParam httpParam = request.Param;
       string id = httpParam["itemId"].Value;
       if (id == null)
-        throw new BadRequestException("GetMediaInfo: no itemId is null");
+        throw new BadRequestException("GetMediaInfo: itemId is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

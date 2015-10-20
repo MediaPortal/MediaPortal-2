@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -74,7 +76,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       {
         string[] ids = id.Split(':');
         if (ids.Length < 2)
-          throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: not enough ids: {0}", ids.Length));
+          throw new BadRequestException(String.Format("GetArtworkResized: not enough ids: {0}", ids.Length));
 
         showId = ids[0];
         seasonId = ids[1];
@@ -101,7 +103,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
         }
 
         if (isSeason)
+        {
           name = String.Format("{0} S{1}", (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE], seasonId);
+          fanartType = FanArtConstants.FanArtType.Poster;
+        }
       }
       else
       {
@@ -132,6 +137,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       byte[] bytes = new byte[16];
       BitConverter.GetBytes(value).CopyTo(bytes, 0);
       return new Guid(bytes);
+    }
+
+    internal Guid StringToGuid(string value)
+    {
+      using (MD5 md5 = MD5.Create())
+      {
+        byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(value));
+        return new Guid(hash);
+      }
     }
 
     internal static ILogger Logger

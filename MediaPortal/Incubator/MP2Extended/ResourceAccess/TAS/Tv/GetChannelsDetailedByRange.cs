@@ -58,23 +58,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         int channelGroupIdInt;
         if (!int.TryParse(groupId, out channelGroupIdInt))
           throw new BadRequestException(string.Format("GetChannelsDetailedByRange: Couldn't convert groupId to int: {0}", groupId));
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt });
+        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt, MediaType = MediaType.TV });
       }
 
-      foreach (var group in channelGroups)
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
       {
         // get channel for goup
         IList<IChannel> channels = new List<IChannel>();
         if (!channelAndGroupInfo.GetChannels(group, out channels))
           continue;
 
-        foreach (var channel in channels)
-        {
-          WebChannelDetailed webChannelDetailed = ChannelDetailed(channel);
-
-          if (channel.MediaType == MediaType.TV)
-            output.Add(webChannelDetailed);
-        }
+        output.AddRange(channels.Where(x => x.MediaType == MediaType.TV).Select(channel => ChannelDetailed(channel)));
       }
 
       // sort

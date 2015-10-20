@@ -41,6 +41,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authentication\AuthRequestHandler.cs" />
+    <Compile Include="Authentication\Encryption.cs" />
     <Compile Include="Common\WebBoolResult.cs" />
     <Compile Include="Common\WebFileType.cs" />
     <Compile Include="Common\WebFilterOperator.cs" />
@@ -183,6 +186,7 @@
     <Compile Include="ResourceAccess\TAS\Channels\GetAllChannelStatesForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\BaseClasses\BaseProgramBasic.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\BaseClasses\BaseProgramDetailed.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsDetailedForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsBasicForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsDetailedForChannel.cs" />
@@ -196,18 +200,37 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\BaseClasses\BaseRecordingBasic.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingCount.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\GetRecordingById.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingsByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordings.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\BaseClasses\BaseScheduledRecording.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\CancelSchedule.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetProgramIsScheduled.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\DeleteSchedule.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\BaseClasses\BaseScheduleBasic.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetScheduleCount.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetScheduledRecordingsForDate.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetScheduledRecordingsForToday.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\GetScheduleById.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\GetSchedulesByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\GetSchedules.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\AddSchedule.cs" />
     <Compile Include="ResourceAccess\TAS\Timeshiftings\SlotControl.cs" />
     <Compile Include="ResourceAccess\TAS\Timeshiftings\CancelCurrentTimeShifting.cs" />
     <Compile Include="ResourceAccess\TAS\Timeshiftings\SwitchTVServerToChannelAndGetStreamingUrl.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioChannelCount.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioChannelsBasic.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioChannelsBasicByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioChannelsDetailed.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioChannelsDetailedByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioGroupById.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioGroupCount.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioGroups.cs" />
+    <Compile Include="ResourceAccess\TAS\Radio\GetRadioGroupsByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\BaseClasses\BaseChannelDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\BaseClasses\BaseChannelBasic.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\BaseClasses\BaseChannelGroup.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\GetChannelDetailedById.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelCount.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelBasicById.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelsDetailedByRange.cs" />
@@ -215,6 +238,7 @@
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelsBasicByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetGroupCount.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetGroupById.cs" />
+    <Compile Include="ResourceAccess\TAS\Tv\GetGroupsByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetGroups.cs" />
     <Compile Include="ResourceAccess\TAS\Tv\GetChannelsBasic.cs" />
     <Compile Include="ResourceAccess\TVAccessServiceHandler.cs" />
@@ -229,6 +253,9 @@
     <Compile Include="ResourceAccess\WSS\json\Control\InitStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\General\GetItemSupportStatus.cs" />
     <Compile Include="ResourceAccess\WSS\json\General\GetServiceDescription.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Profiles\BaseClasses\BaseTranscoderProfile.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfiles.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfileByName.cs" />
     <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfilesForTarget.cs" />
     <Compile Include="ResourceAccess\WSS\json\StreamInfo\GetMediaInfo.cs" />
     <Compile Include="ResourceAccess\WSS\Profiles\DlnaMediaItem.cs" />

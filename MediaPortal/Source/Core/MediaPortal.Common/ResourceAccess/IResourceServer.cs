@@ -23,6 +23,7 @@
 #endregion
 
 using System.Net;
+using HttpServer.Authentication;
 using HttpServer.HttpModules;
 
 namespace MediaPortal.Common.ResourceAccess
@@ -57,6 +58,16 @@ namespace MediaPortal.Common.ResourceAccess
     /// </remarks>
     /// <param name="module"></param>
     void AddHttpModule(HttpModule module);
+
+    /// <summary>
+    /// Adds a new Authentication Module to the HTTP server.
+    /// </summary>
+    /// <remarks>
+    /// The Authentication Module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
+    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
+    /// </remarks>
+    /// <param name="module"></param>
+    void AddAuthenticationModule(AuthenticationModule module);
 
     /// <summary>
     /// Removes an HTTP module from the HTTP server.

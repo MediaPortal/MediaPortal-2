@@ -26,6 +26,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       { "StartStream", new StartStream() },
       { "StartStreamWithStreamSelection", new StartStreamWithStreamSelection() },
       // Profiles
+      { "GetTranscoderProfileByName", new GetTranscoderProfileByName() },
+      { "GetTranscoderProfiles", new GetTranscoderProfiles() },
       { "GetTranscoderProfilesForTarget", new GetTranscoderProfilesForTarget() },
       // StreamInfo
       { "GetMediaInfo", new GetMediaInfo() },
