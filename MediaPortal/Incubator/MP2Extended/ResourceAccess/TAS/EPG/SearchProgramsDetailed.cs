@@ -30,14 +30,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 
       IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
 
-      IProgram program;
-      if (!programInfo.)
-        Logger.Warn("GetProgramDetailedById: Couldn't get Now/Next Info for channel with Id: {0}", programIdInt);
+      //IProgram program;
+      //if (!programInfo.GetPrograms())
+      //  Logger.Warn("GetProgramDetailedById: Couldn't get Now/Next Info for channel with Id: {0}", programIdInt);
 
-      WebProgramDetailed webProgramDetailed = ProgramDetailed(program);
+      //WebProgramDetailed webProgramDetailed = ProgramDetailed(program);
 
-
-      return webProgramDetailed;
+      return null;
+      //return webProgramDetailed;
     }
 
     internal static ILogger Logger
