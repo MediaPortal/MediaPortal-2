@@ -787,6 +787,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Channel, groups and programs
 
 
+    /// <summary>
+    /// Helper method to make sure the model updates the channel list when opening the MiniGuide.
+    /// Usually the update logic is done in Workflow events, but the MiniGuide is opened as dialog
+    /// in current workflow state (which doesn't invoke workflow transistions).
+    /// </summary>
+    public void UpdateChannelsMiniGuide()
+    {
+      UpdateChannels();
+    }
     protected virtual void UpdateGuiProperties()
     {
       CurrentGroupName = CurrentChannelGroup != null ? CurrentChannelGroup.Name : string.Empty;
