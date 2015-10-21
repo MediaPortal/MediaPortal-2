@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
 
     private static readonly Dictionary<WebFileType, FanArtConstants.FanArtType> _fanArtTypeMapping = new Dictionary<WebFileType, FanArtConstants.FanArtType>
     {
-      { WebFileType.Backdrop, FanArtConstants.FanArtType.ClearArt },
+      { WebFileType.Backdrop, FanArtConstants.FanArtType.FanArt },
       { WebFileType.Banner, FanArtConstants.FanArtType.Banner },
       { WebFileType.Content, FanArtConstants.FanArtType.Thumbnail },
       { WebFileType.Cover, FanArtConstants.FanArtType.Poster },

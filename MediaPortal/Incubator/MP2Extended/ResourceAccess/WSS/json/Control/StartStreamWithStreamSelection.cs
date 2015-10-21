@@ -1,17 +1,14 @@
-﻿using System;
-using System.Security.Policy;
-using HttpServer;
+﻿using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.MP2Extended.WSS.General;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
+  // TODO: Add Stream Selection
   internal class StartStreamWithStreamSelection : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
@@ -40,11 +37,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse startPosition '{0}' to long", startPosition));
 
       int audioTrack;
-      if (!int.TryParse(audioId, out audioTrack))
+      if (audioId != null && !int.TryParse(audioId, out audioTrack))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse audioId '{0}' to int", audioId));
 
       int subtitleTrack;
-      if (!int.TryParse(subtitleId, out subtitleTrack))
+      if (subtitleId != null && !int.TryParse(subtitleId, out subtitleTrack))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse subtitleId '{0}' to int", subtitleId));
 
       if (!ProfileManager.Profiles.ContainsKey(profileName))

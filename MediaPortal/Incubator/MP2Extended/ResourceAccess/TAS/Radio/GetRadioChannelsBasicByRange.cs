@@ -16,7 +16,6 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
-  // TODO: not integrated into slimTvInterface
   internal class GetRadioChannelsBasicByRange : BaseChannelBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

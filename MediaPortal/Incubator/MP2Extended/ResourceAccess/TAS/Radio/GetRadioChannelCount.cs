@@ -11,7 +11,6 @@ using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
-  // TODO actually count RadioChannels
   internal class GetRadioChannelCount : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

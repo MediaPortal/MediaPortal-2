@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
@@ -28,16 +31,36 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("SearchProgramsDetailed: ITvProvider not found");
 
+      Regex regex = new Regex(@searchTerm);
+
+      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
       IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
 
-      //IProgram program;
-      //if (!programInfo.GetPrograms())
-      //  Logger.Warn("GetProgramDetailedById: Couldn't get Now/Next Info for channel with Id: {0}", programIdInt);
+      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
+      channelAndGroupInfo.GetChannelGroups(out channelGroups);
 
-      //WebProgramDetailed webProgramDetailed = ProgramDetailed(program);
+      List<WebProgramDetailed> output = new List<WebProgramDetailed>();
 
-      return null;
-      //return webProgramDetailed;
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
+      {
+        // get channel for goup
+        IList<IChannel> channels = new List<IChannel>();
+        if (!channelAndGroupInfo.GetChannels(group, out channels))
+          continue;
+
+        foreach (var channel in channels)
+        {
+          IList<IProgram> programs;
+          programInfo.GetPrograms(channel, DateTime.Now, DateTime.Now.AddMonths(2), out programs);
+          foreach (var program in programs)
+          {
+            if (regex.IsMatch(program.Title))
+              output.Add(ProgramDetailed(program));
+          }
+        }
+      }
+
+      return output;
     }
 
     internal static ILogger Logger

@@ -16,7 +16,6 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
-  // TODO: filter by Group type (return only TV)
   internal class GetGroupCount : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

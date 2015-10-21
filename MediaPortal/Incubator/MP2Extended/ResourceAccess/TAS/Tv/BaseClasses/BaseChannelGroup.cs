@@ -19,7 +19,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
         IsRadio = @group.MediaType == MediaType.Radio,
         IsTv = @group.MediaType == MediaType.TV,
         SortOrder = @group.SortOrder,
-        IsChanged = true
+        IsChanged = true,
       };
       //webChannelGroup.IsChanged;
 

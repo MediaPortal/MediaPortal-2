@@ -10,7 +10,6 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
-  // TODO: filter by Group type (return only TV)
   internal class GetRadioGroupCount : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

@@ -15,8 +15,6 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
-  // TODO: add more group information
-  // TODO: filter by Group type (return only TV)
   internal class GetRadioGroupsByRange : BaseChannelGroup, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
