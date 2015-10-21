@@ -7,7 +7,8 @@
       SortOrder="a"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="C7646667-5E63-48c7-A490-A58AC9518CFA"
-      DisplayTitle="[SlimTvClient.Main]"/>
+      DisplayTitle="[SlimTvClient.Main]"
+      HelpText="[SlimTvClient.Main.Help]"/>
 
     <!-- Morpheus_xx, 2014-01-11: single channel guide can be accessed from multi channel guide (channel row header). Removed to reduce menu items.
     <PushNavigationTransition Id="480CA8AE-FF20-4be0-80E3-9896D7996140"
