@@ -2,12 +2,18 @@
 <resources>
   <!-- Menu items for the five Media navigation parts -->
   <string name="Media.BrowseMediaMenuItem">Browse media</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Browse the media library for all kind of media by media sources structure. Here you have also access to removable drives.</string>
   <string name="Media.LocalMediaMenuItem">Local media</string>
   <string name="Media.AudioMenuItem">Audio</string>
+  <string name="Media.AudioMenuItem.Help">Browse the media library for audio items.</string>
   <string name="Media.VideosMenuItem">Videos</string>
+  <string name="Media.VideosMenuItem.Help">Browse the media library for videos.</string>
   <string name="Media.SeriesMenuItem">Series</string>
+  <string name="Media.SeriesMenuItem.Help">Browse the media library for series.</string>
   <string name="Media.MoviesMenuItem">Movies</string>
+  <string name="Media.MoviesMenuItem.Help">Browse the media library for movies.</string>
   <string name="Media.ImagesMenuItem">Images</string>
+  <string name="Media.ImagesMenuItem.Help">Browse the media library for images.</string>
   <string name="Media.LatestMediaMenuItem">Latest media</string>
 
   <!-- Filter titles -->
