@@ -197,6 +197,7 @@
     <Compile Include="ResourceAccess\TAS\EPG\GetNowNextWebProgramDetailedForChannel.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetNextProgramOnChannel.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetCurrentProgramOnChannel.cs" />
+    <Compile Include="ResourceAccess\TAS\Misc\GetCards.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\BaseClasses\BaseRecordingBasic.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingCount.cs" />
@@ -280,6 +281,8 @@
     <Compile Include="ResourceAccess\WSS\stream\BaseClasses\BaseSendData.cs" />
     <Compile Include="ResourceAccess\WSS\stream\StreamItem.cs" />
     <Compile Include="TAS\Enumerations.cs" />
+    <Compile Include="TAS\Misc\BaseClasses\BaseCard.cs" />
+    <Compile Include="TAS\Misc\WebCard.cs" />
     <Compile Include="TAS\Misc\WebTVServiceDescription.cs" />
     <Compile Include="TAS\Misc\WebUser.cs" />
     <Compile Include="TAS\Misc\WebVirtualCard.cs" />

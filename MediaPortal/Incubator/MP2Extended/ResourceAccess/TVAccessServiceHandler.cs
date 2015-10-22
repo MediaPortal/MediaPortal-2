@@ -25,6 +25,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     {
       // Misc
       { "GetActiveCards", new GetActiveCards()},
+      { "GetCards", new GetCards()},
       { "GetServiceDescription", new GetServiceDescription()},
       // Channels
       { "GetAllChannelStatesForGroup", new GetAllChannelStatesForGroup()},
