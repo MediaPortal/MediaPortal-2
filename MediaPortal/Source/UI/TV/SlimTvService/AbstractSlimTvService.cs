@@ -48,7 +48,7 @@ using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, ITunerInfo
   {
     public static readonly MediaCategory Series = new MediaCategory("Series", null);
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
@@ -448,6 +448,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
+
+    public abstract bool GetCards(out List<ICard> cards);
 
     #endregion
   }

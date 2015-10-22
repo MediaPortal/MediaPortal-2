@@ -31,35 +31,39 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
-  public class Channel : IChannel
+  public class Card : ICard
   {
     private static XmlSerializer _xmlSerializer;
 
     #region IChannel Member
 
-    public int ServerIndex { get; set; }
-
-    public int ChannelId { get; set; }
+    public int CardId { get; set; }
 
     public string Name { get; set; }
 
-    public MediaType MediaType { get; set; }
+    public bool EpgIsGrabbing { get; set; }
 
-    public bool EpgHasGaps { get; set; }
+    public bool HasCam { get; set; }
 
-    public string ExternalId { get; set; }
+    public SlimTvCamType CamType { get; set; }
 
-    public bool GrapEpg { get; set; }
+    public int DecryptLimit { get; set; }
 
-    public DateTime? LastGrabTime { get; set; }
+    public string DevicePath { get; set; }
 
-    public int TimesWatched { get; set; }
+    public bool Enabled { get; set; }
 
-    public DateTime? TotalTimeWatched { get; set; }
+    public string RecordingFolder { get; set; }
 
-    public bool VisibleInGuide { get; set; }
+    public int RecordingFormat { get; set; }
 
-    public List<string> GroupNames { get; set; }
+    public string TimeshiftFolder { get; set; }
+
+    public int Priority { get; set; }
+
+    public bool PreloadCard { get; set; }
+
+    public bool SupportSubChannels { get; set; }
 
     #endregion
 
@@ -74,31 +78,31 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     }
 
     /// <summary>
-    /// Deserializes a Channel instance from a given XML fragment.
+    /// Deserializes a Card instance from a given XML fragment.
     /// </summary>
     /// <param name="str">XML fragment containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Channel Deserialize(string str)
+    public static Card Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       using (StringReader reader = new StringReader(str))
-        return xs.Deserialize(reader) as Channel;
+        return xs.Deserialize(reader) as Card;
     }
 
     /// <summary>
-    /// Deserializes a Channel instance from a given <paramref name="reader"/>.
+    /// Deserializes a Card instance from a given <paramref name="reader"/>.
     /// </summary>
     /// <param name="reader">XML reader containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Channel Deserialize(XmlReader reader)
+    public static Card Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      return xs.Deserialize(reader) as Channel;
+      return xs.Deserialize(reader) as Card;
     }
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Channel)));
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Card)));
     }
   }
 }

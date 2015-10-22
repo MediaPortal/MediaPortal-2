@@ -49,6 +49,8 @@ using TvDatabase;
 using TvEngine.Events;
 using TvLibrary.Interfaces;
 using TvService;
+using Card = TvDatabase.Card;
+using SlimTvCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Card;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -541,6 +543,28 @@ namespace MediaPortal.Plugins.SlimTv.Service
         _tvUsers.Add(userName, new User(userName, false));
 
       return _tvUsers[userName];
+    }
+
+    public override bool GetCards(out List<ICard> cards)
+    {
+      cards = _tvBusiness.Cards.Select(card => new SlimTvCard()
+      {
+        Name = card.Name, 
+        CardId = card.IdCard, 
+        EpgIsGrabbing = card.GrabEPG, 
+        HasCam = card.CAM, 
+        CamType = card.CamType == (int)CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2, 
+        DecryptLimit = card.DecryptLimit, Enabled = card.Enabled, 
+        RecordingFolder = card.RecordingFolder, 
+        TimeshiftFolder = card.TimeShiftFolder, 
+        DevicePath = card.DevicePath, 
+        PreloadCard = card.PreloadCard, 
+        Priority = card.Priority, 
+        SupportSubChannels = card.supportSubChannels, 
+        RecordingFormat = card.RecordingFormat
+      }).Cast<ICard>().ToList();
+
+      return cards.Count > 0;
     }
 
     #endregion
