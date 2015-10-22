@@ -54,6 +54,9 @@ using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
 using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using Mediaportal.TV.Server.TVService.Interfaces.Services;
+using CamType = Mediaportal.TV.Server.TVLibrary.Interfaces.CamType;
+using Card = Mediaportal.TV.Server.TVDatabase.Entities.Card;
+using SlimTvCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Card;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
@@ -513,6 +516,27 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (!_tvUsers.ContainsKey(userName) && create)
         _tvUsers.Add(userName, new User(userName, UserType.Normal));
       return _tvUsers[userName];
+    }
+
+    public override bool GetCards(out List<ICard> cards)
+    {
+      IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
+      cards = control.CardCollection.Select(card => new SlimTvCard()
+      {
+        Name = card.Value.CardName,
+        CardId = card.Value.Card.TunerId,
+        EpgIsGrabbing = card.Value.Epg.IsGrabbing,
+        HasCam = card.Value.Card.IsConditionalAccessSupported, 
+        CamType = card.Value.Card.CamType == CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2, 
+        DecryptLimit = card.Value.DataBaseCard.DecryptLimit, Enabled = card.Value.DataBaseCard.Enabled, 
+        RecordingFolder = card.Value.DataBaseCard.RecordingFolder, 
+        TimeshiftFolder = card.Value.DataBaseCard.TimeshiftingFolder, 
+        DevicePath = card.Value.DataBaseCard.DevicePath, 
+        PreloadCard = card.Value.DataBaseCard.PreloadCard, 
+        Priority = card.Value.DataBaseCard.Priority
+      }).Cast<ICard>().ToList();
+
+      return cards.Count > 0;
     }
 
     #endregion

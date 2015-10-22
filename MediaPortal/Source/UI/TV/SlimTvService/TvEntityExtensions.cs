@@ -90,7 +90,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         TimesWatched = tvChannel.TimesWatched,
         TotalTimeWatched = tvChannel.TotalTimeWatched,
         VisibleInGuide = tvChannel.VisibleInGuide,
-        GroupNames = tvChannel.GroupNames
+        GroupNames = tvChannel.GroupNames.ToList()
       };
     }
 

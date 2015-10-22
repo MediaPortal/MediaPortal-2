@@ -24,76 +24,90 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
-  /// <summary>
-  /// MediaType of a channel.
-  /// </summary>
-  public enum MediaType
+
+  public enum SlimTvCamType
   {
-    TV,
-    Radio
+    Default = 0,
+    Astoncrypt2 = 1
   }
 
   /// <summary>
-  /// IChannel represents a channel.
+  /// ICard represents a card.
   /// </summary>
-  public interface IChannel
+  public interface ICard
   {
     /// <summary>
     /// Gets or Sets the Channel ID.
     /// </summary>    
-    int ChannelId { get; set; }
+    int CardId { get; set; }
 
     /// <summary>
     /// Gets or Sets the Name.
     /// </summary>      
-    String Name { get; set; }
+    string Name { get; set; }
 
     /// <summary>
-    /// Gets or Sets the MediaType.
+    /// Gets or Sets if EPG is grabbing on this card.
     /// </summary>
-    MediaType MediaType { get; set; }
+    bool EpgIsGrabbing { get; set; }
 
     /// <summary>
-    /// Gets or Sets if the EPG has Gaps.
+    /// Gets or Sets if the Card has a cam
     /// </summary>
-    bool EpgHasGaps { get; set; }
+    bool HasCam { get; set; }
 
     /// <summary>
-    /// Gets or Sets the External ID.
-    /// </summary>      
-    String ExternalId { get; set; }
-
-    /// <summary>
-    /// Gets or Sets if EPG gets grabbed for this channel.
+    /// Gets or Sets the Cam Type
     /// </summary>
-    bool GrapEpg { get; set; }
+    SlimTvCamType CamType { get; set; }
 
     /// <summary>
-    /// Gets or Sets the last grab Time.
+    /// Gets or Sets the Decrypt Limit
     /// </summary>
-    DateTime? LastGrabTime { get; set; }
+    int DecryptLimit { get; set; }
 
     /// <summary>
-    /// Gets or Sets how often teh channel was watched
-    /// </summary>    
-    int TimesWatched { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the total watch time on this channel.
-    /// </summary>    
-    DateTime? TotalTimeWatched { get; set; }
-
-    /// <summary>
-    /// Gets or Sets if the channel is visible in the Tv Guide.
+    /// Gets or Sets the Device Path
     /// </summary>
-    bool VisibleInGuide { get; set; }
+    string DevicePath { get; set; }
 
     /// <summary>
-    /// Gets or Sets the list of groups in which the channel is.
+    /// Gets or Sets if the Card is enabled
     /// </summary>
-    List<string> GroupNames { get; set; }
+    bool Enabled { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Recording Folder
+    /// </summary>
+    string RecordingFolder { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Recording format
+    /// </summary>
+    int RecordingFormat { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Timeshifting Folder
+    /// </summary>
+    string TimeshiftFolder { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Card priority
+    /// </summary>
+    int Priority { get; set; }
+
+    /// <summary>
+    /// Gets or Sets if the Card is preloaded
+    /// </summary>
+    bool PreloadCard { get; set; }
+
+    /// <summary>
+    /// Gets or Sets if Subchannels are supported
+    /// </summary>
+    bool SupportSubChannels { get; set; }
   }
 }
