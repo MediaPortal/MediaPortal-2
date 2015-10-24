@@ -524,174 +524,177 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static void CleanUpTranscodeCache()
     {
-      if (Directory.Exists(_cachePath) == true)
+      lock (_cachePath)
       {
-        int maxTries = 10;
-        SortedDictionary<DateTime, string> fileList = new SortedDictionary<DateTime, string>();
-        long cacheSize = 0;
-        List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
-        dirObjects.AddRange(Directory.GetDirectories(_cachePath, "*_mptf"));
-        foreach (string dirObject in dirObjects)
+        if (Directory.Exists(_cachePath) == true)
         {
-          string[] tokens = dirObject.Split('.');
-          if (tokens.Length >= 3)
+          int maxTries = 10;
+          SortedDictionary<DateTime, string> fileList = new SortedDictionary<DateTime, string>();
+          long cacheSize = 0;
+          List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
+          dirObjects.AddRange(Directory.GetDirectories(_cachePath, "*_mptf"));
+          foreach (string dirObject in dirObjects)
           {
-            if (Directory.Exists(dirObject) == true)
+            string[] tokens = dirObject.Split('.');
+            if (tokens.Length >= 3)
             {
-              DirectoryInfo info;
-              try
+              if (Directory.Exists(dirObject) == true)
               {
-                info = new DirectoryInfo(dirObject);
+                DirectoryInfo info;
+                try
+                {
+                  info = new DirectoryInfo(dirObject);
+                }
+                catch
+                {
+                  continue;
+                }
+                FileInfo[] folderFiles = info.GetFiles();
+                foreach (FileInfo folderFile in folderFiles)
+                {
+                  if (folderFile.Length == 0)
+                  {
+                    try
+                    {
+                      folderFile.Delete();
+                    }
+                    catch
+                    {
+                    }
+                    continue;
+                  }
+                  cacheSize += folderFile.Length;
+                }
+                if (fileList.ContainsKey(info.CreationTime) == false)
+                {
+                  fileList.Add(info.CreationTime, dirObject);
+                }
+                else
+                {
+                  DateTime fileTime = info.CreationTime.AddMilliseconds(1);
+                  while (fileList.ContainsKey(fileTime) == true)
+                  {
+                    fileTime = fileTime.AddMilliseconds(1);
+                  }
+                  fileList.Add(fileTime, dirObject);
+                }
               }
-              catch
+              else
               {
-                continue;
-              }
-              FileInfo[] folderFiles = info.GetFiles();
-              foreach (FileInfo folderFile in folderFiles)
-              {
-                if (folderFile.Length == 0)
+                FileInfo info;
+                try
+                {
+                  info = new FileInfo(dirObject);
+                }
+                catch
+                {
+                  continue;
+                }
+                if (info.Length == 0)
                 {
                   try
                   {
-                    folderFile.Delete();
+                    File.Delete(dirObject);
                   }
                   catch
                   {
                   }
                   continue;
                 }
-                cacheSize += folderFile.Length;
+                cacheSize += info.Length;
+                if (fileList.ContainsKey(info.CreationTime) == false)
+                {
+                  fileList.Add(info.CreationTime, dirObject);
+                }
+                else
+                {
+                  DateTime fileTime = info.CreationTime.AddMilliseconds(1);
+                  while (fileList.ContainsKey(fileTime) == true)
+                  {
+                    fileTime = fileTime.AddMilliseconds(1);
+                  }
+                  fileList.Add(fileTime, dirObject);
+                }
               }
-              if (fileList.ContainsKey(info.CreationTime) == false)
+            }
+          }
+
+          bool bDeleting = true;
+          int tryCount = 0;
+          while (fileList.Count > 0 && bDeleting && _cacheMaximumAge > 0 && tryCount < maxTries)
+          {
+            tryCount++;
+            bDeleting = false;
+            KeyValuePair<DateTime, string> dirObject = fileList.First();
+            if ((DateTime.Now - dirObject.Key).TotalDays > _cacheMaximumAge)
+            {
+              bDeleting = true;
+              fileList.Remove(dirObject.Key);
+              if (Directory.Exists(dirObject.Value) == true)
               {
-                fileList.Add(info.CreationTime, dirObject);
+                try
+                {
+                  Directory.Delete(dirObject.Value, true);
+                }
+                catch { }
               }
               else
               {
-                DateTime fileTime = info.CreationTime.AddMilliseconds(1);
-                while (fileList.ContainsKey(fileTime) == true)
+                try
                 {
-                  fileTime = fileTime.AddMilliseconds(1);
+                  File.Delete(dirObject.Value);
                 }
-                fileList.Add(fileTime, dirObject);
+                catch { }
               }
+            }
+          }
+
+          tryCount = 0;
+          while (fileList.Count > 0 && cacheSize > (_cacheMaximumSize * 1024 * 1024 * 1024) && _cacheMaximumSize > 0 && tryCount < maxTries)
+          {
+            tryCount++;
+            KeyValuePair<DateTime, string> dirObject = fileList.First();
+            if (Directory.Exists(dirObject.Value) == true)
+            {
+              DirectoryInfo info;
+              try
+              {
+                info = new DirectoryInfo(dirObject.Value);
+              }
+              catch
+              {
+                fileList.Remove(dirObject.Key);
+                continue;
+              }
+              FileInfo[] folderFiles = info.GetFiles();
+              cacheSize = folderFiles.Aggregate(cacheSize, (current, folderFile) => current - folderFile.Length);
+              fileList.Remove(dirObject.Key);
+              try
+              {
+                info.Delete(true);
+              }
+              catch { }
             }
             else
             {
               FileInfo info;
               try
               {
-                info = new FileInfo(dirObject);
+                info = new FileInfo(dirObject.Value);
               }
               catch
               {
+                fileList.Remove(dirObject.Key);
                 continue;
               }
-              if (info.Length == 0)
-              {
-                try
-                {
-                  File.Delete(dirObject);
-                }
-                catch
-                {
-                }
-                continue;
-              }
-              cacheSize += info.Length;
-              if (fileList.ContainsKey(info.CreationTime) == false)
-              {
-                fileList.Add(info.CreationTime, dirObject);
-              }
-              else
-              {
-                DateTime fileTime = info.CreationTime.AddMilliseconds(1);
-                while (fileList.ContainsKey(fileTime) == true)
-                {
-                  fileTime = fileTime.AddMilliseconds(1);
-                }
-                fileList.Add(fileTime, dirObject);
-              }
-            }
-          }
-        }
-
-        bool bDeleting = true;
-        int tryCount = 0;
-        while (fileList.Count > 0 && bDeleting && _cacheMaximumAge > 0 && tryCount < maxTries)
-        {
-          tryCount++;
-          bDeleting = false;
-          KeyValuePair<DateTime, string> dirObject = fileList.First();
-          if ((DateTime.Now - dirObject.Key).TotalDays > _cacheMaximumAge)
-          {
-            bDeleting = true;
-            fileList.Remove(dirObject.Key);
-            if (Directory.Exists(dirObject.Value) == true)
-            {
+              cacheSize -= info.Length;
+              fileList.Remove(dirObject.Key);
               try
               {
-                Directory.Delete(dirObject.Value, true);
+                info.Delete();
               }
               catch { }
             }
-            else
-            {
-              try
-              {
-                File.Delete(dirObject.Value);
-              }
-              catch { }
-            }
-          }
-        }
-
-        tryCount = 0;
-        while (fileList.Count > 0 && cacheSize > (_cacheMaximumSize * 1024 * 1024 * 1024) && _cacheMaximumSize > 0 && tryCount < maxTries)
-        {
-          tryCount++;
-          KeyValuePair<DateTime, string> dirObject = fileList.First();
-          if (Directory.Exists(dirObject.Value) == true)
-          {
-            DirectoryInfo info;
-            try
-            {
-              info = new DirectoryInfo(dirObject.Value);
-            }
-            catch
-            {
-              fileList.Remove(dirObject.Key);
-              continue;
-            }
-            FileInfo[] folderFiles = info.GetFiles();
-            cacheSize = folderFiles.Aggregate(cacheSize, (current, folderFile) => current - folderFile.Length);
-            fileList.Remove(dirObject.Key);
-            try
-            {
-              info.Delete(true);
-            }
-            catch { }
-          }
-          else
-          {
-            FileInfo info;
-            try
-            {
-              info = new FileInfo(dirObject.Value);
-            }
-            catch
-            {
-              fileList.Remove(dirObject.Key);
-              continue;
-            }
-            cacheSize -= info.Length;
-            fileList.Remove(dirObject.Key);
-            try
-            {
-              info.Delete();
-            }
-            catch { }
           }
         }
       }
