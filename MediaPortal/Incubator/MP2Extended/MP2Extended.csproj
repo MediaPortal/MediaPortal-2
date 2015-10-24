@@ -122,9 +122,9 @@
     <Compile Include="MAS\WebObject.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Metadata\DlnaAudioMetadata.cs" />
-    <Compile Include="Metadata\DlnaImageMetadata.cs" />
-    <Compile Include="Metadata\DlnaVideoMetadata.cs" />
+    <Compile Include="Metadata\WebAudioMetadata.cs" />
+    <Compile Include="Metadata\WebImageMetadata.cs" />
+    <Compile Include="Metadata\WebVideoMetadata.cs" />
     <Compile Include="MP2Extended.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceAccess\BaseClasses\BaseJsonHeader.cs" />
@@ -272,8 +272,8 @@
     <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfileByName.cs" />
     <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfilesForTarget.cs" />
     <Compile Include="ResourceAccess\WSS\json\StreamInfo\GetMediaInfo.cs" />
-    <Compile Include="ResourceAccess\WSS\Profiles\DlnaMediaItem.cs" />
-    <Compile Include="ResourceAccess\WSS\Profiles\DlnaProfiles.cs" />
+    <Compile Include="ResourceAccess\WSS\Profiles\ProfileMediaItem.cs" />
+    <Compile Include="ResourceAccess\WSS\Profiles\ProfileMime.cs" />
     <Compile Include="ResourceAccess\WSS\Profiles\ProfileManager.cs" />
     <Compile Include="ResourceAccess\WSS\Profiles\ProfileObject.cs">
       <SubType>Code</SubType>
@@ -374,7 +374,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Metadata\source.txt" />
     <Content Include="plugin.xml" />
     <Content Include="ResourceAccess\WSS\Profiles\StreamingProfiles.xml">
       <SubType>Designer</SubType>

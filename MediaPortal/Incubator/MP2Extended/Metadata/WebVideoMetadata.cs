@@ -34,7 +34,7 @@ using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.Metadata
 {
-  public class DlnaVideoMetadata
+  public class WebVideoMetadata
   {
     public static MetadataContainer ParseMediaItem(MediaItem item)
     {

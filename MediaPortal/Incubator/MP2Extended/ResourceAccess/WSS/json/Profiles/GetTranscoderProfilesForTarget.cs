@@ -25,8 +25,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
       if (target == null)
         throw new BadRequestException("GetTranscoderProfilesForTarget: target is null");
 
+      TargetComparer targetComparer = new TargetComparer();
+      return ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target, targetComparer) || x.Value.Targets.Count == 0).Select(profile => TranscoderProfile(profile)).ToList();
+    }
 
-      return ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target)).Select(profile => TranscoderProfile(profile)).ToList();
+    class TargetComparer : IEqualityComparer<string>
+    {
+      public bool Equals(string x, string y)
+      {
+        if (string.IsNullOrEmpty(x)) return true;
+        if (string.IsNullOrEmpty(y)) return true;
+        return x.Equals(y, StringComparison.InvariantCultureIgnoreCase);
+      }
+
+      public int GetHashCode(string x)
+      {
+        return x.GetHashCode();
+      }
     }
 
     internal static ILogger Logger

@@ -32,7 +32,7 @@ using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.Metadata
 {
-  public class DlnaImageMetadata
+  public class WebImageMetadata
   {
     public static MetadataContainer ParseMediaItem(MediaItem item)
     {

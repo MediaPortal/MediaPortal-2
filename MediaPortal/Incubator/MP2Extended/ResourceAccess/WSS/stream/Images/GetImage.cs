@@ -54,11 +54,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
 
         string byteRangesSpecifier = request.Headers["Range"];
-        IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);
+        IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
         bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
-        if (ranges != null && ranges.Count == 1)
-          // We only support one range
-          SendRange(response, resourceStream, ranges[0], onlyHeaders);
+        if (ranges != null && ranges.Count > 0)
+          // We only support last range
+          SendRange(response, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
         else
           SendWholeFile(response, resourceStream, onlyHeaders);
       }

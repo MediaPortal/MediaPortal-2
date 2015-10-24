@@ -16,10 +16,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseC
         Bandwidth = 2280,
         Description = profile.Value.Name,
         HasVideoStream = true,
-        MIME = "videoMP2T",
+        MIME = "video/MP2T",
         MaxOutputHeight = profile.Value.Settings.Video.MaxHeight,
         MaxOutputWidth = profile.Value.Settings.Video.MaxHeight,
-        Name = profile.Key,
+        Name = profile.Value.ID,
         Targets = profile.Value.Targets,
         Transport = "http"
       };

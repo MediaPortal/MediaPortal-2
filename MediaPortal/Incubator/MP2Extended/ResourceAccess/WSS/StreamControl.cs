@@ -12,7 +12,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.Transcoding.Service;
@@ -23,7 +22,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
   static class StreamControl
   {
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
-    public static Dictionary<string, TranscodeContext> LastClientTranscode = new Dictionary<string, TranscodeContext>();
+    public static Dictionary<string, Dictionary<string, List<TranscodeContext>>> CurrentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
     internal static void AddStreamItem(string identifier, StreamItem item)
     {

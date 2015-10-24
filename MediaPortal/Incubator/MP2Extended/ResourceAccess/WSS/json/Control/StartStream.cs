@@ -45,8 +45,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
       streamItem.Profile = profile;
       streamItem.StartPosition = startPositionLong;
 
-      StreamControl.UpdateStreamItem(identifier, streamItem);
-
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);
 

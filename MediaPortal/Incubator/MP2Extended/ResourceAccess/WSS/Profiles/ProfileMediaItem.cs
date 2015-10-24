@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-//using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -35,24 +34,21 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using System.IO;
 using System.Threading;
-//using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using System.Globalization;
 using MediaPortal.Plugins.Transcoding.Service;
 using System.Drawing;
 using MediaPortal.Plugins.MP2Extended;
 using MediaPortal.Plugins.MP2Extended.Metadata;
 using MediaPortal.Plugins.Transcoding.Aspects;
-//using MediaPortal.Extensions.MediaServer.Metadata;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 
-namespace MediaPortal.Extensions.MediaServer.DLNA
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 {
-  public class DlnaMediaItem
+  public class ProfileMediaItem
   {
     private List<Guid> _streams = new List<Guid>();
 
-    public DlnaMediaItem(MediaItem item, EndPointSettings client)
+    public ProfileMediaItem(MediaItem item, EndPointSettings client)
     {
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
@@ -95,20 +91,18 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       MetadataContainer info = null;
       if (IsAudio)
       {
-        info = DlnaAudioMetadata.ParseMediaItem(item);
+        info = WebAudioMetadata.ParseMediaItem(item);
       }
       else if (IsImage)
       {
-        info = DlnaImageMetadata.ParseMediaItem(item);
+        info = WebImageMetadata.ParseMediaItem(item);
       }
       else if (IsVideo)
       {
-        info = DlnaVideoMetadata.ParseMediaItem(item);
+        info = WebVideoMetadata.ParseMediaItem(item);
       }
 
-      IsSubtitled = false;
-
-      if (MP2Extended.TRANSCODING_ALLOWED == true)
+      if (MP2Extended.TranscodingAllowed == true)
       {
         if (IsAudio)
         {
@@ -416,7 +410,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             video.TargetCoder = client.Profile.Settings.Video.CoderType;
 
             video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-            if (MP2Extended.HARDCODED_SUBS_ALLOWED == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+            if (MP2Extended.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
             {
               video.TargetSubtitleSupport = SubtitleSupport.None;
             }
@@ -431,8 +425,10 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       if(TranscodingParameter == null)
       {
         VideoTranscoding subtitle = new VideoTranscoding();
+        subtitle.SourceFile = info.Metadata.Source;
         subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-        if (MP2Extended.HARDCODED_SUBS_ALLOWED == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+        subtitle.SourceSubtitles.AddRange(info.Subtitles);
+        if (MP2Extended.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
         {
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
         }
@@ -440,68 +436,65 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         SubtitleTranscodingParameter = subtitle;
       }
 
-      AssignDlnaMetadata(info);
+      AssignWebMetadata(info);
     }
 
-    private void AssignDlnaMetadata(MetadataContainer info)
+    private void AssignWebMetadata(MetadataContainer info)
     {
       if (info == null) return;
       List<string> profileList = new List<string>();
       if (TranscodingParameter == null)
       {
-        DlnaMetadata = info;
+        WebMetadata = info;
       }
       else
       {
-        MediaConverter converter = new MediaConverter();
-        converter.Logger = Logger;
-
         if (info.IsImage)
         {
           ImageTranscoding image = (ImageTranscoding)TranscodingParameter;
-          TranscodedImageMetadata metadata = converter.GetTranscodedImageMetadata(image);
-          DlnaMetadata = new MetadataContainer();
-          DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
-          DlnaMetadata.Metadata.ImageContainerType = metadata.TargetImageCodec;
-          DlnaMetadata.Metadata.Size = 0;
+          TranscodedImageMetadata metadata = MediaConverter.GetTranscodedImageMetadata(image);
+          WebMetadata = new MetadataContainer();
+          WebMetadata.Metadata.Mime = info.Metadata.Mime;
+          WebMetadata.Metadata.ImageContainerType = metadata.TargetImageCodec;
+          WebMetadata.Metadata.Size = 0;
           if(Client.EstimateTransodedSize == true)
           {
-            DlnaMetadata.Metadata.Size = info.Metadata.Size;
+            WebMetadata.Metadata.Size = info.Metadata.Size;
           }
-          DlnaMetadata.Image.Height = metadata.TargetMaxHeight;
-          DlnaMetadata.Image.Orientation = metadata.TargetOrientation;
-          DlnaMetadata.Image.PixelFormatType = metadata.TargetPixelFormat;
-          DlnaMetadata.Image.Width = metadata.TargetMaxWidth;
+          WebMetadata.Image.Height = metadata.TargetMaxHeight;
+          WebMetadata.Image.Orientation = metadata.TargetOrientation;
+          WebMetadata.Image.PixelFormatType = metadata.TargetPixelFormat;
+          WebMetadata.Image.Width = metadata.TargetMaxWidth;
         }
         else if (info.IsAudio)
         {
           AudioTranscoding audio = (AudioTranscoding)TranscodingParameter;
-          TranscodedAudioMetadata metadata = converter.GetTranscodedAudioMetadata(audio);
-          DlnaMetadata = new MetadataContainer();
-          DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
-          DlnaMetadata.Metadata.AudioContainerType = metadata.TargetAudioContainer;
-          DlnaMetadata.Metadata.Bitrate = 0;
+          TranscodedAudioMetadata metadata = MediaConverter.GetTranscodedAudioMetadata(audio);
+          WebMetadata = new MetadataContainer();
+          WebMetadata.Metadata.Mime = info.Metadata.Mime;
+          WebMetadata.Metadata.AudioContainerType = metadata.TargetAudioContainer;
+          WebMetadata.Metadata.Bitrate = 0;
           if(metadata.TargetAudioBitrate > 0)
           {
-            DlnaMetadata.Metadata.Bitrate = metadata.TargetAudioBitrate;
+            WebMetadata.Metadata.Bitrate = metadata.TargetAudioBitrate;
           }
           //else if(info.Audio[0].Bitrate > 0)
           //{
           //  DlnaMetadata.Metadata.Bitrate = info.Audio[0].Bitrate;
           //}
-          DlnaMetadata.Metadata.Duration = info.Metadata.Duration;
-          DlnaMetadata.Metadata.Size = 0;
+          WebMetadata.Metadata.Duration = info.Metadata.Duration;
+          WebMetadata.Metadata.Size = 0;
           if (Client.EstimateTransodedSize == true)
           {
-            double audiobitrate = Convert.ToDouble(DlnaMetadata.Metadata.Bitrate);
+            double audiobitrate = Convert.ToDouble(WebMetadata.Metadata.Bitrate);
             double bitrate = 0;
             if (audiobitrate > 0)
             {
               bitrate = audiobitrate * 1024; //Bitrate in bits/s
             }
-            if (bitrate > 0 && DlnaMetadata.Metadata.Duration > 0)
+            if (bitrate > 0 && WebMetadata.Metadata.Duration > 0)
             {
-              DlnaMetadata.Metadata.Size = Convert.ToInt64((bitrate * DlnaMetadata.Metadata.Duration) / 8.0);
+              WebMetadata.Metadata.Size = Convert.ToInt64((bitrate * WebMetadata.Metadata.Duration) / 8.0);
             }
           }
           AudioStream audioStream = new AudioStream();
@@ -509,12 +502,12 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           audioStream.Channels = metadata.TargetAudioChannels;
           audioStream.Codec = metadata.TargetAudioCodec;
           audioStream.Frequency = metadata.TargetAudioFrequency;
-          DlnaMetadata.Audio.Add(audioStream);
+          WebMetadata.Audio.Add(audioStream);
         }
         else if (info.IsVideo)
         {
           VideoTranscoding video = (VideoTranscoding)TranscodingParameter;
-          TranscodedVideoMetadata metadata = converter.GetTranscodedVideoMetadata(video);
+          TranscodedVideoMetadata metadata = MediaConverter.GetTranscodedVideoMetadata(video);
           int selectedAudio = 0;
           for (int stream = 0; stream < info.Audio.Count; stream++)
           {
@@ -525,13 +518,13 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
           }
 
-          DlnaMetadata = new MetadataContainer();
-          DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
-          DlnaMetadata.Metadata.VideoContainerType = metadata.TargetVideoContainer;
-          DlnaMetadata.Metadata.Bitrate = 0;
+          WebMetadata = new MetadataContainer();
+          WebMetadata.Metadata.Mime = info.Metadata.Mime;
+          WebMetadata.Metadata.VideoContainerType = metadata.TargetVideoContainer;
+          WebMetadata.Metadata.Bitrate = 0;
           if (metadata.TargetAudioBitrate > 0 && metadata.TargetVideoBitrate > 0)
           {
-            DlnaMetadata.Metadata.Bitrate = metadata.TargetAudioBitrate + metadata.TargetVideoBitrate;
+            WebMetadata.Metadata.Bitrate = metadata.TargetAudioBitrate + metadata.TargetVideoBitrate;
           }
           //else if (metadata.TargetAudioBitrate > 0 && info.Video.Bitrate > 0)
           //{
@@ -545,19 +538,19 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           //{
           //  DlnaMetadata.Metadata.Bitrate = info.Audio[selectedAudio].Bitrate + info.Video.Bitrate;
           //}
-          DlnaMetadata.Metadata.Duration = info.Metadata.Duration;
-          DlnaMetadata.Metadata.Size = 0;
+          WebMetadata.Metadata.Duration = info.Metadata.Duration;
+          WebMetadata.Metadata.Size = 0;
           if (Client.EstimateTransodedSize == true)
           {
-            double videobitrate = Convert.ToDouble(DlnaMetadata.Metadata.Bitrate);
+            double videobitrate = Convert.ToDouble(WebMetadata.Metadata.Bitrate);
             double bitrate = 0;
             if (videobitrate > 0)
             {
               bitrate = videobitrate * 1024; //Bitrate in bits/s
             }
-            if (bitrate > 0 && DlnaMetadata.Metadata.Duration > 0)
+            if (bitrate > 0 && WebMetadata.Metadata.Duration > 0)
             {
-              DlnaMetadata.Metadata.Size = Convert.ToInt64((bitrate * DlnaMetadata.Metadata.Duration) / 8.0);
+              WebMetadata.Metadata.Size = Convert.ToInt64((bitrate * WebMetadata.Metadata.Duration) / 8.0);
             }
           }
 
@@ -566,45 +559,40 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           audioStream.Channels = metadata.TargetAudioChannels;
           audioStream.Codec = metadata.TargetAudioCodec;
           audioStream.Frequency = metadata.TargetAudioFrequency;
-          DlnaMetadata.Audio.Add(audioStream);
+          WebMetadata.Audio.Add(audioStream);
 
-          DlnaMetadata.Video.AspectRatio = metadata.TargetVideoAspectRatio;
-          DlnaMetadata.Video.Bitrate = metadata.TargetVideoBitrate;
-          DlnaMetadata.Video.Codec = metadata.TargetVideoCodec;
-          DlnaMetadata.Video.Framerate = metadata.TargetVideoFrameRate;
-          DlnaMetadata.Video.HeaderLevel = metadata.TargetLevel;
-          DlnaMetadata.Video.ProfileType = metadata.TargetProfile;
-          DlnaMetadata.Video.RefLevel = metadata.TargetLevel;
-          DlnaMetadata.Video.Height = metadata.TargetVideoMaxHeight;
-          DlnaMetadata.Video.PixelAspectRatio = metadata.TargetVideoPixelAspectRatio;
-          DlnaMetadata.Video.PixelFormatType = metadata.TargetVideoPixelFormat;
-          DlnaMetadata.Video.TimestampType = metadata.TargetVideoTimestamp;
-          DlnaMetadata.Video.Width = metadata.TargetVideoMaxWidth;
-
-          IsSubtitled = metadata.TargetSubtitled;
+          WebMetadata.Video.AspectRatio = metadata.TargetVideoAspectRatio;
+          WebMetadata.Video.Bitrate = metadata.TargetVideoBitrate;
+          WebMetadata.Video.Codec = metadata.TargetVideoCodec;
+          WebMetadata.Video.Framerate = metadata.TargetVideoFrameRate;
+          WebMetadata.Video.HeaderLevel = metadata.TargetLevel;
+          WebMetadata.Video.ProfileType = metadata.TargetProfile;
+          WebMetadata.Video.RefLevel = metadata.TargetLevel;
+          WebMetadata.Video.Height = metadata.TargetVideoMaxHeight;
+          WebMetadata.Video.PixelAspectRatio = metadata.TargetVideoPixelAspectRatio;
+          WebMetadata.Video.PixelFormatType = metadata.TargetVideoPixelFormat;
+          WebMetadata.Video.TimestampType = metadata.TargetVideoTimestamp;
+          WebMetadata.Video.Width = metadata.TargetVideoMaxWidth;
         }
       }
 
-      /*if (info.IsImage)
+      if (info.IsImage)
       {
-        profileList = DlnaProfiles.ResolveImageProfile(DlnaMetadata.Metadata.ImageContainerType, DlnaMetadata.Image.Width, DlnaMetadata.Image.Height);
+        profileList = ProfileMime.ResolveImageProfile(WebMetadata.Metadata.ImageContainerType, WebMetadata.Image.Width, WebMetadata.Image.Height);
       }
       else if (info.IsAudio)
       {
-        profileList = DlnaProfiles.ResolveAudioProfile(DlnaMetadata.Metadata.AudioContainerType, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Audio[0].Bitrate, DlnaMetadata.Audio[0].Frequency, DlnaMetadata.Audio[0].Channels);
+        profileList = ProfileMime.ResolveAudioProfile(WebMetadata.Metadata.AudioContainerType, WebMetadata.Audio[0].Codec, WebMetadata.Audio[0].Bitrate, WebMetadata.Audio[0].Frequency, WebMetadata.Audio[0].Channels);
       }
       else if (info.IsVideo)
       {
-        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Video.ProfileType, DlnaMetadata.Video.HeaderLevel, 
-          DlnaMetadata.Video.Framerate, DlnaMetadata.Video.Width, DlnaMetadata.Video.Height, DlnaMetadata.Video.Bitrate, DlnaMetadata.Audio[0].Bitrate, DlnaMetadata.Video.TimestampType);
-      }*/
+        profileList = ProfileMime.ResolveVideoProfile(WebMetadata.Metadata.VideoContainerType, WebMetadata.Video.Codec, WebMetadata.Audio[0].Codec, WebMetadata.Video.ProfileType, WebMetadata.Video.HeaderLevel,
+          WebMetadata.Video.Framerate, WebMetadata.Video.Width, WebMetadata.Video.Height, WebMetadata.Video.Bitrate, WebMetadata.Audio[0].Bitrate, WebMetadata.Video.TimestampType);
+      }
 
-      string profile = "";
       string mime = info.Metadata.Mime;
-      //DlnaProfiles.FindCompatibleProfile(Client, profileList, ref profile, ref mime);
-
-      DlnaMime = mime;
-      DlnaProfile = profile;
+      ProfileMime.FindCompatibleMime(Client, profileList, ref mime);
+      Mime = mime;
     }
 
     public bool IsTranscoding
@@ -636,7 +624,8 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         {
           if (MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeId))
           {
-            MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId].Stop();
+            for (int transcodeNo = 0; transcodeNo < MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId].Count; transcodeNo++)
+              MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId][transcodeNo].Stop();
           }
         }
       }
@@ -668,10 +657,9 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       }
     }
 
-    public string DlnaProfile { get; set; }
-    public string DlnaMime { get; set; }
+    public string Mime { get; set; }
     public string SegmentDir { get; set; }
-    public MetadataContainer DlnaMetadata { get; private set; }
+    public MetadataContainer WebMetadata { get; private set; }
     public EndPointSettings Client { get; private set; }
     public MediaItem MediaSource { get; private set; }
     public bool IsSegmented { get; private set; }
@@ -683,13 +671,13 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         {
           return true;
         }
-        if (DlnaMetadata != null && DlnaMetadata.IsVideo == true)
+        if (WebMetadata != null && WebMetadata.IsVideo == true)
         {
-          if (DlnaMetadata.Metadata.VideoContainerType == VideoContainer.Unknown)
+          if (WebMetadata.Metadata.VideoContainerType == VideoContainer.Unknown)
           {
             return false;
           }
-          else if (DlnaMetadata.Metadata.VideoContainerType == VideoContainer.Mp4)
+          else if (WebMetadata.Metadata.VideoContainerType == VideoContainer.Mp4)
           {
             return false;
           }
@@ -697,7 +685,6 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         return true;
       }
     }
-    public bool IsSubtitled { get; private set; }
     public BaseTranscoding TranscodingParameter { get; private set; }
     public BaseTranscoding SubtitleTranscodingParameter { get; private set; }
     public bool IsImage { get; private set; }

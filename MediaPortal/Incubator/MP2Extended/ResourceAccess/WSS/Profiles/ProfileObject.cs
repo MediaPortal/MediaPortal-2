@@ -401,13 +401,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
   public class EndPointSettings
   {
     public EndPointProfile Profile = null;
-    public string PreferredSubtitleLanguages = null;
-    public string DefaultSubtitleEncodings = null;
     public string PreferredAudioLanguages = null;
     public bool EstimateTransodedSize = true;
-    //public BasicContainer RootContainer = null;
-    //public Dictionary<Guid, DlnaMediaItem> DlnaMediaItems = new Dictionary<Guid, DlnaMediaItem>();
-
   }
 
   public class VideoMatch
