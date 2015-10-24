@@ -261,6 +261,7 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetActiveCards.cs" />
     <Compile Include="ResourceAccess\WSS\Cache\ImageCache.cs" />
     <Compile Include="ResourceAccess\WSS\ISubRequestModuleHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Control\FinishStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\StartStreamWithStreamSelection.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\StartStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\InitStream.cs" />
