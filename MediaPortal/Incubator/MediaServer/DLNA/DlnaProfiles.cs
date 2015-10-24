@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Service;
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.DLNA
+namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   public static class DlnaProfiles
   {
@@ -575,7 +575,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             }
           }
         }
-        if (videoCodec == VideoCodec.H264)
+        else if (videoCodec == VideoCodec.H264)
         {
           if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3)
           {

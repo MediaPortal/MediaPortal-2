@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Utilities.Exceptions;
 using System;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.Basic
+namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
   public class BasicContainer : BasicItem, IDirectoryContainer
   {

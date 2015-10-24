@@ -32,23 +32,26 @@ using System.IO;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.DIDL;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Protocols;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Extensions.MediaServer.Filters;
+using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.Transcoding.Service;
 
 //Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
 
-namespace MediaPortal.Extensions.MediaServer.Profiles
+namespace MediaPortal.Plugins.MediaServer.Profiles
 {
   public class ProfileManager
   {
     private const string DLNA_DEFAULT_PROFILE_ID = "DLNADefault";
+    private const string PROFILE_FILE = "DLNAProfiles.xml";
+    private const string PROFILE_LINK_FILE = "MediaPortal.Plugins.MediaServer.Links.xml";
+    private const string LANGUAGE_FILE = "MediaPortal.Plugins.MediaServer.PreferredLanguages.xml";
 
     public static Dictionary<IPAddress, EndPointSettings> ProfileLinks = new Dictionary<IPAddress, EndPointSettings>();
     private static EndPointSettings PreferredLanguages;
@@ -89,14 +92,19 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
         if (ProfileLinks[ip].Profile != null)
         {
-          Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
+          //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
           return ProfileLinks[ip];
         }
         else
         {
-          Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
+          //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
           return null;
         }
+      }
+
+      if (headers["remote_addr"] == null)
+      {
+        Logger.Warn("DetectProfile: Couldn't find Header 'remote_addr'!");
       }
 
       foreach (KeyValuePair<string, EndPointProfile> profile in Profiles)
@@ -131,10 +139,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
             if (headers["remote_addr"] == null)
             {
-              Logger.Warn("DetectProfile: Couldn't find Header 'remote_addr'!");
               break;
             }
-
             List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(IPAddress.Parse(headers["remote_addr"]));
             if (trackedDevices == null || trackedDevices.Count == 0)
             {
@@ -203,6 +209,12 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           if (match)
           {
             Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
+            if (headers["remote_addr"] == null)
+            {
+              IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
+              ProfileLinks.Add(ip, GetEndPointSettings(profile.Value.ID));
+              return ProfileLinks[ip];
+            }
             return GetEndPointSettings(profile.Value.ID);
           }
         }
@@ -210,14 +222,27 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
       // nop match => return Defaul Profile
       Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
+      if (headers["remote_addr"] == null)
+      {
+        IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
+        ProfileLinks.Add(ip, GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID));
+        return ProfileLinks[ip];
+      }
       return GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID);
     }
 
-    public static void LoadProfiles()
+    public static void LoadProfiles(bool userProfiles)
     {
       try
       {
-        var profileFile = FileUtils.BuildAssemblyRelativePath("DLNAProfiles.xml");
+        string profileFile = FileUtils.BuildAssemblyRelativePath(PROFILE_FILE);
+        if (userProfiles)
+        {
+          IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+          string dataPath = pathManager.GetPath("<CONFIG>");
+          profileFile = Path.Combine(dataPath, PROFILE_FILE);
+        }
+
         if (File.Exists(profileFile) == true)
         {
           XmlTextReader reader = new XmlTextReader(profileFile);
@@ -730,7 +755,19 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             }
             else if (nodeName == "Profile" && reader.NodeType == XmlNodeType.EndElement)
             {
-              Profiles.Add(profile.ID, profile);
+              if (Profiles.ContainsKey(profile.ID))
+              {
+                //User profiles can override defaults
+                if(userProfiles == true)
+                {
+                  profile.Name = profile.Name + " [User]";
+                }
+                Profiles[profile.ID] = profile;
+              }
+              else
+              {
+                Profiles.Add(profile.ID, profile);
+              }
             }
           }
           reader.Close();
@@ -1134,7 +1171,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         string dataPath = pathManager.GetPath("<CONFIG>");
-        string linkFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.Links.xml");
+        string linkFile = Path.Combine(dataPath, PROFILE_LINK_FILE);
         if (File.Exists(linkFile) == true)
         {
           XmlDocument document = new XmlDocument();
@@ -1179,9 +1216,9 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                   {
                     settings.Profile = null;
                   }
-                  else if (Profiles.ContainsKey("DLNADefault") == true)
+                  else if (Profiles.ContainsKey(DLNA_DEFAULT_PROFILE_ID) == true)
                   {
-                    settings.Profile = Profiles["DLNADefault"];
+                    settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
                   }
                 }
                 else if (subChildNode.Name == "Subtitles")
@@ -1210,6 +1247,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
                 }
               }
               settings.InitialiseContainerTree();
+              if (settings.Profile == null)
+                Logger.Info("DlnaMediaServer: IP: {0}, using profile: None", ip);
+              else
+                Logger.Info("DlnaMediaServer: IP: {0}, using profile: {1}", ip, settings.Profile.ID);
               ProfileLinks.Add(ip, settings);
             }
           }
@@ -1227,7 +1268,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         string dataPath = pathManager.GetPath("<CONFIG>");
-        string linkFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.Links.xml");
+        string linkFile = Path.Combine(dataPath, PROFILE_LINK_FILE);
         if (Profiles.Count == 0) return; //Avoid overwriting of exisitng links if no profiles.xml found
         XmlDocument document = new XmlDocument();
         if (File.Exists(linkFile) == true)
@@ -1324,7 +1365,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         string dataPath = pathManager.GetPath("<CONFIG>");
-        string linkFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.PreferredLanguages.xml");
+        string linkFile = Path.Combine(dataPath, LANGUAGE_FILE);
         if (File.Exists(linkFile))
         {
           XmlDocument document = new XmlDocument();
@@ -1386,7 +1427,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         string dataPath = pathManager.GetPath("<CONFIG>");
-        string linkFile = Path.Combine(dataPath, "MediaPortal.Extensions.MediaServer.PreferredLanguages.xml");
+        string linkFile = Path.Combine(dataPath, LANGUAGE_FILE);
         XmlDocument document = new XmlDocument();
         if (File.Exists(linkFile))
         {

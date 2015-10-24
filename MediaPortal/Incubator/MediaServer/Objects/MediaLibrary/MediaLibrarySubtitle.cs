@@ -27,11 +27,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.DLNA;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySubtitle : IDirectorySubtitle
   {
@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public void Initialise()
     {
       DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item);
-      if (dlnaItem.IsSubtitled == true)
+      if (DlnaResourceAccessUtils.IsSoftCodedSubtitleAvailable(dlnaItem, Client) == true)
       {
         string mime = null;
         string type = null;

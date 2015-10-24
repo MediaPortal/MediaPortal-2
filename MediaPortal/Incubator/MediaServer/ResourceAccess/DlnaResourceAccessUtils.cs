@@ -37,11 +37,12 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Service;
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
 using System.IO;
+using MediaPortal.Plugins.MediaServer.DLNA;
 
-namespace MediaPortal.Extensions.MediaServer.ResourceAccess
+namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
   public static class DlnaResourceAccessUtils
   {
@@ -57,9 +58,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
 
     public const string SYNTAX = RESOURCE_ACCESS_PATH + "/[media item guid]";
-
-    public static bool useIPv4 = true;
-    public static bool useIPv6 = false;
 
     public static string GetResourceUrl(Guid mediaItem)
     {
@@ -88,37 +86,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return true;
     }
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern uint GetShortPathName([MarshalAs(UnmanagedType.LPTStr)] string lpszLongPath, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpszShortPath, uint cchBuffer);
-
-    public static string GetFileShortName(string longName)
-    {
-      StringBuilder shortNameBuffer = new StringBuilder(256);
-      uint result = GetShortPathName(longName, shortNameBuffer, 256);
-      return shortNameBuffer.ToString();
-    }
-
-    private static string GetSubtitleMime(SubtitleCodec codec)
-    {
-      switch (codec)
-      {
-        case SubtitleCodec.Srt:
-          return "text/srt";
-        case SubtitleCodec.MicroDvd:
-          return "text/microdvd";
-        case SubtitleCodec.SubView:
-          return "text/plain";
-        case SubtitleCodec.Ass:
-          return "text/x-ass";
-        case SubtitleCodec.Ssa:
-          return "text/x-ssa";
-        case SubtitleCodec.Smi:
-          return "smi/caption";
-      }
-      return "text/plain";
-    }
-
-    public static bool FindSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
+    public static bool UseSoftCodedSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
     {
       targetCodec = SubtitleCodec.Unknown;
       targetMime = "text/plain";
@@ -128,17 +96,22 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         if (string.IsNullOrEmpty(client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime) == false)
           targetMime = client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime;
         else
-          targetMime = GetSubtitleMime(targetCodec);
+          targetMime = MediaConverter.GetSubtitleMime(targetCodec);
         return true;
       }
       return false;
     }
     
-    private static string GetLocalIp()
+    private static IPAddress GetLocalIp()
     {
-      var localIp = Dns.GetHostName();
-      var host = Dns.GetHostEntry(localIp);
-      string ip6 = null;
+      bool useIPv4 = true;
+      bool useIPv6 = false;
+      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      if (settings.UseIPv4) useIPv4 = true;
+      if (settings.UseIPv6) useIPv6 = true;
+
+      var host = Dns.GetHostEntry(Dns.GetHostName());
+      IPAddress ip6 = null;
       foreach (var ip in host.AddressList)
       {
         if (IPAddress.IsLoopback(ip) == true)
@@ -149,14 +122,14 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         {
           if (ip.AddressFamily == AddressFamily.InterNetwork)
           {
-            return NetworkUtils.IPAddrToString(ip);
+            return ip;
           }
         }
-        else
+        if (useIPv6)
         {
           if (ip.AddressFamily == AddressFamily.InterNetworkV6)
           {
-            ip6 = NetworkUtils.IPAddrToString(ip);
+            ip6 = ip;
           }
         }
       }
@@ -164,7 +137,26 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       {
         return ip6;
       }
-      return localIp;
+      return null;
+    }
+
+    public static bool IsSoftCodedSubtitleAvailable(DlnaMediaItem dlnaItem, EndPointSettings client)
+    {
+      if (client.Profile.Settings.Subtitles.SubtitleMode != SubtitleSupport.SoftCoded)
+      {
+        return false;
+      }
+      if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
+      {
+        VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
+        if (MediaConverter.IsSubtitleAvailable(video)) return true;
+      }
+      else if (dlnaItem.IsVideo)
+      {
+        VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
+        if (MediaConverter.IsSubtitleAvailable(subtitle)) return true;
+      }
+      return false;
     }
 
     public static string GetSubtitleBaseURL(MediaItem item, EndPointSettings client, out string subMime, out string subExtension)
@@ -173,7 +165,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       subMime = null;
       subExtension = null;
 
-      if (FindSubtitle(client, out codec, out subMime) == false)
+      if (UseSoftCodedSubtitle(client, out codec, out subMime) == true)
       {
         subExtension = "srt";
         string subType = codec.ToString();
@@ -197,6 +189,9 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           case SubtitleCodec.SubView:
             subExtension = "sub";
             break;
+          case SubtitleCodec.WebVtt:
+            subExtension = "vtt";
+            break;
         }
 
         return string.Format(GetBaseResourceURL()
@@ -208,19 +203,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     public static string GetBaseResourceURL()
     {
-      if (useIPv4 == false && useIPv6 == false)
-      {
-        ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-        if (settings.UseIPv4)
-          useIPv4 = true;
-        if (settings.UseIPv6)
-          useIPv6 = true;
-      }
       var rs = ServiceRegistration.Get<IResourceServer>();
-      if (useIPv4)
-        return "http://" + GetLocalIp() + ":" + rs.PortIPv4;
-      else
-        return "http://" + GetLocalIp() + ":" + rs.PortIPv6;
+      return "http://" + NetworkUtils.IPAddrToString(GetLocalIp()) + ":" + rs.GetPortForIP(GetLocalIp());
     }
   }
 }

@@ -31,11 +31,11 @@ using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using System.Net;
 
-namespace MediaPortal.Extensions.MediaServer.Protocols
+namespace MediaPortal.Plugins.MediaServer.Protocols
 {
   public class XBoxProtocolHandler : GenericAccessProtocol
   {

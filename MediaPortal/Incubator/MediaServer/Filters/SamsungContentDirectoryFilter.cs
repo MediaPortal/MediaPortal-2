@@ -29,7 +29,7 @@ using System.Text;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 
-namespace MediaPortal.Extensions.MediaServer.Filters
+namespace MediaPortal.Plugins.MediaServer.Filters
 {
   public class SamsungContentDirectoryFilter : GenericContentDirectoryFilter
  {

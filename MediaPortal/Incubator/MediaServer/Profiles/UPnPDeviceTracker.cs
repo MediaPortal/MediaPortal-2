@@ -10,7 +10,7 @@ using MediaPortal.Common;
 using UPnP.Infrastructure.CP;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 
-namespace MediaPortal.Extensions.MediaServer.Profiles
+namespace MediaPortal.Plugins.MediaServer.Profiles
 {
   public class UPnPDeviceTracker
   {

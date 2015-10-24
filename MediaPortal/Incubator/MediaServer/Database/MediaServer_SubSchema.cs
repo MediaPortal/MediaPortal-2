@@ -28,7 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.PathManager;
 
-namespace MediaPortal.Extensions.MediaServer.Database
+namespace MediaPortal.Plugins.MediaServer.Database
 {
   internal class MediaServer_SubSchema
   {

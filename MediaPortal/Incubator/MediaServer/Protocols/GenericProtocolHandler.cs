@@ -30,11 +30,11 @@ using MediaPortal.Common.MediaManagement;
 using HttpServer;
 using HttpServer.Sessions;
 using System.IO;
-using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 
-namespace MediaPortal.Extensions.MediaServer.Protocols
+namespace MediaPortal.Plugins.MediaServer.Protocols
 {
   public class GenericAccessProtocol
   {

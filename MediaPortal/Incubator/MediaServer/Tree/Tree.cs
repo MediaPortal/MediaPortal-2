@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Tree
+namespace MediaPortal.Plugins.MediaServer.Tree
 {
   public class Tree<T> : TreeNode<T>
   {

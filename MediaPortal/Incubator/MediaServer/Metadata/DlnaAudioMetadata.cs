@@ -31,7 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
-namespace MediaPortal.Extensions.MediaServer.Metadata
+namespace MediaPortal.Plugins.MediaServer.Metadata
 {
   public class DlnaAudioMetadata
   {

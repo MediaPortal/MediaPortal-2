@@ -29,7 +29,7 @@ using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
   public class UPnPConnectionManagerServiceImpl : DvService
   {

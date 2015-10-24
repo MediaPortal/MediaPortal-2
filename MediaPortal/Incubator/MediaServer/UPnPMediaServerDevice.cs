@@ -32,9 +32,9 @@ using System.Collections.Generic;
 using MediaPortal.Backend.Services.ClientCommunication;
 using HttpServer;
 using System.Net;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
   public class UPnPMediaServerDevice : DvDevice
   {

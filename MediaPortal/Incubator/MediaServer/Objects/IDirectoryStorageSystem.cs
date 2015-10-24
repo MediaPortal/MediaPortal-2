@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘storageSystem’ instance represents a potentially heterogeneous collection of storage media. A ‘storageSystem’ may contain other objects, including all types of storage containers. A ‘storageSystem’ may only be a child of the root container or another ‘storageSystem’ container. Examples of ‘storageSystem’ instances are

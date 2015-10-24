@@ -32,7 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaPortal.Extensions.MediaServer.Metadata
+namespace MediaPortal.Plugins.MediaServer.Metadata
 {
   public class DlnaVideoMetadata
   {

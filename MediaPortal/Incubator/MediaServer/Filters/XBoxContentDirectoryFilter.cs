@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MediaPortal.Extensions.MediaServer.Objects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
 
-namespace MediaPortal.Extensions.MediaServer.Filters
+namespace MediaPortal.Plugins.MediaServer.Filters
 {
   public class XBoxContentDirectoryFilter : GenericContentDirectoryFilter
   {

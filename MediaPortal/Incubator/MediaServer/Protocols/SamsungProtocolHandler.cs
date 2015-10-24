@@ -29,14 +29,14 @@ using System.Text;
 using HttpServer;
 using MediaPortal.Common.MediaManagement;
 using HttpServer.Sessions;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.IO;
 using MediaPortal.Common;
 
-namespace MediaPortal.Extensions.MediaServer.Protocols
+namespace MediaPortal.Plugins.MediaServer.Protocols
 {
   public class SamsungProtocolHandler : GenericAccessProtocol
   {

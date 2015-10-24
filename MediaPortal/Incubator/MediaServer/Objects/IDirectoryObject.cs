@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// This is the root class of the entire content directory class hierarchy. It can not be instantiated, in the sense that no XML fragment returned by a Browse() or Search() action can be of class object. The object class defines properties that are common to both atomic media items, as well as logical collections of these items.

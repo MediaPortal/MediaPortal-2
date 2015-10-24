@@ -31,7 +31,7 @@ using MediaPortal.Plugins.Transcoding.Service;
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Metadata
+namespace MediaPortal.Plugins.MediaServer.Metadata
 {
   public class DlnaImageMetadata
   {

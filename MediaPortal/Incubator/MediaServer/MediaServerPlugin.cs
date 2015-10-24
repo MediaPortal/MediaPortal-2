@@ -26,26 +26,25 @@ using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using System.IO;
 using MediaPortal.Common.PathManager;
 using System.Xml;
 using System;
 using System.Threading;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Service;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
-  public class MediaServerPlugin : IPluginStateTracker, IMessageReceiver
+  public class MediaServerPlugin : IPluginStateTracker
   {
     private readonly UPnPMediaServerDevice _device;
     /// <summary>
@@ -55,7 +54,7 @@ namespace MediaPortal.Extensions.MediaServer
 
     public const string DEVICE_UUID = "45F2C54D-8C0A-4736-AA04-E6F91CD45457";
 
-    private const string SETTINGS_FILE = "MediaPortal.Extensions.MediaServer.Settings.xml";
+    private const string SETTINGS_FILE = "MediaPortal.Plugins.MediaServer.Settings.xml";
 
     public static bool TranscodingAllowed { get; private set; }
     public static bool HardcodedSubtitlesAllowed { get; private set; }
@@ -75,13 +74,16 @@ namespace MediaPortal.Extensions.MediaServer
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
-      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
-
       Logger.Debug("MediaServerPlugin: Adding UPNP device as a root device");
       ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.AddRootDevice(_device);
 
+      Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");
+      ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
+
       LoadSettings();
-      ProfileManager.LoadProfiles();
+
+      ProfileManager.LoadProfiles(false);
+      ProfileManager.LoadProfiles(true);
       ProfileManager.LoadProfileLinks();
       ProfileManager.LoadPreferredLanguages();
     }
@@ -193,27 +195,6 @@ namespace MediaPortal.Extensions.MediaServer
     internal static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
-    }
-
-    public void Receive(SystemMessage message)
-    {
-      if (message.MessageType is SystemMessaging.MessageType)
-      {
-        if (((SystemMessaging.MessageType)message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
-          if (newState == SystemState.Running)
-          {
-            RegisterWithServices();
-          }
-        }
-      }
-    }
-
-    protected void RegisterWithServices()
-    {
-      Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");
-      ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
     }
   }
 }

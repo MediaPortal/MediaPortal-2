@@ -24,12 +24,12 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Filters;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Protocols;
+using MediaPortal.Plugins.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Filters;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.Transcoding.Service;
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Extensions.MediaServer.Profiles
+namespace MediaPortal.Plugins.MediaServer.Profiles
 {
   #region Profile
 

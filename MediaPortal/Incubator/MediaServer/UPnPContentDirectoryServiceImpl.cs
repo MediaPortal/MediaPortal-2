@@ -32,19 +32,20 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.Objects;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Parser;
+using MediaPortal.Plugins.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Parser;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using System.Net;
-using MediaPortal.Extensions.MediaServer.Filters;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Filters;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
   public class UPnPContentDirectoryServiceImpl : DvService
   {
@@ -423,6 +424,7 @@ namespace MediaPortal.Extensions.MediaServer
 
     private static UPnPError OnGetSystemUpdateID(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
+      //TODO: Old DNLA clients use this ID to determine if the any content was changed/added since last request
       outParams = new List<object> { 0 };
       return null;
     }
@@ -466,6 +468,7 @@ namespace MediaPortal.Extensions.MediaServer
       // Out parameters
       int numberReturned = 0;
       int totalMatches = 0;
+      //TODO: DNLA clients use this ID to determine if the any content was changed/added to the container since last request
       int containterUpdateId = 0;
 
       SearchExp exp = SearchParser.Parse(searchCriteria);
@@ -474,7 +477,23 @@ namespace MediaPortal.Extensions.MediaServer
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+      if (necessaryMIATypes.Contains(VideoAspect.ASPECT_ID) == false)
+      {
+        optionalMIATypes.Add(VideoAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
+      }
+      if (necessaryMIATypes.Contains(AudioAspect.ASPECT_ID) == false)
+      {
+        optionalMIATypes.Add(AudioAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemAudioAspect.ASPECT_ID);
+      }
+      if (necessaryMIATypes.Contains(ImageAspect.ASPECT_ID) == false)
+      {
+        optionalMIATypes.Add(ImageAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
+      }
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter);
       searchQuery.Offset = startingIndex;
       searchQuery.Limit = requestedCount;
 

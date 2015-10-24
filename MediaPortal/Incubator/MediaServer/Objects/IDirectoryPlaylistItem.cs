@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘playlistItem’ instance represents a playable sequence of resources. It is different from ‘musicAlbum’ in the sense that a ‘playlistItem’ may contain a mix of audio, video and images and is typically created by a user, while an ‘album’ is typically a fixed published sequence of songs (e.g., an audio CD).

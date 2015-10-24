@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘musicTrack’ instance is a discrete piece of audio that should be interpreted as music (as opposed to, for example, a news broadcast or an audio book).

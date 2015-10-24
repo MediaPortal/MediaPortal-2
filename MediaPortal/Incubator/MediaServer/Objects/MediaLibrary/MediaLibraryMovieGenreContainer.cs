@@ -23,19 +23,19 @@
 #endregion
 
 using System;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Common.General;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using System.Collections.Generic;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.MediaServer.Tree;
+using MediaPortal.Plugins.MediaServer.Tree;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryMovieGenreContainer : BasicContainer
   {
