@@ -24,6 +24,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       { "GetServiceDescription", new GetServiceDescription() },
       { "GetStreamingSessions", new GetStreamingSessions() },
       // Control
+      { "FinishStream", new FinishStream() },
       { "InitStream", new InitStream() },
       { "StartStream", new StartStream() },
       { "StartStreamWithStreamSelection", new StartStreamWithStreamSelection() },
