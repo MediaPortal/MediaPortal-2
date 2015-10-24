@@ -160,7 +160,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     Srt,
     MicroDvd,
     SubView,
-    Vtt,
+    WebVtt,
     DvbSub,
     DvbTxt
   }
@@ -258,6 +258,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public int SourceVideoHeight = -1;
     public int SourceVideoWidth = -1;
     public bool SourceSubtitleAvailable = false;
+    public int SourceSubtitleStreamIndex = MediaConverter.AUTO_SUBTITLE;
     public List<SubtitleStream> SourceSubtitles = new List<SubtitleStream>();
 
     //Target info
@@ -282,6 +283,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public SubtitleSupport TargetSubtitleSupport = SubtitleSupport.None;
     public SubtitleCodec TargetSubtitleCodec = SubtitleCodec.Srt;
     public string TargetSubtitleLanguages = "EN";
+    public string TargetSubtitleMime = "text/srt";
+
     public string Movflags = null;
     public string HlsBaseUrl = null;
   }
@@ -344,7 +347,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public float TargetLevel = -1;
     public float TargetVideoFrameRate = -1;
     public Timestamp TargetVideoTimestamp = Timestamp.None;
-    public bool TargetSubtitled = false;
   }
 
   public class TranscodedImageMetadata

@@ -53,16 +53,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public string HlsBaseUrl = null;
     public string WorkPath;
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    protected static extern uint GetShortPathName([MarshalAs(UnmanagedType.LPTStr)] string lpszLongPath, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpszShortPath, uint cchBuffer);
-    protected string GetFileShortName(string fileName)
-    {
-      StringBuilder shortNameBuffer = new StringBuilder(256);
-      uint result = GetShortPathName(fileName, shortNameBuffer, 256);
-      //return shortNameBuffer.ToString();
-      return fileName;
-    }
-
     public virtual string TranscoderArguments { get; set; }
   }
 }
