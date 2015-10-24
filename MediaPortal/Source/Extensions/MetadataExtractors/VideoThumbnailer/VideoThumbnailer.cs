@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       {
         bool success;
         lock (FFMPEG_THROTTLE_LOCK)
-          success = ServiceRegistration.Get<IFFMpegLib>().FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result.Success;
+          success = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result.Success;
         if (success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
