@@ -85,9 +85,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       int r = rnd.Next(fanart.Count);
       byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(fanart[r].BinaryData, maxWidthInt, maxHeightInt, borders);
 
-      // Add to cache
-      if (ImageCache.AddImageToCache(resizedImage, identifier))
-        Logger.Info("GetArtworkResized: Added image to cache");
+      // Add to cache, but only if it is no dummy image
+      if (fanart[r].Name != NO_FANART_IMAGE_NAME)
+        if (ImageCache.AddImageToCache(resizedImage, identifier))
+          Logger.Info("GetArtworkResized: Added image to cache");
 
       return resizedImage;
     }

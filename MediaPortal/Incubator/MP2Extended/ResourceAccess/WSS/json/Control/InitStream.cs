@@ -37,7 +37,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       {
         ItemId = itemGuid,
         ClientDescription = clientDescription,
-        IdleTimeout = idleTimeoutInt
+        IdleTimeout = idleTimeoutInt,
+        ClientIp = request.Headers["remote_addr"] ?? string.Empty,
       };
 
       // Add the stream to the stream controler

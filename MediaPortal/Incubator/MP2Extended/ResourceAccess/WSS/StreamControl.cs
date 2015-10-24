@@ -52,6 +52,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return STREAM_ITEMS[identifier];
     }
 
+    internal static Dictionary<string, StreamItem> GetStreamItems()
+    {
+      return STREAM_ITEMS;
+    }
+
     internal static bool ValidateIdentifie(string identifier)
     {
       return STREAM_ITEMS.ContainsKey(identifier);

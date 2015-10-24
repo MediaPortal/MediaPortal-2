@@ -8,6 +8,7 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc;
@@ -19,7 +20,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
-  internal class TVAccessServiceHandler : IRequestModuleHandler
+  internal class TVAccessServiceHandler : BaseJsonHeader, IRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
     {
@@ -67,8 +68,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetSchedules", new GetSchedules()},
       { "GetSchedulesByRange", new GetSchedulesByRange()},
       // Recording
+      { "GetAllRecordingDiskInformation", new GetAllRecordingDiskInformation()},
       { "GetRecordingById", new GetRecordingById()},
       { "GetRecordingCount", new GetRecordingCount()},
+      { "GetRecordingDiskInformationForCard", new GetRecordingDiskInformationForCard()},
       { "GetRecordings", new GetRecordings()},
       { "GetRecordingsByRange", new GetRecordingsByRange()},
       // EPG
@@ -107,11 +110,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       byte[] output = ResourceAccessUtils.GetBytesFromDynamic(returnValue);
 
       // Send the response
-      response.Status = HttpStatusCode.OK;
-      response.Encoding = Encoding.UTF8;
-      response.ContentType = "text/html";
-      response.ContentLength = output.Length;
-      response.SendHeaders();
+      SendHeader(response, output.Length);
 
       response.SendBody(output);
 

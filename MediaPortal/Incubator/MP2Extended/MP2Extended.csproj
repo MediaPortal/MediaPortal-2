@@ -76,6 +76,10 @@
     <Compile Include="Filters\Tokenizer.cs" />
     <Compile Include="Filters\Tokens.cs" />
     <Compile Include="GlobalVersion.cs" />
+    <Compile Include="MAS\FileSystem\WebDriveBasic.cs" />
+    <Compile Include="MAS\FileSystem\WebFileBasic.cs" />
+    <Compile Include="MAS\FileSystem\WebFilesystemItem.cs" />
+    <Compile Include="MAS\FileSystem\WebFolderBasic.cs" />
     <Compile Include="MAS\General\WebActor.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -123,10 +127,16 @@
     <Compile Include="Metadata\DlnaVideoMetadata.cs" />
     <Compile Include="MP2Extended.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceAccess\BaseClasses\BaseJsonHeader.cs" />
     <Compile Include="ResourceAccess\GetMediaItems.cs" />
     <Compile Include="ResourceAccess\IRequestMicroModuleHandler.cs" />
     <Compile Include="ResourceAccess\IRequestModuleHandler.cs" />
     <Compile Include="ResourceAccess\MainRequestHandler.cs" />
+    <Compile Include="ResourceAccess\MAS\FileSystem\BaseClasses\BaseDriveBasic.cs" />
+    <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDriveCount.cs" />
+    <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDriveBasicById.cs" />
+    <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDrivesByRange.cs" />
+    <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDrives.cs" />
     <Compile Include="ResourceAccess\MAS\Filter\GetFilterOperators.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetFileInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
@@ -200,6 +210,8 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetCards.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\BaseClasses\BaseRecordingBasic.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\GetRecordingDiskInformationForCard.cs" />
+    <Compile Include="ResourceAccess\TAS\Recording\GetAllRecordingDiskInformation.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingCount.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingById.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingsByRange.cs" />
@@ -253,6 +265,7 @@
     <Compile Include="ResourceAccess\WSS\json\Control\StartStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\InitStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\General\GetItemSupportStatus.cs" />
+    <Compile Include="ResourceAccess\WSS\json\General\GetStreamingSessions.cs" />
     <Compile Include="ResourceAccess\WSS\json\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\WSS\json\Profiles\BaseClasses\BaseTranscoderProfile.cs" />
     <Compile Include="ResourceAccess\WSS\json\Profiles\GetTranscoderProfiles.cs" />
@@ -270,6 +283,7 @@
     <Compile Include="ResourceAccess\WSS\StreamingServiceStreamHandler.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Control\RetrieveStream.cs" />
     <Compile Include="ResourceAccess\WSS\stream\General\GetMediaItem.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\ExtractImage.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\ExtractImageResized.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetImageResized.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetImage.cs" />
@@ -292,6 +306,7 @@
     <Compile Include="TAS\Tv\WebChannelGroup.cs" />
     <Compile Include="TAS\Tv\WebChannelPrograms.cs" />
     <Compile Include="TAS\Tv\WebChannelState.cs" />
+    <Compile Include="TAS\Tv\WebDiskSpaceInformation.cs" />
     <Compile Include="TAS\Tv\WebProgramBasic.cs" />
     <Compile Include="TAS\Tv\WebProgramDetailed.cs" />
     <Compile Include="TAS\Tv\WebRecordingBasic.cs" />
@@ -299,9 +314,13 @@
     <Compile Include="TAS\Tv\WebScheduleBasic.cs" />
     <Compile Include="TAS\Tv\WebScheduledRecording.cs" />
     <Compile Include="Utils\AspectRatioHelper.cs" />
+    <Compile Include="Utils\Base64.cs" />
+    <Compile Include="Utils\DiskSpaceInformation.cs" />
     <Compile Include="Utils\EnumerableComparer.cs" />
     <Compile Include="WSS\General\WebItemSupportStatus.cs" />
+    <Compile Include="WSS\General\WebStreamingSession.cs" />
     <Compile Include="WSS\General\WebStreamServiceDescription.cs" />
+    <Compile Include="WSS\General\WebTranscodingInfo.cs" />
     <Compile Include="WSS\Images.cs" />
     <Compile Include="WSS\Profiles\WebTranscoderProfile.cs" />
     <Compile Include="WSS\Resolution.cs" />

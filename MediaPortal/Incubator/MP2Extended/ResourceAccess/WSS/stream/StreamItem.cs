@@ -48,5 +48,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// Gets or sets the position from which the streaming should start
     /// </summary>
     internal long StartPosition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the time when the stream was started
+    /// </summary>
+    internal DateTime StartTime { get; set; }
+
+    /// <summary>
+    /// Gets or sets the IP of the CLient, which started the stream
+    /// </summary>
+    internal string ClientIp { get; set; }
+
+    /// <summary>
+    /// Constructor, sets for example the start time
+    /// </summary>
+    internal StreamItem()
+    {
+      StartTime = DateTime.Now;
+    }
   }
 }

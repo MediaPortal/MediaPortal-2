@@ -7,6 +7,8 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
@@ -17,7 +19,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
-  internal class MediaAccessServiceHandler : IRequestModuleHandler
+  internal class MediaAccessServiceHandler : BaseJsonHeader, IRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
     {
@@ -77,6 +79,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetTVShowGenres", new GetTVShowGenres() },
       { "GetTVShowsBasic", new GetTVShowsBasic() },
       { "GetTVShowsBasicByRange", new GetTVShowsBasicByRange() },
+      // FileSystem
+      { "GetFileSystemDriveBasicById", new GetFileSystemDriveBasicById() },
+      { "GetFileSystemDriveCount", new GetFileSystemDriveCount() },
+      { "GetFileSystemDrives", new GetFileSystemDrives() },
+      { "GetFileSystemDrivesByRange", new GetFileSystemDrivesByRange() },
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
@@ -104,10 +111,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       byte[] output = ResourceAccessUtils.GetBytesFromDynamic(returnValue);
 
       // Send the response
-      response.Status = HttpStatusCode.OK;
-      response.ContentType = "text/html";
-      response.ContentLength = output.Length;
-      response.SendHeaders();
+      SendHeader(response, output.Length);
 
       response.SendBody(output);
 

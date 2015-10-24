@@ -7,6 +7,7 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles;
@@ -14,13 +15,14 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
-  internal class StreamingServiceJsonHandler : ISubRequestModuleHandler
+  internal class StreamingServiceJsonHandler : BaseJsonHeader, ISubRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
     {
       // General
       { "GetItemSupportStatus", new GetItemSupportStatus() },
       { "GetServiceDescription", new GetServiceDescription() },
+      { "GetStreamingSessions", new GetStreamingSessions() },
       // Control
       { "InitStream", new InitStream() },
       { "StartStream", new StartStream() },
@@ -55,10 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       byte[] output = ResourceAccessUtils.GetBytesFromDynamic(returnValue);
 
       // Send the response
-      response.Status = HttpStatusCode.OK;
-      response.ContentType = "text/html";
-      response.ContentLength = output.Length;
-      response.SendHeaders();
+      SendHeader(response, output.Length);
 
       response.SendBody(output);
 
