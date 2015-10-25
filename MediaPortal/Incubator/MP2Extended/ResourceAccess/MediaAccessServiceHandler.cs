@@ -84,6 +84,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetFileSystemDriveCount", new GetFileSystemDriveCount() },
       { "GetFileSystemDrives", new GetFileSystemDrives() },
       { "GetFileSystemDrivesByRange", new GetFileSystemDrivesByRange() },
+      { "GetFileSystemFileBasicById", new GetFileSystemFileBasicById() },
+      { "GetFileSystemFiles", new GetFileSystemFiles() },
+      { "GetFileSystemFilesAndFolders", new GetFileSystemFilesAndFolders() },
+      { "GetFileSystemFilesAndFoldersByRange", new GetFileSystemFilesAndFoldersByRange() },
+      { "GetFileSystemFilesAndFoldersCount", new GetFileSystemFilesAndFoldersCount() },
+      { "GetFileSystemFilesByRange", new GetFileSystemFilesByRange() },
+      { "GetFileSystemFilesCount", new GetFileSystemFilesCount() },
+      { "GetFileSystemFolderBasicById", new GetFileSystemFolderBasicById() },
+      { "GetFileSystemFolders", new GetFileSystemFolders() },
+      { "GetFileSystemFoldersByRange", new GetFileSystemFoldersByRange() },
+      { "GetFileSystemFoldersCount", new GetFileSystemFoldersCount() },
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
