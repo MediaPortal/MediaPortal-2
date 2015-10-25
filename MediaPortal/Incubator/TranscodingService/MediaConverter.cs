@@ -498,6 +498,27 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #region Cache
 
+    public static void StopAllTranscodes()
+    {
+      lock (_runningTranscodes)
+      {
+        foreach (string transcodeId in _runningTranscodes.Keys)
+        {
+          foreach(TranscodeContext context in _runningTranscodes[transcodeId])
+          {
+            try
+            {
+              context.Dispose();
+            }
+            catch
+            {
+              _logger.Debug("MediaConverter: Error disposing transcode context for file '{0}'", context.TargetFile);
+            }
+          }
+        }
+      }
+    }
+
     private static void TouchFile(string filePath)
     {
       if (File.Exists(filePath))
@@ -702,7 +723,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static bool IsFileInTranscodeCache(string transcodeId)
     {
-      if (Checks.IsTranscodingRunning(transcodeId, ref _runningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(transcodeId) == false)
       {
         List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
         return dirObjects.Any(file => file.StartsWith(transcodeId + ".mp"));
@@ -930,7 +951,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         return null;
       }
-      if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(video.TranscodeId) == false)
       {
         TouchFile(sub.SourceFile);
       }
@@ -986,7 +1007,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // the file already exists in the cache -> just return
       if (File.Exists(transcodingFile))
       {
-        if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
+        if (Checks.IsTranscodingRunning(video.TranscodeId) == false)
         {
           TouchFile(transcodingFile);
         }
@@ -1713,7 +1734,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private static Stream ExecuteTranscodingProcess(FFMpegTranscodeData data, TranscodeContext context, bool waitForBuffer)
     {
-      if (context.Partial == true || Checks.IsTranscodingRunning(data.TranscodeId, ref _runningTranscodes) == false)
+      if (context.Partial == true || Checks.IsTranscodingRunning(data.TranscodeId) == false)
       {
         try
         {

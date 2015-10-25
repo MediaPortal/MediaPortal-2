@@ -41,7 +41,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Common.Threading;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -62,61 +62,48 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     private readonly string _product = null;
     private AuthRequestHandler _authRequestHandler;
 
-    protected IntervalWork _tidyUpCacheWork;
-    protected readonly object _syncObj = new object();
-
-    public void TidyUpCache()
-    {
-      lock (_syncObj)
-      {
-        MediaConverter.CleanUpTranscodeCache();
-      }
-    }
-
-    public void ClearCache()
-    {
-      Shutdown();
-      TidyUpCache();
-    }
-
-    public static void Shutdown()
-    {
-      lock (StreamControl.CurrentClientTranscodes)
-      {
-        foreach (string key in StreamControl.CurrentClientTranscodes.Keys)
-        {
-          foreach (string contextKey in StreamControl.CurrentClientTranscodes[key].Keys)
-          {
-            foreach (TranscodeContext context in StreamControl.CurrentClientTranscodes[key][contextKey])
-            {
-              try
-              {
-                context.Dispose();
-              }
-              catch
-              {
-                Logger.Debug("ResourceAccessModule: Error disposing transcode context for file '{0}'", context.TargetFile);
-              }
-            }
-          }
-        }
-      }
-    }
-
-
     public MainRequestHandler()
     {
-      _tidyUpCacheWork = new IntervalWork(TidyUpCache, CACHE_CLEANUP_INTERVAL);
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.AddIntervalWork(_tidyUpCacheWork, false);
       _serverOsVersion = WindowsAPI.GetOsVersionString();
       Assembly assembly = Assembly.GetExecutingAssembly();
       _product = "MediaPortal 2 MPExtended Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
 
       // Authentication
       //_authRequestHandler = new AuthRequestHandler(RESOURCE_ACCESS_PATH);
+    }
 
-      ClearCache();
+    public static void Shutdown()
+    {
+      foreach (StreamItem stream in StreamControl.GetStreamItems().Values)
+      {
+        if (stream.TranscoderObject != null)
+        {
+          try
+          {
+            if (stream.TranscoderObject.IsStreaming)
+            {
+              stream.TranscoderObject.StopStreaming();
+              Logger.Debug("MainRequestHandler: Stopping stream of mediaitem ", stream.TranscoderObject.MediaSource.MediaItemId);
+            }
+          }
+          catch (Exception e)
+          {
+            Logger.Warn("MainRequestHandler: Error stopping stream", e);
+          }
+          try
+          {
+            if (stream.TranscoderObject.IsTranscoding)
+            {
+              stream.TranscoderObject.StopTranscoding();
+              Logger.Debug("MainRequestHandler: Aborting transcoding of mediaitem ", stream.TranscoderObject.MediaSource.MediaItemId);
+            }
+          }
+          catch (Exception e)
+          {
+            Logger.Warn("MainRequestHandler: Error stopping transcoding", e);
+          }
+        }
+      }
     }
 
     public override bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
@@ -167,13 +154,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     public void Dispose()
     {
-      if (_tidyUpCacheWork != null)
-      {
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.RemoveIntervalWork(_tidyUpCacheWork);
-        _tidyUpCacheWork = null;
-      }
-      ClearCache();
+      Shutdown();
     }
 
     internal static ILogger Logger

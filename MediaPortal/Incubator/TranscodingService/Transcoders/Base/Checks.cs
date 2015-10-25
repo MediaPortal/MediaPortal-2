@@ -128,12 +128,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       return notChanged == false;
     }
 
-    internal static bool IsTranscodingRunning(string transcodeID, ref Dictionary<string, List<TranscodeContext>>  runningTranscodes)
+    internal static bool IsTranscodingRunning(string transcodeID)
     {
-      lock (runningTranscodes)
-      {
-        return runningTranscodes.ContainsKey(transcodeID);
-      }
+      return MediaConverter.RunningTranscodes.ContainsKey(transcodeID);
     }
   }
 }

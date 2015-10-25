@@ -37,6 +37,7 @@ using System.Threading;
 using MediaPortal.Plugins.Transcoding.Service;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using MediaPortal.Common.Threading;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -75,7 +76,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private static List<VideoCodec> _nvidiaCodecs = new List<VideoCodec>() {VideoCodec.H264, VideoCodec.H265};
 
     private const string SETTINGS_FILE = "MediaPortal.Plugins.Transcoding.Service.Settings.xml";
-    public static string DEFAULT_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TranscodeCache\");
+    private readonly TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
+    private readonly string DEFAULT_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TranscodeCache\");
+
+    
+    private IntervalWork _tidyUpCacheWork;
 
     public TranscodingServicePlugin()
     {
@@ -93,6 +98,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
       NvidiaHWMaximumStreams = 2; //For Gforce GPU
       IntelHWAccelerationAllowed = false;
       IntelHWMaximumStreams = 0;
+
+      MediaConverter.StopAllTranscodes();
+      MediaConverter.CleanUpTranscodeCache();
+
+      _tidyUpCacheWork = new IntervalWork(TidyUpCache, CACHE_CLEANUP_INTERVAL);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.AddIntervalWork(_tidyUpCacheWork, false);
     }
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -106,6 +118,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         Directory.CreateDirectory(CachePath);
       }
       MediaConverter.LoadSettings();
+    }
+
+    private void TidyUpCache()
+    {
+      MediaConverter.CleanUpTranscodeCache();
     }
 
     private void LoadTranscodeSettings()
@@ -325,6 +342,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public void Shutdown()
     {
       SaveTranscodeSettings();
+      MediaConverter.StopAllTranscodes();
+      MediaConverter.CleanUpTranscodeCache();
     }
 
     internal static ILogger Logger

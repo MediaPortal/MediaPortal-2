@@ -35,7 +35,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Utilities.FileSystem;
@@ -54,11 +53,6 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
   public class DlnaResourceAccessModule : HttpModule, IDisposable
   {
-    protected IntervalWork _tidyUpCacheWork;
-    protected readonly object _syncObj = new object();
-
-    public TimeSpan RESOURCE_CACHE_TIME = TimeSpan.FromMinutes(5);
-    public TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
     public const long TRANSCODED_VIDEO_STREAM_MAX = 50000000000L;
     public const long TRANSCODED_AUDIO_STREAM_MAX = 900000000L;
     public const long TRANSCODED_IMAGE_STREAM_MAX = 9000000L;
@@ -87,14 +81,9 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
     public DlnaResourceAccessModule()
     {
-      _tidyUpCacheWork = new IntervalWork(TidyUpCache, CACHE_CLEANUP_INTERVAL);
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.AddIntervalWork(_tidyUpCacheWork, false);
       _serverOsVersion = WindowsAPI.GetOsVersionString();
       Assembly assembly = Assembly.GetExecutingAssembly();
       _product = "MediaPortal 2 DLNA Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
-
-      ClearCache();
     }
 
     protected class Range
@@ -125,14 +114,6 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           if (_to <= _from) return 0;
           return _to - _from; 
         }
-      }
-    }
-
-    public void TidyUpCache()
-    {
-      lock (_syncObj)
-      {
-        MediaConverter.CleanUpTranscodeCache();
       }
     }
 
@@ -168,12 +149,6 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           }
         }
       }
-    }
-
-    public void ClearCache()
-    {
-      Shutdown();
-      TidyUpCache();
     }
 
     private long GetStreamSize(DlnaMediaItem dlnaItem)
@@ -1233,13 +1208,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
     public void Dispose()
     {
-      if (_tidyUpCacheWork != null)
-      {
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.RemoveIntervalWork(_tidyUpCacheWork);
-        _tidyUpCacheWork = null;
-      }
-      ClearCache();
+      Shutdown();
     }
 
     internal static ILogger Logger
