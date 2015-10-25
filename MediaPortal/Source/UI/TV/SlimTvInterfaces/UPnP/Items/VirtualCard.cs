@@ -31,39 +31,45 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
-  public class Card : ICard
+  public class VirtualCard : IVirtualCard
   {
     private static XmlSerializer _xmlSerializer;
 
-    #region ICard Member
+    #region IVirtualCard Member
 
-    public int CardId { get; set; }
-
-    public string Name { get; set; }
-
-    public bool EpgIsGrabbing { get; set; }
-
-    public bool HasCam { get; set; }
-
-    public SlimTvCamType CamType { get; set; }
-
-    public int DecryptLimit { get; set; }
-
-    public string DevicePath { get; set; }
-
+    public int BitRateMode { get; set; }
+    public string ChannelName { get; set; }
+    public string Device { get; set; }
     public bool Enabled { get; set; }
-
+    public int GetTimeshiftStoppedReason { get; set; }
+    public bool GrabTeletext { get; set; }
+    public bool HasTeletext { get; set; }
+    public int Id { get; set; }
+    public int ChannelId { get; set; }
+    public bool IsGrabbingEpg { get; set; }
+    public bool IsRecording { get; set; }
+    public bool IsScanning { get; set; }
+    public bool IsScrambled { get; set; }
+    public bool IsTimeShifting { get; set; }
+    public bool IsTunerLocked { get; set; }
+    public int MaxChannel { get; set; }
+    public int MinChannel { get; set; }
+    public string Name { get; set; }
+    public int QualityType { get; set; }
+    public string RecordingFileName { get; set; }
     public string RecordingFolder { get; set; }
-
     public int RecordingFormat { get; set; }
-
-    public string TimeshiftFolder { get; set; }
-
-    public int Priority { get; set; }
-
-    public bool PreloadCard { get; set; }
-
-    public bool SupportSubChannels { get; set; }
+    public int RecordingScheduleId { get; set; }
+    public DateTime RecordingStarted { get; set; }
+    public string RemoteServer { get; set; }
+    public string RTSPUrl { get; set; }
+    public int SignalLevel { get; set; }
+    public int SignalQuality { get; set; }
+    public string TimeShiftFileName { get; set; }
+    public string TimeShiftFolder { get; set; }
+    public DateTime TimeShiftStarted { get; set; }
+    public SlimTvCardType Type { get; set; }
+    public IUser User { get; set; }
 
     #endregion
 
@@ -78,31 +84,31 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     }
 
     /// <summary>
-    /// Deserializes a Card instance from a given XML fragment.
+    /// Deserializes a VirtualCard instance from a given XML fragment.
     /// </summary>
     /// <param name="str">XML fragment containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Card Deserialize(string str)
+    public static VirtualCard Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       using (StringReader reader = new StringReader(str))
-        return xs.Deserialize(reader) as Card;
+        return xs.Deserialize(reader) as VirtualCard;
     }
 
     /// <summary>
-    /// Deserializes a Card instance from a given <paramref name="reader"/>.
+    /// Deserializes a VirtualCard instance from a given <paramref name="reader"/>.
     /// </summary>
     /// <param name="reader">XML reader containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Card Deserialize(XmlReader reader)
+    public static VirtualCard Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      return xs.Deserialize(reader) as Card;
+      return xs.Deserialize(reader) as VirtualCard;
     }
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Card)));
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(VirtualCard)));
     }
   }
 }

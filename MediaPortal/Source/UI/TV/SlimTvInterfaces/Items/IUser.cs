@@ -22,19 +22,44 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 
-namespace MediaPortal.Plugins.SlimTv.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
-  /// <summary>
-  /// IServerInfo defines all actions and properties for getting Server information.
-  /// </summary>
-  public interface ITunerInfo
+  public enum SlimTvStoppedReason
   {
-    bool GetCards(out List<ICard> cards);
+    UnknownReason = 0,
+    RecordingStarted = 1,
+    KickedByAdmin = 2,
+    HeartBeatTimeOut = 3,
+    OwnerChangedTS = 4,
+  }
 
-    bool GetActiveVirtualCards(out List<IVirtualCard> cards);
+  public enum SlimTvChannelState
+  {
+    nottunable = 0,
+    tunable = 1,
+    timeshifting = 2,
+    recording = 3,
+  }
+  
+  /// <summary>
+  /// ICard represents a card.
+  /// </summary>
+  public interface IUser
+  {
+    int CardId { get; set; }
+    Dictionary<int, SlimTvChannelState> ChannelStates { get; set; }
+    int FailedCardId { get; set; }
+    DateTime HeartBeat { get; set; }
+    object History { get; set; }
+    int IdChannel { get; set; }
+    bool IsAdmin { get; set; }
+    string Name { get; set; }
+    int? Priority { get; set; }
+    int SubChannel { get; set; }
+    SlimTvStoppedReason TvStoppedReason { get; set; }
   }
 }
