@@ -154,6 +154,7 @@
     <Compile Include="ResourceAccess\MAS\Filter\GetFilterOperators.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetFileInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
+    <Compile Include="ResourceAccess\MAS\General\GetLocalDiskInformation.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetMediaItem.cs" />
