@@ -58,6 +58,13 @@
     <Compile Include="Common\WebIntResult.cs" />
     <Compile Include="Common\WebSortField.cs" />
     <Compile Include="Common\WebSortOrder.cs" />
+    <Compile Include="ErrorPages\InternalServerExceptionClass.cs" />
+    <Compile Include="ErrorPages\InternalServerExceptionTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InternalServerExceptionTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ErrorPages\SendErrorPage.cs" />
     <Compile Include="Extensions\ByteArrayExtensionMethods.cs" />
     <Compile Include="Extensions\EnumerableExtensionMethods.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />
@@ -400,9 +407,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="ErrorPages\InternalServerExceptionTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>InternalServerExceptionTemplate.cs</LastGenOutput>
+      <CustomToolNamespace>MediaPortal.Plugins.MP2Extended.ErrorPages</CustomToolNamespace>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

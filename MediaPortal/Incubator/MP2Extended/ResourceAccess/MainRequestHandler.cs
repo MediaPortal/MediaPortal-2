@@ -26,7 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Reflection;
+using System.Text;
 using HttpServer;
 using HttpServer.Authentication;
 using HttpServer.Exceptions;
@@ -42,6 +44,7 @@ using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
+using MediaPortal.Plugins.MP2Extended.ErrorPages;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -140,8 +143,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       }
       catch (Exception ex)
       {
-        Logger.Error("MainRequestHandler: Exception: {0}", ex);
-        throw new InternalServerException("Failed to proccess! - Exception: {0}", ex);
+        Logger.Error("MainRequestHandler: Exception:", ex);
+        //throw new InternalServerException(string.Format("Failed to proccess! - Exception: {0}\n\nStackTrace:\n{1}", ex.Message, ex.StackTrace), ex);
+        new SendErrorPage().Process(request, response, session, ex);
       }
 
       return true;
