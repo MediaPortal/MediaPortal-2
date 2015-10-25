@@ -6,6 +6,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS;
@@ -36,26 +37,45 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
       IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      channelAndGroupInfo.GetChannelGroups(out channelGroups);
-
       List<WebProgramDetailed> output = new List<WebProgramDetailed>();
 
-      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
-      {
-        // get channel for goup
-        IList<IChannel> channels = new List<IChannel>();
-        if (!channelAndGroupInfo.GetChannels(group, out channels))
-          continue;
+      // works for TVE3, but not TVE3.5
+      bool TVE3 = ServiceRegistration.Get<IPluginManager>().AvailablePlugins.ContainsKey(Guid.Parse("796C1294-38BA-4C9C-8E56-AA299558A59B"));
+      Logger.Debug("SearchProgramsDetailed: TVE3 ? '{0}'", TVE3);
 
-        foreach (var channel in channels)
+      if (TVE3)
+      {
+        IList<IProgram> programs;
+        programInfo.GetPrograms(searchTerm, DateTime.Now, DateTime.Now.AddMonths(2), out programs);
+
+        foreach (var program in programs)
         {
-          IList<IProgram> programs;
-          programInfo.GetPrograms(channel, DateTime.Now, DateTime.Now.AddMonths(2), out programs);
-          foreach (var program in programs)
+          output.Add(ProgramDetailed(program));
+        }
+      }
+      // TVE 3.5 does an exact string compare and doesn't use RegEx
+      else
+      {
+        IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
+        channelAndGroupInfo.GetChannelGroups(out channelGroups);
+
+
+        foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
+        {
+          // get channel for goup
+          IList<IChannel> channels = new List<IChannel>();
+          if (!channelAndGroupInfo.GetChannels(group, out channels))
+            continue;
+
+          foreach (var channel in channels)
           {
-            if (regex.IsMatch(program.Title))
-              output.Add(ProgramDetailed(program));
+            IList<IProgram> programs;
+            programInfo.GetPrograms(channel, DateTime.Now, DateTime.Now.AddMonths(2), out programs);
+            foreach (var program in programs)
+            {
+              if (regex.IsMatch(program.Title))
+                output.Add(ProgramDetailed(program));
+            }
           }
         }
       }
