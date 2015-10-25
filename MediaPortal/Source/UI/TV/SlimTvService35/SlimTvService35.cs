@@ -60,6 +60,14 @@ using SlimTvCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Card;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
+using SlimTvVirtualCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.VirtualCard;
+using SlimTvIVirtualCard = MediaPortal.Plugins.SlimTv.Interfaces.Items.IVirtualCard;
+using SlimTvUser = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.User;
+using User = Mediaportal.TV.Server.TVControl.User;
+using IUser = Mediaportal.TV.Server.TVService.Interfaces.Services.IUser;
+using VirtualCard = Mediaportal.TV.Server.TVControl.VirtualCard;
+using IVirtualCard = Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard;
+
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -526,7 +534,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Name = card.Value.CardName,
         CardId = card.Value.Card.TunerId,
         EpgIsGrabbing = card.Value.Epg.IsGrabbing,
-        HasCam = card.Value.Card.IsConditionalAccessSupported, 
+        HasCam = card.Value.DataBaseCard.UseConditionalAccess, 
         CamType = card.Value.Card.CamType == CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2, 
         DecryptLimit = card.Value.DataBaseCard.DecryptLimit, Enabled = card.Value.DataBaseCard.Enabled, 
         RecordingFolder = card.Value.DataBaseCard.RecordingFolder, 
@@ -535,6 +543,77 @@ namespace MediaPortal.Plugins.SlimTv.Service
         PreloadCard = card.Value.DataBaseCard.PreloadCard, 
         Priority = card.Value.DataBaseCard.Priority
       }).Cast<ICard>().ToList();
+
+      return cards.Count > 0;
+    }
+
+    public override bool GetActiveVirtualCards(out List<SlimTvIVirtualCard> cards)
+    {
+      cards = new List<SlimTvIVirtualCard>();
+      foreach (var card in ServiceAgents.Instance.CardServiceAgent.ListAllCards())
+      {
+        IDictionary<string, IUser> usersForCard = ServiceAgents.Instance.ControllerServiceAgent.GetUsersForCard(card.IdCard);
+        
+        foreach (IUser user1 in usersForCard.Values)
+        {          
+          foreach (var subchannel in user1.SubChannels.Values)
+          {
+            var vcard = new VirtualCard(user1);
+            if (vcard.IsTimeShifting || vcard.IsRecording)
+            {
+              cards.Add(new SlimTvVirtualCard
+              {
+                BitRateMode = (int)vcard.BitRateMode,
+                ChannelName = vcard.ChannelName,
+                Device = card.DevicePath,
+                Enabled = card.Enabled,
+                /*GetTimeshiftStoppedReason = (int)vcard.GetTimeshiftStoppedReason,
+                GrabTeletext = vcard.GrabTeletext,
+                HasTeletext = vcard.HasTeletext,*/
+                Id = vcard.Id,
+                ChannelId = vcard.IdChannel,
+                IsGrabbingEpg = vcard.IsGrabbingEpg,
+                IsRecording = vcard.IsRecording,
+                IsScanning = vcard.IsScanning,
+                IsScrambled = vcard.IsScrambled,
+                IsTimeShifting = vcard.IsTimeShifting,
+                IsTunerLocked = vcard.IsTunerLocked,
+                //MaxChannel = vcard.MaxChannel,
+                //MinChannel = vcard.MinChannel,
+                Name = card.Name,
+                QualityType = (int)vcard.QualityType,
+                RecordingFileName = vcard.RecordingFileName,
+                RecordingFolder = vcard.RecordingFolder,
+                RecordingFormat = vcard.RecordingFormat,
+                RecordingScheduleId = vcard.RecordingScheduleId,
+                //RecordingStarted = vcard.RecordingStarted != DateTime.MinValue ? vcard.RecordingStarted : new DateTime(2000, 1, 1),
+                RemoteServer = vcard.RemoteServer,
+                RTSPUrl = vcard.RTSPUrl,
+                SignalLevel = vcard.SignalLevel,
+                SignalQuality = vcard.SignalQuality,
+                TimeShiftFileName = vcard.TimeShiftFileName,
+                TimeShiftFolder = vcard.TimeshiftFolder,
+                //TimeShiftStarted = vcard.TimeShiftStarted != DateTime.MinValue ? vcard.TimeShiftStarted : new DateTime(2000, 1, 1),
+                Type = (SlimTvCardType)Enum.Parse(typeof(SlimTvCardType), vcard.Type.ToString()),
+                User = vcard.User != null ? new SlimTvUser
+                {
+                  Priority = vcard.User.Priority,
+                  ChannelStates = vcard.User.ChannelStates.ToDictionary(item => item.Key, item => (SlimTvChannelState)Enum.Parse(typeof(SlimTvChannelState), item.ToString())),
+                  CardId = vcard.User.CardId,
+                  Name = vcard.User.Name,
+                  FailedCardId = vcard.User.FailedCardId,
+                  HeartBeat = DateTime.Now, // TVE 3.5 doesn't have a heart beat
+                  History = vcard.User.History,
+                  IdChannel = subchannel.IdChannel,
+                  //IsAdmin = vcard.User.IsAdmin,
+                  SubChannel = subchannel.Id,
+                  TvStoppedReason = (SlimTvStoppedReason)Enum.Parse(typeof(SlimTvStoppedReason), vcard.User.TvStoppedReason.ToString()),
+                } : null
+              });
+            }
+          }          
+        }
+      }
 
       return cards.Count > 0;
     }

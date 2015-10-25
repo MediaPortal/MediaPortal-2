@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
@@ -50,6 +51,11 @@ using TvLibrary.Interfaces;
 using TvService;
 using Card = TvDatabase.Card;
 using SlimTvCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Card;
+using SlimTvVirtualCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.VirtualCard;
+using SlimTvUser = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.User;
+using IUser = TvControl.IUser;
+using User = TvControl.User;
+using VirtualCard = TvControl.VirtualCard;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -340,16 +346,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = new List<IProgram>();
-      if (channelGroup.ChannelGroupId < 0)
-      {
-        foreach (var channel in _tvBusiness.GetRadioGuideChannelsForGroup(-channelGroup.ChannelGroupId))
-          CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
-      }
-      else
-      {
       foreach (var channel in _tvBusiness.GetTVGuideChannelsForGroup(channelGroup.ChannelGroupId))
         CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
-      }
       return programs.Count > 0;
     }
 
@@ -570,6 +568,73 @@ namespace MediaPortal.Plugins.SlimTv.Service
         SupportSubChannels = card.supportSubChannels, 
         RecordingFormat = card.RecordingFormat
       }).Cast<ICard>().ToList();
+
+      return cards.Count > 0;
+    }
+
+    public override bool GetActiveVirtualCards(out List<IVirtualCard> cards)
+    {
+      IEnumerable<VirtualCard> virtualCards = Card.ListAll()
+                .Where(card => RemoteControl.Instance.CardPresent(card.IdCard))
+                .Select(card => RemoteControl.Instance.GetUsersForCard(card.IdCard))
+                .Where(users => users != null)
+                .SelectMany(user => user)
+                .Select(user => new VirtualCard(user, RemoteControl.HostName))
+                .Where(tvCard => tvCard.IsTimeShifting || tvCard.IsRecording);
+
+      cards = new List<IVirtualCard>();
+      foreach (var card in virtualCards)
+      {
+        cards.Add(new SlimTvVirtualCard
+        {
+          BitRateMode = (int)card.BitRateMode,
+          ChannelName = card.ChannelName,
+          Device = card.Device,
+          Enabled = card.Enabled,
+          GetTimeshiftStoppedReason = (int)card.GetTimeshiftStoppedReason,
+          GrabTeletext = card.GrabTeletext,
+          HasTeletext = card.HasTeletext,
+          Id = card.Id,
+          ChannelId = card.IdChannel,
+          IsGrabbingEpg = card.IsGrabbingEpg,
+          IsRecording = card.IsRecording,
+          IsScanning = card.IsScanning,
+          IsScrambled = card.IsScrambled,
+          IsTimeShifting = card.IsTimeShifting,
+          IsTunerLocked = card.IsTunerLocked,
+          MaxChannel = card.MaxChannel,
+          MinChannel = card.MinChannel,
+          Name = card.Name,
+          QualityType = (int)card.QualityType,
+          RecordingFileName = card.RecordingFileName,
+          RecordingFolder = card.RecordingFolder,
+          RecordingFormat = card.RecordingFormat,
+          RecordingScheduleId = card.RecordingScheduleId,
+          RecordingStarted = card.RecordingStarted != DateTime.MinValue ? card.RecordingStarted : new DateTime(2000, 1, 1),
+          RemoteServer = card.RemoteServer,
+          RTSPUrl = card.RTSPUrl,
+          SignalLevel = card.SignalLevel,
+          SignalQuality = card.SignalQuality,
+          TimeShiftFileName = card.TimeShiftFileName,
+          TimeShiftFolder = card.TimeshiftFolder,
+          TimeShiftStarted = card.TimeShiftStarted != DateTime.MinValue ? card.TimeShiftStarted : new DateTime(2000, 1, 1),
+          Type = (SlimTvCardType)Enum.Parse(typeof(SlimTvCardType), card.Type.ToString()),
+          User = card.User != null ? new SlimTvUser
+          {
+            Priority = card.User.Priority,
+            ChannelStates = card.User.ChannelStates.ToDictionary(item => item.Key, item => (SlimTvChannelState)Enum.Parse(typeof(SlimTvChannelState), item.ToString())),
+            CardId = card.User.CardId,
+            Name = card.User.Name,
+            FailedCardId = card.User.FailedCardId,
+            HeartBeat = card.User.HeartBeat,
+            History = card.User.History,
+            IdChannel = card.User.IdChannel,
+            IsAdmin = card.User.IsAdmin,
+            SubChannel = card.User.SubChannel,
+            TvStoppedReason = (SlimTvStoppedReason)Enum.Parse(typeof(SlimTvStoppedReason), card.User.TvStoppedReason.ToString()),
+          } : null
+        });
+      }
 
       return cards.Count > 0;
     }

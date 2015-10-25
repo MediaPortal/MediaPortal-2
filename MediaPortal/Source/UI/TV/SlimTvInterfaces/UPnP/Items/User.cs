@@ -31,39 +31,23 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
-  public class Card : ICard
+  public class User : IUser
   {
     private static XmlSerializer _xmlSerializer;
 
-    #region ICard Member
+    #region IUser Member
 
     public int CardId { get; set; }
-
+    public Dictionary<int, SlimTvChannelState> ChannelStates { get; set; }
+    public int FailedCardId { get; set; }
+    public DateTime HeartBeat { get; set; }
+    public object History { get; set; }
+    public int IdChannel { get; set; }
+    public bool IsAdmin { get; set; }
     public string Name { get; set; }
-
-    public bool EpgIsGrabbing { get; set; }
-
-    public bool HasCam { get; set; }
-
-    public SlimTvCamType CamType { get; set; }
-
-    public int DecryptLimit { get; set; }
-
-    public string DevicePath { get; set; }
-
-    public bool Enabled { get; set; }
-
-    public string RecordingFolder { get; set; }
-
-    public int RecordingFormat { get; set; }
-
-    public string TimeshiftFolder { get; set; }
-
-    public int Priority { get; set; }
-
-    public bool PreloadCard { get; set; }
-
-    public bool SupportSubChannels { get; set; }
+    public int? Priority { get; set; }
+    public int SubChannel { get; set; }
+    public SlimTvStoppedReason TvStoppedReason { get; set; }
 
     #endregion
 
@@ -78,15 +62,15 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     }
 
     /// <summary>
-    /// Deserializes a Card instance from a given XML fragment.
+    /// Deserializes a User instance from a given XML fragment.
     /// </summary>
     /// <param name="str">XML fragment containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Card Deserialize(string str)
+    public static User Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       using (StringReader reader = new StringReader(str))
-        return xs.Deserialize(reader) as Card;
+        return xs.Deserialize(reader) as User;
     }
 
     /// <summary>
@@ -94,15 +78,15 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     /// </summary>
     /// <param name="reader">XML reader containing a serialized user profile instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static Card Deserialize(XmlReader reader)
+    public static User Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      return xs.Deserialize(reader) as Card;
+      return xs.Deserialize(reader) as User;
     }
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Card)));
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(User)));
     }
   }
 }

@@ -451,6 +451,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract bool GetCards(out List<ICard> cards);
 
+    public abstract bool GetActiveVirtualCards(out List<IVirtualCard> cards);
+
     #endregion
   }
 }
