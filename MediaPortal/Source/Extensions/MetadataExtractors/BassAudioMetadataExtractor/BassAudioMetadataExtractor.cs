@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       return tags.Split(';', '/');
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // If the base AudioMDE already extracted metadata, don't try here again to avoid conflicts.
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
@@ -146,9 +146,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         }
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, fsra.Size);
+        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_SIZE, fsra.Size);
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, "audio/" + Path.GetExtension(fsra.LocalFileSystemPath).Substring(1));
+        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, "audio/" + Path.GetExtension(fsra.LocalFileSystemPath).Substring(1));
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAspect.ATTR_ARTISTS, ApplyAdditionalSeparator(artists));
         MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tags.album));
         IEnumerable<string> albumArtists = SplitTagEnum(tags.albumartist);

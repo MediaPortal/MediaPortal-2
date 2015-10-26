@@ -22,6 +22,7 @@
 
 #endregion
 
+using HttpServer;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -174,6 +175,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public GenerateDescriptionDlgt DescriptionGenerateHook = null;
 
     /// <summary>
+    /// If assigned, this hook delegate will be called during the generation of the device information;
+    /// </summary>
+    public GetDeviceInfoForEndpointDlgt DeviceInfoHook = null;
+
+    /// <summary>
     /// Adds the specified embedded <paramref name="device"/>.
     /// </summary>
     /// <remarks>
@@ -279,6 +285,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <returns>UPnP device description document for this root device and all embedded devices.</returns>
     public string BuildRootDeviceDescription(ServerData serverData, EndpointConfiguration config, CultureInfo culture)
     {
+        return BuildRootDeviceDescription(null, serverData, config, culture);
+    }
+
+    public string BuildRootDeviceDescription(IHttpRequest request, ServerData serverData, EndpointConfiguration config, CultureInfo culture)
+    {
       StringBuilder result = new StringBuilder(10000);
       using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, UPnPConsts.UTF8_NO_BOM))
       using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
@@ -288,7 +299,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
         if (dgh != null)
-          dgh(writer, this, GenerationPosition.RootDeviceStart, config, culture);
+          dgh(request, writer, this, GenerationPosition.RootDeviceStart, config, culture);
 
         writer.WriteAttributeString("configId", config.ConfigId.ToString());
         writer.WriteStartElement("specVersion");
@@ -296,10 +307,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
         writer.WriteEndElement(); // specVersion
 
-        AddDeviceDescriptionsRecursive(writer, config, culture);
+        AddDeviceDescriptionsRecursive(request, writer, config, culture);
       
         if (dgh != null)
-          dgh(writer, this, GenerationPosition.RootDeviceEnd, config, culture);
+          dgh(request, writer, this, GenerationPosition.RootDeviceEnd, config, culture);
 
         writer.WriteEndElement(); // root
         writer.Close();
@@ -315,12 +326,29 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <param name="culture">Culture to create the culture specific information.</param>
     internal void AddDeviceDescriptionsRecursive(XmlWriter writer, EndpointConfiguration config, CultureInfo culture)
     {
-      GenerateDescriptionDlgt dgh = DescriptionGenerateHook;
-      ILocalizedDeviceInformation deviceInformation = _deviceInformation;
+        AddDeviceDescriptionsRecursive(null, writer, config, culture);
+    }
 
+    internal void AddDeviceDescriptionsRecursive(IHttpRequest request, XmlWriter writer, EndpointConfiguration config, CultureInfo culture)
+    {
+      GenerateDescriptionDlgt dgh = DescriptionGenerateHook;
+      GetDeviceInfoForEndpointDlgt dih = DeviceInfoHook;
+      ILocalizedDeviceInformation deviceInformation = null;
+      ILocalizedDeviceInformation overriddenDeviceInformation = null;
+
+      if (dih != null)
+        dih(request, _deviceInformation, ref overriddenDeviceInformation);
+      if (overriddenDeviceInformation == null)
+      {
+        deviceInformation = _deviceInformation;
+      }
+      else
+      {
+        deviceInformation = overriddenDeviceInformation;
+      }
       writer.WriteStartElement("device");
       if (dgh != null)
-        dgh(writer, this, GenerationPosition.DeviceStart, config, culture);
+        dgh(request, writer, this, GenerationPosition.DeviceStart, config, culture);
       writer.WriteElementString("deviceType", DeviceTypeVersion_URN);
       writer.WriteElementString("friendlyName", deviceInformation.GetFriendlyName(culture));
       writer.WriteElementString("manufacturer", deviceInformation.GetManufacturer(culture));
@@ -373,11 +401,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         writer.WriteStartElement("deviceList");
         foreach (DvDevice embeddedDevice in embeddedDevices)
-          embeddedDevice.AddDeviceDescriptionsRecursive(writer, config, culture);
+          embeddedDevice.AddDeviceDescriptionsRecursive(request, writer, config, culture);
         writer.WriteEndElement(); // deviceList
       }
       if (dgh != null)
-        dgh(writer, this, GenerationPosition.AfterDeviceList, config, culture);
+        dgh(request, writer, this, GenerationPosition.AfterDeviceList, config, culture);
       GetURLForEndpointDlgt presentationURLGetter = GetPresentationURLDelegate;
       string presentationURL = null;
       if (presentationURLGetter != null)
@@ -385,7 +413,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       if (!string.IsNullOrEmpty(presentationURL))
         writer.WriteElementString("presentationURL", presentationURL);
       if (dgh != null)
-        dgh(writer, this, GenerationPosition.DeviceEnd, config, culture);
+        dgh(request, writer, this, GenerationPosition.DeviceEnd, config, culture);
       writer.WriteEndElement(); // device
     }
 
