@@ -134,20 +134,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OnlineLibraries", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Mock", "..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj", "{F1A04140-5C63-4688-8A9E-A195AAF95DE1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaServer", "MediaServer", "{4D7DB2DF-A593-415D-B53E-E626957AC84D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer", "..\Incubator\MediaServer\MediaServer.csproj", "{1BA81EB2-6556-4213-A7A5-9E5B508F186F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService", "..\Incubator\TranscodingService\TranscodingService.csproj", "{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegLib", "Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj", "{D2416E5A-CF6A-4B45-836D-02300D666127}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{757DEA9F-06F0-4367-8121-91ED7E7D7D32}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -419,9 +406,6 @@ Global
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{B9B6B0F4-1AED-48D5-927A-45BC3F3461C1} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
-		{4D7DB2DF-A593-415D-B53E-E626957AC84D} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
-		{1BA81EB2-6556-4213-A7A5-9E5B508F186F} = {4D7DB2DF-A593-415D-B53E-E626957AC84D}
-		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A} = {4D7DB2DF-A593-415D-B53E-E626957AC84D}
 		{D2416E5A-CF6A-4B45-836D-02300D666127} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
 	EndGlobalSection
 EndGlobal
