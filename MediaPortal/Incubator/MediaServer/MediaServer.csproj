@@ -135,6 +135,8 @@
     <Compile Include="Protocols\XBoxProtocolHandler.cs" />
     <Compile Include="ResourceAccess\DlnaResourceAccessUtils.cs" />
     <Compile Include="ResourceAccess\DlnaResourceAccessModule.cs" />
+    <Compile Include="Settings\MediaServerSettings.cs" />
+    <Compile Include="Settings\ProfileLinks.cs" />
     <Compile Include="Tree\Tree.cs" />
     <Compile Include="Tree\TreeNode.cs" />
     <Compile Include="Tree\TreeNodeList.cs" />

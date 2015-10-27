@@ -41,6 +41,8 @@ using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Service;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.MediaServer.Settings;
 
 namespace MediaPortal.Plugins.MediaServer
 {
@@ -51,22 +53,14 @@ namespace MediaPortal.Plugins.MediaServer
     /// Tracks all UPnP Rootdevices available in the Network
     /// </summary>
     public static UPnPDeviceTracker Tracker;
-
+    public static MediaServerSettings Settings = new MediaServerSettings();
     public const string DEVICE_UUID = "45F2C54D-8C0A-4736-AA04-E6F91CD45457";
-
-    private const string SETTINGS_FILE = "MediaPortal.Plugins.MediaServer.Settings.xml";
-
-    public static bool TranscodingAllowed { get; private set; }
-    public static bool HardcodedSubtitlesAllowed { get; private set; }
 
     public MediaServerPlugin()
     {
       _device = new UPnPMediaServerDevice(DEVICE_UUID.ToLower());
       Tracker = new UPnPDeviceTracker();
       Tracker.Start();
-
-      TranscodingAllowed = true;
-      HardcodedSubtitlesAllowed = true;
     }
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -81,94 +75,27 @@ namespace MediaPortal.Plugins.MediaServer
       ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
 
       LoadSettings();
-
-      ProfileManager.LoadProfiles(false);
-      ProfileManager.LoadProfiles(true);
-      ProfileManager.LoadProfileLinks();
-      ProfileManager.LoadPreferredLanguages();
     }
 
     private void LoadSettings()
     {
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      string dataPath = pathManager.GetPath("<CONFIG>");
-      string settingsFile = Path.Combine(dataPath, SETTINGS_FILE);
-      if (File.Exists(settingsFile) == true)
-      {
-        XmlDocument document = new XmlDocument();
-        document.Load(settingsFile);
-        XmlNode configNode = document.SelectSingleNode("Configuration");
-        XmlNode node = null;
-        if (configNode != null)
-        {
-          node = configNode.SelectSingleNode("Transcoding");
-        }
-        if (node != null)
-        {
-          foreach (XmlNode childNode in node.ChildNodes)
-          {
-            if (childNode.Name == "TranscodingAllowed")
-            {
-              TranscodingAllowed = Convert.ToInt32(childNode.InnerText) > 0;
-            }
-            else if (childNode.Name == "HardcodedSubtitlesAllowed")
-            {
-              HardcodedSubtitlesAllowed = Convert.ToInt32(childNode.InnerText) > 0;
-            }
-          }
-        }
-      }
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      Settings = settingsManager.Load<MediaServerSettings>();
+
+      ProfileManager.Profiles.Clear();
+      ProfileManager.LoadProfiles(false);
+      ProfileManager.LoadProfiles(true);
+
+      ProfileManager.ProfileLinks.Clear();
+      ProfileManager.LoadProfileLinks();
     }
 
     private void SaveSettings()
     {
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      string dataPath = pathManager.GetPath("<CONFIG>");
-      string settingsFile = Path.Combine(dataPath, SETTINGS_FILE);
-      XmlDocument document = new XmlDocument();
-      if (File.Exists(settingsFile) == true)
-      {
-        document.Load(settingsFile);
-      }
-      XmlNode configNode = document.SelectSingleNode("Configuration");
-      XmlNode node = null;
-      if (configNode != null)
-      {
-        node = configNode.SelectSingleNode("Transcoding");
-        if (node == null)
-        {
-          node = document.CreateElement("Transcoding");
-          configNode.AppendChild(node);
-        }
-      }
-      else
-      {
-        configNode = document.CreateElement("Configuration");
-        document.AppendChild(configNode);
-        node = document.CreateElement("Transcoding");
-        configNode.AppendChild(node);
-      }
-      if (node != null)
-      {
-        node.RemoveAll();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      settingsManager.Save(Settings);
 
-        XmlElement elem = document.CreateElement("TranscodingAllowed");
-        elem.InnerText = Convert.ToString(TranscodingAllowed ? 1 : 0);
-        node.AppendChild(elem);
-        elem = document.CreateElement("HardcodedSubtitlesAllowed");
-        elem.InnerText = Convert.ToString(HardcodedSubtitlesAllowed ? 1 : 0);
-        node.AppendChild(elem);
-      }
-
-      XmlWriterSettings settings = new XmlWriterSettings();
-      settings.Indent = true;
-      settings.IndentChars = "\t";
-      settings.NewLineChars = Environment.NewLine;
-      settings.NewLineHandling = NewLineHandling.Replace;
-      using (XmlWriter writer = XmlWriter.Create(settingsFile, settings))
-      {
-        document.Save(writer);
-      }
+      ProfileManager.SaveProfileLinks();
     }
 
     public bool RequestEnd()
@@ -188,7 +115,6 @@ namespace MediaPortal.Plugins.MediaServer
     public void Shutdown()
     {
       SaveSettings();
-      ProfileManager.SavePreferredLanguages();
       DlnaResourceAccessModule.Shutdown();
     }
 
