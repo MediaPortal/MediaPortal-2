@@ -38,10 +38,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         info.Video.TimestampType = Timestamp.None;
         FileStream raf = null;
         ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
-        try
+        // Impersionation
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
         {
-          // Impersionation
-          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+          try
           {
             raf = File.OpenRead(lfsra.LocalFileSystemPath);
             byte[] packetBuffer = new byte[193];
@@ -69,12 +69,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
               if (Logger != null) Logger.Error("MediaAnalyzer: Failed to retreive MPEG2TS timestamp for resource '{0}'", info.Metadata.Source);
             }
           }
-        }
-        finally
-        {
-          if (raf != null)
+          finally
           {
-            raf.Close();
+            if (raf != null) raf.Close();
           }
         }
       }

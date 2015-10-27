@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
     {
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();

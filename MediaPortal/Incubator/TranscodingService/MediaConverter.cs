@@ -162,16 +162,18 @@ namespace MediaPortal.Plugins.Transcoding.Service
         _supportIntelHW = false;
       }
 
-      if (TranscodingServicePlugin.IntelHWAccelerationAllowed && _supportIntelHW)
+      if (TranscodingServicePlugin.Settings.IntelHWAccelerationAllowed && _supportIntelHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.IntelHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.IntelHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.Settings.IntelHWMaximumStreams, 
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.IntelHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
         }
       }
-      if (TranscodingServicePlugin.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
+      if (TranscodingServicePlugin.Settings.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.NvidiaHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams, 
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.NvidiaHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
         }
@@ -183,20 +185,21 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static void LoadSettings()
     {
-      _cacheEnabled = TranscodingServicePlugin.CacheEnabled;
-      _cachePath = TranscodingServicePlugin.CachePath;
-      _cacheMaximumSize = TranscodingServicePlugin.CacheMaximumSizeInGB; //GB
-      _cacheMaximumAge = TranscodingServicePlugin.CacheMaximumAgeInDays; //Days
-      _transcoderMaximumThreads = TranscodingServicePlugin.TranscoderMaximumThreads;
-      _transcoderTimeout = TranscodingServicePlugin.TranscoderTimeout;
-      _hlsSegmentTimeInSeconds = TranscodingServicePlugin.HLSSegmentTimeInSeconds;
-      _hlsSegmentFileTemplate = TranscodingServicePlugin.HLSSegmentFileTemplate;
-      _subtitleDefaultLanguage = TranscodingServicePlugin.SubtitleDefaultLanguage;
-      _subtitleDefaultEncoding = TranscodingServicePlugin.SubtitleDefaultEncoding;
+      _cacheEnabled = TranscodingServicePlugin.Settings.CacheEnabled;
+      _cachePath = TranscodingServicePlugin.Settings.CachePath;
+      _cacheMaximumSize = TranscodingServicePlugin.Settings.CacheMaximumSizeInGB; //GB
+      _cacheMaximumAge = TranscodingServicePlugin.Settings.CacheMaximumAgeInDays; //Days
+      _transcoderMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
+      _transcoderTimeout = TranscodingServicePlugin.Settings.TranscoderTimeout;
+      _hlsSegmentTimeInSeconds = TranscodingServicePlugin.Settings.HLSSegmentTimeInSeconds;
+      _hlsSegmentFileTemplate = TranscodingServicePlugin.Settings.HLSSegmentFileTemplate;
+      _subtitleDefaultLanguage = TranscodingServicePlugin.Settings.SubtitleDefaultLanguage;
+      _subtitleDefaultEncoding = TranscodingServicePlugin.Settings.SubtitleDefaultEncoding;
 
-      if (TranscodingServicePlugin.IntelHWAccelerationAllowed && _supportIntelHW)
+      if (TranscodingServicePlugin.Settings.IntelHWAccelerationAllowed && _supportIntelHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.IntelHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.IntelHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.Settings.IntelHWMaximumStreams,
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.IntelHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
         }
@@ -205,9 +208,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         UnregisterHardwareEncoder(EncoderHandler.HardwareIntel);
       }
-      if (TranscodingServicePlugin.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
+      if (TranscodingServicePlugin.Settings.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.NvidiaHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams, 
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.NvidiaHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
         }
