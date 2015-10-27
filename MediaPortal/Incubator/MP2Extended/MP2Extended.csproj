@@ -320,6 +320,7 @@
     <Compile Include="ResourceAccess\WSS\stream\IStreamRequestMicroModuleHandler.cs" />
     <Compile Include="ResourceAccess\WSS\stream\BaseClasses\BaseSendData.cs" />
     <Compile Include="ResourceAccess\WSS\stream\StreamItem.cs" />
+    <Compile Include="Settings\MP2ExtendedSettings.cs" />
     <Compile Include="TAS\Enumerations.cs" />
     <Compile Include="TAS\Misc\BaseClasses\BaseCard.cs" />
     <Compile Include="TAS\Misc\WebCard.cs" />

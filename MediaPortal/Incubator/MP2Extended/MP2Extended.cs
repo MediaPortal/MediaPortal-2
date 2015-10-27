@@ -9,112 +9,35 @@ using MediaPortal.Common.PathManager;
 using System.IO;
 using System.Xml;
 using System;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.MP2Extended.Settings;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
   public class MP2Extended : IPluginStateTracker
   {
-    private const string SETTINGS_FILE = "MediaPortal.Plugins.MP2Extended.Settings.xml";
+    public static MP2ExtendedSettings Settings = new MP2ExtendedSettings();
 
-    public static bool TranscodingAllowed { get; private set; }
-    public static bool HardcodedSubtitlesAllowed { get; private set; }
-
-    public MP2Extended()
-    {
-      TranscodingAllowed = true;
-      HardcodedSubtitlesAllowed = true;
-    }
-    
     private void StartUp()
     {
-      ProfileManager.LoadProfiles(false);
-      ProfileManager.LoadProfiles(true);
-
       Logger.Debug("MP2Extended: Registering HTTP resource access module");
       ServiceRegistration.Get<IResourceServer>().AddHttpModule(new MainRequestHandler());
     }
 
     private void LoadSettings()
     {
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      string dataPath = pathManager.GetPath("<CONFIG>");
-      string settingsFile = Path.Combine(dataPath, SETTINGS_FILE);
-      if (File.Exists(settingsFile) == true)
-      {
-        XmlDocument document = new XmlDocument();
-        document.Load(settingsFile);
-        XmlNode configNode = document.SelectSingleNode("Configuration");
-        XmlNode node = null;
-        if (configNode != null)
-        {
-          node = configNode.SelectSingleNode("Transcoding");
-        }
-        if (node != null)
-        {
-          foreach (XmlNode childNode in node.ChildNodes)
-          {
-            if (childNode.Name == "TranscodingAllowed")
-            {
-              TranscodingAllowed = Convert.ToInt32(childNode.InnerText) > 0;
-            }
-            else if (childNode.Name == "HardcodedSubtitlesAllowed")
-            {
-              HardcodedSubtitlesAllowed = Convert.ToInt32(childNode.InnerText) > 0;
-            }
-          }
-        }
-      }
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      Settings = settingsManager.Load<MP2ExtendedSettings>();
+
+      ProfileManager.Profiles.Clear();
+      ProfileManager.LoadProfiles(false);
+      ProfileManager.LoadProfiles(true);
     }
 
     private void SaveSettings()
     {
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      string dataPath = pathManager.GetPath("<CONFIG>");
-      string settingsFile = Path.Combine(dataPath, SETTINGS_FILE);
-      XmlDocument document = new XmlDocument();
-      if (File.Exists(settingsFile) == true)
-      {
-        document.Load(settingsFile);
-      }
-      XmlNode configNode = document.SelectSingleNode("Configuration");
-      XmlNode node = null;
-      if (configNode != null)
-      {
-        node = configNode.SelectSingleNode("Transcoding");
-        if (node == null)
-        {
-          node = document.CreateElement("Transcoding");
-          configNode.AppendChild(node);
-        }
-      }
-      else
-      {
-        configNode = document.CreateElement("Configuration");
-        document.AppendChild(configNode);
-        node = document.CreateElement("Transcoding");
-        configNode.AppendChild(node);
-      }
-      if (node != null)
-      {
-        node.RemoveAll();
-
-        XmlElement elem = document.CreateElement("TranscodingAllowed");
-        elem.InnerText = Convert.ToString(TranscodingAllowed ? 1 : 0);
-        node.AppendChild(elem);
-        elem = document.CreateElement("HardcodedSubtitlesAllowed");
-        elem.InnerText = Convert.ToString(HardcodedSubtitlesAllowed ? 1 : 0);
-        node.AppendChild(elem);
-      }
-
-      XmlWriterSettings settings = new XmlWriterSettings();
-      settings.Indent = true;
-      settings.IndentChars = "\t";
-      settings.NewLineChars = Environment.NewLine;
-      settings.NewLineHandling = NewLineHandling.Replace;
-      using (XmlWriter writer = XmlWriter.Create(settingsFile, settings))
-      {
-        document.Save(writer);
-      }
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      settingsManager.Save(Settings);
     }
 
     #region IPluginStateTracker

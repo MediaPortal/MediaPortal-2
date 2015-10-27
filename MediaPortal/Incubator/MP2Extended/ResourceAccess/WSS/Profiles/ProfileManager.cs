@@ -47,8 +47,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     private const string DEFAULT_PROFILE_ID = "WebDefault";
     private const string PROFILE_FILE_NAME = "StreamingProfiles.xml";
 
-    public static Dictionary<IPAddress, EndPointSettings> ProfileLinks = new Dictionary<IPAddress, EndPointSettings>();
-    private static EndPointSettings PreferredLanguages;
     public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
 
     public static IPAddress ResolveIpAddress(string address)
@@ -849,7 +847,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     {
       EndPointSettings settings = new EndPointSettings
       {
-        PreferredAudioLanguages = "EN"
+        PreferredAudioLanguages = MP2Extended.Settings.PreferredAudioLanguages
       };
       try
       {
@@ -864,11 +862,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         else if (Profiles.ContainsKey(DEFAULT_PROFILE_ID) == true)
         {
           settings.Profile = Profiles[DEFAULT_PROFILE_ID];
-        }
-
-        if (PreferredLanguages != null)
-        {
-          settings.PreferredAudioLanguages = PreferredLanguages.PreferredAudioLanguages;
         }
       }
       catch (Exception e)
