@@ -98,7 +98,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         info = DlnaVideoMetadata.ParseMediaItem(item);
       }
      
-      if (MediaServerPlugin.TranscodingAllowed == true)
+      if (MediaServerPlugin.Settings.TranscodingAllowed == true)
       {
         if (IsAudio)
         {
@@ -406,7 +406,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
             video.TargetCoder = client.Profile.Settings.Video.CoderType;
 
             video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-            if (MediaServerPlugin.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+            if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
             {
               video.TargetSubtitleSupport = SubtitleSupport.None;
             }
@@ -424,7 +424,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         subtitle.SourceFile = info.Metadata.Source;
         subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
         subtitle.SourceSubtitles.AddRange(info.Subtitles);
-        if (MediaServerPlugin.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+        if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
         {
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
         }

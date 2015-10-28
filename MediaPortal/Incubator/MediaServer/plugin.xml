@@ -23,7 +23,7 @@
 
   <Runtime>
     <Assembly FileName="MediaServer.dll"/>    
-    <PluginStateTracker ClassName="MediaPortal.Extensions.MediaServer.MediaServerPlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.MediaServer.MediaServerPlugin"/>
   </Runtime>
   
 </Plugin>

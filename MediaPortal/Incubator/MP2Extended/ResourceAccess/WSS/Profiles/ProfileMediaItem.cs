@@ -102,7 +102,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         info = WebVideoMetadata.ParseMediaItem(item);
       }
 
-      if (MP2Extended.TranscodingAllowed == true)
+      if (MP2Extended.Settings.TranscodingAllowed == true)
       {
         if (IsAudio)
         {
@@ -410,7 +410,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             video.TargetCoder = client.Profile.Settings.Video.CoderType;
 
             video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-            if (MP2Extended.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+            if (MP2Extended.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
             {
               video.TargetSubtitleSupport = SubtitleSupport.None;
             }
@@ -428,7 +428,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         subtitle.SourceFile = info.Metadata.Source;
         subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
         subtitle.SourceSubtitles.AddRange(info.Subtitles);
-        if (MP2Extended.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+        if (MP2Extended.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
         {
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
         }
