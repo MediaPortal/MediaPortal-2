@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
-        duration = (long)videoAspect[VideoAspect.ATTR_DURATION];
+        duration = videoAspect.GetAttributeValue<long>(VideoAspect.ATTR_DURATION);
 
         // Video Stream
         WebVideoStream webVideoStream = new WebVideoStream();
@@ -87,12 +87,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
             {
               WebAudioStream webAudioStream = new WebAudioStream();
               if (audioChannels != null)
-                webAudioStream.Channels = int.Parse(audioChannels.Cast<string>().ToList().Count < i ? audioChannels.Cast<string>().ToList()[i] : audioChannels.Cast<string>().ToList()[0]);
+              {
+                var audioChannelsList = audioChannels.Cast<string>().ToList();
+                webAudioStream.Channels = int.Parse(audioChannelsList.Count < i ? audioChannelsList[i] : audioChannelsList[0]);
+              }
               if (audioCodecs != null)
                 webAudioStream.Codec = audioCodecs.Cast<string>().ToList().Count < i ? audioCodecs.Cast<string>().ToList()[i] : audioCodecs.Cast<string>().ToList()[0];
               webAudioStream.ID = i;
               webAudioStream.Index = int.Parse(audioStreams.Cast<string>().ToList()[i]);
-              if (audioLanguages != null)
+              if (audioLanguages != null && i < audioLanguages.Cast<string>().ToList().Count)
               {
                 string language = audioLanguages.Cast<string>().ToList()[i] == string.Empty ? UNDEFINED : audioLanguages.Cast<string>().ToList()[i];
                 webAudioStream.Language = language;
@@ -117,7 +120,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
               webSubtitleStream.Filename = "embedded";
               webSubtitleStream.ID = webSubtitleStreams.Count;
               webSubtitleStream.Index = webSubtitleStreams.Count;
-              if (subtitleLanguages != null)
+              if (subtitleLanguages != null && i < subtitleLanguages.Cast<string>().ToList().Count)
               {
                 string language = subtitleLanguages.Cast<string>().ToList()[i] == string.Empty ? UNDEFINED : subtitleLanguages.Cast<string>().ToList()[i];
                 webSubtitleStream.Language = language;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
@@ -23,10 +22,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       string maxWidth = httpParam["maxWidth"].Value;
       string maxHeight = httpParam["maxHeight"].Value;
       string borders = httpParam["borders"].Value;
+      string offset = httpParam["offset"].Value;
 
       bool isSeason = false;
       string showId = string.Empty;
       string seasonId = string.Empty;
+      int offsetInt = 0;
 
       if (id == null)
         throw new BadRequestException("GetArtworkResized: id is null");
@@ -38,8 +39,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new BadRequestException("GetArtworkResized: maxWidth is null");
       if (maxHeight == null)
         throw new BadRequestException("GetArtworkResized: maxHeight is null");
+      if (offset != null)
+        int.TryParse(offset, out offsetInt);
 
-      MapTypes(artworktype, mediatype);
+      FanArtConstants.FanArtType fanartType;
+      FanArtConstants.FanArtMediaType fanArtMediaType;
+      MapTypes(artworktype, mediatype, out fanartType, out fanArtMediaType);
 
       // if teh Id contains a ':' it is a season
       if (id.Contains(":"))
@@ -69,7 +74,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       if (int.TryParse(id, out idInt) && (fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio))
         idGuid = IntToGuid(idInt);
 
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(isSeason ? StringToGuid(id) : idGuid, isTvRadio, maxWidthInt, maxHeightInt, borders, fanartType, fanArtMediaType);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(isSeason ? StringToGuid(id) : idGuid, isTvRadio, maxWidthInt, maxHeightInt, borders, offsetInt, fanartType, fanArtMediaType);
 
       byte[] data;
       if (ImageCache.TryGetImageFromCache(identifier, out data))
@@ -78,22 +83,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         return data;
       }
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio);
+      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, fanartType, fanArtMediaType);
 
-      // get a random FanArt from the List
-      Random rnd = new Random();
-      int r = rnd.Next(fanart.Count);
-      byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(fanart[r].BinaryData, maxWidthInt, maxHeightInt, borders);
+      // get offset
+      if (offsetInt >= fanart.Count)
+      {
+        Logger.Warn("GetArtwork: offset is too big! FanArt: {0} Offset: {1}", fanart.Count, offsetInt);
+        offsetInt = 0;
+      }
+      byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(fanart[offsetInt].BinaryData, maxWidthInt, maxHeightInt, borders);
 
       // Add to cache, but only if it is no dummy image
-      if (fanart[r].Name != NO_FANART_IMAGE_NAME)
+      if (fanart[offsetInt].Name != NO_FANART_IMAGE_NAME)
         if (ImageCache.AddImageToCache(resizedImage, identifier))
           Logger.Info("GetArtworkResized: Added image to cache");
 
       return resizedImage;
     }
 
-    internal static ILogger Logger
+    internal new static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }

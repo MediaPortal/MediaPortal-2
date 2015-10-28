@@ -54,6 +54,7 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserRequestnowplaying.cs" />
     <Compile Include="MessageParser\ParserMovingpictures.cs" />
     <Compile Include="MessageParser\ParserPlaylist.cs" />
     <Compile Include="MessageParser\ParserPosition.cs" />
@@ -68,6 +69,8 @@
     <Compile Include="Messages\MessageNowPlaying.cs" />
     <Compile Include="Messages\MessageNowPlayingBase.cs" />
     <Compile Include="Messages\MessageNowPlayingUpdate.cs" />
+    <Compile Include="Messages\MessagePlaylistDetails.cs" />
+    <Compile Include="Messages\MessagePlaylists.cs" />
     <Compile Include="Messages\MessageProperties.cs" />
     <Compile Include="Messages\MessageStatus.cs" />
     <Compile Include="Messages\MessageVolume.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Messages\Now Playing\NowPlayingTv.cs" />
     <Compile Include="Messages\Now Playing\NowPlayingUpdater.cs" />
     <Compile Include="Messages\Now Playing\NowPlayingVideo.cs" />
+    <Compile Include="Messages\Playlist\PlaylistEntry.cs" />
     <Compile Include="Messages\StatusUpdater.cs" />
     <Compile Include="MP Messages\HandlePlayerMessages.cs" />
     <Compile Include="MP Messages\MPMessageHandler.cs" />

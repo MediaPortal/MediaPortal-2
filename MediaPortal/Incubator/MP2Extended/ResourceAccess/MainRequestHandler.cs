@@ -113,7 +113,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     {
       var uri = request.Uri;
       Guid mediaItemGuid = Guid.Empty;
-      Logger.Debug("MainRequestHandler: Received request {0}", request.Uri);
+      Logger.Info("MainRequestHandler: Received request {0}", request.Uri);
 
       try
       {

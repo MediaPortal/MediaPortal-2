@@ -66,7 +66,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxHeight to int: {0}", maxHeight));
       }
 
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, 0, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
       byte[] resizedImage;
 
       if (ImageCache.TryGetImageFromCache(identifier, out resizedImage))

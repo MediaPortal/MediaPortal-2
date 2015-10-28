@@ -46,10 +46,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       { WebFileType.Poster, FanArtConstants.FanArtType.Poster },
     };
 
-    internal FanArtConstants.FanArtType fanartType;
-    internal FanArtConstants.FanArtMediaType fanArtMediaType;
 
-    internal void MapTypes(string artworktype, string mediatype)
+    internal void MapTypes(string artworktype, string mediatype, out FanArtConstants.FanArtType fanartType, out FanArtConstants.FanArtMediaType fanArtMediaType)
     {
       WebFileType webFileType = (WebFileType)JsonConvert.DeserializeObject(artworktype, typeof(WebFileType));
       WebMediaType webMediaType = (WebMediaType)JsonConvert.DeserializeObject(mediatype, typeof(WebMediaType));
@@ -64,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
         fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
     }
 
-    internal IList<FanArtImage> GetFanArtImages(string id, string showId, string seasonId, bool isSeason, bool isTvRadio)
+    internal IList<FanArtImage> GetFanArtImages(string id, string showId, string seasonId, bool isSeason, bool isTvRadio, FanArtConstants.FanArtType fanartType, FanArtConstants.FanArtMediaType fanArtMediaType)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -121,12 +119,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
           IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
           IChannel channel;
           int idInt = int.Parse(id);
-          channelAndGroupInfo.GetChannel(idInt, out channel);
-          name = channel.Name;
+          if (channelAndGroupInfo.GetChannel(idInt, out channel))
+            name = channel.Name;
         }
       }
 
-      IList<FanArtImage> fanart = ServiceRegistration.Get<IFanArtService>().GetFanArt(fanArtMediaType, fanartType, name, 0, 0, true);
+      IList<FanArtImage> fanart = ServiceRegistration.Get<IFanArtService>().GetFanArt(fanArtMediaType, fanartType, name, 0, 0, false);
 
       if (fanart == null || fanart.Count == 0)
       {

@@ -21,7 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasse
           EndTime = schedule.EndTime,
           StartTime = schedule.StartTime,
           PostRecordInterval = Convert.ToInt32(schedule.PostRecordInterval.TotalMinutes),
-          PreRecordInterval = Convert.ToInt32(schedule.PostRecordInterval),
+          PreRecordInterval = Convert.ToInt32(schedule.PostRecordInterval.TotalMinutes),
           ScheduleType = ConvertTo<WebScheduleType>(schedule.RecordingType),
           Priority = (int)schedule.Priority,
           KeepMethod = ConvertTo<WebScheduleKeepMethod>(schedule.KeepMethod),

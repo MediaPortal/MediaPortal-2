@@ -59,8 +59,8 @@ namespace MediaPortal.Plugins.WifiRemote
       /*{ "image", new Func<int, int, int>(Func1) },
       { "screenshot", new Func<int, int, int>(Func1) },*/
       { "playlist", ParserPlaylist.Parse },
-      /*{ "requeststatus", new Func<int, int, int>(Func1) },
-      { "requestnowplaying", new Func<int, int, int>(Func1) },*/
+      //{ "requeststatus", new Func<int, int, int>(Func1) },
+      { "requestnowplaying", ParserRequestnowplaying.Parse },
       { "movingpictures", ParserMovingpictures.Parse },
       /*{ "tvseries", new Func<int, int, int>(Func1) },
       { "message", new Func<int, int, int>(Func1) },
