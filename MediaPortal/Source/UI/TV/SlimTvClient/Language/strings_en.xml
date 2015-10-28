@@ -2,7 +2,7 @@
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
   <string name="SlimTvClient.Main">TV</string>
-  <string name="SlimTvClient.Main.Help">Here you can watch your favourite TV programs and switch between the channels.</string>
+  <string name="SlimTvClient.Main.Help">Here you can watch your favourite TV and Radio programs and switch between the channels.</string>
   <string name="SlimTvClient.TvGuide">TV Guide</string>
   <string name="SlimTvClient.TvGuide.Help">Browse your Electronic Program Guide and select the programs you like to watch or schedule for recording.</string>
   <string name="SlimTvClient.SingleChannelGuide">Channel Guide</string>
