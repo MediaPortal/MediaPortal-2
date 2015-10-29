@@ -5,6 +5,7 @@ using HttpServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
