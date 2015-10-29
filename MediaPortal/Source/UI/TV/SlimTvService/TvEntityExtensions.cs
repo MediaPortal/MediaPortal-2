@@ -61,6 +61,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Classification = tvProgram.Classification,
         ParentalRating = tvProgram.ParentalRating,
         StarRating = tvProgram.StarRating
+        SeasonNumber = tvProgram.SeriesNum,
+        EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeTitle = tvProgram.EpisodeName
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -153,6 +156,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
           Classification = tvProgram.Classification,
           ParentalRating = tvProgram.ParentalRating,
           StarRating = tvProgram.StarRating
+          SeasonNumber = tvProgram.SeriesNum,
+          EpisodeNumber = tvProgram.EpisodeNum,
+          EpisodeTitle = tvProgram.EpisodeName
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);

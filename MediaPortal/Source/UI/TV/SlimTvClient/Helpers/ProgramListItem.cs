@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 
@@ -100,7 +103,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       SetLabel("Title", program.Title);
       SetLabel("StartTime", program.StartTime.FormatProgramTime());
       SetLabel("EndTime", program.EndTime.FormatProgramTime());
+      SetLabel("Series", BuildSeriesText(program));
       Update();
+    }
+
+    private string BuildSeriesText(ProgramProperties program)
+    {
+      if (string.IsNullOrEmpty(program.SeasonNumber) && string.IsNullOrEmpty(program.EpisodeNumber) || !ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().ShowSeriesInfo)
+        return null;
+
+      return string.Format("({0}{1}{2} {3})", program.SeasonNumber, string.IsNullOrEmpty(program.SeasonNumber) ? "" : ".", program.EpisodeNumber, program.EpisodeTitle);
     }
 
     /// <summary>

@@ -45,6 +45,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty EndTimeProperty { get; set; }
     public AbstractProperty RemainingDurationProperty { get; set; }
     public AbstractProperty GenreProperty { get; set; }
+    public AbstractProperty SeasonNumberProperty { get; set; }
+    public AbstractProperty EpisodeNumberProperty { get; set; }
+    public AbstractProperty EpisodeTitleProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -128,6 +131,33 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { ProgramIdProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Gets or Sets the SeasonNumber.
+    /// </summary>
+    public String SeasonNumber
+    {
+      get { return (String)SeasonNumberProperty.GetValue(); }
+      set { SeasonNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets the EpisodeNumber.
+    /// </summary>
+    public String EpisodeNumber
+    {
+      get { return (String)EpisodeNumberProperty.GetValue(); }
+      set { EpisodeNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets the EpisodeTitle.
+    /// </summary>
+    public String EpisodeTitle
+    {
+      get { return (String)EpisodeTitleProperty.GetValue(); }
+      set { EpisodeTitleProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
       ProgramIdProperty = new WProperty(typeof(int), 0);
@@ -139,6 +169,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       StartTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       EndTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       RemainingDurationProperty = new WProperty(typeof(int), 0);
+      EpisodeNumberProperty = new WProperty(typeof(String), String.Empty);
+      SeasonNumberProperty = new WProperty(typeof(String), String.Empty);
+      EpisodeTitleProperty = new WProperty(typeof(String), String.Empty);
       Attach();
     }
 
@@ -170,6 +203,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       try
       {
         _settingProgram = true;
+        IProgramSeries series = program as IProgramSeries;
+        if (series != null)
+        {
+          SeasonNumber = series.SeasonNumber;
+          EpisodeNumber = series.EpisodeNumber;
+          EpisodeTitle = series.EpisodeTitle;
+        }
+        else
+        {
+          SeasonNumber = string.Empty;
+          EpisodeNumber = string.Empty;
+          EpisodeTitle = string.Empty;
+        }
         if (program != null)
         {
           ProgramId = program.ProgramId;

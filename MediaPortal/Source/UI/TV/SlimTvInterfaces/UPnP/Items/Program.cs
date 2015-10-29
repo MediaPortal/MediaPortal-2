@@ -31,7 +31,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
-  public class Program : IProgramRecordingStatus
+  public class Program : IProgramRecordingStatus, IProgramSeries
   {
     private static XmlSerializer _xmlSerializer;
 
@@ -50,6 +50,9 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public int ParentalRating { get; set; }
     public int StarRating { get; set; }
     public RecordingStatus RecordingStatus { get; set; }
+    public string SeasonNumber { get; set; }
+    public string EpisodeNumber { get; set; }
+    public string EpisodeTitle { get; set; }
     public bool IsScheduled { get; set; }
     public bool HasConflict { get; set; }
 
