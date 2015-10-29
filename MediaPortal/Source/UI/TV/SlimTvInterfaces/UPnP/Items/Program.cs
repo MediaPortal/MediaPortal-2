@@ -50,6 +50,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public int ParentalRating { get; set; }
     public int StarRating { get; set; }
     public RecordingStatus RecordingStatus { get; set; }
+    public bool IsScheduled { get; set; }
     public bool HasConflict { get; set; }
 
     #endregion
