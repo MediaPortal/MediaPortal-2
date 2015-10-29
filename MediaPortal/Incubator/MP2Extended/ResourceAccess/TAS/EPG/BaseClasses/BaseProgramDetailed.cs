@@ -45,16 +45,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         SeriesNum = programSeries.SeasonNumber,
         EpisodeNum = programSeries.EpisodeNumber,
         EpisodeName = programSeries.EpisodeTitle,
+        EpisodeNumber = programSeries.EpisodeNumberDetailed,
+        EpisodePart = programSeries.EpisodePart,
       };
 
-      /*webProgramDetailed.Classification;
-      webProgramDetailed.EpisodeNumber;
-      webProgramDetailed.EpisodePart;
-      webProgramDetailed.EpisodePart;*/
-      /*webProgramDetailed.HasConflict;
-      webProgramDetailed.IsChanged;
-      webProgramDetailed.IsPartialRecordingSeriesPending;
-      webProgramDetailed.IsRecordingManual;*/
+      //webProgramDetailed.IsPartialRecordingSeriesPending;
 
       return webProgramDetailed;
     }
