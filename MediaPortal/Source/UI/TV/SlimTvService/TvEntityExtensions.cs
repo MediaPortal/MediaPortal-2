@@ -59,16 +59,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EndTime = tvProgram.EndTime,
         SeasonNumber = tvProgram.SeriesNum,
         EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeNumberDetailed = tvProgram.EpisodeNumber,
+        EpisodePart = tvProgram.EpisodePart,
         EpisodeTitle = tvProgram.EpisodeName,
         OriginalAirDate = tvProgram.OriginalAirDate,
         Classification = tvProgram.Classification,
         ParentalRating = tvProgram.ParentalRating,
         StarRating = tvProgram.StarRating,
-        SeasonNumber = tvProgram.SeriesNum,
-        EpisodeNumber = tvProgram.EpisodeNum,
-        EpisodeNumberDetailed = tvProgram.EpisodeNumber,
-        EpisodePart = tvProgram.EpisodePart,
-        EpisodeTitle = tvProgram.EpisodeName
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -160,15 +157,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
           SeasonNumber = tvProgram.SeriesNum,
           EpisodeNumber = tvProgram.EpisodeNum,
           EpisodeTitle = tvProgram.EpisodeName,
+          EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
+          EpisodePart = tvProgram.EpisodePart,
           OriginalAirDate = tvProgram.OriginalAirDate,
           Classification = tvProgram.Classification,
           ParentalRating = tvProgram.ParentalRating,
           StarRating = tvProgram.StarRating,
-          SeasonNumber = tvProgram.SeriesNum,
-          EpisodeNumber = tvProgram.EpisodeNum,
-          EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
-          EpisodePart = tvProgram.EpisodePart,
-          EpisodeTitle = tvProgram.EpisodeName
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
