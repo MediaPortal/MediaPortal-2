@@ -114,6 +114,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             if (!HasVideoExtension(filePath))
               return false;
             MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
+            if (metadata.Metadata.Mime == null) metadata.Metadata.Mime = "Video/Unknown";
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);

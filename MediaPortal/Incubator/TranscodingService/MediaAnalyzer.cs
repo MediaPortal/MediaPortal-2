@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -34,6 +34,7 @@ using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -116,7 +117,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
-        info.Metadata.Mime = MimeTypeDetector.GetMimeType(fileName);
+        info.Metadata.Mime = MimeDetector.GetFileMime(lfsra);
         info.Metadata.Size = lfsra.Size;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
         FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
@@ -150,7 +151,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
-        info.Metadata.Mime = MimeTypeDetector.GetMimeType(streamLink.URL);
+        info.Metadata.Mime = MimeDetector.GetUrlMime(streamLink.URL);
         info.Metadata.Size = 0;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
         FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);

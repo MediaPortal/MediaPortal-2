@@ -120,6 +120,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             if (!HasImageExtension(fileName))
               return false;
             MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
+            if (metadata.Metadata.Mime == null) metadata.Metadata.Mime = "Image/Unknown";
             if (metadata.IsImage)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);

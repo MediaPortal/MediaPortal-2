@@ -121,25 +121,13 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             if (!HasAudioExtension(fileName))
               return false;
             MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
+            if (metadata.Metadata.Mime == null) metadata.Metadata.Mime = "Audio/Unknown";
             if (metadata.IsAudio)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
               return true;
             }
           }
-          /*using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-            {
-              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
-              {
-                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
-                if (metadata.IsAudio)
-                {
-                  ConvertMetadataToAspectData(metadata, extractedAspectData);
-                  return true;
-                }
-              }
-            }
-          }*/
         }
         else if (mediaItemAccessor is INetworkResourceAccessor)
         {
