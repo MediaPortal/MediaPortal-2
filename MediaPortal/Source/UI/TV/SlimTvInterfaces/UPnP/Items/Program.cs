@@ -53,6 +53,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public string SeasonNumber { get; set; }
     public string EpisodeNumber { get; set; }
     public string EpisodeTitle { get; set; }
+    public bool IsScheduled { get; set; }
     public bool HasConflict { get; set; }
 
     #endregion
