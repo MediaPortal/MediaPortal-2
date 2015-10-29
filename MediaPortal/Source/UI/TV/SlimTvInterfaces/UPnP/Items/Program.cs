@@ -52,6 +52,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public RecordingStatus RecordingStatus { get; set; }
     public string SeasonNumber { get; set; }
     public string EpisodeNumber { get; set; }
+    public string EpisodeNumberDetailed { get; set; }
+    public string EpisodePart { get; set; }
     public string EpisodeTitle { get; set; }
     public bool IsScheduled { get; set; }
     public bool HasConflict { get; set; }

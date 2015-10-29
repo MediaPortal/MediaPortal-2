@@ -60,9 +60,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
         OriginalAirDate = tvProgram.OriginalAirDate,
         Classification = tvProgram.Classification,
         ParentalRating = tvProgram.ParentalRating,
-        StarRating = tvProgram.StarRating
+        StarRating = tvProgram.StarRating,
         SeasonNumber = tvProgram.SeriesNum,
         EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeNumberDetailed = tvProgram.EpisodeNumber,
+        EpisodePart = tvProgram.EpisodePart,
         EpisodeTitle = tvProgram.EpisodeName
       };
 
@@ -155,9 +157,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
           OriginalAirDate = tvProgram.OriginalAirDate,
           Classification = tvProgram.Classification,
           ParentalRating = tvProgram.ParentalRating,
-          StarRating = tvProgram.StarRating
+          StarRating = tvProgram.StarRating,
           SeasonNumber = tvProgram.SeriesNum,
           EpisodeNumber = tvProgram.EpisodeNum,
+          EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
+          EpisodePart = tvProgram.EpisodePart,
           EpisodeTitle = tvProgram.EpisodeName
         };
 
