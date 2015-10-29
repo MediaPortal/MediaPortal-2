@@ -146,9 +146,7 @@
     <Compile Include="SlimTvService3.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="plugin.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="plugin.xml" />
     <Content Include="References\Castle.Core.dll" />
     <Content Include="References\Castle.Windsor.dll" />
     <Content Include="SetupTV.ico" />
