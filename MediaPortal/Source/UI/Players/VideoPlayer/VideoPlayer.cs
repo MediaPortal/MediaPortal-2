@@ -202,7 +202,7 @@ namespace MediaPortal.UI.Players.Video
       int hr = EvrInit(_evrCallback, (uint)upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
       if (hr != 0)
       {
-        EvrDeinit(_presenterInstance);
+        SafeEvrDeinit();
         FilterGraphTools.TryRelease(ref _evr);
         throw new VideoPlayerException("Initializing of EVR failed");
       }
@@ -242,7 +242,7 @@ namespace MediaPortal.UI.Players.Video
       ReleaseStreamSelectors();
 
       // Free EVR
-      EvrDeinit(_presenterInstance);
+      SafeEvrDeinit();
       FreeEvrCallback();
       FilterGraphTools.TryRelease(ref _evr);
 
@@ -254,6 +254,17 @@ namespace MediaPortal.UI.Players.Video
 
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder, true);
+    }
+
+    /// <summary>
+    /// Helper method to deinit the EVR instance. This method checks if the deinit has happened before to avoid access violations.
+    /// </summary>
+    protected void SafeEvrDeinit()
+    {
+      if (_presenterInstance == IntPtr.Zero)
+        return;
+      EvrDeinit(_presenterInstance);
+      _presenterInstance = IntPtr.Zero;
     }
 
     #endregion
@@ -662,7 +673,7 @@ namespace MediaPortal.UI.Players.Video
         FilterGraphTools.TryRelease(ref _evr);
       }
 
-      EvrDeinit(_presenterInstance);
+      SafeEvrDeinit();
       FreeEvrCallback();
     }
 
