@@ -28,12 +28,14 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -45,6 +47,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Fields
 
     protected ISchedule _selectedSchedule;
+    protected AbstractProperty _scheduleSeriesModeProperty = null;
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _scheduleNameProperty = null;
     protected AbstractProperty _scheduleTypeProperty = null;
@@ -55,6 +58,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #endregion
 
     #region GUI properties and methods
+
+    /// <summary>
+    /// Enables series schedule mode (<c>true</c>) or shows all single upcoming programs (<c>false</c>).
+    /// </summary>
+    public bool ScheduleSeriesMode
+    {
+      get { return (bool)_scheduleSeriesModeProperty.GetValue(); }
+      set { _scheduleSeriesModeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Enables series schedule mode (<c>true</c>) or shows all single upcoming programs (<c>false</c>).
+    /// </summary>
+    public AbstractProperty ScheduleSeriesModeProperty
+    {
+      get { return _scheduleSeriesModeProperty; }
+    }
 
     /// <summary>
     /// Exposes the current channel name to the skin.
@@ -180,6 +200,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
     #endregion
 
+    private void ToggleSeriesMode(AbstractProperty property, object oldvalue)
+    {
+      LoadSchedules();
+    }
+
     protected void LoadSchedules()
     {
       UpdateScheduleDetails(null);
@@ -191,36 +216,150 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       _schedulesList.Clear();
-      foreach (ISchedule schedule in schedules)
+
+      // Temporary list for sorting
+      List<ListItem> sortList = new List<ListItem>();
+      Comparison<ListItem> sortMode;
+
+      if (!ScheduleSeriesMode)
       {
-        ISchedule currentSchedule = schedule;
-        ListItem item = new ListItem("Name", schedule.Name)
+        Dictionary<ISchedule, IList<IProgram>> allPrograms = new Dictionary<ISchedule, IList<IProgram>>();
+        // Load all series type schedules and their programs which will be recorded.
+        foreach (ISchedule schedule in schedules)
         {
-          Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
-        };
-        IChannel channel;
-        if(_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
-          item.SetLabel("ChannelName", channel.Name);
-        item.SetLabel("StartTime", schedule.StartTime.FormatProgramTime());
-        item.SetLabel("EndTime", schedule.EndTime.FormatProgramTime());
-        item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
-        item.AdditionalProperties["SCHEDULE"] = currentSchedule;
-        _schedulesList.Add(item);
+          IList<IProgram> schedulePrograms;
+          if (!_tvHandler.ScheduleControl.GetProgramsForSchedule(schedule, out schedulePrograms))
+            continue;
+
+          allPrograms[schedule] = schedulePrograms;
+        }
+
+        foreach (var schedule in allPrograms.Keys)
+        {
+          foreach (var program in allPrograms[schedule])
+          {
+            var item = CreateProgramItem(program, schedule);
+            sortList.Add(item);
+          }
+        }
+
+        sortMode = ProgramStartTimeComparison;
       }
+      else
+      {
+        foreach (ISchedule schedule in schedules)
+        {
+          var item = CreateScheduleItem(schedule);
+          sortList.Add(item);
+        }
+
+        sortMode = ChannelAndProgramStartTimeComparison;
+      }
+      sortList.Sort(sortMode);
+      CollectionUtils.AddAll(_schedulesList, sortList);
       _schedulesList.FireChange();
     }
 
-    private void ShowActions(ISchedule currentSchedule)
+    /// <summary>
+    /// Default sorting for single programs: first by <see cref="IProgram.StartTime"/>, then by <see cref="IChannel.Name"/>.
+    /// </summary>
+    private int ProgramStartTimeComparison(ListItem p1, ListItem p2)
+    {
+      var program1 = ((IProgram)p1.AdditionalProperties["PROGRAM"]);
+      var program2 = ((IProgram)p2.AdditionalProperties["PROGRAM"]);
+      int res = DateTime.Compare(program1.StartTime, program2.StartTime);
+      if (res != 0)
+        return res;
+
+      IChannel channel1;
+      IChannel channel2;
+      if (_tvHandler.ChannelAndGroupInfo.GetChannel(program1.ChannelId, out channel1) &&
+          _tvHandler.ChannelAndGroupInfo.GetChannel(program2.ChannelId, out channel2))
+        return String.CompareOrdinal(channel1.Name, channel2.Name);
+
+      return 0;
+    }
+
+    /// <summary>
+    /// Default sorting for single programs: first by <see cref="ISchedule.RecordingType"/>=="Once", then <see cref="ISchedule.Name"/>, then by <see cref="IChannel.Name"/>.
+    /// </summary>
+    private int ChannelAndProgramStartTimeComparison(ListItem p1, ListItem p2)
+    {
+      var schedule1 = ((ISchedule)p1.AdditionalProperties["SCHEDULE"]);
+      var schedule2 = ((ISchedule)p2.AdditionalProperties["SCHEDULE"]);
+
+      // The "Once" schedule should appear first
+      if (schedule1.RecordingType == ScheduleRecordingType.Once && schedule2.RecordingType != ScheduleRecordingType.Once)
+        return -1;
+      if (schedule1.RecordingType != ScheduleRecordingType.Once && schedule2.RecordingType == ScheduleRecordingType.Once)
+        return +1;
+
+      int res;
+      if (schedule1.RecordingType == ScheduleRecordingType.Once && schedule2.RecordingType == ScheduleRecordingType.Once)
+      {
+        res = DateTime.Compare(schedule1.StartTime, schedule2.StartTime);
+        if (res != 0)
+          return res;
+      }
+
+      res = String.CompareOrdinal(schedule1.Name, schedule2.Name);
+      if (res != 0)
+        return res;
+
+      IChannel channel1;
+      IChannel channel2;
+      if (_tvHandler.ChannelAndGroupInfo.GetChannel(schedule1.ChannelId, out channel1) &&
+          _tvHandler.ChannelAndGroupInfo.GetChannel(schedule2.ChannelId, out channel2))
+        return String.CompareOrdinal(channel1.Name, channel2.Name);
+      return 0;
+    }
+
+    private ListItem CreateScheduleItem(ISchedule schedule)
+    {
+      ISchedule currentSchedule = schedule;
+      ListItem item = new ListItem("Name", schedule.Name)
+      {
+        Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
+      };
+      IChannel channel;
+      if (_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
+        item.SetLabel("ChannelName", channel.Name);
+      item.SetLabel("StartTime", schedule.StartTime.FormatProgramTime());
+      item.SetLabel("EndTime", schedule.EndTime.FormatProgramTime());
+      item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
+      item.AdditionalProperties["SCHEDULE"] = currentSchedule;
+      return item;
+    }
+
+    private ListItem CreateProgramItem(IProgram program, ISchedule schedule)
+    {
+      IProgram currentProgram = program;
+      ListItem item = new ListItem("Name", currentProgram.Title)
+      {
+        Command = new MethodDelegateCommand(() => ShowActions(schedule, program))
+      };
+      IChannel channel;
+      if (_tvHandler.ChannelAndGroupInfo.GetChannel(currentProgram.ChannelId, out channel))
+        item.SetLabel("ChannelName", channel.Name);
+      item.SetLabel("StartTime", currentProgram.StartTime.FormatProgramTime());
+      item.SetLabel("EndTime", currentProgram.EndTime.FormatProgramTime());
+      item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
+      item.AdditionalProperties["PROGRAM"] = currentProgram;
+      item.AdditionalProperties["SCHEDULE"] = schedule;
+      return item;
+    }
+
+    private void ShowActions(ISchedule currentSchedule, IProgram program = null)
     {
       DialogHeader = currentSchedule.Name;
       _dialogActionsList.Clear();
 
-      ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
+      ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries && program == null ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
       {
         Command = new MethodDelegateCommand(() => DeleteSchedule(currentSchedule))
       };
       _dialogActionsList.Add(item);
-      if (currentSchedule.IsSeries)
+      if (currentSchedule.IsSeries && program == null)
       {
         item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
         {
@@ -251,6 +390,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (!_isInitialized)
       {
+        _scheduleSeriesModeProperty = new WProperty(typeof(bool), false);
+        _scheduleSeriesModeProperty.Attach(ToggleSeriesMode);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleTypeProperty = new WProperty(typeof(string), string.Empty);
@@ -263,14 +404,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void Update()
     {
     }
-
-    //protected override void UpdateCurrentChannel()
-    //{
-    //}
-
-    //protected override void UpdatePrograms()
-    //{
-    //}
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {

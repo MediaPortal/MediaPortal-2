@@ -25,10 +25,18 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ListView Grid.Column="0" 
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+          <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
+              Content="{Binding}" />
+          <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="5"/>
+        </StackPanel>
+
+        <ListView Grid.Column="0" Grid.Row="1"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ScheduleListViewStyle}"
               ItemsSource="{Binding Path=SchedulesList}"
@@ -38,7 +46,7 @@
           </ListView.Resources>
         </ListView>
 
-        <GroupBox  Grid.Column="1" Header="[SlimTvClient.ScheduleDetails]" Style="{ThemeResource ContentGroupBoxStyle}">
+        <GroupBox Grid.Column="1" Grid.RowSpan="2" Header="[SlimTvClient.ScheduleDetails]" Style="{ThemeResource ContentGroupBoxStyle}">
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
