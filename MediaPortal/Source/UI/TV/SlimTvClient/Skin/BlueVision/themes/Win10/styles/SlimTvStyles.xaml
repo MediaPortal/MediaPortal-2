@@ -560,7 +560,14 @@
             </Grid.RenderTransform>
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-          </Grid> 
+          </Grid>
+
+            <ControlTemplate.Triggers>
+              <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                <Setter TargetName="Item1" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
+              </DataTrigger>
+            </ControlTemplate.Triggers>
+
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -582,9 +589,9 @@
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemBG1" Property="Background" Value="#003366"/>
-                <Setter TargetName="ItemBG2" Property="Background" Value="#003366"/>
-                <Setter TargetName="ItemBG3" Property="Background" Value="#003366"/>
+                <Setter TargetName="Item1" Property="Background" Value="#003366"/>
+                <Setter TargetName="Item2" Property="Background" Value="#003366"/>
+                <Setter TargetName="Item3" Property="Background" Value="#003366"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -604,7 +611,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="-10,0,-10,0" Style="{ThemeResource TVButtonWideStyle}"
+          <Button Margin="0,0,0,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -632,7 +639,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="-10,0,-10,0" Style="{ThemeResource TVButtonWideStyle}"
+          <Button Margin="0,0,0,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -711,11 +718,11 @@
         </TransformGroup>
       </Grid.RenderTransform>
 
-      <Border x:Name="ItemBG1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
               Background="#33000000" BorderThickness="0" Margin="0,-5,5,-5"/>
-      <Border x:Name="ItemBG2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="#33000000" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="ItemBG3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="#33000000" BorderThickness="0" Margin="-10,-5,-15,-5"/>
       
       <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
@@ -745,7 +752,7 @@
   <DataTemplate x:Key="ExtScheduleItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="430"/>
+        <ColumnDefinition Width="630"/>
         <ColumnDefinition Width="630"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -764,11 +771,11 @@
                                       fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
         </Image>
-        <Label x:Name="ChannelText" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" Wrap="True"
+        <Label x:Name="ChannelText" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" 
                FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center"/>
       </StackPanel>
 
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto"
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Scroll="Auto"
              FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="2" >
@@ -776,7 +783,7 @@
                Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}"/>
         <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}" VerticalAlignment="Center" />
         <Label x:Name="ProgramEnd" Content="{Binding [EndTime]}" VerticalAlignment="Center" Margin="0,0,10,0"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Wrap="True" Scroll="Auto"/>
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto"/>
       </StackPanel>
     </Grid>
   </DataTemplate>
@@ -786,7 +793,7 @@
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="430"/>
-        <ColumnDefinition Width="630"/>
+        <ColumnDefinition Width="550"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="400"/>
       </Grid.ColumnDefinitions>
@@ -807,22 +814,22 @@
                                       fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
         </Image>
-        <Label x:Name="ChannelText" Scroll="Auto" Content="{Binding [ChannelName]}" Color="{ThemeResource TextColor}" Wrap="True"
-               FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center"/>
+        <Label x:Name="ChannelText" Scroll="Auto" Content="{Binding [ChannelName]}" Color="{ThemeResource TextColor}"
+               FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
       </StackPanel>
       
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto"
-             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center"/>
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Scroll="Auto"
+             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
-      <Label x:Name="TypeLabel" Grid.Column="2" Content="{Binding [ScheduleType]}" VerticalAlignment="Center" Wrap="True" Scroll="Auto"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" />
+      <Label x:Name="TypeLabel" Grid.Column="2" Content="{Binding [ScheduleType]}" VerticalAlignment="Center" Scroll="Auto"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" HorizontalAlignment="Stretch" />
 
       <StackPanel Orientation="Horizontal" Grid.Column="3" >
         <Label x:Name="ProgramStart" Margin="10,0,0,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}"/>
         <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}" VerticalAlignment="Center" />
         <Label x:Name="ProgramEnd" Content="{Binding [EndTime]}" VerticalAlignment="Center" Margin="0,0,10,0"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Wrap="True" Scroll="Auto"/>
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto"/>
       </StackPanel>
     </Grid>
   </DataTemplate>
@@ -833,8 +840,7 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ScheduleItemContainerStyle}"/>
   </Style>
 
-  <!-- SingleProgramGuideListViewStyle is used for Single Channel Guide-->
-  <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource TVListViewStyle}">
+  <Style x:Key="ExtScheduleListViewStyle" BasedOn="{ThemeResource TVListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ExtScheduleItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ExtScheduleItemContainerStyle}"/>
   </Style>

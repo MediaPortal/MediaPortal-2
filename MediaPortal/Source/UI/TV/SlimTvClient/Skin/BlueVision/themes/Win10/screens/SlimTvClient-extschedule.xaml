@@ -77,8 +77,8 @@
         </StackPanel>
 
         <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-              Margin="10,0,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SingleProgramGuideListViewStyle}"
+              Margin="0,0,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ExtScheduleListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
