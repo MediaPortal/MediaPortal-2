@@ -557,6 +557,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool RemoveSchedule(ISchedule schedule)
     {
       TvDatabase.Schedule tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
+      // Already deleted somewhere else?
+      if (tvSchedule == null)
+        return true;
       _tvControl.StopRecordingSchedule(tvSchedule.IdSchedule);
       // delete canceled schedules first
       foreach (var cs in CanceledSchedule.ListAll().Where(x => x.IdSchedule == tvSchedule.IdSchedule))
