@@ -22,11 +22,11 @@
         </Trigger.Setters>
       </Trigger>
     </Grid.Triggers-->
-    <StackPanel Margin="0,0,20,0" Orientation="Horizontal" Context="{Service Window}">
-      <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="0,0,0,0"
+    <StackPanel Margin="0,0,30,0" Orientation="Horizontal" Context="{Service Window}">
+      <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="0,-20,0,20"
               HorizontalAlignment="Left"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="-5,0,5,0"
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="2,-12,5,0"
           HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
     </StackPanel>
   </Grid> <!-- WindowButtonsPanel -->

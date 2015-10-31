@@ -17,7 +17,7 @@
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" LastChildFill="true">
 
           <!-- Feeds -->
-          <ListView x:Name="newslist" Margin="-30, 0,-40, 50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <ListView x:Name="newslist" Margin="-85, 0,-40, 50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsFeedsContainerStyle}" DockPanel.Dock="Center" CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}" 
               ItemsSource="{Binding Path=Feeds}" >
             <ListView.Resources>
@@ -30,7 +30,7 @@
           <!-- Updating Overlay -->
           <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
                  Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-20,625,0,-625" >
+          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-85,625,-70,-625" >
             <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
               <Label Color="{ThemeResource TextColor}" Content="{Binding Path=Items.Count}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
                      VerticalAlignment="Stretch" HorizontalAlignment="Right"/>

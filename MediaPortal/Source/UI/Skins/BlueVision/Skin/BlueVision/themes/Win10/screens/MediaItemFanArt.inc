@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:emufanart="clr-namespace:Emulators.Fanart;assembly=Emulators"
   x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="{DynamicResource Cover_Width}"
   Margin="-25,-30,-80,40">
 
@@ -16,12 +17,16 @@
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <emufanart:GameImageSourceConverter x:Key="GameImageSourceConverter"/>
   </Grid.Resources>
  
   <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="380" Height="555"
          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;555}">
   </Image>
-
+  <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="380" Height="555"
+          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource GameImageSourceConverter}, ConverterParameter=Poster;380;555}">
+  </Image>
+  
 </Grid>
 
 

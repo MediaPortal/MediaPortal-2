@@ -40,8 +40,8 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="10,10,5,10">
-      <Border BorderThickness="0" CornerRadius="0" BorderBrush="Black" Background="Black" Opacity="0.5" Width="321" Height="250"/>
+    <Grid Margin="5,10,5,10">
+      <Border BorderThickness="0" CornerRadius="0" BorderBrush="Black" Background="#505050" Opacity="1" Width="348.7" Height="270"/>
       <StackPanel VerticalAlignment="Center" Margin="20" HorizontalAlignment="Center">
         <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">

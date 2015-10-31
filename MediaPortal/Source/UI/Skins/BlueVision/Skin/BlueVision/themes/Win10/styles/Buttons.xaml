@@ -382,7 +382,6 @@
               Opacity="0"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
               Margin="-82,0,-53,0" Fill="#003366" Stroke="#213848" StrokeThickness="0">
-            <!--Margin="-61,0,-101,0" Fill="#003366" Stroke="#213848" StrokeThickness="0"-->
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -577,7 +576,6 @@
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Rectangle.Fill>
-            <!--Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1"-->
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -793,12 +791,9 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-
             <!-- Embedded symbol  -->
             <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
           </Grid>
-
-
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
@@ -830,8 +825,47 @@
       </Setter.Value>
     </Setter>
   </Style>
+  
+  <Style x:Key="BaseWindowButtonStyle_FocusFrame" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" Margin="8" Opacity="0.6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <!-- Embedded symbol  -->
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-  <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
+  <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle_FocusFrame}"/>
 
   <!-- Dark version of player buttons -->
   <Style x:Key="PlayDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
@@ -893,7 +927,8 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                      IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=!IsMuted}"/>
             <Control x:Name="AudioMute" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -908,15 +943,6 @@
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-            <!--<Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>-->
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
@@ -947,7 +973,8 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -959,15 +986,6 @@
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-            <!--<Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>-->
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
@@ -999,7 +1017,6 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
             <Control x:Name="Audio" Template="{ThemeResource AudioActiveDarkControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                      IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=!IsMuted}"/>
             <Control x:Name="AudioMute" Template="{ThemeResource AudioInactiveDarkControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -1044,7 +1061,6 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
             <Control x:Name="Audio" Template="{ThemeResource AudioInactiveDarkControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -1056,15 +1072,6 @@
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-            <!--<Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>-->
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
@@ -1083,8 +1090,11 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Path x:Name="ButtonControlRectangle" Height="45" Stretch="UniformToFill" StrokeLineJoin="Round" Fill="Black" Opacity="0.4"
-                Data="F1 M 672,256L 672,221C 672,204.984 659.016,192 643,192L 317,192C 300.984,192 288,204.984 288,221L 288,256"/>
+          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.50">
+            <Border.Background>
+              <SolidColorBrush Color="#666666"/>
+            </Border.Background>
+          </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1122,7 +1132,7 @@
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/>
+              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.9"/>
               <!--Setter Property="Foreground" Value="White"/-->
               <Trigger.EnterActions>
                 <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"/-->
@@ -1144,6 +1154,12 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle_FocusFrame}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
+    </Style.Resources>
   </Style>
 
   <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">

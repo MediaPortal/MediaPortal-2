@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
+ 
+    <ControlTemplate x:Key="Contents_Template">
+      <mp_special_controls:PlayerControl Margin="10" PlayerContext="CurrentPlayer">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid Margin="-85,18,-85,32" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
+            <Grid.RowDefinitions>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="420"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="700" Margin="-66,0,-66,0" VerticalAlignment="Bottom"  >
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#00000000" Offset="0"  />
+                    <GradientStop Color="#CC000000" Offset="1"  />
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+              <RadioButton x:Name="General" Content="[General.Title]" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True"/>
+              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+              <Control>
+                <Control.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"/>
+                    <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Control.IsVisible>
+                <Control.TemplateControl>
+                  <RadioButton x:Name="Series" Content="Series" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+                </Control.TemplateControl>
+              </Control>
+              <!--Control>
+                <Control.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Control.IsVisible>
+                <Control.TemplateControl>
+                  <RadioButton Content="Album" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+                </Control.TemplateControl>
+              </Control-->     
+            </StackPanel>
+
+            <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0">
+              <Border.Background>
+                <SolidColorBrush Color="#666666" Opacity="0.90"/>
+              </Border.Background>
+            </Border>
+
+            <!--Path Grid.Row="1" Grid.Column="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeLineJoin="Round" Fill="Black" Opacity="0.8"
+                  Data="F1 M -128,483C -128,499.016 -115.016,512 -99,512L 1193,512C 1209.02,512 1222,499.016 1222,483L 1222,29C 1222,12.9837 1209.02,0 1193,0L -128,0"/-->
+
+            <Control x:Name="CP_MovieGeneral" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+              <!--Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible-->
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MovieGeneral.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Control x:Name="CP_MovieCastCrew" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=CastCrew, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+              <!-->Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible-->
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MovieCastCrew.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Control x:Name="CP_MovieMediaInfo" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=MediaInfo, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+              <!-->Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible-->
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MediaInfo.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="10,0,0,0">
+                <Image Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"/>
+            </Grid>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

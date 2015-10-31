@@ -16,7 +16,7 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" >
         <!-- Items -->
-        <ListView x:Name="newsitems" Margin="-30,0,-40,55" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView x:Name="newsitems" Margin="-85,0,-90,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsItemsContainerStyle}" DockPanel.Dock="Center"
               ItemsSource="{Binding Path=SelectedFeed.Items}">
           <ListView.Resources>
@@ -26,7 +26,7 @@
           </ListView.Resources>
         </ListView>
       
-      <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-20,625,0,-625" >
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-85,625,-70,-625" >
         <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
           <Label Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitems,Path=CurrentItem}"
                  Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" HorizontalAlignment="Right" VerticalAlignment="Stretch" />
@@ -36,7 +36,7 @@
           <Label DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" FontFamily="DefaultBold" Color="{ThemeResource TextColor}"
                  Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
           <Label DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" Color="{ThemeResource TextColor}" Opacity="0.7"
-                 Content="{Binding Summary}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                 Content="{Binding Summary}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MaxHeight="190"
                  Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"/>
         </StackPanel>
       </DockPanel>
