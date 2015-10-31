@@ -604,7 +604,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="-10,-1,-10,-1" Style="{ThemeResource TVButtonWideStyle}"
+          <Button Margin="-10,0,-10,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -632,7 +632,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="-10,-1,-10,-1" Style="{ThemeResource TVButtonWideStyle}"
+          <Button Margin="-10,0,-10,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -712,11 +712,11 @@
       </Grid.RenderTransform>
 
       <Border x:Name="ItemBG1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
-              Background="#33000000" BorderThickness="0" Margin="0,-4,5,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="0,-5,5,-5"/>
       <Border x:Name="ItemBG2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="0,-4,15,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="0,-5,15,-5"/>
       <Border x:Name="ItemBG3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="-10,-4,-15,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="-10,-5,-15,-5"/>
       
       <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
        VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
@@ -751,11 +751,11 @@
       </Grid.ColumnDefinitions>
 
       <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="0,-4,2,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="0,-5,2,-5"/>
       <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="2,-4,2,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="2,-5,2,-5"/>
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="2,-4,-2,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="2,-5,-2,-5"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">
         <Image x:Name="ChannelLogo" Height="40" Stretch="Uniform" Margin="5,2,5,2">
@@ -792,13 +792,13 @@
       </Grid.ColumnDefinitions>
 
       <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="-2,-4,2,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="-2,-5,2,-5"/>
       <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="2,-4,2,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="2,-5,2,-5"/>
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="2,-4,2,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="2,-5,2,-5"/>
       <Border x:Name="Item4" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#33000000" BorderThickness="0" Margin="2,-4,0,-4"/>
+              Background="#33000000" BorderThickness="0" Margin="2,-5,0,-5"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">
         <Image x:Name="ChannelLogo" Height="40" Stretch="Uniform" Margin="5,2,5,2">
