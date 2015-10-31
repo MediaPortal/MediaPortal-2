@@ -202,6 +202,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if(_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
           item.SetLabel("ChannelName", channel.Name);
         item.SetLabel("StartTime", schedule.StartTime.FormatProgramTime());
+        item.SetLabel("EndTime", schedule.EndTime.FormatProgramTime());
         item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
         item.AdditionalProperties["SCHEDULE"] = currentSchedule;
         _schedulesList.Add(item);
