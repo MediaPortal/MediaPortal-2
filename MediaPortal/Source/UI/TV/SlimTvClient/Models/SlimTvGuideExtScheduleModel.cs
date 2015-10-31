@@ -317,6 +317,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus
+        IChannel channel;
+        if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+          item.SetLabel("ChannelName", channel.Name);
 
         _programsList.Add(item);
       }
