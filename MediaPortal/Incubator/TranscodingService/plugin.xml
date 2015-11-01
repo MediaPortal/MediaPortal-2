@@ -1,0 +1,39 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="Transcoding Service Plugin"
+    PluginId="{AC708DE3-2E9B-4EFA-BB2F-8DD9456F2FF8}"
+    Author="Henso"
+    Copyright="GPL"
+    Description="Provides transoded media to other plugins"
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2015-10-07 19:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <PluginReference PluginId="{8B61C331-DBE8-4E56-8A1D-11C32D8C850D}" CompatibleAPI="1"/> <!-- FFMpegLib -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="TranscodingService.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.Transcoding.Service.TranscodingServicePlugin"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="TranscodeVideoMetadataExtractor"
+        ClassName="MediaPortal.Plugins.Transcoding.MetadataExtractors.TranscodeVideoMetadataExtractor"/>
+    <Instance
+        Id="TranscodeAudioMetadataExtractor"
+        ClassName="MediaPortal.Plugins.Transcoding.MetadataExtractors.TranscodeAudioMetadataExtractor"/>
+    <Instance
+        Id="TranscodeImageMetadataExtractor"
+        ClassName="MediaPortal.Plugins.Transcoding.MetadataExtractors.TranscodeImageMetadataExtractor"/>
+  </Register>
+
+</Plugin>
+
