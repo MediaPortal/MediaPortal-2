@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
   public class MimeDetector
   {
-    public static string GetFileMime(ILocalFsResourceAccessor lfsra)
+    public static string GetFileMime(ILocalFsResourceAccessor lfsra, string defaultMime = null)
     {
       // Impersonation
       using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
@@ -58,26 +58,26 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       }
     }
 
-    public static string GetUrlMime(string url)
+    public static string GetUrlMime(string url, string defaultMime = null)
     {
-      if(url.StartsWith("RTSP:", StringComparison.InvariantCultureIgnoreCase) == true ||
-        url.StartsWith("MMS:", StringComparison.InvariantCultureIgnoreCase) == true)
-      {
-        return "RTSP";
-      }
-      if (url.StartsWith("RTP:", StringComparison.InvariantCultureIgnoreCase) == true)
-      {
-        return "RTP";
-      }
-      if (url.StartsWith("HTTP:", StringComparison.InvariantCultureIgnoreCase) == true)
-      {
-        return "HTTP";
-      }
-      if (url.StartsWith("UDP:", StringComparison.InvariantCultureIgnoreCase) == true)
-      {
-        return "UDP";
-      }
-      return null;
+      //if(url.StartsWith("RTSP:", StringComparison.InvariantCultureIgnoreCase) == true ||
+      //  url.StartsWith("MMS:", StringComparison.InvariantCultureIgnoreCase) == true)
+      //{
+      //  return "RTSP";
+      //}
+      //if (url.StartsWith("RTP:", StringComparison.InvariantCultureIgnoreCase) == true)
+      //{
+      //  return "RTP";
+      //}
+      //if (url.StartsWith("HTTP:", StringComparison.InvariantCultureIgnoreCase) == true)
+      //{
+      //  return "HTTP";
+      //}
+      //if (url.StartsWith("UDP:", StringComparison.InvariantCultureIgnoreCase) == true)
+      //{
+      //  return "UDP";
+      //}
+      return defaultMime;
     }
   }
 }

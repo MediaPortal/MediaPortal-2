@@ -1598,6 +1598,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         _ffMpegCommandline.AddImageParameters(image, ref data);
 
+        data.InputArguments.Add("-f image2pipe");
         data.OutputArguments.Add("-f image2");
       }
       data.OutputFilePath = transcodingFile;

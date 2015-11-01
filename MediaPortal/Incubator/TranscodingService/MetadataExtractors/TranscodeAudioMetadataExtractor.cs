@@ -120,8 +120,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string fileName = rah.LocalFsResourceAccessor.ResourceName;
             if (!HasAudioExtension(fileName))
               return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.Metadata.Mime == null) metadata.Metadata.Mime = "Audio/Unknown";
+            MetadataContainer metadata = _analyzer.ParseAudioFile(rah.LocalFsResourceAccessor);
             if (metadata.IsAudio)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -129,18 +128,18 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             }
           }
         }
-        else if (mediaItemAccessor is INetworkResourceAccessor)
-        {
-          using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
-          {
-            MetadataContainer metadata = _analyzer.ParseStream(nra);
-            if (metadata.IsAudio)
-            {
-              ConvertMetadataToAspectData(metadata, extractedAspectData);
-              return true;
-            }
-          }
-        }
+        //else if (mediaItemAccessor is INetworkResourceAccessor)
+        //{
+        //  using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
+        //  {
+        //    MetadataContainer metadata = _analyzer.ParseStream(nra);
+        //    if (metadata.IsAudio)
+        //    {
+        //      ConvertMetadataToAspectData(metadata, extractedAspectData);
+        //      return true;
+        //    }
+        //  }
+        //}
       }
       catch (Exception e)
       {
