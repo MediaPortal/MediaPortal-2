@@ -35,7 +35,10 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     Scheduled,
     SeriesScheduled,
     RuleScheduled,
-    Recording
+    Recording,
+    RecordingOnce,
+    RecordingSeries,
+    RecordingManual
   }
 
   public enum ScheduleRecordingType

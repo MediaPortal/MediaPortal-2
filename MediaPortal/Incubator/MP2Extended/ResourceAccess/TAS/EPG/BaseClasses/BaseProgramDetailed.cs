@@ -34,21 +34,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         ParentalRating = program.ParentalRating,
         StarRating = program.StarRating,
 
-        IsRecording = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.Recording,
-        EpisodeNumber = programSeries.EpisodeNumber,
+        IsRecording = recordingStatus != null && recordingStatus.RecordingStatus != RecordingStatus.None,
+        IsRecordingSeriesPending = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.SeriesScheduled,
+        IsRecordingOncePending = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.Scheduled,
+        IsRecordingSeries = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.RecordingSeries,
+        IsRecordingManual = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.RecordingManual,
+        IsRecordingOnce = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.RecordingOnce,
+        IsScheduled = recordingStatus.IsScheduled,
+        HasConflict = recordingStatus != null && recordingStatus.HasConflict,
+        SeriesNum = programSeries.SeasonNumber,
+        EpisodeNum = programSeries.EpisodeNumber,
         EpisodeName = programSeries.EpisodeTitle,
+        EpisodeNumber = programSeries.EpisodeNumberDetailed,
+        EpisodePart = programSeries.EpisodePart,
       };
 
-      /*webProgramDetailed.Classification;
-      webProgramDetailed.EpisodeName;
-      webProgramDetailed.EpisodeNum;
-      webProgramDetailed.EpisodeNumber;
-      webProgramDetailed.EpisodePart;
-      webProgramDetailed.EpisodePart;*/
-      /*webProgramDetailed.HasConflict;
-      webProgramDetailed.IsChanged;
-      webProgramDetailed.IsPartialRecordingSeriesPending;
-      webProgramDetailed.IsRecordingManual;*/
+      //webProgramDetailed.IsPartialRecordingSeriesPending;
 
       return webProgramDetailed;
     }

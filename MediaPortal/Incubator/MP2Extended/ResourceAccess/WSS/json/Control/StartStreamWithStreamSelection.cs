@@ -33,10 +33,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         throw new BadRequestException("StartStreamWithStreamSelection: profileName is null");
       if (startPosition == null)
         throw new BadRequestException("StartStreamWithStreamSelection: startPosition is null");
-      if (audioId == null)
-        throw new BadRequestException("StartStreamWithStreamSelection: audioId is null");
-      if (subtitleId == null)
-        throw new BadRequestException("StartStreamWithStreamSelection: subtitleId is null");
 
       long startPositionLong;
       if (!long.TryParse(startPosition, out startPositionLong))

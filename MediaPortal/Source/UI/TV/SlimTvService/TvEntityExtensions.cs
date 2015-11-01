@@ -24,12 +24,14 @@
 
 using System;
 using System.Linq;
+using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 #if TVE3
 #else
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
+using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 #endif
 using Channel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
 using ChannelGroup = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.ChannelGroup;
@@ -57,11 +59,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EndTime = tvProgram.EndTime,
         SeasonNumber = tvProgram.SeriesNum,
         EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeNumberDetailed = tvProgram.EpisodeNumber,
+        EpisodePart = tvProgram.EpisodePart,
         EpisodeTitle = tvProgram.EpisodeName,
         OriginalAirDate = tvProgram.OriginalAirDate,
         Classification = tvProgram.Classification,
         ParentalRating = tvProgram.ParentalRating,
-        StarRating = tvProgram.StarRating
+        StarRating = tvProgram.StarRating,
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -69,7 +73,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
         program.RecordingStatus |= RecordingStatus.Scheduled;
       if (tvProgram.IsRecordingSeriesPending)
         program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+      if (tvProgram.IsRecordingOnce)
+        program.RecordingStatus |= RecordingStatus.RecordingOnce;
+      if (tvProgram.IsRecordingSeries)
+        program.RecordingStatus |= RecordingStatus.RecordingSeries;
+      if (tvProgram.IsRecordingManual)
+        program.RecordingStatus |= RecordingStatus.RecordingManual;
       program.HasConflict = tvProgram.HasConflict;
+      program.IsScheduled = TvDatabase.Schedule.ListAll().Count(schedule => schedule.IdChannel == tvProgram.IdChannel && schedule.IsRecordingProgram(tvProgram, true)) > 0;
 
       return program;
     }
@@ -146,10 +157,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
           SeasonNumber = tvProgram.SeriesNum,
           EpisodeNumber = tvProgram.EpisodeNum,
           EpisodeTitle = tvProgram.EpisodeName,
+          EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
+          EpisodePart = tvProgram.EpisodePart,
           OriginalAirDate = tvProgram.OriginalAirDate,
           Classification = tvProgram.Classification,
           ParentalRating = tvProgram.ParentalRating,
-          StarRating = tvProgram.StarRating
+          StarRating = tvProgram.StarRating,
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
@@ -158,7 +171,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
         program.RecordingStatus |= RecordingStatus.Scheduled;
       if (programLogic.IsRecordingSeriesPending)
         program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+      if (programLogic.IsRecordingOnce)
+        program.RecordingStatus |= RecordingStatus.RecordingOnce;
+      if (programLogic.IsRecordingSeries)
+        program.RecordingStatus |= RecordingStatus.RecordingSeries;
+      if (programLogic.IsRecordingManual)
+        program.RecordingStatus |= RecordingStatus.RecordingManual;
       program.HasConflict = programLogic.HasConflict;
+      program.IsScheduled = GlobalServiceProvider.Instance.Get<IScheduleService>().ListAllSchedules().Count(schedule => schedule.IdChannel == tvProgram.IdChannel && schedule.ProgramName == tvProgram.Title) > 0;
 
       return program;
     }

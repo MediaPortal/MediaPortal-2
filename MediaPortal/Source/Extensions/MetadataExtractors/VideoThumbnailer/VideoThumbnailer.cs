@@ -175,7 +175,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         {
           if (e is TaskCanceledException)
           {
-            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='FFMpeg', Arguments='{1}', Timeout='{2}'", arguments, PROCESS_TIMEOUT_MS);
+            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='FFMpeg', Arguments='{0}', Timeout='{1}'", arguments, PROCESS_TIMEOUT_MS);
             return true;
           }
           return false;

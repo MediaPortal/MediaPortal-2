@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       if (firstAired != null)
         webTvEpisodeBasic.FirstAired = (DateTime)seriesAspects[SeriesAspect.ATTR_FIRSTAIRED];
       webTvEpisodeBasic.IsProtected = false; //??
-      webTvEpisodeBasic.Rating = Convert.ToSingle((double)seriesAspects[SeriesAspect.ATTR_TOTAL_RATING]);
+      webTvEpisodeBasic.Rating = seriesAspects[SeriesAspect.ATTR_TOTAL_RATING] == null ? 0 : Convert.ToSingle((double)seriesAspects[SeriesAspect.ATTR_TOTAL_RATING]);
       webTvEpisodeBasic.SeasonNumber = (int)seriesAspects[SeriesAspect.ATTR_SEASON];
       if (showItem != null)
       {

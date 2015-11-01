@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
-        duration = videoAspect.GetAttributeValue<long>(VideoAspect.ATTR_DURATION);
+        duration = videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) != null ? (int)videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) : 0;
 
         // Video Stream
         WebVideoStream webVideoStream = new WebVideoStream();
