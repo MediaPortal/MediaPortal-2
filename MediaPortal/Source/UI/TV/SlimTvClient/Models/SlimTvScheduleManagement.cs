@@ -454,6 +454,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
+    public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      base.Reactivate(oldContext, newContext);
+      LoadSchedules();
+    }
+
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
