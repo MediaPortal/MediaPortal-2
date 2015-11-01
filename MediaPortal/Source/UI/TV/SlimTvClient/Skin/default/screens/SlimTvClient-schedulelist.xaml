@@ -59,6 +59,9 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Label x:Name="ScheduleLabel" Grid.Row="0" Grid.Column="0"
@@ -94,6 +97,12 @@
               <Label x:Name="ChannelName" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
             </StackPanel>
 
+            <Label x:Name="EpisodeLabel" Grid.Row="5" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+            <Label x:Name="Episode" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Content="{Binding Path=CurrentProgram.Series}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+            <Label x:Name="DescriptionLabel" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+            <Label x:Name="Description" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </GroupBox>
 

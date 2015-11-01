@@ -54,11 +54,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _scheduleTypeProperty = null;
     protected AbstractProperty _startTimeProperty = null;
     protected AbstractProperty _endTimeProperty = null;
+    protected AbstractProperty _currentProgramProperty = null;
     protected readonly ItemsList _schedulesList = new ItemsList();
 
     #endregion
 
     #region GUI properties and methods
+
+    /// <summary>
+    /// Exposes the current program of tuned channel to the skin.
+    /// </summary>
+    public ProgramProperties CurrentProgram
+    {
+      get { return (ProgramProperties)_currentProgramProperty.GetValue(); }
+      set { _currentProgramProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current program of tuned channel to the skin.
+    /// </summary>
+    public AbstractProperty CurrentProgramProperty
+    {
+      get { return _currentProgramProperty; }
+    }
 
     /// <summary>
     /// Enables series schedule mode (<c>true</c>) or shows all single upcoming programs (<c>false</c>).
@@ -177,6 +195,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       ISchedule schedule = (ISchedule)selectedItem.AdditionalProperties["SCHEDULE"];
       UpdateScheduleDetails(schedule);
+      if (selectedItem.AdditionalProperties.ContainsKey("PROGRAM"))
+      {
+        IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
+        CurrentProgram.SetProgram(program);
+      }
+      else
+      {
+        CurrentProgram.SetProgram(null);
+      }
     }
 
     private void UpdateScheduleDetails(ISchedule schedule)
@@ -335,16 +362,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private ListItem CreateProgramItem(IProgram program, ISchedule schedule)
     {
+      ProgramProperties programProperties = new ProgramProperties();
       IProgram currentProgram = program;
-      ListItem item = new ListItem("Name", currentProgram.Title)
+      programProperties.SetProgram(currentProgram);
+
+      ListItem item = new ProgramListItem(programProperties)
       {
         Command = new MethodDelegateCommand(() => ShowActions(schedule, program))
       };
       IChannel channel;
       if (_tvHandler.ChannelAndGroupInfo.GetChannel(currentProgram.ChannelId, out channel))
         item.SetLabel("ChannelName", channel.Name);
-      item.SetLabel("StartTime", currentProgram.StartTime.FormatProgramTime());
-      item.SetLabel("EndTime", currentProgram.EndTime.FormatProgramTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
       item.AdditionalProperties["PROGRAM"] = currentProgram;
       item.AdditionalProperties["SCHEDULE"] = schedule;
@@ -417,6 +445,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _scheduleTypeProperty = new WProperty(typeof(string), string.Empty);
         _startTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _endTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
+        _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
       }
       base.InitModel();
     }
