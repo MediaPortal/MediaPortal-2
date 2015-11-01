@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -231,7 +232,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           if (!_tvHandler.ScheduleControl.GetProgramsForSchedule(schedule, out schedulePrograms))
             continue;
 
-          allPrograms[schedule] = schedulePrograms;
+          // The GetProgramsForSchedule returns all matching programs, also the canceled ones. So we need to filter them out here.
+          allPrograms[schedule] = schedulePrograms.OfType<IProgramRecordingStatus>().Where(p => p.RecordingStatus != RecordingStatus.None).Cast<IProgram>().ToList();
         }
 
         foreach (var schedule in allPrograms.Keys)
@@ -275,7 +277,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IChannel channel2;
       if (_tvHandler.ChannelAndGroupInfo.GetChannel(program1.ChannelId, out channel1) &&
           _tvHandler.ChannelAndGroupInfo.GetChannel(program2.ChannelId, out channel2))
-        return String.CompareOrdinal(channel1.Name, channel2.Name);
+        return String.Compare(channel1.Name, channel2.Name, StringComparison.InvariantCultureIgnoreCase);
 
       return 0;
     }
@@ -302,7 +304,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           return res;
       }
 
-      res = String.CompareOrdinal(schedule1.Name, schedule2.Name);
+      res = String.Compare(schedule1.Name, schedule2.Name, StringComparison.InvariantCultureIgnoreCase);
       if (res != 0)
         return res;
 
@@ -310,7 +312,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IChannel channel2;
       if (_tvHandler.ChannelAndGroupInfo.GetChannel(schedule1.ChannelId, out channel1) &&
           _tvHandler.ChannelAndGroupInfo.GetChannel(schedule2.ChannelId, out channel2))
-        return String.CompareOrdinal(channel1.Name, channel2.Name);
+        return String.Compare(channel1.Name, channel2.Name, StringComparison.InvariantCultureIgnoreCase);
       return 0;
     }
 
@@ -354,18 +356,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       DialogHeader = currentSchedule.Name;
       _dialogActionsList.Clear();
 
-      ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries && program == null ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
+      if (program != null)
       {
-        Command = new MethodDelegateCommand(() => DeleteSchedule(currentSchedule))
-      };
-      _dialogActionsList.Add(item);
-      if (currentSchedule.IsSeries && program == null)
-      {
-        item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
+        ListItem item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
         {
-          Command = new MethodDelegateCommand(() => ShowAndEditPrograms(currentSchedule))
+          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(program))
         };
         _dialogActionsList.Add(item);
+      }
+      else
+      {
+        ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
+        {
+          Command = new MethodDelegateCommand(() => DeleteSchedule(currentSchedule))
+        };
+        _dialogActionsList.Add(item);
+        if (currentSchedule.IsSeries)
+        {
+          item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
+          {
+            Command = new MethodDelegateCommand(() => ShowAndEditPrograms(currentSchedule))
+          };
+          _dialogActionsList.Add(item);
+        }
       }
       _dialogActionsList.FireChange();
 
@@ -384,6 +397,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         LoadSchedules();
       }
+    }
+
+    protected override RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    {
+      var result = base.CreateOrDeleteSchedule(program, recordingType);
+      LoadSchedules();
+      return result;
     }
 
     protected override void InitModel()
