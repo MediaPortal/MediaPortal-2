@@ -76,7 +76,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);
 
-      // TODO: Return the proper URL
       return new WebStringResult { Result = GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix };
     }
 

@@ -23,7 +23,15 @@ namespace MediaPortal.Plugins.MP2Extended.Utils
     public static WebDiskSpaceInformation GetSpaceInformation(string directory)
     {
       ulong freeBytes, totalBytes, freeBytesAvailable;
-      directory = Path.GetPathRoot(directory);
+      try
+      {
+        directory = Path.GetPathRoot(directory);
+      }
+      catch (Exception ex)
+      {
+        Logger.Error("GetSpaceInformation Exception! - directory: '{0}'", ex, directory);
+        return new WebDiskSpaceInformation();
+      }
       if (!GetDiskFreeSpaceEx(directory, out freeBytesAvailable, out totalBytes, out freeBytes))
         Logger.Warn("GetDiskFreeSpaceEx failed (0x{0:x8})", Marshal.GetLastWin32Error());
 

@@ -57,15 +57,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
-        duration = videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) != null ? (int)videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) : 0;
+        duration = Convert.ToInt64(videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) ?? 0);
 
         // Video Stream
         WebVideoStream webVideoStream = new WebVideoStream();
-        webVideoStream.Codec = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
-        webVideoStream.DisplayAspectRatio = Convert.ToDecimal((float)videoAspect[VideoAspect.ATTR_ASPECTRATIO]);
-        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString((float)videoAspect[VideoAspect.ATTR_ASPECTRATIO]);
-        webVideoStream.Height = (int)videoAspect[VideoAspect.ATTR_HEIGHT];
-        webVideoStream.Width = (int)videoAspect[VideoAspect.ATTR_WIDTH];
+        webVideoStream.Codec = (string)(videoAspect[VideoAspect.ATTR_VIDEOENCODING] ?? string.Empty);
+        webVideoStream.DisplayAspectRatio = Convert.ToDecimal((float)(videoAspect[VideoAspect.ATTR_ASPECTRATIO] ?? 0));
+        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString((float)(videoAspect[VideoAspect.ATTR_ASPECTRATIO] ?? 0));
+        webVideoStream.Height = (int)(videoAspect[VideoAspect.ATTR_HEIGHT] ?? 0);
+        webVideoStream.Width = (int)(videoAspect[VideoAspect.ATTR_WIDTH] ?? 0);
         webVideoStreams.Add(webVideoStream);
 
         if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID))
@@ -89,10 +89,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
               if (audioChannels != null)
               {
                 var audioChannelsList = audioChannels.Cast<string>().ToList();
-                webAudioStream.Channels = int.Parse(audioChannelsList.Count < i ? audioChannelsList[i] : audioChannelsList[0]);
+                webAudioStream.Channels = int.Parse(i < audioChannelsList.Count ? audioChannelsList[i] : audioChannelsList[0]);
               }
               if (audioCodecs != null)
-                webAudioStream.Codec = audioCodecs.Cast<string>().ToList().Count < i ? audioCodecs.Cast<string>().ToList()[i] : audioCodecs.Cast<string>().ToList()[0];
+                webAudioStream.Codec = i < audioCodecs.Cast<string>().ToList().Count ? audioCodecs.Cast<string>().ToList()[i] : audioCodecs.Cast<string>().ToList()[0];
               webAudioStream.ID = i;
               webAudioStream.Index = int.Parse(audioStreams.Cast<string>().ToList()[i]);
               if (audioLanguages != null && i < audioLanguages.Cast<string>().ToList().Count)

@@ -4,7 +4,9 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -43,8 +45,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         isSeason = true;
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
+      bool isRecording = (WebMediaType)JsonConvert.DeserializeObject(mediatype, typeof(WebMediaType)) == WebMediaType.Recording;
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, fanartType, fanArtMediaType);
+      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get offset
       if (offsetInt >= fanart.Count)

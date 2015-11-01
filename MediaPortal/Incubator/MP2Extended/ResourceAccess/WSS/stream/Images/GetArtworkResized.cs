@@ -5,8 +5,10 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -54,6 +56,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       }
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
+      bool isRecording = (WebMediaType)JsonConvert.DeserializeObject(mediatype, typeof(WebMediaType)) == WebMediaType.Recording;
 
       int maxWidthInt;
       if (!Int32.TryParse(maxWidth, out maxWidthInt))
@@ -83,7 +86,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         return data;
       }
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, fanartType, fanArtMediaType);
+      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get offset
       if (offsetInt >= fanart.Count)

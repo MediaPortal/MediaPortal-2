@@ -9,6 +9,7 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -19,6 +20,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
     {
       HttpParam httpParam = request.Param;
       string id = httpParam["itemId"].Value;
+      string type = httpParam["type"].Value;
 
 
       bool isSeason = false;
@@ -40,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         isSeason = true;
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
-
+      bool isRecording = (type != null && (WebMediaType)JsonConvert.DeserializeObject(type, typeof(WebMediaType)) == WebMediaType.Recording);
 
       Guid idGuid;
       int idInt;
@@ -53,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 
       byte[] data;
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, fanartType, fanArtMediaType);
+      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get a random FanArt from the List
       Random rnd = new Random();
