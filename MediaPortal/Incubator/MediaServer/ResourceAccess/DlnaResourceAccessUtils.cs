@@ -23,23 +23,19 @@
 #endregion
 
 using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Net;
-using MediaPortal.Utilities.Network;
-using System.Net.Sockets;
-using MediaPortal.Common.Services.ResourceAccess.Settings;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.Transcoding.Service;
-using System.Collections.Generic;
-using System.Globalization;
-using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
-using System.IO;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
+using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
@@ -88,16 +84,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return true;
     }
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern uint GetShortPathName([MarshalAs(UnmanagedType.LPTStr)] string lpszLongPath, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpszShortPath, uint cchBuffer);
-
-    public static string GetFileShortName(string longName)
-    {
-      StringBuilder shortNameBuffer = new StringBuilder(256);
-      uint result = GetShortPathName(longName, shortNameBuffer, 256);
-      return shortNameBuffer.ToString();
-    }
-
     private static string GetSubtitleMime(SubtitleCodec codec)
     {
       switch (codec)
@@ -118,7 +104,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return "text/plain";
     }
 
-    public static bool FindSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
+    public static bool UseSoftCodedSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
     {
       targetCodec = SubtitleCodec.Unknown;
       targetMime = "text/plain";
@@ -167,13 +153,32 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return localIp;
     }
 
+    public static bool IsSoftCodedSubtitleAvailable(DlnaMediaItem dlnaItem, EndPointSettings client)
+    {
+      if (client.Profile.Settings.Subtitles.SubtitleMode != SubtitleSupport.SoftCoded)
+      {
+        return false;
+      }
+      if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
+      {
+        VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
+        if (MediaConverter.IsSubtitleAvailable(video)) return true;
+      }
+      else if (dlnaItem.IsVideo)
+      {
+        VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
+        if (MediaConverter.IsSubtitleAvailable(subtitle)) return true;
+      }
+      return false;
+    }
+
     public static string GetSubtitleBaseURL(MediaItem item, EndPointSettings client, out string subMime, out string subExtension)
     {
       SubtitleCodec codec = SubtitleCodec.Unknown;
       subMime = null;
       subExtension = null;
 
-      if (FindSubtitle(client, out codec, out subMime) == false)
+      if (UseSoftCodedSubtitle(client, out codec, out subMime) == true)
       {
         subExtension = "srt";
         string subType = codec.ToString();
@@ -218,9 +223,9 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       }
       var rs = ServiceRegistration.Get<IResourceServer>();
       if (useIPv4)
-        return "http://" + GetLocalIp() + ":" + rs.GetPortForIP();
+        return "http://" + GetLocalIp() + ":" + rs.GetPortForIP(IPAddress.Parse(GetLocalIp()));
       else
-        return "http://" + GetLocalIp() + ":" + rs.GetPortForIP();
+        return "http://" + GetLocalIp() + ":" + rs.GetPortForIP(IPAddress.Parse(GetLocalIp()));
     }
   }
 }

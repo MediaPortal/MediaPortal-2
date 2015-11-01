@@ -22,8 +22,11 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.DIDL;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Filters;
@@ -31,12 +34,6 @@ using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.Protocols;
 using MediaPortal.Plugins.Transcoding.Service;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MediaServer.Profiles
 {
@@ -444,7 +441,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       RootContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_ROOT_KEY, this) { Title = "MediaPortal Media Library" };
 
       var audioContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY, this) { Title = "Audio" };
-      audioContainer.Add(new MediaLibraryAlbumContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "A", this) { Title = "Albums" });
+      audioContainer.Add(new MediaLibraryAlbumContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AL", this) { Title = "Albums" });
+      audioContainer.Add(new MediaLibraryMusicArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AR", this) { Title = "Artists" });
       audioContainer.Add(new MediaLibraryMusicGenreContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "G", this) { Title = "Genres" });
       audioContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AS", this, "Audio") { Title = "Shares" });
       RootContainer.Add(audioContainer);
@@ -454,6 +452,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       RootContainer.Add(pictureContainer);
 
       var videoContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY, this) { Title = "Video" };
+      videoContainer.Add(new MediaLibraryMovieContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "M", null, this) { Title = "Movies" });
+      videoContainer.Add(new MediaLibrarySeriesContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "S", null, this) { Title = "Series" });
       videoContainer.Add(new MediaLibraryMovieGenreContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "G", this) { Title = "Genres" });
       videoContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "VS", this, "Video") { Title = "Shares" });
       RootContainer.Add(videoContainer);

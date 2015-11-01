@@ -22,11 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using System;
-
 namespace MediaPortal.Extensions.MediaServer.DLNA
 {
   public enum ProtocolInfoFormat

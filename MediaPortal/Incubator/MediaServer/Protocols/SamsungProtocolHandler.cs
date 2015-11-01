@@ -23,18 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using HttpServer;
-using MediaPortal.Common.MediaManagement;
-using HttpServer.Sessions;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.IO;
-using MediaPortal.Common;
+using HttpServer;
+using HttpServer.Sessions;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {
@@ -61,7 +56,7 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       {
         if (request.Headers["getMediaInfo.sec"] == "1")
         {
-          object durationSeconds = item.MediaSource.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_DURATION);
+          object durationSeconds = MediaItemAspect.GetAspect(item.MediaSource.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_DURATION);
           if (durationSeconds != null)
           {
             response.AddHeader("MediaInfo.sec", string.Format("SEC_Duration={0};", Convert.ToInt32(durationSeconds) * 1000));

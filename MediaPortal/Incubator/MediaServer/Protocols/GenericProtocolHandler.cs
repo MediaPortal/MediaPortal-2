@@ -22,17 +22,12 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Common.MediaManagement;
+using System.IO;
 using HttpServer;
 using HttpServer.Sessions;
-using System.IO;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.MediaServer.DLNA;
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {

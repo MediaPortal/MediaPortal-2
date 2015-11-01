@@ -22,14 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -54,7 +50,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public void Initialise()
     {
       DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item);
-      if (dlnaItem.IsSubtitled == true)
+      if (DlnaResourceAccessUtils.IsSoftCodedSubtitleAvailable(dlnaItem, Client) == true)
       {
         string mime = null;
         string type = null;

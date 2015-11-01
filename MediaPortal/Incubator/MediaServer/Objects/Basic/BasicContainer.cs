@@ -22,16 +22,21 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Utilities.Exceptions;
-using System;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Extensions.MediaServer.Parser;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Tree;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 {
   public class BasicContainer : BasicItem, IDirectoryContainer
   {
+    private bool _initialised = false;
+    protected readonly Dictionary<string, BasicItem> _children = new Dictionary<string, BasicItem>();
+
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
     {
@@ -43,23 +48,40 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       Class = "object.container";
     }
 
-    public override string Class
+    public int ChildCount
     {
-      get { return base.Class; }
-      set { base.Class = value; }
+      get
+      {
+        if (!_initialised) Initialise();
+        return _children.Count;
+      }
+      set { } //Meaningless in this implementation
     }
 
     public override void Initialise()
     {
+      _initialised = true;
     }
 
-    public void InitialiseAll()
+    public override TreeNode<object> FindNode(string key)
     {
-      Initialise();
-      foreach (var treeNode in Children.OfType<BasicContainer>())
-      {
-        (treeNode).InitialiseAll();
-      }
+      if (!key.StartsWith(Key)) return null;
+      if (key == Key) return this;
+
+      if (!_initialised) Initialise();
+      BasicItem container;
+      _children.TryGetValue(key, out container);
+      return container;
+    }
+
+    public override List<IDirectoryObject> Search(string filter, string sortCriteria)
+    {
+      // TODO: Use the parameters for something
+      // IFilter searchFilter = SearchParser.Convert(SearchParser.Parse(filter), _necessaryMiaTypeIds);
+
+      if (!_initialised) Initialise();
+
+      return _children.Values.ToList().Cast<IDirectoryObject>().ToList();
     }
 
     public void ContainerUpdated()
@@ -71,12 +93,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     public virtual IList<IDirectorySearchClass> SearchClass { get; set; }
 
     public virtual bool Searchable { get; set; }
-
-    public virtual int ChildCount
-    {
-      get { return Children.Count; }
-      set { } //Meaningless in this implementation
-    }
 
     public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }
 

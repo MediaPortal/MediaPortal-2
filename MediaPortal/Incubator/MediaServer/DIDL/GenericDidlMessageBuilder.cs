@@ -27,9 +27,9 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using System.Xml;
-using MediaPortal.Extensions.MediaServer.Objects;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
+using MediaPortal.Extensions.MediaServer.Objects;
 
 namespace MediaPortal.Extensions.MediaServer.DIDL
 {

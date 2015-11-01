@@ -34,22 +34,22 @@ namespace MediaPortal.Plugins.Transcoding.Aspects
     /// </summary>
     public static readonly Guid ASPECT_ID = new Guid("B387AE89-803E-494E-87AC-D763DE09EAC0");
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CONTAINER =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_CONTAINER =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STREAM =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Stream", typeof(int), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_STREAM =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Stream", typeof(int), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CODEC =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Codec", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_CODEC =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Codec", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CHANNELS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Channels", typeof(int), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHANNELS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Channels", typeof(int), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FREQUENCY =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Frequency", typeof(long), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_FREQUENCY =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Frequency", typeof(long), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "TranscodeItemAudio", new[] {
             ATTR_CONTAINER,
             ATTR_STREAM,

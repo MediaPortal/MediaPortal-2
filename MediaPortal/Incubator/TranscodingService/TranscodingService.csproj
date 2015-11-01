@@ -54,6 +54,8 @@
     <Compile Include="Aspects\TranscodeItemAudioAspect.cs" />
     <Compile Include="Aspects\TranscodeItemImageAspect.cs" />
     <Compile Include="Aspects\TranscodeItemVideoAspect.cs" />
+    <Compile Include="Aspects\TranscodeItemVideoAudioAspect.cs" />
+    <Compile Include="Aspects\TranscodeItemVideoEmbeddedAspect.cs" />
     <Compile Include="H264Analyzer.cs" />
     <Compile Include="Interfaces\IMediaAnalyzer.cs" />
     <Compile Include="MetadataExtractors\TranscodeAudioMetadataExtractor.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="MetadataExtractors\Settings\TranscodeAudioMetadataExtractorSettings.cs" />
     <Compile Include="MetadataExtractors\Settings\TranscodeImageMetadataExtractorSettings.cs" />
     <Compile Include="MetadataExtractors\Settings\TranscodeVideoMetadataExtractorSettings.cs" />
+    <Compile Include="Transcoders\FFMpeg\FFMpegTranscodeThreadData.cs" />
     <Compile Include="TranscodingServicePlugin.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="MediaAnalyzer.cs" />
@@ -69,7 +72,6 @@
     <Compile Include="MediaConverter.cs" />
     <Compile Include="SubtitleAnalyzer.cs" />
     <Compile Include="Transcoders\Base\Checks.cs" />
-    <Compile Include="Transcoders\Base\Metadata\Metadata.cs" />
     <Compile Include="Transcoders\Base\Subtitle.cs" />
     <Compile Include="Transcoders\Base\TranscodeContext.cs" />
     <Compile Include="Transcoders\Base\TranscodeData.cs" />
@@ -131,13 +133,6 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

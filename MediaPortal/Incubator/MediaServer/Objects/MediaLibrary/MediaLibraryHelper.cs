@@ -28,9 +28,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Tree;
-using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
@@ -94,22 +94,22 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         if (item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
         {
           if (baseKey == null) baseKey = CONTAINER_ROOT_KEY;
-          obj = new MediaLibraryContainer(baseKey, item, parent.Client);
+          obj = new MediaLibraryBrowser(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
         {
           if (baseKey == null) baseKey = CONTAINER_AUDIO_KEY;
-          obj = new MediaLibraryMusicTrack(baseKey, item, parent.Client);
+          obj = new MediaLibraryMusicTrack(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
         {
           if (baseKey == null) baseKey = CONTAINER_IMAGES_KEY;
-          obj = new MediaLibraryImageItem(baseKey, item, parent.Client);
+          obj = new MediaLibraryImageItem(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
         {
           if (baseKey == null) baseKey = CONTAINER_VIDEO_KEY;
-          obj = new MediaLibraryVideoItem(baseKey, item, parent.Client);
+          obj = new MediaLibraryVideoItem(item, parent.Client);
         }
         else
         {

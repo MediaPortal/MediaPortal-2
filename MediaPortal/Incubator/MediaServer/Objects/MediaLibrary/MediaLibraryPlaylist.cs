@@ -1,15 +1,20 @@
-﻿using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Extensions.MediaServer.Profiles;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryPlaylist : MediaLibraryContainer, IDirectoryPlaylistItem
   {
-    public MediaLibraryPlaylist(string key, MediaItem item, EndPointSettings client)
-      : base(key, item, client)
+    public MediaLibraryPlaylist(MediaItem item, EndPointSettings client)
+      : base(item, null, null, null, client)
     {
+    }
+
+    public IList<MediaItem> GetItems()
+    {
+      throw new NotImplementedException("Playlists don't work");
     }
 
     public IList<string> Artist

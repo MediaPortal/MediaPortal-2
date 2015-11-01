@@ -34,8 +34,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
   {
     public MediaItem Item { get; protected set; }
 
-    public MediaLibraryItem(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey + ":" + item.MediaItemId, client)
+    public MediaLibraryItem(MediaItem item, EndPointSettings client)
+      : base(item.MediaItemId.ToString(), client)
     {
       Item = item;
       AlbumArtUrls = new List<IDirectoryAlbumArt>();

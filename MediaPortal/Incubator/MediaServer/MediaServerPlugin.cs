@@ -22,26 +22,19 @@
 
 #endregion
 
+using System;
+using System.IO;
+using System.Xml;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using System.IO;
-using MediaPortal.Common.PathManager;
-using System.Xml;
-using System;
-using System.Threading;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Service;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer
 {
@@ -81,7 +74,9 @@ namespace MediaPortal.Extensions.MediaServer
       ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.AddRootDevice(_device);
 
       LoadSettings();
-      ProfileManager.LoadProfiles();
+
+      ProfileManager.LoadProfiles(false);
+      ProfileManager.LoadProfiles(true);
       ProfileManager.LoadProfileLinks();
       ProfileManager.LoadPreferredLanguages();
     }

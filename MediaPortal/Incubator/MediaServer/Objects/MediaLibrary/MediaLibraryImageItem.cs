@@ -22,26 +22,22 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using System;
+using MediaPortal.Extensions.MediaServer.Profiles;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryImageItem : MediaLibraryItem, IDirectoryImageItem
   {
-    public MediaLibraryImageItem(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey, item, client)
+    public MediaLibraryImageItem(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item);
-      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
-      
       Publisher = new List<string>();
       Rights = new List<string>();
-      object oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

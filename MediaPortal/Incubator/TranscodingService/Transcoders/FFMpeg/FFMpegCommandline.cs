@@ -34,13 +34,12 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base.Metadata;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
-  internal class FFMpegCommandline : Metadata
+  internal class FFMpegCommandline
   {
     private int _transcoderMaximumThreads;
     private int _transcoderTimeout;
@@ -91,14 +90,57 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     };
 
 
-    internal FFMpegCommandline(MediaConverter mediaConverter)
+    internal FFMpegCommandline(int maxThreads, int commandTimeout, string cachePath, int hlsSegmentDuration, string hlsSegmentTemplate, bool supportHCSubs)
     {
-      _transcoderMaximumThreads = mediaConverter.TranscoderMaximumThreads;
-      _transcoderTimeout = mediaConverter.TranscoderTimeout;
-      _transcoderCachePath = mediaConverter.TranscoderCachePath;
-      _hlsSegmentTimeInSeconds = mediaConverter.HLSSegmentTimeInSeconds;
-      _hlsSegmentFileTemplate = mediaConverter.HLSSegmentFileTemplate;
-      _supportHardcodedSubs = mediaConverter.SupportHardcodedSubs;
+      _transcoderMaximumThreads = maxThreads;
+      _transcoderTimeout = commandTimeout;
+      _transcoderCachePath = cachePath;
+      _hlsSegmentTimeInSeconds = hlsSegmentDuration;
+      _hlsSegmentFileTemplate = hlsSegmentTemplate;
+      _supportHardcodedSubs = supportHCSubs;
+    }
+
+    internal void GetVideoDimensions(VideoTranscoding video, out Size newSize, out Size newContentSize, out float newPixelAspectRatio, out bool pixelARChanged, out bool videoARChanged, out bool videoHeightChanged)
+    {
+      newSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
+      newContentSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
+      newPixelAspectRatio = video.SourceVideoPixelAspectRatio;
+      pixelARChanged = false;
+      videoARChanged = false;
+      videoHeightChanged = false;
+
+      if (Checks.IsSquarePixelNeeded(video))
+      {
+        newSize.Width = Convert.ToInt32(Math.Round((double)video.SourceVideoWidth * video.SourceVideoPixelAspectRatio));
+        newSize.Height = video.SourceVideoHeight;
+        newContentSize.Width = newSize.Width;
+        newContentSize.Height = newSize.Height;
+        newPixelAspectRatio = 1;
+        pixelARChanged = true;
+      }
+      if (Checks.IsVideoAspectRatioChanged(newSize.Width, newSize.Height, newPixelAspectRatio, video.TargetVideoAspectRatio) == true)
+      {
+        double sourceNewAspectRatio = (double)newSize.Width / (double)newSize.Height * video.SourceVideoAspectRatio;
+        if (sourceNewAspectRatio < video.SourceVideoAspectRatio)
+          newSize.Width = Convert.ToInt32(Math.Round((double)newSize.Height * video.TargetVideoAspectRatio / newPixelAspectRatio));
+        else
+          newSize.Height = Convert.ToInt32(Math.Round((double)newSize.Width * newPixelAspectRatio / video.TargetVideoAspectRatio));
+
+        videoARChanged = true;
+      }
+      if (Checks.IsVideoHeightChangeNeeded(newSize.Height, video.TargetVideoMaxHeight) == true)
+      {
+        double oldWidth = newSize.Width;
+        double oldHeight = newSize.Height;
+        newSize.Width = Convert.ToInt32(Math.Round(newSize.Width * ((double)video.TargetVideoMaxHeight / (double)newSize.Height)));
+        newSize.Height = video.TargetVideoMaxHeight;
+        newContentSize.Width = Convert.ToInt32(Math.Round((double)newContentSize.Width * ((double)newSize.Width / oldWidth)));
+        newContentSize.Height = Convert.ToInt32(Math.Round((double)newContentSize.Height * ((double)newSize.Height / oldHeight)));
+        videoHeightChanged = true;
+      }
+      //Correct widths
+      newSize.Width = ((newSize.Width + 1) / 2) * 2;
+      newContentSize.Width = ((newContentSize.Width + 1) / 2) * 2;
     }
 
     internal void InitTranscodingParameters(IResourceAccessor sourceFile, ref FFMpegTranscodeData data)
@@ -138,23 +180,18 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           Directory.CreateDirectory(pathName);
         }
         data.WorkPath = pathName;
-        data.SegmentPlaylist = "playlist.m3u8";
-
-        //Segment muxer
-        //data.OutputArguments.Add(string.Format("-f {0}", GetVideoContainer(video.TargetVideoContainer)));
-        //data.OutputArguments.Add(string.Format("-segment_format {0}", GetVideoContainer(VideoContainer.Mpeg2Ts)));
-        //data.OutputArguments.Add(string.Format("-segment_time {0}", HLSSegmentTimeInSeconds));
-        //data.OutputArguments.Add("-segment_list_flags live");
-        //data.OutputArguments.Add("-segment_list_type hls");
-        //data.OutputArguments.Add("-segment_list_size 0");
-        //data.OutputArguments.Add(string.Format("-segment_list {0}", "\"" + data.SegmentPlaylist + "\""));
-        //data.OutputFilePath = HLSSegmentFileTemplate;
+        data.SegmentPlaylist = Path.Combine(pathName, "playlist.m3u8");
+        data.HlsBaseUrl = video.HlsBaseUrl;
+        string fileSegments = Path.Combine(pathName, _hlsSegmentFileTemplate);
 
         //HLS muxer
         data.OutputArguments.Add("-hls_list_size 0");
         data.OutputArguments.Add("-hls_allow_cache 0");
         data.OutputArguments.Add(string.Format("-hls_time {0}", _hlsSegmentTimeInSeconds));
-        data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + _hlsSegmentFileTemplate + "\""));
+        data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
+        data.OutputArguments.Add("-segment_list_flags +live");
+        if (data.HlsBaseUrl != null)
+          data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + data.HlsBaseUrl + "\""));
         data.OutputFilePath = data.SegmentPlaylist;
       }
       else
@@ -331,6 +368,50 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       else
       {
+        if (audio.TargetAudioCodec == AudioCodec.Unknown)
+        {
+          switch (audio.TargetAudioContainer)
+          {
+            case AudioContainer.Unknown:
+              break;
+            case AudioContainer.Ac3:
+              audio.TargetAudioCodec = AudioCodec.Ac3;
+              break;
+            case AudioContainer.Adts:
+              audio.TargetAudioCodec = AudioCodec.Aac;
+              break;
+            case AudioContainer.Asf:
+              audio.TargetAudioCodec = AudioCodec.Wma;
+              break;
+            case AudioContainer.Flac:
+              audio.TargetAudioCodec = AudioCodec.Flac;
+              break;
+            case AudioContainer.Lpcm:
+              audio.TargetAudioCodec = AudioCodec.Lpcm;
+              break;
+            case AudioContainer.Mp4:
+              audio.TargetAudioCodec = AudioCodec.Aac;
+              break;
+            case AudioContainer.Mp3:
+              audio.TargetAudioCodec = AudioCodec.Mp3;
+              break;
+            case AudioContainer.Mp2:
+              audio.TargetAudioCodec = AudioCodec.Mp2;
+              break;
+            case AudioContainer.Ogg:
+              audio.TargetAudioCodec = AudioCodec.Vorbis;
+              break;
+            case AudioContainer.Rtp:
+              audio.TargetAudioCodec = AudioCodec.Lpcm;
+              break;
+            case AudioContainer.Rtsp:
+              audio.TargetAudioCodec = AudioCodec.Lpcm;
+              break;
+            default:
+              audio.TargetAudioCodec = audio.SourceAudioCodec;
+              break;
+          }
+        }
         data.OutputArguments.Add(string.Format("-c:a {0}", FFMpegGetAudioCodec.GetAudioCodec(audio.TargetAudioCodec)));
         long frequency = Validators.GetAudioFrequency(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioFrequency, audio.TargetAudioFrequency);
         if (frequency > 0)
@@ -708,6 +789,19 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       if (channels > 0)
       {
         data.OutputArguments.Add(string.Format("-ac {0}", channels));
+      }
+    }
+
+    internal void AddTimeParameters(double timeStart, double timeDuration, double mediaDuration, ref FFMpegTranscodeData data)
+    {
+      if (timeStart > 0.0 && (timeStart < mediaDuration || mediaDuration <= 0))
+      {
+        data.InputArguments.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
+        data.OutputArguments.Add("-avoid_negative_ts 1");
+      }
+      if (timeDuration > 0)
+      {
+        data.OutputArguments.Add(string.Format(CultureInfo.InvariantCulture, "-t {0:0.0}", timeDuration));
       }
     }
 

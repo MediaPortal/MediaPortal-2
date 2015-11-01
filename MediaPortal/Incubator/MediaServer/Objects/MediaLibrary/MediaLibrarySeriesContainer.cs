@@ -22,11 +22,23 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Tree
+using System;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Aspects;
+
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class Tree<T> : TreeNode<T>
+  internal class MediaLibrarySeriesContainer : MediaLibraryContainer
   {
-    public Tree(string key, T value) : base(key, value)
+    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      SeriesAspect.ASPECT_ID,
+    };
+
+    public MediaLibrarySeriesContainer(string baseKey, IFilter filter, EndPointSettings client)
+      : base(baseKey, "Series", NECESSARY_MIA_TYPE_IDS, null, filter, client)
     {
     }
   }

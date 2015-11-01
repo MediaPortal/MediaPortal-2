@@ -34,73 +34,40 @@ namespace MediaPortal.Plugins.Transcoding.Aspects
     /// </summary>
     public static readonly Guid ASPECT_ID = new Guid("C267359B-9243-4DAE-8C59-91D20B54BC3F");
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CONTAINER =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_CONTAINER =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Container", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STREAM =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Stream", typeof(int), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_STREAM =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Stream", typeof(int), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CODEC =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Codec", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_CODEC =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Codec", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FOURCC =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("FourCC", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_FOURCC =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("FourCC", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_BRAND =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Brand", 20, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_BRAND =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Brand", 20, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PIXEL_FORMAT =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("PixelFmt", 10, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_PIXEL_FORMAT =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("PixelFmt", 10, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PIXEL_ASPECTRATIO =
-        MediaItemAspectMetadata.CreateAttributeSpecification("PixelAspectRatio", typeof(float), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_PIXEL_ASPECTRATIO =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("PixelAspectRatio", typeof(float), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_H264_PROFILE =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("H264Profile", 30, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_H264_PROFILE =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("H264Profile", 30, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_H264_HEADER_LEVEL =
-        MediaItemAspectMetadata.CreateAttributeSpecification("H264HeadLevel", typeof(float), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_H264_HEADER_LEVEL =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("H264HeadLevel", typeof(float), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_H264_REF_LEVEL =
-        MediaItemAspectMetadata.CreateAttributeSpecification("H264RefLevel", typeof(float), Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_H264_REF_LEVEL =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("H264RefLevel", typeof(float), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TS_TIMESTAMP =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Timestamp", 10, Cardinality.Inline, false);
+    public static readonly SingleMediaItemAspectMetadata.SingleAttributeSpecification ATTR_TS_TIMESTAMP =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Timestamp", 10, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOLANGUAGES =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioLanguages", 2, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOCODECS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioCodecs", 20, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOSTREAMS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioStreams", 2, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOBITRATES =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioBitrates", 10, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOCHANNELS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioChannels", 2, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIODEFAULTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioDefaults", 1, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOFREQUENCIES =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioFrequencies", 5, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EMBEDDED_SUBSTREAMS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EmbeddedSubStreams", 2, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EMBEDDED_SUBCODECS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EmbeddedSubCodecs", 10, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EMBEDDED_SUBLANGUAGES =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EmbeddedSubLanguages", 2, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EMBEDDED_SUBDEFAULTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EmbeddedSubDefaults", 1, Cardinality.ManyToMany, false);
-
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "TranscodeItemVideo", new[] {
             ATTR_CONTAINER,
             ATTR_STREAM,
@@ -113,17 +80,6 @@ namespace MediaPortal.Plugins.Transcoding.Aspects
             ATTR_H264_HEADER_LEVEL,
             ATTR_H264_REF_LEVEL,
             ATTR_TS_TIMESTAMP,
-            ATTR_AUDIOLANGUAGES,
-            ATTR_AUDIOCODECS,
-            ATTR_AUDIOSTREAMS,
-            ATTR_AUDIOBITRATES,
-            ATTR_AUDIOCHANNELS,
-            ATTR_AUDIODEFAULTS,
-            ATTR_AUDIOFREQUENCIES,
-            ATTR_EMBEDDED_SUBSTREAMS,
-            ATTR_EMBEDDED_SUBCODECS,
-            ATTR_EMBEDDED_SUBLANGUAGES,
-            ATTR_EMBEDDED_SUBDEFAULTS
         });
   }
 }
