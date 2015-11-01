@@ -158,9 +158,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     private void AddInputOptions(ref FFMpegTranscodeData data)
     {
       Logger.Debug("Media Converter: AddInputOptions() is NetworkResource: {0}", data.InputResourceAccessor.ParentProvider.Metadata.NetworkResource);
-      if (data.InputResourceAccessor is INetworkResourceAccessor)
+      var accessor = data.InputResourceAccessor as INetworkResourceAccessor;
+      if (accessor != null)
       {
-        if (((INetworkResourceAccessor)data.InputResourceAccessor).URL.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase))
+        if (accessor.URL.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase))
         {
           data.GlobalArguments.Add("-rtsp_transport +tcp+udp");
         }
