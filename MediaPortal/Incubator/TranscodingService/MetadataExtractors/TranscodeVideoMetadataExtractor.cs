@@ -113,37 +113,19 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string filePath = rah.LocalFsResourceAccessor.ResourcePathName;
             if (!HasVideoExtension(filePath))
               return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.Metadata.Mime == null) metadata.Metadata.Mime = "Video/Unknown";
+            MetadataContainer metadata = _analyzer.ParseVideoFile(rah.LocalFsResourceAccessor);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
               return true;
             }
           }
-          /*using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
-          {
-            if (!fsra.IsFile)
-              return false;
-            using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-            {
-              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
-              {
-                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
-                if (metadata.IsVideo)
-                {
-                  ConvertMetadataToAspectData(metadata, extractedAspectData);
-                  return true;
-                }
-              }
-            }
-          }*/
         }
         else if (mediaItemAccessor is INetworkResourceAccessor)
         {
           using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
           {
-            MetadataContainer metadata = _analyzer.ParseStream(nra);
+            MetadataContainer metadata = _analyzer.ParseVideoStream(nra);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
