@@ -156,27 +156,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
 
       <!-- Power button -->
-      <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"-->
-
-      <!--Image x:Name="Power_blur" Source="Power_blur.png" Grid.Row="0" Grid.Column="3" Width="79" Height="79" Opacity="0.8"
-              Margin="0,0,80,0" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill">
-        <Image.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="0.8"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Image.Triggers>
-      </Image>
-      <Image x:Name="Power" Source="Power.png" Grid.Row="0" Grid.Column="3" Width="80" Height="80"
-             Margin="0,0,80,0" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill">
-      </Image-->
-
-
-      <!--Canvas Width="58" Height="58" Grid.Row="0" Grid.Column="3" Margin="0,-20,80,-20" VerticalAlignment="Center" HorizontalAlignment="Center">
-        <Ellipse Fill="Black" Width="58" Height="58" Opacity="0.25" />
-      </Canvas-->
-
       <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="3" Margin="10,-20,50,-20"
           HorizontalAlignment="Center" VerticalAlignment="Center"
           IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
