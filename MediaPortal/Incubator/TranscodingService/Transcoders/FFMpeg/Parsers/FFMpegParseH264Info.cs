@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 
           bool success;
           lock (FFPROBE_THROTTLE_LOCK)
-            success = TryExecuteBinary(ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath, arguments, out h264Stream, (ILocalFsResourceAccessor)info.Metadata.Source, ProcessPriorityClass.BelowNormal);
+            success = TryExecuteBinary(arguments, out h264Stream, (ILocalFsResourceAccessor)info.Metadata.Source, ProcessPriorityClass.BelowNormal);
 
           if (success == false || h264Stream == null)
           {
@@ -129,11 +129,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
     }
 
     // TODO: Should be in the FFMpegLib
-    private static bool TryExecuteBinary(string executable, string arguments, out byte[] result, ILocalFsResourceAccessor lfsra, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
+    private static bool TryExecuteBinary(string arguments, out byte[] result, ILocalFsResourceAccessor lfsra, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
     {
       using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
       {
-        using (Process process = new Process { StartInfo = new ProcessStartInfo(executable, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
+        using (Process process = new Process { StartInfo = new ProcessStartInfo(FFMpegBinary.FFMpegPath, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
         {
           process.Start();
           process.PriorityClass = priorityClass;

@@ -23,38 +23,46 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.Tree;
-using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  class MediaLibraryMovieGenreItem : MediaLibraryContainer, IDirectoryMovieGenre
+  public class MediaLibrarySeriesItem : MediaLibraryContainer
   {
     private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
       MediaAspect.ASPECT_ID,
-      VideoAspect.ASPECT_ID,
-      MovieAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID,
-      ProviderResourceAspect.ASPECT_ID
+      SeriesAspect.ASPECT_ID,
     };
 
-    public MediaLibraryMovieGenreItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MIA_TYPE_IDS, null, new RelationalFilter(VideoAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
+    public MediaLibrarySeriesItem(MediaItem item, EndPointSettings client)
+      : base(item, NECESSARY_MIA_TYPE_IDS, null, new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON), client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Created movie genre {0}={1}", id, title);
+      ServiceRegistration.Get<ILogger>().Debug("Create season {0}={1}", Item.MediaItemId, Title);
     }
 
     public override string Class
     {
-      get { return "object.container.genre.movieGenre"; }
+      get { return "object.container.series.TODO"; }
     }
 
-    public string LongDescription{ get; set; }
-    public string Description{ get; set; }
+    public string StorageMedium { get; set; }
+    public string LongDescription { get; set; }
+    public string Description { get; set; }
+    public IList<string> Publisher { get; set; }
+    public IList<string> Contributor { get; set; }
+    public string Date { get; set; }
+    public string Relation { get; set; }
+    public IList<string> Rights { get; set; }
+    public IList<string> Artist { get; set; }
+    public IList<string> Genre { get; set; }
+    public IList<string> Producer { get; set; }
+    public string SeriesArtUrl { get; set; }
+    public string Toc { get; set; }
   }
 }

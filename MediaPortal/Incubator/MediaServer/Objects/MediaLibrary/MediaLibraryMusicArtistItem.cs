@@ -24,47 +24,47 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
-using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibraryMusicGenreContainer : BasicContainer
+  class MediaLibraryMusicArtistItem : MediaLibraryContainer, IDirectoryMusicArtist
   {
     private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-        MediaAspect.ASPECT_ID,
-        TranscodeItemAudioAspect.ASPECT_ID
-      };
+	    MediaAspect.ASPECT_ID,
+	    AudioAspect.ASPECT_ID,
+	    TranscodeItemAudioAspect.ASPECT_ID,
+	    ProviderResourceAspect.ASPECT_ID
+	  };
 
-    public MediaLibraryMusicGenreContainer(string id, EndPointSettings client)
-      : base(id, client)
+    public MediaLibraryMusicArtistItem(string id, string title, EndPointSettings client)
+      : base(id, title, NECESSARY_MIA_TYPE_IDS, null, new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
     {
+      ServiceRegistration.Get<ILogger>().Debug("Created music artist {0}={1}", id, title);
     }
 
-    public HomogenousMap GetItems()
+    public override string Class
     {
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, NECESSARY_MIA_TYPE_IDS, null, true);
+      get { return "object.container.artist.TODO"; }
     }
 
-    public override void Initialise()
+    public string LongDescription{ get; set; }
+    public string Description{ get; set; }
+
+    public IList<string> Language
     {
-	    base.Initialise();
-	  
-      HomogenousMap items = GetItems();
-
-      foreach (KeyValuePair<object, object> item in items)
-      {
-        string title = (string)item.Key ?? "<Unknown>";
-        string key = Id + ":" + title;
-
-        _children.Add(key, new MediaLibraryMovieGenreItem(key, title, Client));
-      }
+      get { throw new NotImplementedException(); }
+      set { throw new NotImplementedException(); }
     }
   }
 }

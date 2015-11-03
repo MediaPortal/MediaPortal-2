@@ -22,33 +22,49 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
+  internal class MediaLibraryMusicArtistContainer : BasicContainer
   {
-    public MediaItem Item { get; protected set; }
+    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      TranscodeItemAudioAspect.ASPECT_ID
+    };
 
-    public MediaLibraryItem(MediaItem item, EndPointSettings client)
-      : base(item.MediaItemId.ToString(), client)
+    public MediaLibraryMusicArtistContainer(string id, EndPointSettings client)
+      : base(id, client)
     {
-      Item = item;
-      AlbumArtUrls = new List<IDirectoryAlbumArt>();
-      var albumArt = new MediaLibraryAlbumArt(item, client);
-      albumArt.Initialise();
-      AlbumArtUrls.Add(albumArt);
     }
 
-    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
- 
+    public HomogenousMap GetItems()
+    {
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      return library.GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, NECESSARY_MIA_TYPE_IDS, null, true);
+    }
+
     public override void Initialise()
     {
-      Title = MediaItemAspect.GetAspect(Item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
+	  base.Initialise();
+	  
+      HomogenousMap items = GetItems();
+
+      foreach (KeyValuePair<object, object> item in items)
+      {
+        string title = (string)item.Key ?? "<Unknown>";
+        string key = Id + ":" + title;
+
+        _children.Add(key, new MediaLibraryMusicArtistItem(key, title, Client));
+      }
     }
   }
 }

@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Extensions.MediaServer.Tree;
 using MediaPortal.Utilities.Exceptions;
-using MediaPortal.Extensions.MediaServer.Profiles;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 {

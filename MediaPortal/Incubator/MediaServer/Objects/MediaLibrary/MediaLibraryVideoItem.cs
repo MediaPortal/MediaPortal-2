@@ -22,22 +22,21 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Utilities;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Plugins.Transcoding.Service;
-using System;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryVideoItem : MediaLibraryItem, IDirectoryVideoItem
   {
-    public MediaLibraryVideoItem(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey, item, client)
+    public MediaLibraryVideoItem(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
       Genre = new List<string>();
       Producer = new List<string>();

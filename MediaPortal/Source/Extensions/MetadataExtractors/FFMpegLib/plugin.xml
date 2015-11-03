@@ -17,10 +17,7 @@
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
   </DependsOn>
 
-  <Register Location="/Services">
-    <Service Id="FFMpegLib" RegistrationClassName="MediaPortal.Extensions.MetadataExtractors.FFMpegLib.IFFMpegLib"
-        ServiceClassName="MediaPortal.Extensions.MetadataExtractors.FFMpegLib.FFMpegLib"/>
-  </Register>
 </Plugin>

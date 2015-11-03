@@ -24,79 +24,61 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Parser;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Extensions.MediaServer.Tree;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryContainer : BasicContainer
+  public abstract class MediaLibraryContainer : BasicContainer
   {
-    public MediaItem Item { get; protected set; }
+    private readonly Guid[] _necessaryMiaTypeIds;
+    private readonly Guid[] _optionalMiaTypeIds;
+    private readonly IFilter _filter;
 
-    public MediaLibraryContainer(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey + ":" + item.MediaItemId, client)
+    public MediaLibraryContainer(string id, string title, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, IFilter filter, EndPointSettings client)
+      : base(id, client)
+    {
+      Title = title;
+
+      _necessaryMiaTypeIds = necessaryMiaTypeIds;
+      _optionalMiaTypeIds = optionalMiaTypeIds;
+      _filter = filter;
+    }
+
+    public MediaLibraryContainer(MediaItem item, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, IFilter filter, EndPointSettings client)
+      : this(item.MediaItemId.ToString(), MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString(),
+      necessaryMiaTypeIds, optionalMiaTypeIds, filter, client)
     {
       Item = item;
     }
 
-    public override int ChildCount { get; set; }
+    public IList<MediaItem> GetItems()
+    {
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true);
+    }
 
     public override void Initialise()
     {
-      Title = MediaItemAspect.GetAspect(Item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
-      ChildCount = MediaLibraryBrowse().Count;
-    }
+	  base.Initialise();
+	  
+      IList<MediaItem> items = GetItems();
 
-    private ICollection<MediaItem> MediaLibraryBrowse()
-    {
-      var necessaryMIATypeIDs = new Guid[]
-                                  {
-                                    ProviderResourceAspect.ASPECT_ID,
-                                    MediaAspect.ASPECT_ID,
-                                  };
-      var optionalMIATypeIDs = new Guid[]
-                                 {
-                                   DirectoryAspect.ASPECT_ID,
-                                   VideoAspect.ASPECT_ID,
-                                   AudioAspect.ASPECT_ID,
-                                   ImageAspect.ASPECT_ID,
-                                   TranscodeItemAudioAspect.ASPECT_ID,
-                                   TranscodeItemImageAspect.ASPECT_ID,
-                                   TranscodeItemVideoAspect.ASPECT_ID,
-                                 };
-
-      var library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.Browse(Item.MediaItemId, necessaryMIATypeIDs, optionalMIATypeIDs);
-    }
-
-    public override List<IDirectoryObject> Search(string filter, string sortCriteria)
-    {
-      var result = new List<IDirectoryObject>();
-      foreach (var item in MediaLibraryBrowse())
+      foreach (MediaItem item in items)
       {
-        try
-        {
-          result.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(Key), this));
-        }
-        catch (Exception e)
-        {
-          // Get stack trace for the exception with source file information
-          var st = new StackTrace(e, true);
-          // Get the top stack frame
-          var frame = st.GetFrame(2);
-          // Get the line number from the stack frame
-          var line = frame.GetFileLineNumber();
-          ServiceRegistration.Get<ILogger>().Error("Search failed, Key: {0}, Frame: {1}, Line: {2}", e, Key, frame, line);
-        }
+        _children[item.MediaItemId.ToString()] = (BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(Key), this);
       }
-      return result;
     }
+
+    public MediaItem Item { get; protected set; }
+	
   }
 }

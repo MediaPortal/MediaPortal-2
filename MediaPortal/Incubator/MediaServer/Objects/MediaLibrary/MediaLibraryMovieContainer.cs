@@ -22,33 +22,25 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
+using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
+  internal class MediaLibraryMovieContainer : MediaLibraryContainer
   {
-    public MediaItem Item { get; protected set; }
+    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      MovieAspect.ASPECT_ID,
+      TranscodeItemVideoAspect.ASPECT_ID
+    };
 
-    public MediaLibraryItem(MediaItem item, EndPointSettings client)
-      : base(item.MediaItemId.ToString(), client)
+    public MediaLibraryMovieContainer(string baseKey, IFilter filter, EndPointSettings client)
+      : base(baseKey, "Movies", NECESSARY_MIA_TYPE_IDS, null, filter, client)
     {
-      Item = item;
-      AlbumArtUrls = new List<IDirectoryAlbumArt>();
-      var albumArt = new MediaLibraryAlbumArt(item, client);
-      albumArt.Initialise();
-      AlbumArtUrls.Add(albumArt);
-    }
-
-    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
- 
-    public override void Initialise()
-    {
-      Title = MediaItemAspect.GetAspect(Item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
     }
   }
 }

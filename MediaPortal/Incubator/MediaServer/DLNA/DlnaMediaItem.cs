@@ -24,23 +24,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using System.IO;
-using System.Threading;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using System.Globalization;
-using MediaPortal.Plugins.Transcoding.Service;
-using System.Drawing;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Metadata;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Extensions.MediaServer.DLNA
 {
@@ -97,9 +88,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       {
         info = DlnaVideoMetadata.ParseMediaItem(item);
       }
-
-      IsSubtitled = false;
-      
+     
       if (MediaServerPlugin.TranscodingAllowed == true)
       {
         if (IsAudio)
@@ -423,7 +412,9 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       if(TranscodingParameter == null)
       {
         VideoTranscoding subtitle = new VideoTranscoding();
+        subtitle.SourceFile = info.Metadata.Source;
         subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
+        subtitle.SourceSubtitles.AddRange(info.Subtitles);
         if (MediaServerPlugin.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
         {
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
@@ -445,13 +436,10 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       }
       else
       {
-        MediaConverter converter = new MediaConverter();
-        converter.Logger = Logger;
-
         if (info.IsImage)
         {
           ImageTranscoding image = (ImageTranscoding)TranscodingParameter;
-          TranscodedImageMetadata metadata = converter.GetTranscodedImageMetadata(image);
+          TranscodedImageMetadata metadata = MediaConverter.GetTranscodedImageMetadata(image);
           DlnaMetadata = new MetadataContainer();
           DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
           DlnaMetadata.Metadata.ImageContainerType = metadata.TargetImageCodec;
@@ -468,7 +456,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         else if (info.IsAudio)
         {
           AudioTranscoding audio = (AudioTranscoding)TranscodingParameter;
-          TranscodedAudioMetadata metadata = converter.GetTranscodedAudioMetadata(audio);
+          TranscodedAudioMetadata metadata = MediaConverter.GetTranscodedAudioMetadata(audio);
           DlnaMetadata = new MetadataContainer();
           DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
           DlnaMetadata.Metadata.AudioContainerType = metadata.TargetAudioContainer;
@@ -506,7 +494,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         else if (info.IsVideo)
         {
           VideoTranscoding video = (VideoTranscoding)TranscodingParameter;
-          TranscodedVideoMetadata metadata = converter.GetTranscodedVideoMetadata(video);
+          TranscodedVideoMetadata metadata = MediaConverter.GetTranscodedVideoMetadata(video);
           int selectedAudio = 0;
           for (int stream = 0; stream < info.Audio.Count; stream++)
           {
@@ -572,8 +560,6 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           DlnaMetadata.Video.PixelFormatType = metadata.TargetVideoPixelFormat;
           DlnaMetadata.Video.TimestampType = metadata.TargetVideoTimestamp;
           DlnaMetadata.Video.Width = metadata.TargetVideoMaxWidth;
-
-          IsSubtitled = metadata.TargetSubtitled;
         }
       }
 
@@ -628,7 +614,8 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         {
           if (MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeId))
           {
-            MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId].Stop();
+            for (int transcodeNo = 0; transcodeNo < MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId].Count; transcodeNo++)
+              MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId][transcodeNo].Stop();
           }
         }
       }
@@ -689,7 +676,6 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         return true;
       }
     }
-    public bool IsSubtitled { get; private set; }
     public BaseTranscoding TranscodingParameter { get; private set; }
     public BaseTranscoding SubtitleTranscodingParameter { get; private set; }
     public bool IsImage { get; private set; }

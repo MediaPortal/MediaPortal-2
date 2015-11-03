@@ -22,27 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using UPnP.Infrastructure.Utils;
-using MediaPortal.Common.Services.ResourceAccess.Settings;
-using MediaPortal.Common.Settings;
-using MediaPortal.Utilities.Network;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using System.IO;
-using MediaPortal.Extensions.MediaServer.Profiles;
-
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySubtitleResource : IDirectoryResource

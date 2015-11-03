@@ -344,7 +344,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public float TargetLevel = -1;
     public float TargetVideoFrameRate = -1;
     public Timestamp TargetVideoTimestamp = Timestamp.None;
-    public bool TargetSubtitled = false;
   }
 
   public class TranscodedImageMetadata

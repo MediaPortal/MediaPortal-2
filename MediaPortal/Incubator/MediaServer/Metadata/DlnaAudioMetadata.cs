@@ -23,13 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using MediaPortal.Plugins.Transcoding.Aspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Extensions.MediaServer.Metadata
 {
@@ -62,37 +61,34 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
       }
       if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == true)
       {
-        SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
-        SingleMediaItemAspect transcodeAudioAspect = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata);
-        SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
-
         object oValue = null;
-        oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), oValue.ToString());
         }
         AudioStream audio = new AudioStream();
-        oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
         if (oValue != null)
         {
           audio.StreamIndex = Convert.ToInt32(oValue);
-          oValue = (string)transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
+          oValue = (string)MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             audio.Codec = (AudioCodec)Enum.Parse(typeof(AudioCodec), oValue.ToString());
           }
-          oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
           if (oValue != null)
           {
             audio.Channels = Convert.ToInt32(oValue);
           }
-          oValue = transcodeAudioAspect.GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
           if (oValue != null)
           {
             audio.Frequency = Convert.ToInt64(oValue);
           }
-          if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID) == true)
+		  SingleMediaItemAspect audioAspect;
+          if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect))
           {
             oValue = audioAspect.GetAttributeValue(AudioAspect.ATTR_BITRATE);
             if (oValue != null)
@@ -105,7 +101,8 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
               info.Metadata.Duration = Convert.ToDouble(oValue);
             }
           }
-          if (providerResourceAspect != null)
+		  SingleMediaItemAspect providerResourceAspect;
+          if (MediaItemAspect.TryGetAspect(item.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
           {
             oValue = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
             if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)

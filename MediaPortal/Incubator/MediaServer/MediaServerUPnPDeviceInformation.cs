@@ -25,16 +25,15 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
+using System.Reflection;
 using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using System.Net;
-using System.Reflection;
 
 namespace MediaPortal.Extensions.MediaServer
 {

@@ -22,33 +22,16 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
+  public class MediaLibraryEpisodeItem : MediaLibraryVideoItem
   {
-    public MediaItem Item { get; protected set; }
-
-    public MediaLibraryItem(MediaItem item, EndPointSettings client)
-      : base(item.MediaItemId.ToString(), client)
+    public MediaLibraryEpisodeItem(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
-      Item = item;
-      AlbumArtUrls = new List<IDirectoryAlbumArt>();
-      var albumArt = new MediaLibraryAlbumArt(item, client);
-      albumArt.Initialise();
-      AlbumArtUrls.Add(albumArt);
-    }
-
-    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
- 
-    public override void Initialise()
-    {
-      Title = MediaItemAspect.GetAspect(Item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
     }
   }
 }

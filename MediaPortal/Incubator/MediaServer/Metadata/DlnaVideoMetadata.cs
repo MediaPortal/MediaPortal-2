@@ -22,15 +22,14 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.Extensions.MediaServer.Metadata
 {
@@ -64,60 +63,58 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
 
       if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == true)
       {
-        SingleMediaItemAspect transcodeVideoAspect = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata);
-
         object oValue = null;
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_CONTAINER);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), oValue.ToString());
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_BRAND);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_BRAND);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.MajorBrand = oValue.ToString();
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_CODEC);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_CODEC);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.Codec = (VideoCodec)Enum.Parse(typeof(VideoCodec), oValue.ToString());
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_FOURCC);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_FOURCC);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.FourCC = oValue.ToString();
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_PROFILE);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_PROFILE);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.ProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), oValue.ToString());
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL);
         if (oValue != null)
         {
           info.Video.HeaderLevel = Convert.ToSingle(oValue);
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL);
         if (oValue != null)
         {
           info.Video.RefLevel = Convert.ToSingle(oValue);
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
         if (oValue != null)
         {
           info.Video.PixelAspectRatio = Convert.ToSingle(oValue);
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
         if (oValue != null)
         {
           info.Video.StreamIndex = Convert.ToInt32(oValue);
         }
-        oValue = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP);
+        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemVideoAspect.Metadata).GetAttributeValue(TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.TimestampType = (Timestamp)Enum.Parse(typeof(Timestamp), oValue.ToString());
@@ -126,16 +123,16 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
         IList<MultipleMediaItemAspect> transcodeItemVideoAudioAspects;
         if (MediaItemAspect.TryGetAspects(item.Aspects, TranscodeItemVideoAudioAspect.Metadata, out transcodeItemVideoAudioAspects))
         {
-          object valueBitrate = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOBITRATE);
-          object valueChannel = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOCHANNEL);
-          object valueCodec = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC);
-          object valueFrequency = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOFREQUENCY);
-          object valueLang = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE);
-          object valueStream = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOSTREAM);
-          object valueDefault = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIODEFAULT);
-
           for (int iAudio = 0; iAudio < transcodeItemVideoAudioAspects.Count; iAudio++)
           {
+            object valueBitrate = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOBITRATE);
+            object valueChannel = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOCHANNEL);
+            object valueCodec = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC);
+            object valueFrequency = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOFREQUENCY);
+            object valueLang = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE);
+            object valueStream = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOSTREAM);
+            object valueDefault = transcodeItemVideoAudioAspects[iAudio].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIODEFAULT);
+
             AudioStream audio = new AudioStream();
             if (valueBitrate != null)
             {
@@ -172,61 +169,62 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
         IList<MultipleMediaItemAspect> transcodeItemVideoEmbeddedAspects;
         if (MediaItemAspect.TryGetAspects(item.Aspects, TranscodeItemVideoEmbeddedAspect.Metadata, out transcodeItemVideoEmbeddedAspects))
         {
-          object valueEmSubCodec = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC);
-          object valueEmSubDefault = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT);
-          object valueEmSubLang = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE);
-          object valueEmSubStream = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM);
+          for (int iSub = 0; iSub < transcodeItemVideoEmbeddedAspects.Count; iSub++)
+          {
+          object valueEmSubCodec = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC);
+          object valueEmSubDefault = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT);
+          object valueEmSubLang = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE);
+          object valueEmSubStream = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM);
 
-          SubtitleStream sub = new SubtitleStream();
-          if (valueEmSubCodec != null && string.IsNullOrEmpty(valueEmSubCodec.ToString()) == false)
-          {
-            sub.Codec = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), valueEmSubCodec.ToString());
+            SubtitleStream sub = new SubtitleStream();
+            if (valueEmSubCodec != null && string.IsNullOrEmpty(valueEmSubCodec.ToString()) == false)
+            {
+              sub.Codec = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), valueEmSubCodec.ToString());
+            }
+            if (valueEmSubLang != null && string.IsNullOrEmpty(valueEmSubLang.ToString()) == false)
+            {
+              sub.Language = valueEmSubLang.ToString();
+            }
+            if (valueEmSubStream != null)
+            {
+              sub.StreamIndex = Convert.ToInt32(valueEmSubStream);
+            }
+            if (valueEmSubDefault != null)
+            {
+              sub.Default = Convert.ToInt32(valueEmSubDefault) > 0;
+            }
+            info.Subtitles.Add(sub);
           }
-          if (valueEmSubLang != null && string.IsNullOrEmpty(valueEmSubLang.ToString()) == false)
-          {
-            sub.Language = valueEmSubLang.ToString();
-          }
-          if (valueEmSubStream != null)
-          {
-            sub.StreamIndex = Convert.ToInt32(valueEmSubStream);
-          }
-          if (valueEmSubDefault != null)
-          {
-            sub.Default = Convert.ToInt32(valueEmSubDefault) > 0;
-          }
-          info.Subtitles.Add(sub);
         }
 
         if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID) == true)
         {
-          SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
-
-          oValue = videoAspect.GetAttributeValue(VideoAspect.ATTR_HEIGHT);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_HEIGHT);
           if (oValue != null)
           {
             info.Video.Height = Convert.ToInt32(oValue);
           }
-          oValue = videoAspect.GetAttributeValue(VideoAspect.ATTR_WIDTH);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_WIDTH);
           if (oValue != null)
           {
             info.Video.Width = Convert.ToInt32(oValue);
           }
-          oValue = videoAspect.GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO);
           if (oValue != null)
           {
             info.Video.AspectRatio = Convert.ToSingle(oValue);
           }
-          oValue = videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_DURATION);
           if (oValue != null)
           {
             info.Metadata.Duration = Convert.ToDouble(oValue);
           }
-          oValue = videoAspect.GetAttributeValue(VideoAspect.ATTR_FPS);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_FPS);
           if (oValue != null)
           {
             info.Video.Framerate = Convert.ToSingle(oValue);
           }
-          oValue = videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE);
           if (oValue != null)
           {
             info.Video.Bitrate = Convert.ToInt64(oValue);
@@ -234,8 +232,7 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
         }
         if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
         {
-          SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
-          oValue = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+          oValue = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata).GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             info.Metadata.Mime = oValue.ToString();

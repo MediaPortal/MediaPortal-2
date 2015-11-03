@@ -107,7 +107,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
+        executionResult = FFMpegBinary.FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
       
       // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
       // and stderr is used for logging purposes. In your example you use stdout.
@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = ServiceRegistration.Get<IFFMpegLib>().FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
+        executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
       
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {

@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Service;
 using System;
 using System.Collections.Generic;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Extensions.MediaServer.DLNA
 {

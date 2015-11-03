@@ -28,23 +28,19 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.DLNA;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryMusicTrack : MediaLibraryAudioItem, IDirectoryMusicTrack
   {
-    public MediaLibraryMusicTrack(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey, item, client)
+    public MediaLibraryMusicTrack(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item);
-
       Artist = new List<string>();
       Album = new List<string>();
       Playlist = new List<string>();
       Contributor = new List<string>();
 
-      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
       SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
       var album = audioAspect.GetAttributeValue(AudioAspect.ATTR_ALBUM);
       if (album != null) Album.Add(album.ToString());
@@ -58,7 +54,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var originalTrack = audioAspect.GetAttributeValue(AudioAspect.ATTR_TRACK);
       if (originalTrack != null) OriginalTrackNumber = Convert.ToInt32(originalTrack.ToString());
 
-      object oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

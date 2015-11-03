@@ -26,11 +26,11 @@ using MediaPortal.Extensions.MediaServer.DLNA;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryAlbumArtResource : IDirectoryResource
+  public class MediaLibrarySeriesArtResource : IDirectoryResource
   {
-    public MediaLibraryAlbumArt Item { get; set; }
+    public MediaLibrarySeriesArt Item { get; set; }
 
-    public MediaLibraryAlbumArtResource(MediaLibraryAlbumArt item)
+    public MediaLibrarySeriesArtResource(MediaLibrarySeriesArt item)
     {
       Item = item;
     }

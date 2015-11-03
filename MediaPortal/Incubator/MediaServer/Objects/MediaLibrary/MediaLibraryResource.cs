@@ -23,15 +23,10 @@
 #endregion
 
 using System;
-using System.Net;
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {

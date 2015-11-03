@@ -67,7 +67,6 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="FFMpegLib.cs" />
-    <Compile Include="IFFMpegLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

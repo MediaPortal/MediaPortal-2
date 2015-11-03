@@ -22,33 +22,43 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
+  public class MediaLibraryBrowser : MediaLibraryContainer
   {
-    public MediaItem Item { get; protected set; }
+    private static readonly Guid[] NECSSARY_MIA_TYPE_IDS = {
+      ProviderResourceAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+    };
 
-    public MediaLibraryItem(MediaItem item, EndPointSettings client)
-      : base(item.MediaItemId.ToString(), client)
+    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
+      DirectoryAspect.ASPECT_ID,
+      VideoAspect.ASPECT_ID,
+      AudioAspect.ASPECT_ID,
+      ImageAspect.ASPECT_ID,
+      TranscodeItemAudioAspect.ASPECT_ID,
+      TranscodeItemImageAspect.ASPECT_ID,
+      TranscodeItemVideoAspect.ASPECT_ID,
+    };
+
+    public MediaLibraryBrowser(MediaItem item, EndPointSettings client)
+      : base(item, NECSSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS, null, client)
     {
-      Item = item;
-      AlbumArtUrls = new List<IDirectoryAlbumArt>();
-      var albumArt = new MediaLibraryAlbumArt(item, client);
-      albumArt.Initialise();
-      AlbumArtUrls.Add(albumArt);
     }
 
-    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
- 
-    public override void Initialise()
+    public IList<MediaItem> GetItems()
     {
-      Title = MediaItemAspect.GetAspect(Item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      return library.Browse(Item.MediaItemId, NECSSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS);
     }
   }
 }

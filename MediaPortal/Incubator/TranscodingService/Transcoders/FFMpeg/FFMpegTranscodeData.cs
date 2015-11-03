@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
   internal class FFMpegTranscodeData : TranscodeData
   {
 
-    private static readonly string BIN_TRANSCODER = ServiceRegistration.Get<IFFMpegLib>().FFMpegBinaryPath;
+    private static readonly string BIN_TRANSCODER = FFMpegBinary.FFMpegPath;
 
     public EncoderHandler Encoder { get; set; } 
 

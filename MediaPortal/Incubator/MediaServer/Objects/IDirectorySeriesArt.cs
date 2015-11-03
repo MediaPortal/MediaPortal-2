@@ -24,9 +24,12 @@
 
 namespace MediaPortal.Extensions.MediaServer.Objects
 {
-  public interface IDirectorySubtitle
+  public interface IDirectorySeriesArt
   {
     [DirectoryProperty("")]
     string Uri { get; set; }
+
+    [DirectoryProperty("@dlna:profileID", Required = false)]
+    string ProfileId { get; set; }
   }
 }
