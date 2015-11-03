@@ -43,7 +43,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
       TranscoderMaximumThreads = 0; //Auto
       TranscoderTimeout = 5000;
       HLSSegmentTimeInSeconds = 10;
-      HLSSegmentFileTemplate = "segment%05d.ts";
       SubtitleDefaultEncoding = "";
       SubtitleDefaultLanguage = "";
       NvidiaHWAccelerationAllowed = false;
@@ -68,8 +67,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
     public int TranscoderTimeout { get; private set; }
     [Setting(SettingScope.Global)]
     public int HLSSegmentTimeInSeconds { get; private set; }
-    [Setting(SettingScope.Global)]
-    public string HLSSegmentFileTemplate { get; private set; }
     [Setting(SettingScope.Global)]
     public string SubtitleDefaultEncoding { get; private set; }
     [Setting(SettingScope.Global)]

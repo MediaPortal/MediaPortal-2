@@ -36,6 +36,8 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
+using System.Diagnostics;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -278,8 +280,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       data.OutputFilePath = targetFilePath;
 
       if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to extract subtitle from file '{0}'", video.SourceFile);
-      FFMpegFileProcessor.FileProcessor(ref data, _transcoderTimeout);
-      if (File.Exists(targetFilePath) == false)
+      bool success = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)data.InputResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout).Result.Success;
+      if (success && File.Exists(targetFilePath) == false)
       {
         if (Logger != null) Logger.Error("MediaConverter: Failed to extract subtitle from file '{0}'", video.SourceFile);
         return null;

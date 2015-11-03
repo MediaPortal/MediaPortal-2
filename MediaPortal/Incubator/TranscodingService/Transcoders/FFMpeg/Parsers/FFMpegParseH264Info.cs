@@ -42,36 +42,31 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 
     #endregion
 
-    private static int TranscoderTimeout { get; set; }
-
     internal static void ParseH264Info(ref MetadataContainer info, Dictionary<float, long> h264MaxDpbMbs, int transcoderTimeout)
     {
-      TranscoderTimeout = transcoderTimeout;
-
       if (info.Video.Codec == VideoCodec.H264)
       {
+        string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".bin";
         try
         {
-          byte[] h264Stream = null;
           string arguments = string.Format("-i \"{0}\" -frames:v 1 -c:v copy -f h264", info.Metadata.Source);
           if (info.Metadata.VideoContainerType != VideoContainer.Mpeg2Ts)
           {
             arguments += " -bsf:v h264_mp4toannexb";
           }
-          arguments += " -an pipe:";
+          arguments += string.Format(" -an \"{0}\"", tempFileName);
 
-          bool success;
+          bool success = false;
           lock (FFPROBE_THROTTLE_LOCK)
-            success = TryExecuteBinary(arguments, out h264Stream, (ILocalFsResourceAccessor)info.Metadata.Source, ProcessPriorityClass.BelowNormal);
-
-          if (success == false || h264Stream == null)
+            success = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)info.Metadata.Source, arguments, ProcessPriorityClass.Idle, transcoderTimeout).Result.Success;
+          if (success && File.Exists(tempFileName) == false)
           {
             ServiceRegistration.Get<ILogger>().Warn("MediaAnalyzer: Failed to extract h264 annex b header information for resource: '{0}'", info.Metadata.VideoContainerType);
             return;
           }
 
           H264Analyzer avcAnalyzer = new H264Analyzer();
-          if (avcAnalyzer.Parse(h264Stream) == true)
+          if (avcAnalyzer.Parse(File.ReadAllBytes(tempFileName)) == true)
           {
             switch (avcAnalyzer.HeaderProfile)
             {
@@ -125,45 +120,13 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         {
           if (Logger != null) Logger.Error("MediaAnalyzer: Failed to analyze H264 information for resource '{0}':\n {1}", info.Metadata.Source, e.Message);
         }
-      }
-    }
-
-    // TODO: Should be in the FFMpegLib
-    private static bool TryExecuteBinary(string arguments, out byte[] result, ILocalFsResourceAccessor lfsra, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal)
-    {
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
-      {
-        using (Process process = new Process { StartInfo = new ProcessStartInfo(FFMpegBinary.FFMpegPath, arguments) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true } })
+        try
         {
-          process.Start();
-          process.PriorityClass = priorityClass;
-          List<byte> resultList = new List<byte>();
-          bool abort = false;
-          using (process.StandardOutput)
-          {
-            DateTime dtEnd = DateTime.Now.AddMilliseconds(TranscoderTimeout);
-            using (BinaryReader br = new BinaryReader(process.StandardOutput.BaseStream))
-            {
-              while (abort == false && DateTime.Now < dtEnd)
-              {
-                try
-                {
-                  resultList.Add(br.ReadByte());
-                }
-                catch (EndOfStreamException)
-                {
-                  abort = true;
-                }
-              }
-            }
-          }
-          result = resultList.ToArray();
-          process.Close();
-          if (abort == true)
-            return true;
+          if (File.Exists(tempFileName))
+            File.Delete(tempFileName);
         }
+        catch { }
       }
-      return false;
     }
 
     private static ILogger Logger

@@ -24,6 +24,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     object _lastSync = new object();
     bool _streamInUse = false;
     bool _useCache = true;
+    long _currentSegment = 0;
     ManualResetEvent _completeEvent = new ManualResetEvent(true);
 
     public TranscodeContext(bool useCache)
@@ -42,20 +43,56 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public bool Aborted { get; internal set; }
     public bool Failed { get; internal set; }
     public bool Partial { get; internal set; }
+    public bool Segmented 
+    { 
+      get
+      {
+        return string.IsNullOrEmpty(SegmentDir) == false;
+      }
+    }
     public bool InUse 
     {
       get { return _streamInUse; }
       set
       {
-        if(_streamInUse == true && value == false && (Partial == true || _useCache == false))
+        if(_streamInUse == true && value == false && Segmented == false && (Partial == true || _useCache == false))
         {
           //Delete transcodes if no longer used
           Stop();
           DeleteFiles();
         }
+        if(Segmented)
+        {
+          if (CurrentSegment == LastSegment)
+          {
+            CurrentSegment = LastSegment; //Trigger delete
+          }
+        }
         _streamInUse = value;
       }
     }
+
+    public long LastSegment { get; internal set; }
+
+    public long CurrentSegment
+    {
+      set
+      {
+        if (value == LastSegment && _streamInUse == false && (Partial == true || _useCache == false))
+        {
+          Stop();
+          DeleteFiles();
+        }
+        _currentSegment = value;
+      }
+      get
+      {
+        return _currentSegment;
+      }
+    }
+
+    public int TotalSegments  { get; internal set; }
+
     public TimeSpan TargetDuration { get; internal set; }
     public TimeSpan CurrentDuration 
     { 
@@ -94,7 +131,28 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       get
       {
-        if (_transcodedStream != null)
+        if (Segmented)
+        {
+          if (_lastSize > 0)
+          {
+            lock (_lastSync)
+            {
+              double secondSize = Convert.ToDouble(_lastSize) / _lastTime.TotalSeconds;
+              return Convert.ToInt64(secondSize * TargetDuration.TotalSeconds);
+            }
+          }
+          else
+          {
+            long totalSize = 0;
+            string[] segmentFiles = Directory.GetFiles(SegmentDir, "*.ts");
+            foreach (string file in segmentFiles)
+            {
+              totalSize += new FileInfo(file).Length;
+            }
+            return totalSize;
+          }
+        }
+        else if (_transcodedStream != null)
         {
           return _transcodedStream.Length;
         }

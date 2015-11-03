@@ -116,6 +116,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public MetadataContainer ParseImageFile(ILocalFsResourceAccessor lfsra)
     {
       string fileName = lfsra.LocalFileSystemPath;
+      //Default image decoder (image2) fails if file name contains å, ø, ö etc., so force format to image2pipe
       string arguments = string.Format("-threads {0} -f image2pipe -i \"{1}\"", AnalyzerMaximumThreads, fileName);
 
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
