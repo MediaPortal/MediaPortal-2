@@ -15,4 +15,7 @@
 
   <string name="SystemState.MinimizeMP">Minimize MediaPortal</string>
   <string name="SystemState.ShutdownMP">Close MediaPortal</string>
+
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Shutdown menu</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Shutdown menu configuration</string>
 </resources>
