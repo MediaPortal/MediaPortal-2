@@ -622,11 +622,13 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
             #region Check for HLS segment
 
+            long segmentNumber = -1;
             if (resourceStream == null && dlnaItem.IsSegmented)
             {
               int startIndex = request.Uri.AbsoluteUri.LastIndexOf("/") + 1;
               string fileName = request.Uri.AbsoluteUri.Substring(startIndex);
               string mime = MediaConverter.GetHlsFileMime(fileName);
+              segmentNumber = MediaConverter.GetHlsSegmentSequence(fileName);
               if (string.IsNullOrEmpty(mime) == false)
               {
                 string segmentFile = Path.Combine(dlnaItem.SegmentDir, fileName);
@@ -877,7 +879,12 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             }
             finally
             {
-              if (context != null) context.InUse = false;
+              if (context != null)
+              {
+                //Update current segment
+                if (segmentNumber >= 0 && context.Segmented) context.CurrentSegment = segmentNumber;
+                context.InUse = false;
+              }
             }
 
             #endregion
