@@ -11,6 +11,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Threading;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses
 {
@@ -31,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
         EndTime = (DateTime) (recordingAspect.GetAttributeValue(RecordingAspect.ATTR_ENDTIME) ?? DateTime.Now),
         Genre = (item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES] as HashSet<object> != null) ? string.Join(", ", ((HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES]).Cast<string>().ToArray()) : string.Empty,
         TimesWatched = (int)(item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] ?? 0),
-        FileName = (path != null && path.PathSegments.Count > 0) ? path.PathSegments.FirstOrDefault().Path : string.Empty,
+        FileName = (path != null && path.PathSegments.Count > 0) ? StringUtils.RemovePrefixIfPresent(path.LastPathSegment.Path, "/") : string.Empty,
       };
     }
   }
