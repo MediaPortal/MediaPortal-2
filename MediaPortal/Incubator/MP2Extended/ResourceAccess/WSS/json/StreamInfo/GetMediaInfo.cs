@@ -61,11 +61,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 
         // Video Stream
         WebVideoStream webVideoStream = new WebVideoStream();
-        webVideoStream.Codec = (string)(videoAspect[VideoAspect.ATTR_VIDEOENCODING] ?? string.Empty);
-        webVideoStream.DisplayAspectRatio = Convert.ToDecimal((float)(videoAspect[VideoAspect.ATTR_ASPECTRATIO] ?? 0));
-        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString((float)(videoAspect[VideoAspect.ATTR_ASPECTRATIO] ?? 0));
-        webVideoStream.Height = (int)(videoAspect[VideoAspect.ATTR_HEIGHT] ?? 0);
-        webVideoStream.Width = (int)(videoAspect[VideoAspect.ATTR_WIDTH] ?? 0);
+        webVideoStream.Codec = Convert.ToString(videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOENCODING) ?? string.Empty);
+        webVideoStream.DisplayAspectRatio = Convert.ToDecimal(videoAspect.GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO) ?? 0);
+        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString(Convert.ToDecimal(videoAspect.GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO) ?? 0));
+        webVideoStream.Height = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_HEIGHT) ?? 0);
+        webVideoStream.Width = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_WIDTH) ?? 0);
         webVideoStreams.Add(webVideoStream);
 
         if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID))
