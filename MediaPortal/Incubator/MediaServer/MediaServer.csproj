@@ -87,6 +87,7 @@
     <Compile Include="Objects\Basic\BasicItem.cs" />
     <Compile Include="Objects\Basic\BasicObject.cs" />
     <Compile Include="Objects\IDirectoryAlbum.cs" />
+    <Compile Include="Objects\IDirectorySeriesArt.cs" />
     <Compile Include="Objects\IDirectoryAlbumArt.cs" />
     <Compile Include="Objects\IDirectoryAudioBook.cs" />
     <Compile Include="Objects\IDirectoryAudioBroadcast.cs" />
