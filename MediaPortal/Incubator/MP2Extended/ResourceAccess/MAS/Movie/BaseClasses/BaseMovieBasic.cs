@@ -34,6 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
         Title = (string)movieAspects[MovieAspect.ATTR_MOVIE_NAME],
         Year = ((DateTime)item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME)).Year,
         Path = new List<string> { (path != null && path.PathSegments.Count > 0) ? StringUtils.RemovePrefixIfPresent(path.LastPathSegment.Path, "/") : string.Empty },
+        Actors = new BaseMovieActors().MovieActors(item)
         //Artwork = 
       };
       var TMDBId = movieAspects[MovieAspect.ATTR_TMDB_ID];
@@ -60,23 +61,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
       if (rating != null)
         webMovieBasic.Rating = Convert.ToSingle(rating);
       
-      var year = item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_RECORDINGTIME];
-      if (year != null)
-        webMovieBasic.Year = ((DateTime)year).Year;
-      
-      var movieActors = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_ACTORS];
-      if (movieActors != null)
-      {
-        webMovieBasic.Actors = new List<WebActor>();
-        foreach (var actor in movieActors)
-        {
-          webMovieBasic.Actors.Add(new WebActor
-          {
-            Title = actor.ToString(),
-            PID = 0
-          });
-        }
-      }
       var movieGenres = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
       if (movieGenres != null)
         webMovieBasic.Genres = movieGenres.Cast<string>().ToList();

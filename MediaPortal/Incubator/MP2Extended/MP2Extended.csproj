@@ -166,9 +166,12 @@
     <Compile Include="ResourceAccess\MAS\General\TestConnection.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetMediaItem.cs" />
     <Compile Include="ResourceAccess\MAS\General\WebStringResult.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\BaseClasses\BaseMovieActors.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\BaseClasses\BaseMovieBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\BaseClasses\BaseMovieDetailed.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMovieActorCount.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieCount.cs" />
+    <Compile Include="ResourceAccess\MAS\Movie\GetMovieActors.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMoviesBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Movie\GetMovieDetailedById.cs" />

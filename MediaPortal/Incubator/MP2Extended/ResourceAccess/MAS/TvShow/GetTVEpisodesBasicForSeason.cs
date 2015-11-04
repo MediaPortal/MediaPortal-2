@@ -70,6 +70,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       necessaryMIATypesEpisodes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypesEpisodes.Add(SeriesAspect.ASPECT_ID);
       necessaryMIATypesEpisodes.Add(ImporterAspect.ASPECT_ID);
+      necessaryMIATypesEpisodes.Add(ProviderResourceAspect.ASPECT_ID);
 
       IFilter searchFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
         new RelationalFilter(SeriesAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber),

@@ -8,14 +8,16 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.MAS.General;
+using MediaPortal.Plugins.MP2Extended.MAS.Movie;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
-  // TODO: Rework after MIA Rework
-  internal class GetMovieGenres : IRequestMicroModuleHandler
+  internal class GetMovieActors : BaseMovieActors, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -31,37 +33,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       if (items.Count == 0)
         throw new BadRequestException("No Movies found");
 
-      var output = new List<WebGenre>();
+      List<WebActor> output = new List<WebActor>();
 
-      foreach (var item in items)
-      {
-        var videoGenres = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
-        List<string> videoGenresList = new List<string>();
-        if (videoGenres != null)
-          videoGenresList = videoGenres.Cast<string>().ToList();
-        foreach (var genre in videoGenresList)
-        {
-          int index = output.FindIndex(x => x.Title == genre);
-          if (index == -1)
-          {
-            WebGenre webGenre = new WebGenre { Title = genre };
+      output = items.Aggregate(output, (current, item) => current.Concat(MovieActors(item)).Distinct().ToList());
 
-            output.Add(webGenre);
-          }
-        }
-      }
-
-      // sort
+      // sort and filter
       HttpParam httpParam = request.Param;
       string sort = httpParam["sort"].Value;
       string order = httpParam["order"].Value;
+      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
         WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
         WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
 
-        output = output.SortWebGenre(webSortField, webSortOrder).ToList();
+        output = output.AsQueryable().Filter(filter).SortMediaItemList(webSortField, webSortOrder).ToList();
       }
+      else
+        output = output.Filter(filter).ToList();
 
       return output;
     }
