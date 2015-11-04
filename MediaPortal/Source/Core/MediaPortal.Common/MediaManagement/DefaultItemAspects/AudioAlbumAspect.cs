@@ -49,6 +49,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Enumeration of artist names.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPOSERS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Enumeration of genre names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
@@ -71,6 +77,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         ASPECT_ID, "AlbumItem", new[] {
             ATTR_DESCRIPTION,
             ATTR_ARTISTS,
+            ATTR_COMPOSERS,
             ATTR_GENRES,
             ATTR_NUMTRACKS,
             ATTR_DISCID,
