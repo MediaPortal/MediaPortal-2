@@ -6,10 +6,11 @@
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   x:Name="MediaItemDetails"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+  Margin="{ThemeResource MultiDetailsFooterMargin}">
 
   <Grid.RowDefinitions>
-    <RowDefinition Height="210"/>
+    <RowDefinition Height="{ThemeResource MultiDetailsFooterHeight}"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
