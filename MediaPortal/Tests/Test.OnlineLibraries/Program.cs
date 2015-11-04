@@ -116,7 +116,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
 
-      ServiceRegistration.Set<IMediaAccessor>(new MockMediaAccessor());
+      ServiceRegistration.Set<IMediaAccessor>(new TestMediaAccessor());
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MockMediaItemAspectTypeRegistration());
 
       ApplicationCore.RegisterDefaultMediaItemAspectTypes();

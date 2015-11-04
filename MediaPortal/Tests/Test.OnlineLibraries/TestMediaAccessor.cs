@@ -6,12 +6,12 @@ using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 
 namespace Test.OnlineLibraries
 {
-  public class MockMediaAccessor : IMediaAccessor
+  public class TestMediaAccessor : IMediaAccessor
   {
     private IDictionary<Guid, IResourceProvider> _localResourceProviders = new Dictionary<Guid, IResourceProvider>();
     private IDictionary<string, MediaCategory> _mediaCategories = new Dictionary<string, MediaCategory>();
 
-    public MockMediaAccessor()
+    public TestMediaAccessor()
     {
       _localResourceProviders[LocalFsResourceProvider.LOCAL_FS_RESOURCE_PROVIDER_ID] = new LocalFsResourceProvider();
     }
