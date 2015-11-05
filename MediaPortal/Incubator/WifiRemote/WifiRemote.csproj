@@ -54,6 +54,8 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserMovingpictures.cs" />
+    <Compile Include="MessageParser\ParserPlaylist.cs" />
     <Compile Include="MessageParser\ParserPosition.cs" />
     <Compile Include="MessageParser\ParserMPExt.cs" />
     <Compile Include="MessageParser\ParserProperties.cs" />
@@ -131,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

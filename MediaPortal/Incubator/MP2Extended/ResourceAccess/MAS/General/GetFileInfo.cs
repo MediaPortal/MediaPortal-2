@@ -10,11 +10,12 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
-  internal class GetFileInfo : SendDataBase, IRequestMicroModuleHandler
+  internal class GetFileInfo : BaseSendData, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -33,8 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       if (item == null)
         throw new BadRequestException("GetFileInfo: no media tiem found");
 
-      SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
-      var resourcePathStr = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
       var ra = GetResourceAccessor(resourcePath);

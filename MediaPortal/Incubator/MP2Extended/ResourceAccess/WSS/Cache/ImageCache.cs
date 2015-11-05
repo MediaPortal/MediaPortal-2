@@ -10,6 +10,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Services.PathManager;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
@@ -22,20 +24,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// {2} = width
     /// {3} = height
     /// {4} = borders
+    /// {5} = WebMediaType
+    /// {6} = WebFileType
     /// </summary>
-    private const string FILENAME_PATTERN = "imageCache_{0}_{1}_{2}_{3}_{4}";
+    private const string FILENAME_PATTERN = "imageCache_{0}_{1}_{2}_{3}_{4}_{5}_{6}";
 
     /// <summary>
     /// The sub dir in the DATA folder
     /// </summary>
     private const string CHACHE_DIR = "MP2ExtendedCache\\";
 
-    private static string GetFilePath(Guid id, CacheIdentifier identifier, int width, int height, string borders)
+    private static string GetFilePath(CacheIdentifier identifier)
     {
       string dataDirectory = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\"+CHACHE_DIR);
       if (!Directory.Exists(dataDirectory))
         Directory.CreateDirectory(dataDirectory);
-      string filename = string.Format(FILENAME_PATTERN, id, identifier.Id, width, height, borders);
+      string filename = string.Format(FILENAME_PATTERN, identifier.MediaItemId, identifier.ClassId, identifier.Width, identifier.Height, identifier.Borders, identifier.FanArtType, identifier.FanArtMediaType);
 
       return Path.Combine(dataDirectory, filename);
     }
@@ -55,24 +59,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <param name="height">height of the final image</param>
     /// <param name="borders">borders of the final image</param>
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
-    internal static bool AddImageToCache(byte[] data, Guid id, CacheIdentifier identifier, int width, int height, string borders)
+    internal static bool AddImageToCache(byte[] data, CacheIdentifier identifier)
     {
-      if (IsInCache(id, identifier, width, height, borders))
+      if (IsInCache(identifier))
         return false;
-      FileStream stream = File.OpenWrite(GetFilePath(id, identifier, width, height, borders));
+      FileStream stream = File.OpenWrite(GetFilePath(identifier));
       stream.Write(data, 0, data.Length);
       stream.Close();
       return true;
     }
 
-    internal static bool TryGetImageFromCache(Guid id, CacheIdentifier identifier, int width, int height, string borders, out byte[] data)
+    internal static bool TryGetImageFromCache(CacheIdentifier identifier, out byte[] data)
     {
       data = new byte[0];
-      string filepath = GetFilePath(id, identifier, width, height, borders);
-      if (!IsInCache(id, identifier, width, height, borders))
+      string filepath = GetFilePath(identifier);
+      if (!IsInCache(identifier))
         return false;
 
-      FileStream stream = File.OpenRead(GetFilePath(id, identifier, width, height, borders));
+      FileStream stream = File.OpenRead(GetFilePath(identifier));
       data = new byte[Convert.ToInt32(stream.Length)];
       stream.Read(data, 0, Convert.ToInt32(stream.Length));
       stream.Close();
@@ -89,31 +93,55 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <param name="borders">borders of the final image</param>
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
     /// <returns>true if the image is in the cache, otherwise false</returns>
-    internal static bool IsInCache(Guid id, CacheIdentifier identifier, int width, int height, string borders)
+    internal static bool IsInCache(CacheIdentifier identifier)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
-      if (item == null)
-        return false;
-      SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata);
-      DateTime dateAdded = (DateTime)importerAspect[ImporterAspect.ATTR_DATEADDED];
-      
-      string filepath = GetFilePath(id, identifier, width, height, borders);
-      return (File.Exists(GetFilePath(id, identifier, width, height, borders)) && DateTime.Compare(GetLastModifiedTime(filepath), dateAdded) >= 0);
+      string filepath = GetFilePath(identifier);
+      DateTime dateAdded;
+      if (!identifier.IsTvRadio)
+      {
+        ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+        necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+        MediaItem item = GetMediaItems.GetMediaItemById(identifier.MediaItemId, necessaryMIATypes);
+        if (item == null)
+          return false;
+        dateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+      }
+      else
+      {
+        dateAdded = DateTime.Now.AddMonths(-1); // refresh image evry month
+      }
+
+      return (File.Exists(GetFilePath(identifier)) && DateTime.Compare(GetLastModifiedTime(filepath), dateAdded) >= 0);
     }
 
-    internal static CacheIdentifier GetIdentifier()
+    internal static CacheIdentifier GetIdentifier(Guid id, bool isTvRadio, int width, int height, string borders, FanArtConstants.FanArtType fanArtType, FanArtConstants.FanArtMediaType fanartMediaType)
     {
       var mth = new StackTrace().GetFrame(1).GetMethod();
       var identifier = mth.ReflectedType == null ? mth.Name : mth.ReflectedType.Name;
 
-      return new CacheIdentifier { Id = identifier };
+      return new CacheIdentifier
+      {
+        ClassId = identifier,
+        MediaItemId = id,
+        IsTvRadio = isTvRadio,
+        Width = width,
+        Height = height,
+        Borders = borders,
+        FanArtType = fanArtType,
+        FanArtMediaType = fanartMediaType
+      };
     }
 
     internal class CacheIdentifier
     {
-      internal string Id { get; set; }
+      internal string ClassId { get; set; }
+      internal Guid MediaItemId { get; set; }
+      internal bool IsTvRadio { get; set; }
+      internal int Width { get; set; }
+      internal int Height { get; set; }
+      internal string Borders { get; set; }
+      internal FanArtConstants.FanArtType FanArtType { get; set; }
+      internal FanArtConstants.FanArtMediaType FanArtMediaType { get; set; }
     }
   }
 }

@@ -10,11 +10,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
-  internal class GetImage : SendDataBase, IStreamRequestMicroModuleHandler2
+  internal class GetImage : BaseSendData, IStreamRequestMicroModuleHandler2
   {
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
@@ -31,9 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
-      SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
-
-      var resourcePathStr = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
       var ra = GetResourceAccessor(resourcePath);

@@ -37,17 +37,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         throw new BadRequestException(String.Format("GetMediaItem: No MediaItem found with id: {0}", httpParam["id"].Value));
 
 
-      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
-      SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata);
-
       WebMediaItem webMediaItem = new WebMediaItem();
       webMediaItem.Id = item.MediaItemId.ToString();
       // TODO: Add Artwork
       //webMediaItem.Artwork
-      webMediaItem.DateAdded = (DateTime)importerAspect[ImporterAspect.ATTR_DATEADDED];
+      webMediaItem.DateAdded = (DateTime)item[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
       //webMediaItem.Path
       webMediaItem.Type = ResourceAccessUtils.GetWebMediaType(item);
-      webMediaItem.Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+      webMediaItem.Title = (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
 
       return webMediaItem;
     }

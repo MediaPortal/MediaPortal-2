@@ -26,6 +26,27 @@ namespace MediaPortal.Plugins.WifiRemote
       return isPlaying;
     }
 
+    internal static MediaItem GetMediaItemById(Guid id)
+    {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+      optionalMIATypes.Add(AudioAspect.ASPECT_ID);
+      optionalMIATypes.Add(VideoAspect.ASPECT_ID);
+      optionalMIATypes.Add(MovieAspect.ASPECT_ID);
+      optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
+
+
+      IFilter searchFilter = new MediaItemIdFilter(id);
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
+      IList<MediaItem> items = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false);
+
+      return items[0];
+    }
+
     internal static void PlayMediaItem(Guid mediaItemGuid, int startPos)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();

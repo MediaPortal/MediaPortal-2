@@ -7,6 +7,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -18,7 +19,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   // TODO: add more group information
   // TODO: filter by Group type (return only TV)
-  internal class GetGroups : IRequestMicroModuleHandler
+  internal class GetGroups : BaseChannelGroup, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -32,17 +33,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 
       List<WebChannelGroup> output = new List<WebChannelGroup>();
 
-      foreach (var group in channelGroups)
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
       {
-        WebChannelGroup webChannelGroup = new WebChannelGroup();
-        webChannelGroup.GroupName = group.Name;
-        webChannelGroup.Id = group.ChannelGroupId;
-        //webChannelGroup.IsChanged;
-        //webChannelGroup.IsRadio;
-        //webChannelGroup.IsTv;
-        //webChannelGroup.SortOrder;
-
-        output.Add(webChannelGroup);
+        output.Add(ChannelGroup(group));
       }
 
       // sort

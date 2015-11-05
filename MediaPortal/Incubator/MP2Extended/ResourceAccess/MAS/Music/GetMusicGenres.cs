@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
+  // TODO: Rework after MIA Rework
   internal class GetMusicGenres : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
@@ -34,9 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 
       foreach (var item in items)
       {
-        SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
-
-        var videoGenres = (HashSet<object>)audioAspect[AudioAspect.ATTR_GENRES];
+        var videoGenres = (HashSet<object>)item[AudioAspect.ASPECT_ID][AudioAspect.ATTR_GENRES];
         List<string> videoGenresList = new List<string>();
         if (videoGenres != null)
           videoGenresList = videoGenres.Cast<string>().ToList();

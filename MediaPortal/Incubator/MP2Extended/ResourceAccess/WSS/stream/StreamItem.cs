@@ -4,6 +4,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediaPortal.Extensions.MediaServer.DLNA;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 {
@@ -40,6 +41,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// Gets or sets the profile which is used for streaming
     /// </summary>
     internal EndPointProfile Profile { get; set; }
+
+    internal DlnaMediaItem TranscoderObject { get; set;  }
 
     /// <summary>
     /// Gets or sets the position from which the streaming should start

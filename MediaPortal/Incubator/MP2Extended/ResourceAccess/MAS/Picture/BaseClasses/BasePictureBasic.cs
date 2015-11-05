@@ -14,21 +14,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses
   {
     internal WebPictureBasic PictureBasic(MediaItem item)
     {
-      SingleMediaItemAspect imageAspect = MediaItemAspect.GetAspect(item.Aspects, ImageAspect.Metadata);
+      MediaItemAspect imageAspects = item.Aspects[ImageAspect.ASPECT_ID];
 
-      WebPictureBasic webPictureBasic = new WebPictureBasic();
+      WebPictureBasic webPictureBasic = new WebPictureBasic
+      {
+        Type = WebMediaType.Picture,
+        DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID].GetAttributeValue(ImporterAspect.ATTR_DATEADDED),
+        Id = item.MediaItemId.ToString(),
+        PID = 0,
+        Title = (string)item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_TITLE),
+        DateTaken = (DateTime)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_RECORDINGTIME]
+      };
 
       //webPictureBasic.Categories = imageAspects.GetAttributeValue(ImageAspect);
       //webPictureBasic.DateTaken = imageAspects.GetAttributeValue(ImageAspect.);
-      webPictureBasic.Type = WebMediaType.Picture;
       //webPictureBasic.Artwork;
-      webPictureBasic.DateAdded = (DateTime)imageAspect.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-      webPictureBasic.Id = item.MediaItemId.ToString();
-      webPictureBasic.PID = 0;
       //webPictureBasic.Path;
-      string title;
-      MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out title);
-      webPictureBasic.Title = title;
 
       return webPictureBasic;
     }

@@ -7,6 +7,8 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
@@ -26,6 +28,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     {
       // General
       { "GetMediaItem", new GetMediaItem() },
+      // Control
+      { "RetrieveStream", new RetrieveStream() },
       // Images
       { "GetImage", new GetImage() },
       { "GetImageResized", new GetImageResized() },

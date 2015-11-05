@@ -22,7 +22,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       HttpParam httpParam = request.Param;
       string id_base = httpParam["id"].Value;
       if (id_base == null)
-        throw new BadRequestException("GetMusicAlbumBasicById: id is null");
+        throw new BadRequestException("GetMusicTrackBasicById: id is null");
 
       // decode the ID
       string id = (new UTF8Encoding()).GetString(Convert.FromBase64String(id_base));

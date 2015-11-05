@@ -6,6 +6,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 
@@ -46,13 +47,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
       if (!int.TryParse(subtitleId, out subtitleTrack))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse subtitleId '{0}' to int", subtitleId));
 
-      if (!StreamControl.PROFILES.ContainsKey(profileName))
+      if (!ProfileManager.Profiles.ContainsKey(profileName))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown profile: {0}", profileName));
 
       if (!StreamControl.ValidateIdentifie(identifier))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown identifier: {0}", identifier));
 
-      EndPointProfile profile = StreamControl.PROFILES[profileName];
+      EndPointProfile profile = ProfileManager.Profiles[profileName];
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
@@ -64,7 +65,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
       StreamControl.AddStreamItem(identifier, streamItem);
 
       // TODO: Return the proper URL
-      return new WebStringResult { Result = ""};
+      return new WebStringResult { Result = "http://192.168.178.26:26405/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier };
     }
 
     internal static ILogger Logger

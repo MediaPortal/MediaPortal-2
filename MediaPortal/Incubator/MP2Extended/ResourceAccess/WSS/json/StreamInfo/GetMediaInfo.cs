@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
@@ -28,6 +31,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       optionalMIATypes.Add(VideoAspect.ASPECT_ID);
       optionalMIATypes.Add(AudioAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
+      optionalMIATypes.Add(TranscodeItemAudioAspect.ASPECT_ID);
+      optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
+      optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
 
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes, optionalMIATypes);
 
@@ -43,52 +49,96 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       // decide which type of media item we have
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
-
+        var videoAspect = item.Aspects[VideoAspect.ASPECT_ID];
         duration = (long)videoAspect[VideoAspect.ATTR_DURATION];
-        //container not in DB
 
         // Video Stream
         WebVideoStream webVideoStream = new WebVideoStream();
         webVideoStream.Codec = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
         webVideoStream.DisplayAspectRatio = Convert.ToDecimal((float)videoAspect[VideoAspect.ATTR_ASPECTRATIO]);
-        //webVideoStream.DisplayAspectRatioString;
+        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString((float)videoAspect[VideoAspect.ATTR_ASPECTRATIO]);
         webVideoStream.Height = (int)videoAspect[VideoAspect.ATTR_HEIGHT];
-        //webVideoStream.ID;
-        //webVideoStream.Index;
-        //webVideoStream.Interlaced;
         webVideoStream.Width = (int)videoAspect[VideoAspect.ATTR_WIDTH];
-
         webVideoStreams.Add(webVideoStream);
 
-        // Audio streams
-        for (int i = 0; i < (int)videoAspect[VideoAspect.ATTR_AUDIOSTREAMCOUNT]; i++)
+        if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID))
         {
-          WebAudioStream webAudioStream = new WebAudioStream();
-          //webAudioStream.Channels = ;
-          webAudioStream.Codec = (string)videoAspect[VideoAspect.ATTR_AUDIOENCODING];
-          //webAudioStream.ID;
-          //webAudioStream.Index;
-          //webAudioStream.Language;
-          //webAudioStream.LanguageFull;
-          //webAudioStream.Title;
+          var transcodeVideoAspect = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID];
+          webVideoStream.ID = 0;
+          webVideoStream.Index = 0;
+          //webVideoStream.Interlaced = transcodeVideoAspect[TranscodeItemVideoAspect.];
 
-          webAudioStreams.Add(webAudioStream);
+          container = (string)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_CONTAINER];
+
+          // Audio streams
+          var audioStreams = (HashSet<object>)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_AUDIOSTREAMS];
+          var audioChannels = (HashSet<object>)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_AUDIOCHANNELS];
+          var audioCodecs = (HashSet<object>)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_AUDIOCODECS];
+          var audioLanguages = (HashSet<object>)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_AUDIOLANGUAGES];
+          if (audioStreams != null)
+            for (int i = 0; i < audioStreams.Count; i++)
+            {
+              WebAudioStream webAudioStream = new WebAudioStream();
+              if (audioChannels != null)
+                webAudioStream.Channels = int.Parse(audioChannels.Cast<string>().ToList().Count < i ? audioChannels.Cast<string>().ToList()[i] : audioChannels.Cast<string>().ToList()[0]);
+              if (audioCodecs != null)
+                webAudioStream.Codec = audioCodecs.Cast<string>().ToList().Count < i ? audioCodecs.Cast<string>().ToList()[i] : audioCodecs.Cast<string>().ToList()[0];
+              webAudioStream.ID = i;
+              webAudioStream.Index = int.Parse(audioStreams.Cast<string>().ToList()[i]);
+              if (audioLanguages != null)
+              {
+                string language = audioLanguages.Cast<string>().ToList()[i] == string.Empty ? "undef" : audioLanguages.Cast<string>().ToList()[i];
+                webAudioStream.Language = language;
+                webAudioStream.LanguageFull = language;
+                webAudioStream.Title = language;
+              }
+
+              webAudioStreams.Add(webAudioStream);
+            }
+
+          // Subtitles (embedded)
+          var subtitleStreams = (HashSet<object>)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBSTREAMS];
+          var subtitleLanguages = (HashSet<object>)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBLANGUAGES];
+          if (subtitleStreams != null)
+            for (int i = 0; i < subtitleStreams.Count; i++)
+            {
+              WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
+              webSubtitleStream.Filename = "embedded";
+              webSubtitleStream.ID = i;
+              webSubtitleStream.Index = i;
+              if (subtitleLanguages != null)
+              {
+                string language = subtitleLanguages.Cast<string>().ToList()[i] == string.Empty ? "undef" : subtitleLanguages.Cast<string>().ToList()[i];
+                webSubtitleStream.Language = language;
+                webSubtitleStream.LanguageFull = language;
+              }
+
+
+              webSubtitleStreams.Add(webSubtitleStream);
+            }
         }
 
-        // no subtitle information in DB
       }
+
+      // Audio File
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        SingleMediaItemAspect audioAspect;
-        MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect);
+        var audioAspect = item.Aspects[AudioAspect.ASPECT_ID];
         duration = (long)audioAspect[AudioAspect.ATTR_DURATION];
-        //container not in DB
+        if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID))
+        {
+          container = (string)item.Aspects[TranscodeItemAudioAspect.ASPECT_ID][TranscodeItemAudioAspect.ATTR_CONTAINER];
+        }
       }
+
+      // Image File
       if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
         var imageAspect = item.Aspects[ImageAspect.ASPECT_ID];
-        //container not in DB
+        if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID))
+        {
+          container = (string)item.Aspects[TranscodeItemImageAspect.ASPECT_ID][TranscodeItemImageAspect.ATTR_CONTAINER];
+        }
       }
 
       WebMediaInfo webMediaInfo = new WebMediaInfo

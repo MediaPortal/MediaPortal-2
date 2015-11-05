@@ -14,7 +14,7 @@ namespace MediaPortal.Plugins.MP2Extended.TAS.Tv
         public string FileName { get; set; }
         public string Genre { get; set; }
         public int ChannelId { get; set; }
-        public int Id { get; set; }
+        public string Id { get; set; }
         public int ScheduleId { get; set; }
         public bool IsChanged { get; set; }
         public bool IsManual { get; set; }

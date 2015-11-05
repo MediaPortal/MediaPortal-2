@@ -12,11 +12,12 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
-  internal class GetImageResized : SendDataBase, IStreamRequestMicroModuleHandler2
+  internal class GetImageResized : BaseSendData, IStreamRequestMicroModuleHandler2
   {
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
@@ -44,8 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
       MediaItem item = GetMediaItems.GetMediaItemById(idGuid, necessaryMIATypes);
 
-      SingleMediaItemAspect providerResourceAspect = MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata);
-      var resourcePathStr = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
       var ra = GetResourceAccessor(resourcePath);
@@ -66,9 +66,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxHeight to int: {0}", maxHeight));
       }
 
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
       byte[] resizedImage;
 
-      if (ImageCache.TryGetImageFromCache(idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders, out resizedImage))
+      if (ImageCache.TryGetImageFromCache(identifier, out resizedImage))
       {
         Logger.Info("GetImageResized: Got image from cache");
       }
@@ -82,7 +83,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         }
 
         // Add to cache
-        if (ImageCache.AddImageToCache(resizedImage, idGuid, ImageCache.GetIdentifier(), maxWidthInt, maxHeightInt, borders))
+        if (ImageCache.AddImageToCache(resizedImage, identifier))
           Logger.Info("GetImageResized: Added image to cache");
       }
 

@@ -26,7 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       HttpParam httpParam = request.Param;
       string showId = httpParam["id"].Value;
       if (showId == null)
-        throw new BadRequestException("GetTVSeasonsBasicForTVShow: no id is null");
+        throw new BadRequestException("GetTVEpisodeCountForSeason: no id is null");
 
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -41,8 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       string showName;
       try
       {
-        SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(showItem.Aspects, MediaAspect.Metadata);
-        showName = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+        showName = (string)showItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
       }
       catch (Exception ex)
       {

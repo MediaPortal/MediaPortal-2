@@ -10,6 +10,7 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
+      <PluginFiles Include="$(ProjectDir)ResourceAccess\WSS\Profiles\*.xml" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">

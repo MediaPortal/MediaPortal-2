@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
+  // TODO: Rework after MIA Rework
   internal class GetMovieGenres : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
@@ -35,8 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 
       foreach (var item in items)
       {
-        SingleMediaItemAspect videoAspect = MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata);
-        var videoGenres = (HashSet<object>)videoAspect[VideoAspect.ATTR_GENRES];
+        var videoGenres = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
         List<string> videoGenresList = new List<string>();
         if (videoGenres != null)
           videoGenresList = videoGenres.Cast<string>().ToList();
@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
         }
       }
 
-      // sort and filter
+      // sort
       HttpParam httpParam = request.Param;
       string sort = httpParam["sort"].Value;
       string order = httpParam["order"].Value;

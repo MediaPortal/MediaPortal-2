@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
@@ -18,23 +17,56 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     public dynamic Process(IHttpRequest request)
     {
       HttpParam httpParam = request.Param;
-      string seriesId = httpParam["id"].Value;
-      if (seriesId == null)
-        throw new BadRequestException("GetTVEpisodeCountForSeason: id is null");
+      string id = httpParam["id"].Value;
+      if (id == null)
+        throw new BadRequestException("GetTVEpisodeCountForSeason: no id is null");
+
+      // The ID looks like: {GUID-TvSHow:Season}
+      string[] ids = id.Split(':');
+      if (ids.Length < 2)
+        throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: not enough ids: {0}", ids.Length));
+
+      string showId = ids[0];
+      string seasonId = ids[1];
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
 
       // this is the MediaItem for the show
-      MediaItem item = GetMediaItems.GetMediaItemById(seriesId, necessaryMIATypes);
+      MediaItem showItem = GetMediaItems.GetMediaItemById(showId, necessaryMIATypes);
 
-      if (item == null)
-        throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: No MediaItem found with id: {0}", seriesId));
+      if (showItem == null)
+        throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: No MediaItem found with id: {0}", showId));
 
-      int episodeCount = item[RelationshipAspect.ASPECT_ID].Count(x => x.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == SeasonAspect.ROLE_SEASON && x.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == EpisodeAspect.ROLE_EPISODE);
+      string showName;
+      try
+      {
+        showName = (string)showItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+      }
+      catch (Exception ex)
+      {
+        throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: Couldn't convert Title: {0}", ex.Message));
+      }
 
-      WebIntResult webIntResult = new WebIntResult { Result = episodeCount };
+      int seasonNumber;
+      if (!Int32.TryParse(seasonId, out seasonNumber))
+      {
+        throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: Couldn't convert SeasonId to int: {0}", seasonId));
+      }
+
+      // Get all episodes for this
+      ISet<Guid> necessaryMIATypesEpisodes = new HashSet<Guid>();
+      necessaryMIATypesEpisodes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypesEpisodes.Add(SeriesAspect.ASPECT_ID);
+
+      IFilter searchFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+        new RelationalFilter(SeriesAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber),
+        new RelationalFilter(SeriesAspect.ATTR_SERIESNAME, RelationalOperator.EQ, showName));
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesEpisodes, null, searchFilter);
+
+      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+
+      WebIntResult webIntResult = new WebIntResult { Result = episodes.Count };
 
       return webIntResult;
     }

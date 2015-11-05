@@ -1,22 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using HttpServer;
+using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
+using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
   static class StreamControl
   {
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
-    internal static readonly Dictionary<string, EndPointProfile> PROFILES = new Dictionary<string, EndPointProfile>();
+    public static Dictionary<string, TranscodeContext> LastClientTranscode = new Dictionary<string, TranscodeContext>();
 
     internal static void AddStreamItem(string identifier, StreamItem item)
     {
-      if (STREAM_ITEMS.ContainsKey(identifier))
+      if (ValidateIdentifie(identifier))
       {
         Logger.Debug("StreamControl: identifier {0} is already in list -> deleting old stream item", identifier);
         DeleteStreamItem(identifier);
@@ -44,6 +55,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     internal static bool ValidateIdentifie(string identifier)
     {
       return STREAM_ITEMS.ContainsKey(identifier);
+    }
+
+    internal static void StartStreaming(string identifier)
+    {
+      
     }
 
     internal static ILogger Logger

@@ -22,7 +22,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     /// <returns></returns>
     internal static byte[] GetBytesFromDynamic(dynamic input)
     {
-      return GetBytes(JsonConvert.SerializeObject(input).Replace("\0", string.Empty));
+      return GetBytes(JsonConvert.SerializeObject(input));
     }
 
     internal static WebMediaType GetWebMediaType(MediaItem mediaItem)

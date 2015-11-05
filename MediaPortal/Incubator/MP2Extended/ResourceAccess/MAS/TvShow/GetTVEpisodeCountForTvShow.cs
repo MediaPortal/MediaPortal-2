@@ -27,8 +27,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       if (item == null)
         throw new BadRequestException(String.Format("GetTVEpisodeCountForTvShow: No MediaItem found with id: {0}", httpParam["id"].Value));
 
-      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
-      string seasonTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+      string seasonTitle = (string)item[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
 
 
       // Get all episodes for this season

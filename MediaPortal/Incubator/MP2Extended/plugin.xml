@@ -12,6 +12,15 @@
     ReleaseDate="2015-07-14 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="HttpServer" CompatibleAPI="1" />
+    <PluginReference PluginId="{AC708DE3-2E9B-4EFA-BB2F-8DD9456F2FF8}" CompatibleAPI="1"/>
+    <!-- Transcoding Service -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="MP2Extended.dll"/>
     <PluginStateTracker ClassName="MediaPortal.Plugins.MP2Extended.MP2Extended"/>

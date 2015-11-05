@@ -36,9 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 
       foreach (var item in items)
       {
-        SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
-        SingleMediaItemAspect imageAspect = MediaItemAspect.GetAspect(item.Aspects, ImageAspect.Metadata);
-        SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata);
+        MediaItemAspect imageAspects = item.Aspects[ImageAspect.ASPECT_ID];
 
         WebPictureDetailed webPictureDetailed = new WebPictureDetailed();
 
@@ -46,20 +44,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
         //webPictureBasic.DateTaken = imageAspects.GetAttributeValue(ImageAspect.);
         webPictureDetailed.Type = WebMediaType.Picture;
         //webPictureBasic.Artwork;
-        webPictureDetailed.DateAdded = (DateTime)imageAspect.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
+        webPictureDetailed.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID].GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
         webPictureDetailed.Id = item.MediaItemId.ToString();
         webPictureDetailed.PID = 0;
         //webPictureBasic.Path;
-        webPictureDetailed.Title = (string)mediaAspect.GetAttributeValue(MediaAspect.ATTR_TITLE);
+        webPictureDetailed.Title = (string)item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_TITLE);
         //webPictureDetailed.Rating = imageAspects.GetAttributeValue(ImageAspect.);
         //webPictureDetailed.Author = imageAspects.GetAttributeValue(ImageAspect.);
         //webPictureDetailed.Dpi = imageAspects.GetAttributeValue(ImageAspect.);
-        webPictureDetailed.Width = (string)(imageAspect.GetAttributeValue(ImageAspect.ATTR_WIDTH) ?? string.Empty);
-        webPictureDetailed.Height = (string)(imageAspect.GetAttributeValue(ImageAspect.ATTR_HEIGHT) ?? string.Empty);
+        webPictureDetailed.Width = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_WIDTH) ?? string.Empty);
+        webPictureDetailed.Height = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_HEIGHT) ?? string.Empty);
         //webPictureDetailed.Mpixel = imageAspects.GetAttributeValue(ImageAspect.);
         //webPictureDetailed.Copyright;
-        webPictureDetailed.CameraModel = (string)(imageAspect.GetAttributeValue(ImageAspect.ATTR_MODEL) ?? string.Empty);
-        webPictureDetailed.CameraManufacturer = (string)(imageAspect.GetAttributeValue(ImageAspect.ATTR_MAKE) ?? string.Empty);
+        webPictureDetailed.CameraModel = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_MODEL) ?? string.Empty);
+        webPictureDetailed.CameraManufacturer = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_MAKE) ?? string.Empty);
         //webPictureDetailed.Comment;
         //webPictureDetailed.Subject;
 

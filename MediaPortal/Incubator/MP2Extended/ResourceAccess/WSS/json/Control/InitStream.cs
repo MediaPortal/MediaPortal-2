@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Security.Policy;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.MP2Extended.WSS.General;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
   internal class InitStream : IRequestMicroModuleHandler
   {
