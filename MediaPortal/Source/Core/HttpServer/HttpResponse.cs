@@ -60,6 +60,8 @@ namespace HttpServer
     private bool _contentTypeChangedByCode;
     private Encoding _encoding = Encoding.UTF8;
     private int _keepAlive = 20;
+    private byte[] _chunkSuffix = new byte[] { 13, 10 };
+    private byte[] _chunkEnd = new byte[] { 48, 13, 10, 13, 10 };
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IHttpResponse"/> class.
@@ -260,11 +262,25 @@ namespace HttpServer
       Body.Flush();
       Body.Seek(0, SeekOrigin.Begin);
       var buffer = new byte[4196];
-      int bytesRead = Body.Read(buffer, 0, 4196);
+      int bytesRead = Body.Read(buffer, 0, buffer.Length);
       while (bytesRead > 0)
       {
+        if (Chunked == true)
+        {
+          _context.Send(Encoding.ASCII.GetBytes(Convert.ToString(bytesRead, 16)));
+          _context.Send(_chunkSuffix);
+          _context.Send(buffer, 0, bytesRead);
+          _context.Send(_chunkSuffix);
+        }
+        else
+        {
         _context.Send(buffer, 0, bytesRead);
-        bytesRead = Body.Read(buffer, 0, 4196);
+        }
+        bytesRead = Body.Read(buffer, 0, buffer.Length);
+      }
+      if (Chunked == true)
+      {
+        _context.Send(_chunkEnd);
       }
 
       if (Connection == ConnectionType.Close)
@@ -285,13 +301,35 @@ namespace HttpServer
     /// <seealso cref="SendHeaders"/>
     /// <remarks>This method can be used if you want to send body contents without caching them first. This
     /// is recommended for larger files to keep the memory usage low.</remarks>
-    public void SendBody(byte[] buffer, int offset, int count)
+    public bool SendBody(byte[] buffer, int offset, int count)
     {
       if (!HeadersSent)
         throw new InvalidOperationException("Send headers, and remember to specify ContentLength first.");
 
+      bool bSuccess = true;
+      if (Chunked == true)
+      {
+        if (buffer == null || buffer.Length == 0 || count == 0)
+        {
+          bSuccess = _context.Send(_chunkEnd, 0, _chunkEnd.Length);
+        }
+        else
+        {
+          bSuccess &= _context.Send(Encoding.ASCII.GetBytes(Convert.ToString(count - offset, 16)));
+          bSuccess &= _context.Send(_chunkSuffix);
+          bSuccess &= _context.Send(buffer, offset, count);
+          bSuccess &= _context.Send(_chunkSuffix);
+        }
+      }
+      else
+      {
+        if (buffer != null && buffer.Length > 0 && count > 0)
+        {
+          bSuccess = _context.Send(buffer, offset, count);
+        }
+      }
       Sent = true;
-      _context.Send(buffer, offset, count);
+      return bSuccess;
     }
 
     /// <summary>
@@ -304,13 +342,35 @@ namespace HttpServer
     /// <seealso cref="SendHeaders"/>
     /// <remarks>This method can be used if you want to send body contents without caching them first. This
     /// is recommended for larger files to keep the memory usage low.</remarks>
-    public void SendBody(byte[] buffer)
+    public bool SendBody(byte[] buffer)
     {
       if (!HeadersSent)
         throw new InvalidOperationException("Send headers, and remember to specify ContentLength first.");
 
+      bool bSuccess = true;
+      if (Chunked == true)
+      {
+        if (buffer == null || buffer.Length == 0)
+        {
+          bSuccess = _context.Send(_chunkEnd, 0, _chunkEnd.Length);
+        }
+        else
+        {
+          bSuccess &= _context.Send(Encoding.ASCII.GetBytes(Convert.ToString(buffer.Length, 16)));
+          bSuccess &= _context.Send(_chunkSuffix);
+          bSuccess &= _context.Send(buffer);
+          bSuccess &= _context.Send(_chunkSuffix);
+        }
+      }
+      else
+      {
+        if (buffer != null && buffer.Length > 0)
+        {
+          bSuccess = _context.Send(buffer);
+        }
+      }
       Sent = true;
-      _context.Send(buffer);
+      return bSuccess;
     }
 
     /// <summary>
@@ -320,7 +380,7 @@ namespace HttpServer
     /// <seealso cref="AddHeader"/>
     /// <seealso cref="Send"/>
     /// <seealso cref="SendBody(byte[])"/>
-    public void SendHeaders()
+    public string SendHeaders()
     {
       if (HeadersSent)
         throw new InvalidOperationException("Header have already been sent.");
@@ -331,8 +391,17 @@ namespace HttpServer
         // Fixed by Albert, Team MediaPortal
         //_headers["Date"] = DateTime.Now.ToString("r");
         _headers["Date"] = DateTime.Now.ToUniversalTime().ToString("r");
+      if (Chunked == false)
+      {
+        _headers.Remove("Transfer-Encoding");
       if (_headers["Content-Length"] == null)
         _headers["Content-Length"] = _contentLength == 0 ? Body.Length.ToString() : _contentLength.ToString();
+      }
+      else
+      {
+        _headers.Remove("Content-Length");
+        _headers["Transfer-Encoding"] = "chunked";
+      }
       if (_headers["Content-Type"] == null)
         _headers["Content-Type"] = ContentType;
       if (_headers["Server"] == null)
@@ -372,6 +441,7 @@ namespace HttpServer
       sb.Append("\r\n");
 
       _context.Send(Encoding.GetBytes(sb.ToString()));
+      return sb.ToString();
     }
 
     /// <summary>

@@ -652,13 +652,22 @@ namespace MediaPortal.Common.MediaManagement
     protected IList<String> _uniqueAttributeNames = new List<String>();
 
     public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+      IEnumerable<MultipleAttributeSpecification> attributeSpecifications)
+      : this(aspectId, aspectName, attributeSpecifications, null)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
         IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
         IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications)
       : base(aspectId, aspectName, attributeSpecifications)
     {
-      foreach (MultipleAttributeSpecification uniqueAttributeSpecification in uniqueAttributeSpecifications)
+      if (uniqueAttributeSpecifications != null)
       {
-        _uniqueAttributeNames.Add(uniqueAttributeSpecification.AttributeName);
+        foreach (MultipleAttributeSpecification uniqueAttributeSpecification in uniqueAttributeSpecifications)
+        {
+          _uniqueAttributeNames.Add(uniqueAttributeSpecification.AttributeName);
+        }
       }
     }
 
