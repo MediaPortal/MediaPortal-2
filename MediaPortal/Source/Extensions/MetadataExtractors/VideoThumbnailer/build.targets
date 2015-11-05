@@ -14,8 +14,13 @@
     <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
   </ItemGroup>
 
+  <ItemGroup>
+    <References Include="$(TargetDir)ffmpeg.exe" />
+  </ItemGroup>
+
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>

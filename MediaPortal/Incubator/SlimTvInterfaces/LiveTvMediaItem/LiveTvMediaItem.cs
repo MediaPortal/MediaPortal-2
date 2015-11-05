@@ -99,13 +99,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-		// TODO: Move into MIA static method?
-        SingleMediaItemAspect smia = mia as SingleMediaItemAspect;
-        if (smia != null)
-          MediaItemAspect.SetAspect(_aspects, smia);
-        MultipleMediaItemAspect mmia = mia as MultipleMediaItemAspect;
-        if (mmia is MultipleMediaItemAspect)
-          MediaItemAspect.AddOrUpdateAspect(_aspects, mmia);
+        if(mia is SingleMediaItemAspect)
+        {
+          MediaItemAspect.SetAspect(_aspects, (SingleMediaItemAspect)mia);
+        }
+        else if(mia is MultipleMediaItemAspect)
+        {
+          MediaItemAspect.AddOrUpdateAspect(_aspects, (MultipleMediaItemAspect)mia);
+        }
       }
       reader.ReadEndElement(); // MI
     }
