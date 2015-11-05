@@ -151,6 +151,8 @@
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfo.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
@@ -310,6 +312,41 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\CurrentlyPlayingTv.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentTv.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_dialog_bare_transparent.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-extschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-guide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-main.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-miniguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-schedulelist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
