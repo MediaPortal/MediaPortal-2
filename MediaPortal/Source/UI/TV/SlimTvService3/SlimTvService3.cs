@@ -444,9 +444,28 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
     {
-      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, "Manual", from, to, (int)ScheduleRecordingType.Once);
+      CreateScheduleByTimeAndType(channel, from, to, ScheduleRecordingType.Once, out schedule);
+      return true;
+    }
+
+    public override bool CreateScheduleByTimeAndType(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
+      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, "Manual", from, to, (int)recordingType);
       tvSchedule.PreRecordInterval = Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
       tvSchedule.PostRecordInterval = Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
+      tvSchedule.Persist();
+      _tvControl.OnNewSchedule();
+      schedule = tvSchedule.ToSchedule();
+      return true;
+    }
+
+    public override bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    {
+      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
+      tvSchedule.PreRecordInterval = preRecordInterval;
+      tvSchedule.PostRecordInterval = postRecordInterval;
+      tvSchedule.Directory = directory;
+      tvSchedule.Priority = priority;
       tvSchedule.Persist();
       _tvControl.OnNewSchedule();
       schedule = tvSchedule.ToSchedule();

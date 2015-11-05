@@ -333,11 +333,31 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
     {
+      CreateScheduleByTimeAndType(channel, from, to, ScheduleRecordingType.Once, out schedule);
+      return true;
+    }
+
+    public override bool CreateScheduleByTimeAndType(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, "Manual", from, to);
       tvSchedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
       tvSchedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
-      tvSchedule.ScheduleType = (int)ScheduleRecordingType.Once;
+      tvSchedule.ScheduleType = (int)recordingType;
+      scheduleService.SaveSchedule(tvSchedule);
+      schedule = tvSchedule.ToSchedule();
+      return true;
+    }
+
+    public override bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    {
+      IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+      Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, title, from, to);
+      tvSchedule.PreRecordInterval = preRecordInterval;
+      tvSchedule.PostRecordInterval = postRecordInterval;
+      tvSchedule.ScheduleType = (int)recordingType;
+      tvSchedule.Directory = directory;
+      tvSchedule.Priority = priority;
       scheduleService.SaveSchedule(tvSchedule);
       schedule = tvSchedule.ToSchedule();
       return true;
