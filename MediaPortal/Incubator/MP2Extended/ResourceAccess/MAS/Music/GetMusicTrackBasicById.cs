@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using HttpServer;
+using HttpServer.Exceptions;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.MAS.Music;
+
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
+{
+  internal class GetMusicTrackBasicById : IRequestMicroModuleHandler
+  {
+    public dynamic Process(IHttpRequest request)
+    {
+      HttpParam httpParam = request.Param;
+      if (httpParam["id"].Value == null)
+        throw new BadRequestException("GetMusicTrackBasicById: id is null");
+
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+      necessaryMIATypes.Add(AudioAspect.ASPECT_ID);
+
+      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes);
+
+      if (item == null)
+        throw new BadRequestException(String.Format("GetMusicTrackBasicById: No MediaItem found with id: {0}", httpParam["id"].Value));
+
+      SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata);
+      SingleMediaItemAspect audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
+      SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata);
+
+      WebMusicTrackBasic webMusicTrackBasic = new WebMusicTrackBasic();
+      webMusicTrackBasic.Album = (string)audioAspect[AudioAspect.ATTR_ALBUM];
+      var albumArtists = (HashSet<object>)audioAspect[AudioAspect.ATTR_ALBUMARTISTS];
+      if (albumArtists != null)
+        webMusicTrackBasic.AlbumArtist = String.Join(", ", albumArtists.Cast<string>().ToArray());
+      //webMusicTrackBasic.AlbumArtistId;
+      // TODO: We have to wait for the MIA Rework, until than the ID is just the name as bas64
+      webMusicTrackBasic.AlbumId = Convert.ToBase64String((new UTF8Encoding()).GetBytes((string)audioAspect[AudioAspect.ATTR_ALBUM]));
+      var trackArtists = (HashSet<object>)audioAspect[AudioAspect.ATTR_ARTISTS];
+      if (albumArtists != null)
+        webMusicTrackBasic.Artist = trackArtists.Cast<string>().ToList();
+      //webMusicTrackBasic.ArtistId;
+      webMusicTrackBasic.DiscNumber = audioAspect[AudioAspect.ATTR_DISCID] != null ? (int)audioAspect[AudioAspect.ATTR_DISCID] : 0;
+      webMusicTrackBasic.Duration = Convert.ToInt32((long)audioAspect[AudioAspect.ATTR_DURATION]);
+      var trackGenres = (HashSet<object>)audioAspect[AudioAspect.ATTR_GENRES];
+      if (trackGenres != null)
+        webMusicTrackBasic.Genres = trackGenres.Cast<string>().ToList();
+      //webMusicTrackBasic.Rating = Convert.ToSingle((double)movieAspects[AudioAspect.]);
+      webMusicTrackBasic.TrackNumber = (int)audioAspect[AudioAspect.ATTR_TRACK];
+      webMusicTrackBasic.Type = WebMediaType.MusicTrack;
+      //webMusicTrackBasic.Year;
+      //webMusicTrackBasic.Artwork;
+      webMusicTrackBasic.DateAdded = (DateTime)importerAspect[ImporterAspect.ATTR_DATEADDED];
+      webMusicTrackBasic.Id = item.MediaItemId.ToString();
+      webMusicTrackBasic.PID = 0;
+      //webMusicTrackBasic.Path;
+      webMusicTrackBasic.Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+
+
+      return webMusicTrackBasic;
+    }
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
+    }
+  }
+}
