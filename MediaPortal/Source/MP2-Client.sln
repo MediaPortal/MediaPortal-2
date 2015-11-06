@@ -196,8 +196,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegLib", "Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj", "{D2416E5A-CF6A-4B45-836D-02300D666127}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WifiRemote", "..\Incubator\WifiRemote\WifiRemote.csproj", "{8D67F134-C122-46B3-B393-329B06981045}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -503,10 +501,6 @@ Global
 		{D2416E5A-CF6A-4B45-836D-02300D666127}.Debug|x86.Build.0 = Debug|x86
 		{D2416E5A-CF6A-4B45-836D-02300D666127}.Release|x86.ActiveCfg = Release|x86
 		{D2416E5A-CF6A-4B45-836D-02300D666127}.Release|x86.Build.0 = Release|x86
-		{8D67F134-C122-46B3-B393-329B06981045}.Debug|x86.ActiveCfg = Debug|x86
-		{8D67F134-C122-46B3-B393-329B06981045}.Debug|x86.Build.0 = Debug|x86
-		{8D67F134-C122-46B3-B393-329B06981045}.Release|x86.ActiveCfg = Release|x86
-		{8D67F134-C122-46B3-B393-329B06981045}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -618,6 +612,5 @@ Global
 		{D8025D85-C4BE-4A3C-8DD1-4B89DB422480} = {9579F1D5-315A-4528-AC60-FA7D61874E27}
 		{603B25D4-27AD-4EE0-BAC1-B48F4FC19984} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
 		{3476BFD3-B634-4BAB-8E0F-12921019B7B0} = {2BAB7B4B-1456-4525-8A27-DEBED86796F6}
-		{8D67F134-C122-46B3-B393-329B06981045} = {F224DD1D-3FEB-4B90-B7CE-D87FCAD892B9}
 	EndGlobalSection
 EndGlobal
