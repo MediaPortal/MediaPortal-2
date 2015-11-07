@@ -24,13 +24,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
-using MediaPortal.Utilities.DB;
+using MediaPortal.Extensions.UPnPRenderer;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
 
   public delegate void PlayEventHandler();
@@ -38,15 +37,15 @@ namespace MediaPortal.Extensions.UPnPRenderer
   public delegate void StopEventHandler();
   public delegate void SeekEventHandler();
   public delegate void SetAVTransportURIEventHandler(OnEventSetAVTransportURIEventArgs e);
-  
+
   public class UPnPAVTransportServiceImpl : DvService
   {
-    
+
     public UPnPAVTransportServiceImpl()
       : base(
-        upnpDevice.AV_TRANSPORT_SERVICE_TYPE,
-        upnpDevice.AV_TRANSPORT_SERVICE_TYPE_VERSION,
-        upnpDevice.AV_TRANSPORT_SERVICE_ID)
+        UPnPDevice.AV_TRANSPORT_SERVICE_TYPE,
+        UPnPDevice.AV_TRANSPORT_SERVICE_TYPE_VERSION,
+        UPnPDevice.AV_TRANSPORT_SERVICE_ID)
     {
 
       #region DvStateVariables
@@ -738,7 +737,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
       #endregion Actions
 
     }
-      
+
 
     #region OnAction
 
@@ -753,7 +752,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
         Console.WriteLine(inParam);
       }
       Console.WriteLine("*************");
-      
+
       foreach (var inArgument in action.InArguments)
       {
         Console.WriteLine("In Argument: " + inArgument.Name);
@@ -920,7 +919,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
         "TransportState",
         "TransportPlaySpeed"
 
-      },  new List<object>
+      }, new List<object>
       {
         "PLAYING",
         inParams[1]
@@ -1103,7 +1102,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
 
     #endregion OnAction
 
-   private static string LastChangeXML(List<string> varNames, List<string> stateValues, IDictionary<string, DvStateVariable> stateVariables)
+    private static string LastChangeXML(List<string> varNames, List<string> stateValues, IDictionary<string, DvStateVariable> stateVariables)
     {
       XNamespace aw = "urn:schemas-upnp-org:metadata-1-0/AVT/";
       XElement Event = new XElement(aw + "Event");

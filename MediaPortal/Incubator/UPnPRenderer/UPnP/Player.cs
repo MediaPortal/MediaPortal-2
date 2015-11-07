@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Extensions.UPnPRenderer.MediaItems;
-using MediaPortal.Common;
-using MediaPortal.Extensions.UPnPRenderer.Players;
-using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Extensions.UPnPRenderer;
 using MediaPortal.UiComponents.Media.Models;
-using UPnPRenderer.UPnP;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UPnPRenderer.MediaItems;
+using MediaPortal.UPnPRenderer.Players;
 
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
   class Player
   {
@@ -28,13 +28,13 @@ namespace MediaPortal.Extensions.UPnPRenderer
     private bool _isPaused = false;
     private byte[] _imageData;
     private static Timer _timer = new Timer(TIMER_INTERVAL);
-    private readonly UPnPRenderingControlServiceImpl _UPnPRenderingControlServiceImpl = UPnP_RendererMain._upnpServer.UpnpDevice.UPnPRenderingControlServiceImpl;
-    private readonly UPnPAVTransportServiceImpl _UPnPAVTransportServiceImpl = UPnP_RendererMain._upnpServer.UpnpDevice.UPnPAVTransportServiceImpl;
-    
+    private readonly UPnPRenderingControlServiceImpl _UPnPRenderingControlServiceImpl = UPnPRendererPlugin._upnpServer.UpnPDevice.UPnPRenderingControlServiceImpl;
+    private readonly UPnPAVTransportServiceImpl _UPnPAVTransportServiceImpl = UPnPRendererPlugin._upnpServer.UpnPDevice.UPnPAVTransportServiceImpl;
+
 
     #endregion local vars
 
-    
+
     public Player()
     {
       // subscribe to UPnPAVTransportServiceImpl events
@@ -68,19 +68,19 @@ namespace MediaPortal.Extensions.UPnPRenderer
           stopPlayer<UPnPRendererAudioPlayer>();
 
           AudioItem audioItem = new AudioItem(_UPnPAVTransportServiceImpl.StateVariables["AVTransportURI"].Value.ToString());
-          utils.addMetaDataToMediaItem(ref audioItem, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
+          Utils.AddMetaDataToMediaItem(ref audioItem, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
 
           PlayItemsModel.CheckQueryPlayAction(audioItem);
           break;
         case ContentType.Image:
           ImageItem item = new ImageItem(Guid.NewGuid().ToString(), _imageData);
-          utils.addMetaDataToMediaItem(ref item, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
+          Utils.AddMetaDataToMediaItem(ref item, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
 
           var ic = getPlayerContext<UPnPRendererImagePlayer>();
-            if (ic != null)
-                ic.DoPlay(item);
-            else
-                PlayItemsModel.CheckQueryPlayAction(item);
+          if (ic != null)
+            ic.DoPlay(item);
+          else
+            PlayItemsModel.CheckQueryPlayAction(item);
           break;
         case ContentType.Video:
           if (_isPaused)
@@ -95,7 +95,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
           stopPlayer<UPnPRendererVideoPlayer>();
 
           VideoItem videoItem = new VideoItem(_UPnPAVTransportServiceImpl.StateVariables["AVTransportURI"].Value.ToString());
-          utils.addMetaDataToMediaItem(ref videoItem, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
+          Utils.AddMetaDataToMediaItem(ref videoItem, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
 
           PlayItemsModel.CheckQueryPlayAction(videoItem);
           break;
@@ -103,7 +103,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
           Logger.Warn("Can't play because of unknown player type");
           return; // we don't want to start the timer
       }
-      
+
       // timer to update the progress information
       //_timer = new Timer(TIMER_INTERVAL);
       _timer.Elapsed += (sender, e) => _timer_Elapsed();
@@ -180,7 +180,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
       string[] relTime = _UPnPAVTransportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString().Split(':');
       Console.WriteLine(string.Join(", ", relTime));
       var timespan = new TimeSpan(Int32.Parse(relTime[0]), Int32.Parse(relTime[1]), Int32.Parse(relTime[2]));
-      
+
       switch (_playerType)
       {
         case ContentType.Audio:
@@ -202,15 +202,15 @@ namespace MediaPortal.Extensions.UPnPRenderer
       Logger.Debug("CurrentURI " + e.CurrentURI);
       Logger.Debug("CurrentURIMetaData " + e.CurrentURIMetaData);
 
-      Logger.Debug("MimeType: {0}", utils.GetMimeFromUrl(e.CurrentURI.ToString(), e.CurrentURIMetaData.ToString()));
-      _playerType = utils.GetContentTypeFromUrl(e.CurrentURI.ToString(), e.CurrentURIMetaData.ToString());
+      Logger.Debug("MimeType: {0}", Utils.GetMimeFromUrl(e.CurrentURI.ToString(), e.CurrentURIMetaData.ToString()));
+      _playerType = Utils.GetContentTypeFromUrl(e.CurrentURI.ToString(), e.CurrentURIMetaData.ToString());
 
       switch (_playerType)
       {
         case ContentType.Audio:
           break;
         case ContentType.Image:
-          _imageData = utils.downloadImage(e.CurrentURI.ToString());
+          _imageData = Utils.DownloadImage(e.CurrentURI.ToString());
           break;
         case ContentType.Video:
           break;
@@ -355,7 +355,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
 
     private void VolumeChanged()
     {
-     Console.WriteLine("Player Message volume changed");
+      Console.WriteLine("Player Message volume changed");
       _UPnPRenderingControlServiceImpl.ChangeStateVariables(new List<string>
       {
         "Volume"
@@ -416,7 +416,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
       _isPaused = false;
       _timer.Enabled = true;
     }
-    
+
     T getPlayer<T>()
     {
       var context = getPlayerContext<T>();

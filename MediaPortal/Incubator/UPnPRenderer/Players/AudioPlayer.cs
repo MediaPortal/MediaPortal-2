@@ -1,14 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using DirectShow;
-using MediaPortal.Extensions.UPnPRenderer.MediaItems;
+using MediaPortal.Extensions.UPnPRenderer;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
-using System;
-using UPnPRenderer.UPnP;
+using MediaPortal.UPnPRenderer.MediaItems;
+using MediaPortal.UPnPRenderer.UPnP;
 
-namespace MediaPortal.Extensions.UPnPRenderer.Players
+namespace MediaPortal.UPnPRenderer.Players
 {
     public class UPnPRendererAudioPlayer : BaseDXPlayer, IAudioPlayer, IReusablePlayer
     {
@@ -24,14 +25,14 @@ namespace MediaPortal.Extensions.UPnPRenderer.Players
            IBaseFilter sourceFilter = null;
            try
            {
-             if (sourceFilterName == utils.FilterName)
+             if (sourceFilterName == Utils.FilterName)
              {
                sourceFilter = FilterLoader.LoadFilterFromDll(
-                   Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), @"MPUrlSourceSplitter\MPUrlSourceSplitter.ax"),
-                   new Guid(utils.FilterCLSID), false);
+                   Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), @"MPUrlSourceSplitter\MPUrlSourceSplitter.ax"),
+                   new Guid(Utils.FilterCLSID), false);
                if (sourceFilter != null)
                {
-                 _graphBuilder.AddFilter(sourceFilter, utils.FilterName);
+                 _graphBuilder.AddFilter(sourceFilter, Utils.FilterName);
                }
              }
              else
@@ -103,10 +104,10 @@ namespace MediaPortal.Extensions.UPnPRenderer.Players
          {
            case "http":
              sourceFilterName = url.ToLower().Contains(".asf") ?
-                 "WM ASF Reader" : utils.FilterName;
+                 "WM ASF Reader" : Utils.FilterName;
              break;
            case "rtmp":
-             sourceFilterName = utils.FilterName;
+             sourceFilterName = Utils.FilterName;
              break;
            case "sop":
              sourceFilterName = "SopCast ASF Splitter";
@@ -192,7 +193,7 @@ namespace MediaPortal.Extensions.UPnPRenderer.Players
             }
         }*/
 
-        public bool NextItem(MediaPortal.Common.MediaManagement.MediaItem mediaItem, StartTime startTime)
+        public bool NextItem(Common.MediaManagement.MediaItem mediaItem, StartTime startTime)
         {
             AudioItem audioItem = mediaItem as AudioItem;
             return audioItem != null/* && audioItem.PlayerSettings == null*/;

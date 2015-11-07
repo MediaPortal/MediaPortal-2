@@ -28,20 +28,19 @@ using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
 
   public delegate void VolumeEventHandler(OnEvenSetVolumeEventArgs e);
-  
+
   public class UPnPRenderingControlServiceImpl : DvService
   {
-    
+
     public UPnPRenderingControlServiceImpl()
       : base(
-        upnpDevice.RENDERING_CONTROL_SERVICE_TYPE,
-        upnpDevice.RENDERING_CONTROL_SERVICE_TYPE_VERSION,
-        upnpDevice.RENDERING_CONTROL_SERVICE_ID)
+        UPnPDevice.RENDERING_CONTROL_SERVICE_TYPE,
+        UPnPDevice.RENDERING_CONTROL_SERVICE_TYPE_VERSION,
+        UPnPDevice.RENDERING_CONTROL_SERVICE_ID)
     {
 
       #region DvStateVariables
@@ -440,7 +439,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
         Console.WriteLine(inParam);
       }
       Console.WriteLine("*************");
-      
+
       foreach (var inArgument in action.InArguments)
       {
         Console.WriteLine("In Argument: " + inArgument.Name);

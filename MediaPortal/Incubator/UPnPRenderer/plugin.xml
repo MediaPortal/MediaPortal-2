@@ -30,18 +30,14 @@
   
   <Runtime>
     <Assembly FileName="UPnPRenderer.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Extensions.UPnPRenderer.UPnP_RendererMain"/>
+    <PluginStateTracker ClassName="MediaPortal.UPnPRenderer.UPnP.UPnPRendererPlugin"/>
   </Runtime>
 
-  <Register Location="/Models">
-    <!-- <Model Id="38D94506-7C7E-450B-AFDA-4ABE3548CAC3" ClassName="UPnPRenderer.Models.UPnPRendererModel"/> -->
-  </Register>
-
   <Register Location="/Players/Builders">
-    <PlayerBuilder Id="1BC2FC01-60EA-459C-9F91-65A2050A078F" ClassName="MediaPortal.Extensions.UPnPRenderer.Players.UPnPRendererPlayerBuilder"/>
+    <PlayerBuilder Id="1BC2FC01-60EA-459C-9F91-65A2050A078F" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererPlayerBuilder"/>
   </Register>
 
   <Register Location="/VideoPlayers/MimeTypeRegistrations">
-    <VideoPlayerMimeTypeMapping Id="447D629E-278C-4D30-B272-151DBFA10361" ClassName="MediaPortal.Extensions.UPnPRenderer.Players.UPnPRendererVideoPlayer" MimeType="video/upnprenderer"/>
+    <VideoPlayerMimeTypeMapping Id="447D629E-278C-4D30-B272-151DBFA10361" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererVideoPlayer" MimeType="video/upnprenderer"/>
   </Register>
 </Plugin>

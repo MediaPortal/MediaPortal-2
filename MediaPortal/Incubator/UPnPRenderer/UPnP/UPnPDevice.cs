@@ -1,9 +1,9 @@
-﻿using UPnP.Infrastructure.Dv.DeviceTree;
-using UPnP_Renderer;
+﻿using MediaPortal.Extensions.UPnPRenderer;
+using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
-  public class upnpDevice : DvDevice
+  public class UPnPDevice : DvDevice
   {
     public const string MEDIASERVER_DEVICE_TYPE = "schemas-upnp-org:device:MediaRenderer";
     public const int MEDIASERVER_DEVICE_VERSION = 1;
@@ -26,7 +26,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
     public UPnPRenderingControlServiceImpl UPnPRenderingControlServiceImpl = new UPnPRenderingControlServiceImpl();
     public UPnPAVTransportServiceImpl UPnPAVTransportServiceImpl = new UPnPAVTransportServiceImpl();
 
-    public upnpDevice(string deviceUuid)
+    public UPnPDevice(string deviceUuid)
       : base(MEDIASERVER_DEVICE_TYPE, MEDIASERVER_DEVICE_VERSION, deviceUuid, new MediaServerUpnPDeviceInformation())
     {
       AddService(new UPnPConnectionManagerServiceImpl());

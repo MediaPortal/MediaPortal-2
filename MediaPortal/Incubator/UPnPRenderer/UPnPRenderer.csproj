@@ -8,7 +8,7 @@
     <ProjectGuid>{89526B39-E674-4618-807A-7D3D11F48098}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UPnPRenderer</RootNamespace>
+    <RootNamespace>MediaPortal.UPnPRenderer</RootNamespace>
     <AssemblyName>UPnPRenderer</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -17,7 +17,7 @@
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>6d67704c</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>0ef9f236</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,19 +40,18 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\MP2-Client\bin\x86\Debug\Plugins\SkinEngine\SharpDX.dll</HintPath>
+    <Reference Include="SharpDX">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\MP2-Client\bin\x86\Debug\Plugins\SkinEngine\SharpDX.Direct3D9.dll</HintPath>
+    <Reference Include="SharpDX.Direct3D9">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -64,7 +63,6 @@
     <Compile Include="MediaItems\DmapData.cs" />
     <Compile Include="MediaItems\ImageItem.cs" />
     <Compile Include="MediaItems\VideoItem.cs" />
-    <Compile Include="Models\UPnPRendererModel.cs" />
     <Compile Include="OnlineVideos\IFilterState.cs" />
     <Compile Include="OnlineVideos\IFilterStateEx.cs" />
     <Compile Include="Players\AudioPlayer.cs" />
@@ -75,7 +73,7 @@
     <Compile Include="UPnP\Exceptions.cs" />
     <Compile Include="UPnP\MediaServerUPnPDeviceInformation.cs" />
     <Compile Include="UPnP\Player.cs" />
-    <Compile Include="UPnP\UPnPRenderer.cs" />
+    <Compile Include="UPnP\UPnPRendererPlugin.cs" />
     <Compile Include="UPnP\UPnPAVTransportServiceImpl.cs" />
     <Compile Include="UPnP\UPnPConnectionManagerServiceImpl.cs" />
     <Compile Include="UPnP\UPnPDevice.cs" />
@@ -87,12 +85,6 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\default\screens\hello_world.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\workflow\hello-world-actions.xml" />
-    <Content Include="Language\strings_en.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -147,5 +139,7 @@
       <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Aktivieren Sie die Wiederherstellung von NuGet-Paketen, um die fehlende Datei herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\Packages\MediaPortal.UrlSourceSplitter.2.1.4.5454\build\MediaPortal.UrlSourceSplitter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\MediaPortal.UrlSourceSplitter.2.1.4.5454\build\MediaPortal.UrlSourceSplitter.targets'))" />
+    <Error Condition="!Exists('..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
   </Target>
+  <Import Project="..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
 </Project>

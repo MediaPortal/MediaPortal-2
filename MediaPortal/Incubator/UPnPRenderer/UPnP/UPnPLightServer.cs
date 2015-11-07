@@ -16,11 +16,9 @@ along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 
-using UPnP.Infrastructure;
 using UPnP.Infrastructure.Dv;
 
-
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
   /// <summary>
   /// Encapsulates the UPnP light device.
@@ -28,17 +26,17 @@ namespace MediaPortal.Extensions.UPnPRenderer
   public class UPnPLightServer : UPnPServer
   {
     public const int SSDP_ADVERTISMENT_INTERVAL = 180;
-    public upnpDevice UpnpDevice;
+    public UPnPDevice UpnPDevice;
 
     public UPnPLightServer(string serverId)
     {
-      UpnpDevice = new upnpDevice(serverId);
-      AddRootDevice(UpnpDevice);
+      UpnPDevice = new UPnPDevice(serverId);
+      AddRootDevice(UpnPDevice);
     }
     public void Start()
     {
       //UPnPConfiguration.USE_IPV6 = false;
-      Bind(SSDP_ADVERTISMENT_INTERVAL);      
+      Bind(SSDP_ADVERTISMENT_INTERVAL);
     }
     public void Stop()
     {

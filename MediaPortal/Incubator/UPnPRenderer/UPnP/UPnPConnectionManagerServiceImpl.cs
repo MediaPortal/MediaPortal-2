@@ -25,16 +25,15 @@ using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
   public class UPnPConnectionManagerServiceImpl : DvService
   {
     public UPnPConnectionManagerServiceImpl()
       : base(
-        upnpDevice.CONNECTION_MANAGER_SERVICE_TYPE,
-        upnpDevice.CONNECTION_MANAGER_SERVICE_TYPE_VERSION,
-        upnpDevice.CONNECTION_MANAGER_SERVICE_ID)
+        UPnPDevice.CONNECTION_MANAGER_SERVICE_TYPE,
+        UPnPDevice.CONNECTION_MANAGER_SERVICE_TYPE_VERSION,
+        UPnPDevice.CONNECTION_MANAGER_SERVICE_ID)
     {
       // Used for a boolean value
       DvStateVariable SourceProtocolInfo = new DvStateVariable("SourceProtocolInfo",
@@ -58,7 +57,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
         Value = "0" // we only support one connection => connectionID is always 0
       };
       AddStateVariable(CurrentConnectionIDs);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_ConnectionStatus = new DvStateVariable("A_ARG_TYPE_ConnectionStatus",
         new DvStandardDataType(UPnPStandardDataType.String))
       {
@@ -74,29 +73,29 @@ namespace MediaPortal.Extensions.UPnPRenderer
           }
       };
       AddStateVariable(A_ARG_TYPE_ConnectionStatus);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_ConnectionManager = new DvStateVariable("A_ARG_TYPE_ConnectionManager",
         new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(A_ARG_TYPE_ConnectionManager);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_Direction = new DvStateVariable("A_ARG_TYPE_Direction",
         new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
-        AllowedValueList = new List<string> {"Output", "Input"}
+        AllowedValueList = new List<string> { "Output", "Input" }
       };
       AddStateVariable(A_ARG_TYPE_Direction);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_ProtocolInfo = new DvStateVariable("A_ARG_TYPE_ProtocolInfo",
         new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(A_ARG_TYPE_ProtocolInfo);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_ConnectionID = new DvStateVariable("A_ARG_TYPE_ConnectionID",
         new DvStandardDataType(
           UPnPStandardDataType.I4))
@@ -104,14 +103,14 @@ namespace MediaPortal.Extensions.UPnPRenderer
         SendEvents = false,
       };
       AddStateVariable(A_ARG_TYPE_ConnectionID);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_AVTransportID = new DvStateVariable("A_ARG_TYPE_AVTransportID",
         new DvStandardDataType(UPnPStandardDataType.I4))
       {
         SendEvents = false,
       };
       AddStateVariable(A_ARG_TYPE_AVTransportID);
-// Used for a boolean value
+      // Used for a boolean value
       DvStateVariable A_ARG_TYPE_RcsID = new DvStateVariable("A_ARG_TYPE_RcsID",
         new DvStandardDataType(UPnPStandardDataType.I4))
       {
@@ -193,7 +192,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
                     "http-get:*:video/x-ms-avi:*," +
                     "http-get:*:video/mpeg:*," +
                     "http-get:*:image/*:*";
-      outParams = new List<object> {source, sink};
+      outParams = new List<object> { source, sink };
       return null;
     }
 

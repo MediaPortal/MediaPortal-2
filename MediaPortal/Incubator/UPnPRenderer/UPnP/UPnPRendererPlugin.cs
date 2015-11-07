@@ -1,20 +1,16 @@
 ﻿//using HttpServer;
+
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
-using MediaPortal.UI;
-using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Services.FrontendServer;
-using MediaPortal.UI.Services.Players;
-using UPnP_Renderer;
 
-namespace MediaPortal.Extensions.UPnPRenderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
-  internal class UPnP_RendererMain : IPluginStateTracker, IMessageReceiver
+  internal class UPnPRendererPlugin : IPluginStateTracker, IMessageReceiver
   {
     //private readonly upnpDevice _device;
     public const string DEVICE_UUID = "D6185023-12EC-4E27-A4AA-C8D9E993974D";
@@ -24,7 +20,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
     private AsynchronousMessageQueue _messageQueue;
     private Player _player;
 
-    public UPnP_RendererMain()
+    public UPnPRendererPlugin()
     {
       //_device = new upnpDevice(DEVICE_UUID.ToLower());
 
@@ -84,7 +80,7 @@ namespace MediaPortal.Extensions.UPnPRenderer
 
     protected void RegisterWithServices()
     {
-// All non-default media item aspects must be registered
+      // All non-default media item aspects must be registered
 
     }
 

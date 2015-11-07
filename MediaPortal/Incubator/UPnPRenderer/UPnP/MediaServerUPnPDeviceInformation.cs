@@ -15,13 +15,12 @@ You should have received a copy of the GNU General Public License
 along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
+
 using System.Collections.Generic;
 using System.Globalization;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-
-namespace UPnP_Renderer
+namespace MediaPortal.UPnPRenderer.UPnP
 {
   public class MediaServerUpnPDeviceInformation : ILocalizedDeviceInformation
   {

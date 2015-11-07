@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Web;
 using System.Xml;
-using System.Xml.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.UPnPRenderer.MediaItems;
+using MediaPortal.UPnPRenderer.MediaItems;
 using Microsoft.Win32;
 
-namespace UPnPRenderer.UPnP
+namespace MediaPortal.UPnPRenderer.UPnP
 {
   public enum ContentType
   {
@@ -24,7 +21,7 @@ namespace UPnPRenderer.UPnP
     Unknown
   }
 
-  class utils
+  class Utils
   {
     // UrlSourceFilter
     public const string FilterCLSID = "59ED045A-A938-4A09-A8A6-8231F5834259";
@@ -161,9 +158,9 @@ namespace UPnPRenderer.UPnP
       return ContentType.Unknown;
     }
 
-    public static byte[] downloadImage(string url)
+    public static byte[] DownloadImage(string url)
     {
-      byte[] buffer = new byte[] { };
+      byte[] buffer = { };
       try
       {
         WebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -214,58 +211,58 @@ namespace UPnPRenderer.UPnP
       }
     }
 
-    public static void addMetaDataToMediaItem(ref AudioItem audioItem, string metaData)
+    public static void AddMetaDataToMediaItem(ref AudioItem audioItem, string metaData)
     {
       if (metaData != null)
       {
         string coverUrl;
-        DmapData dmapData = extractMetaDataFromDidlLite(metaData, out coverUrl);
+        DmapData dmapData = ExtractMetaDataFromDidlLite(metaData, out coverUrl);
 
 
         audioItem.SetMetaData(dmapData);
-        
+
         if (coverUrl != string.Empty)
-          audioItem.SetCover(downloadImage(coverUrl));
+          audioItem.SetCover(DownloadImage(coverUrl));
       }
     }
 
-    public static void addMetaDataToMediaItem(ref VideoItem videoItem, string metaData)
+    public static void AddMetaDataToMediaItem(ref VideoItem videoItem, string metaData)
     {
       if (metaData != null)
       {
         string coverUrl;
-        DmapData dmapData = extractMetaDataFromDidlLite(metaData, out coverUrl);
+        DmapData dmapData = ExtractMetaDataFromDidlLite(metaData, out coverUrl);
 
 
         videoItem.SetMetaData(dmapData);
 
         if (coverUrl != string.Empty)
-          videoItem.SetCover(downloadImage(coverUrl));
+          videoItem.SetCover(DownloadImage(coverUrl));
       }
     }
 
-    public static void addMetaDataToMediaItem(ref ImageItem imageItem, string metaData)
+    public static void AddMetaDataToMediaItem(ref ImageItem imageItem, string metaData)
     {
       if (metaData != null)
       {
         string coverUrl;
-        DmapData dmapData = extractMetaDataFromDidlLite(metaData, out coverUrl);
+        DmapData dmapData = ExtractMetaDataFromDidlLite(metaData, out coverUrl);
 
 
         imageItem.SetMetaData(dmapData);
 
         if (coverUrl != string.Empty)
-          imageItem.SetCover(downloadImage(coverUrl));
+          imageItem.SetCover(DownloadImage(coverUrl));
       }
     }
 
-    
+
 
     #region helpers
 
-    private static DmapData extractMetaDataFromDidlLite(string metaData, out string coverUrl)
+    private static DmapData ExtractMetaDataFromDidlLite(string metaData, out string coverUrl)
     {
-      if (metaData == null || metaData == string.Empty)
+      if (string.IsNullOrEmpty(metaData))
       {
         coverUrl = string.Empty;
         return null;
