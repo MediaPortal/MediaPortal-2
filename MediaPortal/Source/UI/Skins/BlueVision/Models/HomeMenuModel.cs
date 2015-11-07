@@ -373,7 +373,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void SetGroup(string groupId, bool isShortCut = false)
     {
-      if (groupId.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.CurrentCultureIgnoreCase))
+      // Don't set group again, if it is already selected.
+      // There is one exception currently: if no positioned items are created, allow to execute it again. 
+      // This is a workaround, because in some cases the reading of navigation contexts fails and items will remain empty.
+      if (groupId.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.CurrentCultureIgnoreCase) && PositionedMenuItems.Count != 0)
         return;
       IsHome = groupId.Equals(MenuSettings.MENU_ID_HOME, StringComparison.CurrentCultureIgnoreCase);
 
