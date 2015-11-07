@@ -93,6 +93,18 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="from">Recording time from.</param>
     /// <param name="to">Recording time to.</param>
     /// <param name="recordingType">Schedule recording type.</param>
+    /// <param name="schedule">Returns the schedule instance.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    bool CreateScheduleByTimeAndType(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule);
+
+    /// <summary>
+    /// Creates a single or extended series schedule.
+    /// </summary>
+    /// <param name="channel">Channel to record.</param>
+    /// <param name="title">Title of the recording</param>
+    /// <param name="from">Recording time from.</param>
+    /// <param name="to">Recording time to.</param>
+    /// <param name="recordingType">Schedule recording type.</param>
     /// <param name="priority">Schedule priority</param>
     /// <param name="schedule">Returns the schedule instance.</param>
     /// <param name="preRecordInterval">Prerecording interval</param>
@@ -100,6 +112,22 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="directory">Recording directory</param>
     /// <returns><c>true</c> if successful.</returns>
     bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="channel">Channel to record.</param>
+    /// <param name="title">Title of the recording</param>
+    /// <param name="recordingType">Schedule recording type.</param>
+    /// <param name="preRecordInterval">Prerecording interval</param>
+    /// <param name="postRecordInterval">Postrecording interval</param>
+    /// <param name="directory">Recording directory</param>
+    /// <param name="priority">Schedule priority</param>
+    /// <param name="from">Recording time from.</param>
+    /// <param name="to">Recording time to.</param>
+    /// <param name="schedule">Schedule to edit.</param>
+    /// <returns></returns>
+    bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
 
     /// <summary>
     /// Deletes a schedule for the given <paramref name="program"/>. If the <paramref name="recordingType"/> is set to <see cref="ScheduleRecordingType.Once"/>,
