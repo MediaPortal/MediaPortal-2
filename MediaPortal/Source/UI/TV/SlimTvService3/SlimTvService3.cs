@@ -444,13 +444,95 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
     {
-      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, "Manual", from, to, (int)ScheduleRecordingType.Once);
+      CreateScheduleByTimeAndType(channel, from, to, ScheduleRecordingType.Once, out schedule);
+      return true;
+    }
+
+    public override bool CreateScheduleByTimeAndType(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
+      CreateScheduleByTimeAndType(channel, "Manual", from, to, recordingType, out schedule);
+      return true;
+    }
+
+    public override bool CreateScheduleByTimeAndType(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
+      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
       tvSchedule.PreRecordInterval = Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
       tvSchedule.PostRecordInterval = Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
       tvSchedule.Persist();
       _tvControl.OnNewSchedule();
       schedule = tvSchedule.ToSchedule();
       return true;
+    }
+
+    public override bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    {
+      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
+      tvSchedule.PreRecordInterval = preRecordInterval;
+      tvSchedule.PostRecordInterval = postRecordInterval;
+      tvSchedule.Directory = directory;
+      tvSchedule.Priority = priority;
+      tvSchedule.Persist();
+      _tvControl.OnNewSchedule();
+      schedule = tvSchedule.ToSchedule();
+      return true;
+    }
+
+    public override bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      try
+      {
+        ServiceRegistration.Get<ILogger>().Debug("Editing schedule {0} on channel {1} for {2}, {3} till {4}, type {5}", schedule.ScheduleId, channel.ChannelId, title, from, to, recordingType);
+        TvDatabase.Schedule tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
+
+        tvSchedule.IdChannel = channel.ChannelId;
+        if (title != null)
+        {
+          tvSchedule.ProgramName = title;
+        }
+        if (from != null)
+        {
+          tvSchedule.StartTime = from.Value;
+        }
+        if (to != null)
+        {
+          tvSchedule.EndTime = to.Value;
+        }
+
+        if (recordingType != null)
+        {
+          ScheduleRecordingType scheduleRecType = recordingType.Value;
+          tvSchedule.ScheduleType = (int)scheduleRecType;
+        }
+
+        if (preRecordInterval != null)
+        {
+          tvSchedule.PreRecordInterval = preRecordInterval.Value;
+        }
+        if (postRecordInterval != null)
+        {
+          tvSchedule.PostRecordInterval = postRecordInterval.Value;
+        }
+
+        if (directory != null)
+        {
+          tvSchedule.Directory = directory;
+        }
+        if (priority != null)
+        {
+          tvSchedule.Priority = priority.Value;
+        }
+
+        tvSchedule.Persist();
+
+        _tvControl.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to edit schedule {0}", schedule.ScheduleId), ex);
+        return false;
+      }
     }
 
     public override bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
