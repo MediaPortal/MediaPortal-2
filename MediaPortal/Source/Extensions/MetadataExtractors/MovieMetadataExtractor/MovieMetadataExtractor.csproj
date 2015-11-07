@@ -70,7 +70,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Incubator\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+    <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
       <Name>FanArtService.Interfaces</Name>
     </ProjectReference>

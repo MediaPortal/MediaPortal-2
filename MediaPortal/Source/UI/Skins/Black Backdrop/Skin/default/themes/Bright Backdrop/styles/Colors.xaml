@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- ************************** Changed colors from Black Backdrop theme  ****************************** -->
+  <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#80505050"/>
+  <ResourceWrapper x:Key="ButtonGradient2Color" Resource="#80303030"/>
+
+  <!-- Master screen colors, no brush -->
+  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush" />
+  <ResourceWrapper x:Key="FooterPanelBackgroundBrush" />
+
+  <!-- No separator line -->
+  <ResourceWrapper x:Key="HeaderFooterSeparatorLineStrokeColor" />
+</ResourceDictionary>

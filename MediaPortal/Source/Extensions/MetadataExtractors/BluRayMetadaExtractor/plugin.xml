@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="BluRayMetadataExtractor"
+    PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="BluRayMetadataExtractor">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="BluRayMetadataExtractor.dll"/>
+  </Runtime>
+
+  <!-- The Metadata extractor. -->
+  <Register Location="/Media/MetadataExtractors">
+    <Instance Id="BluRayMetadataExtractor" ClassName="MediaPortal.Media.MetadataExtractors.BluRayMetadataExtractor"/>
+  </Register>
+</Plugin>
