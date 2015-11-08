@@ -59,12 +59,12 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="MediaItems\AudioItem.cs" />
     <Compile Include="MediaItems\DmapData.cs" />
-    <Compile Include="MediaItems\ImageItem.cs" />
-    <Compile Include="MediaItems\VideoItem.cs" />
+    <Compile Include="MediaItems\UPnPImageAspect.cs" />
+    <Compile Include="MediaItems\UPnPMediaItemFactory.cs" />
     <Compile Include="OnlineVideos\IFilterState.cs" />
     <Compile Include="OnlineVideos\IFilterStateEx.cs" />
+    <Compile Include="Players\PlayerHelpers.cs" />
     <Compile Include="Players\AudioPlayer.cs" />
     <Compile Include="Players\ImagePlayer.cs" />
     <Compile Include="Players\PlayerBuilder.cs" />

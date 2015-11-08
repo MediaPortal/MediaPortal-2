@@ -5,7 +5,6 @@ using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Extensions.UPnPRenderer;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UPnPRenderer.MediaItems;
@@ -27,9 +26,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private ContentType _playerType = ContentType.Unknown;
     private bool _isPaused = false;
     private byte[] _imageData;
-    private static Timer _timer = new Timer(TIMER_INTERVAL);
-    private readonly UPnPRenderingControlServiceImpl _UPnPRenderingControlServiceImpl = UPnPRendererPlugin._upnpServer.UpnPDevice.UPnPRenderingControlServiceImpl;
-    private readonly UPnPAVTransportServiceImpl _UPnPAVTransportServiceImpl = UPnPRendererPlugin._upnpServer.UpnPDevice.UPnPAVTransportServiceImpl;
+    private static readonly Timer _timer = new Timer(TIMER_INTERVAL);
+    private readonly UPnPRenderingControlServiceImpl _controlServiceImpl = UPnPRendererPlugin.UPnPServer.UpnPDevice.UPnPRenderingControlServiceImpl;
+    private readonly UPnPAVTransportServiceImpl _transportServiceImpl = UPnPRendererPlugin.UPnPServer.UpnPDevice.UPnPAVTransportServiceImpl;
 
 
     #endregion local vars
@@ -52,51 +51,51 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private void OnPlay()
     {
-      Console.WriteLine("Event Fired! - Play -- ");
+      //Console.WriteLine("Event Fired! - Play -- ");
       VolumeChanged();
 
+      var avTransportUri = _transportServiceImpl.StateVariables["AVTransportURI"].Value.ToString();
+      var avTransportUriMetadata = _transportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString();
       switch (_playerType)
       {
         case ContentType.Audio:
           if (_isPaused)
           {
-            changeUPnPAVTransportServiceStateToPlaying();
-            resumePlayer<UPnPRendererAudioPlayer>();
+            ChangeUPnPAVTransportServiceStateToPlaying();
+            ResumePlayer<UPnPRendererAudioPlayer>();
             break;
           }
 
-          stopPlayer<UPnPRendererAudioPlayer>();
+          StopPlayer<UPnPRendererAudioPlayer>();
 
-          AudioItem audioItem = new AudioItem(_UPnPAVTransportServiceImpl.StateVariables["AVTransportURI"].Value.ToString());
-          Utils.AddMetaDataToMediaItem(ref audioItem, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
-
+          var audioItem = UPnPMediaItemFactory.CreateAudioItem(avTransportUri);
+          audioItem.AddMetaDataToMediaItem(avTransportUriMetadata);
           PlayItemsModel.CheckQueryPlayAction(audioItem);
           break;
         case ContentType.Image:
-          ImageItem item = new ImageItem(Guid.NewGuid().ToString(), _imageData);
-          Utils.AddMetaDataToMediaItem(ref item, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
+          var imageItem = UPnPMediaItemFactory.CreateImageItem(avTransportUri, Guid.NewGuid().ToString(), _imageData);
+          imageItem.AddMetaDataToMediaItem(avTransportUriMetadata);
 
-          var ic = getPlayerContext<UPnPRendererImagePlayer>();
+          var ic = GetPlayerContext<UPnPRendererImagePlayer>();
           if (ic != null)
-            ic.DoPlay(item);
+            ic.DoPlay(imageItem);
           else
-            PlayItemsModel.CheckQueryPlayAction(item);
+            PlayItemsModel.CheckQueryPlayAction(imageItem);
           break;
         case ContentType.Video:
           if (_isPaused)
           {
             Logger.Debug("Resume!!");
-            changeUPnPAVTransportServiceStateToPlaying();
-            resumePlayer<UPnPRendererVideoPlayer>();
+            ChangeUPnPAVTransportServiceStateToPlaying();
+            ResumePlayer<UPnPRendererVideoPlayer>();
             break;
           }
           Logger.Debug("NO Resume!!");
 
-          stopPlayer<UPnPRendererVideoPlayer>();
+          StopPlayer<UPnPRendererVideoPlayer>();
 
-          VideoItem videoItem = new VideoItem(_UPnPAVTransportServiceImpl.StateVariables["AVTransportURI"].Value.ToString());
-          Utils.AddMetaDataToMediaItem(ref videoItem, _UPnPAVTransportServiceImpl.StateVariables["AVTransportURIMetaData"].Value.ToString());
-
+          var videoItem = UPnPMediaItemFactory.CreateVideoItem(avTransportUri);
+          videoItem.AddMetaDataToMediaItem(avTransportUriMetadata);
           PlayItemsModel.CheckQueryPlayAction(videoItem);
           break;
         case ContentType.Unknown:
@@ -118,12 +117,12 @@ namespace MediaPortal.UPnPRenderer.UPnP
       switch (_playerType)
       {
         case ContentType.Audio:
-          pausePlayer<UPnPRendererAudioPlayer>();
+          PausePlayer<UPnPRendererAudioPlayer>();
           break;
         case ContentType.Image:
           break;
         case ContentType.Video:
-          pausePlayer<UPnPRendererVideoPlayer>();
+          PausePlayer<UPnPRendererVideoPlayer>();
           break;
         case ContentType.Unknown:
           break;
@@ -140,12 +139,12 @@ namespace MediaPortal.UPnPRenderer.UPnP
       switch (_playerType)
       {
         case ContentType.Audio:
-          stopPlayer<UPnPRendererAudioPlayer>();
+          StopPlayer<UPnPRendererAudioPlayer>();
           break;
         case ContentType.Image:
           break;
         case ContentType.Video:
-          stopPlayer<UPnPRendererVideoPlayer>();
+          StopPlayer<UPnPRendererVideoPlayer>();
           break;
         case ContentType.Unknown:
           break;
@@ -155,7 +154,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       _timer.Enabled = false;
       string elapsedTime = TimeSpan.FromSeconds(0).ToString();
 
-      _UPnPAVTransportServiceImpl.ChangeStateVariables(new List<string>
+      _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState",
         "AbsoluteTimePosition",
@@ -176,20 +175,20 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private void OnSeek()
     {
       Logger.Debug("Event Fired! - Seek -- ");
-      Console.WriteLine("--" + _UPnPAVTransportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString());
-      string[] relTime = _UPnPAVTransportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString().Split(':');
-      Console.WriteLine(string.Join(", ", relTime));
+      //Console.WriteLine("--" + _transportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString());
+      string[] relTime = _transportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString().Split(':');
+      //Console.WriteLine(string.Join(", ", relTime));
       var timespan = new TimeSpan(Int32.Parse(relTime[0]), Int32.Parse(relTime[1]), Int32.Parse(relTime[2]));
 
       switch (_playerType)
       {
         case ContentType.Audio:
-          getPlayer<UPnPRendererAudioPlayer>().CurrentTime = timespan;
+          GetPlayer<UPnPRendererAudioPlayer>().CurrentTime = timespan;
           break;
         case ContentType.Image:
           break;
         case ContentType.Video:
-          getPlayer<UPnPRendererVideoPlayer>().CurrentTime = timespan;
+          GetPlayer<UPnPRendererVideoPlayer>().CurrentTime = timespan;
           break;
         case ContentType.Unknown:
           break;
@@ -226,8 +225,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private void OnVolume(OnEvenSetVolumeEventArgs e)
     {
       ServiceRegistration.Get<IPlayerManager>().Volume = Convert.ToInt32(e.Volume);
-      Console.WriteLine("Volume set: " + e.Volume.ToString());
-      Console.WriteLine("Wolume is: " + ServiceRegistration.Get<IPlayerManager>().Volume);
+      //Console.WriteLine("Volume set: " + e.Volume.ToString());
+      //Console.WriteLine("Wolume is: " + ServiceRegistration.Get<IPlayerManager>().Volume);
     }
 
     #endregion UPnPRenderingControlServiceImpl events
@@ -242,23 +241,23 @@ namespace MediaPortal.UPnPRenderer.UPnP
       string elapsedTime = "00:00:00";
       string duration = "00:00:00";
 
-      IPlayerContext UPnPPlayerCtx;
+      IPlayerContext playerCtx;
 
       switch (_playerType)
       {
         case ContentType.Audio:
           var audioContexts = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContextsByAVType(AVType.Audio);
-          UPnPPlayerCtx = audioContexts.FirstOrDefault(vc => vc.CurrentPlayer is UPnPRendererAudioPlayer);
-          if (UPnPPlayerCtx != null)
+          playerCtx = audioContexts.FirstOrDefault(vc => vc.CurrentPlayer is UPnPRendererAudioPlayer);
+          if (playerCtx != null)
           {
-            if (getPlayer<UPnPRendererAudioPlayer>().State == PlayerState.Ended)
+            if (GetPlayer<UPnPRendererAudioPlayer>().State == PlayerState.Ended)
             {
               Logger.Debug("Playback ended");
               Stop();
               return;
             }
-            elapsedTime = getPlayer<UPnPRendererAudioPlayer>().CurrentTime.ToString(@"hh\:mm\:ss");
-            duration = getPlayer<UPnPRendererAudioPlayer>().Duration.ToString(@"hh\:mm\:ss");
+            elapsedTime = GetPlayer<UPnPRendererAudioPlayer>().CurrentTime.ToString(@"hh\:mm\:ss");
+            duration = GetPlayer<UPnPRendererAudioPlayer>().Duration.ToString(@"hh\:mm\:ss");
           }
           else
           {
@@ -269,17 +268,17 @@ namespace MediaPortal.UPnPRenderer.UPnP
           break;
         case ContentType.Video:
           var videoContexts = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContextsByAVType(AVType.Video);
-          UPnPPlayerCtx = videoContexts.FirstOrDefault(vc => vc.CurrentPlayer is UPnPRendererVideoPlayer);
-          if (UPnPPlayerCtx != null)
+          playerCtx = videoContexts.FirstOrDefault(vc => vc.CurrentPlayer is UPnPRendererVideoPlayer);
+          if (playerCtx != null)
           {
-            if (getPlayer<UPnPRendererVideoPlayer>().State == PlayerState.Ended)
+            if (GetPlayer<UPnPRendererVideoPlayer>().State == PlayerState.Ended)
             {
               Console.WriteLine("Playback ended");
               Stop();
               return;
             }
-            elapsedTime = getPlayer<UPnPRendererVideoPlayer>().CurrentTime.ToString(@"hh\:mm\:ss");
-            duration = getPlayer<UPnPRendererVideoPlayer>().Duration.ToString(@"hh\:mm\:ss");
+            elapsedTime = GetPlayer<UPnPRendererVideoPlayer>().CurrentTime.ToString(@"hh\:mm\:ss");
+            duration = GetPlayer<UPnPRendererVideoPlayer>().Duration.ToString(@"hh\:mm\:ss");
           }
           else
           {
@@ -290,7 +289,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
           break;
       }
 
-      _UPnPAVTransportServiceImpl.ChangeStateVariables(new List<string>
+      _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "AbsoluteTimePosition",
         "RelativeTimePosition",
@@ -356,7 +355,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private void VolumeChanged()
     {
       Console.WriteLine("Player Message volume changed");
-      _UPnPRenderingControlServiceImpl.ChangeStateVariables(new List<string>
+      _controlServiceImpl.ChangeStateVariables(new List<string>
       {
         "Volume"
 
@@ -373,7 +372,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private void Pause()
     {
-      _UPnPAVTransportServiceImpl.ChangeStateVariables(new List<string>
+      _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState"
       }, new List<object>
@@ -387,7 +386,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private void Resume()
     {
-      _UPnPAVTransportServiceImpl.ChangeStateVariables(new List<string>
+      _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState"
       }, new List<object>
@@ -403,9 +402,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     #region Utils
 
-    private void changeUPnPAVTransportServiceStateToPlaying()
+    private void ChangeUPnPAVTransportServiceStateToPlaying()
     {
-      _UPnPAVTransportServiceImpl.ChangeStateVariables(new List<string>
+      _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState"
       }, new List<object>
@@ -417,37 +416,37 @@ namespace MediaPortal.UPnPRenderer.UPnP
       _timer.Enabled = true;
     }
 
-    T getPlayer<T>()
+    T GetPlayer<T>()
     {
-      var context = getPlayerContext<T>();
+      var context = GetPlayerContext<T>();
       if (context != null)
         return (T)context.CurrentPlayer;
       return default(T);
     }
 
-    IPlayerContext getPlayerContext<T>()
+    IPlayerContext GetPlayerContext<T>()
     {
       var contexts = ServiceRegistration.Get<IPlayerContextManager>().PlayerContexts;
       return contexts.FirstOrDefault(vc => vc.CurrentPlayer is T);
     }
 
-    void pausePlayer<T>()
+    void PausePlayer<T>()
     {
-      IPlayerContext context = getPlayerContext<T>();
+      IPlayerContext context = GetPlayerContext<T>();
       if (context != null)
         context.Pause();
     }
 
-    void stopPlayer<T>()
+    void StopPlayer<T>()
     {
-      IPlayerContext context = getPlayerContext<T>();
+      IPlayerContext context = GetPlayerContext<T>();
       if (context != null)
         context.Stop();
     }
 
-    void resumePlayer<T>()
+    void ResumePlayer<T>()
     {
-      IPlayerContext context = getPlayerContext<T>();
+      IPlayerContext context = GetPlayerContext<T>();
       if (context != null)
         context.Play();
     }

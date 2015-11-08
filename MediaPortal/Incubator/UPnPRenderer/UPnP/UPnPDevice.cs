@@ -1,5 +1,4 @@
-﻿using MediaPortal.Extensions.UPnPRenderer;
-using UPnP.Infrastructure.Dv.DeviceTree;
+﻿using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.UPnPRenderer.UPnP
 {

@@ -1,7 +1,4 @@
-﻿//using HttpServer;
-
-using System;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
@@ -16,17 +13,14 @@ namespace MediaPortal.UPnPRenderer.UPnP
     public const string DEVICE_UUID = "D6185023-12EC-4E27-A4AA-C8D9E993974D";
 
     //static HttpServer.HttpServer _httpServer = new HttpServer.HttpServer();
-    public static UPnPLightServer _upnpServer = null;
+    public static UPnPLightServer UPnPServer = null;
     private AsynchronousMessageQueue _messageQueue;
-    private Player _player;
+    private readonly Player _player;
 
     public UPnPRendererPlugin()
     {
-      //_device = new upnpDevice(DEVICE_UUID.ToLower());
-
-      //_httpServer.Start(IPAddress.Any, 80);
-      _upnpServer = new UPnPLightServer(DEVICE_UUID);
-      _upnpServer.Start();
+      UPnPServer = new UPnPLightServer(DEVICE_UUID);
+      UPnPServer.Start();
       _player = new Player();
     }
 
@@ -65,15 +59,12 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     public void Receive(SystemMessage message)
     {
-      if (message.MessageType is SystemMessaging.MessageType)
+      if (message.MessageType as SystemMessaging.MessageType? == SystemMessaging.MessageType.SystemStateChanged)
       {
-        if (((SystemMessaging.MessageType)message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
+        SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+        if (newState == SystemState.Running)
         {
-          SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
-          if (newState == SystemState.Running)
-          {
-            RegisterWithServices();
-          }
+          RegisterWithServices();
         }
       }
     }
@@ -81,14 +72,13 @@ namespace MediaPortal.UPnPRenderer.UPnP
     protected void RegisterWithServices()
     {
       // All non-default media item aspects must be registered
-
     }
 
     #region Messages
 
     void SubscribeToMessages()
     {
-      Console.WriteLine("subscribe to player messages");
+      //Console.WriteLine("subscribe to player messages");
       if (_messageQueue != null)
         return;
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
@@ -97,7 +87,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
                                                   });
       _messageQueue.MessageReceived += _player.OnMessageReceived;
       _messageQueue.Start();
-      Console.WriteLine("subscribe to player messages end of function");
+      //Console.WriteLine("subscribe to player messages end of function");
     }
 
     void UnsubscribeFromMessages()
