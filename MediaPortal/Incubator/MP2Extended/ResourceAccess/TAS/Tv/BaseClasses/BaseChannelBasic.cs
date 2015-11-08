@@ -17,7 +17,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
         Id = channel.ChannelId,
         IsRadio = channel.MediaType == MediaType.Radio,
         IsTv = channel.MediaType == MediaType.TV,
-        Title = channel.Name
+        Title = channel.Name,
       };
 
       return webChannelBasic;

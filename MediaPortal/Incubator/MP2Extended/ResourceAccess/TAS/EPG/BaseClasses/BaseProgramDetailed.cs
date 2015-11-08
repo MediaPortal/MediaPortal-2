@@ -18,21 +18,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
 
       IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
       IProgramSeries programSeries = program as IProgramSeries;
+      WebProgramBasic webProgramBasic = new BaseProgramBasic().ProgramBasic(program);
 
       WebProgramDetailed webProgramDetailed = new WebProgramDetailed
       {
-        Genre = program.Genre,
-        Description = program.Description,
-        ChannelId = program.ChannelId,
-        StartTime = program.StartTime,
-        EndTime = program.EndTime,
-        Title = program.Title,
-        Id = program.ProgramId,
-        DurationInMinutes = Convert.ToInt32(program.EndTime.Subtract(program.StartTime).TotalMinutes),
+        // From Basic
+        Description = webProgramBasic.Description,
+        ChannelId = webProgramBasic.ChannelId,
+        StartTime = webProgramBasic.StartTime,
+        EndTime = webProgramBasic.EndTime,
+        Title = webProgramBasic.Title,
+        Id = webProgramBasic.Id,
+        DurationInMinutes = webProgramBasic.DurationInMinutes,
         Classification = program.Classification,
         OriginalAirDate = program.OriginalAirDate ?? DateTime.Now,
         ParentalRating = program.ParentalRating,
         StarRating = program.StarRating,
+        IsScheduled = webProgramBasic.IsScheduled,
+
+        Genre = program.Genre,
 
         IsRecording = recordingStatus != null && recordingStatus.RecordingStatus != RecordingStatus.None,
         IsRecordingSeriesPending = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.SeriesScheduled,
@@ -40,7 +44,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         IsRecordingSeries = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.RecordingSeries,
         IsRecordingManual = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.RecordingManual,
         IsRecordingOnce = recordingStatus != null && recordingStatus.RecordingStatus == RecordingStatus.RecordingOnce,
-        IsScheduled = recordingStatus.IsScheduled,
         HasConflict = recordingStatus != null && recordingStatus.HasConflict,
         SeriesNum = programSeries.SeasonNumber,
         EpisodeNum = programSeries.EpisodeNumber,

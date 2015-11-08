@@ -15,52 +15,32 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   {
     internal WebTVEpisodeDetailed EpisodeDetailed(MediaItem item, MediaItem showItem = null)
     {
+      WebTVEpisodeBasic webMovieBasic = new BaseEpisodeBasic().EpisodeBasic(item);
       MediaItemAspect seriesAspects = item.Aspects[SeriesAspect.ASPECT_ID];
 
       if (showItem == null)
         showItem = GetMediaItems.GetMediaItemByName((string)seriesAspects[SeriesAspect.ATTR_SERIESNAME], null);
 
-      WebTVEpisodeDetailed webTvEpisodeDetailed = new WebTVEpisodeDetailed();
-      var episodeNumber = ((HashSet<object>)item[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODE]).Cast<int>().ToList();
-      webTvEpisodeDetailed.EpisodeNumber = episodeNumber[0];
-      var TvDbId = seriesAspects[SeriesAspect.ATTR_TVDB_ID];
-      if (TvDbId != null)
+      WebTVEpisodeDetailed webTvEpisodeDetailed = new WebTVEpisodeDetailed
       {
-        webTvEpisodeDetailed.ExternalId.Add(new WebExternalId
-        {
-          Site = "TVDB",
-          Id = ((int)TvDbId).ToString()
-        });
-      }
-      var ImdbId = seriesAspects[SeriesAspect.ATTR_TVDB_ID];
-      if (ImdbId != null)
-      {
-        webTvEpisodeDetailed.ExternalId.Add(new WebExternalId
-        {
-          Site = "IMDB",
-          Id = (string)seriesAspects[SeriesAspect.ATTR_IMDB_ID]
-        });
-      }
-
-      var firstAired = seriesAspects[SeriesAspect.ATTR_FIRSTAIRED];
-      if (firstAired != null)
-        webTvEpisodeDetailed.FirstAired = (DateTime)seriesAspects[SeriesAspect.ATTR_FIRSTAIRED];
-      webTvEpisodeDetailed.IsProtected = false; //??
-      webTvEpisodeDetailed.Rating = seriesAspects[SeriesAspect.ATTR_TOTAL_RATING] == null ? 0 : Convert.ToSingle((double)seriesAspects[SeriesAspect.ATTR_TOTAL_RATING]);
-      webTvEpisodeDetailed.SeasonNumber = (int)seriesAspects[SeriesAspect.ATTR_SEASON];
-      if (showItem != null)
-      {
-        webTvEpisodeDetailed.ShowId = showItem.MediaItemId.ToString();
-        webTvEpisodeDetailed.SeasonId = string.Format("{0}:{1}", showItem.MediaItemId, (int)seriesAspects[SeriesAspect.ATTR_SEASON]);
-      }
-      webTvEpisodeDetailed.Type = WebMediaType.TVEpisode;
-      webTvEpisodeDetailed.Watched = ((int)(item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0);
-      webTvEpisodeDetailed.Path = new List<string> { item.MediaItemId.ToString() };
-      //webTvEpisodeBasic.Artwork = ;
-      webTvEpisodeDetailed.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
-      webTvEpisodeDetailed.Id = item.MediaItemId.ToString();
-      webTvEpisodeDetailed.PID = 0;
-      webTvEpisodeDetailed.Title = (string)seriesAspects[SeriesAspect.ATTR_EPISODENAME];
+        EpisodeNumber = webMovieBasic.EpisodeNumber,
+        ExternalId = webMovieBasic.ExternalId,
+        FirstAired = webMovieBasic.FirstAired,
+        IsProtected = webMovieBasic.IsProtected,
+        Rating = webMovieBasic.Rating,
+        SeasonNumber = webMovieBasic.SeasonNumber,
+        ShowId = webMovieBasic.ShowId,
+        SeasonId = webMovieBasic.SeasonId,
+        Type = webMovieBasic.Type,
+        Watched = webMovieBasic.Watched,
+        Path = webMovieBasic.Path,
+        DateAdded = webMovieBasic.DateAdded,
+        Id = webMovieBasic.Id,
+        PID = webMovieBasic.PID,
+        Title = webMovieBasic.Title,
+        Artwork = webMovieBasic.Artwork
+      };
+      
       webTvEpisodeDetailed.Summary = (string)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_STORYPLOT];
       webTvEpisodeDetailed.Show = (string)item[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SERIESNAME];
       var videoWriters = (HashSet<object>)item[VideoAspect.ASPECT_ID][VideoAspect.ATTR_WRITERS];
