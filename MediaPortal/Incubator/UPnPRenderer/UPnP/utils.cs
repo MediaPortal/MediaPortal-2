@@ -211,56 +211,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
       }
     }
 
-    public static void AddMetaDataToMediaItem(ref AudioItem audioItem, string metaData)
-    {
-      if (metaData != null)
-      {
-        string coverUrl;
-        DmapData dmapData = ExtractMetaDataFromDidlLite(metaData, out coverUrl);
-
-
-        audioItem.SetMetaData(dmapData);
-
-        if (coverUrl != string.Empty)
-          audioItem.SetCover(DownloadImage(coverUrl));
-      }
-    }
-
-    public static void AddMetaDataToMediaItem(ref VideoItem videoItem, string metaData)
-    {
-      if (metaData != null)
-      {
-        string coverUrl;
-        DmapData dmapData = ExtractMetaDataFromDidlLite(metaData, out coverUrl);
-
-
-        videoItem.SetMetaData(dmapData);
-
-        if (coverUrl != string.Empty)
-          videoItem.SetCover(DownloadImage(coverUrl));
-      }
-    }
-
-    public static void AddMetaDataToMediaItem(ref ImageItem imageItem, string metaData)
-    {
-      if (metaData != null)
-      {
-        string coverUrl;
-        DmapData dmapData = ExtractMetaDataFromDidlLite(metaData, out coverUrl);
-
-
-        imageItem.SetMetaData(dmapData);
-
-        if (coverUrl != string.Empty)
-          imageItem.SetCover(DownloadImage(coverUrl));
-      }
-    }
-
-
-
     #region helpers
 
-    private static DmapData ExtractMetaDataFromDidlLite(string metaData, out string coverUrl)
+    public static DmapData ExtractMetaDataFromDidlLite(string metaData, out string coverUrl)
     {
       if (string.IsNullOrEmpty(metaData))
       {

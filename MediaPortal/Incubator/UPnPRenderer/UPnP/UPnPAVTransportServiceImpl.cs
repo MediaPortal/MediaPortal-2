@@ -24,7 +24,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
-using MediaPortal.Extensions.UPnPRenderer;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -51,8 +50,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       #region DvStateVariables
 
       // Used for a boolean value
-      DvStateVariable AbsoluteCounterPosition = new DvStateVariable("AbsoluteCounterPosition",
-        new DvStandardDataType(UPnPStandardDataType.I4))
+      DvStateVariable AbsoluteCounterPosition = new DvStateVariable("AbsoluteCounterPosition", new DvStandardDataType(UPnPStandardDataType.I4))
       {
         SendEvents = false,
         Value = 2147483647,
@@ -60,8 +58,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(AbsoluteCounterPosition);
 
       // Used for a boolean value
-      DvStateVariable AbsoluteTimePosition = new DvStateVariable("AbsoluteTimePosition",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable AbsoluteTimePosition = new DvStateVariable("AbsoluteTimePosition", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NOT_IMPLEMENTED",
@@ -69,24 +66,21 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(AbsoluteTimePosition);
 
       // Used for a boolean value
-      DvStateVariable AVTransportURI = new DvStateVariable("AVTransportURI",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable AVTransportURI = new DvStateVariable("AVTransportURI", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(AVTransportURI);
 
       // Used for a boolean value
-      DvStateVariable AVTransportURIMetaData = new DvStateVariable("AVTransportURIMetaData",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable AVTransportURIMetaData = new DvStateVariable("AVTransportURIMetaData", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(AVTransportURIMetaData);
 
       // Used for a boolean value
-      DvStateVariable CurrentMediaDurtaion = new DvStateVariable("CurrentMediaDuration",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentMediaDurtaion = new DvStateVariable("CurrentMediaDuration", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "00:00:00",
@@ -94,8 +88,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(CurrentMediaDurtaion);
 
       // Used for a boolean value
-      DvStateVariable CurrentPlayMode = new DvStateVariable("CurrentPlayMode",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentPlayMode = new DvStateVariable("CurrentPlayMode", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NORMAL",
@@ -109,8 +102,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(CurrentPlayMode);
 
       // Used for a boolean value
-      DvStateVariable CurrentRecordQualityMode = new DvStateVariable("CurrentRecordQualityMode",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentRecordQualityMode = new DvStateVariable("CurrentRecordQualityMode", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NOT_IMPLEMENT",
@@ -129,8 +121,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(CurrentRecordQualityMode);
 
       // Used for a boolean value
-      DvStateVariable CurrentTrack = new DvStateVariable("CurrentTrack",
-        new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable CurrentTrack = new DvStateVariable("CurrentTrack", new DvStandardDataType(UPnPStandardDataType.Ui4))
       {
         SendEvents = false,
         Value = (UInt32)0,
@@ -140,8 +131,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(CurrentTrack);
 
       // Used for a boolean value
-      DvStateVariable CurrentTrackDurtion = new DvStateVariable("CurrentTrackDuration",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentTrackDurtion = new DvStateVariable("CurrentTrackDuration", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "00:00:00",
@@ -149,32 +139,28 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(CurrentTrackDurtion);
 
       // Used for a boolean value
-      DvStateVariable CurrentTrackMetaData = new DvStateVariable("CurrentTrackMetaData",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentTrackMetaData = new DvStateVariable("CurrentTrackMetaData", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(CurrentTrackMetaData);
 
       // Used for a boolean value
-      DvStateVariable CurrentTrackURI = new DvStateVariable("CurrentTrackURI",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentTrackURI = new DvStateVariable("CurrentTrackURI", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(CurrentTrackURI);
 
       // Used for a boolean value
-      DvStateVariable CurrentTransportActions = new DvStateVariable("CurrentTransportActions",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable CurrentTransportActions = new DvStateVariable("CurrentTransportActions", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(CurrentTransportActions);
 
       // Used for a boolean value
-      DvStateVariable LastChange = new DvStateVariable("LastChange",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable LastChange = new DvStateVariable("LastChange", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = true,
         Value = "<Event xmlns=\"urn:schemas-upnp-org:metadata-1-0/AVT/\"></Event>"
@@ -182,24 +168,21 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(LastChange);
 
       // Used for a boolean value
-      DvStateVariable NextAVTransportURI = new DvStateVariable("NextAVTransportURI",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable NextAVTransportURI = new DvStateVariable("NextAVTransportURI", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(NextAVTransportURI);
 
       // Used for a boolean value
-      DvStateVariable NextAVTransportURIMetaData = new DvStateVariable("NextAVTransportURIMetaData",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable NextAVTransportURIMetaData = new DvStateVariable("NextAVTransportURIMetaData", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
       };
       AddStateVariable(NextAVTransportURIMetaData);
 
       // Used for a boolean value
-      DvStateVariable NumberOfTracks = new DvStateVariable("NumberOfTracks",
-        new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable NumberOfTracks = new DvStateVariable("NumberOfTracks", new DvStandardDataType(UPnPStandardDataType.Ui4))
       {
         SendEvents = false,
         Value = (UInt32)0,
@@ -208,8 +191,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(NumberOfTracks);
 
       // Used for a boolean value
-      DvStateVariable PlaybackStorageMedium = new DvStateVariable("PlaybackStorageMedium",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable PlaybackStorageMedium = new DvStateVariable("PlaybackStorageMedium", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NONE",
@@ -253,8 +235,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(PlaybackStorageMedium);
 
       // Used for a boolean value
-      DvStateVariable PossiblePlaybackStorageMedia = new DvStateVariable("PossiblePlaybackStorgrageMedia",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable PossiblePlaybackStorageMedia = new DvStateVariable("PossiblePlaybackStorgrageMedia", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = String.Join(",", PlaybackStorageMedium.AllowedValueList),
@@ -262,8 +243,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(PossiblePlaybackStorageMedia);
 
       // Used for a boolean value
-      DvStateVariable PossibleRecordQualityModes = new DvStateVariable("PossibleRecordQualityModes",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable PossibleRecordQualityModes = new DvStateVariable("PossibleRecordQualityModes", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NOT_IMPLEMENT",
@@ -272,8 +252,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
 
       // Used for a boolean value
-      DvStateVariable RecordStorageMedium = new DvStateVariable("RecordStorageMedium",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable RecordStorageMedium = new DvStateVariable("RecordStorageMedium", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NONE",
@@ -317,8 +296,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(RecordStorageMedium);
 
       // Used for a boolean value
-      DvStateVariable PossibleRecordStorageMedia = new DvStateVariable("PossibleRecordStorageMedia",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable PossibleRecordStorageMedia = new DvStateVariable("PossibleRecordStorageMedia", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = String.Join(",", RecordStorageMedium.AllowedValueList),
@@ -326,8 +304,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(PossibleRecordStorageMedia);
 
       // Used for a boolean value
-      DvStateVariable RecordMediumWriteStatus = new DvStateVariable("RecordMediumWriteStatus",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable RecordMediumWriteStatus = new DvStateVariable("RecordMediumWriteStatus", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NOT_IMPLEMENT",
@@ -343,8 +320,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(RecordMediumWriteStatus);
 
       // Used for a boolean value
-      DvStateVariable RelativeCounterPosition = new DvStateVariable("RelativeCounterPosition",
-        new DvStandardDataType(UPnPStandardDataType.I4))
+      DvStateVariable RelativeCounterPosition = new DvStateVariable("RelativeCounterPosition", new DvStandardDataType(UPnPStandardDataType.I4))
       {
         SendEvents = false,
         Value = 2147483647,
@@ -352,8 +328,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(RelativeCounterPosition);
 
       // Used for a boolean value
-      DvStateVariable RelativeTimePosition = new DvStateVariable("RelativeTimePosition",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable RelativeTimePosition = new DvStateVariable("RelativeTimePosition", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NOT_IMPLEMENTED",
@@ -361,8 +336,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(RelativeTimePosition);
 
       // Used for a boolean value
-      DvStateVariable TransportPlaySpeed = new DvStateVariable("TransportPlaySpeed",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable TransportPlaySpeed = new DvStateVariable("TransportPlaySpeed", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "1",
@@ -375,8 +349,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(TransportPlaySpeed);
 
       // Used for a boolean value
-      DvStateVariable TransportState = new DvStateVariable("TransportState",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable TransportState = new DvStateVariable("TransportState", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "NO_MEDIA_PRESENT",
@@ -393,9 +366,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
       };
       AddStateVariable(TransportState);
 
-      // Used for a boolean value
-      DvStateVariable TransportStatus = new DvStateVariable("TransportStatus",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      // Used for a boolean value 
+      DvStateVariable TransportStatus = new DvStateVariable("TransportStatus", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         Value = "OK",
@@ -413,16 +385,11 @@ namespace MediaPortal.UPnPRenderer.UPnP
       #region A_ARG_TYPE
 
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_InstanceID = new DvStateVariable("A_ARG_TYPE_InstanceID",
-        new DvStandardDataType(UPnPStandardDataType.Ui4))
-      {
-        SendEvents = false,
-      };
+      DvStateVariable A_ARG_TYPE_InstanceID = new DvStateVariable("A_ARG_TYPE_InstanceID", new DvStandardDataType(UPnPStandardDataType.Ui4)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_InstanceID);
 
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_SeekMode = new DvStateVariable("A_ARG_TYPE_SeekMode",
-        new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_SeekMode = new DvStateVariable("A_ARG_TYPE_SeekMode", new DvStandardDataType(UPnPStandardDataType.String))
       {
         SendEvents = false,
         AllowedValueList = new List<string>
@@ -440,11 +407,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddStateVariable(A_ARG_TYPE_SeekMode);
 
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_SeekTarget = new DvStateVariable("A_ARG_TYPE_SeekTarget",
-        new DvStandardDataType(UPnPStandardDataType.String))
-      {
-        SendEvents = false,
-      };
+      DvStateVariable A_ARG_TYPE_SeekTarget = new DvStateVariable("A_ARG_TYPE_SeekTarget", new DvStandardDataType(UPnPStandardDataType.String)) { SendEvents = false };
       AddStateVariable(A_ARG_TYPE_SeekTarget);
 
       #endregion A_ARG_TYPE;
@@ -735,24 +698,13 @@ namespace MediaPortal.UPnPRenderer.UPnP
       AddAction(stopction);
 
       #endregion Actions
-
     }
-
 
     #region OnAction
 
-    private static UPnPError OnGetCurrentTransportActions(DvAction action, IList<object> inParams, out IList<object> outParams,
-      CallContext context)
+    private static UPnPError OnGetCurrentTransportActions(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
-
+      DebugLogParams(inParams);
       foreach (var inArgument in action.InArguments)
       {
         Console.WriteLine("In Argument: " + inArgument.Name);
@@ -763,39 +715,21 @@ namespace MediaPortal.UPnPRenderer.UPnP
             break;
         }
       }
-
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
-
       return null;
     }
 
-    private static UPnPError OnGetDeviceCapabilities(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetDeviceCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       Console.WriteLine(action.OutArguments[0].RelatedStateVar.DefaultValue);
       return null;
     }
 
-    private static UPnPError OnGetMediaInfo(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetMediaInfo(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       foreach (var outArgument in action.OutArguments)
       {
@@ -804,36 +738,17 @@ namespace MediaPortal.UPnPRenderer.UPnP
       return null;
     }
 
-    private static UPnPError OnGetPositionInfo(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetPositionInfo(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      /*Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");*/
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
-      /*foreach (var outArgument in action.OutArguments)
-      {
-        Console.WriteLine("- " + outArgument.Name + " - " + outArgument.RelatedStateVar.Value);
-      }*/
       return null;
     }
 
     private static UPnPError OnGetTransportInfo(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       Console.WriteLine("OUTPUT:");
       foreach (var outParam in outParams)
@@ -844,49 +759,24 @@ namespace MediaPortal.UPnPRenderer.UPnP
     }
 
     // just returns the vars
-    private static UPnPError OnGetTransportSettings(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetTransportSettings(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
 
     // not implemented
-    private static UPnPError OnNext(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnNext(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
 
-    private static UPnPError OnPause(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnPause(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
-
+      DebugLogParams(inParams);
       if (action.ParentService.StateVariables["TransportState"].Value.ToString() == "PLAYING")
       {
         Console.WriteLine("TransPortState is PLAYING");
@@ -902,17 +792,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
       return null;
     }
 
-    private static UPnPError OnPlay(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnPlay(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
 
       ChangeStateVariables(new List<string>
       {
@@ -932,33 +814,16 @@ namespace MediaPortal.UPnPRenderer.UPnP
     }
 
     // not implemented
-    private static UPnPError OnPrevious(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnPrevious(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
 
-    private static UPnPError OnSeek(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnSeek(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
-
+      DebugLogParams(inParams);
       ChangeStateVariables(new List<string>
       {
         "A_ARG_TYPE_SeekMode",
@@ -981,17 +846,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
       return null;
     }
 
-    private static UPnPError OnSetAVTransportURI(DvAction action, IList<object> inParams,
-      out IList<object> outParams, CallContext context)
+    private static UPnPError OnSetAVTransportURI(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
 
       ChangeStateVariables(new List<string>
       {
@@ -1022,10 +879,11 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
 
-
-      OnEventSetAVTransportURIEventArgs eventArgs = new OnEventSetAVTransportURIEventArgs();
-      eventArgs.CurrentURI = inParams[1];
-      eventArgs.CurrentURIMetaData = inParams[2];
+      OnEventSetAVTransportURIEventArgs eventArgs = new OnEventSetAVTransportURIEventArgs
+      {
+        CurrentURI = inParams[1],
+        CurrentURIMetaData = inParams[2]
+      };
 
       OnEventSetAVTransportURI(eventArgs);
 
@@ -1037,14 +895,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnSetNextAVTransportURI(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -1053,14 +904,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnSetPlayMode(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -1068,14 +912,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnStop(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      DebugLogParams(inParams);
 
       ChangeStateVariables(new List<string>
       {
@@ -1092,12 +929,22 @@ namespace MediaPortal.UPnPRenderer.UPnP
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static string GetCurrentMethod()
+    public static string GetCurrentMethod(int depth = 1)
     {
       StackTrace st = new StackTrace();
-      StackFrame sf = st.GetFrame(1);
+      StackFrame sf = st.GetFrame(depth);
 
       return sf.GetMethod().Name;
+    }
+
+    private static void DebugLogParams(IList<object> inParams)
+    {
+      Console.WriteLine("*************");
+      Console.WriteLine("Current method: " + GetCurrentMethod(2)); // This method's parent
+      Console.WriteLine("In Params");
+      foreach (var inParam in inParams)
+        Console.WriteLine(inParam);
+      Console.WriteLine("*************");
     }
 
     #endregion OnAction

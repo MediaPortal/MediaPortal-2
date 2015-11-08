@@ -95,20 +95,22 @@ namespace MediaPortal.UPnPRenderer.Players
 
     public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
-      ImageItem imageItem = mediaItem as ImageItem;
-      if (imageItem == null || imageItem.ImageData == null)
+      byte[] imageData;
+      string imageId;
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, UPnPImageAspect.ATTR_IMAGE, out imageData) ||
+          !MediaItemAspect.TryGetAttribute(mediaItem.Aspects, UPnPImageAspect.ATTR_IMAGE_ID, out imageId))
         return false;
 
-      UpdateTexture(imageItem);
+      UpdateTexture(imageId, imageData);
       return true;
     }
 
-    protected void UpdateTexture(ImageItem item)
+    protected void UpdateTexture(string imageId, byte[] imageData)
     {
       lock (_imageSync)
       {
-        _itemTitle = item.ImageId;
-        _texture = ContentManager.Instance.GetTexture(item.ImageData, item.ImageId);
+        _itemTitle = imageId;
+        _texture = ContentManager.Instance.GetTexture(imageData, imageId);
         if (_texture == null)
           return;
         if (!_texture.IsAllocated)

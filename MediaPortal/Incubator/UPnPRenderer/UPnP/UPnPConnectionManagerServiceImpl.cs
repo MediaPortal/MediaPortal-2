@@ -20,7 +20,6 @@ along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Extensions.UPnPRenderer;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
