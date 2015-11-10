@@ -20,8 +20,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "date", Type = typeof(DateTime), Nullable = false)]
-  [ApiFunctionParam(Name = "sort", Type = typeof(string), Nullable = true)]
-  [ApiFunctionParam(Name = "order", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetScheduledRecordingsForDate : BaseScheduledRecording, IRequestMicroModuleHandler
   {

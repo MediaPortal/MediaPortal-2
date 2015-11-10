@@ -18,8 +18,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   // This is a work around -> wait for MIA rework
   // TODO: Add more details
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "sort", Type = typeof(string), Nullable = true)]
-  [ApiFunctionParam(Name = "order", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetTVShowsBasic : IRequestMicroModuleHandler
   {

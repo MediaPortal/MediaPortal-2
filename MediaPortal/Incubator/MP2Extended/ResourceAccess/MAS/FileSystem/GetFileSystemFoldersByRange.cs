@@ -20,8 +20,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
-  [ApiFunctionParam(Name = "sort", Type = typeof(string), Nullable = true)]
-  [ApiFunctionParam(Name = "order", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetFileSystemFoldersByRange : BaseFolderBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
