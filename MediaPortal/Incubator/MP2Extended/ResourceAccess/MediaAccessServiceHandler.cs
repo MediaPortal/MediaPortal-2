@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
@@ -17,19 +18,22 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
-  internal class MediaAccessServiceHandler : IRequestModuleHandler
+  internal class MediaAccessServiceHandler : BaseJsonHeader, IRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
     {
       // General
       { "GetExternalMediaInfo", new GetExternalMediaInfo() },
       { "GetFileInfo", new GetFileInfo() },
+      { "GetLocalDiskInformation", new GetLocalDiskInformation() },
       { "GetMediaItem", new GetMediaItem() },
       { "GetServiceDescription", new GetServiceDescription() },
       { "TestConnection", new TestConnection() },
       // Filter
       { "GetFilterOperators", new GetFilterOperators() },
       // Movie
+      { "GetMovieActorCount", new GetMovieActorCount() },
+      { "GetMovieActors", new GetMovieActors() },
       { "GetMovieCount", new GetMovieCount() },
       { "GetMovieDetailedById", new GetMovieDetailedById() },
       { "GetMovieGenres", new GetMovieGenres() },
@@ -77,6 +81,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetTVShowGenres", new GetTVShowGenres() },
       { "GetTVShowsBasic", new GetTVShowsBasic() },
       { "GetTVShowsBasicByRange", new GetTVShowsBasicByRange() },
+      // FileSystem
+      { "GetFileSystemDriveBasicById", new GetFileSystemDriveBasicById() },
+      { "GetFileSystemDriveCount", new GetFileSystemDriveCount() },
+      { "GetFileSystemDrives", new GetFileSystemDrives() },
+      { "GetFileSystemDrivesByRange", new GetFileSystemDrivesByRange() },
+      { "GetFileSystemFileBasicById", new GetFileSystemFileBasicById() },
+      { "GetFileSystemFiles", new GetFileSystemFiles() },
+      { "GetFileSystemFilesAndFolders", new GetFileSystemFilesAndFolders() },
+      { "GetFileSystemFilesAndFoldersByRange", new GetFileSystemFilesAndFoldersByRange() },
+      { "GetFileSystemFilesAndFoldersCount", new GetFileSystemFilesAndFoldersCount() },
+      { "GetFileSystemFilesByRange", new GetFileSystemFilesByRange() },
+      { "GetFileSystemFilesCount", new GetFileSystemFilesCount() },
+      { "GetFileSystemFolderBasicById", new GetFileSystemFolderBasicById() },
+      { "GetFileSystemFolders", new GetFileSystemFolders() },
+      { "GetFileSystemFoldersByRange", new GetFileSystemFoldersByRange() },
+      { "GetFileSystemFoldersCount", new GetFileSystemFoldersCount() },
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
@@ -104,10 +124,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       byte[] output = ResourceAccessUtils.GetBytesFromDynamic(returnValue);
 
       // Send the response
-      response.Status = HttpStatusCode.OK;
-      response.ContentType = "text/html";
-      response.ContentLength = output.Length;
-      response.SendHeaders();
+      SendHeader(response, output.Length);
 
       response.SendBody(output);
 

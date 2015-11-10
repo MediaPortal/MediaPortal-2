@@ -9,9 +9,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
@@ -22,7 +20,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       HttpParam httpParam = request.Param;
       string id = httpParam["id"].Value;
       if (id == null)
-        throw new BadRequestException("GetFileInfo: no id is null");
+        throw new BadRequestException("GetFileInfo: id is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -32,9 +30,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
       if (item == null)
-        throw new BadRequestException("GetFileInfo: no media tiem found");
+        throw new BadRequestException("GetFileInfo: no media item found");
 
-      var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePathStr = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
       var ra = GetResourceAccessor(resourcePath);

@@ -2,17 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
 {
@@ -24,24 +18,30 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// {2} = width
     /// {3} = height
     /// {4} = borders
-    /// {5} = WebMediaType
-    /// {6} = WebFileType
+    /// {5} = offset
+    /// {6} = WebMediaType
+    /// {8} = WebFileType
     /// </summary>
-    private const string FILENAME_PATTERN = "imageCache_{0}_{1}_{2}_{3}_{4}_{5}_{6}";
+    private const string FILENAME_PATTERN = "imageCache_{0}_{1}_{2}_{3}_{4}_{5}_{6}_{7}";
 
     /// <summary>
     /// The sub dir in the DATA folder
     /// </summary>
     private const string CHACHE_DIR = "MP2ExtendedCache\\";
 
+    private static Object _lockObject = new Object();
+
     private static string GetFilePath(CacheIdentifier identifier)
     {
-      string dataDirectory = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\"+CHACHE_DIR);
-      if (!Directory.Exists(dataDirectory))
-        Directory.CreateDirectory(dataDirectory);
-      string filename = string.Format(FILENAME_PATTERN, identifier.MediaItemId, identifier.ClassId, identifier.Width, identifier.Height, identifier.Borders, identifier.FanArtType, identifier.FanArtMediaType);
+      lock (_lockObject)
+      {
+        string dataDirectory = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\" + CHACHE_DIR);
+        if (!Directory.Exists(dataDirectory))
+          Directory.CreateDirectory(dataDirectory);
+        string filename = string.Format(FILENAME_PATTERN, identifier.MediaItemId, identifier.ClassId, identifier.Width, identifier.Height, identifier.Borders, identifier.Offset, identifier.FanArtType, identifier.FanArtMediaType);
 
-      return Path.Combine(dataDirectory, filename);
+        return Path.Combine(dataDirectory, filename);
+      }
     }
 
     private static DateTime GetLastModifiedTime(string filepath)
@@ -61,26 +61,32 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
     internal static bool AddImageToCache(byte[] data, CacheIdentifier identifier)
     {
-      if (IsInCache(identifier))
-        return false;
-      FileStream stream = File.OpenWrite(GetFilePath(identifier));
-      stream.Write(data, 0, data.Length);
-      stream.Close();
-      return true;
+      lock (_lockObject)
+      {
+        if (IsInCache(identifier))
+          return false;
+        FileStream stream = File.OpenWrite(GetFilePath(identifier));
+        stream.Write(data, 0, data.Length);
+        stream.Close();
+        return true;
+      }
     }
 
     internal static bool TryGetImageFromCache(CacheIdentifier identifier, out byte[] data)
     {
-      data = new byte[0];
-      string filepath = GetFilePath(identifier);
-      if (!IsInCache(identifier))
-        return false;
+      lock (_lockObject)
+      {
+        data = new byte[0];
+        string filepath = GetFilePath(identifier);
+        if (!IsInCache(identifier))
+          return false;
 
-      FileStream stream = File.OpenRead(GetFilePath(identifier));
-      data = new byte[Convert.ToInt32(stream.Length)];
-      stream.Read(data, 0, Convert.ToInt32(stream.Length));
-      stream.Close();
-      return true;
+        FileStream stream = File.OpenRead(GetFilePath(identifier));
+        data = new byte[Convert.ToInt32(stream.Length)];
+        stream.Read(data, 0, Convert.ToInt32(stream.Length));
+        stream.Close();
+        return true;
+      }
     }
 
     /// <summary>
@@ -95,41 +101,48 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <returns>true if the image is in the cache, otherwise false</returns>
     internal static bool IsInCache(CacheIdentifier identifier)
     {
-      string filepath = GetFilePath(identifier);
-      DateTime dateAdded;
-      if (!identifier.IsTvRadio)
+      lock (_lockObject)
       {
-        ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-        necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-        MediaItem item = GetMediaItems.GetMediaItemById(identifier.MediaItemId, necessaryMIATypes);
-        if (item == null)
-          return false;
-        dateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
-      }
-      else
-      {
-        dateAdded = DateTime.Now.AddMonths(-1); // refresh image evry month
-      }
+        string filepath = GetFilePath(identifier);
+        DateTime dateAdded;
+        if (!identifier.IsTvRadio)
+        {
+          ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+          necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+          MediaItem item = GetMediaItems.GetMediaItemById(identifier.MediaItemId, necessaryMIATypes);
+          if (item == null)
+            return false;
+          dateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+        }
+        else
+        {
+          dateAdded = DateTime.Now.AddMonths(-1); // refresh image evry month
+        }
 
-      return (File.Exists(GetFilePath(identifier)) && DateTime.Compare(GetLastModifiedTime(filepath), dateAdded) >= 0);
+        return (File.Exists(GetFilePath(identifier)) && DateTime.Compare(GetLastModifiedTime(filepath), dateAdded) >= 0);
+      }
     }
 
-    internal static CacheIdentifier GetIdentifier(Guid id, bool isTvRadio, int width, int height, string borders, FanArtConstants.FanArtType fanArtType, FanArtConstants.FanArtMediaType fanartMediaType)
+    internal static CacheIdentifier GetIdentifier(Guid id, bool isTvRadio, int width, int height, string borders, int offset, FanArtConstants.FanArtType fanArtType, FanArtConstants.FanArtMediaType fanartMediaType)
     {
-      var mth = new StackTrace().GetFrame(1).GetMethod();
-      var identifier = mth.ReflectedType == null ? mth.Name : mth.ReflectedType.Name;
-
-      return new CacheIdentifier
+      lock (_lockObject)
       {
-        ClassId = identifier,
-        MediaItemId = id,
-        IsTvRadio = isTvRadio,
-        Width = width,
-        Height = height,
-        Borders = borders,
-        FanArtType = fanArtType,
-        FanArtMediaType = fanartMediaType
-      };
+        var mth = new StackTrace().GetFrame(1).GetMethod();
+        var identifier = mth.ReflectedType == null ? mth.Name : mth.ReflectedType.Name;
+
+        return new CacheIdentifier
+        {
+          ClassId = identifier,
+          MediaItemId = id,
+          IsTvRadio = isTvRadio,
+          Width = width,
+          Height = height,
+          Borders = borders,
+          Offset = offset,
+          FanArtType = fanArtType,
+          FanArtMediaType = fanartMediaType
+        };
+      }
     }
 
     internal class CacheIdentifier
@@ -140,6 +153,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
       internal int Width { get; set; }
       internal int Height { get; set; }
       internal string Borders { get; set; }
+      internal int Offset { get; set; }
       internal FanArtConstants.FanArtType FanArtType { get; set; }
       internal FanArtConstants.FanArtMediaType FanArtMediaType { get; set; }
     }

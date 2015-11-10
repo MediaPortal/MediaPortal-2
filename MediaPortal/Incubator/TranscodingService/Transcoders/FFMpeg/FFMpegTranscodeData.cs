@@ -100,15 +100,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           string arg = _overrideParams;
           if (InputResourceAccessor != null)
           {
-            arg = arg.Replace("{input}", "\"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\"");
+            arg = arg.Replace(MediaConverter.INPUT_FILE_TOKEN, "\"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\"");
           }
           if (string.IsNullOrEmpty(InputSubtitleFilePath) == false)
           {
-            arg = arg.Replace("{subtitle}", "\"" + InputSubtitleFilePath) + "\"";
+            arg = arg.Replace(MediaConverter.SUBTITLE_FILE_TOKEN, "\"" + InputSubtitleFilePath) + "\"";
           }
           if (string.IsNullOrEmpty(OutputFilePath) == false)
           {
-            arg = arg.Replace("{output}", "\"" + OutputFilePath + "\"");
+            arg = arg.Replace(MediaConverter.OUTPUT_FILE_TOKEN, "\"" + OutputFilePath + "\"");
           }
           return arg;
         }

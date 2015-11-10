@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
-using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
-  internal class GetTranscoderProfilesForTarget : IRequestMicroModuleHandler
+  internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
@@ -24,28 +19,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
       if (target == null)
         throw new BadRequestException("GetTranscoderProfilesForTarget: target is null");
 
-      List<WebTranscoderProfile> output = new List<WebTranscoderProfile>();
+      TargetComparer targetComparer = new TargetComparer();
+      return ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target, targetComparer) || x.Value.Targets.Count == 0).Select(profile => TranscoderProfile(profile)).ToList();
+    }
 
-      foreach (var profile in ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target)))
+    class TargetComparer : IEqualityComparer<string>
+    {
+      public bool Equals(string x, string y)
       {
-        WebTranscoderProfile webTranscoderProfile = new WebTranscoderProfile
-        {
-          Bandwidth = 2280,
-          Description = profile.Value.Name,
-          HasVideoStream = true,
-          MIME = "videoMP2T",
-          MaxOutputHeight = profile.Value.Settings.Video.MaxHeight,
-          MaxOutputWidth = profile.Value.Settings.Video.MaxHeight,
-          Name = profile.Key,
-          Targets = profile.Value.Targets,
-          Transport = "http"
-        };
-
-        output.Add(webTranscoderProfile);
+        if (string.IsNullOrEmpty(x)) return true;
+        if (string.IsNullOrEmpty(y)) return true;
+        return x.Equals(y, StringComparison.InvariantCultureIgnoreCase);
       }
 
-
-      return output;
+      public int GetHashCode(string x)
+      {
+        return x.GetHashCode();
+      }
     }
 
     internal static ILogger Logger

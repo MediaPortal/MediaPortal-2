@@ -64,6 +64,9 @@
     <Compile Include="MetadataExtractors\Settings\TranscodeAudioMetadataExtractorSettings.cs" />
     <Compile Include="MetadataExtractors\Settings\TranscodeImageMetadataExtractorSettings.cs" />
     <Compile Include="MetadataExtractors\Settings\TranscodeVideoMetadataExtractorSettings.cs" />
+    <Compile Include="Settings\TranscodingServiceSettings.cs" />
+    <Compile Include="Transcoders\Base\MimeDetector.cs" />
+    <Compile Include="Transcoders\Base\PlaylistManifest.cs" />
     <Compile Include="Transcoders\FFMpeg\FFMpegTranscodeThreadData.cs" />
     <Compile Include="TranscodingServicePlugin.cs" />
     <Compile Include="Objects.cs" />

@@ -9,7 +9,11 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
+<<<<<<< HEAD:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/screens/ProgramInfoSlim.inc
       <ColumnDefinition Width="100"/>
+=======
+      <ColumnDefinition Width="Auto"/>
+>>>>>>> FreakyJ/FEAT_WifiRemoteForMP2:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/screens/ProgramInfoSlim.inc
       <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*"/>

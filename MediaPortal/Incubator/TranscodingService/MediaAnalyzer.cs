@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -34,6 +34,7 @@ using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -100,23 +101,53 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
     }
 
-    public MetadataContainer ParseFile(ILocalFsResourceAccessor lfsra)
+    private ProcessExecutionResult ParseFile(ILocalFsResourceAccessor lfsra, string arguments)
     {
-      string fileName = lfsra.LocalFileSystemPath;
-      string arguments = string.Format("-threads {0} -i \"{1}\"", AnalyzerMaximumThreads, fileName);
-
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
         executionResult = FFMpegBinary.FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
-      
+
       // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
       // and stderr is used for logging purposes. In your example you use stdout.
       // http://stackoverflow.com/questions/4246758/why-doesnt-this-method-redirect-my-output-from-exe-ffmpeg
+      return executionResult;
+    }
+
+    public MetadataContainer ParseImageFile(ILocalFsResourceAccessor lfsra)
+    {
+      string fileName = lfsra.LocalFileSystemPath;
+      string arguments = string.Format("-threads {0} -f image2pipe -i \"{1}\"", AnalyzerMaximumThreads, fileName);
+
+      ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
         if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
-        info.Metadata.Mime = MimeTypeDetector.GetMimeType(fileName);
+        info.Metadata.Mime = MimeDetector.GetFileMime(lfsra, "Image/Unknown");
+        info.Metadata.Size = lfsra.Size;
+        FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
+        return info;
+      }
+
+      if (executionResult != null) 
+        Logger.Error("MediaAnalyzer: Failed to extract image media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+      else
+        Logger.Error("MediaAnalyzer: Failed to extract image media type information for resource '{0}', executionResult=null", fileName);
+
+      return null;
+    }
+
+    public MetadataContainer ParseVideoFile(ILocalFsResourceAccessor lfsra)
+    {
+      string fileName = lfsra.LocalFileSystemPath;
+      string arguments = string.Format("-threads {0} -i \"{1}\"", AnalyzerMaximumThreads, fileName);
+
+      ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
+      if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
+      {
+        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
+        info.Metadata.Mime = MimeDetector.GetFileMime(lfsra, "Video/Unknown");
         info.Metadata.Size = lfsra.Size;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
         FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
@@ -124,15 +155,39 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return info;
       }
 
-      if (executionResult != null) 
-        Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+      if (executionResult != null)
+        Logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
       else
-        Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}', executionResult=null", fileName);
+        Logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}', executionResult=null", fileName);
 
       return null;
     }
 
-    public MetadataContainer ParseStream(INetworkResourceAccessor streamLink)
+    public MetadataContainer ParseAudioFile(ILocalFsResourceAccessor lfsra)
+    {
+      string fileName = lfsra.LocalFileSystemPath;
+      string arguments = string.Format("-threads {0} -i \"{1}\"", AnalyzerMaximumThreads, fileName);
+
+      ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
+      if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
+      {
+        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
+        info.Metadata.Mime = MimeDetector.GetFileMime(lfsra, "Audio/Unknown");
+        info.Metadata.Size = lfsra.Size;
+        FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
+        return info;
+      }
+
+      if (executionResult != null)
+        Logger.Error("MediaAnalyzer: Failed to extract audio media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+      else
+        Logger.Error("MediaAnalyzer: Failed to extract audio media type information for resource '{0}', executionResult=null", fileName);
+
+      return null;
+    }
+
+    public MetadataContainer ParseVideoStream(INetworkResourceAccessor streamLink)
     {
       string arguments = "";
       if (streamLink.URL.StartsWith("rtsp://") == true)
@@ -150,7 +205,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
-        info.Metadata.Mime = MimeTypeDetector.GetMimeType(streamLink.URL);
+        info.Metadata.Mime = MimeDetector.GetUrlMime(streamLink.URL, "Video/Unknown");
         info.Metadata.Size = 0;
         FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
         FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
@@ -158,7 +213,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return info;
       }
 
-      if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract media type information for resource '{0}'", streamLink);
+      if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}'", streamLink);
       
       return null;
     }

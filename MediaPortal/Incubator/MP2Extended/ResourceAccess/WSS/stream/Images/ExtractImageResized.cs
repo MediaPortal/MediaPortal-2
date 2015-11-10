@@ -9,6 +9,7 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -25,6 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       string id = httpParam["itemId"].Value;
       string maxWidth = httpParam["maxWidth"].Value;
       string maxHeight = httpParam["maxHeight"].Value;
+      string type = httpParam["type"].Value;
 
       // set borders to transparent
       string borders = "transparent";
@@ -42,14 +44,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       if (maxHeight == null)
         throw new BadRequestException("ExtractImageResized: maxHeight is null");
 
-      MapTypes(artworktype, mediatype);
+      FanArtConstants.FanArtType fanartType;
+      FanArtConstants.FanArtMediaType fanArtMediaType;
+      MapTypes(artworktype, mediatype, out fanartType, out fanArtMediaType);
 
       // if teh Id contains a ':' it is a season
       if (id.Contains(":"))
         isSeason = true;
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
-
+      bool isRecording = (type != null && (WebMediaType)JsonConvert.DeserializeObject(type, typeof(WebMediaType)) == WebMediaType.Recording);
 
       int maxWidthInt;
       if (!Int32.TryParse(maxWidth, out maxWidthInt))
@@ -70,7 +74,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       else if (int.TryParse(id, out idInt) && (fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio))
         idGuid = IntToGuid(idInt);
 
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, maxWidthInt, maxHeightInt, borders, FanArtConstants.FanArtType.Thumbnail, FanArtConstants.FanArtMediaType.Undefined);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, maxWidthInt, maxHeightInt, borders, 0, FanArtConstants.FanArtType.Thumbnail, FanArtConstants.FanArtMediaType.Undefined);
 
       byte[] data;
       if (ImageCache.TryGetImageFromCache(identifier, out data))
@@ -81,7 +85,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         return data;
       }
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio);
+      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get a random FanArt from the List
       Random rnd = new Random();
@@ -92,9 +96,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       else
         resizedImage = fanart[r].BinaryData;
 
-      // Add to cache
-      if (ImageCache.AddImageToCache(resizedImage, identifier))
-        Logger.Info("GetArtworkResized: Added image to cache");
+      // Add to cache, but only if it is no dummy image
+      if (fanart[r].Name != NO_FANART_IMAGE_NAME)
+        if (ImageCache.AddImageToCache(resizedImage, identifier))
+          Logger.Info("GetArtworkResized: Added image to cache");
 
       stopWatch.Stop();
       Logger.Info("GetArtworkTime: {0}", stopWatch.Elapsed);

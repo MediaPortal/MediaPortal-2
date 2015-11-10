@@ -31,19 +31,19 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.Filters;
-using MediaPortal.Extensions.MediaServer.Objects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Parser;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.Filters;
+using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Parser;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
   public class UPnPContentDirectoryServiceImpl : DvService
   {

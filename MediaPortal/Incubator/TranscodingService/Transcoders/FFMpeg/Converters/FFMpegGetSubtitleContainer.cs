@@ -48,6 +48,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
           return "mov_text";
         case SubtitleCodec.DvbSub:
           return "dvbsub";
+        case SubtitleCodec.WebVtt:
+          return "webvtt";
       }
       return "copy";
     }

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 {
@@ -42,11 +37,39 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// </summary>
     internal EndPointProfile Profile { get; set; }
 
-    internal DlnaMediaItem TranscoderObject { get; set;  }
+    internal ProfileMediaItem TranscoderObject { get; set; }
 
     /// <summary>
     /// Gets or sets the position from which the streaming should start
     /// </summary>
     internal long StartPosition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the audio stream to use for streaming
+    /// </summary>
+    internal int AudioStream { get; set; }
+
+    /// <summary>
+    /// Gets or sets the subtitle stream to use for streaming
+    /// </summary>
+    internal int SubtitleStream { get; set; }
+
+    /// <summary>
+    /// Gets or sets the time when the stream was started
+    /// </summary>
+    internal DateTime StartTime { get; set; }
+
+    /// <summary>
+    /// Gets or sets the IP of the Client, which started the stream
+    /// </summary>
+    internal string ClientIp { get; set; }
+
+    /// <summary>
+    /// Constructor, sets for example the start time
+    /// </summary>
+    internal StreamItem()
+    {
+      StartTime = DateTime.Now;
+    }
   }
 }

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘movie’ instance is a discrete piece of video that should be interpreted as a movie (as opposed to, for example, a continuus TV broadcast or a music video clip).

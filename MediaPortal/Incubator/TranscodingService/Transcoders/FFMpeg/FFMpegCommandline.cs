@@ -100,6 +100,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       _supportHardcodedSubs = supportHCSubs;
     }
 
+    internal string GetFolderFromFolderId(string folderId)
+    {
+      return Path.Combine(_transcoderCachePath, folderId);
+    }
+
     internal void GetVideoDimensions(VideoTranscoding video, out Size newSize, out Size newContentSize, out float newPixelAspectRatio, out bool pixelARChanged, out bool videoARChanged, out bool videoHeightChanged)
     {
       newSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
@@ -153,12 +158,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     private void AddInputOptions(ref FFMpegTranscodeData data)
     {
       Logger.Debug("Media Converter: AddInputOptions() is NetworkResource: {0}", data.InputResourceAccessor.ParentProvider.Metadata.NetworkResource);
-      if (data.InputResourceAccessor.ParentProvider.Metadata.NetworkResource)
-        if (((INetworkResourceAccessor)data.InputResourceAccessor).URL.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase))
+      var accessor = data.InputResourceAccessor as INetworkResourceAccessor;
+      if (accessor != null)
+      {
+        if (accessor.URL.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase))
         {
           data.GlobalArguments.Add("-rtsp_transport +tcp+udp");
-          data.GlobalArguments.Add("-analyzeduration 10000000");
         }
+        data.GlobalArguments.Add("-analyzeduration 10000000");
+      }
     }
 
     internal void AddTranscodingThreadsParameters(bool useOutputThreads, ref FFMpegTranscodeData data)
@@ -170,29 +178,54 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal void AddTargetVideoFormatAndOutputFileParameters(VideoTranscoding video, string transcodingFile, ref FFMpegTranscodeData data)
+    internal void AddTargetVideoFormatAndOutputFileParameters(VideoTranscoding video, Subtitle sub, ref string transcodingFile, double timeStart, ref FFMpegTranscodeData data)
     {
       if (video.TargetVideoContainer == VideoContainer.Hls)
       {
-        string pathName = Path.Combine(_transcoderCachePath, Path.GetFileNameWithoutExtension(transcodingFile).Replace(".", "_") + "_mptf");
+        string folderId = Path.GetFileNameWithoutExtension(transcodingFile).Replace(".", "_") + "_mptf";
+        string pathName = GetFolderFromFolderId(folderId);
         if (Directory.Exists(pathName) == false)
         {
           Directory.CreateDirectory(pathName);
         }
         data.WorkPath = pathName;
-        data.SegmentPlaylist = Path.Combine(pathName, "playlist.m3u8");
+
+        byte[] manifest = null;
+        if(video.TargetSubtitleSupport == SubtitleSupport.Embedded)
+        {
+          manifest = PlaylistManifest.CreatePlaylistManifest(video, sub, folderId);
+        }
+        if (manifest != null)
+        {
+          data.SegmentPlaylist = Path.Combine(pathName, MediaConverter.PLAYLIST_MANIFEST_FILE_NAME);
+          File.WriteAllBytes(data.SegmentPlaylist, manifest);
+        }
+        else
+        {
+          data.SegmentPlaylist = Path.Combine(pathName, MediaConverter.PLAYLIST_FILE_NAME);
+        }
         data.HlsBaseUrl = video.HlsBaseUrl;
         string fileSegments = Path.Combine(pathName, _hlsSegmentFileTemplate);
 
         //HLS muxer
-        data.OutputArguments.Add("-hls_list_size 0");
         data.OutputArguments.Add("-hls_allow_cache 0");
         data.OutputArguments.Add(string.Format("-hls_time {0}", _hlsSegmentTimeInSeconds));
+
+        //Single file segment nicer but uses version 4 playlists
+        //data.OutputArguments.Add("-hls_list_size 0");
+        //data.OutputArguments.Add("-hls_flags single_file");
+        //data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"segment.ts\""));
+
+        //Multi file segments more compatible
+        data.OutputArguments.Add(string.Format("-hls_list_size {0}", Convert.ToInt64(video.SourceDuration.TotalSeconds / Convert.ToDouble(_hlsSegmentTimeInSeconds)) + 10));
         data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
+        data.OutputArguments.Add(string.Format("-start_number {0}", Convert.ToInt64(timeStart / Convert.ToDouble(_hlsSegmentTimeInSeconds))));
+
         data.OutputArguments.Add("-segment_list_flags +live");
         if (data.HlsBaseUrl != null)
-          data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + data.HlsBaseUrl + "\""));
-        data.OutputFilePath = data.SegmentPlaylist;
+          data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + data.HlsBaseUrl.Replace(MediaConverter.SEGMENT_FOLDER_TOKEN, folderId) + "\""));
+        data.OutputFilePath = Path.Combine(pathName, MediaConverter.PLAYLIST_FILE_NAME);
+        transcodingFile = data.SegmentPlaylist;
       }
       else
       {

@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘videoItem’ instance represents a piece of content that, when rendered, generates some video. It is atomic in the sense that it does not contain other objects in the ContentDirectory.

@@ -6,14 +6,12 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
-using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using MediaPortal.Plugins.MP2Extended.Extensions;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
@@ -58,23 +56,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         int channelGroupIdInt;
         if (!int.TryParse(groupId, out channelGroupIdInt))
           throw new BadRequestException(string.Format("GetChannelsDetailedByRange: Couldn't convert groupId to int: {0}", groupId));
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt });
+        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt, MediaType = MediaType.TV });
       }
 
-      foreach (var group in channelGroups)
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
       {
         // get channel for goup
         IList<IChannel> channels = new List<IChannel>();
         if (!channelAndGroupInfo.GetChannels(group, out channels))
           continue;
 
-        foreach (var channel in channels)
-        {
-          WebChannelDetailed webChannelDetailed = ChannelDetailed(channel);
-
-          if (channel.MediaType == MediaType.TV)
-            output.Add(webChannelDetailed);
-        }
+        output.AddRange(channels.Where(x => x.MediaType == MediaType.TV).Select(channel => ChannelDetailed(channel)));
       }
 
       // sort

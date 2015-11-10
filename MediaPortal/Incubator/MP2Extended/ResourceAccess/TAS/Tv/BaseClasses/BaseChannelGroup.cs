@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+﻿using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
@@ -19,7 +14,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
         IsRadio = @group.MediaType == MediaType.Radio,
         IsTv = @group.MediaType == MediaType.TV,
         SortOrder = @group.SortOrder,
-        IsChanged = true
+        IsChanged = true,
       };
       //webChannelGroup.IsChanged;
 

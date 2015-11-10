@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
     {
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -119,13 +119,6 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string fileName = rah.LocalFsResourceAccessor.ResourceName;
             if (!HasImageExtension(fileName))
               return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
-            if (metadata.IsImage)
-            {
-              ConvertMetadataToAspectData(metadata, extractedAspectData);
-              return true;
-            }
-          }
           /*using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
             {
               if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
@@ -139,12 +132,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
               }
             }
           }*/
-        }
-        else if (mediaItemAccessor is INetworkResourceAccessor)
-        {
-          using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
-          {
-            MetadataContainer metadata = _analyzer.ParseStream(nra);
+            MetadataContainer metadata = _analyzer.ParseImageFile(rah.LocalFsResourceAccessor);
             if (metadata.IsImage)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -152,6 +140,18 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             }
           }
         }
+        //else if (mediaItemAccessor is INetworkResourceAccessor)
+        //{
+        //  using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
+        //  {
+        //    MetadataContainer metadata = _analyzer.ParseStream(nra);
+        //    if (metadata.IsImage)
+        //    {
+        //      ConvertMetadataToAspectData(metadata, extractedAspectData);
+        //      return true;
+        //    }
+        //  }
+        //}
       }
       catch (Exception e)
       {

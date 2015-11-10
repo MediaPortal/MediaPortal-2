@@ -30,7 +30,7 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 
-namespace MediaPortal.Extensions.MediaServer.Metadata
+namespace MediaPortal.Plugins.MediaServer.Metadata
 {
   public class DlnaImageMetadata
   {
@@ -55,38 +55,37 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
       if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemImageAspect.Metadata).GetAttributeValue(TranscodeItemImageAspect.ATTR_CONTAINER);
+        oValue = item[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
         }
-        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemImageAspect.Metadata).GetAttributeValue(TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
+        oValue = item[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
         }
         if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
         {
-          oValue = MediaItemAspect.GetAspect(item.Aspects, ImageAspect.Metadata).GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
           if (oValue != null)
           {
             info.Image.Height = Convert.ToInt32(oValue);
           }
-          oValue = MediaItemAspect.GetAspect(item.Aspects, ImageAspect.Metadata).GetAttributeValue(ImageAspect.ATTR_WIDTH);
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_WIDTH);
           if (oValue != null)
           {
             info.Image.Width = Convert.ToInt32(oValue);
           }
-          oValue = MediaItemAspect.GetAspect(item.Aspects, ImageAspect.Metadata).GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
           if (oValue != null)
           {
             info.Image.Orientation = Convert.ToInt32(oValue);
           }
         }
-        SingleMediaItemAspect providerResourceAspect;
-        if (MediaItemAspect.TryGetAspect(item.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
+        if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
         {
-          oValue = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+          oValue = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             info.Metadata.Mime = oValue.ToString();

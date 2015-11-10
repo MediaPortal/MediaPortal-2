@@ -1,21 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using HttpServer;
-using HttpServer.Exceptions;
+﻿using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
@@ -23,7 +9,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
   static class StreamControl
   {
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
-    public static Dictionary<string, TranscodeContext> LastClientTranscode = new Dictionary<string, TranscodeContext>();
+    public static Dictionary<string, Dictionary<string, List<TranscodeContext>>> CurrentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
     internal static void AddStreamItem(string identifier, StreamItem item)
     {
@@ -50,6 +36,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     internal static StreamItem GetStreamItem(string identifier)
     {
       return STREAM_ITEMS[identifier];
+    }
+
+    internal static Dictionary<string, StreamItem> GetStreamItems()
+    {
+      return STREAM_ITEMS;
     }
 
     internal static bool ValidateIdentifie(string identifier)

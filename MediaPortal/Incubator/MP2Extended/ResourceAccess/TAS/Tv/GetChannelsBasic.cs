@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
-using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -17,7 +14,6 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
-  // TODO: not integrated into slimTvInterface
   internal class GetChannelsBasic : BaseChannelBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
@@ -41,23 +37,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         int channelGroupIdInt;
         if (!int.TryParse(groupId, out channelGroupIdInt))
           throw new BadRequestException(string.Format("GetChannelsBasic: Couldn't convert groupId to int: {0}", groupId));
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt });
+        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt, MediaType = MediaType.TV });
       }
 
-      foreach (var group in channelGroups)
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
       {
         // get channel for goup
         IList<IChannel> channels = new List<IChannel>();
         if (!channelAndGroupInfo.GetChannels(group, out channels))
           continue;
 
-        foreach (var channel in channels)
-        {
-          WebChannelBasic webChannelBasic = ChannelBasic(channel);
-
-          if (channel.MediaType == MediaType.TV)
-            output.Add(webChannelBasic);
-        }
+        output.AddRange(channels.Where(x => x.MediaType == MediaType.TV).Select(channel => ChannelBasic(channel)));
       }
 
       // sort

@@ -25,10 +25,10 @@
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Profiles;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
   {

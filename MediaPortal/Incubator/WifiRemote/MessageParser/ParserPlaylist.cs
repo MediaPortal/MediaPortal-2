@@ -5,11 +5,17 @@ using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.UPnP;
+using MediaPortal.Plugins.WifiRemote.Messages;
+using MediaPortal.Plugins.WifiRemote.Messages.Playlist;
+using MediaPortal.Plugins.WifiRemote.SendMessages;
 using MediaPortal.UiComponents.Media.Actions;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
@@ -86,7 +92,8 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
               int startPos = (int)message["StartPosition"];
               insertIndex += startPos;
             }
-            PlaylistHelper.StartPlayingPlaylist(playlistType, insertIndex, showPlaylist);
+            // TODO
+            //PlaylistHelper.StartPlayingPlaylist(playlistType, insertIndex, showPlaylist);
           }
         }
       }
@@ -95,28 +102,51 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         //load a playlist
         string playlistName = (string)message["PlayListName"];
         string playlistPath = (string)message["PlaylistPath"];
-        
-        if (!string.IsNullOrEmpty(playlistName) || !string.IsNullOrEmpty(playlistPath))
+
+        Guid playlistId;
+
+        if ((!string.IsNullOrEmpty(playlistName) || !string.IsNullOrEmpty(playlistPath)) && Guid.TryParse(playlistPath, out playlistId))
         {
-          PlaylistHelper.LoadPlaylist(playlistType, (!string.IsNullOrEmpty(playlistName)) ? playlistName : playlistPath, shuffle);
+          // TODO: does this work?!
+          IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+          Guid[] necessaryMIATypes = new Guid[]
+          {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+          };
+          Guid[] optionalMIATypes = new Guid[]
+          {
+              AudioAspect.ASPECT_ID,
+              VideoAspect.ASPECT_ID,
+              ImageAspect.ASPECT_ID,
+          };
+
+          PlaylistRawData playlistData = cd.ExportPlaylist(playlistId);
+          PlayItemsModel.CheckQueryPlayAction(() => CollectionUtils.Cluster(playlistData.MediaItemIds, 1000).SelectMany(itemIds =>
+                cd.LoadCustomPlaylist(itemIds, necessaryMIATypes, optionalMIATypes)), AVType.None); // AvType?!
+          /*PlaylistHelper.LoadPlaylist(playlistType, (!string.IsNullOrEmpty(playlistName)) ? playlistName : playlistPath, shuffle);
           if (autoPlay)
           {
             PlaylistHelper.StartPlayingPlaylist(playlistType, 0, showPlaylist);
-          }
+          }*/
         }
       }
       else if (action.Equals("get"))
       {
         //get all playlist items of the currently active playlist
-        List<PlaylistEntry> items = PlaylistHelper.GetPlaylistItems(playlistType);
+        IPlaylist playlist = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist;
+        IList<MediaItem> items = playlist.ItemList;
 
-        MessagePlaylistDetails returnPlaylist = new MessagePlaylistDetails();
-        returnPlaylist.PlaylistType = playlistType;
-        returnPlaylist.PlaylistName = PlaylistHelper.GetPlaylistName(playlistType);
-        returnPlaylist.PlaylistRepeat = PlaylistHelper.GetPlaylistRepeat(playlistType);
-        returnPlaylist.PlaylistItems = items;
+        MessagePlaylistDetails returnPlaylist = new MessagePlaylistDetails
+        {
+          PlaylistType = playlistType,
+          //PlaylistName = PlaylistHelper.GetPlaylistName(playlistType),
+          PlaylistRepeat = playlist.RepeatMode != RepeatMode.None,
+          // TODO: Fill
+          PlaylistItems = new List<PlaylistEntry>()
+        };
 
-        socketServer.SendMessageToClient(returnPlaylist, sender);
+        SendMessageToAllClients.Send(returnPlaylist, ref SocketServer.Instance.connectedSockets);
       }
       else if (action.Equals("remove"))
       {
@@ -130,7 +160,8 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         //move a playlist item to a new index
         int oldIndex = (message["OldIndex"] != null) ? (int)message["OldIndex"] : 0;
         int newIndex = (message["NewIndex"] != null) ? (int)message["NewIndex"] : 0;
-        PlaylistHelper.ChangePlaylistItemPosition(playlistType, oldIndex, newIndex);
+        // TODO
+        //PlaylistHelper.ChangePlaylistItemPosition(playlistType, oldIndex, newIndex);
       }
       else if (action.Equals("play"))
       {
@@ -147,9 +178,10 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       else if (action.Equals("list"))
       {
         //get a list of all available playlists
-        MessagePlaylists returnList = new MessagePlaylists();
-        returnList.PlayLists = PlaylistHelper.GetPlaylists();
-        socketServer.SendMessageToClient(returnList, sender);
+        List<PlaylistInformationData> playLists = ServerPlaylists.GetPlaylists().ToList();
+
+        MessagePlaylists returnList = new MessagePlaylists { PlayLists = playLists.Select(x => x.Name).ToList() };
+        SendMessageToAllClients.Send(returnList, ref SocketServer.Instance.connectedSockets);
       }
       else if (action.Equals("save"))
       {
@@ -157,7 +189,8 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         String name = (message["Name"] != null) ? (String)message["Name"] : null;
         if (name != null)
         {
-          PlaylistHelper.SaveCurrentPlaylist(name);
+          // TODO
+          //PlaylistHelper.SaveCurrentPlaylist(name);
         }
         else
         {

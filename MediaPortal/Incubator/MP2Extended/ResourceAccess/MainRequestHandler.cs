@@ -24,21 +24,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Authentication;
+using MediaPortal.Plugins.MP2Extended.ErrorPages;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
   public class MainRequestHandler : HttpModule, IDisposable
   {
     private const string RESOURCE_ACCESS_PATH = "/MPExtended";
+    public TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
 
     private readonly Dictionary<string, IRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestModuleHandler>(StringComparer.OrdinalIgnoreCase)
     {
@@ -50,119 +54,61 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     private readonly string _serverOsVersion = null;
     private readonly string _product = null;
-
+    private AuthRequestHandler _authRequestHandler;
 
     public MainRequestHandler()
     {
-      _serverOsVersion = "1.0";
+      _serverOsVersion = WindowsAPI.GetOsVersionString();
       Assembly assembly = Assembly.GetExecutingAssembly();
-      _product = "MediaPortal 2 MPExtended/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
+      _product = "MediaPortal 2 MPExtended Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
+
+      // Authentication
+      //_authRequestHandler = new AuthRequestHandler(RESOURCE_ACCESS_PATH);
     }
-
-    protected class Range
-    {
-      protected long _from;
-      protected long _to;
-
-      public Range(long from, long to)
-      {
-        _from = from;
-        _to = to;
-      }
-
-      public long From
-      {
-        get { return _from; }
-      }
-
-      public long To
-      {
-        get { return _to; }
-      }
-
-      public long Length
-      {
-        get { return _to - _from + 1; }
-      }
-    }
-
 
     public static void Shutdown()
     {
-    }
-
-    protected IList<Range> ParseTimeRanges(string timeRangesSpecifier, double duration)
-    {
-      if (string.IsNullOrEmpty(timeRangesSpecifier) || duration == 0)
-        return null;
-      IList<Range> result = new List<Range>();
-      try
+      foreach (StreamItem stream in StreamControl.GetStreamItems().Values)
       {
-        string[] tokens = timeRangesSpecifier.Split(new char[] { '=', ':' });
-        if (tokens.Length == 2 && tokens[0].Trim() == "npt")
-          foreach (string rangeSpec in tokens[1].Split(new char[] { ',' }))
+        if (stream.TranscoderObject != null)
+        {
+          try
           {
-            tokens = rangeSpec.Split(new char[] { '-' });
-            if (tokens.Length != 2)
-              return new Range[] { };
-            if (!string.IsNullOrEmpty(tokens[0]))
-              if (!string.IsNullOrEmpty(tokens[1]))
-                result.Add(new Range(Convert.ToInt64(TimeSpan.Parse(tokens[0], CultureInfo.InvariantCulture).TotalSeconds), Convert.ToInt64(TimeSpan.Parse(tokens[1], CultureInfo.InvariantCulture).TotalSeconds)));
-              else
-                result.Add(new Range(Convert.ToInt64(TimeSpan.Parse(tokens[0], CultureInfo.InvariantCulture).TotalSeconds), Convert.ToInt64(duration) - 1));
-            else
-              result.Add(new Range(Math.Max(0, Convert.ToInt64(duration) - Convert.ToInt64(TimeSpan.Parse(tokens[1], CultureInfo.InvariantCulture).TotalSeconds)), Convert.ToInt64(duration) - 1));
+            if (stream.TranscoderObject.IsStreaming)
+            {
+              stream.TranscoderObject.StopStreaming();
+              Logger.Debug("MainRequestHandler: Stopping stream of mediaitem ", stream.TranscoderObject.MediaSource.MediaItemId);
+            }
           }
-      }
-      catch (Exception e)
-      {
-        Logger.Debug("ResourceAccessModule: Received illegal Range header", e);
-        // As specified in RFC2616, section 14.35.1, ignore invalid range header
-      }
-      return result;
-    }
-
-    protected IList<Range> ParseByteRanges(string byteRangesSpecifier, long size)
-    {
-      if (string.IsNullOrEmpty(byteRangesSpecifier) || size == 0)
-        return null;
-      IList<Range> result = new List<Range>();
-      try
-      {
-        string[] tokens = byteRangesSpecifier.Split(new char[] { '=', ':' });
-        if (tokens.Length == 2 && tokens[0].Trim() == "bytes")
-          foreach (string rangeSpec in tokens[1].Split(new char[] { ',' }))
+          catch (Exception e)
           {
-            tokens = rangeSpec.Split(new char[] { '-' });
-            if (tokens.Length != 2)
-              return new Range[] { };
-            if (!string.IsNullOrEmpty(tokens[0]))
-              if (!string.IsNullOrEmpty(tokens[1]))
-                result.Add(new Range(long.Parse(tokens[0]), long.Parse(tokens[1])));
-              else
-                result.Add(new Range(long.Parse(tokens[0]), size - 1));
-            else
-              result.Add(new Range(Math.Max(0, size - long.Parse(tokens[1])), size - 1));
+            Logger.Warn("MainRequestHandler: Error stopping stream", e);
           }
+          try
+          {
+            if (stream.TranscoderObject.IsTranscoding)
+            {
+              stream.TranscoderObject.StopTranscoding();
+              Logger.Debug("MainRequestHandler: Aborting transcoding of mediaitem ", stream.TranscoderObject.MediaSource.MediaItemId);
+            }
+          }
+          catch (Exception e)
+          {
+            Logger.Warn("MainRequestHandler: Error stopping transcoding", e);
+          }
+        }
       }
-      catch (Exception e)
-      {
-        Logger.Debug("ResourceAccessModule: Received illegal Range header", e);
-        // As specified in RFC2616, section 14.35.1, ignore invalid range header
-      }
-      return result;
     }
 
     public override bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
       var uri = request.Uri;
       Guid mediaItemGuid = Guid.Empty;
-      bool bHandled = false;
-      Logger.Debug("MainRequestHandler: Received request {0}", request.Uri);
+      Logger.Info("MainRequestHandler: Received request {0}", request.Uri);
 
       try
       {
-        response.AddHeader("Server", _serverOsVersion + _product);
+        response.AddHeader("Server", _serverOsVersion + " " + _product);
         response.AddHeader("Cache-control", "no-cache");
         response.Connection = ConnectionType.Close;
 
@@ -188,8 +134,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       }
       catch (Exception ex)
       {
-        Logger.Error("MainRequestHandler: Exception: {0}", ex);
-        throw new InternalServerException("Failed to proccess! - Exception: {0}", ex);
+        Logger.Error("MainRequestHandler: Exception:", ex);
+        //throw new InternalServerException(string.Format("Failed to proccess! - Exception: {0}\n\nStackTrace:\n{1}", ex.Message, ex.StackTrace), ex);
+        new SendErrorPage().Process(request, response, session, ex);
       }
 
       return true;
@@ -202,6 +149,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     public void Dispose()
     {
+      Shutdown();
     }
 
     internal static ILogger Logger

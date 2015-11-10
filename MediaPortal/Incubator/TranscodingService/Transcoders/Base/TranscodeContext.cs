@@ -198,7 +198,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       string deletePath = TargetFile;
       bool isFolder = false;
-      if (deletePath.EndsWith(".m3u8") == true)
+      if (string.IsNullOrEmpty(SegmentDir) == false)
       {
         deletePath = SegmentDir;
         isFolder = true;
@@ -208,7 +208,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       DateTime waitStart = DateTime.Now;
       while (true)
       {
-        if ((DateTime.Now - waitStart).TotalSeconds > 60.0)
+        if ((DateTime.Now - waitStart).TotalSeconds > 30.0)
         {
           break;
         }

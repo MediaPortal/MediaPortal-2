@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using HttpServer;
-using HttpServer.Exceptions;
+﻿using HttpServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 

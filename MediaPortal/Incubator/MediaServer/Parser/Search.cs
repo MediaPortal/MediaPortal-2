@@ -5,10 +5,10 @@ using Antlr4.Runtime;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.ANTLR;
+using MediaPortal.Plugins.MediaServer.ANTLR;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
-namespace MediaPortal.Extensions.MediaServer.Parser
+namespace MediaPortal.Plugins.MediaServer.Parser
 {
   public enum LogOp
   {

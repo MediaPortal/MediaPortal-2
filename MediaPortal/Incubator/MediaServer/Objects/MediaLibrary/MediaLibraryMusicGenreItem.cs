@@ -23,20 +23,14 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.Tree;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   class MediaLibraryMusicGenreItem : MediaLibraryContainer, IDirectoryMusicGenre
   {

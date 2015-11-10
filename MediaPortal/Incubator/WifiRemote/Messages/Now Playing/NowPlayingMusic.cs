@@ -67,7 +67,7 @@ namespace WifiRemote
     {
       try
       {
-        var audioAspect = song.Aspects[AudioAspect.ASPECT_ID];
+        var audioAspect = song[AudioAspect.Metadata];
 
         ItemId = song.MediaItemId;
         Album = (string)audioAspect[AudioAspect.ATTR_ALBUM];
@@ -104,8 +104,8 @@ namespace WifiRemote
         Lyrics = String.Empty;
         Rating = 0;
         SampleRate = 0;
-        TimesPlayed = (int)song[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT];
-        Title = (string)song[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+        TimesPlayed = (int)song[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT];
+        Title = (string)song[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
         Track = (int)audioAspect[AudioAspect.ATTR_TRACK];
         TrackTotal = (int)audioAspect[AudioAspect.ATTR_NUMTRACKS];
         URL = String.Empty;

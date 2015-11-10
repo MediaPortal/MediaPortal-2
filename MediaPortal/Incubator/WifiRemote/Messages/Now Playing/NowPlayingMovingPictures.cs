@@ -205,30 +205,30 @@ namespace WifiRemote
         movieFound = true;
 
         ItemId = mediaItem.MediaItemId;
-        Title = (string)mediaItem.Aspects[MovieAspect.ASPECT_ID][MovieAspect.ATTR_MOVIE_NAME];
+        Title = (string)mediaItem[MovieAspect.Metadata][MovieAspect.ATTR_MOVIE_NAME];
         //AlternateTitles = match.AlternateTitles.ToString();
-        var videoDirectors = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_DIRECTORS];
+        var videoDirectors = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_DIRECTORS];
         if (videoDirectors != null)
           Directors = String.Join(", ", videoDirectors.Cast<string>().ToArray());
 
-        var videoWriters = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_WRITERS];
+        var videoWriters = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_WRITERS];
         if (videoWriters != null)
           Writers = String.Join(", ", videoWriters.Cast<string>().ToArray());
 
-        var videoActors = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_ACTORS];
+        var videoActors = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_ACTORS];
         if (videoActors != null)
           Actors = String.Join(", ", videoActors.Cast<string>().ToArray());
 
-        var videoGenres = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
+        var videoGenres = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_GENRES];
         if (videoGenres != null)
           Genres = String.Join(", ", videoGenres.Cast<string>().ToArray());
 
-        Rating = Convert.ToString((double)mediaItem.Aspects[MovieAspect.ASPECT_ID][MovieAspect.ATTR_TOTAL_RATING]);
+        Rating = Convert.ToString((double)mediaItem[MovieAspect.Metadata][MovieAspect.ATTR_TOTAL_RATING]);
 
-        /*Year = (int)mediaItem.Aspects[VideoAspect.ASPECT_ID][VideoAspect.];
+        /*Year = (int)mediaItem[VideoAspect.Metadata][VideoAspect.];
         Certification = match.Certification;
         Tagline = match.Tagline;*/
-        Summary = (string)mediaItem.Aspects[VideoAspect.ASPECT_ID][VideoAspect.ATTR_STORYPLOT];
+        Summary = (string)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_STORYPLOT];
         /*DetailsUrl = match.DetailsURL;
         ImageName = match.CoverFullPath;*/
       }

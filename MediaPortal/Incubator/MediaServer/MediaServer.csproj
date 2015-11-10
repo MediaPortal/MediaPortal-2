@@ -9,7 +9,7 @@
     <ProjectGuid>{1BA81EB2-6556-4213-A7A5-9E5B508F186F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Extensions.MediaServer</RootNamespace>
+    <RootNamespace>MediaPortal.Plugins.MediaServer</RootNamespace>
     <AssemblyName>MediaServer</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -161,6 +161,8 @@
     <Compile Include="Protocols\XBoxProtocolHandler.cs" />
     <Compile Include="ResourceAccess\DlnaResourceAccessUtils.cs" />
     <Compile Include="ResourceAccess\DlnaResourceAccessModule.cs" />
+    <Compile Include="Settings\MediaServerSettings.cs" />
+    <Compile Include="Settings\ProfileLinks.cs" />
     <Compile Include="Tree\TreeNode.cs" />
     <Compile Include="Tree\TreeNodeList.cs" />
     <Compile Include="Parser\UPnP.g4.lexer.cs" />
@@ -212,7 +214,7 @@
     <None Include="packages.config" />
     <Antlr4 Include="Parser\UPnP.g4">
       <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>MediaPortal.Extensions.MediaServer.Parser</CustomToolNamespace>
+      <CustomToolNamespace>MediaPortal.Plugins.MediaServer.Parser</CustomToolNamespace>
       <Listener>True</Listener>
     </Antlr4>
   </ItemGroup>

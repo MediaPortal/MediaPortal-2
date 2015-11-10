@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--Thanks go to the Serviio community for creating the profiles on which these are based-->
 <Profiles version="1.0">
   <Profile id="DLNADefault" name="Generic profile" active="true">
@@ -2003,6 +2003,35 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ogg" />
         <AudioSource container="WavPack" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="MobileVlc" name="Mobile VLC" baseProfile="DLNADefault" active="true">
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*LibVLC*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
+    <Settings>
+      <Subtitles support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
+      </Subtitles>
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget audioCodec="Mp3">
+        <VideoSource audioCodec="Dts" />
+        <VideoSource audioCodec="DtsHd" />
+        <VideoSource audioCodec="Ac3" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>

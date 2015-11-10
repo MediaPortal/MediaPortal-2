@@ -29,11 +29,11 @@ using HttpServer;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
   public class UPnPMediaServerDevice : DvDevice
   {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MediaPortal.Extensions.MediaServer.DLNA
+namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   class DlnaAspectMissingException : Exception
   {

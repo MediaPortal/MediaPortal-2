@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MediaPortal.Plugins.MP2Extended.MAS.General
+﻿namespace MediaPortal.Plugins.MP2Extended.MAS.General
 {
   public class WebActor : WebObject, ITitleSortable
   {

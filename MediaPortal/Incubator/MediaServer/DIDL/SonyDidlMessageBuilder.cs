@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using MediaPortal.Extensions.MediaServer.Objects;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
 
-namespace MediaPortal.Extensions.MediaServer.DIDL
+namespace MediaPortal.Plugins.MediaServer.DIDL
 {
   public class SonyDidlMessageBuilder : GenericDidlMessageBuilder
   {

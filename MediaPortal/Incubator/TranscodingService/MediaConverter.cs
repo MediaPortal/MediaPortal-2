@@ -48,6 +48,18 @@ namespace MediaPortal.Plugins.Transcoding.Service
 {
   public static class MediaConverter
   {
+    public const int NO_SUBTITLE = -2;
+    public const int AUTO_SUBTITLE = -1;
+
+    public const string SEGMENT_FOLDER_TOKEN = "{folderId}";
+    public const string INPUT_FILE_TOKEN = "{input}";
+    public const string OUTPUT_FILE_TOKEN = "{output}";
+    public const string SUBTITLE_FILE_TOKEN = "{subtitle}";
+
+    public const string PLAYLIST_FILE_NAME = "playlist.m3u8";
+    public const string PLAYLIST_SUBTITLE_FILE_NAME = "playlist_vtt.m3u8";
+    public const string PLAYLIST_MANIFEST_FILE_NAME = "manifest.m3u8";
+
     public static bool SupportHardcodedSubs
     {
       get
@@ -150,16 +162,18 @@ namespace MediaPortal.Plugins.Transcoding.Service
         _supportIntelHW = false;
       }
 
-      if (TranscodingServicePlugin.IntelHWAccelerationAllowed && _supportIntelHW)
+      if (TranscodingServicePlugin.Settings.IntelHWAccelerationAllowed && _supportIntelHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.IntelHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.IntelHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.Settings.IntelHWMaximumStreams, 
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.IntelHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
         }
       }
-      if (TranscodingServicePlugin.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
+      if (TranscodingServicePlugin.Settings.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.NvidiaHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams, 
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.NvidiaHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
         }
@@ -171,20 +185,21 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static void LoadSettings()
     {
-      _cacheEnabled = TranscodingServicePlugin.CacheEnabled;
-      _cachePath = TranscodingServicePlugin.CachePath;
-      _cacheMaximumSize = TranscodingServicePlugin.CacheMaximumSizeInGB; //GB
-      _cacheMaximumAge = TranscodingServicePlugin.CacheMaximumAgeInDays; //Days
-      _transcoderMaximumThreads = TranscodingServicePlugin.TranscoderMaximumThreads;
-      _transcoderTimeout = TranscodingServicePlugin.TranscoderTimeout;
-      _hlsSegmentTimeInSeconds = TranscodingServicePlugin.HLSSegmentTimeInSeconds;
-      _hlsSegmentFileTemplate = TranscodingServicePlugin.HLSSegmentFileTemplate;
-      _subtitleDefaultLanguage = TranscodingServicePlugin.SubtitleDefaultLanguage;
-      _subtitleDefaultEncoding = TranscodingServicePlugin.SubtitleDefaultEncoding;
+      _cacheEnabled = TranscodingServicePlugin.Settings.CacheEnabled;
+      _cachePath = TranscodingServicePlugin.Settings.CachePath;
+      _cacheMaximumSize = TranscodingServicePlugin.Settings.CacheMaximumSizeInGB; //GB
+      _cacheMaximumAge = TranscodingServicePlugin.Settings.CacheMaximumAgeInDays; //Days
+      _transcoderMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
+      _transcoderTimeout = TranscodingServicePlugin.Settings.TranscoderTimeout;
+      _hlsSegmentTimeInSeconds = TranscodingServicePlugin.Settings.HLSSegmentTimeInSeconds;
+      _hlsSegmentFileTemplate = TranscodingServicePlugin.Settings.HLSSegmentFileTemplate;
+      _subtitleDefaultLanguage = TranscodingServicePlugin.Settings.SubtitleDefaultLanguage;
+      _subtitleDefaultEncoding = TranscodingServicePlugin.Settings.SubtitleDefaultEncoding;
 
-      if (TranscodingServicePlugin.IntelHWAccelerationAllowed && _supportIntelHW)
+      if (TranscodingServicePlugin.Settings.IntelHWAccelerationAllowed && _supportIntelHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.IntelHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.IntelHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.Settings.IntelHWMaximumStreams,
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.IntelHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
         }
@@ -193,9 +208,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         UnregisterHardwareEncoder(EncoderHandler.HardwareIntel);
       }
-      if (TranscodingServicePlugin.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
+      if (TranscodingServicePlugin.Settings.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.NvidiaHWMaximumStreams, new List<VideoCodec>(TranscodingServicePlugin.NvidiaHWSupportedCodecs)) == false)
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams, 
+          new List<VideoCodec>(TranscodingServicePlugin.Settings.NvidiaHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
         }
@@ -207,6 +223,43 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       _ffMpegCommandline = new FFMpegCommandline(_transcoderMaximumThreads, _transcoderTimeout, _cachePath, _hlsSegmentTimeInSeconds, _hlsSegmentFileTemplate, _supportHardcodedSubs);
     }
+
+    #region MIME
+
+    public static string GetHlsFileMime(string fileName)
+    {
+      if (Path.GetExtension(MediaConverter.PLAYLIST_FILE_NAME) == Path.GetExtension(fileName)) //playlist file
+        return "application/x-mpegURL";
+      if (Path.GetExtension(_hlsSegmentFileTemplate) == Path.GetExtension(fileName)) //segment file
+        return "video/MP2T";
+      if (Path.GetExtension("sub.vtt") == Path.GetExtension(fileName)) //subtitle file
+        return "text/vtt";
+      return null;
+    }
+
+    public static string GetSubtitleMime(SubtitleCodec codec)
+    {
+      switch (codec)
+      {
+        case SubtitleCodec.Srt:
+          return "text/srt";
+        case SubtitleCodec.MicroDvd:
+          return "text/microdvd";
+        case SubtitleCodec.SubView:
+          return "text/plain";
+        case SubtitleCodec.Ass:
+          return "text/x-ass";
+        case SubtitleCodec.Ssa:
+          return "text/x-ssa";
+        case SubtitleCodec.Smi:
+          return "smi/caption";
+        case SubtitleCodec.WebVtt:
+          return "text/vtt";
+      }
+      return "text/plain";
+    }
+
+    #endregion
 
     #region Metadata
 
@@ -449,6 +502,27 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     #region Cache
 
+    public static void StopAllTranscodes()
+    {
+      lock (_runningTranscodes)
+      {
+        foreach (string transcodeId in _runningTranscodes.Keys)
+        {
+          foreach(TranscodeContext context in _runningTranscodes[transcodeId])
+          {
+            try
+            {
+              context.Dispose();
+            }
+            catch
+            {
+              _logger.Debug("MediaConverter: Error disposing transcode context for file '{0}'", context.TargetFile);
+            }
+          }
+        }
+      }
+    }
+
     private static void TouchFile(string filePath)
     {
       if (File.Exists(filePath))
@@ -475,174 +549,177 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static void CleanUpTranscodeCache()
     {
-      if (Directory.Exists(_cachePath) == true)
+      lock (_cachePath)
       {
-        int maxTries = 10;
-        SortedDictionary<DateTime, string> fileList = new SortedDictionary<DateTime, string>();
-        long cacheSize = 0;
-        List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
-        dirObjects.AddRange(Directory.GetDirectories(_cachePath, "*_mptf"));
-        foreach (string dirObject in dirObjects)
+        if (Directory.Exists(_cachePath) == true)
         {
-          string[] tokens = dirObject.Split('.');
-          if (tokens.Length >= 3)
+          int maxTries = 10;
+          SortedDictionary<DateTime, string> fileList = new SortedDictionary<DateTime, string>();
+          long cacheSize = 0;
+          List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
+          dirObjects.AddRange(Directory.GetDirectories(_cachePath, "*_mptf"));
+          foreach (string dirObject in dirObjects)
           {
-            if (Directory.Exists(dirObject) == true)
+            string[] tokens = dirObject.Split('.');
+            if (tokens.Length >= 3)
             {
-              DirectoryInfo info;
-              try
+              if (Directory.Exists(dirObject) == true)
               {
-                info = new DirectoryInfo(dirObject);
+                DirectoryInfo info;
+                try
+                {
+                  info = new DirectoryInfo(dirObject);
+                }
+                catch
+                {
+                  continue;
+                }
+                FileInfo[] folderFiles = info.GetFiles();
+                foreach (FileInfo folderFile in folderFiles)
+                {
+                  if (folderFile.Length == 0)
+                  {
+                    try
+                    {
+                      folderFile.Delete();
+                    }
+                    catch
+                    {
+                    }
+                    continue;
+                  }
+                  cacheSize += folderFile.Length;
+                }
+                if (fileList.ContainsKey(info.CreationTime) == false)
+                {
+                  fileList.Add(info.CreationTime, dirObject);
+                }
+                else
+                {
+                  DateTime fileTime = info.CreationTime.AddMilliseconds(1);
+                  while (fileList.ContainsKey(fileTime) == true)
+                  {
+                    fileTime = fileTime.AddMilliseconds(1);
+                  }
+                  fileList.Add(fileTime, dirObject);
+                }
               }
-              catch
+              else
               {
-                continue;
-              }
-              FileInfo[] folderFiles = info.GetFiles();
-              foreach (FileInfo folderFile in folderFiles)
-              {
-                if (folderFile.Length == 0)
+                FileInfo info;
+                try
+                {
+                  info = new FileInfo(dirObject);
+                }
+                catch
+                {
+                  continue;
+                }
+                if (info.Length == 0)
                 {
                   try
                   {
-                    folderFile.Delete();
+                    File.Delete(dirObject);
                   }
                   catch
                   {
                   }
                   continue;
                 }
-                cacheSize += folderFile.Length;
+                cacheSize += info.Length;
+                if (fileList.ContainsKey(info.CreationTime) == false)
+                {
+                  fileList.Add(info.CreationTime, dirObject);
+                }
+                else
+                {
+                  DateTime fileTime = info.CreationTime.AddMilliseconds(1);
+                  while (fileList.ContainsKey(fileTime) == true)
+                  {
+                    fileTime = fileTime.AddMilliseconds(1);
+                  }
+                  fileList.Add(fileTime, dirObject);
+                }
               }
-              if (fileList.ContainsKey(info.CreationTime) == false)
+            }
+          }
+
+          bool bDeleting = true;
+          int tryCount = 0;
+          while (fileList.Count > 0 && bDeleting && _cacheMaximumAge > 0 && tryCount < maxTries)
+          {
+            tryCount++;
+            bDeleting = false;
+            KeyValuePair<DateTime, string> dirObject = fileList.First();
+            if ((DateTime.Now - dirObject.Key).TotalDays > _cacheMaximumAge)
+            {
+              bDeleting = true;
+              fileList.Remove(dirObject.Key);
+              if (Directory.Exists(dirObject.Value) == true)
               {
-                fileList.Add(info.CreationTime, dirObject);
+                try
+                {
+                  Directory.Delete(dirObject.Value, true);
+                }
+                catch { }
               }
               else
               {
-                DateTime fileTime = info.CreationTime.AddMilliseconds(1);
-                while (fileList.ContainsKey(fileTime) == true)
+                try
                 {
-                  fileTime = fileTime.AddMilliseconds(1);
+                  File.Delete(dirObject.Value);
                 }
-                fileList.Add(fileTime, dirObject);
+                catch { }
               }
+            }
+          }
+
+          tryCount = 0;
+          while (fileList.Count > 0 && cacheSize > (_cacheMaximumSize * 1024 * 1024 * 1024) && _cacheMaximumSize > 0 && tryCount < maxTries)
+          {
+            tryCount++;
+            KeyValuePair<DateTime, string> dirObject = fileList.First();
+            if (Directory.Exists(dirObject.Value) == true)
+            {
+              DirectoryInfo info;
+              try
+              {
+                info = new DirectoryInfo(dirObject.Value);
+              }
+              catch
+              {
+                fileList.Remove(dirObject.Key);
+                continue;
+              }
+              FileInfo[] folderFiles = info.GetFiles();
+              cacheSize = folderFiles.Aggregate(cacheSize, (current, folderFile) => current - folderFile.Length);
+              fileList.Remove(dirObject.Key);
+              try
+              {
+                info.Delete(true);
+              }
+              catch { }
             }
             else
             {
               FileInfo info;
               try
               {
-                info = new FileInfo(dirObject);
+                info = new FileInfo(dirObject.Value);
               }
               catch
               {
+                fileList.Remove(dirObject.Key);
                 continue;
               }
-              if (info.Length == 0)
-              {
-                try
-                {
-                  File.Delete(dirObject);
-                }
-                catch
-                {
-                }
-                continue;
-              }
-              cacheSize += info.Length;
-              if (fileList.ContainsKey(info.CreationTime) == false)
-              {
-                fileList.Add(info.CreationTime, dirObject);
-              }
-              else
-              {
-                DateTime fileTime = info.CreationTime.AddMilliseconds(1);
-                while (fileList.ContainsKey(fileTime) == true)
-                {
-                  fileTime = fileTime.AddMilliseconds(1);
-                }
-                fileList.Add(fileTime, dirObject);
-              }
-            }
-          }
-        }
-
-        bool bDeleting = true;
-        int tryCount = 0;
-        while (fileList.Count > 0 && bDeleting && _cacheMaximumAge > 0 && tryCount < maxTries)
-        {
-          tryCount++;
-          bDeleting = false;
-          KeyValuePair<DateTime, string> dirObject = fileList.First();
-          if ((DateTime.Now - dirObject.Key).TotalDays > _cacheMaximumAge)
-          {
-            bDeleting = true;
-            fileList.Remove(dirObject.Key);
-            if (Directory.Exists(dirObject.Value) == true)
-            {
+              cacheSize -= info.Length;
+              fileList.Remove(dirObject.Key);
               try
               {
-                Directory.Delete(dirObject.Value, true);
+                info.Delete();
               }
               catch { }
             }
-            else
-            {
-              try
-              {
-                File.Delete(dirObject.Value);
-              }
-              catch { }
-            }
-          }
-        }
-
-        tryCount = 0;
-        while (fileList.Count > 0 && cacheSize > (_cacheMaximumSize * 1024 * 1024 * 1024) && _cacheMaximumSize > 0 && tryCount < maxTries)
-        {
-          tryCount++;
-          KeyValuePair<DateTime, string> dirObject = fileList.First();
-          if (Directory.Exists(dirObject.Value) == true)
-          {
-            DirectoryInfo info;
-            try
-            {
-              info = new DirectoryInfo(dirObject.Value);
-            }
-            catch
-            {
-              fileList.Remove(dirObject.Key);
-              continue;
-            }
-            FileInfo[] folderFiles = info.GetFiles();
-            cacheSize = folderFiles.Aggregate(cacheSize, (current, folderFile) => current - folderFile.Length);
-            fileList.Remove(dirObject.Key);
-            try
-            {
-              info.Delete(true);
-            }
-            catch { }
-          }
-          else
-          {
-            FileInfo info;
-            try
-            {
-              info = new FileInfo(dirObject.Value);
-            }
-            catch
-            {
-              fileList.Remove(dirObject.Key);
-              continue;
-            }
-            cacheSize -= info.Length;
-            fileList.Remove(dirObject.Key);
-            try
-            {
-              info.Delete();
-            }
-            catch { }
           }
         }
       }
@@ -650,7 +727,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static bool IsFileInTranscodeCache(string transcodeId)
     {
-      if (Checks.IsTranscodingRunning(transcodeId, ref _runningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(transcodeId) == false)
       {
         List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
         return dirObjects.Any(file => file.StartsWith(transcodeId + ".mp"));
@@ -664,6 +741,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private static SubtitleStream FindSubtitle(VideoTranscoding video)
     {
+      if (video.SourceSubtitleStreamIndex == NO_SUBTITLE) return null;
+      List<SubtitleStream> allSubs = GetSubtitleStreams(video);
+      if (video.SourceSubtitleStreamIndex >= 0 && allSubs.Count > video.SourceSubtitleStreamIndex)
+      {
+        return allSubs[video.SourceSubtitleStreamIndex];
+      }
+
       SubtitleStream currentEmbeddedSub = null;
       SubtitleStream currentExternalSub = null;
 
@@ -671,12 +755,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       SubtitleStream englishEmbeddedSub = null;
       List<SubtitleStream> subsEmbedded = new List<SubtitleStream>();
       List<SubtitleStream> langSubsEmbedded = new List<SubtitleStream>();
-      List<SubtitleStream> allSubs = new List<SubtitleStream>(video.SourceSubtitles);
-      if (video.SourceFile is ILocalFsResourceAccessor)
-      {
-        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)video.SourceFile;
-        allSubs.AddRange(FindExternalSubtitles(lfsra));
-      }
 
       foreach (SubtitleStream sub in allSubs)
       {
@@ -818,7 +896,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    private static List<SubtitleStream> FindExternalSubtitles(ILocalFsResourceAccessor lfsra)
+    public static List<SubtitleStream> FindExternalSubtitles(ILocalFsResourceAccessor lfsra)
     {
       List<SubtitleStream> externalSubtitles = new List<SubtitleStream>();
       if (lfsra.Exists)
@@ -854,6 +932,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
               if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
               else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
             }
+            else if (string.Compare(Path.GetExtension(file), ".vtt", true, CultureInfo.InvariantCulture) == 0)
+            {
+              sub.Codec = SubtitleCodec.WebVtt;
+            }
             if (sub.Codec != SubtitleCodec.Unknown)
             {
               sub.Source = file;
@@ -873,7 +955,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         return null;
       }
-      if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
+      if (Checks.IsTranscodingRunning(video.TranscodeId) == false)
       {
         TouchFile(sub.SourceFile);
       }
@@ -929,7 +1011,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // the file already exists in the cache -> just return
       if (File.Exists(transcodingFile))
       {
-        if (Checks.IsTranscodingRunning(video.TranscodeId, ref _runningTranscodes) == false)
+        if (Checks.IsTranscodingRunning(video.TranscodeId) == false)
         {
           TouchFile(transcodingFile);
         }
@@ -1053,6 +1135,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
             {
               return true;
             }
+            else if (string.Compare(Path.GetExtension(file), ".vtt", true, CultureInfo.InvariantCulture) == 0)
+            {
+              return true;
+            }
           }
         }
       }
@@ -1067,6 +1153,24 @@ namespace MediaPortal.Plugins.Transcoding.Service
         if (IsExternalSubtitleAvailable((ILocalFsResourceAccessor)video.SourceFile)) return true;
       }
       return false;
+    }
+
+    public static List<SubtitleStream> GetSubtitleStreams(VideoTranscoding video)
+    {
+      List<SubtitleStream> allSubs = new List<SubtitleStream>();
+      if(video.SourceSubtitles != null && video.SourceSubtitles.Count > 0)
+      {
+        //Only add embedded subtitles
+        allSubs.AddRange(video.SourceSubtitles.Where(sub => sub.IsEmbedded == true));
+      }
+
+      //Refresh external subtitles
+      if (video.SourceFile is ILocalFsResourceAccessor)
+      {
+        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)video.SourceFile;
+        allSubs.AddRange(FindExternalSubtitles(lfsra));
+      }
+      return allSubs;
     }
 
     #endregion
@@ -1094,6 +1198,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
       }
       return false;
+    }
+
+    public static string GetFolderFromFolderId(string folderId)
+    {
+      return _ffMpegCommandline.GetFolderFromFolderId(folderId);
     }
 
     public static TranscodeContext GetMediaStream(BaseTranscoding transcodingInfo, double timeStart, double timeDuration, bool waitForBuffer)
@@ -1137,7 +1246,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         video.TargetVideoContainer = video.SourceVideoContainer;
       }
       string transcodingFile = Path.Combine(_cachePath, video.TranscodeId);
-      long partId = DateTime.Now.Ticks - DateTime.Today.Ticks;
+      long partId = Convert.ToInt64(timeStart);
       string partialTranscodingFile = Path.Combine(_cachePath, partId + "." + video.TranscodeId + ".mptv");
       transcodingFile += ".A" + video.SourceAudioStreamIndex;
       bool embeddedSupported = false;
@@ -1154,15 +1263,28 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           embeddedSupported = true;
           embeddedSubCodec = SubtitleCodec.MovTxt;
-          video.TargetSubtitleCodec = SubtitleCodec.Ass;
+          video.TargetSubtitleCodec = SubtitleCodec.MovTxt;
+        }
+        else if (video.TargetVideoContainer == VideoContainer.Hls)
+        {
+          embeddedSupported = true;
+          embeddedSubCodec = SubtitleCodec.WebVtt;
+          video.TargetSubtitleCodec = SubtitleCodec.WebVtt;
+        }
+        else if (video.TargetVideoContainer == VideoContainer.Avi)
+        {
+          embeddedSupported = true;
+          embeddedSubCodec = SubtitleCodec.Srt;
+          video.TargetSubtitleCodec = SubtitleCodec.Srt;
         }
         //else if (video.TargetVideoContainer == VideoContainer.Mpeg2Ts)
         //{
         //  embeddedSupported = true;
         //  embeddedSubCodec = SubtitleCodec.DvbSub;
-        //  video.TargetSubtitleCodec = SubtitleCodec.Ass;
+        //  video.TargetSubtitleCodec = SubtitleCodec.VobSub;
         //}
       }
+      video.TargetSubtitleMime = GetSubtitleMime(video.TargetSubtitleCodec);
 
       Subtitle currentSub = GetSubtitle(video);
       if (currentSub != null) video.SourceSubtitleAvailable = true;
@@ -1227,8 +1349,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (video.TargetVideoContainer == VideoContainer.Hls)
       {
         string pathName = Path.Combine(_cachePath, Path.GetFileNameWithoutExtension(transcodingFile).Replace(".", "_") + "_mptf");
-        string playlist = Path.Combine(pathName, "playlist.m3u8");
-
+        string playlist = Path.Combine(pathName, PLAYLIST_MANIFEST_FILE_NAME);
+        if (File.Exists(playlist) == false)
+        {
+          playlist = Path.Combine(pathName, PLAYLIST_FILE_NAME);
+        }
         if (File.Exists(playlist) == true)
         {
           //Use exisitng context if possible
@@ -1250,7 +1375,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
             context.TargetFile = playlist;
             context.SegmentDir = pathName;
             context.HlsBaseUrl = video.HlsBaseUrl;
-            context.AssignStream(GetReadyFileBuffer(transcodingFile));
+            context.AssignStream(GetReadyFileBuffer(playlist));
             return context;
           }
         }
@@ -1269,6 +1394,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           data.InputSubtitleFilePath = currentSub.SourceFile;
         }
+        if (context.Partial)
+        {
+          data.OutputFilePath = partialTranscodingFile;
+          context.TargetFile = partialTranscodingFile;
+        }
+        else
+        {
+          data.OutputFilePath = transcodingFile;
+          context.TargetFile = transcodingFile;
+        }
       }
       else
       {
@@ -1283,7 +1418,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
         FFMpegEncoderConfig encoderConfig = _ffMpegEncoderHandler.GetEncoderConfig(data.Encoder);
         _ffMpegCommandline.AddVideoParameters(video, data.TranscodeId, currentSub, encoderConfig, ref data);
 
-        _ffMpegCommandline.AddTargetVideoFormatAndOutputFileParameters(video, transcodingFile, ref data);
+        string fileName = transcodingFile;
+        if (context.Partial)
+        {
+          fileName = partialTranscodingFile;
+        }
+        _ffMpegCommandline.AddTargetVideoFormatAndOutputFileParameters(video, currentSub, ref fileName, timeStart, ref data);
+        context.TargetFile = fileName;
         _ffMpegCommandline.AddVideoAudioParameters(video, ref data);
         if (currentSub != null && embeddedSupported)
         {
@@ -1295,16 +1436,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
           data.OutputArguments.Add("-sn");
         }
         _ffMpegCommandline.AddStreamMapParameters(video.SourceVideoStreamIndex, video.SourceAudioStreamIndex, embeddedSupported, ref data);
-      }
-      if (context.Partial)
-      {
-        data.OutputFilePath = partialTranscodingFile;
-        context.TargetFile = partialTranscodingFile;
-      }
-      else
-      {
-        data.OutputFilePath = transcodingFile;
-        context.TargetFile = transcodingFile;
       }
 
       if (_logger != null) _logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceFile, video.TranscodeId, String.Join(", ", data.OutputArguments.ToArray()));
@@ -1331,7 +1462,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         audio.TargetAudioContainer = audio.SourceAudioContainer;
       }
       string transcodingFile = Path.Combine(_cachePath, audio.TranscodeId + ".mpta");
-      long partId = DateTime.Now.Ticks - DateTime.Today.Ticks;
+      long partId = Convert.ToInt64(timeStart);
       string partialTranscodingFile = Path.Combine(_cachePath, partId + "." + audio.TranscodeId + ".mpta");
 
       if (File.Exists(transcodingFile) == true)
@@ -1467,6 +1598,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         _ffMpegCommandline.AddImageParameters(image, ref data);
 
+        data.InputArguments.Add("-f image2pipe");
         data.OutputArguments.Add("-f image2");
       }
       data.OutputFilePath = transcodingFile;
@@ -1562,13 +1694,21 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private static Stream GetTranscodedFileBuffer(FFMpegTranscodeData data, TranscodeContext context)
     {
       string filePath = "";
+      string origFilePath = "";
       if (data.SegmentPlaylist != null)
       {
         filePath = Path.Combine(data.WorkPath, data.SegmentPlaylist);
+        origFilePath = filePath;
+        if(string.Equals(Path.GetFileName(filePath), PLAYLIST_MANIFEST_FILE_NAME, StringComparison.InvariantCultureIgnoreCase) == true)
+        {
+          //This file generated already wait for file generated by ffmpege instead
+          filePath = Path.Combine(data.WorkPath, PLAYLIST_FILE_NAME);
+        }
       }
       else
       {
         filePath = Path.Combine(data.WorkPath, data.OutputFilePath);
+        origFilePath = filePath;
       }
 
       int iTry = 60;
@@ -1584,8 +1724,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
           catch { }
           if (length > 0)
           {
-            if (_logger != null) _logger.Debug(string.Format("MediaConverter: Serving transcoded file '{0}'", filePath));
-            Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            if (_logger != null) _logger.Debug(string.Format("MediaConverter: Serving transcoded file '{0}'", origFilePath));
+            Stream stream = new FileStream(origFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
             return stream;
           }
@@ -1599,7 +1739,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private static Stream ExecuteTranscodingProcess(FFMpegTranscodeData data, TranscodeContext context, bool waitForBuffer)
     {
-      if (context.Partial == true || Checks.IsTranscodingRunning(data.TranscodeId, ref _runningTranscodes) == false)
+      if (context.Partial == true || Checks.IsTranscodingRunning(data.TranscodeId) == false)
       {
         try
         {
@@ -1713,7 +1853,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       string filePath = data.Context.TargetFile;
       bool isFolder = false;
-      if (filePath.EndsWith(".m3u8") == true)
+      if (string.IsNullOrEmpty(data.Context.SegmentDir) == false)
       {
         filePath = data.Context.SegmentDir;
         isFolder = true;

@@ -178,10 +178,10 @@ namespace WifiRemote
     /// <param name="aMovie">The currently playing movie</param>
     public NowPlayingVideo(MediaItem aMovie)
     {
-      var movieAspect = aMovie[VideoAspect.ASPECT_ID];
+      var movieAspect = aMovie[VideoAspect.Metadata];
       ItemId = aMovie.MediaItemId;
       Summary = (string)movieAspect[VideoAspect.ATTR_STORYPLOT];
-      Title = (string)aMovie[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+      Title = (string)aMovie[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
       Tagline = String.Empty;
       Directors = (string)movieAspect[VideoAspect.ATTR_DIRECTORS];
       Writers = (string)movieAspect[VideoAspect.ATTR_WRITERS];

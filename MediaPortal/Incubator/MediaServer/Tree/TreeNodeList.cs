@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaPortal.Extensions.MediaServer.Tree
+namespace MediaPortal.Plugins.MediaServer.Tree
 {
   public class TreeNodeList<T> : List<TreeNode<T>>
   {

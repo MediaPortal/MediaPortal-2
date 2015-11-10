@@ -48,11 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Extensions\IProgramAction.cs" />
     <Compile Include="Extensions\SlimTvExtensionBuilder.cs" />
+    <Compile Include="Items\IUser.cs" />
+    <Compile Include="Items\IVirtualCard.cs" />
+    <Compile Include="Items\ICard.cs" />
+    <Compile Include="ITunerInfo.cs" />
     <Compile Include="Items\IChannelGroup.cs" />
     <Compile Include="Items\IChannel.cs" />
     <Compile Include="Items\IProgram.cs" />
@@ -84,6 +88,9 @@
     <Compile Include="UPnP\DataTypes\UPnPDtSchedule.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtProgram.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtProgramList.cs" />
+    <Compile Include="UPnP\Items\User.cs" />
+    <Compile Include="UPnP\Items\VirtualCard.cs" />
+    <Compile Include="UPnP\Items\Card.cs" />
     <Compile Include="UPnP\Items\Channel.cs" />
     <Compile Include="UPnP\Items\ChannelGroup.cs" />
     <Compile Include="UPnP\Items\Dictionary.cs" />

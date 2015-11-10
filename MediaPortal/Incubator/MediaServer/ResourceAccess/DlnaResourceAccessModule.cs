@@ -40,25 +40,19 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Threading;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.Protocols;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace MediaPortal.Extensions.MediaServer.ResourceAccess
+namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
   public class DlnaResourceAccessModule : HttpModule, IDisposable
   {
-    protected IntervalWork _tidyUpCacheWork;
-    protected readonly object _syncObj = new object();
-
-    public TimeSpan RESOURCE_CACHE_TIME = TimeSpan.FromMinutes(5);
-    public TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
     public const long TRANSCODED_VIDEO_STREAM_MAX = 50000000000L;
     public const long TRANSCODED_AUDIO_STREAM_MAX = 900000000L;
     public const long TRANSCODED_IMAGE_STREAM_MAX = 9000000L;
@@ -87,14 +81,9 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     public DlnaResourceAccessModule()
     {
-      _tidyUpCacheWork = new IntervalWork(TidyUpCache, CACHE_CLEANUP_INTERVAL);
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.AddIntervalWork(_tidyUpCacheWork, false);
       _serverOsVersion = WindowsAPI.GetOsVersionString();
       Assembly assembly = Assembly.GetExecutingAssembly();
       _product = "MediaPortal 2 DLNA Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
-
-      ClearCache();
     }
 
     protected class Range
@@ -125,14 +114,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           if (_to <= _from) return 0;
           return _to - _from; 
         }
-      }
-    }
-
-    public void TidyUpCache()
-    {
-      lock (_syncObj)
-      {
-        MediaConverter.CleanUpTranscodeCache();
       }
     }
 
@@ -168,12 +149,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           }
         }
       }
-    }
-
-    public void ClearCache()
-    {
-      Shutdown();
-      TidyUpCache();
     }
 
     private long GetStreamSize(DlnaMediaItem dlnaItem)
@@ -465,22 +440,24 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           #region Determine subtitle mode
 
           SubtitleCodec subTargetCodec = SubtitleCodec.Unknown;
-          string subTargetMime = "";
-          if (DlnaResourceAccessUtils.IsSoftCodedSubtitleAvailable(dlnaItem, deviceClient))
+          if (dlnaItem.IsVideo)
           {
+            string subTargetMime = "";
             if (DlnaResourceAccessUtils.UseSoftCodedSubtitle(deviceClient, out subTargetCodec, out subTargetMime))
             {
-              if (dlnaItem.IsTranscoded && dlnaItem.IsVideo && dlnaItem.TranscodingParameter != null)
+              if (dlnaItem.IsTranscoded)
               {
                 VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
                 video.TargetSubtitleCodec = subTargetCodec;
                 video.TargetSubtitleLanguages = deviceClient.PreferredSubtitleLanguages;
+                video.TargetSubtitleMime = subTargetMime;
               }
-              else if (dlnaItem.IsVideo && dlnaItem.SubtitleTranscodingParameter != null)
+              else
               {
                 VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
                 subtitle.TargetSubtitleCodec = subTargetCodec;
                 subtitle.TargetSubtitleLanguages = deviceClient.PreferredSubtitleLanguages;
+                subtitle.TargetSubtitleMime = subTargetMime;
               }
             }
           }
@@ -513,11 +490,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             bHandled = true;
             Logger.Debug("DlnaResourceAccessModule: Attempting to load media item thumbnail");
 
-            byte[] thumb = MediaItemAspect.GetAspect(dlnaItem.MediaSource.Aspects, ThumbnailLargeAspect.Metadata).GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+            byte[] thumb = (byte[])MediaItemAspect.GetAspect(dlnaItem.MediaSource.Aspects, ThumbnailLargeAspect.Metadata).GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
             if (thumb != null && thumb.Length > 0)
             {
               response.ContentType = "image/jpeg";
-              using (MemoryStream ms = new MemoryStream(thumb))
+              using (MemoryStream ms = new MemoryStream((byte[])thumb))
               {
                 SendResourceFile(request, response, ms, false);
               }
@@ -539,6 +516,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             {
               using (var subStream = MediaConverter.GetSubtitleStream((VideoTranscoding)dlnaItem.TranscodingParameter))
               {
+                response.ContentType = ((VideoTranscoding)dlnaItem.TranscodingParameter).TargetSubtitleMime;
                 if (subStream != null)
                 {
                   Logger.Debug("DlnaResourceAccessModule: Sending transcoded subtitle file for {0}", uri.ToString());
@@ -550,6 +528,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             {
               using (var subStream = MediaConverter.GetSubtitleStream((VideoTranscoding)dlnaItem.SubtitleTranscodingParameter))
               {
+                response.ContentType = ((VideoTranscoding)dlnaItem.SubtitleTranscodingParameter).TargetSubtitleMime;
                 if (subStream != null)
                 {
                   Logger.Debug("DlnaResourceAccessModule: Sending transcoded subtitle file for {0}", uri.ToString());
@@ -647,12 +626,14 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             {
               int startIndex = request.Uri.AbsoluteUri.LastIndexOf("/") + 1;
               string fileName = request.Uri.AbsoluteUri.Substring(startIndex);
-              if (Path.GetExtension(MediaConverter.HLSSegmentFileTemplate) == Path.GetExtension(fileName))
+              string mime = MediaConverter.GetHlsFileMime(fileName);
+              if (string.IsNullOrEmpty(mime) == false)
               {
                 string segmentFile = Path.Combine(dlnaItem.SegmentDir, fileName);
                 if (File.Exists(segmentFile) == true)
                 {
                   resourceStream = MediaConverter.GetReadyFileBuffer(segmentFile);
+                  response.ContentType = mime;
                 }
                 else
                 {
@@ -687,11 +668,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             if (requestedStreamingMode == StreamMode.TimeRange)
             {
               double duration = dlnaItem.DlnaMetadata.Metadata.Duration;
-              if (dlnaItem.IsSegmented)
-              {
-                //Is this possible?
-                duration = MediaConverter.HLSSegmentTimeInSeconds;
-              }
+              //if (dlnaItem.IsSegmented)
+              //{
+              //  //Is this possible?
+              //  duration = MediaConverter.HLSSegmentTimeInSeconds;
+              //}
               ranges = ParseTimeRanges(rangeSpecifier, duration);
               if (ranges == null || ranges.Count == 0)
               {
@@ -707,11 +688,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             else if (requestedStreamingMode == StreamMode.ByteRange)
             {
               long lSize = GetStreamSize(dlnaItem);
-              if (dlnaItem.IsSegmented)
-              {
-                //TODO: Check if this is works
-                lSize = resourceStream.Length;
-              }
+              //if (dlnaItem.IsSegmented)
+              //{
+              //  //TODO: Check if this is works
+              //  lSize = resourceStream.Length;
+              //}
               ranges = ParseByteRanges(rangeSpecifier, lSize);
               if (ranges == null || ranges.Count == 0)
               {
@@ -1227,13 +1208,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     public void Dispose()
     {
-      if (_tidyUpCacheWork != null)
-      {
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.RemoveIntervalWork(_tidyUpCacheWork);
-        _tidyUpCacheWork = null;
-      }
-      ClearCache();
+      Shutdown();
     }
 
     internal static ILogger Logger

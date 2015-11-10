@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       if (item == null)
         throw new BadRequestException(String.Format("GetMusicTrackBasicById: No MediaItem found with id: {0}", httpParam["id"].Value));
 
-      MediaItemAspect audioAspects = item.Aspects[AudioAspect.ASPECT_ID];
+      MediaItemAspect audioAspects = item[AudioAspect.Metadata];
 
       WebMusicTrackBasic webMusicTrackBasic = new WebMusicTrackBasic();
       webMusicTrackBasic.Album = (string)audioAspects[AudioAspect.ATTR_ALBUM];
@@ -56,11 +56,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       webMusicTrackBasic.Type = WebMediaType.MusicTrack;
       //webMusicTrackBasic.Year;
       //webMusicTrackBasic.Artwork;
-      webMusicTrackBasic.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+      webMusicTrackBasic.DateAdded = (DateTime)item[ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
       webMusicTrackBasic.Id = item.MediaItemId.ToString();
       webMusicTrackBasic.PID = 0;
       //webMusicTrackBasic.Path;
-      webMusicTrackBasic.Title = (string)item.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+      webMusicTrackBasic.Title = (string)item[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
 
 
       return webMusicTrackBasic;

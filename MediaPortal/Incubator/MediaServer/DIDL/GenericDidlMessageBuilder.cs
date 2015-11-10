@@ -27,11 +27,11 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using System.Xml;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common;
-using MediaPortal.Extensions.MediaServer.Objects;
+using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MediaServer.Objects;
 
-namespace MediaPortal.Extensions.MediaServer.DIDL
+namespace MediaPortal.Plugins.MediaServer.DIDL
 {
   public class GenericDidlMessageBuilder
   {

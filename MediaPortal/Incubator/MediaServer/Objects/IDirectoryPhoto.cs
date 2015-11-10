@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘photo’ instance is an image that should be interpreted as a photo (as opposed to, for example, an icon).

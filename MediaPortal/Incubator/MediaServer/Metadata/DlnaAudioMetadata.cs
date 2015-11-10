@@ -30,7 +30,7 @@ using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccess
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 
-namespace MediaPortal.Extensions.MediaServer.Metadata
+namespace MediaPortal.Plugins.MediaServer.Metadata
 {
   public class DlnaAudioMetadata
   {
@@ -62,49 +62,47 @@ namespace MediaPortal.Extensions.MediaServer.Metadata
       if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
+        oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), oValue.ToString());
         }
         AudioStream audio = new AudioStream();
-        oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
+        oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
         if (oValue != null)
         {
           audio.StreamIndex = Convert.ToInt32(oValue);
-          oValue = (string)MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
+          oValue = (string)item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             audio.Codec = (AudioCodec)Enum.Parse(typeof(AudioCodec), oValue.ToString());
           }
-          oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
+          oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
           if (oValue != null)
           {
             audio.Channels = Convert.ToInt32(oValue);
           }
-          oValue = MediaItemAspect.GetAspect(item.Aspects, TranscodeItemAudioAspect.Metadata).GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
+          oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
           if (oValue != null)
           {
             audio.Frequency = Convert.ToInt64(oValue);
           }
-		  SingleMediaItemAspect audioAspect;
-          if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect))
+          if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID) == true)
           {
-            oValue = audioAspect.GetAttributeValue(AudioAspect.ATTR_BITRATE);
+            oValue = item[AudioAspect.Metadata].GetAttributeValue(AudioAspect.ATTR_BITRATE);
             if (oValue != null)
             {
               audio.Bitrate = Convert.ToInt64(oValue);
             }
-            oValue = audioAspect.GetAttributeValue(AudioAspect.ATTR_DURATION);
+            oValue = item[AudioAspect.Metadata].GetAttributeValue(AudioAspect.ATTR_DURATION);
             if (oValue != null)
             {
               info.Metadata.Duration = Convert.ToDouble(oValue);
             }
           }
-		  SingleMediaItemAspect providerResourceAspect;
-          if (MediaItemAspect.TryGetAspect(item.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
+          if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
           {
-            oValue = providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+            oValue = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
             if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
             {
               info.Metadata.Mime = oValue.ToString();

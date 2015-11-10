@@ -28,9 +28,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
-using MediaPortal.Extensions.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects;
 
-namespace MediaPortal.Extensions.MediaServer.DIDL
+namespace MediaPortal.Plugins.MediaServer.DIDL
 {
   public class ObjectRenderer
   {

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.DLNA
+namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   public enum ProtocolInfoFormat
   {

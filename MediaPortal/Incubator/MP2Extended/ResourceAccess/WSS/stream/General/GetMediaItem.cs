@@ -43,10 +43,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
           throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
         // Grab the mimetype from the media item and set the Content Type header.
-        response.ContentType = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE).ToString();
+        response.ContentType = item[MediaAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString();
 
         // Grab the resource path for the media item.
-        var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        var resourcePathStr = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
         var ra = GetResourceAccessor(resourcePath);
@@ -68,11 +68,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
           response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
 
           string byteRangesSpecifier = request.Headers["Range"];
-          IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);
+          IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
           bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
-          if (ranges != null && ranges.Count == 1)
-            // We only support one range
-            SendRange(response, resourceStream, ranges[0], onlyHeaders);
+          if (ranges != null)
+            // We only support last range
+            SendRange(response, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
           else
             SendWholeFile(response, resourceStream, onlyHeaders);
         }

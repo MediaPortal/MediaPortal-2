@@ -50,17 +50,31 @@ namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
     ILogger Logger { get; set; }
     
     /// <summary>
-    /// Pareses a local file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// Pareses a local image file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="lfsra">ILocalFsResourceAccessor to the image file</param>
+    /// <returns>a Metadata Container with all information about the mediaitem</returns>
+    MetadataContainer ParseImageFile(ILocalFsResourceAccessor lfsra);
+
+    /// <summary>
+    /// Pareses a local video file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="lfsra">ILocalFsResourceAccessor to the video file</param>
+    /// <returns>a Metadata Container with all information about the mediaitem</returns>
+    MetadataContainer ParseVideoFile(ILocalFsResourceAccessor lfsra);
+
+    /// <summary>
+    /// Pareses a local audio file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
     /// </summary>
     /// <param name="lfsra">ILocalFsResourceAccessor to the file</param>
     /// <returns>a Metadata Container with all information about the mediaitem</returns>
-    MetadataContainer ParseFile(ILocalFsResourceAccessor lfsra);
+    MetadataContainer ParseAudioFile(ILocalFsResourceAccessor lfsra);
 
     /// <summary>
-    /// Pareses a URL using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// Pareses a video URL using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
     /// </summary>
-    /// <param name="streamLink">INetworkResourceAccessor to the file</param>
+    /// <param name="streamLink">INetworkResourceAccessor to the video URL</param>
     /// <returns>a Metadata Container with all information about the URL</returns>
-    MetadataContainer ParseStream(INetworkResourceAccessor streamLink);
+    MetadataContainer ParseVideoStream(INetworkResourceAccessor streamLink);
   }
 }

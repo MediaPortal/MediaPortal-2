@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘genre’ instance represents an unordered collection of ‘objects’ that “belong” to the genre, in a loose sense.

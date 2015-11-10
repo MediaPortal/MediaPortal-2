@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using MediaPortal.Plugins.MP2Extended.TAS.Misc;
-using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -43,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 
       int output = 0;
 
-      foreach (var group in channelGroups)
+      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
       {
         // get channel for goup
         IList<IChannel> channels = new List<IChannel>();

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
@@ -20,13 +16,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
       IProgram programNow = new Program();
       IProgram programNext = new Program();
       programInfo.GetNowNextProgram(channel, out programNow, out programNext);
+      WebChannelBasic webChannelBasic = BaseChannelBasic.ChannelBasic(channel);
 
       WebChannelDetailed webChannelDetailed = new WebChannelDetailed
       {
-        Id = channel.ChannelId,
-        IsRadio = channel.MediaType == MediaType.Radio,
-        IsTv = channel.MediaType == MediaType.TV,
-        Title = channel.Name,
+        // From Basic
+        Id = webChannelBasic.Id,
+        IsRadio = webChannelBasic.IsRadio,
+        IsTv = webChannelBasic.IsTv,
+        Title = webChannelBasic.Title,
+
         CurrentProgram = ProgramDetailed(programNow),
         NextProgram = ProgramDetailed(programNext),
         EpgHasGaps = channel.EpgHasGaps,
@@ -36,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
         LastGrabTime = channel.LastGrabTime ?? DateTime.Now,
         TimesWatched = channel.TimesWatched,
         TotalTimeWatched = channel.TotalTimeWatched ?? DateTime.Now,
-        VisibleInGuide = channel.VisibleInGuide
+        VisibleInGuide = channel.VisibleInGuide,
       };
 
       return webChannelDetailed;

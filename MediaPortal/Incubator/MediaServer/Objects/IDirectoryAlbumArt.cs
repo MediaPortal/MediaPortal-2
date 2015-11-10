@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   public interface IDirectoryAlbumArt
   {

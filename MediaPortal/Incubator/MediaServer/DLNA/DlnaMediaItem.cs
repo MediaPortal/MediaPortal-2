@@ -28,12 +28,12 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.Metadata;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Metadata;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
 
-namespace MediaPortal.Extensions.MediaServer.DLNA
+namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   public class DlnaMediaItem
   {
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         info = DlnaVideoMetadata.ParseMediaItem(item);
       }
      
-      if (MediaServerPlugin.TranscodingAllowed == true)
+      if (MediaServerPlugin.Settings.TranscodingAllowed == true)
       {
         if (IsAudio)
         {
@@ -397,7 +397,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
             video.TargetCoder = client.Profile.Settings.Video.CoderType;
 
             video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-            if (MediaServerPlugin.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+            if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
             {
               video.TargetSubtitleSupport = SubtitleSupport.None;
             }
@@ -415,7 +415,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         subtitle.SourceFile = info.Metadata.Source;
         subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
         subtitle.SourceSubtitles.AddRange(info.Subtitles);
-        if (MediaServerPlugin.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+        if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
         {
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
         }

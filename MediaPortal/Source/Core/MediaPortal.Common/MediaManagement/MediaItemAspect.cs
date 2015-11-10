@@ -674,6 +674,14 @@ namespace MediaPortal.Common.MediaManagement
       return false;
     }
 
+    public static string GetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      string source, string type)
+    {
+      string id;
+      TryGetExternalAttribute(aspectData, source, type, out id);
+      return id;
+    }
+
     public static void AddOrUpdateExternalIdentifier(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
       string source, string type, string id)
     {

@@ -32,8 +32,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json.Net35">
-      <HintPath>libs\Newtonsoft.Json.Net35.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+	  <HintPath>..\..\Packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,7 +44,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="ZeroconfService">
-      <HintPath>libs\ZeroconfService.dll</HintPath>
+	  <HintPath>..\..\Packages\ZeroconfService.0.6.0.0\lib\net40\ZeroconfService.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +54,7 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserRequestnowplaying.cs" />
     <Compile Include="MessageParser\ParserMovingpictures.cs" />
     <Compile Include="MessageParser\ParserPlaylist.cs" />
     <Compile Include="MessageParser\ParserPosition.cs" />
@@ -68,6 +69,8 @@
     <Compile Include="Messages\MessageNowPlaying.cs" />
     <Compile Include="Messages\MessageNowPlayingBase.cs" />
     <Compile Include="Messages\MessageNowPlayingUpdate.cs" />
+    <Compile Include="Messages\MessagePlaylistDetails.cs" />
+    <Compile Include="Messages\MessagePlaylists.cs" />
     <Compile Include="Messages\MessageProperties.cs" />
     <Compile Include="Messages\MessageStatus.cs" />
     <Compile Include="Messages\MessageVolume.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Messages\Now Playing\NowPlayingTv.cs" />
     <Compile Include="Messages\Now Playing\NowPlayingUpdater.cs" />
     <Compile Include="Messages\Now Playing\NowPlayingVideo.cs" />
+    <Compile Include="Messages\Playlist\PlaylistEntry.cs" />
     <Compile Include="Messages\StatusUpdater.cs" />
     <Compile Include="MP Messages\HandlePlayerMessages.cs" />
     <Compile Include="MP Messages\MPMessageHandler.cs" />

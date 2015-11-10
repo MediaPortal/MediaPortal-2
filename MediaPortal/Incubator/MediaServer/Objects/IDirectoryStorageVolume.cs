@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘storageVolume’ instance represents all, or a partition of, some physical storage unit of a single type (as indicated by the ‘storageMedium’ property). The storage volume may be writable or not, indicating whether new items can be created as children of the volume. A storageVolume may contain other object, except a ‘storageSystem’ or another ‘storageVolume’. A ‘storageVolume’ may only be a child of the root container or a ‘storageSystem’ container. Examples of ‘storageVolume’ instances are

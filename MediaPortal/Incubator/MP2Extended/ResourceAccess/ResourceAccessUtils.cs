@@ -22,7 +22,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     /// <returns></returns>
     internal static byte[] GetBytesFromDynamic(dynamic input)
     {
-      return GetBytes(JsonConvert.SerializeObject(input));
+      // We want to use the Miscrosoft.DateTime format (like MPExtended)
+      JsonSerializerSettings settings = new JsonSerializerSettings
+      {
+        DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
+      };
+      return GetBytes(JsonConvert.SerializeObject(input, settings));
     }
 
     internal static WebMediaType GetWebMediaType(MediaItem mediaItem)

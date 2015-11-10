@@ -40,7 +40,6 @@ using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Extensions.MetadataExtractors;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
-using MediaPortal.Mock;
 using MediaPortal.Utilities;
 
 namespace Test.OnlineLibraries
@@ -117,7 +116,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
 
       ServiceRegistration.Set<IMediaAccessor>(new TestMediaAccessor());
-      ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MockMediaItemAspectTypeRegistration());
+      ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new TestMediaItemAspectTypeRegistration());
 
       ApplicationCore.RegisterDefaultMediaItemAspectTypes();
 
@@ -145,7 +144,7 @@ namespace Test.OnlineLibraries
       ShowMIAs(aspects, registration);
 
       IMetadataExtractor extractor = new Tve3RecordingMetadataExtractor();
-      IResourceAccessor accessor = new MockLocalFsResourceAccessor(ProviderPathHelper.ChangeExtension(filename, ".ts"));
+      IResourceAccessor accessor = new TestLocalFsResourceAccessor(ProviderPathHelper.ChangeExtension(filename, ".ts"));
       extractor.TryExtractMetadata(accessor, aspects, false);
 
       Console.WriteLine("After extract:");

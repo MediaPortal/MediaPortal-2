@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
     {
       // Initialize analyzer
       _analyzer.Logger = Logger;
-      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.TranscoderMaximumThreads;
+      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -113,7 +113,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string filePath = rah.LocalFsResourceAccessor.ResourcePathName;
             if (!HasVideoExtension(filePath))
               return false;
-            MetadataContainer metadata = _analyzer.ParseFile(rah.LocalFsResourceAccessor);
+            MetadataContainer metadata = _analyzer.ParseVideoFile(rah.LocalFsResourceAccessor);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -142,7 +142,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
         {
           using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
           {
-            MetadataContainer metadata = _analyzer.ParseStream(nra);
+            MetadataContainer metadata = _analyzer.ParseVideoStream(nra);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);

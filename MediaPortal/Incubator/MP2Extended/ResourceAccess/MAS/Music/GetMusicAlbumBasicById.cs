@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       if (tracks.Count == 0)
         throw new BadRequestException("No Tracks found");
 
-      MediaItemAspect audioAspects = tracks[0].Aspects[AudioAspect.ASPECT_ID];
+      MediaItemAspect audioAspects = tracks[0][AudioAspect.Metadata];
 
       WebMusicAlbumBasic webMusicAlbumBasic = new WebMusicAlbumBasic();
       var albumArtists = (HashSet<object>)audioAspects[AudioAspect.ATTR_ALBUMARTISTS];
@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       //webMusicTrackBasic.Rating = Convert.ToSingle((double)movieAspects[AudioAspect.]);
       //webMusicTrackBasic.Year;
       //webMusicTrackBasic.Artwork;
-      webMusicAlbumBasic.DateAdded = (DateTime)tracks[0].Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+      webMusicAlbumBasic.DateAdded = (DateTime)tracks[0][ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
       webMusicAlbumBasic.Id = id_base;
       webMusicAlbumBasic.PID = 0;
       //webMusicTrackBasic.Path;

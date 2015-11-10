@@ -45,5 +45,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]
     public bool AutoStartTV { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, series info will be shown in program details.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ShowSeriesInfo { get; set; }
   }
 }

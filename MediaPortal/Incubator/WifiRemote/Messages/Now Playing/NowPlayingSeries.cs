@@ -262,7 +262,7 @@ namespace WifiRemote
         necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
 
         // show
-        IFilter searchFilter = new RelationalFilter(MediaAspect.ATTR_TITLE, RelationalOperator.EQ, (string)mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SERIESNAME]);
+        IFilter searchFilter = new RelationalFilter(MediaAspect.ATTR_TITLE, RelationalOperator.EQ, (string)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SERIESNAME]);
         MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
 
         IList<MediaItem> show = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false);
@@ -271,35 +271,35 @@ namespace WifiRemote
           showId = show[0].MediaItemId;
 
         SeriesId = showId;
-        SeasonId = String.Format("{0}:{1}", showId, (int)mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SEASON]);
+        SeasonId = String.Format("{0}:{1}", showId, (int)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SEASON]);
         EpisodeId = mediaItem.MediaItemId;
         //CompositeId = episodes[0].fullItem[DBEpisode.cCompositeID];
 
-        var episodeNumber = (List<int>)mediaItem[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODE];
+        var episodeNumber = (List<int>)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_EPISODE];
         Episode = episodeNumber[0];
-        Season = (int)mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SEASON];
-        Plot = (string)mediaItem.Aspects[VideoAspect.ASPECT_ID][VideoAspect.ATTR_STORYPLOT];
-        Title = (string)mediaItem.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
-        var videoDirectors = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_DIRECTORS];
+        Season = (int)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SEASON];
+        Plot = (string)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_STORYPLOT];
+        Title = (string)mediaItem[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
+        var videoDirectors = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_DIRECTORS];
         if (videoDirectors != null)
           Director = String.Join(", ", videoDirectors.Cast<string>().ToArray());
 
-        var videoWriters = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_WRITERS];
+        var videoWriters = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_WRITERS];
         if (videoWriters != null)
           Writer = String.Join(", ", videoWriters.Cast<string>().ToArray());
 
-        var videoGenres = (List<string>)mediaItem[VideoAspect.ASPECT_ID][VideoAspect.ATTR_GENRES];
+        var videoGenres = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_GENRES];
         if (videoGenres != null)
           Genre = String.Join(", ", videoGenres.Cast<string>().ToArray());
 
-        var firstAired = mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_FIRSTAIRED];
+        var firstAired = mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_FIRSTAIRED];
         if (firstAired != null)
-          AirDate = ((DateTime)mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_FIRSTAIRED]).ToLongDateString();
+          AirDate = ((DateTime)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_FIRSTAIRED]).ToLongDateString();
 
-        MyRating = Convert.ToString((double)mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_TOTAL_RATING]);
+        MyRating = Convert.ToString((double)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_TOTAL_RATING]);
 
         //DBSeries s = Helper.getCorrespondingSeries(episodes[0].onlineEpisode[DBOnlineEpisode.cSeriesID]);
-        Series = (string)mediaItem.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SERIESNAME];
+        Series = (string)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SERIESNAME];
         //Status = s[DBOnlineSeries.cStatus];
 
         // Get season poster path

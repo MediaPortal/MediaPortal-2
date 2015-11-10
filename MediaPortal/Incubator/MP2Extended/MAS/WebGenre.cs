@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MediaPortal.Plugins.MP2Extended.MAS
+﻿namespace MediaPortal.Plugins.MP2Extended.MAS
 {
   public class WebGenre : WebObject, ITitleSortable
   {

@@ -27,9 +27,9 @@ using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.DLNA;
 
-namespace MediaPortal.Extensions.MediaServer.Protocols
+namespace MediaPortal.Plugins.MediaServer.Protocols
 {
   public class GenericAccessProtocol
   {

@@ -34,7 +34,7 @@ using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.Metadata
 {
-  public class DlnaVideoMetadata
+  public class WebVideoMetadata
   {
     public static MetadataContainer ParseMediaItem(MediaItem item)
     {
@@ -65,72 +65,72 @@ namespace MediaPortal.Plugins.MP2Extended.Metadata
       if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_CONTAINER);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), oValue.ToString());
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_BRAND);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_BRAND);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.MajorBrand = oValue.ToString();
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_CODEC);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_CODEC);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.Codec = (VideoCodec)Enum.Parse(typeof(VideoCodec), oValue.ToString());
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_FOURCC);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_FOURCC);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.FourCC = oValue.ToString();
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_PROFILE);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_PROFILE);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.ProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), oValue.ToString());
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL);
         if (oValue != null)
         {
           info.Video.HeaderLevel = Convert.ToSingle(oValue);
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL);
         if (oValue != null)
         {
           info.Video.RefLevel = Convert.ToSingle(oValue);
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
         if (oValue != null)
         {
           info.Video.PixelAspectRatio = Convert.ToSingle(oValue);
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
         if (oValue != null)
         {
           info.Video.StreamIndex = Convert.ToInt32(oValue);
         }
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetAttributeValue(TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.TimestampType = (Timestamp)Enum.Parse(typeof(Timestamp), oValue.ToString());
         }
 
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOBITRATES);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOBITRATES);
         if (oValue != null)
         {
-          List<object> valuesBitrates = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOBITRATES));
-          List<object> valuesChannels = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOCHANNELS));
-          List<object> valuesCodecs = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOCODECS));
-          List<object> valuesFrequencies = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOFREQUENCIES));
-          List<object> valuesLangs = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOLANGUAGES));
-          List<object> valuesStreams = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOSTREAMS));
-          List<object> valuesDefaults = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIODEFAULTS));
+          List<object> valuesBitrates = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOBITRATES));
+          List<object> valuesChannels = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOCHANNELS));
+          List<object> valuesCodecs = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOCODECS));
+          List<object> valuesFrequencies = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOFREQUENCIES));
+          List<object> valuesLangs = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOLANGUAGES));
+          List<object> valuesStreams = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIOSTREAMS));
+          List<object> valuesDefaults = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_AUDIODEFAULTS));
           for (int iAudio = 0; iAudio < valuesStreams.Count; iAudio++)
           {
             AudioStream audio = new AudioStream();
@@ -166,13 +166,13 @@ namespace MediaPortal.Plugins.MP2Extended.Metadata
           }
         }
 
-        oValue = item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBCODECS);
+        oValue = item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBCODECS);
         if (oValue != null)
         {
-          List<object> valuesEmSubCodecs = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBCODECS));
-          List<object> valuesEmSubDefaults = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBDEFAULTS));
-          List<object> valuesEmSubLangs = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBLANGUAGES));
-          List<object> valuesEmSubStreams = new List<object>(item.Aspects[TranscodeItemVideoAspect.ASPECT_ID].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBSTREAMS));
+          List<object> valuesEmSubCodecs = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBCODECS));
+          List<object> valuesEmSubDefaults = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBDEFAULTS));
+          List<object> valuesEmSubLangs = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBLANGUAGES));
+          List<object> valuesEmSubStreams = new List<object>(item[TranscodeItemVideoAspect.Metadata].GetCollectionAttribute<object>(TranscodeItemVideoAspect.ATTR_EMBEDDED_SUBSTREAMS));
           for (int iSub = 0; iSub < valuesEmSubStreams.Count; iSub++)
           {
             SubtitleStream sub = new SubtitleStream();
@@ -198,32 +198,32 @@ namespace MediaPortal.Plugins.MP2Extended.Metadata
 
         if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID) == true)
         {
-          oValue = item.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_HEIGHT);
+          oValue = item[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_HEIGHT);
           if (oValue != null)
           {
             info.Video.Height = Convert.ToInt32(oValue);
           }
-          oValue = item.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_WIDTH);
+          oValue = item[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_WIDTH);
           if (oValue != null)
           {
             info.Video.Width = Convert.ToInt32(oValue);
           }
-          oValue = item.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO);
+          oValue = item[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO);
           if (oValue != null)
           {
             info.Video.AspectRatio = Convert.ToSingle(oValue);
           }
-          oValue = item.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_DURATION);
+          oValue = item[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_DURATION);
           if (oValue != null)
           {
             info.Metadata.Duration = Convert.ToDouble(oValue);
           }
-          oValue = item.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_FPS);
+          oValue = item[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_FPS);
           if (oValue != null)
           {
             info.Video.Framerate = Convert.ToSingle(oValue);
           }
-          oValue = item.Aspects[VideoAspect.ASPECT_ID].GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE);
+          oValue = item[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE);
           if (oValue != null)
           {
             info.Video.Bitrate = Convert.ToInt64(oValue);
@@ -231,7 +231,7 @@ namespace MediaPortal.Plugins.MP2Extended.Metadata
         }
         if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
         {
-          oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
+          oValue = item[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             info.Metadata.Mime = oValue.ToString();

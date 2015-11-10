@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MediaPortal.Plugins.MP2Extended.Common
+﻿namespace MediaPortal.Plugins.MP2Extended.Common
 {
   public class WebBoolResult
   {

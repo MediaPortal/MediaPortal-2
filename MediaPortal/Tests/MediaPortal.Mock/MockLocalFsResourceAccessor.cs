@@ -4,7 +4,7 @@ using System.IO;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 
-namespace Test.OnlineLibraries
+namespace MediaPortal.Mock
 {
   public class MockLocalFsResourceAccessor : IFileSystemResourceAccessor
   {

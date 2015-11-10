@@ -37,6 +37,8 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestLocalFsResourceAccessor.cs" />
+    <Compile Include="TestMediaItemAspectTypeRegistration.cs" />
     <Compile Include="TestMediaAccessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -60,14 +62,6 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
       <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
       <Name>OnlineLibraries</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Tests\Test.Backend\Test.Backend.csproj">
-      <Project>{80e4232e-0c76-4e0c-9b9a-f1c269bdb2b7}</Project>
-      <Name>Test.Backend</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj">
-      <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
-      <Name>MediaPortal.Mock</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

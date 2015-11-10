@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
@@ -8,12 +7,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -42,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
       if (item == null)
         throw new BadRequestException(string.Format("No Image found with id: {0}", id));
 
-        MediaItemAspect imageAspects = item.Aspects[ImageAspect.ASPECT_ID];
+        MediaItemAspect imageAspects = item[ImageAspect.Metadata];
 
         WebPictureDetailed webPictureDetailed = new WebPictureDetailed();
 
@@ -50,11 +44,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
       //webPictureBasic.DateTaken = imageAspects.GetAttributeValue(ImageAspect.);
       webPictureDetailed.Type = WebMediaType.Picture;
       //webPictureBasic.Artwork;
-      webPictureDetailed.DateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID].GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
+      webPictureDetailed.DateAdded = (DateTime)item[ImporterAspect.Metadata].GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
       webPictureDetailed.Id = item.MediaItemId.ToString();
       webPictureDetailed.PID = 0;
       //webPictureBasic.Path;
-      webPictureDetailed.Title = (string)item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_TITLE);
+      webPictureDetailed.Title = (string)item[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_TITLE);
       //webPictureDetailed.Rating = imageAspects.GetAttributeValue(ImageAspect.);
       //webPictureDetailed.Author = imageAspects.GetAttributeValue(ImageAspect.);
       //webPictureDetailed.Dpi = imageAspects.GetAttributeValue(ImageAspect.);

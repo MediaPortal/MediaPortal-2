@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
+﻿namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   public class WebStringResult
   {

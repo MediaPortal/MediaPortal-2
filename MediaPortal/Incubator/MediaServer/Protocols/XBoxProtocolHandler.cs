@@ -27,10 +27,10 @@ using System.IO;
 using System.Net;
 using HttpServer;
 using HttpServer.Sessions;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 
-namespace MediaPortal.Extensions.MediaServer.Protocols
+namespace MediaPortal.Plugins.MediaServer.Protocols
 {
   public class XBoxProtocolHandler : GenericAccessProtocol
   {

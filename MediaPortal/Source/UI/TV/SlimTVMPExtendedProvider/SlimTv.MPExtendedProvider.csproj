@@ -42,12 +42,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MPExtended.Services.Common.Interfaces, Version=0.5.0.0, Culture=neutral, PublicKeyToken=8ccaf7b9f3e31d46, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Packages\MPExtended.Services.Common.Interfaces.0.5.3\lib\net35-Client\MPExtended.Services.Common.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MPExtended.Services.Common.Interfaces.0.5.3\lib\net35-Client\MPExtended.Services.Common.Interfaces.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MPExtended.Services.TVAccessService.Interfaces, Version=0.5.0.0, Culture=neutral, PublicKeyToken=8ccaf7b9f3e31d46, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Packages\MPExtended.Services.TVAccessService.Interfaces.0.5.3\lib\net35-Client\MPExtended.Services.TVAccessService.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MPExtended.Services.TVAccessService.Interfaces.0.5.3\lib\net35-Client\MPExtended.Services.TVAccessService.Interfaces.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -60,7 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Items\ChannelGroup.cs" />

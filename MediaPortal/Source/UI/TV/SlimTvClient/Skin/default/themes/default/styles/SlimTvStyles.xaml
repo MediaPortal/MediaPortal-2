@@ -279,10 +279,18 @@
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
+<<<<<<< HEAD:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/themes/default/styles/SlimTvStyles.xaml
+=======
+        <ColumnDefinition Width="Auto"/>
+>>>>>>> FreakyJ/FEAT_WifiRemoteForMP2:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/themes/default/styles/SlimTvStyles.xaml
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="StartTime" Grid.Column="0" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+<<<<<<< HEAD:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/themes/default/styles/SlimTvStyles.xaml
+=======
+      <Label x:Name="SeriesLabel" Grid.Column="2" Content="{Binding [Series]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+>>>>>>> FreakyJ/FEAT_WifiRemoteForMP2:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/themes/default/styles/SlimTvStyles.xaml
     </Grid>
   </DataTemplate>
 
@@ -770,9 +778,28 @@
                 </Trigger.EnterActions>
               </Trigger>
             </Button.Triggers>
+<<<<<<< HEAD:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/themes/default/styles/SlimTvStyles.xaml
             <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
               <Label x:Name="ItemLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
             </StackPanel>
+=======
+
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="{ThemeResource MultiGuideProgramHeight}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+
+              <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Margin="10,0,0,0"
+                     FontFamily="Default"/>
+            </Grid>
+>>>>>>> FreakyJ/FEAT_WifiRemoteForMP2:MediaPortal/Source/UI/TV/SlimTvClient/Skin/default/themes/default/styles/SlimTvStyles.xaml
           </Button>
         </ControlTemplate>
       </Setter.Value>

@@ -31,11 +31,11 @@ using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Extensions.MediaServer
+namespace MediaPortal.Plugins.MediaServer
 {
   public class MediaServerUpnPDeviceInformation : ILocalizedDeviceInformation
   {

@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Extensions.MediaServer.Objects
+namespace MediaPortal.Plugins.MediaServer.Objects
 {
   /// <summary>
   /// A ‘musicAlbum’ instance is an ‘album’ which contains items of class ‘musicTrack’ (see Section 7.1.1) or ‘sub’-albums of class ‘musicAlbum’. It can be used to model, for example, an audio-CD.

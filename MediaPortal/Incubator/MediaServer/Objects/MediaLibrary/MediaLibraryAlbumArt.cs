@@ -22,15 +22,14 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.ResourceAccess;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Service;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAlbumArt : IDirectoryAlbumArt
   {
@@ -59,12 +58,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       if (useFanart)
       {
         string mediaType = Item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) ? "Image" : "Undefined";
-
-        Console.WriteLine("Item {0}", Item != null ? Item.MediaItemId.ToString() : "NULL");
-        Console.WriteLine("Client {0}", Client != null ? Client.GetHashCode().ToString() : "NULL");
-        Console.WriteLine("Client profile {0}", Client != null && Client.Profile != null ? Client.Profile.GetHashCode().ToString() : "NULL");
-        Console.WriteLine("Client profile settings {0}", Client != null && Client.Profile != null && Client.Profile.Settings != null ? Client.Profile.Settings.GetHashCode().ToString() : "NULL");
-        Console.WriteLine("Client profile settings thumbnails {0}", Client != null && Client.Profile != null && Client.Profile.Settings != null && Client.Profile.Settings.Thumbnails != null ? Client.Profile.Settings.Thumbnails.GetHashCode().ToString() : "NULL");
 
         // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
         var url = string.Format("{0}/FanartService?mediatype={1}&fanarttype=Thumbnail&name={2}&width={3}&height={4}",

@@ -25,12 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MediaServer.Parser;
-using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Extensions.MediaServer.Tree;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.Tree;
 
-namespace MediaPortal.Extensions.MediaServer.Objects.Basic
+namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
   public class BasicContainer : BasicItem, IDirectoryContainer
   {

@@ -98,6 +98,23 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Returns the media item aspect of the specified <paramref name="metadata"/>, if it is
+    /// contained in this media item. If the specified aspect is contained in this instance depends on two
+    /// conditions: 1) the aspect has to be present on this media item in the media storage (media library
+    /// or local storage), 2) the aspect data have to be added to this instance.
+    /// </summary>
+    /// <param name="metadata">Id of the media item aspect to retrieve.</param>
+    /// <returns>Media item aspect of the specified <paramref name="metadata"/>, or <c>null</c>,
+    /// if the aspect is not contained in this instance.</returns>
+    public SingleMediaItemAspect this[SingleMediaItemAspectMetadata metadata]
+    {
+      get
+      {
+        return MediaItemAspect.GetAspect(this.Aspects, metadata);
+      }
+    }
+
+    /// <summary>
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>

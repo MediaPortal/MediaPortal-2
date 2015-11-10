@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
       MediaItem item = GetMediaItems.GetMediaItemById(idGuid, necessaryMIATypes);
 
-      var resourcePathStr = item.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePathStr = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
 
       var ra = GetResourceAccessor(resourcePath);
@@ -66,7 +66,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxHeight to int: {0}", maxHeight));
       }
 
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, 0, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
       byte[] resizedImage;
 
       if (ImageCache.TryGetImageFromCache(identifier, out resizedImage))
@@ -87,8 +87,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
           Logger.Info("GetImageResized: Added image to cache");
       }
 
-
-
       using (var resourceStream = new MemoryStream(resizedImage))
       {
         // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
@@ -103,11 +101,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
 
         string byteRangesSpecifier = request.Headers["Range"];
-        IList<Range> ranges = ParseRanges(byteRangesSpecifier, resourceStream.Length);
+        IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
         bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
-        if (ranges != null && ranges.Count == 1)
-          // We only support one range
-          SendRange(response, resourceStream, ranges[0], onlyHeaders);
+        if (ranges != null && ranges.Count > 0)
+          // We only support last range
+          SendRange(response, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
         else
           SendWholeFile(response, resourceStream, onlyHeaders);
       }

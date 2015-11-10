@@ -1,16 +1,12 @@
-﻿using System;
-using System.Security.Policy;
-using HttpServer;
+﻿using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.MP2Extended.WSS.General;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
   internal class StartStream : IRequestMicroModuleHandler
   {
@@ -44,8 +40,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
       streamItem.StartPosition = startPositionLong;
-
-      StreamControl.UpdateStreamItem(identifier, streamItem);
 
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);

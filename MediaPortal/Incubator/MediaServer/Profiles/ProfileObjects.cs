@@ -27,15 +27,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Filters;
-using MediaPortal.Extensions.MediaServer.Objects.Basic;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Protocols;
+using MediaPortal.Plugins.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Filters;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.Transcoding.Service;
 
-namespace MediaPortal.Extensions.MediaServer.Profiles
+namespace MediaPortal.Plugins.MediaServer.Profiles
 {
   #region Profile
 

@@ -47,8 +47,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         if (token.Equals("subviewer", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.SubView;
         if (token.Equals("webvtt", StringComparison.InvariantCultureIgnoreCase))
-          return SubtitleCodec.Vtt;
-        if (token.Equals("dvb_subtitle", StringComparison.InvariantCultureIgnoreCase))
+          return SubtitleCodec.WebVtt;
+        if (token.Equals("dvb_subtitle", StringComparison.InvariantCultureIgnoreCase) || token.Equals("dvbsub", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.DvbSub;
         if (token.Equals("dvb_teletext", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.DvbTxt;

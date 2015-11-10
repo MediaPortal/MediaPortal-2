@@ -29,6 +29,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -37,24 +39,37 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     internal static void FileProcessor(ref FFMpegTranscodeData data, int transcoderTimeout)
     {
       DateTime dtStart = DateTime.Now;
-      Process ffmpeg = new Process
+      if (data.InputResourceAccessor is IFileSystemResourceAccessor)
       {
-        StartInfo =
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(data.InputResourceAccessor))
         {
-          FileName = data.TranscoderBinPath,
-          Arguments = data.TranscoderArguments,
-          WorkingDirectory = data.WorkPath,
-          CreateNoWindow = true,
-          WindowStyle = ProcessWindowStyle.Hidden
+          if (!rah.LocalFsResourceAccessor.IsFile)
+            return;
+
+          // Impersonation
+          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(rah.LocalFsResourceAccessor.CanonicalLocalResourcePath))
+          {
+            Process ffmpeg = new Process
+            {
+              StartInfo =
+              {
+                FileName = data.TranscoderBinPath,
+                Arguments = data.TranscoderArguments,
+                WorkingDirectory = data.WorkPath,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+              }
+            };
+            ffmpeg.Start();
+            while (ffmpeg.HasExited == false && DateTime.Now < dtStart.AddMilliseconds(transcoderTimeout))
+            {
+              Thread.Sleep(5);
+            }
+            ffmpeg.Close();
+            ffmpeg.Dispose();
+          }
         }
-      };
-      ffmpeg.Start();
-      while (ffmpeg.HasExited == false && DateTime.Now < dtStart.AddMilliseconds(transcoderTimeout))
-      {
-        Thread.Sleep(5);
       }
-      ffmpeg.Close();
-      ffmpeg.Dispose();
     }
   }
 }
