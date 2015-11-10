@@ -10,6 +10,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
@@ -18,6 +19,10 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(string), Nullable = true)]
   internal class GetTVEpisodesBasicForSeason : BaseEpisodeBasic, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

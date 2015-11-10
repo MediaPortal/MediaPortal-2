@@ -3,6 +3,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS;
@@ -13,6 +14,8 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
   internal class GetProgramDetailedById : BaseProgramDetailed, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

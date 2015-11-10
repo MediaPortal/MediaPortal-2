@@ -6,6 +6,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.Extensions;
@@ -17,6 +18,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   internal class GetFileSystemFilesAndFoldersByRange : BaseFilesystemItem, IRequestMicroModuleHandler
   {
+    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+    [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+    [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
+    [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
+    [ApiFunctionParam(Name = "sort", Type = typeof(string), Nullable = true)]
+    [ApiFunctionParam(Name = "order", Type = typeof(string), Nullable = true)]
     public dynamic Process(IHttpRequest request)
     {
       HttpParam httpParam = request.Param;

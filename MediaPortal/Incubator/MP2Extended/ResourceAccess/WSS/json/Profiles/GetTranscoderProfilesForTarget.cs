@@ -9,6 +9,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
@@ -16,6 +17,8 @@ using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "target", Type = typeof(string), Nullable = false)]
   internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

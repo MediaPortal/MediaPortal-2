@@ -5,6 +5,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
@@ -15,6 +16,11 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(string), Nullable = true)]
   internal class GetRadioGroupsByRange : BaseChannelGroup, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

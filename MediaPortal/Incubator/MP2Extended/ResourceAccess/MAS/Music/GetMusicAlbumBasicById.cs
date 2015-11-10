@@ -10,11 +10,14 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   // TODO: Hack, rework after MIA rework
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetMusicAlbumBasicById : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

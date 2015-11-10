@@ -5,10 +5,15 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
   internal class AddPlaylistItems : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

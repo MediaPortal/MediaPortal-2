@@ -6,12 +6,15 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   // TODO: We don't have so much information about a season right now. We could get it by a hack from the episodes, but
   // we should wait for teh MIA rework.
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetTVShowDetailedById : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

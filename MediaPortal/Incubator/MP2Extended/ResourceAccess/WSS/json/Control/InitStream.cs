@@ -3,11 +3,17 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "clientDescription", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "idleTimeout", Type = typeof(int), Nullable = true)]
   internal class InitStream : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
