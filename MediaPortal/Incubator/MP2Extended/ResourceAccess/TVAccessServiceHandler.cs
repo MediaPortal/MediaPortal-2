@@ -66,6 +66,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "AddScheduleDetailed", new AddScheduleDetailed()},
       { "CancelSchedule", new CancelSchedule()},
       { "DeleteSchedule", new DeleteSchedule()},
+      { "EditSchedule", new DeleteSchedule()},
       { "GetProgramIsScheduled", new GetProgramIsScheduled()},
       { "GetScheduleById", new GetScheduleById()},
       { "GetScheduleCount", new GetScheduleCount()},
