@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="{DynamicResource Cover_Width}"
-  Margin="-25,-30,-80,40">
+  Margin="-25,-20,-80,30">
 
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
@@ -17,13 +17,13 @@
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
- 
-  <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="380" Height="555"
-         Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;555}">
+
+  <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="380" Height="560"
+         FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+         Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">
   </Image>
  
 </Grid>
-
 
 <!-- Darkened band -->
 <!--Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"

@@ -41,7 +41,13 @@
           </Border.Background>
         </Border>
           
-        <Rectangle Grid.Column="0" Grid.Row="0" Fill="#F2666666" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-30,0,-5,0" />
+        <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Fill="Black" Opacity="0.5" Margin="-39,-9,-14,0">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
+        
+        <Rectangle Grid.Column="0" Grid.Row="0" Fill="#D9777777" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-30,0,-5,0" />
           
         <StackPanel x:Name="Groups" Margin="-20,9,20,8" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
