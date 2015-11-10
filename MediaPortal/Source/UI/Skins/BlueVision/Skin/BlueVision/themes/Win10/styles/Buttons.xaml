@@ -31,7 +31,7 @@
   <Storyboard x:Key="FocusedButtonStoryboard_Media" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.5"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.7"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -566,13 +566,13 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="0">
+            Margin="-6,0,36,0" Stroke="#213848" StrokeThickness="0">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
-                  <GradientStop Offset="0" Color="#0066CC"/>
-                  <GradientStop Offset="0.75" Color="#0066CC"/>
-                  <GradientStop Offset="1" Color="#0066CC"/>
+                  <GradientStop Offset="0" Color="{ThemeResource FocusedButtonGradient1Color}"/>
+                  <GradientStop Offset="0.75" Color="{ThemeResource FocusedButtonGradient1Color}"/>
+                  <GradientStop Offset="1" Color="{ThemeResource FocusedButtonGradient1Color}"/>
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Rectangle.Fill>

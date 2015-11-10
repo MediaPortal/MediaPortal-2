@@ -10,17 +10,6 @@
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
-    <!--ControlTemplate x:Key="Menu_Button_Dummy">
-      <Grid Grid.Row="0" Grid.Column="0" Margin="50,-20,0,-20" Width="72" Height="72" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.8">
-        <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-          <Border.Background>
-            <SolidColorBrush Color="#FF6600"/>
-          </Border.Background>
-          <Image Source="MP2_logo_bw.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1"  Width="50" Height="50"  />
-        </Border>
-      </Grid>
-    </ControlTemplate-->
-
     <ControlTemplate x:Key="Menu_Button_Dummy">
       <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -33,18 +22,7 @@
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
-
-        <Border DockPanel.Dock="Center" Height="500" Margin="-120,-3,-120,-59" BorderThickness="0">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <LinearGradientBrush.GradientStops>
-                <GradientStop Color="#00000000" Offset="0"  />
-                <GradientStop Color="#CC000000" Offset="1"  />
-              </LinearGradientBrush.GradientStops>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        
+     
         <!--Begin Home Screen-->
         <Grid DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
               xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
@@ -66,17 +44,6 @@
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-
-          <!--Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="6" Margin="-51,-33,-51,7" >
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <LinearGradientBrush.GradientStops>
-                  <GradientStop Color="#00000000" Offset="0"  />
-                  <GradientStop Color="#CC000000" Offset="1"  />
-                </LinearGradientBrush.GradientStops>
-              </LinearGradientBrush>
-            </Border.Background>
-          </Border-->
 
           <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" DataContext="{Binding Source={StaticResource LatestMediaModel}}" 
                 Background="#F2666666" Margin="5,0,5,25">
@@ -250,8 +217,8 @@
           </Grid>
         </Grid> <!--End Home Screen-->
 
-        <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
-            VerticalAlignment="Stretch" SetFocusPrio="Fallback"
+        <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SetFocusPrio="Fallback"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
             IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <bv:GridListView.Resources>
