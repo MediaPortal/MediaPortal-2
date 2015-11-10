@@ -261,6 +261,7 @@
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingById.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingsByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordings.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\EditSchedule.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\AddScheduleDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\BaseClasses\BaseScheduledRecording.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\CancelSchedule.cs" />

@@ -57,9 +57,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
             {
               ApiFunctionDescription apiFunctionDescription = description;
 
-              functionDescription.Summary = apiFunctionDescription.Summary;
+              functionDescription.Summary = apiFunctionDescription.Summary?? string.Empty;
               functionDescription.Type = apiFunctionDescription.Type.ToString().ToLower();
-              //functionDescription.ReturnType = apiFunctionDescription.ReturnType.ToString();
+              functionDescription.ReturnType = (apiFunctionDescription.ReturnType == null) ? string.Empty : apiFunctionDescription.ReturnType.ToString();
             }
             
             if (param != null)

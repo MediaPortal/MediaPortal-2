@@ -34,7 +34,7 @@ function toggel(caller){
 			<ins><#= handlerFunction.Summary #></ins>
 			<br>
 			<b>Return-Type:</b>
-			<ins></ins>
+			<ins><#= handlerFunction.ReturnType #></ins>
 			<br>
 			<b>Type:</b>
 			<ins><#= handlerFunction.Type #></ins>
@@ -42,7 +42,7 @@ function toggel(caller){
 			<b>URL:</b>
 			<ins><#= handlerFunction.Url #></ins>
 			<br>
-			<b>Parameters:</b><br>
+			<b>Parameters:</b><# if (handlerFunction.Parameters.Count == 0) Write(" <i>none</i>"); #><br>
 			<ul style="list-style-position: inside; padding-left: 10px;">
 				<# foreach (var parameter in handlerFunction.Parameters) { #>
 					<li><#= parameter.Name #> (<#= (parameter.Nullable ? "nullable " : "") + parameter.Type.Name #>)</li>

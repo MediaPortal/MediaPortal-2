@@ -490,8 +490,14 @@ function toggel(caller){
             
             #line default
             #line hidden
-            this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Return-Type:</b>\r\n\t\t\t<ins></ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Type:</b>" +
-                    "\r\n\t\t\t<ins>");
+            this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Return-Type:</b>\r\n\t\t\t<ins>");
+            
+            #line 37 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.ReturnType));
+            
+            #line default
+            #line hidden
+            this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Type:</b>\r\n\t\t\t<ins>");
             
             #line 40 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.Type));
@@ -505,8 +511,14 @@ function toggel(caller){
             
             #line default
             #line hidden
-            this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Parameters:</b><br>\r\n\t\t\t<ul style=\"list-style-position: in" +
-                    "side; padding-left: 10px;\">\r\n\t\t\t\t");
+            this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Parameters:</b>");
+            
+            #line 45 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+ if (handlerFunction.Parameters.Count == 0) Write(" <i>none</i>"); 
+            
+            #line default
+            #line hidden
+            this.Write("<br>\r\n\t\t\t<ul style=\"list-style-position: inside; padding-left: 10px;\">\r\n\t\t\t\t");
             
             #line 47 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  foreach (var parameter in handlerFunction.Parameters) { 
