@@ -6,6 +6,7 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
@@ -13,6 +14,9 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
+  [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "type", Type = typeof(WebMediaType), Nullable = true)]
   internal class ExtractImage : BaseGetArtwork, IStreamRequestMicroModuleHandler
   {
     // We just return a Thumbnail from MP
@@ -53,8 +57,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 
       ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, 0, 0, "undefined", 0, FanArtConstants.FanArtType.Thumbnail, FanArtConstants.FanArtMediaType.Undefined);
 
-      byte[] data;
-
       IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get a random FanArt from the List
@@ -66,7 +68,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       return resizedImage;
     }
 
-    internal static ILogger Logger
+    internal new static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }

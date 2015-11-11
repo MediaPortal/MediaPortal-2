@@ -50,14 +50,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
   public class MainRequestHandler : HttpModule, IDisposable
   {
-    private const string RESOURCE_ACCESS_PATH = "/MPExtended";
+    public const string RESOURCE_ACCESS_PATH = "/MPExtended";
     public TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
 
-    private readonly Dictionary<string, IRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestModuleHandler>(StringComparer.OrdinalIgnoreCase)
+    internal static readonly Dictionary<string, IRequestModuleHandler> REQUEST_MODULE_HANDLERS = new Dictionary<string, IRequestModuleHandler>(StringComparer.OrdinalIgnoreCase)
     {
       { "MediaAccessService", new MediaAccessServiceHandler() },
       { "TVAccessService", new TVAccessServiceHandler() },
-      { "StreamingService", new StreamingServiceHandler() }
+      { "StreamingService", new StreamingServiceHandler() },
+      { "DebugAccessService", new DebugAccessServiceHandler() }
     };
 
 
@@ -135,7 +136,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         {
           // The URL shoud look like this: /MPExtended/MediaAccessService/json/GetServiceDescription
           IRequestModuleHandler requestModuleHandler;
-          if (_requestModuleHandlers.TryGetValue(uriParts[2], out requestModuleHandler))
+          if (REQUEST_MODULE_HANDLERS.TryGetValue(uriParts[2], out requestModuleHandler))
             requestModuleHandler.Process(request, response, session);
           else
             ServiceRegistration.Get<ILogger>().Warn("RequestModule not found: {0}", uriParts[2]);

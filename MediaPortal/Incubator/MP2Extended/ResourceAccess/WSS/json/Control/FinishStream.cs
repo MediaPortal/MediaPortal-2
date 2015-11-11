@@ -1,10 +1,13 @@
 ﻿using HttpServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   internal class FinishStream : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

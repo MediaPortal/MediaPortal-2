@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
+  [ApiHandlerDescription(FriendlyName = "Streaming Service", Summary = "The Streaming Service handles all streaming related tasks for MAS and TAS.")]
   internal class StreamingServiceHandler : IRequestModuleHandler
   {
     private readonly Dictionary<string, ISubRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, ISubRequestModuleHandler>
@@ -41,6 +44,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       }
 
       return true;
+    }
+
+    public Dictionary<string, object> GetRequestMicroModuleHandlers()
+    {
+      return _requestModuleHandlers.ToDictionary<KeyValuePair<string, ISubRequestModuleHandler>, string, object>(module => module.Key, module => module.Value);
     }
 
     internal static ILogger Logger

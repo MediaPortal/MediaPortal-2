@@ -6,6 +6,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
@@ -17,6 +18,11 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "date", Type = typeof(DateTime), Nullable = false)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
+  [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetScheduledRecordingsForDate : BaseScheduledRecording, IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

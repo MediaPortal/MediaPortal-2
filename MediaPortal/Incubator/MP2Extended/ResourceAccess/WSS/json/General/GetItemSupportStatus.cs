@@ -6,10 +6,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
   internal class GetItemSupportStatus : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

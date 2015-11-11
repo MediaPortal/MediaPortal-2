@@ -11,10 +11,18 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using System.Net.Sockets;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "profileName", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
+  [ApiFunctionParam(Name = "audioId", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

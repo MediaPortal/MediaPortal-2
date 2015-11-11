@@ -5,6 +5,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
@@ -14,6 +15,8 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
   internal class CancelSchedule : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

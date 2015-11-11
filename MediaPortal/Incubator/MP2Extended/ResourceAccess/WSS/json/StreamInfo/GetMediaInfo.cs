@@ -15,9 +15,12 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using System.IO;
 using System.Globalization;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
   internal class GetMediaInfo : IRequestMicroModuleHandler
   {
     private const string UNDEFINED = "undef";

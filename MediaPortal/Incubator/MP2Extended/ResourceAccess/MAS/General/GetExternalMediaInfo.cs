@@ -2,11 +2,14 @@
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   // TODO: don't really know what the pupose of this method is.
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetExternalMediaInfo : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

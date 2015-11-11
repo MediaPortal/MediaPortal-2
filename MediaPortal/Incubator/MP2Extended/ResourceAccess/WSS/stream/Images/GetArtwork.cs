@@ -4,6 +4,7 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
 using Newtonsoft.Json;
@@ -11,6 +12,11 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "artworktype", Type = typeof(WebFileType), Nullable = false)]
+  [ApiFunctionParam(Name = "mediatype", Type = typeof(WebMediaType), Nullable = false)]
+  [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
   internal class GetArtwork : BaseGetArtwork, IStreamRequestMicroModuleHandler
   {
     public byte[] Process(IHttpRequest request)

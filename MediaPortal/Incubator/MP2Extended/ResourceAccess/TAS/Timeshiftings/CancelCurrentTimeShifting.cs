@@ -5,6 +5,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
@@ -15,6 +16,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class CancelCurrentTimeShifting : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

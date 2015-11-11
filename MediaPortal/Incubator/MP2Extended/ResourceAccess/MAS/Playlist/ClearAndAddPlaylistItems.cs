@@ -5,11 +5,16 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
   // this function ignores the porsiton argument, the documentation is not very clear
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
   internal class ClearAndAddPlaylistItems : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

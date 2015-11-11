@@ -5,6 +5,7 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
@@ -13,6 +14,14 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "artworktype", Type = typeof(WebFileType), Nullable = false)]
+  [ApiFunctionParam(Name = "mediatype", Type = typeof(WebMediaType), Nullable = false)]
+  [ApiFunctionParam(Name = "maxWidth", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "maxHeight", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
   internal class GetArtworkResized : BaseGetArtwork, IStreamRequestMicroModuleHandler
   {
     public byte[] Process(IHttpRequest request)
