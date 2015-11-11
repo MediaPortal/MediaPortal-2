@@ -171,10 +171,10 @@ namespace MediaPortal.Plugins.MediaServer.Metadata
         {
           for (int iSub = 0; iSub < transcodeItemVideoEmbeddedAspects.Count; iSub++)
           {
-          object valueEmSubCodec = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC);
-          object valueEmSubDefault = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT);
-          object valueEmSubLang = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE);
-          object valueEmSubStream = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM);
+            object valueEmSubCodec = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC);
+            object valueEmSubDefault = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT);
+            object valueEmSubLang = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE);
+            object valueEmSubStream = transcodeItemVideoEmbeddedAspects[iSub].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM);
 
             SubtitleStream sub = new SubtitleStream();
             if (valueEmSubCodec != null && string.IsNullOrEmpty(valueEmSubCodec.ToString()) == false)

@@ -6,6 +6,7 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG;
@@ -18,6 +19,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
+  [ApiHandlerDescription(FriendlyName = "TV Access Service", Summary = "The Tv Access Service allows you to access all Tv realted functions like live Tv, creating Schedules, EPG and manage your recordings.")]
   internal class TVAccessServiceHandler : BaseJsonHeader, IRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
@@ -59,6 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "SwitchTVServerToChannelAndGetStreamingUrl", new SwitchTVServerToChannelAndGetStreamingUrl()},
       // Schedule
       { "AddSchedule", new AddSchedule()},
+      { "AddScheduleDetailed", new AddScheduleDetailed()},
       { "CancelSchedule", new CancelSchedule()},
       { "DeleteSchedule", new DeleteSchedule()},
       { "GetProgramIsScheduled", new GetProgramIsScheduled()},
@@ -116,6 +119,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       response.SendBody(output);
 
       return true;
+    }
+
+    public Dictionary<string, object> GetRequestMicroModuleHandlers()
+    {
+      return _requestModuleHandlers.ToDictionary<KeyValuePair<string, IRequestMicroModuleHandler>, string, object>(module => module.Key, module => module.Value);
     }
 
     internal static ILogger Logger

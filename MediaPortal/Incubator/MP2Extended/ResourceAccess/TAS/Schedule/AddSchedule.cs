@@ -3,6 +3,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -11,9 +12,14 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "title", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = false)]
+  [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
+  [ApiFunctionParam(Name = "scheduleType", Type = typeof(WebScheduleType), Nullable = false)]
   internal class AddSchedule : IRequestMicroModuleHandler
   {
-    // TODO: ScheduleType is not supported by MP2 SlimTv
     public dynamic Process(IHttpRequest request)
     {
       HttpParam httpParam = request.Param;
@@ -44,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       if (!DateTime.TryParse(endTime, out endDateTime))
         throw new BadRequestException(string.Format("AddSchedule: Couldn't parse endTime to DateTime: {0}", endTime));
 
-      WebScheduleType webScheduleType = (WebScheduleType)JsonConvert.DeserializeObject(scheduleType, typeof(WebScheduleType));
+      ScheduleRecordingType scheduleRecordingType = (ScheduleRecordingType)JsonConvert.DeserializeObject(scheduleType, typeof(ScheduleRecordingType));
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("AddSchedule: ITvProvider not found");
@@ -57,7 +63,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
         throw new BadRequestException(string.Format("AddSchedule: Couldn't get channel with Id: {0}", channelIdInt));
       
       ISchedule schedule;
-      bool result = scheduleControl.CreateScheduleByTime(channel, startDateTime, endDateTime, out schedule);
+      bool result = scheduleControl.CreateScheduleByTimeAndType(channel, title, startDateTime, endDateTime, scheduleRecordingType, out schedule);
 
 
       return new WebBoolResult { Result = result };

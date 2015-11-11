@@ -6,6 +6,7 @@ using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter;
@@ -18,6 +19,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
+  [ApiHandlerDescription(FriendlyName = "Media Access Service", Summary = "The Media Access Service allows you to access Tv Shows, Movies, Pictures and Music.")]
   internal class MediaAccessServiceHandler : BaseJsonHeader, IRequestModuleHandler
   {
     private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
@@ -129,6 +131,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       response.SendBody(output);
 
       return true;
+    }
+
+    public Dictionary<string, object> GetRequestMicroModuleHandlers()
+    {
+      return _requestModuleHandlers.ToDictionary<KeyValuePair<string, IRequestMicroModuleHandler>, string, object>(module => module.Key, module => module.Value);
     }
 
     internal static ILogger Logger

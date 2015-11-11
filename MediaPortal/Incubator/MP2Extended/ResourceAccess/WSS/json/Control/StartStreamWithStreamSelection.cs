@@ -7,14 +7,21 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "profileName", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
+  [ApiFunctionParam(Name = "audioId", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

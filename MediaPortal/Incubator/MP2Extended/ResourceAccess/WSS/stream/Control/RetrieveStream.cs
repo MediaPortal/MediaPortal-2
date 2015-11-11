@@ -10,6 +10,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.Transcoding.Aspects;
@@ -18,6 +19,10 @@ using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
+  [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "hls", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "folder", Type = typeof(string), Nullable = true)]
   internal class RetrieveStream : BaseSendData, IStreamRequestMicroModuleHandler2
   {
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)

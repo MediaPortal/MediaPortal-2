@@ -10,7 +10,6 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
-<<<<<<< HEAD
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
     <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
   </ItemGroup>
@@ -19,8 +18,6 @@
     <References Include="$(TargetDir)ffmpeg.exe" />
   </ItemGroup>
 
-=======
->>>>>>> FreakyJ/FEAT_WifiRemoteForMP2
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
   </Target>

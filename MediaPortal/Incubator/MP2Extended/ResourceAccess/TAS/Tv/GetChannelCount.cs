@@ -4,6 +4,7 @@ using HttpServer;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -11,6 +12,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
   internal class GetChannelCount : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

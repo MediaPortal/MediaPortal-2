@@ -11,12 +11,18 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "maxWidth", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "maxHeight", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
   internal class GetImageResized : BaseSendData, IStreamRequestMicroModuleHandler2
   {
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)

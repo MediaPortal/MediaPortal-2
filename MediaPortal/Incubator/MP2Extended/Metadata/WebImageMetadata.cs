@@ -55,29 +55,29 @@ namespace MediaPortal.Plugins.MP2Extended.Metadata
       if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = item.Aspects[TranscodeItemImageAspect.ASPECT_ID].GetAttributeValue(TranscodeItemImageAspect.ATTR_CONTAINER);
+        oValue = item[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
         }
-        oValue = item.Aspects[TranscodeItemImageAspect.ASPECT_ID].GetAttributeValue(TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
+        oValue = item[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
         }
         if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
         {
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
           if (oValue != null)
           {
             info.Image.Height = Convert.ToInt32(oValue);
           }
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_WIDTH);
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_WIDTH);
           if (oValue != null)
           {
             info.Image.Width = Convert.ToInt32(oValue);
           }
-          oValue = item.Aspects[ImageAspect.ASPECT_ID].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
           if (oValue != null)
           {
             info.Image.Orientation = Convert.ToInt32(oValue);
@@ -85,7 +85,7 @@ namespace MediaPortal.Plugins.MP2Extended.Metadata
         }
         if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
         {
-          oValue = item.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_MIME_TYPE);
+          oValue = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             info.Metadata.Mime = oValue.ToString();

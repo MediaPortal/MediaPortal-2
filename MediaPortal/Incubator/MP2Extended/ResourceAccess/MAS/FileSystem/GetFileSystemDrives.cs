@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
+using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
+using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
 using Newtonsoft.Json;
 
@@ -14,36 +15,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   internal class GetFileSystemDrives : BaseDriveBasic, IRequestMicroModuleHandler
   {
-    protected Nullable<T> GetHttpParam<T>(HttpParam httpParam, string name) where T : struct
-    {
-      string value = httpParam[name].Value;
-      if (value != null)
-      {
-        return (T)JsonConvert.DeserializeObject(value, typeof(T));
-      }
-      return null;
-    }
-
+    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+    [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
+    [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
     public dynamic Process(IHttpRequest request)
     {
+      List<WebDriveBasic> output = DriveBasic();
+
       // sort and filter
       HttpParam httpParam = request.Param;
-      WebSortField? sort = GetHttpParam<WebSortField>(httpParam, "sort");
-      WebSortOrder? order = GetHttpParam<WebSortOrder>(httpParam, "order");
-
-      return Process(sort, order);
-    }
-
-    //[ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-    //[ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
-    //[ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-    public List<WebDriveBasic> Process(WebSortField? sort, WebSortOrder? order)
-    {
-      List<WebDriveBasic> output = DriveBasic();
+      string sort = httpParam["sort"].Value;
+      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        output = output.AsQueryable().SortMediaItemList(sort.Value, order.Value).ToList();
+        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
+        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
+
+        output = output.AsQueryable().SortMediaItemList(webSortField, webSortOrder).ToList();
       }
+
       return output;
     }
 

@@ -9,86 +9,87 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  // This is a work around -> wait for MIA rework
-  // Add more details
+  // TODO: Add more details
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
+  [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetTVSeasonsDetailedForTVShow : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
-      // we can't select only for seasons, so we take all episodes from a tv show and filter.
-
       HttpParam httpParam = request.Param;
-      string showId = httpParam["id"].Value;
-      if (showId == null)
-        throw new BadRequestException("GetTVEpisodeCountForSeason: no id is null");
-
+      string id = httpParam["id"].Value;
+      if (id == null)
+        throw new BadRequestException("GetTVSeasonsDetailedForTVShow: id is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+      necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
 
       // this is the MediaItem for the show
-      MediaItem showItem = GetMediaItems.GetMediaItemById(showId, necessaryMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
-      if (showItem == null)
-        throw new BadRequestException(String.Format("GetTVSeasonsBasicForTVShow: No MediaItem found with id: {0}", showId));
+      if (item == null)
+        throw new BadRequestException(String.Format("GetTVSeasonsDetailedForTVShow: No MediaItem found with id: {0}", id));
 
-      string showName;
-      try
-      {
-        showName = (string)showItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
-      }
-      catch (Exception ex)
-      {
-        throw new BadRequestException(String.Format("GetTVSeasonsBasicForTVShow: Couldn't convert Title: {0}", ex.Message));
-      }
+      // Get all seasons for this series
+      ISet<Guid> necessaryMIATypesSeason = new HashSet<Guid>();
+      necessaryMIATypesSeason.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypesSeason.Add(SeasonAspect.ASPECT_ID);
+      necessaryMIATypesSeason.Add(RelationshipAspect.ASPECT_ID);
 
-      // Get all episodes for this
-      ISet<Guid> necessaryMIATypesEpisodes = new HashSet<Guid>();
-      necessaryMIATypesEpisodes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypesEpisodes.Add(SeriesAspect.ASPECT_ID);
+      IFilter searchFilter = new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON);
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesSeason, null, searchFilter);
 
-      IFilter searchFilter = new RelationalFilter(SeriesAspect.ATTR_SERIESNAME, RelationalOperator.EQ, showName);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesEpisodes, null, searchFilter);
+      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
 
-      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
-
-      if (episodes.Count == 0)
-        throw new BadRequestException("No Tv Episodes found");
+      if (seasons.Count == 0)
+        throw new BadRequestException("No seasons found");
 
       var output = new List<WebTVSeasonDetailed>();
 
-      foreach (var epsisode in episodes)
+      foreach (var season in seasons)
       {
-        var seriesAspect = epsisode.Aspects[SeriesAspect.ASPECT_ID];
-        int index = output.FindIndex(x => x.Id == String.Format("{0}:{1}", showItem.MediaItemId, (int)seriesAspect[SeriesAspect.ATTR_SEASON]));
-        if (index == -1)
+        // Get all episodes for this season
+        ISet<Guid> necessaryMIATypesEpisode = new HashSet<Guid>();
+        necessaryMIATypesEpisode.Add(MediaAspect.ASPECT_ID);
+        necessaryMIATypesEpisode.Add(EpisodeAspect.ASPECT_ID);
+        necessaryMIATypesEpisode.Add(RelationshipAspect.ASPECT_ID);
+
+        IFilter episodeFilter = new RelationshipFilter(season.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE);
+        MediaItemQuery episodeQuery = new MediaItemQuery(necessaryMIATypesEpisode, null, episodeFilter);
+
+        IList<MediaItem> episodesInThisSeason = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false);
+
+        var seasonAspect = season[SeasonAspect.Metadata];
+
+        var episodesInThisSeasonUnwatched = episodesInThisSeason.ToList().FindAll(x => x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == 0);
+
+        WebTVSeasonDetailed webTVSeasonDetailed = new WebTVSeasonDetailed
         {
-          var episodesInThisSeason = episodes.ToList().FindAll(x => (int)x.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_SEASON] == (int)seriesAspect[SeriesAspect.ATTR_SEASON]);
-          var episodesInThisSeasonUnwatched = episodesInThisSeason.FindAll(x => x.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_PLAYCOUNT] == 0);
+          Title = (string)seasonAspect[SeasonAspect.ATTR_SERIES_SEASON],
+          Id = season.MediaItemId.ToString(),
+          ShowId = item.MediaItemId.ToString(),
+          SeasonNumber = (int)seasonAspect[SeasonAspect.ATTR_SEASON],
+          EpisodeCount = episodesInThisSeason.Count,
+          UnwatchedEpisodeCount = episodesInThisSeasonUnwatched.Count,
+          IsProtected = false,
+          PID = 0
+        };
+        //webTVSeasonBasic.DateAdded;
+        //webTVSeasonBasic.Year;
+        // Artwork
 
-          WebTVSeasonDetailed webTVSeasonDetailed = new WebTVSeasonDetailed
-          {
-            Title = (string)seriesAspect[SeriesAspect.ATTR_SERIES_SEASON],
-            Id = String.Format("{0}:{1}", showItem.MediaItemId, (int)seriesAspect[SeriesAspect.ATTR_SEASON]),
-            ShowId = showItem.MediaItemId.ToString(),
-            SeasonNumber = (int)seriesAspect[SeriesAspect.ATTR_SEASON],
-            EpisodeCount = episodesInThisSeason.Count,
-            UnwatchedEpisodeCount = episodesInThisSeasonUnwatched.Count,
-            IsProtected = false,
-            PID = 0
-          };
-          //webTVSeasonBasic.DateAdded;
-          //webTVSeasonBasic.Year;
-          // Artwork
-
-          output.Add(webTVSeasonDetailed);
-        }
+        output.Add(webTVSeasonDetailed);
       }
 
       // sort

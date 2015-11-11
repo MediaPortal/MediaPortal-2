@@ -1,43 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetTVEpisodeCountForTVShow : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
     {
       HttpParam httpParam = request.Param;
-      if (httpParam["id"].Value == null)
-        throw new BadRequestException("GetTVEpisodeCountForTVShow: no id is null");
+      string id = httpParam["id"].Value;
+      if (id == null)
+        throw new BadRequestException("GetTVEpisodeCountForTVShow: id is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+      necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
 
       // this is the MediaItem from the TvShow
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes);
-
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
       if (item == null)
-        throw new BadRequestException(String.Format("GetTVEpisodeCountForTvShow: No MediaItem found with id: {0}", httpParam["id"].Value));
+        throw new BadRequestException(String.Format("GetTVEpisodeCountForTvShow: No MediaItem found with id: {0}", id));
 
-      string seasonTitle = (string)item[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE];
+      // Get all seasons for this series
+      ISet<Guid> necessaryMIATypesSeason = new HashSet<Guid>();
+      necessaryMIATypesSeason.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypesSeason.Add(SeasonAspect.ASPECT_ID);
+      necessaryMIATypesSeason.Add(RelationshipAspect.ASPECT_ID);
 
+      IFilter searchFilter = new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON);
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesSeason, null, searchFilter);
 
-      // Get all episodes for this season
-      ISet<Guid> necessaryMIATypesEpisodes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
 
-      IList<MediaItem> episodes = GetMediaItems.GetMediaItemsByString(seasonTitle, necessaryMIATypesEpisodes, null, SeriesAspect.ATTR_SERIESNAME, null);
-
-      WebIntResult webIntResult = new WebIntResult { Result = episodes.Count };
+      WebIntResult webIntResult = new WebIntResult { Result = seasons.Sum(season => MediaItemAspect.GetRelationships(season.Aspects, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE).Count) };
 
       return webIntResult;
     }

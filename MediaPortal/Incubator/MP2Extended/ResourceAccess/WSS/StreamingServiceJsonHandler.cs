@@ -64,6 +64,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return true;
     }
 
+    public Dictionary<string, object> GetRequestMicroModuleHandlers()
+    {
+      return _requestModuleHandlers.ToDictionary<KeyValuePair<string, IRequestMicroModuleHandler>, string, object>(module => module.Key, module => module.Value);
+    }
+
     internal static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }

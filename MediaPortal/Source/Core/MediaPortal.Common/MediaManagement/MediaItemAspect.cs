@@ -692,6 +692,17 @@ namespace MediaPortal.Common.MediaManagement
       AddOrUpdateAspect(aspectData, aspect);
     }
 
+    public static IList<Guid> GetRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid role, Guid linkedRole)
+    {
+      IList<MultipleMediaItemAspect> relationships;
+      if (!TryGetAspects(aspectData, RelationshipAspect.Metadata, out relationships))
+      {
+        return new List<Guid>();
+      }
+
+      return relationships.Where(x => x.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == role && x.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == linkedRole).Select(x => x.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ID)).ToList();
+    }
+
     public static void AddOrUpdateRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
       Guid role, Guid linkedRole, Guid linkedId, int linkedIndex)
     {

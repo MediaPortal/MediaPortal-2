@@ -2,11 +2,13 @@
 using HttpServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
   // TODO: not supported by MP2 -> return an empty list
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetPictureSubCategories : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

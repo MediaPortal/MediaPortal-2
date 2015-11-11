@@ -112,7 +112,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
           MediaItem item = GetMediaItems.GetMediaItemById(identifier.MediaItemId, necessaryMIATypes);
           if (item == null)
             return false;
-          dateAdded = (DateTime)item.Aspects[ImporterAspect.ASPECT_ID][ImporterAspect.ATTR_DATEADDED];
+          dateAdded = (DateTime)item[ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
         }
         else
         {
