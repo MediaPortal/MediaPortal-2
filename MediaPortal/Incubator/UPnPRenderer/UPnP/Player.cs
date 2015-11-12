@@ -44,6 +44,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       // subscribe to UPnPRendeeringControlServiceImpl events
       UPnPRenderingControlServiceImpl.VolumeEvent += OnVolume;
+
+      _timer.Elapsed += TimerElapsed;
     }
 
     #region UPnPAVTransportServiceImpl events
@@ -104,7 +106,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       // timer to update the progress information
       //_timer = new Timer(TIMER_INTERVAL);
-      _timer.Elapsed += (sender, e) => _timer_Elapsed();
       _timer.Enabled = true;
       _timer.AutoReset = true;
     }
@@ -229,7 +230,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     #endregion UPnPRenderingControlServiceImpl events
 
-    void _timer_Elapsed()
+
+    private void TimerElapsed(object sender, ElapsedEventArgs e)
     {
       if (_timer == null)
       {
