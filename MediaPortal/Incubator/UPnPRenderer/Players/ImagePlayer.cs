@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Players;
-using MediaPortal.UPnPRenderer.MediaItems;
+using MediaPortal.UPnPRenderer.UPnP;
 using SharpDX;
 using SharpDX.Direct3D9;
 
@@ -95,22 +97,29 @@ namespace MediaPortal.UPnPRenderer.Players
 
     public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
-      byte[] imageData;
-      string imageId;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, UPnPImageAspect.ATTR_IMAGE, out imageData) ||
-          !MediaItemAspect.TryGetAttribute(mediaItem.Aspects, UPnPImageAspect.ATTR_IMAGE_ID, out imageId))
+      string resourcePath;
+      string title;
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, out resourcePath)
+        || !MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out title))
         return false;
 
-      UpdateTexture(imageId, imageData);
+      ResourcePath rp = ResourcePath.Deserialize(resourcePath);
+      if (rp.LastPathSegment.ProviderId != RawUrlResourceProvider.RAW_URL_RESOURCE_PROVIDER_ID)
+        return false;
+
+      _itemTitle = title;
+
+      string url = rp.LastPathSegment.Path;
+      UpdateTexture(url);
       return true;
     }
 
-    protected void UpdateTexture(string imageId, byte[] imageData)
+    protected void UpdateTexture(string url)
     {
       lock (_imageSync)
       {
-        _itemTitle = imageId;
-        _texture = ContentManager.Instance.GetTexture(imageData, imageId);
+        var imageData = Utils.DownloadImage(url);
+        _texture = ContentManager.Instance.GetTexture(imageData, _itemTitle);
         if (_texture == null)
           return;
         if (!_texture.IsAllocated)
