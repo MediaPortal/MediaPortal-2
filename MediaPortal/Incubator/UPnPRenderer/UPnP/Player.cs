@@ -25,7 +25,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private ContentType _playerType = ContentType.Unknown;
     private bool _isPaused = false;
-    private byte[] _imageData;
     private static readonly Timer _timer = new Timer(TIMER_INTERVAL);
     private readonly UPnPRenderingControlServiceImpl _controlServiceImpl = UPnPRendererPlugin.UPnPServer.UpnPDevice.UPnPRenderingControlServiceImpl;
     private readonly UPnPAVTransportServiceImpl _transportServiceImpl = UPnPRendererPlugin.UPnPServer.UpnPDevice.UPnPAVTransportServiceImpl;
@@ -73,7 +72,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
           PlayItemsModel.CheckQueryPlayAction(audioItem);
           break;
         case ContentType.Image:
-          var imageItem = UPnPMediaItemFactory.CreateImageItem(avTransportUri, Guid.NewGuid().ToString(), _imageData);
+          var imageItem = UPnPMediaItemFactory.CreateImageItem(avTransportUri);
           imageItem.AddMetaDataToMediaItem(avTransportUriMetadata);
 
           var ic = GetPlayerContext<UPnPRendererImagePlayer>();
@@ -209,7 +208,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
         case ContentType.Audio:
           break;
         case ContentType.Image:
-          _imageData = Utils.DownloadImage(e.CurrentURI.ToString());
           break;
         case ContentType.Video:
           break;

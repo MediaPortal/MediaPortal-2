@@ -60,7 +60,6 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="MediaItems\DmapData.cs" />
-    <Compile Include="MediaItems\UPnPImageAspect.cs" />
     <Compile Include="MediaItems\UPnPMediaItemFactory.cs" />
     <Compile Include="OnlineVideos\IFilterState.cs" />
     <Compile Include="OnlineVideos\IFilterStateEx.cs" />

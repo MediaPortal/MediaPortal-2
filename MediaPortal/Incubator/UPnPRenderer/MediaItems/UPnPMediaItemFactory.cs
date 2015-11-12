@@ -38,7 +38,7 @@ namespace MediaPortal.UPnPRenderer.MediaItems
       return item;
     }
 
-    public static MediaItem CreateImageItem(string resolvedPlaybackUrl, string imageId, byte[] imageData)
+    public static MediaItem CreateImageItem(string resolvedPlaybackUrl)
     {
       var item = new MediaItem(Guid.Empty, new Dictionary<Guid, MediaItemAspect>
       {
@@ -49,8 +49,7 @@ namespace MediaPortal.UPnPRenderer.MediaItems
 
       SetProviderResourceAspect(resolvedPlaybackUrl, item, UPnPRendererImagePlayer.MIMETYPE);
       MediaItemAspect.SetAttribute(item.Aspects, ImageAspect.ATTR_ORIENTATION, 0);
-      MediaItemAspect.SetAttribute(item.Aspects, UPnPImageAspect.ATTR_IMAGE_ID, imageId);
-      MediaItemAspect.SetAttribute(item.Aspects, UPnPImageAspect.ATTR_IMAGE, imageData);
+      MediaItemAspect.SetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, resolvedPlaybackUrl);
       return item;
     }
 

@@ -33,9 +33,12 @@
     <PluginStateTracker ClassName="MediaPortal.UPnPRenderer.UPnP.UPnPRendererPlugin"/>
   </Runtime>
 
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="1BC2FC01-60EA-459C-9F91-65A2050A078F" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererPlayerBuilder"/>
+  </Register>
+
   <Register Location="/VideoPlayers/MimeTypeRegistrations">
     <VideoPlayerMimeTypeMapping Id="447D629E-278C-4D30-B272-151DBFA10361" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererVideoPlayer" MimeType="upnpvideo/upnprenderer"/>
     <VideoPlayerMimeTypeMapping Id="BE9E8B7F-09A6-4B89-8B08-C9D41DD2838F" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererAudioPlayer" MimeType="upnpaudio/upnprenderer"/>
-    <VideoPlayerMimeTypeMapping Id="2C52A994-F742-429B-ABF1-642D64486808" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererImagePlayer" MimeType="upnpimage/upnprenderer"/>
   </Register>
 </Plugin>
