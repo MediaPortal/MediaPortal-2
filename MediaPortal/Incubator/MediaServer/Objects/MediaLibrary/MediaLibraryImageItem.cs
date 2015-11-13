@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public MediaLibraryImageItem(string baseKey, MediaItem item, EndPointSettings client)
       : base(baseKey, item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item);
+      DlnaMediaItem dlnaItem = client.GetDlnaItem(item, false);
       
       Publisher = new List<string>();
       Rights = new List<string>();

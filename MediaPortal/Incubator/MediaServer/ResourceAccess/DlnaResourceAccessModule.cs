@@ -154,7 +154,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
     private long GetStreamSize(DlnaMediaItem dlnaItem)
     {
       long length = dlnaItem.DlnaMetadata.Metadata.Size;
-      if (dlnaItem.IsTranscoding == true || length <= 0)
+      if (dlnaItem.IsTranscoding == true || dlnaItem.IsLive == true || length <= 0)
       //if (length <= 0)
       {
         if (dlnaItem.IsAudio) return TRANSCODED_AUDIO_STREAM_MAX;
@@ -422,7 +422,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             if (item == null)
               throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
-            dlnaItem = deviceClient.GetDlnaItem(item);
+            dlnaItem = deviceClient.GetDlnaItem(item, false);
           }
           else
           {
@@ -875,7 +875,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
                 }
               }
               Logger.Debug("DlnaResourceAccessModule: Sending file header only: {0}", onlyHeaders.ToString());
-              SendWholeFile(request, response, resourceStream, dlnaItem, deviceClient, onlyHeaders, mediaTransferMode);
+              SendWholeFile(request, response, resourceStream, dlnaItem, deviceClient, onlyHeaders, partialResource, mediaTransferMode);
             }
             finally
             {
@@ -1031,7 +1031,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       Send(request, response, resourceStream, item, client, onlyHeaders, partialResource, fileRange);
     }
 
-    protected void SendWholeFile(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, Profiles.EndPointSettings client, bool onlyHeaders, TransferMode mediaTransferMode)
+    protected void SendWholeFile(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, Profiles.EndPointSettings client, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (WaitForMinimumFileSize(resourceStream, 1) == false)
       {
@@ -1043,18 +1043,27 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         return;
       }
 
-      long length = resourceStream.Length;
-      if (item.IsSegmented == false && item.IsTranscoding == true)
+      long length = GetStreamSize(item);
+      if (resourceStream.CanSeek == true && (item.IsTranscoding == false || item.IsSegmented == true))
       {
-        length = GetStreamSize(item);
+        length = resourceStream.Length;
       }
 
-      response.Status = HttpStatusCode.OK;
-      response.ContentLength = length;
-      response.Chunked = false;
+      if (resourceStream.CanSeek == false && request.HttpVersion == HttpHelper.HTTP11 && client.Profile.Settings.Communication.AllowChunckedTransfer)
+      {
+        response.Status = HttpStatusCode.PartialContent;
+        response.ContentLength = 0;
+        response.Chunked = true;
+      }
+      else
+      {
+        response.Status = HttpStatusCode.OK;
+        response.ContentLength = length;
+        response.Chunked = false;
+      }
 
-      Range byteRange = new Range(0, length);
-      Send(request, response, resourceStream, item, client, onlyHeaders, false, byteRange);
+      Range byteRange = new Range(0, response.ContentLength);
+      Send(request, response, resourceStream, item, client, onlyHeaders, partialResource, byteRange);
     }
 
     protected void SendResourceFile(IHttpRequest request, IHttpResponse response, Stream resourceStream, bool onlyHeaders)
@@ -1090,6 +1099,9 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
     private bool WaitForMinimumFileSize(Stream resourceStream, long minimumSize)
     {
+      if (resourceStream.CanSeek == false)
+        return resourceStream.CanRead;
+
       int iTry = 20;
       while (iTry > 0 && minimumSize > resourceStream.Length)
       {
@@ -1143,25 +1155,33 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           Logger.Error("DlnaResourceAccessModule: Unable to send stream beacause of invalid length: {0} ({1} required)", resourceStream.Length, waitForSize);
           return;
         }
+
         long start = 0;
         if (partialResource == false)
         {
           start = byteRange.From;
         }
-        resourceStream.Seek(start, SeekOrigin.Begin);
+        if (resourceStream.CanSeek)
+          resourceStream.Seek(start, SeekOrigin.Begin);
         long length = byteRange.Length;
-        if (length <= 0 || (item.IsSegmented == false && item.IsTranscoding == true))
+        if (length <= 0 || item.IsLive || (item.IsSegmented == false && item.IsTranscoding == true))
         {
           isStream = true;
-          length = resourceStream.Length;
+          length = bufferSize;
         }
+        int emptyCount = 0;
         while (item.IsStreamActive(streamID) && length > 0)
         {
           bytesRead = resourceStream.Read(buffer, 0, length > bufferSize ? bufferSize : (int)length);
           count += bytesRead;
           if (isStream)
           {
-            length = resourceStream.Length - count;
+            if (resourceStream.CanSeek)
+              length = resourceStream.Length - count;
+            else if (bytesRead > 0)
+              length = bufferSize;
+            else
+              length = 0;
           }
           else
           {
@@ -1169,39 +1189,48 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           }
           if (bytesRead > 0)
           {
+            emptyCount = 0;
             if (response.SendBody(buffer, 0, bytesRead) == false)
             {
-              Logger.Debug("Connection lost after {0} bytes", count);
+              Logger.Debug("DlnaResourceAccessModule: Connection lost after {0} bytes", count);
               break;
             }
           }
-          if (item.IsTranscoding == false && resourceStream.Position == resourceStream.Length)
+          else
           {
-            //No more data will be available
-            length = 0;
+            emptyCount++;
           }
-          if (item.IsSegmented == false && item.IsTranscoding)
+          if (resourceStream.CanSeek)
           {
-            long startWaitStreamLength = resourceStream.Length;
-            int iWaits = 10;
-            while (isStream && item.IsStreamActive(streamID) && item.IsTranscoding && length == 0)
+            if (item.IsTranscoding == false && resourceStream.Position == resourceStream.Length)
             {
-              Thread.Sleep(10);
-              length = resourceStream.Length - start - count;
-              Logger.Debug("Buffer underrun delay {0}/{1}", count, resourceStream.Length - start);
-              if (startWaitStreamLength == resourceStream.Length && iWaits <= 0)
-              {
-                //Stream is not getting any bigger
-                break;
-              }
-              iWaits--;
+              //No more data will be available
+              length = 0;
             }
+            if (item.IsSegmented == false && item.IsTranscoding)
+            {
+              long startWaitStreamLength = resourceStream.Length;
+              int iWaits = 10;
+              while (isStream && item.IsStreamActive(streamID) && item.IsTranscoding && length == 0)
+              {
+                Thread.Sleep(10);
+                length = resourceStream.Length - start - count;
+                Logger.Debug("DlnaResourceAccessModule: Buffer underrun delay {0}/{1}", count, resourceStream.Length - start);
+                if (startWaitStreamLength == resourceStream.Length && iWaits <= 0) break; //Stream is not getting any bigger
+                iWaits--;
+              }
+            }
+          }
+          else
+          {
+            if (emptyCount > 2) Thread.Sleep(10);
+            if (emptyCount > 10) break; //Stream is not getting any bigger
           }
         }
         if (response.Chunked)
         {
           response.SendBody(null, 0, 0);
-          Logger.Debug("Sending final chunck");
+          Logger.Debug("DlnaResourceAccessModule: Sending final chunck");
         }
       }
       finally
@@ -1209,7 +1238,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         // closes the Stream so that FFMpeg can replace the playlist file in case of HLS
         resourceStream.Close();
         item.StopStreaming(streamID);
-        Logger.Debug("Sending complete");
+        Logger.Debug("DlnaResourceAccessModule: Sending complete");
       }
     }
 

@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
   {
     private List<Guid> _streams = new List<Guid>();
 
-    public DlnaMediaItem(MediaItem item, EndPointSettings client)
+    public DlnaMediaItem(MediaItem item, EndPointSettings client, bool live)
     {
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
@@ -84,6 +84,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       LastUpdated = DateTime.Now;
       TranscodingParameter = null;
       IsSegmented = false;
+      IsLive = live;
       MetadataContainer info = null;
       if (IsAudio)
       {
@@ -156,6 +157,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
             }
 
             audio.TargetCoder = client.Profile.Settings.Audio.CoderType;
+            audio.TargetIsLive = live;
 
             audio.TranscoderBinPath = dstAudio.TranscoderBinPath;
             audio.TranscoderArguments = dstAudio.TranscoderArguments;
@@ -404,6 +406,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
 
             video.TargetVideoQualityFactor = client.Profile.Settings.Video.QualityFactor;
             video.TargetCoder = client.Profile.Settings.Video.CoderType;
+            video.TargetIsLive = live;
 
             video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
             if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
@@ -429,6 +432,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           subtitle.TargetSubtitleSupport = SubtitleSupport.None;
         }
         subtitle.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
+        subtitle.TargetIsLive = live;
         SubtitleTranscodingParameter = subtitle;
       }
 
@@ -663,6 +667,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
     public EndPointSettings Client { get; private set; }
     public MediaItem MediaSource { get; private set; }
     public bool IsSegmented { get; private set; }
+    public bool IsLive { get; private set; }
     public bool IsStreamable
     {
       get
