@@ -9,6 +9,12 @@ namespace MediaPortal.Plugins.Transcoding.Service
 {
   public class SubtitleAnalyzer
   {
+    public static bool IsImageBasedSubtitle(SubtitleCodec codec)
+    {
+      if (codec == SubtitleCodec.DvbSub || codec == SubtitleCodec.VobSub) return true;
+      return false;
+    }
+
     public static string GetEncoding(ILocalFsResourceAccessor lfsra, string subtitleSource, string subtitleLanguage, string defaultEncoding)
     {
       if (string.IsNullOrEmpty(subtitleSource))

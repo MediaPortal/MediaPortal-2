@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using MediaPortal.Common.ResourceAccess;
+using System.IO;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
@@ -50,8 +51,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public string InputSubtitleFilePath;
     public string OutputFilePath;
     public string SegmentPlaylist = null;
+    public bool IsLive = false;
+    public Stream LiveStream = null;
     public string HlsBaseUrl = null;
-    public string WorkPath;
+    public string WorkPath = null;
 
     public virtual string TranscoderArguments { get; set; }
   }

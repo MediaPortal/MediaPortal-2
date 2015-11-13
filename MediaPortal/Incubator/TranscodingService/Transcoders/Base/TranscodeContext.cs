@@ -50,23 +50,18 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         return string.IsNullOrEmpty(SegmentDir) == false;
       }
     }
+    public bool Live { get; internal set; }
+
     public bool InUse 
     {
       get { return _streamInUse; }
       set
       {
-        if(_streamInUse == true && value == false && Segmented == false && (Partial == true || _useCache == false))
+        if (_streamInUse == true && value == false && (Partial == true || _useCache == false || Live == true))
         {
           //Delete transcodes if no longer used
           Stop();
           DeleteFiles();
-        }
-        if(Segmented)
-        {
-          if (CurrentSegment == LastSegment)
-          {
-            CurrentSegment = LastSegment; //Trigger delete
-          }
         }
         _streamInUse = value;
       }
@@ -78,11 +73,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       set
       {
-        if (value == LastSegment && _streamInUse == false && (Partial == true || _useCache == false))
-        {
-          Stop();
-          DeleteFiles();
-        }
         _currentSegment = value;
       }
       get
@@ -90,8 +80,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         return _currentSegment;
       }
     }
-
-    public int TotalSegments  { get; internal set; }
 
     public TimeSpan TargetDuration { get; internal set; }
     public TimeSpan CurrentDuration 
@@ -105,6 +93,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     { 
       get
       {
+        if (Live) return 0;
+
         if (Running)
         {
           if (_lastSize > 0 && Partial == false)
@@ -131,6 +121,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       get
       {
+        if (Live) return 0;
+
         if (Segmented)
         {
           if (_lastSize > 0)
@@ -254,6 +246,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
     internal void DeleteFiles()
     {
+      if (TranscodedStream != null)
+        TranscodedStream.Dispose();
+
+      if (Live && Segmented == false) return;
+
       string deletePath = TargetFile;
       bool isFolder = false;
       if (string.IsNullOrEmpty(SegmentDir) == false)

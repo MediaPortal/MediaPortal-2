@@ -52,6 +52,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return SubtitleCodec.DvbSub;
         if (token.Equals("dvb_teletext", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.DvbTxt;
+        if (token.Equals("dvd_subtitle", StringComparison.InvariantCultureIgnoreCase) || token.Equals("dvdsub", StringComparison.InvariantCultureIgnoreCase))
+          return SubtitleCodec.VobSub;
       }
       return SubtitleCodec.Unknown;
     }
