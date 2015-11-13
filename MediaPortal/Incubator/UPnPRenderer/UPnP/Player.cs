@@ -142,6 +142,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
           StopPlayer<UPnPRendererAudioPlayer>();
           break;
         case ContentType.Image:
+          StopPlayer<UPnPRendererImagePlayer>();
           break;
         case ContentType.Video:
           StopPlayer<UPnPRendererVideoPlayer>();
@@ -201,14 +202,22 @@ namespace MediaPortal.UPnPRenderer.UPnP
       Logger.Debug("CurrentURI " + e.CurrentURI);
       Logger.Debug("CurrentURIMetaData " + e.CurrentURIMetaData);
 
-      Logger.Debug("MimeType: {0}", Utils.GetMimeFromUrl(e.CurrentURI.ToString(), e.CurrentURIMetaData.ToString()));
-      _playerType = Utils.GetContentTypeFromUrl(e.CurrentURI.ToString(), e.CurrentURIMetaData.ToString());
+      Logger.Debug("MimeType: {0}", Utils.GetMimeFromUrl(e.CurrentURI, e.CurrentURIMetaData));
+      _playerType = Utils.GetContentTypeFromUrl(e.CurrentURI, e.CurrentURIMetaData);
 
       switch (_playerType)
       {
         case ContentType.Audio:
           break;
         case ContentType.Image:
+          var imageItem = UPnPMediaItemFactory.CreateImageItem(e.CurrentURI);
+          imageItem.AddMetaDataToMediaItem(e.CurrentURIMetaData);
+
+          var ic = GetPlayerContext<UPnPRendererImagePlayer>();
+          if (ic != null)
+            ic.DoPlay(imageItem);
+          else
+            PlayItemsModel.CheckQueryPlayAction(imageItem);
           break;
         case ContentType.Video:
           break;
@@ -241,49 +250,15 @@ namespace MediaPortal.UPnPRenderer.UPnP
       string elapsedTime = "00:00:00";
       string duration = "00:00:00";
 
-      IPlayerContext playerCtx;
-
       switch (_playerType)
       {
         case ContentType.Audio:
-          var audioContexts = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContextsByAVType(AVType.Audio);
-          playerCtx = audioContexts.FirstOrDefault(vc => vc.CurrentPlayer is UPnPRendererAudioPlayer);
-          if (playerCtx != null)
-          {
-            if (GetPlayer<UPnPRendererAudioPlayer>().State == PlayerState.Ended)
-            {
-              Logger.Debug("Playback ended");
-              Stop();
-              return;
-            }
-            elapsedTime = GetPlayer<UPnPRendererAudioPlayer>().CurrentTime.ToString(@"hh\:mm\:ss");
-            duration = GetPlayer<UPnPRendererAudioPlayer>().Duration.ToString(@"hh\:mm\:ss");
-          }
-          else
-          {
-            Console.WriteLine("PlayerContext null");
-          }
+          UpdateProgress<UPnPRendererAudioPlayer>(ref elapsedTime, ref duration);
           break;
         case ContentType.Image:
           break;
         case ContentType.Video:
-          var videoContexts = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContextsByAVType(AVType.Video);
-          playerCtx = videoContexts.FirstOrDefault(vc => vc.CurrentPlayer is UPnPRendererVideoPlayer);
-          if (playerCtx != null)
-          {
-            if (GetPlayer<UPnPRendererVideoPlayer>().State == PlayerState.Ended)
-            {
-              Console.WriteLine("Playback ended");
-              Stop();
-              return;
-            }
-            elapsedTime = GetPlayer<UPnPRendererVideoPlayer>().CurrentTime.ToString(@"hh\:mm\:ss");
-            duration = GetPlayer<UPnPRendererVideoPlayer>().Duration.ToString(@"hh\:mm\:ss");
-          }
-          else
-          {
-            Console.WriteLine("PlayerContext null");
-          }
+          UpdateProgress<UPnPRendererVideoPlayer>(ref elapsedTime, ref duration);
           break;
         case ContentType.Unknown:
           break;
@@ -303,6 +278,28 @@ namespace MediaPortal.UPnPRenderer.UPnP
       });
     }
 
+    public void UpdateProgress<TE>(ref string elapsedTime, ref string duration)
+      where TE : IPlayer, IMediaPlaybackControl
+    {
+      var playerCtx = GetPlayerContext<TE>();
+      if (playerCtx != null)
+      {
+        var player = GetPlayer<TE>();
+        if (player.State == PlayerState.Ended)
+        {
+          Logger.Debug("Playback ended");
+          Stop();
+          return;
+        }
+        elapsedTime = player.CurrentTime.ToString(@"hh\:mm\:ss");
+        duration = player.Duration.ToString(@"hh\:mm\:ss");
+      }
+      else
+      {
+        Console.WriteLine("PlayerContext null");
+      }
+
+    }
     #region PlayerMessages
 
     public void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -358,8 +355,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
       _controlServiceImpl.ChangeStateVariables(new List<string>
       {
         "Volume"
-
-      }, new List<object>
+      },
+      new List<object>
       {
         (UInt16)ServiceRegistration.Get<IPlayerManager>().Volume
       });
@@ -375,7 +372,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
       _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState"
-      }, new List<object>
+      },
+      new List<object>
       {
         "PAUSED_PLAYBACK"
       });
@@ -389,7 +387,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
       _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState"
-      }, new List<object>
+      },
+      new List<object>
       {
         "PLAYING"
       });
@@ -407,7 +406,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
       _transportServiceImpl.ChangeStateVariables(new List<string>
       {
         "TransportState"
-      }, new List<object>
+      },
+      new List<object>
       {
         "PLAYING"
       });

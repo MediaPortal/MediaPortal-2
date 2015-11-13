@@ -881,8 +881,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       OnEventSetAVTransportURIEventArgs eventArgs = new OnEventSetAVTransportURIEventArgs
       {
-        CurrentURI = inParams[1],
-        CurrentURIMetaData = inParams[2]
+        CurrentURI = inParams[1] as string,
+        CurrentURIMetaData = inParams[2] as string
       };
 
       OnEventSetAVTransportURI(eventArgs);
@@ -1087,7 +1087,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
   public class OnEventSetAVTransportURIEventArgs : EventArgs
   {
-    public object CurrentURI { get; set; }
-    public object CurrentURIMetaData { get; set; }
+    public string CurrentURI { get; set; }
+    public string CurrentURIMetaData { get; set; }
   }
 }
