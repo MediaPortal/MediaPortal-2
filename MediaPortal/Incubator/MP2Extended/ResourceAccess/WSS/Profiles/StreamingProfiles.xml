@@ -144,7 +144,7 @@
     </Targets>
     <Settings>
       <Images autoRotate="true" />
-      <Subtitles support="Embedded" />
+      <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" forceTranscoding="true" forceStereo="true">

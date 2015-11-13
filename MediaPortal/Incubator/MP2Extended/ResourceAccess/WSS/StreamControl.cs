@@ -37,18 +37,29 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 
     internal static void DeleteStreamItem(string identifier)
     {
-      STREAM_ITEMS.Remove(identifier);
+      if (ValidateIdentifie(identifier))
+      {
+        StopStreaming(identifier);
+        STREAM_ITEMS.Remove(identifier);
+      }
     }
 
     internal static void UpdateStreamItem(string identifier, StreamItem item)
     {
-      DeleteStreamItem(identifier);
+      if (ValidateIdentifie(identifier))
+      {
+        DeleteStreamItem(identifier);
+      }
       AddStreamItem(identifier, item);
     }
 
     internal static StreamItem GetStreamItem(string identifier)
     {
-      return STREAM_ITEMS[identifier];
+      if (ValidateIdentifie(identifier))
+      {
+        return STREAM_ITEMS[identifier];
+      }
+      return null;
     }
 
     internal static Dictionary<string, StreamItem> GetStreamItems()
@@ -61,9 +72,26 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return STREAM_ITEMS.ContainsKey(identifier);
     }
 
-    internal static void StartStreaming(string identifier)
+    internal static void StartStreaming(string identifier, TranscodeContext context)
     {
-      
+      if (ValidateIdentifie(identifier))
+      {
+        STREAM_ITEMS[identifier].IsActive = true;
+        STREAM_ITEMS[identifier].StreamContext = context;
+        STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = context.SegmentDir;
+      }
+    }
+
+    internal static void StopStreaming(string identifier)
+    {
+      if (ValidateIdentifie(identifier))
+      {
+        STREAM_ITEMS[identifier].IsActive = false;
+        if (STREAM_ITEMS[identifier].StreamContext != null) 
+          STREAM_ITEMS[identifier].StreamContext.InUse = false;
+        if (STREAM_ITEMS[identifier].TranscoderObject != null) 
+          STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
+      }
     }
 
     internal static ILogger Logger

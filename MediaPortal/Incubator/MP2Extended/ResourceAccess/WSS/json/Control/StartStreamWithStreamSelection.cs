@@ -7,6 +7,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using System.Net;
+using System.Linq;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using System.Net.Sockets;
@@ -14,6 +15,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Utilities.Network;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -54,13 +56,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (subtitleId != null && !int.TryParse(subtitleId, out subtitleTrack))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse subtitleId '{0}' to int", subtitleId));
 
-      if (!ProfileManager.Profiles.ContainsKey(profileName))
+      EndPointProfile profile = null;
+      List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();
+      if (namedProfiles.Count > 0)
+      {
+        profile = namedProfiles[0];
+      }
+      else if (ProfileManager.Profiles.ContainsKey(profileName))
+      {
+        profile = ProfileManager.Profiles[profileName];
+      }
+      if (profile == null)
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown profile: {0}", profileName));
 
       if (!StreamControl.ValidateIdentifie(identifier))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown identifier: {0}", identifier));
 
-      EndPointProfile profile = ProfileManager.Profiles[profileName];
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
@@ -75,7 +86,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         {
           if (target.Target.VideoContainerType == Transcoding.Service.VideoContainer.Hls)
           {
-            filePostFix = "&file=playlist.m3u8"; //Must be added for some clients to work
+            filePostFix = "&file=playlist.m3u8"; //Must be added for some clients to work (Android mostly)
             break;
           }
         }
@@ -84,7 +95,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);
 
-      return new WebStringResult { Result = GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix };
+      string url = GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
+      return new WebStringResult { Result = url };
     }
 
     private static IPAddress GetLocalIp()
