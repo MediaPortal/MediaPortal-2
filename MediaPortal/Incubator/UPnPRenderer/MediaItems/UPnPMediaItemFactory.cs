@@ -78,6 +78,11 @@ namespace MediaPortal.UPnPRenderer.MediaItems
       MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_DIRECTORS, metaData.Directors);
     }
 
+    public static void SetImageMetaData(this MediaItem item, DmapData metaData)
+    {
+      MediaItemAspect.SetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, metaData.Title);
+    }
+
     public static void SetCover(this MediaItem item, byte[] imageData)
     {
       MediaItemAspect.SetAttribute(item.Aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, imageData);
@@ -95,8 +100,8 @@ namespace MediaPortal.UPnPRenderer.MediaItems
         item.SetAudioMetaData(dmapData);
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
         item.SetVideoMetaData(dmapData);
-      //if (item.Aspects.ContainsKey(UPnPImageAspect.ASPECT_ID))
-      //  item.SetImageMetaData(dmapData);
+      if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+        item.SetImageMetaData(dmapData);
 
       if (!String.IsNullOrEmpty(coverUrl))
         item.SetCover(Utils.DownloadImage(coverUrl));

@@ -10,7 +10,20 @@ namespace MediaPortal.UPnPRenderer.Players
 {
   public static class PlayerHelpers
   {
-    public static void AddSourceFilter(string sourceFilterName, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder)
+    public static void AddSourceFilterOverride(Action fallbackAction, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder)
+    {
+      string sourceFilterName = GetSourceFilterName(resourceAccessor.ResourcePathName);
+      if (string.IsNullOrEmpty(sourceFilterName))
+      {
+        fallbackAction();
+      }
+      else
+      {
+        AddStreamSourceFilter(sourceFilterName, resourceAccessor, graphBuilder);
+      }
+    }
+
+    public static void AddStreamSourceFilter(string sourceFilterName, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder)
     {
       IBaseFilter sourceFilter = null;
       try

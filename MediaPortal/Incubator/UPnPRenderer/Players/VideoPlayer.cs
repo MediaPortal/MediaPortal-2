@@ -8,15 +8,7 @@ namespace MediaPortal.UPnPRenderer.Players
 
     protected override void AddSourceFilter()
     {
-      string sourceFilterName = PlayerHelpers.GetSourceFilterName(_resourceAccessor.ResourcePathName);
-      if (string.IsNullOrEmpty(sourceFilterName))
-      {
-        base.AddSourceFilter();
-      }
-      else
-      {
-        PlayerHelpers.AddSourceFilter(sourceFilterName, _resourceAccessor, _graphBuilder);
-      }
+      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder);
     }
 
     public override string Name
