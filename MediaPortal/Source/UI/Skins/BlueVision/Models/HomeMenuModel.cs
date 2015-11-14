@@ -63,6 +63,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected SettingsChangeWatcher<MenuSettings> _menuSettings;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
+    protected AbstractProperty _isHomeScreenProperty;
     protected bool _noSettingsRefresh;
     protected bool _isPlayerActive;
     protected string _lastActiveGroup;
@@ -152,12 +153,24 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       set { _isHomeProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsHomeScreenProperty
+    {
+      get { return _isHomeScreenProperty; }
+    }
+
+    public bool IsHomeScreen
+    {
+      get { return (bool)_isHomeScreenProperty.GetValue(); }
+      set { _isHomeScreenProperty.SetValue(value); }
+    }
+
     #endregion
 
     public HomeMenuModel()
     {
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
       _isHomeProperty = new WProperty(typeof(bool), false);
+      _isHomeScreenProperty = new WProperty(typeof(bool), false);
       IsHomeProperty.Attach(IsHomeChanged);
 
       SubscribeToMessages();
@@ -481,8 +494,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
       return anyActive;
     }
-
-    public bool IsHomeScreen { get; set; }
 
     /// <summary>
     /// Reads actions/positon from settings.

@@ -83,5 +83,5 @@
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens -->
   <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Help]}" Color="{ThemeResource TextColor}"
          Wrap="True"
-         IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHomeScreen}"/>
+         IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
 </Grid>
