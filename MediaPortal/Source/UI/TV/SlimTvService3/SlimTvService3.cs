@@ -355,7 +355,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         foreach (var channel in _tvBusiness.GetTVGuideChannelsForGroup(channelGroup.ChannelGroupId))
           CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
       }
-      }
       return programs.Count > 0;
     }
 
