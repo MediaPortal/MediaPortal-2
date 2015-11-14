@@ -257,6 +257,7 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetActiveUsers.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetCards.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetLocalDiskInformation.cs" />
+    <Compile Include="ResourceAccess\TAS\Misc\ReadSettingFromDatabase.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\TestConnectionToTVService.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\BaseClasses\BaseRecordingBasic.cs" />

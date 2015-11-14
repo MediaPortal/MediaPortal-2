@@ -32,6 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetCards", new GetCards()},
       { "GetLocalDiskInformation", new GetLocalDiskInformation()},
       { "GetServiceDescription", new GetServiceDescription()},
+      { "ReadSettingFromDatabase", new ReadSettingFromDatabase()},
       { "TestConnectionToTVService", new TestConnectionToTVService()},
       // Channels
       { "GetAllChannelStatesForGroup", new GetAllChannelStatesForGroup()},
