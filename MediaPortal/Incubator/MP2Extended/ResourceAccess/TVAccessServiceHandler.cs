@@ -92,7 +92,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetProgramsBasicForGroup", new GetProgramsBasicForGroup()},
       { "GetProgramsDetailedForChannel", new GetProgramsDetailedForChannel()},
       { "GetProgramsDetailedForGroup", new GetProgramsDetailedForGroup()},
+      { "SearchProgramsBasic", new SearchProgramsBasic()},
+      { "SearchProgramsBasicByRange", new SearchProgramsBasicByRange()},
+      { "SearchProgramsCount", new SearchProgramsCount()},
       { "SearchProgramsDetailed", new SearchProgramsDetailed()},
+      { "SearchProgramsDetailedByRange", new SearchProgramsDetailedByRange()},
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)

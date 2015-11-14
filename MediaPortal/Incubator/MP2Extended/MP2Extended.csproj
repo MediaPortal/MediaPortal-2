@@ -238,6 +238,10 @@
     <Compile Include="ResourceAccess\TAS\Channels\GetAllChannelStatesForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\BaseClasses\BaseProgramBasic.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\BaseClasses\BaseProgramDetailed.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsDetailedByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsCount.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsBasicByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsBasic.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsDetailedForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsBasicForGroup.cs" />
