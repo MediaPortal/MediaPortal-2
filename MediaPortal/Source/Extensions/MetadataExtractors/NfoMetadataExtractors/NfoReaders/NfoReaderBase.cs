@@ -223,9 +223,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               _debugLogger.Warn("[#{0}]: Cannot extract metadata; cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
             }
           }
-          catch (Exception)
+          catch (Exception ex)
           {
-            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", e, _miNumber);
+            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", ex, _miNumber);
           }
         }
         return false;
