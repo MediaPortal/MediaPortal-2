@@ -54,8 +54,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   /// <see cref="SlimTvClientModel"/> is the main entry model for SlimTV. It provides channel group and channel selection and 
   /// acts as backing model for the Live-TV OSD to provide program information.
   /// </summary>
-  public class 
-    SlimTvClientModel : SlimTvModelBase
+  public class SlimTvClientModel : SlimTvModelBase
   {
     public const string MODEL_ID_STR = "8BEC1372-1C76-484c-8A69-C7F3103708EC";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
@@ -465,7 +464,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SlotPlayer.Pause();
 
       // Set the current index of the tuned channel
-      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Needs to be the same to start zapping from current offset
+      if (ChannelContext.Instance.Channels.MoveTo(c => IsSameChannel(c, channel)))
+        _zapChannelIndex = ChannelContext.Instance.Channels.CurrentIndex; // Needs to be the same to start zapping from current offset
+      else
+        _zapChannelIndex = 0;
 
       BeginZap();
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
@@ -490,15 +492,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       GetCurrentChannelGroup();
       GetCurrentChannel();
-      IChannel current = ChannelContext.Channels.Current;
+      IChannel current = ChannelContext.Instance.Channels.Current;
       if (current != null)
         Tune(current);
+    }
+
+    protected override void SetGroup()
+    {
+      base.SetGroup();
+      OnCurrentGroupChanged(0, 0);
     }
 
     protected override void SetChannel()
     {
       base.SetChannel();
-      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Use field, as parameter might be changed by base method
+      _zapChannelIndex = ChannelContext.Instance.Channels.CurrentIndex; // Use field, as parameter might be changed by base method
     }
 
     private void BeginZap()
@@ -523,7 +531,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void ZapNextChannel()
     {
       _zapChannelIndex++;
-      if (_zapChannelIndex >= ChannelContext.Channels.Count)
+      if (_zapChannelIndex >= ChannelContext.Instance.Channels.Count)
         _zapChannelIndex = 0;
 
       ReSetSkipTimer();
@@ -536,7 +544,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _zapChannelIndex--;
       if (_zapChannelIndex < 0)
-        _zapChannelIndex = ChannelContext.Channels.Count - 1;
+        _zapChannelIndex = ChannelContext.Instance.Channels.Count - 1;
 
       ReSetSkipTimer();
     }
@@ -613,7 +621,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IsOSDLevel1 = false;
       IsOSDLevel2 = false;
 
-      UpdateRunningChannelPrograms(ChannelContext.Channels[_zapChannelIndex]);
+      UpdateRunningChannelPrograms(ChannelContext.Instance.Channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
       {
@@ -632,10 +640,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       CloseOSD();
 
-      if (!IsSameChannel(ChannelContext.Channels[_zapChannelIndex], _lastTunedChannel))
+      if (!IsSameChannel(ChannelContext.Instance.Channels[_zapChannelIndex], _lastTunedChannel))
       {
-        ChannelContext.Channels.SetIndex(_zapChannelIndex);
-        Tune(ChannelContext.Channels[_zapChannelIndex]);
+        ChannelContext.Instance.Channels.SetIndex(_zapChannelIndex);
+        Tune(ChannelContext.Instance.Channels[_zapChannelIndex]);
       }
 
       _zapTimer.Close();
@@ -722,7 +730,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Update current programs for all channels of current group (visible inside MiniGuide).
       UpdateAllCurrentPrograms();
 
-      _zapChannelIndex = ChannelContext.Channels.CurrentIndex;
+      _zapChannelIndex = ChannelContext.Instance.Channels.CurrentIndex;
 
       if (_tvHandler.NumberOfActiveSlots < 1)
       {
@@ -778,23 +786,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
-    protected override void UpdateCurrentChannel()
-    { }
 
-    protected override void UpdatePrograms()
-    { }
-
-    protected override void UpdateChannels()
+    /// <summary>
+    /// Helper method to make sure the model updates the channel list when opening the MiniGuide.
+    /// Usually the update logic is done in Workflow events, but the MiniGuide is opened as dialog
+    /// in current workflow state (which doesn't invoke workflow transistions).
+    /// </summary>
+    public void UpdateChannelsMiniGuide()
     {
-      base.UpdateChannels();
-      if (CurrentChannelGroup != null)
-      {
-        CurrentGroupName = CurrentChannelGroup.Name;
-      }
+      UpdateChannels();
+    }
+    protected virtual void UpdateGuiProperties()
+    {
+      CurrentGroupName = CurrentChannelGroup != null ? CurrentChannelGroup.Name : string.Empty;
+    }
+
+    protected void UpdateChannels()
+    {
+      UpdateGuiProperties();
       _channelList.Clear();
 
       bool isOneSelected = false;
-      foreach (IChannel channel in ChannelContext.Channels)
+      foreach (IChannel channel in ChannelContext.Instance.Channels)
       {
         // Use local variable, otherwise delegate argument is not fixed
         IChannel currentChannel = channel;
@@ -811,7 +824,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _channelList.Add(item);
       }
       // Adjust channel list position
-      ChannelContext.Channels.MoveTo(c => IsSameChannel(c, _lastTunedChannel));
+      ChannelContext.Instance.Channels.MoveTo(c => IsSameChannel(c, _lastTunedChannel));
 
       // If the current watched channel is not part of the channel group, set the "selected" property to first list item to make sure focus will be set to the list view
       if (!isOneSelected && _channelList.Count > 0)
@@ -928,9 +941,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return MODEL_ID; }
     }
 
+    protected override void OnCurrentGroupChanged(int oldindex, int newindex)
+    {
+      base.OnCurrentGroupChanged(oldindex, newindex);
+      UpdateChannels();
+    }
+
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
+      UpdateChannels();
 
       if (!ShouldAutoTune())
         return;
@@ -940,7 +960,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      GetCurrentChannelGroup();
+      base.Reactivate(oldContext, newContext);
       UpdateChannels();
     }
 

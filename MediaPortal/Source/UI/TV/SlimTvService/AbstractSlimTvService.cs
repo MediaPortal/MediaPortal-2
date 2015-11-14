@@ -346,7 +346,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName, slotIndex), channel.ChannelId);
       timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
-      return true;
+      return !string.IsNullOrEmpty(timeshiftFile);
     }
 
     public abstract bool StopTimeshift(string userName, int slotIndex);

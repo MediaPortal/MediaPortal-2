@@ -48,6 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty SeasonNumberProperty { get; set; }
     public AbstractProperty EpisodeNumberProperty { get; set; }
     public AbstractProperty EpisodeTitleProperty { get; set; }
+    public AbstractProperty SeriesProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -158,6 +159,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { EpisodeTitleProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Gets or Sets the formatted series number and title (i.e. "1.1 Pilot").
+    /// </summary>
+    public String Series
+    {
+      get { return (String)SeriesProperty.GetValue(); }
+      set { SeriesProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
       ProgramIdProperty = new WProperty(typeof(int), 0);
@@ -172,6 +182,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       EpisodeNumberProperty = new WProperty(typeof(String), String.Empty);
       SeasonNumberProperty = new WProperty(typeof(String), String.Empty);
       EpisodeTitleProperty = new WProperty(typeof(String), String.Empty);
+      SeriesProperty = new WProperty(typeof(String), String.Empty);
       Attach();
     }
 
@@ -209,12 +220,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           SeasonNumber = series.SeasonNumber;
           EpisodeNumber = series.EpisodeNumber;
           EpisodeTitle = series.EpisodeTitle;
+          Series = BuildSeriesText(this);
         }
         else
         {
           SeasonNumber = string.Empty;
           EpisodeNumber = string.Empty;
           EpisodeTitle = string.Empty;
+          Series = string.Empty;
         }
         if (program != null)
         {
@@ -247,6 +260,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       DateTime programStart = StartTime;
       DateTime programEnd = EndTime;
       RemainingDuration = Math.Max((int)(programEnd - programStart).TotalMinutes, 0);
+    }
+
+    public static string BuildSeriesText(ProgramProperties program)
+    {
+      if (string.IsNullOrEmpty(program.SeasonNumber) && string.IsNullOrEmpty(program.EpisodeNumber))
+        return null;
+
+      return string.Format("{0}{1}{2} {3}", program.SeasonNumber, string.IsNullOrEmpty(program.SeasonNumber) ? "" : ".", program.EpisodeNumber, program.EpisodeTitle).TrimEnd();
     }
   }
 }

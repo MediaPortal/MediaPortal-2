@@ -109,10 +109,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     private string BuildSeriesText(ProgramProperties program)
     {
-      if (string.IsNullOrEmpty(program.SeasonNumber) && string.IsNullOrEmpty(program.EpisodeNumber) || !ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().ShowSeriesInfo)
+      if (!ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().ShowSeriesInfo)
         return null;
-
-      return string.Format("({0}{1}{2} {3})", program.SeasonNumber, string.IsNullOrEmpty(program.SeasonNumber) ? "" : ".", program.EpisodeNumber, program.EpisodeTitle);
+      var text = ProgramProperties.BuildSeriesText(program);
+      return string.IsNullOrEmpty(text) ? null : string.Format("({0})", text);
     }
 
     /// <summary>

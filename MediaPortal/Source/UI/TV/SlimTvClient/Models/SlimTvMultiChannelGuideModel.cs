@@ -165,17 +165,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
-    protected override void UpdateChannels()
+    protected void UpdateChannels()
     {
-      SetGroupName();
+      UpdateGuiProperties();
       BackgroundUpdateChannels();
     }
 
     private void BackgroundUpdateChannels()
     {
-      base.UpdateChannels();
+      //base.UpdateChannels();
       _channelList.Clear();
-      foreach (IChannel channel in ChannelContext.Channels)
+      foreach (IChannel channel in ChannelContext.Instance.Channels)
       {
         IChannel localChannel = channel;
         var channelProgramsItem = new ChannelProgramListItem(channel, new ItemsList())
@@ -231,8 +231,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                                 ProgramId = -1,
                                 ChannelId = channel.ChannelId,
                                 Title = loc.ToString("[SlimTvClient.NoProgram]"),
-                                StartTime = startTime.HasValue ? startTime.Value : today,
-                                EndTime = endTime.HasValue ? endTime.Value : today.AddDays(1)
+                                StartTime = startTime ?? today,
+                                EndTime = endTime ?? today.AddDays(1)
                               };
       programProperties.SetProgram(placeholderProgram);
 
@@ -262,10 +262,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         ChannelName = currentChannel.Name;
     }
 
-    protected override void UpdateCurrentChannel()
-    { }
-
-    protected override void UpdatePrograms()
+    protected void UpdatePrograms()
     {
       UpdateProgramsForGroup();
       foreach (ChannelProgramListItem channel in _channelList)
@@ -279,13 +276,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void UpdateProgramsForGroup()
     {
       if (
-        _bufferGroupIndex != ChannelContext.ChannelGroups.CurrentIndex || /* Group changed */
+        _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex || /* Group changed */
         _bufferStartTime == DateTime.MinValue || _bufferEndTime == DateTime.MinValue || /* Buffer not set */
         GuideStartTime < _bufferStartTime || GuideStartTime > _bufferEndTime || /* Cache is out of request range */
         GuideEndTime < _bufferStartTime || GuideEndTime > _bufferEndTime
         )
       {
-        _bufferGroupIndex = ChannelContext.ChannelGroups.CurrentIndex;
+        _bufferGroupIndex = ChannelContext.Instance.ChannelGroups.CurrentIndex;
         _bufferStartTime = GuideStartTime.AddHours(-_bufferHours);
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
         IChannelGroup group = CurrentChannelGroup;
@@ -380,12 +377,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return MODEL_ID; }
     }
 
+    protected override void OnCurrentGroupChanged(int oldindex, int newindex)
+    {
+      base.OnCurrentGroupChanged(oldindex, newindex);
+      UpdateChannels();
+      UpdatePrograms();
+    }
+
+    public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      base.Reactivate(oldContext, newContext);
+      // Only recreate content if group was changed in mean time
+      if (_bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex)
+      {
+        UpdateChannels();
+        UpdatePrograms();
+      }
+    }
+
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
       // Init viewport to start with current time.
       GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
+      UpdateChannels();
       UpdatePrograms();
     }
 

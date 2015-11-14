@@ -40,7 +40,7 @@
 
   <!-- TODO: add all related episode information -->
   <Label x:Name="EpisodeLabel" Grid.Row="4" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-  <Label x:Name="Episode" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Content="{Binding Path=CurrentProgram.EpisodeName}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+  <Label x:Name="Episode" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Content="{Binding Path=CurrentProgram.Series}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
   <Label x:Name="DescriptionLabel" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
   <Label x:Name="Description" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 

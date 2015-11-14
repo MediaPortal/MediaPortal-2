@@ -37,5 +37,6 @@
   <string name="BlueVision.DisableHomeTab">Disable "Home" tab</string>
   <string name="BlueVision.DisableAutoSelection">Disable automatic tab menu selection</string>
   <string name="BlueVision.UseAlternativeSplashscreen">Use BlueVision splash screen</string>
+  <string name="BlueVision.ResetMenuLayout">Reset menu layout to default</string>
 
 </resources>

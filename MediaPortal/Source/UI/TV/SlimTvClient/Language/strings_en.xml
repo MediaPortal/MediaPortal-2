@@ -62,6 +62,7 @@
   <string name="SlimTvClient.Schedules">Schedules</string>
   <string name="SlimTvClient.ExtendedSchedule">Extended scheduling</string>
   <string name="SlimTvClient.ScheduleManagement">Manage schedules</string>
+  <string name="SlimTvClient.ScheduleModeSeries">Manage series schedules</string>
 
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
 

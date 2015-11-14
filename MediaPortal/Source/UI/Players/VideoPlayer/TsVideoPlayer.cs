@@ -319,8 +319,11 @@ namespace MediaPortal.UI.Players.Video
       // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableSubtitles)
+      {
         // Tell the renderer it should not render subtitles
-        _subtitleRenderer.RenderSubtitles = false;
+        if (_subtitleRenderer != null)
+          _subtitleRenderer.RenderSubtitles = false;
+      }
       else
         subtitleStream.SetSubtitleStream(streamInfo.StreamIndex);
     }

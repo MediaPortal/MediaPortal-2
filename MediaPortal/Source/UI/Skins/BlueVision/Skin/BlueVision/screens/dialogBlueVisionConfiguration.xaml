@@ -24,6 +24,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -45,7 +46,13 @@
             IsChecked="{Binding Path=UseAlternativeSplashscreen,Mode=TwoWay}"
             Content="{Binding}" />
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Label Content="[BlueVision.ResetMenuLayout]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="3" Grid.Column="1"/>
+
+        <CheckBox x:Name="ResetMenuLayoutCheckbox" Margin="5" Grid.Row="3" Grid.Column="0"
+            IsChecked="{Binding Path=ResetGroupLayout,Mode=TwoWay}"
+            Content="{Binding}" />
+
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource Model}" Path="SaveSettings"/>
