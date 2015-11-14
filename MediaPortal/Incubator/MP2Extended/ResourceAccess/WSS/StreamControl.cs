@@ -1,20 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using HttpServer;
-using HttpServer.Exceptions;
+﻿using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
@@ -24,35 +11,53 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
     public static Dictionary<string, Dictionary<string, List<TranscodeContext>>> CurrentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
+    /// <summary>
+    /// Adds a new stream Item to the list.
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="item">The stream item which should be added</param>
     internal static void AddStreamItem(string identifier, StreamItem item)
     {
-      if (ValidateIdentifie(identifier))
+      if (DeleteStreamItem(identifier))
       {
         Logger.Debug("StreamControl: identifier {0} is already in list -> deleting old stream item", identifier);
-        DeleteStreamItem(identifier);
       }
 
       STREAM_ITEMS.Add(identifier, item);
     }
 
-    internal static void DeleteStreamItem(string identifier)
+    /// <summary>
+    /// Deletes a stream Item from the list
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <returns>Returns true if an item was deleted, false if no item was deleted</returns>
+    internal static bool DeleteStreamItem(string identifier)
     {
       if (ValidateIdentifie(identifier))
       {
         StopStreaming(identifier);
         STREAM_ITEMS.Remove(identifier);
+        return true;
       }
+      return false;
     }
 
+    /// <summary>
+    /// Updates an already existent stream item
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="item">The updated stream item</param>
     internal static void UpdateStreamItem(string identifier, StreamItem item)
     {
-      if (ValidateIdentifie(identifier))
-      {
-        DeleteStreamItem(identifier);
-      }
+      DeleteStreamItem(identifier);
       AddStreamItem(identifier, item);
     }
 
+    /// <summary>
+    /// Returns a stream item based on the given identifier
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <returns>Returns the requested stream item otherwise null</returns>
     internal static StreamItem GetStreamItem(string identifier)
     {
       if (ValidateIdentifie(identifier))
@@ -62,6 +67,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return null;
     }
 
+    /// <summary>
+    /// Gets all available stream items
+    /// </summary>
+    /// <returns>Returns a Dictionary of stream Items</returns>
     internal static Dictionary<string, StreamItem> GetStreamItems()
     {
       return STREAM_ITEMS;
@@ -72,6 +81,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return STREAM_ITEMS.ContainsKey(identifier);
     }
 
+    /// <summary>
+    /// Does the preparation to start a stream
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="context">Transcoder context</param>
     internal static void StartStreaming(string identifier, TranscodeContext context)
     {
       if (ValidateIdentifie(identifier))
@@ -82,6 +96,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       }
     }
 
+    /// <summary>
+    /// Stops the streaming
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
     internal static void StopStreaming(string identifier)
     {
       if (ValidateIdentifie(identifier))
