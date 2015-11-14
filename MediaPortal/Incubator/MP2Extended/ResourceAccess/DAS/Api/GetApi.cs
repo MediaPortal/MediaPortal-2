@@ -8,7 +8,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api
 {
-  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Html, ReturnType = typeof(List<string>), Summary = "")]
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Html, ReturnType = typeof(string), Summary = "")]
   internal class GetApi : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)

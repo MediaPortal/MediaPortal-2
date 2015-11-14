@@ -18,7 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   internal class GetFileSystemFilesCount : BaseFileBasic, IRequestMicroModuleHandler
   {
-    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
     [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
     public dynamic Process(IHttpRequest request)
     {

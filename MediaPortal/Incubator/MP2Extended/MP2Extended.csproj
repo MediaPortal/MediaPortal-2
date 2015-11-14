@@ -364,6 +364,7 @@
     <Compile Include="TAS\Tv\WebScheduleBasic.cs" />
     <Compile Include="TAS\Tv\WebScheduledRecording.cs" />
     <Compile Include="Utils\AspectRatioHelper.cs" />
+    <Compile Include="Utils\GetBaseStreamURL.cs" />
     <Compile Include="Utils\Base64.cs" />
     <Compile Include="Utils\DiskSpaceInformation.cs" />
     <Compile Include="Utils\EnumerableComparer.cs" />

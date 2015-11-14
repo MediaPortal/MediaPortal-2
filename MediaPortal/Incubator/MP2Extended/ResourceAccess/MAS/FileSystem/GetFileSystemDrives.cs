@@ -15,7 +15,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   internal class GetFileSystemDrives : BaseDriveBasic, IRequestMicroModuleHandler
   {
-    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebDriveBasic>), Summary = "")]
     [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
     [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
     public dynamic Process(IHttpRequest request)

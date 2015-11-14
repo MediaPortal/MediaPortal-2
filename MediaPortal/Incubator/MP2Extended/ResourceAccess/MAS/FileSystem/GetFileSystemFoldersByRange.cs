@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
-  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebFolderBasic>), Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]

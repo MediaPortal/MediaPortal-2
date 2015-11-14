@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     public Dictionary<string, object> GetRequestMicroModuleHandlers()
     {
-      return _requestModuleHandlers.ToDictionary<KeyValuePair<string, ISubRequestModuleHandler>, string, object>(module => module.Key, module => module.Value);
+      return _requestModuleHandlers.SelectMany(handler => handler.Value.GetRequestMicroModuleHandlers()).ToDictionary(module => module.Key, module => module.Value);
     }
 
     internal static ILogger Logger
