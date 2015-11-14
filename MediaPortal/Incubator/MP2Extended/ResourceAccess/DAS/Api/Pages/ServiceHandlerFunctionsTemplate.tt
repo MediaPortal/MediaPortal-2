@@ -28,7 +28,7 @@ function toggel(caller){
 	<ul style="list-style-position: inside;">
 	<# foreach (var handlerFunction in category.Value.OrderBy(i => i.Name)) { #>
 	  <li>
-		<span onclick="toggel(this)"><#= handlerFunction.Name #></span>
+		<span onclick="toggel(this)" style="cursor: pointer;"><#= handlerFunction.Name #></span>
 		<div style="display: none; padding-left: 25px;">
 			<b>Summary:</b><br>
 			<ins><#= handlerFunction.Summary #></ins>
@@ -44,7 +44,7 @@ function toggel(caller){
 			<br>
 			<b>Parameters:</b><# if (handlerFunction.Parameters.Count == 0) Write(" <i>none</i>"); #><br>
 			<ul style="list-style-position: inside; padding-left: 10px;">
-				<# foreach (var parameter in handlerFunction.Parameters) { #>
+				<# foreach (var parameter in handlerFunction.Parameters.OrderBy(i => i.Name)) { #>
 					<li><#= parameter.Name #> (<#= (parameter.Nullable ? "nullable " : "") + parameter.Type.Name #>)</li>
 				<# } #>
 			</ul>
