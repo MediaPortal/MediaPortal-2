@@ -96,17 +96,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
               }
               if (audioCodecs != null)
                 webAudioStream.Codec = i < audioCodecs.Cast<string>().ToList().Count ? audioCodecs.Cast<string>().ToList()[i] : audioCodecs.Cast<string>().ToList()[0];
-              webAudioStream.ID = i;
-              webAudioStream.Index = int.Parse(audioStreams.Cast<string>().ToList()[i]);
+              webAudioStream.ID = int.Parse(audioStreams.Cast<string>().ToList()[i]);
+              webAudioStream.Index = i;
               if (audioLanguages != null && i < audioLanguages.Cast<string>().ToList().Count)
               {
                 string language = audioLanguages.Cast<string>().ToList()[i] == string.Empty ? UNDEFINED : audioLanguages.Cast<string>().ToList()[i];
                 webAudioStream.Language = language;
-                if (language != UNDEFINED) webAudioStream.LanguageFull = new CultureInfo(language).EnglishName;
                 if (language != UNDEFINED)
                 {
-                  webAudioStream.Title = new CultureInfo(language).EnglishName;
-                  if (string.IsNullOrEmpty(webAudioStream.Codec) == false) webAudioStream.Title += " (" + webAudioStream.Codec + ")";
+                  webAudioStream.LanguageFull = new CultureInfo(language).EnglishName;
+                  if (string.IsNullOrEmpty(webAudioStream.Codec) == false) webAudioStream.Title = webAudioStream.Codec.ToUpperInvariant();
                 }
               }
 

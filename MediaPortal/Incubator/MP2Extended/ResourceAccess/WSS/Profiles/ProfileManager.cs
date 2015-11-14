@@ -36,6 +36,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Plugins.Transcoding.Service;
 
 //Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
@@ -286,7 +287,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "qualityMode")
                     {
-                      profile.Settings.Video.Quality = (Transcoding.Service.QualityMode)Enum.Parse(typeof(Transcoding.Service.QualityMode), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "qualityFactor")
                     {
@@ -294,7 +295,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "coder")
                     {
-                      profile.Settings.Video.CoderType = (Transcoding.Service.Coder)Enum.Parse(typeof(Transcoding.Service.Coder), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
                     }
                   }
                 }
@@ -308,11 +309,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "preset")
                     {
-                      profile.Settings.Video.H262TargetPreset = (Transcoding.Service.EncodingPreset)Enum.Parse(typeof(Transcoding.Service.EncodingPreset), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H262TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "profile")
                     {
-                      profile.Settings.Video.H262TargetProfile = (Transcoding.Service.EncodingProfile)Enum.Parse(typeof(Transcoding.Service.EncodingProfile), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H262TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                     }
                   }
                 }
@@ -330,11 +331,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "preset")
                     {
-                      profile.Settings.Video.H264TargetPreset = (Transcoding.Service.EncodingPreset)Enum.Parse(typeof(Transcoding.Service.EncodingPreset), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "profile")
                     {
-                      profile.Settings.Video.H264TargetProfile = (Transcoding.Service.EncodingProfile)Enum.Parse(typeof(Transcoding.Service.EncodingProfile), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "level")
                     {
@@ -352,11 +353,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "preset")
                     {
-                      profile.Settings.Video.H265TargetPreset = (Transcoding.Service.EncodingPreset)Enum.Parse(typeof(Transcoding.Service.EncodingPreset), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H265TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "profile")
                     {
-                      profile.Settings.Video.H265TargetProfile = (Transcoding.Service.EncodingProfile)Enum.Parse(typeof(Transcoding.Service.EncodingProfile), reader.ReadContentAsString(), true);
+                      profile.Settings.Video.H265TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "level")
                     {
@@ -382,11 +383,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "qualityMode")
                     {
-                      profile.Settings.Images.Quality = (Transcoding.Service.QualityMode)Enum.Parse(typeof(Transcoding.Service.QualityMode), reader.ReadContentAsString(), true);
+                      profile.Settings.Images.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
                     }
                     else if (reader.Name == "coder")
                     {
-                      profile.Settings.Images.CoderType = (Transcoding.Service.Coder)Enum.Parse(typeof(Transcoding.Service.Coder), reader.ReadContentAsString(), true);
+                      profile.Settings.Images.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
                     }
                   }
                 }
@@ -404,7 +405,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                     else if (reader.Name == "coder")
                     {
-                      profile.Settings.Audio.CoderType = (Transcoding.Service.Coder)Enum.Parse(typeof(Transcoding.Service.Coder), reader.ReadContentAsString(), true);
+                      profile.Settings.Audio.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
                     }
                   }
                 }
@@ -444,7 +445,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                   {
                     if (reader.Name == "support")
                     {
-                      profile.Settings.Subtitles.SubtitleMode = (Transcoding.Service.SubtitleSupport)Enum.Parse(typeof(Transcoding.Service.SubtitleSupport), reader.ReadContentAsString(), true);
+                      profile.Settings.Subtitles.SubtitleMode = (SubtitleSupport)Enum.Parse(typeof(SubtitleSupport), reader.ReadContentAsString(), true);
                     }
                   }
                   while (subReader.Read())
@@ -456,7 +457,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                       {
                         if (subReader.Name == "format")
                         {
-                          newSub.Format = (Transcoding.Service.SubtitleCodec)Enum.Parse(typeof(Transcoding.Service.SubtitleCodec), subReader.ReadContentAsString(), true);
+                          newSub.Format = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), subReader.ReadContentAsString(), true);
                         }
                         else if (subReader.Name == "mime")
                         {
@@ -528,7 +529,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           {
             if (reader.Name == "container")
             {
-              vTranscoding.Target.VideoContainerType = (Transcoding.Service.VideoContainer)Enum.Parse(typeof(Transcoding.Service.VideoContainer), reader.ReadContentAsString(), true);
+              vTranscoding.Target.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "movflags")
             {
@@ -536,7 +537,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             else if (reader.Name == "videoCodec")
             {
-              vTranscoding.Target.VideoCodecType = (Transcoding.Service.VideoCodec)Enum.Parse(typeof(Transcoding.Service.VideoCodec), reader.ReadContentAsString(), true);
+              vTranscoding.Target.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "videoFourCC")
             {
@@ -548,7 +549,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             else if (reader.Name == "videoProfile")
             {
-              vTranscoding.Target.EncodingProfileType = (Transcoding.Service.EncodingProfile)Enum.Parse(typeof(Transcoding.Service.EncodingProfile), reader.ReadContentAsString(), true);
+              vTranscoding.Target.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "videoLevel")
             {
@@ -556,11 +557,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             else if (reader.Name == "videoPreset")
             {
-              vTranscoding.Target.TargetPresetType = (Transcoding.Service.EncodingPreset)Enum.Parse(typeof(Transcoding.Service.EncodingPreset), reader.ReadContentAsString(), true);
+              vTranscoding.Target.TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "qualityMode")
             {
-              vTranscoding.Target.QualityType = (Transcoding.Service.QualityMode)Enum.Parse(typeof(Transcoding.Service.QualityMode), reader.ReadContentAsString(), true);
+              vTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "videoBrandExclusion")
             {
@@ -580,11 +581,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             else if (reader.Name == "videoPixelFormat")
             {
-              vTranscoding.Target.PixelFormatType = (Transcoding.Service.PixelFormat)Enum.Parse(typeof(Transcoding.Service.PixelFormat), reader.ReadContentAsString(), true);
+              vTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "audioCodec")
             {
-              vTranscoding.Target.AudioCodecType = (Transcoding.Service.AudioCodec)Enum.Parse(typeof(Transcoding.Service.AudioCodec), reader.ReadContentAsString(), true);
+              vTranscoding.Target.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "audioBitrate")
             {
@@ -637,11 +638,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
               {
                 if (reader.Name == "container")
                 {
-                  src.VideoContainerType = (Transcoding.Service.VideoContainer)Enum.Parse(typeof(Transcoding.Service.VideoContainer), reader.ReadContentAsString(), true);
+                  src.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "videoCodec")
                 {
-                  src.VideoCodecType = (Transcoding.Service.VideoCodec)Enum.Parse(typeof(Transcoding.Service.VideoCodec), reader.ReadContentAsString(), true);
+                  src.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "videoFourCC")
                 {
@@ -653,7 +654,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                 }
                 else if (reader.Name == "videoProfile")
                 {
-                  src.EncodingProfileType = (Transcoding.Service.EncodingProfile)Enum.Parse(typeof(Transcoding.Service.EncodingProfile), reader.ReadContentAsString(), true);
+                  src.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "videoLevel")
                 {
@@ -677,11 +678,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                 }
                 else if (reader.Name == "videoPixelFormat")
                 {
-                  src.PixelFormatType = (Transcoding.Service.PixelFormat)Enum.Parse(typeof(Transcoding.Service.PixelFormat), reader.ReadContentAsString(), true);
+                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "audioCodec")
                 {
-                  src.AudioCodecType = (Transcoding.Service.AudioCodec)Enum.Parse(typeof(Transcoding.Service.AudioCodec), reader.ReadContentAsString(), true);
+                  src.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "audioBitrate")
                 {
@@ -708,7 +709,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           {
             if (reader.Name == "container")
             {
-              aTranscoding.Target.AudioContainerType = (Transcoding.Service.AudioContainer)Enum.Parse(typeof(Transcoding.Service.AudioContainer), reader.ReadContentAsString(), true);
+              aTranscoding.Target.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "audioBitrate")
             {
@@ -753,7 +754,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
               {
                 if (reader.Name == "container")
                 {
-                  src.AudioContainerType = (Transcoding.Service.AudioContainer)Enum.Parse(typeof(Transcoding.Service.AudioContainer), reader.ReadContentAsString(), true);
+                  src.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "audioBitrate")
                 {
@@ -776,15 +777,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           {
             if (reader.Name == "container")
             {
-              iTranscoding.Target.ImageContainerType = (Transcoding.Service.ImageContainer)Enum.Parse(typeof(Transcoding.Service.ImageContainer), reader.ReadContentAsString(), true);
+              iTranscoding.Target.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "pixelFormat")
             {
-              iTranscoding.Target.PixelFormatType = (Transcoding.Service.PixelFormat)Enum.Parse(typeof(Transcoding.Service.PixelFormat), reader.ReadContentAsString(), true);
+              iTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "qualityMode")
             {
-              iTranscoding.Target.QualityType = (Transcoding.Service.QualityMode)Enum.Parse(typeof(Transcoding.Service.QualityMode), reader.ReadContentAsString(), true);
+              iTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
             }
             else if (reader.Name == "forceInheritance")
             {
@@ -817,11 +818,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
               {
                 if (reader.Name == "container")
                 {
-                  src.ImageContainerType = (Transcoding.Service.ImageContainer)Enum.Parse(typeof(Transcoding.Service.ImageContainer), reader.ReadContentAsString(), true);
+                  src.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), reader.ReadContentAsString(), true);
                 }
                 else if (reader.Name == "pixelFormat")
                 {
-                  src.PixelFormatType = (Transcoding.Service.PixelFormat)Enum.Parse(typeof(Transcoding.Service.PixelFormat), reader.ReadContentAsString(), true);
+                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
                 }
               }
               iTranscoding.Sources.Add(src);

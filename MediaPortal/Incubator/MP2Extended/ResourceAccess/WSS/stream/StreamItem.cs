@@ -1,4 +1,5 @@
 ﻿using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -68,6 +69,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// Gets or sets the IP of the Client, which started the stream
     /// </summary>
     internal string ClientIp { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether a stream is currently in progress
+    /// </summary>
+    internal bool IsActive { get; set; }
+
+    /// <summary>
+    /// Gets or sets the transcoding context used by this stream
+    /// </summary>
+    internal TranscodeContext StreamContext { get; set; }
 
     /// <summary>
     /// Constructor, sets for example the start time

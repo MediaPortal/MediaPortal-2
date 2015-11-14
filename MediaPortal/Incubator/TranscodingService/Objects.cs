@@ -162,7 +162,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     SubView,
     WebVtt,
     DvbSub,
-    DvbTxt
+    DvbTxt,
+    VobSub
   }
 
   public enum VideoCodec
@@ -284,6 +285,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public SubtitleCodec TargetSubtitleCodec = SubtitleCodec.Srt;
     public string TargetSubtitleLanguages = "EN";
     public string TargetSubtitleMime = "text/srt";
+    public bool TargetIsLive = false;
 
     public string Movflags = null;
     public string HlsBaseUrl = null;
@@ -326,6 +328,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public long TargetAudioBitrate = -1;
     public bool TargetForceAudioStereo = false;
     public Coder TargetCoder = Coder.Default;
+    public bool TargetIsLive = false;
   }
 
   public class TranscodedVideoMetadata

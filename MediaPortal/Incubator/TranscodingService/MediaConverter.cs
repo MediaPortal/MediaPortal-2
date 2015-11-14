@@ -43,6 +43,7 @@ using System.Collections.ObjectModel;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
 using System.Globalization;
 using System.Drawing;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -51,7 +52,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public const int NO_SUBTITLE = -2;
     public const int AUTO_SUBTITLE = -1;
 
-    public const string SEGMENT_FOLDER_TOKEN = "{folderId}";
     public const string INPUT_FILE_TOKEN = "{input}";
     public const string OUTPUT_FILE_TOKEN = "{output}";
     public const string SUBTITLE_FILE_TOKEN = "{subtitle}";
@@ -121,7 +121,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private static int _transcoderMaximumThreads;
     private static int _transcoderTimeout;
     private static int _hlsSegmentTimeInSeconds;
-    private static string _hlsSegmentFileTemplate;
+    private static string _hlsSegmentFileTemplate = "%05d.ts";
     private static string _subtitleDefaultEncoding;
     private static string _subtitleDefaultLanguage;
     private static ILogger _logger;
@@ -192,7 +192,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       _transcoderMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
       _transcoderTimeout = TranscodingServicePlugin.Settings.TranscoderTimeout;
       _hlsSegmentTimeInSeconds = TranscodingServicePlugin.Settings.HLSSegmentTimeInSeconds;
-      _hlsSegmentFileTemplate = TranscodingServicePlugin.Settings.HLSSegmentFileTemplate;
       _subtitleDefaultLanguage = TranscodingServicePlugin.Settings.SubtitleDefaultLanguage;
       _subtitleDefaultEncoding = TranscodingServicePlugin.Settings.SubtitleDefaultEncoding;
 
@@ -224,7 +223,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       _ffMpegCommandline = new FFMpegCommandline(_transcoderMaximumThreads, _transcoderTimeout, _cachePath, _hlsSegmentTimeInSeconds, _hlsSegmentFileTemplate, _supportHardcodedSubs);
     }
 
-    #region MIME
+    #region HLS
 
     public static string GetHlsFileMime(string fileName)
     {
@@ -236,6 +235,17 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return "text/vtt";
       return null;
     }
+
+    public static long GetHlsSegmentSequence(string fileName)
+    {
+      long sequenceNumber = -1;
+      long.TryParse(Path.GetFileNameWithoutExtension(fileName), out sequenceNumber);
+      return sequenceNumber;
+    }
+
+    #endregion
+
+    #region MIME
 
     public static string GetSubtitleMime(SubtitleCodec codec)
     {
@@ -516,7 +526,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
             }
             catch
             {
-              _logger.Debug("MediaConverter: Error disposing transcode context for file '{0}'", context.TargetFile);
+              if(context.Live) _logger.Debug("MediaConverter: Error disposing transcode context for live stream");
+              else _logger.Debug("MediaConverter: Error disposing transcode context for file '{0}'", context.TargetFile);
             }
           }
         }
@@ -928,9 +939,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
             }
             else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
             {
-              string subContent = File.ReadAllText(file);
-              if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
-              else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
+              if (File.Exists(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + ".idx")) == true)
+              {
+                sub.Codec = SubtitleCodec.VobSub;
+              }
+              else
+              {
+                string subContent = File.ReadAllText(file);
+                if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
+                else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
+              }
             }
             else if (string.Compare(Path.GetExtension(file), ".vtt", true, CultureInfo.InvariantCulture) == 0)
             {
@@ -939,7 +957,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
             if (sub.Codec != SubtitleCodec.Unknown)
             {
               sub.Source = file;
-              sub.Language = SubtitleAnalyzer.GetLanguage(file, _subtitleDefaultEncoding, _subtitleDefaultLanguage);
+              if (SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec) == false)
+              {
+                sub.Language = SubtitleAnalyzer.GetLanguage(lfsra, file, _subtitleDefaultEncoding, _subtitleDefaultLanguage);
+              }
               externalSubtitles.Add(sub);
             }
           }
@@ -950,7 +971,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static BufferedStream GetSubtitleStream(VideoTranscoding video)
     {
-      Subtitle sub = GetSubtitle(video);
+      Subtitle sub = GetSubtitle(video, 0);
       if (sub == null || sub.SourceFile == null)
       {
         return null;
@@ -975,7 +996,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return false;
     }
 
-    private static Subtitle GetSubtitle(VideoTranscoding video)
+    private static Subtitle GetSubtitle(VideoTranscoding video, double timeStart)
     {
       SubtitleStream sourceSubtitle = FindSubtitle(video);
       if (sourceSubtitle == null) return null;
@@ -985,23 +1006,32 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         Codec = sourceSubtitle.Codec,
         Language = sourceSubtitle.Language,
-        SourceFile = sourceSubtitle.Source,
-        CharacterEncoding = SubtitleAnalyzer.GetEncoding(sourceSubtitle.Source, sourceSubtitle.Language, _subtitleDefaultEncoding)
+        SourceFile = sourceSubtitle.Source
       };
+      if (SubtitleAnalyzer.IsImageBasedSubtitle(res.Codec) == false)
+      {
+        res.CharacterEncoding = SubtitleAnalyzer.GetEncoding((ILocalFsResourceAccessor)video.SourceFile, sourceSubtitle.Source, sourceSubtitle.Language, _subtitleDefaultEncoding);
+      }
 
       // SourceSubtitle == TargetSubtitleCodec -> just return
-      if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == sourceSubtitle.Codec)
+      if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == sourceSubtitle.Codec && timeStart == 0)
       {
         return res;
       }
 
       // create a file name for the output file which contains the subtitle informations
       string transcodingFile = Path.Combine(_cachePath, video.TranscodeId);
+      long partId = Convert.ToInt64(timeStart);
+      if (timeStart > 0)
+      {
+        transcodingFile = Path.Combine(_cachePath, partId + "." + video.TranscodeId);
+      }
       if (sourceSubtitle != null && string.IsNullOrEmpty(sourceSubtitle.Language) == false)
       {
         transcodingFile += "." + sourceSubtitle.Language;
       }
       transcodingFile += ".mpts";
+      
       SubtitleCodec targetCodec = video.TargetSubtitleCodec;
       if (targetCodec == SubtitleCodec.Unknown)
       {
@@ -1027,7 +1057,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       // subtitle is embedded in the source file
       if (sourceSubtitle.IsEmbedded)
       {
-        _ffMpegCommandline.ExtractSubtitleFile(video, sourceSubtitle, res.CharacterEncoding, transcodingFile);
+        _ffMpegCommandline.ExtractSubtitleFile(video, sourceSubtitle, res.CharacterEncoding, transcodingFile, timeStart);
         if (File.Exists(transcodingFile))
         {
           res.Codec = targetCodec;
@@ -1076,6 +1106,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
         IResourceAccessor resourceAccessor = new LocalFsResourceAccessor(localFsResourceProvider, res.SourceFile);
         _ffMpegCommandline.InitTranscodingParameters(resourceAccessor, ref data);
         data.InputArguments.Add(string.Format("-f {0}", FFMpegGetSubtitleContainer.GetSubtitleContainer(sourceSubtitle.Codec)));
+        if (timeStart > 0)
+        {
+          data.OutputArguments.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
+        }
 
         res.Codec = targetCodec;
         string subtitleEncoder = "copy";
@@ -1096,8 +1130,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
       data.OutputFilePath = transcodingFile;
 
       if (_logger != null) _logger.Debug("MediaConverter: Invoking transcoder to transcode subtitle file '{0}' for transcode '{1}'", res.SourceFile, data.TranscodeId);
-      FFMpegFileProcessor.FileProcessor(ref data, _transcoderTimeout);
-      if (File.Exists(transcodingFile) == true)
+      bool success = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)data.InputResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout).Result.Success;
+      if (success && File.Exists(transcodingFile) == true)
       {
         res.SourceFile = transcodingFile;
         return res;
@@ -1200,11 +1234,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return false;
     }
 
-    public static string GetFolderFromFolderId(string folderId)
-    {
-      return _ffMpegCommandline.GetFolderFromFolderId(folderId);
-    }
-
     public static TranscodeContext GetMediaStream(BaseTranscoding transcodingInfo, double timeStart, double timeDuration, bool waitForBuffer)
     {
       if (((ILocalFsResourceAccessor)transcodingInfo.SourceFile).Exists == false)
@@ -1232,13 +1261,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext(_cacheEnabled) { Failed = false };
       context.TargetDuration = video.SourceDuration;
-      if (timeStart == 0)
+      if (timeStart == 0 && video.TargetIsLive == false && _cacheEnabled)
       {
         timeDuration = 0;
         context.Partial = false;
       }
       else
       {
+        video.TargetIsLive = true;
         context.Partial = true;
       }
       if(video.TargetVideoContainer == VideoContainer.Unknown)
@@ -1286,7 +1316,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       video.TargetSubtitleMime = GetSubtitleMime(video.TargetSubtitleCodec);
 
-      Subtitle currentSub = GetSubtitle(video);
+      Subtitle currentSub = GetSubtitle(video, timeStart);
       if (currentSub != null) video.SourceSubtitleAvailable = true;
       else video.SourceSubtitleAvailable = false;
       if (currentSub != null && _supportHardcodedSubs == true && (embeddedSupported || video.TargetSubtitleSupport == SubtitleSupport.HardCoded))
@@ -1346,7 +1376,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           return context;
         }
       }
-      if (video.TargetVideoContainer == VideoContainer.Hls)
+      if (video.TargetVideoContainer == VideoContainer.Hls && timeStart == 0)
       {
         string pathName = Path.Combine(_cachePath, Path.GetFileNameWithoutExtension(transcodingFile).Replace(".", "_") + "_mptf");
         string playlist = Path.Combine(pathName, PLAYLIST_MANIFEST_FILE_NAME);
@@ -1360,12 +1390,12 @@ namespace MediaPortal.Plugins.Transcoding.Service
           TranscodeContext existingContext = null;
           if (AssignExistingTranscodeContext(video.TranscodeId, ref existingContext) == true)
           {
-            existingContext.TargetFile = playlist;
-            existingContext.SegmentDir = pathName;
-            if (existingContext.TranscodedStream == null)
-              existingContext.AssignStream(GetReadyFileBuffer(playlist));
-            existingContext.HlsBaseUrl = video.HlsBaseUrl;
-            return existingContext;
+              existingContext.TargetFile = playlist;
+              existingContext.SegmentDir = pathName;
+              if (existingContext.TranscodedStream == null)
+                existingContext.AssignStream(GetReadyFileBuffer(playlist));
+              existingContext.HlsBaseUrl = video.HlsBaseUrl;
+              return existingContext;
           }
           else
           {
@@ -1428,7 +1458,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         _ffMpegCommandline.AddVideoAudioParameters(video, ref data);
         if (currentSub != null && embeddedSupported)
         {
-          _ffMpegCommandline.AddSubtitleEmbeddingParameters(currentSub, embeddedSubCodec, ref data);
+          _ffMpegCommandline.AddSubtitleEmbeddingParameters(currentSub, embeddedSubCodec, timeStart, ref data);
         }
         else
         {
@@ -1448,13 +1478,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       TranscodeContext context = new TranscodeContext(_cacheEnabled) { Failed = false };
       context.TargetDuration = audio.SourceDuration;
-      if (timeStart == 0)
+      if (timeStart == 0 && audio.TargetIsLive == false && _cacheEnabled)
       {
         timeDuration = 0;
         context.Partial = false;
       }
       else
       {
+        audio.TargetIsLive = true;
         context.Partial = true;
       }
       if (audio.TargetAudioContainer == AudioContainer.Unknown)
@@ -1524,6 +1555,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         data.TranscoderArguments = audio.TranscoderArguments;
         data.InputResourceAccessor = audio.SourceFile;
+        if (context.Partial)
+        {
+          data.OutputFilePath = partialTranscodingFile;
+          context.TargetFile = partialTranscodingFile;
+        }
+        else
+        {
+          data.OutputFilePath = transcodingFile;
+          context.TargetFile = transcodingFile;
+        }
       }
       else
       {
@@ -1534,19 +1575,17 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         _ffMpegCommandline.AddAudioParameters(audio, ref data);
 
-        data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetAudioContainer.GetAudioContainer(audio.TargetAudioContainer)));
+        string fileName = transcodingFile;
+        if (context.Partial)
+        {
+          fileName = partialTranscodingFile;
+        }
+        _ffMpegCommandline.AddTargetAudioFormatAndOutputFileParameters(audio, ref fileName, ref data);
+        context.TargetFile = fileName;
+
         data.OutputArguments.Add("-vn");
       }
-      if (context.Partial)
-      {
-        data.OutputFilePath = partialTranscodingFile;
-        context.TargetFile = partialTranscodingFile;
-      }
-      else
-      {
-        data.OutputFilePath = transcodingFile;
-        context.TargetFile = transcodingFile;
-      }
+      
       if (_logger != null) _logger.Debug("MediaConverter: Invoking transcoder to transcode audio file '{0}' for transcode '{1}'", audio.SourceFile, audio.TranscodeId);
       context.Start();
       context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
@@ -1612,27 +1651,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public static BufferedStream GetReadyFileBuffer(ILocalFsResourceAccessor lfsra)
     {
-      int iTry = 60;
-      while (iTry > 0)
+      // Impersonation
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
       {
-        if (lfsra.Exists)
-        {
-          if (lfsra.Size > 0)
-          {
-            if (_logger != null) _logger.Debug(string.Format("MediaConverter: Serving ready file '{0}'", lfsra.LocalFileSystemPath));
-            // Impersonation
-            using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
-            {
-              BufferedStream stream = new BufferedStream(new FileStream(lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-              return stream;
-            }
-          }
-        }
-        iTry--;
-        Thread.Sleep(500);
+        return GetReadyFileBuffer(lfsra.LocalFileSystemPath);
       }
-      if (_logger != null) _logger.Error("MediaConverter: Timed out waiting for ready file '{0}'", lfsra.LocalFileSystemPath);
-      return null;
     }
 
     public static BufferedStream GetReadyFileBuffer(string filePath)
@@ -1693,47 +1716,71 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private static Stream GetTranscodedFileBuffer(FFMpegTranscodeData data, TranscodeContext context)
     {
-      string filePath = "";
-      string origFilePath = "";
-      if (data.SegmentPlaylist != null)
+      if (data.IsLive == true && data.SegmentPlaylist == null)
       {
-        filePath = Path.Combine(data.WorkPath, data.SegmentPlaylist);
-        origFilePath = filePath;
-        if(string.Equals(Path.GetFileName(filePath), PLAYLIST_MANIFEST_FILE_NAME, StringComparison.InvariantCultureIgnoreCase) == true)
+        int iTry = 60;
+        while (iTry > 0 && context.Failed == false && context.Aborted == false)
         {
-          //This file generated already wait for file generated by ffmpege instead
-          filePath = Path.Combine(data.WorkPath, PLAYLIST_FILE_NAME);
+          bool streamReady = false;
+          try
+          {
+            streamReady = data.LiveStream.CanRead;
+          }
+          catch { }
+          if (streamReady)
+          {
+            if (_logger != null) _logger.Debug(string.Format("MediaConverter: Serving transcoded stream '{0}'", data.TranscodeId));
+            return new BufferedStream(data.LiveStream);
+          }
+          iTry--;
+          Thread.Sleep(500);
         }
+        if (_logger != null) _logger.Error("MediaConverter: Timed out waiting for transcoded stream '{0}'", data.TranscodeId);
       }
       else
       {
-        filePath = Path.Combine(data.WorkPath, data.OutputFilePath);
-        origFilePath = filePath;
-      }
-
-      int iTry = 60;
-      while (iTry > 0 && context.Failed == false && context.Aborted == false)
-      {
-        if (File.Exists(filePath))
+        string filePath = "";
+        string origFilePath = "";
+        if (data.SegmentPlaylist != null)
         {
-          long length = 0;
-          try
+          filePath = Path.Combine(data.WorkPath, data.SegmentPlaylist);
+          origFilePath = filePath;
+          if (string.Equals(Path.GetFileName(filePath), PLAYLIST_MANIFEST_FILE_NAME, StringComparison.InvariantCultureIgnoreCase) == true)
           {
-            length = new FileInfo(filePath).Length;
-          }
-          catch { }
-          if (length > 0)
-          {
-            if (_logger != null) _logger.Debug(string.Format("MediaConverter: Serving transcoded file '{0}'", origFilePath));
-            Stream stream = new FileStream(origFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-
-            return stream;
+            //This file generated already wait for file generated by ffmpege instead
+            filePath = Path.Combine(data.WorkPath, PLAYLIST_FILE_NAME);
           }
         }
-        iTry--;
-        Thread.Sleep(500);
+        else
+        {
+          filePath = Path.Combine(data.WorkPath, data.OutputFilePath);
+          origFilePath = filePath;
+        }
+
+        int iTry = 60;
+        while (iTry > 0 && context.Failed == false && context.Aborted == false)
+        {
+          if (File.Exists(filePath))
+          {
+            long length = 0;
+            try
+            {
+              length = new FileInfo(filePath).Length;
+            }
+            catch { }
+            if (length > 0)
+            {
+              if (_logger != null) _logger.Debug(string.Format("MediaConverter: Serving transcoded file '{0}'", origFilePath));
+              Stream stream = new FileStream(origFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+              return stream;
+            }
+          }
+          iTry--;
+          Thread.Sleep(500);
+        }
+        if (_logger != null) _logger.Error("MediaConverter: Timed out waiting for transcoded file '{0}'", filePath);
       }
-      if (_logger != null) _logger.Error("MediaConverter: Timed out waiting for transcoded file '{0}'", filePath);
       return null;
     }
 
@@ -1781,10 +1828,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
       FFMpegTranscodeThreadData data = (FFMpegTranscodeThreadData)args;
 
       data.Context.TargetFile = Path.Combine(data.TranscodeData.WorkPath, data.TranscodeData.SegmentPlaylist != null ? data.TranscodeData.SegmentPlaylist : data.TranscodeData.OutputFilePath);
+      data.Context.Live = data.TranscodeData.IsLive;
       data.Context.SegmentDir = null;
       if (data.TranscodeData.SegmentPlaylist != null)
       {
         data.Context.SegmentDir = data.TranscodeData.WorkPath;
+      }
+      bool isStream = false;
+      if (data.Context.Live == true && data.Context.Segmented == false)
+      {
+        isStream = true;
       }
 
       if (_logger != null) _logger.Debug("MediaConverter: Transcoder '{0}' invoked with command line arguments '{1}'", data.TranscodeData.TranscoderBinPath, data.TranscodeData.TranscoderArguments);
@@ -1798,58 +1851,115 @@ namespace MediaPortal.Plugins.Transcoding.Service
         UseShellExecute = false,
         CreateNoWindow = true,
         RedirectStandardOutput = true,
-        RedirectStandardError = true
+        RedirectStandardError = true,
+        StandardOutputEncoding = Encoding.UTF8,
+        StandardErrorEncoding = Encoding.UTF8
       };
 
       data.Context.CompleteEvent.Reset();
       data.Context.Start();
       data.Context.Failed = false;
-      int iExitCode = -1;
+      int exitCode = -1;
       try
       {
-        //TODO: Move this to FFMpegLib
+        //TODO: Fix usages of obsolete and depricated methods when alternative is available
         using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(((ILocalFsResourceAccessor)data.TranscodeData.InputResourceAccessor).CanonicalLocalResourcePath))
         {
-          using (Process ffmpeg = new Process { StartInfo = startInfo })
+          using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
           {
-            ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
+            IntPtr userToken;
+            if (!ImpersonationHelper.GetTokenByProcess(out userToken, true))
+            {
+              return;
+            }
+            ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
+            if (isStream == false)
+            {
+              ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
+            }
             ffmpeg.ErrorDataReceived += data.Context.ErrorDataReceived;
-            ffmpeg.Start();
+            ffmpeg.StartAsUser(userToken);
             ffmpeg.BeginErrorReadLine();
-            ffmpeg.BeginOutputReadLine();
+            if (isStream == false)
+            {
+              ffmpeg.BeginOutputReadLine();
+            }
+            else
+            {
+              data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
+            }
 
-            //while (executionResult.Status == TaskStatus.Running)
             while (ffmpeg.HasExited == false)
             {
               if (data.Context.Running == false)
               {
-                // TODO: Implement process abort
                 data.Context.Aborted = true;
+                if (isStream == false)
+                {
+                  ffmpeg.CancelOutputRead();
+                }
+                ffmpeg.CancelErrorRead();
                 ffmpeg.Kill();
                 break;
+              }
+              if(data.Context.Segmented == true)
+              {
+                long lastSequence = 0;
+                string[] segmentFiles = Directory.GetFiles(data.Context.SegmentDir, "*.ts");
+                foreach (string file in segmentFiles)
+                {
+                  long sequenceNumber = GetHlsSegmentSequence(file);
+                  if (sequenceNumber > lastSequence) lastSequence = sequenceNumber;
+                }
+                data.Context.LastSegment = lastSequence;
               }
               Thread.Sleep(5);
             }
             ffmpeg.WaitForExit();
-            iExitCode = ffmpeg.ExitCode;
+            exitCode = ffmpeg.ExitCode;
             //iExitCode = executionResult.Result.ExitCode;
-            RemoveTranscodeContext(data.TranscodeData.TranscodeId, data.Context);
-            _ffMpegEncoderHandler.EndEncoding(data.TranscodeData.Encoder, data.TranscodeData.TranscodeId);
             ffmpeg.Close();
+            if (isStream == true)
+            {
+              data.TranscodeData.LiveStream.Dispose();
+            }
+            NativeMethods.CloseHandle(userToken);
           }
         }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-        if (_logger != null) _logger.Error("MediaConverter: Transcoder command failed for file '{0}'", e, data.TranscodeData.OutputFilePath);
+        if (isStream)
+        {
+          if (_logger != null) _logger.Error("MediaConverter: Transcoder command failed for stream '{0}'", e, data.TranscodeData.TranscodeId);
+        }
+        else
+        {
+          if (_logger != null) _logger.Error("MediaConverter: Transcoder command failed for file '{0}'", e, data.TranscodeData.OutputFilePath);
+        }
         data.Context.Failed = true;
       }
-      if (iExitCode > 0)
+      if (exitCode > 0)
       {
         data.Context.Failed = true;
       }
       data.Context.Stop();
       data.Context.CompleteEvent.Set();
+      RemoveTranscodeContext(data.TranscodeData.TranscodeId, data.Context);
+      _ffMpegEncoderHandler.EndEncoding(data.TranscodeData.Encoder, data.TranscodeData.TranscodeId);
+
+      if (data.Context.Partial)
+      {
+        string[] subFiles = Directory.GetFiles(_cachePath, "*." + data.TranscodeData.TranscodeId + ".*.mp*");
+        foreach (string subFile in subFiles)
+        {
+          try
+          {
+            File.Delete(subFile);
+          }
+          catch { }
+        }
+      }
 
       string filePath = data.Context.TargetFile;
       bool isFolder = false;
@@ -1858,15 +1968,29 @@ namespace MediaPortal.Plugins.Transcoding.Service
         filePath = data.Context.SegmentDir;
         isFolder = true;
       }
-      if (iExitCode > 0 || data.Context.Aborted == true)
+      if (exitCode > 0 || data.Context.Aborted == true)
       {
-        if (iExitCode > 0)
+        if (exitCode > 0)
         {
-          if (_logger != null) _logger.Debug("MediaConverter: Transcoder command failed with error {1} for file '{0}'", data.TranscodeData.OutputFilePath, iExitCode);
+          if (isStream)
+          {
+            if (_logger != null) _logger.Debug("MediaConverter: Transcoder command failed with error {1} for stream '{0}'", data.TranscodeData.TranscodeId, exitCode);
+          }
+          else
+          {
+            if (_logger != null) _logger.Debug("MediaConverter: Transcoder command failed with error {1} for file '{0}'", data.TranscodeData.OutputFilePath, exitCode);
+          }
         }
         if (data.Context.Aborted == true)
         {
-          if (_logger != null) _logger.Debug("MediaConverter: Transcoder command aborted for file '{0}'", data.TranscodeData.OutputFilePath);
+          if (isStream)
+          {
+            if (_logger != null) _logger.Debug("MediaConverter: Transcoder command aborted for stream '{0}'", data.TranscodeData.TranscodeId);
+          }
+          else
+          {
+            if (_logger != null) _logger.Debug("MediaConverter: Transcoder command aborted for file '{0}'", data.TranscodeData.OutputFilePath);
+          }
         }
         data.Context.DeleteFiles();
       }

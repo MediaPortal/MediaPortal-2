@@ -32,10 +32,12 @@ using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using System.Diagnostics;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -191,19 +193,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         data.WorkPath = pathName;
 
         byte[] manifest = null;
-        if(video.TargetSubtitleSupport == SubtitleSupport.Embedded)
+        if (video.TargetSubtitleSupport == SubtitleSupport.Embedded)
         {
-          manifest = PlaylistManifest.CreatePlaylistManifest(video, sub, folderId);
-        }
-        if (manifest != null)
-        {
-          data.SegmentPlaylist = Path.Combine(pathName, MediaConverter.PLAYLIST_MANIFEST_FILE_NAME);
-          File.WriteAllBytes(data.SegmentPlaylist, manifest);
+          manifest = PlaylistManifest.CreatePlaylistManifest(video, sub);
         }
         else
         {
-          data.SegmentPlaylist = Path.Combine(pathName, MediaConverter.PLAYLIST_FILE_NAME);
+          manifest = PlaylistManifest.CreatePlaylistManifest(video, null);
         }
+        data.SegmentPlaylist = Path.Combine(pathName, MediaConverter.PLAYLIST_MANIFEST_FILE_NAME);
+        File.WriteAllBytes(data.SegmentPlaylist, manifest);
+
         data.HlsBaseUrl = video.HlsBaseUrl;
         string fileSegments = Path.Combine(pathName, _hlsSegmentFileTemplate);
 
@@ -217,25 +217,69 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         //data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"segment.ts\""));
 
         //Multi file segments more compatible
-        data.OutputArguments.Add(string.Format("-hls_list_size {0}", Convert.ToInt64(video.SourceDuration.TotalSeconds / Convert.ToDouble(_hlsSegmentTimeInSeconds)) + 10));
-        data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
-        data.OutputArguments.Add(string.Format("-start_number {0}", Convert.ToInt64(timeStart / Convert.ToDouble(_hlsSegmentTimeInSeconds))));
-
+        if (video.TargetIsLive)
+        {
+          long segmentBufferSize = Convert.ToInt64(300.0 / Convert.ToDouble(_hlsSegmentTimeInSeconds)) + 1; //5 min buffer
+          data.OutputArguments.Add(string.Format("-hls_list_size {0}", segmentBufferSize));
+          data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
+          data.OutputArguments.Add(string.Format("-hls_wrap {0}", segmentBufferSize * 2));
+          data.OutputArguments.Add("-hls_flags delete_segments");
+          data.IsLive = true;
+        }
+        else
+        {
+          data.OutputArguments.Add(string.Format("-hls_list_size {0}", Convert.ToInt64(video.SourceDuration.TotalSeconds / Convert.ToDouble(_hlsSegmentTimeInSeconds)) + 1));
+          data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
+          data.OutputArguments.Add(string.Format("-start_number {0}", Convert.ToInt64(timeStart / Convert.ToDouble(_hlsSegmentTimeInSeconds))));
+        }
         data.OutputArguments.Add("-segment_list_flags +live");
         if (data.HlsBaseUrl != null)
-          data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + data.HlsBaseUrl.Replace(MediaConverter.SEGMENT_FOLDER_TOKEN, folderId) + "\""));
+          data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + data.HlsBaseUrl + "\""));
         data.OutputFilePath = Path.Combine(pathName, MediaConverter.PLAYLIST_FILE_NAME);
         transcodingFile = data.SegmentPlaylist;
       }
       else
       {
         data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetVideoContainer.GetVideoContainer(video.TargetVideoContainer)));
-        data.OutputFilePath = transcodingFile;
+        if (video.TargetIsLive)
+        {
+          var accessor = data.InputResourceAccessor as INetworkResourceAccessor;
+          if (accessor == null)
+          {
+            data.InputArguments.Add("-re"); //Simulate live stream from file
+          }
+          data.IsLive = true;
+          data.OutputFilePath = "pipe:";
+        }
+        else
+        {
+          data.OutputFilePath = transcodingFile;
+        }
       }
 
       if (video.Movflags != null)
       {
         data.OutputArguments.Add(string.Format("-movflags {0}", video.Movflags));
+      }
+    }
+
+    internal void AddTargetAudioFormatAndOutputFileParameters(AudioTranscoding audio, ref string transcodingFile, ref FFMpegTranscodeData data)
+    {
+      data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetAudioContainer.GetAudioContainer(audio.TargetAudioContainer)));
+      if (audio.TargetIsLive)
+      {
+        var accessor = data.InputResourceAccessor as INetworkResourceAccessor;
+        if (accessor == null)
+        {
+          data.InputArguments.Add("-re"); //Simulate live stream from file
+        }
+
+        data.IsLive = true;
+        data.OutputFilePath = "pipe:";
+      }
+      else
+      {
+        data.OutputFilePath = transcodingFile;
       }
     }
 
@@ -255,7 +299,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal string ExtractSubtitleFile(VideoTranscoding video, SubtitleStream subtitle, string subtitleEncoding, string targetFilePath)
+    internal string ExtractSubtitleFile(VideoTranscoding video, SubtitleStream subtitle, string subtitleEncoding, string targetFilePath, double timeStart)
     {
       string subtitleEncoder = "copy";
       SubtitleCodec targetCodec = video.TargetSubtitleCodec;
@@ -274,12 +318,13 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
       FFMpegTranscodeData data = new FFMpegTranscodeData(_transcoderCachePath);
       InitTranscodingParameters(video.SourceFile, ref data);
-      AddSubtitleExtractionParameters(subtitle, subtitleEncoding, subtitleEncoder, subtitleFormat, ref data);
+      AddSubtitleExtractionParameters(subtitle, subtitleEncoding, subtitleEncoder, subtitleFormat, timeStart, ref data);
       data.OutputFilePath = targetFilePath;
 
       if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to extract subtitle from file '{0}'", video.SourceFile);
-      FFMpegFileProcessor.FileProcessor(ref data, _transcoderTimeout);
-      if (File.Exists(targetFilePath) == false)
+      MediaPortal.Utilities.Process.ProcessExecutionResult result = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)data.InputResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout).Result;
+      bool success = result.Success;
+      if (success && File.Exists(targetFilePath) == false)
       {
         if (Logger != null) Logger.Error("MediaConverter: Failed to extract subtitle from file '{0}'", video.SourceFile);
         return null;
@@ -287,7 +332,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       return targetFilePath;
     }
 
-    internal void AddSubtitleEmbeddingParameters(Subtitle subtitle, SubtitleCodec codec, ref FFMpegTranscodeData data)
+    internal void AddSubtitleEmbeddingParameters(Subtitle subtitle, SubtitleCodec codec, double timeStart, ref FFMpegTranscodeData data)
     {
       if (codec == SubtitleCodec.Unknown) return;
       if (subtitle == null) return;
@@ -317,8 +362,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    private void AddSubtitleExtractionParameters(SubtitleStream subtitle, string subtitleEncoding, string subtitleEncoder, string subtitleFormat, ref FFMpegTranscodeData data)
+    private void AddSubtitleExtractionParameters(SubtitleStream subtitle, string subtitleEncoding, string subtitleEncoder, string subtitleFormat, double timeStart, ref FFMpegTranscodeData data)
     {
+      if(timeStart > 0)
+      {
+        data.OutputArguments.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
+      }
       if (string.IsNullOrEmpty(subtitleEncoding) == false)
       {
         data.OutputArguments.Add(string.Format("-sub_charenc {0}", subtitleEncoding));
@@ -760,12 +809,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
       if (subtitle != null && subtitle.SourceFile != null && _supportHardcodedSubs == true && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
       {
-        string encoding = "UTF-8";
-        if (string.IsNullOrEmpty(subtitle.CharacterEncoding) == false)
+        if (SubtitleAnalyzer.IsImageBasedSubtitle(subtitle.Codec) == false)
         {
-          encoding = subtitle.CharacterEncoding;
+          string encoding = "UTF-8";
+          if (string.IsNullOrEmpty(subtitle.CharacterEncoding) == false)
+          {
+            encoding = subtitle.CharacterEncoding;
+          }
+          data.OutputFilter.Add(string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subtitle.SourceFile), newSize.Width, newSize.Height, encoding));
         }
-        data.OutputFilter.Add(string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subtitle.SourceFile), newSize.Width, newSize.Height, encoding));
       }
     }
 
@@ -829,6 +881,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     {
       if (timeStart > 0.0 && (timeStart < mediaDuration || mediaDuration <= 0))
       {
+        data.InputSubtitleArguments.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
         data.InputArguments.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
         data.OutputArguments.Add("-avoid_negative_ts 1");
       }

@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using MediaPortal.Common;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -6,14 +9,28 @@ namespace MediaPortal.Plugins.Transcoding.Service
 {
   public class SubtitleAnalyzer
   {
-    public static string GetEncoding(string subtitleSource, string subtitleLanguage, string defaultEncoding)
+    public static bool IsImageBasedSubtitle(SubtitleCodec codec)
+    {
+      if (codec == SubtitleCodec.DvbSub || codec == SubtitleCodec.VobSub) return true;
+      return false;
+    }
+
+    public static string GetEncoding(ILocalFsResourceAccessor lfsra, string subtitleSource, string subtitleLanguage, string defaultEncoding)
     {
       if (string.IsNullOrEmpty(subtitleSource))
       {
         return null;
       }
 
-      byte[] buffer = File.ReadAllBytes(subtitleSource);
+      byte[] buffer = null;
+      if (lfsra.Exists)
+      {
+        // Impersonation
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+        {
+          buffer = File.ReadAllBytes(subtitleSource);
+        }
+      }
 
       //Use byte order mark if any
       if (buffer[0] == 0x00 && buffer[1] == 0x00 && buffer[2] == 0XFE && buffer[3] == 0XFF)
@@ -59,7 +76,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return defaultEncoding;
     }
 
-    public static string GetLanguage(string subtitleSource, string defaultEncoding, string defaultLanguage)
+    public static string GetLanguage(ILocalFsResourceAccessor lfsra, string subtitleSource, string defaultEncoding, string defaultLanguage)
     {
       if (string.IsNullOrEmpty(subtitleSource))
       {
@@ -92,7 +109,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (string.IsNullOrEmpty(defaultEncoding) == false)
       {
         //Languge from file encoding
-        string encoding = GetEncoding(subtitleSource, null, defaultEncoding);
+        string encoding = GetEncoding(lfsra, subtitleSource, null, defaultEncoding);
         if (encoding != null)
         {
           switch (encoding.ToUpperInvariant())

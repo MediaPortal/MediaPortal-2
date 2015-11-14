@@ -24,6 +24,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     object _lastSync = new object();
     bool _streamInUse = false;
     bool _useCache = true;
+    long _currentSegment = 0;
     ManualResetEvent _completeEvent = new ManualResetEvent(true);
 
     public TranscodeContext(bool useCache)
@@ -42,12 +43,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public bool Aborted { get; internal set; }
     public bool Failed { get; internal set; }
     public bool Partial { get; internal set; }
+    public bool Segmented 
+    { 
+      get
+      {
+        return string.IsNullOrEmpty(SegmentDir) == false;
+      }
+    }
+    public bool Live { get; internal set; }
+
     public bool InUse 
     {
       get { return _streamInUse; }
       set
       {
-        if(_streamInUse == true && value == false && (Partial == true || _useCache == false))
+        if (_streamInUse == true && value == false && (Partial == true || _useCache == false || Live == true))
         {
           //Delete transcodes if no longer used
           Stop();
@@ -56,6 +66,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         _streamInUse = value;
       }
     }
+
+    public long LastSegment { get; internal set; }
+
+    public long CurrentSegment
+    {
+      set
+      {
+        _currentSegment = value;
+      }
+      get
+      {
+        return _currentSegment;
+      }
+    }
+
     public TimeSpan TargetDuration { get; internal set; }
     public TimeSpan CurrentDuration 
     { 
@@ -68,6 +93,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     { 
       get
       {
+        if (Live) return 0;
+
         if (Running)
         {
           if (_lastSize > 0 && Partial == false)
@@ -94,7 +121,30 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     {
       get
       {
-        if (_transcodedStream != null)
+        if (Live) return 0;
+
+        if (Segmented)
+        {
+          if (_lastSize > 0)
+          {
+            lock (_lastSync)
+            {
+              double secondSize = Convert.ToDouble(_lastSize) / _lastTime.TotalSeconds;
+              return Convert.ToInt64(secondSize * TargetDuration.TotalSeconds);
+            }
+          }
+          else
+          {
+            long totalSize = 0;
+            string[] segmentFiles = Directory.GetFiles(SegmentDir, "*.ts");
+            foreach (string file in segmentFiles)
+            {
+              totalSize += new FileInfo(file).Length;
+            }
+            return totalSize;
+          }
+        }
+        else if (_transcodedStream != null)
         {
           return _transcodedStream.Length;
         }
@@ -196,6 +246,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
     internal void DeleteFiles()
     {
+      if (TranscodedStream != null)
+        TranscodedStream.Dispose();
+
+      if (Live && Segmented == false) return;
+
       string deletePath = TargetFile;
       bool isFolder = false;
       if (string.IsNullOrEmpty(SegmentDir) == false)

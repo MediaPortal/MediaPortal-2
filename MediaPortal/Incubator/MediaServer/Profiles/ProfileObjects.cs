@@ -423,7 +423,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public BasicContainer RootContainer = null;
     public Dictionary<Guid, DlnaMediaItem> DlnaMediaItems = new Dictionary<Guid, DlnaMediaItem>();
 
-    public DlnaMediaItem GetDlnaItem(MediaItem item)
+    public DlnaMediaItem GetDlnaItem(MediaItem item, bool live)
     {
       lock (DlnaMediaItems)
       {
@@ -431,7 +431,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         if (DlnaMediaItems.TryGetValue(item.MediaItemId, out dlnaItem))
           return dlnaItem;
 
-        dlnaItem = new DlnaMediaItem(item, this);
+        dlnaItem = new DlnaMediaItem(item, this, live);
         DlnaMediaItems.Add(item.MediaItemId, dlnaItem);
         return dlnaItem;
       }

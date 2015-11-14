@@ -87,7 +87,6 @@
     <Compile Include="Transcoders\FFMpeg\Converters\FFMpegGetVideoContainer.cs" />
     <Compile Include="Transcoders\FFMpeg\FFMpegCommandline.cs" />
     <Compile Include="Transcoders\FFMpeg\Encoders\FFMpegEncoderHandler.cs" />
-    <Compile Include="Transcoders\FFMpeg\FFMpegFileProcessor.cs" />
     <Compile Include="Transcoders\FFMpeg\FFMpegTranscodeData.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseAudioCodec.cs" />
     <Compile Include="Transcoders\FFMpeg\Parsers\FFMpegParseAudioContainer.cs" />

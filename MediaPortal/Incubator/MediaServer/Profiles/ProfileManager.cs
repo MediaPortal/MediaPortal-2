@@ -211,7 +211,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
             if (headers["remote_addr"] != null)
             {
               IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
-              ProfileLinks.Add(ip, GetEndPointSettings(profile.Value.ID));
+              if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(profile.Value.ID));
               return ProfileLinks[ip];
             }
             return GetEndPointSettings(profile.Value.ID);
@@ -224,7 +224,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       if (headers["remote_addr"] != null)
       {
         IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
-        ProfileLinks.Add(ip, GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID));
+        if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID));
         return ProfileLinks[ip];
       }
       return GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID);
