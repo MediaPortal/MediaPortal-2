@@ -47,7 +47,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
             Name = handlerFunction.Key,
             FriendlyName = handlerFunction.Key,
             Category = type.Namespace.Split('.').Last(),
-            Url = GetBaseStreamUrl.GetBaseStreamURL() + MainRequestHandler.RESOURCE_ACCESS_PATH + "/" + serviceHandler + "/" + handlerFunction.Key
           };
           Attribute[] attrsFunc = Attribute.GetCustomAttributes(type);
           foreach (Attribute attr in attrsFunc)
@@ -62,6 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
               functionDescription.Summary = apiFunctionDescription.Summary?? string.Empty;
               functionDescription.Type = apiFunctionDescription.Type.ToString().ToLower();
               functionDescription.ReturnType = (apiFunctionDescription.ReturnType == null) ? string.Empty : apiFunctionDescription.ReturnType.ToString();
+              functionDescription.Url = GetBaseStreamUrl.GetBaseStreamURL() + MainRequestHandler.RESOURCE_ACCESS_PATH + "/" + serviceHandler + "/" + apiFunctionDescription.Type.ToString().ToLower() + "/" + handlerFunction.Key;
             }
             
             if (param != null)
