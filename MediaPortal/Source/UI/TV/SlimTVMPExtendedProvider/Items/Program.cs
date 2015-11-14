@@ -77,7 +77,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Items
     public string Genre { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+    public DateTime? OriginalAirDate { get; set; }
+    public String Classification { get; set; }
+    public int ParentalRating { get; set; }
+    public int StarRating { get; set; }
     public RecordingStatus RecordingStatus { get; set; }
+    public bool IsScheduled { get; set; }
+    public bool HasConflict { get; set; }
 
     #endregion
   }
