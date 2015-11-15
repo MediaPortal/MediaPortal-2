@@ -553,10 +553,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
     {
       TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
-      tvSchedule.PreRecordInterval = preRecordInterval;
-      tvSchedule.PostRecordInterval = postRecordInterval;
-      tvSchedule.Directory = directory;
-      tvSchedule.Priority = priority;
+      tvSchedule.PreRecordInterval = preRecordInterval >= 0 ? preRecordInterval : Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
+      tvSchedule.PostRecordInterval = postRecordInterval >= 0 ? postRecordInterval : Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
+      if (!String.IsNullOrEmpty(directory))
+      {
+        tvSchedule.Directory = directory;
+      }
+      if (priority >= 0)
+      {
+        tvSchedule.Priority = priority;
+      }
       tvSchedule.Persist();
       _tvControl.OnNewSchedule();
       schedule = tvSchedule.ToSchedule();

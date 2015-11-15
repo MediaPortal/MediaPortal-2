@@ -46,8 +46,6 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_CREATE_SCHEDULE = "CreateSchedule";
     public const string ACTION_CREATE_SCHEDULE_DETAILED = "CreateScheduleDetailed";
     public const string ACTION_CREATE_SCHEDULE_BY_TIME = "CreateScheduleByTime";
-    public const string ACTION_CREATE_SCHEDULE_BY_TIME_AND_TYPE = "CreateScheduleByTimeAndType";
-    public const string ACTION_CREATE_SCHEDULE_BY_TIME_AND_TYPE_AND_TITLE = "CreateScheduleByTimeAndType";
     public const string ACTION_EDIT_SCHEDULE = "EditSchedule";
     public const string ACTION_REMOVE_SCHEDULE_FOR_PROGRAM = "RemoveScheduleForProgram";
     public const string ACTION_REMOVE_SCHEDULE = "RemoveSchedule";
