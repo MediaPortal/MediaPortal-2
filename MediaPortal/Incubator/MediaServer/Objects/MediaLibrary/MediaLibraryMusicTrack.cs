@@ -36,8 +36,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public MediaLibraryMusicTrack(MediaItem item, EndPointSettings client)
       : base(item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item, false);
-
       Artist = new List<string>();
       Album = new List<string>();
       Playlist = new List<string>();

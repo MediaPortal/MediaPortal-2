@@ -71,7 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -85,14 +85,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
             tags = (Tags)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
-        // Handle series information
-        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
-        if (seriesInfo.IsCompleteMatch)
+        // Handle episode information
+        EpisodeInfo episodeInfo = GetEpisodeFromTags(tags);
+        if (episodeInfo.IsCompleteMatch)
         {
           if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(episodeInfo);
 
-          seriesInfo.SetMetadata(extractedAspectData);
+          episodeInfo.SetMetadata(extractedAspectData);
         }
         return true;
       }
@@ -296,7 +296,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, out IResourceAccessor metaFileAccessor)
+    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, out IResourceAccessor metaFileAccessor)
     {
       metaFileAccessor = null;
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;

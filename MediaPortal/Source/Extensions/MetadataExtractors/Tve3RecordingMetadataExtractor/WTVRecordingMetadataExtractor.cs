@@ -71,9 +71,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
     }
 
-    public SeriesInfo GetSeriesFromTags(IDictionary metadata)
+    public EpisodeInfo GetSeriesFromTags(IDictionary metadata)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo seriesInfo = new EpisodeInfo();
       string tmpString;
 
       if (TryGet(metadata, TAG_TITLE, out tmpString))
@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return seriesInfo;
     }
 
-    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData) || forceQuickMode)
         return false;
@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       {
         // Handle series information
         IDictionary tags = rec.GetAttributes();
-        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+        EpisodeInfo seriesInfo = GetSeriesFromTags(tags);
 
         if (SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo))
           seriesInfo.SetMetadata(extractedAspectData);
@@ -256,7 +256,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return true;
     }
 
-    protected static bool CanExtract(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    protected static bool CanExtract(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (lfsra == null || !lfsra.IsFile)
         return false;

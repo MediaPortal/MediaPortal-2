@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses
 {

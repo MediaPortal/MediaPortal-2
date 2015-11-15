@@ -36,8 +36,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public MediaLibraryAudioItem(MediaItem item, EndPointSettings client)
       : base(item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item, false);
-
       Genre = new List<string>();
       Publisher = new List<string>();
       Rights = new List<string>();
