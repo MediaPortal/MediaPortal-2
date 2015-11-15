@@ -18,7 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   internal class GetFileSystemFilesAndFoldersByRange : BaseFilesystemItem, IRequestMicroModuleHandler
   {
-    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+    [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebFilesystemItem>), Summary = "")]
     [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
     [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
     [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]

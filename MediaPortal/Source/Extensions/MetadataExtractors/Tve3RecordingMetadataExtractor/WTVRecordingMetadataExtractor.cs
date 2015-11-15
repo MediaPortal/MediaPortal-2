@@ -40,6 +40,70 @@ using MediaPortal.Extensions.OnlineLibraries;
 namespace MediaPortal.Extensions.MetadataExtractors
 {
   /// <summary>
+  /// MediaPortal 2 metadata extractor for MCE WTV recordings which does an online lookup for series info.
+  /// </summary>
+  public class WTVRecordingSeriesMetadataExtractor : WTVRecordingMetadataExtractor
+  {
+    /// <summary>
+    /// GUID string for the WTV Recording metadata extractor.
+    /// </summary>
+    private const string METADATAEXTRACTOR_ID_STR = "2E1493A6-4898-429C-AF56-D6D7EA2AFEF3";
+
+    /// <summary>
+    /// Tve3 metadata extractor GUID.
+    /// </summary>
+    public new static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
+
+    protected static IList<MediaCategory> SERIES_MEDIA_CATEGORIES = new List<MediaCategory>();
+
+    static WTVRecordingSeriesMetadataExtractor()
+    {
+      MediaCategory seriesCategory;
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
+        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
+      SERIES_MEDIA_CATEGORIES.Add(seriesCategory);
+    }
+
+    public WTVRecordingSeriesMetadataExtractor()
+    {
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "WTV series recordings metadata extractor", MetadataExtractorPriority.Extended, false,
+          SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
+    }
+
+    public SeriesInfo GetSeriesFromTags(IDictionary metadata)
+    {
+      SeriesInfo seriesInfo = new SeriesInfo();
+      string tmpString;
+
+      if (TryGet(metadata, TAG_TITLE, out tmpString))
+        seriesInfo.Series = tmpString;
+
+      if (TryGet(metadata, TAG_EPISODENAME, out tmpString))
+        seriesInfo.Episode = tmpString;
+
+      return seriesInfo;
+    }
+
+    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    {
+      if (!CanExtract(lfsra, extractedAspectData) || forceQuickMode)
+        return false;
+
+      using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
+      {
+        // Handle series information
+        IDictionary tags = rec.GetAttributes();
+        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+
+        if (SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo))
+          seriesInfo.SetMetadata(extractedAspectData);
+      }
+      return true;
+    }
+  }
+
+  /// <summary>
   /// MediaPortal 2 metadata extractor for MCE WTV recordings.
   /// </summary>
   public class WTVRecordingMetadataExtractor : IMetadataExtractor
@@ -49,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// <summary>
     /// GUID string for the Tve3Recording metadata extractor.
     /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "8FB55236-C567-4233-ABFF-754F5A0BBD1C";
+    private const string METADATAEXTRACTOR_ID_STR = "8FB55236-C567-4233-ABFF-754F5A0BBD1C";
 
     /// <summary>
     /// Tve3 metadata extractor GUID.
@@ -58,14 +122,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
 
-    const string TAG_TITLE = "Title";
-    const string TAG_PLOT = "WM/SubTitleDescription";
-    const string TAG_ORIGINAL_TIME = "WM/MediaOriginalBroadcastDateTime";
-    const string TAG_GENRE = "WM/Genre";
-    const string TAG_CHANNEL = "WM/MediaStationName";
-    const string TAG_EPISODENAME = "WM/SubTitle";
-    const string TAG_STARTTIME = "WM/WMRVEncodeTime";
-    const string TAG_ENDTIME = "WM/WMRVEndTime";
+    protected const string TAG_TITLE = "Title";
+    protected const string TAG_PLOT = "WM/SubTitleDescription";
+    protected const string TAG_ORIGINAL_TIME = "WM/MediaOriginalBroadcastDateTime";
+    protected const string TAG_GENRE = "WM/Genre";
+    protected const string TAG_CHANNEL = "WM/MediaStationName";
+    protected const string TAG_EPISODENAME = "WM/SubTitle";
+    protected const string TAG_STARTTIME = "WM/WMRVEncodeTime";
+    protected const string TAG_ENDTIME = "WM/WMRVEndTime";
 
     #endregion
 
@@ -84,12 +148,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
 
-      MediaCategory seriesCategory;
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
-        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
-      MEDIA_CATEGORIES.Add(seriesCategory);
-
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);
@@ -103,25 +161,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
                 RecordingAspect.Metadata,
-                SeriesAspect.Metadata
               });
     }
 
     #endregion
-
-    public EpisodeInfo GetSeriesFromTags(IDictionary metadata)
-    {
-      EpisodeInfo seriesInfo = new EpisodeInfo();
-      string tmpString;
-
-      if (TryGet(metadata, TAG_TITLE, out tmpString))
-        seriesInfo.Series = tmpString;
-
-      if (TryGet(metadata, TAG_EPISODENAME, out tmpString))
-        seriesInfo.Episode = tmpString;
-
-      return seriesInfo;
-    }
 
     public static DateTime FromMCEFileTime(long encodeTime)
     {
@@ -169,31 +212,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    private bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
-      if (lfsra == null || !lfsra.IsFile)
-        return false;
-
-      string title;
-      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
-        return false;
-
-      string filePath = lfsra.CanonicalLocalResourcePath.ToString();
-      string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
-      if (lowerExtension != ".wtv" && lowerExtension != ".dvr-ms")
+      if (!CanExtract(lfsra, extractedAspectData))
         return false;
 
       using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
       {
         // Handle series information
         IDictionary tags = rec.GetAttributes();
-        EpisodeInfo seriesInfo = GetSeriesFromTags(tags);
-
-        if (!forceQuickMode)
-        {
-          if (SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo))
-            seriesInfo.SetMetadata(extractedAspectData);
-        }
 
         // Force MimeType
         MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/wtv");
@@ -228,7 +255,23 @@ namespace MediaPortal.Extensions.MetadataExtractors
       }
       return true;
     }
-  }
+
+    protected static bool CanExtract(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    {
+      if (lfsra == null || !lfsra.IsFile)
+        return false;
+
+      string title;
+      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
+        return false;
+
+      string filePath = lfsra.CanonicalLocalResourcePath.ToString();
+      string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
+      if (lowerExtension != ".wtv" && lowerExtension != ".dvr-ms")
+        return false;
+      return true;
+    }
 
     #endregion
+  }
 }

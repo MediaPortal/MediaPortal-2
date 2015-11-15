@@ -32,6 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetServiceDescription", new GetServiceDescription() },
       { "TestConnection", new TestConnection() },
       // Filter
+      { "CreateFilterString", new CreateFilterString() },
       { "GetFilterOperators", new GetFilterOperators() },
       // Movie
       { "GetMovieActorCount", new GetMovieActorCount() },

@@ -40,7 +40,74 @@ using MediaPortal.Extensions.OnlineLibraries;
 namespace MediaPortal.Extensions.MetadataExtractors
 {
   /// <summary>
-  /// MediaPortal 2 metadata extractor for TVE3 recordings.
+  /// MediaPortal 2 metadata extractor for TVE3(.5) recordings which does an online lookup for series info.
+  /// </summary>
+  public class Tve3RecordingSeriesMetadataExtractor : Tve3RecordingMetadataExtractor
+  {
+    /// <summary>
+    /// GUID string for the Tve3 Recording metadata extractor.
+    /// </summary>
+    private const string METADATAEXTRACTOR_ID_STR = "53033EC6-52BB-4032-A822-2573C66D0ACE";
+
+    /// <summary>
+    /// Tve3 metadata extractor GUID.
+    /// </summary>
+    public new static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
+
+    protected static IList<MediaCategory> SERIES_MEDIA_CATEGORIES = new List<MediaCategory>();
+
+    static Tve3RecordingSeriesMetadataExtractor()
+    {
+      MediaCategory seriesCategory;
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
+        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
+      SERIES_MEDIA_CATEGORIES.Add(seriesCategory);
+    }
+
+    public Tve3RecordingSeriesMetadataExtractor()
+    {
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings series metadata extractor", MetadataExtractorPriority.Extended, false,
+        SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
+    }
+
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    {
+      try
+      {
+        IResourceAccessor metaFileAccessor;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+
+        Tags tags;
+        using (metaFileAccessor)
+        {
+          using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
+            tags = (Tags)GetTagsXmlSerializer().Deserialize(metaStream);
+        }
+
+        // Handle series information
+        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+        if (seriesInfo.IsCompleteMatch)
+        {
+          if (!forceQuickMode)
+            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+
+          seriesInfo.SetMetadata(extractedAspectData);
+        }
+        return true;
+      }
+      catch (Exception e)
+      {
+        // Only log at the info level here - And simply return false. This lets the caller know that we
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("Tve3RecordingSeriesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+      }
+      return false;
+    }
+  }
+
+  /// <summary>
+  /// MediaPortal 2 metadata extractor for TVE3(.5) recordings.
   /// </summary>
   public class Tve3RecordingMetadataExtractor : IMetadataExtractor
   {
@@ -73,7 +140,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// <summary>
     /// GUID string for the Tve3Recording metadata extractor.
     /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "C7080745-8EAE-459E-8A9A-25D87DF8565F";
+    private const string METADATAEXTRACTOR_ID_STR = "C7080745-8EAE-459E-8A9A-25D87DF8565F";
 
     /// <summary>
     /// Tve3 metadata extractor GUID.
@@ -109,12 +176,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     static Tve3RecordingMetadataExtractor()
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
-
-      MediaCategory seriesCategory;
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
-        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
-      MEDIA_CATEGORIES.Add(seriesCategory);
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -164,7 +225,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return episodeInfo;
     }
 
-    private static bool TryGet(Tags tags, string key, out string value)
+    protected static bool TryGet(Tags tags, string key, out string value)
     {
       value = null;
       SimpleTag tag = tags.Tag.Find(t => t.Name == key);
@@ -182,42 +243,18 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
-        IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        if (fsra == null || !fsra.IsFile)
-          return false;
-
-        string title;
-        if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
-          return false;
-
-        string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
-        string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
-        if (lowerExtension != ".ts")
-          return false;
-        string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".xml");
         IResourceAccessor metaFileAccessor;
-        if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out metaFileAccessor))
-          return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
 
         Tags tags;
         using (metaFileAccessor)
         {
-          using (Stream metaStream = ((IFileSystemResourceAccessor) metaFileAccessor).OpenRead())
-            tags = (Tags) GetTagsXmlSerializer().Deserialize(metaStream);
-        }
-
-        // Handle series information
-        EpisodeInfo episodeInfo = GetEpisodeFromTags(tags);
-        if (episodeInfo.IsCompleteMatch)
-        {
-          if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(episodeInfo);
-
-          episodeInfo.SetMetadata(extractedAspectData);
+          using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
+            tags = (Tags)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
         string value;
@@ -257,6 +294,27 @@ namespace MediaPortal.Extensions.MetadataExtractors
         ServiceRegistration.Get<ILogger>().Info("Tve3RecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
+    }
+
+    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, out IResourceAccessor metaFileAccessor)
+    {
+      metaFileAccessor = null;
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null || !fsra.IsFile)
+        return false;
+
+      string title;
+      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
+        return false;
+
+      string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
+      string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
+      if (lowerExtension != ".ts")
+        return false;
+      string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".xml");
+      if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out metaFileAccessor))
+        return false;
+      return true;
     }
 
     #endregion

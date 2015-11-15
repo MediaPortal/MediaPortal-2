@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public void Initialise()
     {
-      DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item);
+      DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item, false);
       var url = DlnaResourceAccessUtils.GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId);
       if (dlnaItem.IsSegmented == true)
       {

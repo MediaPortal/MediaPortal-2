@@ -29,6 +29,8 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
       TranscodingAllowed = true;
       HardcodedSubtitlesAllowed = true;
       PreferredAudioLanguages = "EN";
+      PreRecordInterval = 5;
+      PostRecordInterval = 5;
     }
 
     [Setting(SettingScope.Global)]
@@ -37,5 +39,9 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
     public bool HardcodedSubtitlesAllowed { get; private set; }
     [Setting(SettingScope.Global)]
     public string PreferredAudioLanguages { get; private set; }
+    [Setting(SettingScope.Global)]
+    public int PreRecordInterval { get; private set; }
+    [Setting(SettingScope.Global)]
+    public int PostRecordInterval { get; private set; }
   }
 }

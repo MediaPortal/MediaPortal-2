@@ -112,7 +112,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       return resizedImage;
     }
 
-    internal static ILogger Logger
+    internal new static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }

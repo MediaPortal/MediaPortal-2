@@ -345,8 +345,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         if (ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
         {
           MediaItem recordig = SlimTvMediaItemBuilder.CreateRecordingMediaItem(0, fileOrStream, program, channel);
-          PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
-          PlayItemsModel.PlayOrEnqueueItem(recordig, true, playMode);
+          PlayItemsModel.CheckQueryPlayAction(recordig);
           return true;
         }
       }

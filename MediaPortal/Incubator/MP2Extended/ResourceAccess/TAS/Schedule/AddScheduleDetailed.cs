@@ -18,10 +18,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "scheduleType", Type = typeof(WebScheduleType), Nullable = false)]
-  [ApiFunctionParam(Name = "preRecordInterval", Type = typeof(int), Nullable = false)]
-  [ApiFunctionParam(Name = "postRecordInterval", Type = typeof(int), Nullable = false)]
-  [ApiFunctionParam(Name = "directory", Type = typeof(string), Nullable = false)]
-  [ApiFunctionParam(Name = "priority", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "preRecordInterval", Type = typeof(int), Nullable = true)]
+  [ApiFunctionParam(Name = "postRecordInterval", Type = typeof(int), Nullable = true)]
+  [ApiFunctionParam(Name = "directory", Type = typeof(string), Nullable = true)]
+  [ApiFunctionParam(Name = "priority", Type = typeof(int), Nullable = true)]
   internal class AddScheduleDetailed : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
@@ -47,14 +47,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
         throw new BadRequestException("AddScheduleDetailed: endTime is null");
       if (scheduleType == null)
         throw new BadRequestException("AddScheduleDetailed: scheduleType is null");
-      if (preRecordInterval == null)
-        throw new BadRequestException("AddScheduleDetailed: preRecordInterval is null");
-      if (postRecordInterval == null)
-        throw new BadRequestException("AddScheduleDetailed: postRecordInterval is null");
-      if (directory == null)
-        throw new BadRequestException("AddScheduleDetailed: directory is null");
-      if (priority == null)
-        throw new BadRequestException("AddScheduleDetailed: priority is null");
 
       int channelIdInt;
       if (!int.TryParse(channelId, out channelIdInt))
@@ -65,15 +57,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       DateTime endDateTime;
       if (!DateTime.TryParse(endTime, out endDateTime))
         throw new BadRequestException(string.Format("AddScheduleDetailed: Couldn't parse endTime to DateTime: {0}", endTime));
-      int preRecordIntervalInt;
-      if (!int.TryParse(preRecordInterval, out preRecordIntervalInt))
-        throw new BadRequestException(string.Format("AddScheduleDetailed: Couldn't parse preRecordInterval to int: {0}", preRecordInterval));
-      int postRecordIntervalInt;
-      if (!int.TryParse(postRecordInterval, out postRecordIntervalInt))
-        throw new BadRequestException(string.Format("AddScheduleDetailed: Couldn't parse postRecordInterval to int: {0}", postRecordInterval));
-      int priorityInt;
-      if (!int.TryParse(priority, out priorityInt))
-        throw new BadRequestException(string.Format("AddScheduleDetailed: Couldn't parse priority to int: {0}", priority));
+
+      int preRecordIntervalInt = -1;
+      int.TryParse(preRecordInterval, out preRecordIntervalInt);
+
+      int postRecordIntervalInt = -1;
+      int.TryParse(postRecordInterval, out postRecordIntervalInt);
+
+      int priorityInt = -1;
+      int.TryParse(priority, out priorityInt);
 
       ScheduleRecordingType scheduleRecordingType = (ScheduleRecordingType)JsonConvert.DeserializeObject(scheduleType, typeof(ScheduleRecordingType));
 

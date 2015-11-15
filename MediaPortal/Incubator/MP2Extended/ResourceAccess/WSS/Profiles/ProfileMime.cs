@@ -268,7 +268,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 
     public static bool FindCompatibleMime(EndPointSettings client, List<string> resolvedList, ref string Mime)
     {
-      foreach (MediaMimeMapping map in client.Profile.MediaMimeMap.Values)
+      return FindCompatibleMime(client.Profile, resolvedList, ref Mime);
+    }
+
+    public static bool FindCompatibleMime(EndPointProfile profile, List<string> resolvedList, ref string Mime)
+    {
+      foreach (MediaMimeMapping map in profile.MediaMimeMap.Values)
       {
         if (resolvedList.Contains(map.MappedMediaFormat) == true)
         {
@@ -276,7 +281,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           return true;
         }
       }
-      foreach (MediaMimeMapping map in client.Profile.MediaMimeMap.Values)
+      foreach (MediaMimeMapping map in profile.MediaMimeMap.Values)
       {
         if (string.IsNullOrEmpty(map.MIMEName) == false)
         {

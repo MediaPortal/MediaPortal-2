@@ -134,12 +134,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateProgram(e.FirstAddedItem as ListItem);
     }
 
-    protected void SetGroupName()
+    protected virtual void UpdateGuiProperties()
     {
-      if (CurrentChannelGroup != null)
-      {
-        GroupName = CurrentChannelGroup.Name;
-      }
+      GroupName = CurrentChannelGroup != null ? CurrentChannelGroup.Name : string.Empty;
     }
 
     protected void ShowProgramActions(IProgram program)

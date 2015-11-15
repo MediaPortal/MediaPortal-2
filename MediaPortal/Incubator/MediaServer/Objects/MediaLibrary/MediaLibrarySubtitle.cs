@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public void Initialise()
     {
-      DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item);
+      DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item, false);
       if (DlnaResourceAccessUtils.IsSoftCodedSubtitleAvailable(dlnaItem, Client) == true)
       {
         string mime = null;

@@ -77,7 +77,6 @@
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
 
-<<<<<<< HEAD:MediaPortal/Source/UI/Skins/Reflexion/Skin/Reflexion/themes/default/styles/MediaStyles.xaml
                   <media:EpisodeAspectWrapper MediaItem="{Binding Path=MediaItem}">
                     <media:EpisodeAspectWrapper.IsVisible>
                       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
@@ -86,16 +85,6 @@
                       </MultiBinding>
                     </media:EpisodeAspectWrapper.IsVisible>
                     <media:EpisodeAspectWrapper.Template>
-=======
-                  <media:SeriesAspectWrapper MediaItem="{Binding Path=MediaItem}">
-                    <media:SeriesAspectWrapper.IsVisible>
-                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
-                        <Binding Path="MediaItem" />
-                        <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
-                      </MultiBinding>
-                    </media:SeriesAspectWrapper.IsVisible>
-                    <media:SeriesAspectWrapper.Template>
->>>>>>> FreakyJ/FEAT_WifiRemoteForMP2:MediaPortal/Source/UI/Skins/Reflexion/Skin/Reflexion/themes/default/styles/MediaStyles.xaml
                       <ControlTemplate>
                         <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
                                FallbackSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}">
@@ -106,13 +95,8 @@
                           </Image.Source>
                         </Image>
                       </ControlTemplate>
-<<<<<<< HEAD:MediaPortal/Source/UI/Skins/Reflexion/Skin/Reflexion/themes/default/styles/MediaStyles.xaml
                     </media:EpisodeAspectWrapper.Template>
                   </media:EpisodeAspectWrapper>
-=======
-                    </media:SeriesAspectWrapper.Template>
-                  </media:SeriesAspectWrapper>
->>>>>>> FreakyJ/FEAT_WifiRemoteForMP2:MediaPortal/Source/UI/Skins/Reflexion/Skin/Reflexion/themes/default/styles/MediaStyles.xaml
                 </Grid>
               </ControlTemplate>
 

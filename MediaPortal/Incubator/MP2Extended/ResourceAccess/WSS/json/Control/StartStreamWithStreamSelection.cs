@@ -10,9 +10,17 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.Transcoding.Service;
+using System.Net;
+using System.Linq;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
+using System.Net.Sockets;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Utilities.Network;
+using System.Collections.Generic;
+using MediaPortal.Plugins.MP2Extended.Utils;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -53,13 +61,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (subtitleId != null && !int.TryParse(subtitleId, out subtitleTrack))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse subtitleId '{0}' to int", subtitleId));
 
-      if (!ProfileManager.Profiles.ContainsKey(profileName))
+      EndPointProfile profile = null;
+      List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();
+      if (namedProfiles.Count > 0)
+      {
+        profile = namedProfiles[0];
+      }
+      else if (ProfileManager.Profiles.ContainsKey(profileName))
+      {
+        profile = ProfileManager.Profiles[profileName];
+      }
+      if (profile == null)
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown profile: {0}", profileName));
 
       if (!StreamControl.ValidateIdentifie(identifier))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown identifier: {0}", identifier));
 
-      EndPointProfile profile = ProfileManager.Profiles[profileName];
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
@@ -74,7 +91,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         {
           if (target.Target.VideoContainerType == VideoContainer.Hls)
           {
-            filePostFix = "&file=playlist.m3u8"; //Must be added for some clients to work
+            filePostFix = "&file=playlist.m3u8"; //Must be added for some clients to work (Android mostly)
             break;
           }
         }
@@ -83,51 +100,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);
 
-      return new WebStringResult { Result = GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix };
-    }
-
-    private static IPAddress GetLocalIp()
-    {
-      bool useIPv4 = true;
-      bool useIPv6 = false;
-      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-      if (settings.UseIPv4) useIPv4 = true;
-      if (settings.UseIPv6) useIPv6 = true;
-
-      var host = Dns.GetHostEntry(Dns.GetHostName());
-      IPAddress ip6 = null;
-      foreach (var ip in host.AddressList)
-      {
-        if (IPAddress.IsLoopback(ip) == true)
-        {
-          continue;
-        }
-        if (useIPv4)
-        {
-          if (ip.AddressFamily == AddressFamily.InterNetwork)
-          {
-            return ip;
-          }
-        }
-        if (useIPv6)
-        {
-          if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-          {
-            ip6 = ip;
-          }
-        }
-      }
-      if (ip6 != null)
-      {
-        return ip6;
-      }
-      return null;
-    }
-
-    private static string GetBaseStreamURL()
-    {
-      var rs = ServiceRegistration.Get<IResourceServer>();
-      return "http://" + NetworkUtils.IPAddrToString(GetLocalIp()) + ":" + rs.GetPortForIP(GetLocalIp());
+      string url = GetBaseStreamUrl.GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
+      return new WebStringResult { Result = url };
     }
 
     internal static ILogger Logger

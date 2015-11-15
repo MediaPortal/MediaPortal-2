@@ -174,6 +174,7 @@
     <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDriveBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDrivesByRange.cs" />
     <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDrives.cs" />
+    <Compile Include="ResourceAccess\MAS\Filter\CreateFilterString.cs" />
     <Compile Include="ResourceAccess\MAS\Filter\GetFilterOperators.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetFileInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
@@ -238,6 +239,10 @@
     <Compile Include="ResourceAccess\TAS\Channels\GetAllChannelStatesForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\BaseClasses\BaseProgramBasic.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\BaseClasses\BaseProgramDetailed.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsDetailedByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsCount.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsBasicByRange.cs" />
+    <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsBasic.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\SearchProgramsDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsDetailedForGroup.cs" />
     <Compile Include="ResourceAccess\TAS\EPG\GetProgramsBasicForGroup.cs" />
@@ -252,6 +257,7 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetActiveUsers.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetCards.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetLocalDiskInformation.cs" />
+    <Compile Include="ResourceAccess\TAS\Misc\ReadSettingFromDatabase.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\TestConnectionToTVService.cs" />
     <Compile Include="ResourceAccess\TAS\Misc\GetServiceDescription.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\BaseClasses\BaseRecordingBasic.cs" />
@@ -261,6 +267,7 @@
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingById.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordingsByRange.cs" />
     <Compile Include="ResourceAccess\TAS\Recording\GetRecordings.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\EditSchedule.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\AddScheduleDetailed.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\BaseClasses\BaseScheduledRecording.cs" />
     <Compile Include="ResourceAccess\TAS\Schedule\CancelSchedule.cs" />
@@ -307,6 +314,7 @@
     <Compile Include="ResourceAccess\TAS\Misc\GetActiveCards.cs" />
     <Compile Include="ResourceAccess\WSS\Cache\ImageCache.cs" />
     <Compile Include="ResourceAccess\WSS\ISubRequestModuleHandler.cs" />
+    <Compile Include="ResourceAccess\WSS\json\Control\StopStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\FinishStream.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\StartStreamWithStreamSelection.cs" />
     <Compile Include="ResourceAccess\WSS\json\Control\StartStream.cs" />
@@ -362,6 +370,7 @@
     <Compile Include="TAS\Tv\WebScheduleBasic.cs" />
     <Compile Include="TAS\Tv\WebScheduledRecording.cs" />
     <Compile Include="Utils\AspectRatioHelper.cs" />
+    <Compile Include="Utils\GetBaseStreamURL.cs" />
     <Compile Include="Utils\Base64.cs" />
     <Compile Include="Utils\DiskSpaceInformation.cs" />
     <Compile Include="Utils\EnumerableComparer.cs" />

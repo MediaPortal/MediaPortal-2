@@ -23,11 +23,22 @@
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
+    <!-- .TS +.XML TVE recordings, no online lookup of series -->
     <Instance
         Id="Tve3RecordingMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.Tve3RecordingMetadataExtractor"/>
+    <!-- .TS +.XML TVE recordings, only online lookup of series -->
+    <Instance
+        Id="Tve3RecordingSeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.Tve3RecordingSeriesMetadataExtractor"/>
+
+    <!-- WTV / DVR-MS recordings, no online lookup of series -->
     <Instance
         Id="WTVRecordingMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.WTVRecordingMetadataExtractor"/>
+    <!-- WTV / DVR-MS recordings, only online lookup of series -->
+    <Instance
+        Id="WTVRecordingSeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.WTVRecordingSeriesMetadataExtractor"/>
   </Register>
 </Plugin>

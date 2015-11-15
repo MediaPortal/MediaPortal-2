@@ -3,6 +3,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="MediaPortal.Plugins.MP2Extended.Utils" #>
 
 <#@ include file=".\Header.html" #>
 
@@ -17,7 +18,7 @@
   <br>
   <b>Url:</b><br>
   <div><ins>
-  	<#= GetBaseURL() + "/" + handler.Key #>
+  	<#= GetBaseStreamUrl.GetBaseStreamURL() + MainRequestHandler.RESOURCE_ACCESS_PATH + "/" + handler.Key #>
   </ins></div>
   <br><br>
   <#  } #>

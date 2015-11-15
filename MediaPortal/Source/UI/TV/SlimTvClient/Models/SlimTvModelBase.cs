@@ -28,7 +28,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
-using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -46,7 +45,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Protected fields
 
     protected ITvHandler _tvHandler;
-    protected ItemsList _channelGroupList;
+    protected ItemsList _channelGroupList = new ItemsList();
 
     protected IList<IProgram> _programs;
     protected bool _isInitialized;
@@ -69,23 +68,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #endregion
 
-    #region Channel context
-
-    /// <summary>
-    /// Gets the current <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
-    /// </summary>
-    public ChannelContext ChannelContext
-    {
-      get
-      {
-        if (!ServiceRegistration.IsRegistered<ChannelContext>())
-          ServiceRegistration.Set(new ChannelContext());
-        return ServiceRegistration.Get<ChannelContext>();
-      }
-    }
-
-    #endregion
-
     #region GUI properties and methods
 
     /// <summary>
@@ -103,7 +85,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        return ChannelContext.ChannelGroups.Current;
+        return ChannelContext.Instance.ChannelGroups.Current;
       }
     }
 
@@ -112,7 +94,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void NextGroup()
     {
-      ChannelContext.ChannelGroups.MoveNext();
+      ChannelContext.Instance.ChannelGroups.MoveNext();
       SetGroup();
     }
 
@@ -121,18 +103,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevGroup()
     {
-      ChannelContext.ChannelGroups.MovePrevious();
+      ChannelContext.Instance.ChannelGroups.MovePrevious();
       SetGroup();
     }
 
-    /// <summary>
-    /// Sets the current channel group and updates the channel list.
-    /// </summary>
-    public void SetGroup()
+    protected virtual void SetGroup()
     {
-      FillChannelGroupList();
-      UpdateChannels();
-      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
 
     /// <summary>
@@ -150,7 +126,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        return ChannelContext.Channels.Current;
+        return ChannelContext.Instance.Channels.Current;
       }
     }
 
@@ -159,7 +135,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void NextChannel()
     {
-      ChannelContext.Channels.MoveNext();
+      ChannelContext.Instance.Channels.MoveNext();
       SetChannel();
     }
 
@@ -168,7 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevChannel()
     {
-      ChannelContext.Channels.MovePrevious();
+      ChannelContext.Instance.Channels.MovePrevious();
       SetChannel();
     }
 
@@ -177,8 +153,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     protected virtual void SetChannel()
     {
-      UpdateCurrentChannel();
-      UpdatePrograms();
     }
 
     /// <summary>
@@ -230,36 +204,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           return;
         _tvHandler = tvHandler;
       }
-      IList<IChannelGroup> channelGroups;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannelGroups(out channelGroups))
-      {
-        ChannelContext.ChannelGroups.Clear();
-        ChannelContext.ChannelGroups.AddRange(channelGroups);
-      }
 
       _dialogHeaderProperty = new WProperty(typeof(string), string.Empty);
-
-      GetCurrentChannelGroup();
-      FillChannelGroupList();
-      GetCurrentChannel();
-      UpdateChannels();
-      UpdatePrograms();
     }
 
     protected void FillChannelGroupList()
     {
-      _channelGroupList = new ItemsList();
-      for (int idx = 0; idx < ChannelContext.ChannelGroups.Count; idx++)
+      _channelGroupList.Clear();
+      for (int idx = 0; idx < ChannelContext.Instance.ChannelGroups.Count; idx++)
       {
-        IChannelGroup group = ChannelContext.ChannelGroups[idx];
+        IChannelGroup group = ChannelContext.Instance.ChannelGroups[idx];
         ListItem channelGroupItem = new ListItem(UiComponents.Media.General.Consts.KEY_NAME, group.Name)
         {
           Command = new MethodDelegateCommand(() =>
           {
-            if (ChannelContext.ChannelGroups.MoveTo(g => g == group))
-              SetGroup();
+            if (ChannelContext.Instance.ChannelGroups.MoveTo(g => g == group))
+            {
+              //SetGroup();
+            }
           }),
-          Selected = group == ChannelContext.ChannelGroups.Current
+          Selected = group == ChannelContext.Instance.ChannelGroups.Current
         };
         _channelGroupList.Add(channelGroupItem);
       }
@@ -269,13 +233,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void GetCurrentChannelGroup()
     {
       if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId != 0)
-        ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId);
+        ChannelContext.Instance.ChannelGroups.MoveTo(group => group.ChannelGroupId == _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId);
     }
 
     protected void GetCurrentChannel()
     {
       if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelId != 0)
-        ChannelContext.Channels.MoveTo(channel => channel.ChannelId == _tvHandler.ChannelAndGroupInfo.SelectedChannelId);
+        ChannelContext.Instance.Channels.MoveTo(channel => channel.ChannelId == _tvHandler.ChannelAndGroupInfo.SelectedChannelId);
     }
 
     protected void SetCurrentChannelGroup()
@@ -334,27 +298,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
-    protected abstract void UpdateCurrentChannel();
-    protected abstract void UpdatePrograms();
+    //protected abstract void UpdateCurrentChannel();
 
-    protected virtual void UpdateChannels()
-    {
-      IChannelGroup group = CurrentChannelGroup;
-      if (group != null)
-      {
-        IList<IChannel> channels;
-        if (_tvHandler.ChannelAndGroupInfo.GetChannels(group, out channels))
-        {
-          ChannelContext.Channels.Clear();
-          ChannelContext.Channels.AddRange(channels);
-        }
+    //protected virtual void UpdateChannels()
+    //{
+    //  IChannelGroup group = CurrentChannelGroup;
+    //  if (group != null)
+    //  {
+    //    //IList<IChannel> channels;
+    //    //if (_tvHandler.ChannelAndGroupInfo.GetChannels(group, out channels))
+    //    //{
+    //    //  ChannelContext.Instance.Channels.Clear();
+    //    //  ChannelContext.Instance.Channels.AddRange(channels);
+    //    //}
 
-        // Now current channel group / channel is only set for tuning
-        // SetCurrentChannelGroup();
-        UpdateCurrentChannel();
-        UpdatePrograms();
-      }
-    }
+    //    //// Now current channel group / channel is only set for tuning
+    //    //// SetCurrentChannelGroup();
+    //    //UpdateCurrentChannel();
+    //    UpdatePrograms();
+    //  }
+    //}
 
     #endregion
 
@@ -372,10 +335,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public virtual void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      Attach();
     }
 
     public virtual void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      Detach();
     }
 
     public virtual void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
@@ -384,11 +349,46 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public virtual void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
+      Detach();
     }
 
     public virtual void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       InitModel();
+      Attach();
+    }
+
+    private void Attach()
+    {
+      ChannelContext.Instance.ChannelGroups.OnListChanged += OnChannelGroupsChanged;
+      ChannelContext.Instance.ChannelGroups.OnCurrentChanged += OnCurrentGroupChanged;
+      ChannelContext.Instance.Channels.OnListChanged += OnChannelsChanged;
+      ChannelContext.Instance.Channels.OnCurrentChanged += OnCurrentChannelChanged;
+    }
+
+    private void Detach()
+    {
+      ChannelContext.Instance.ChannelGroups.OnListChanged -= OnChannelGroupsChanged;
+      ChannelContext.Instance.ChannelGroups.OnCurrentChanged -= OnCurrentGroupChanged;
+      ChannelContext.Instance.Channels.OnListChanged -= OnChannelsChanged;
+      ChannelContext.Instance.Channels.OnCurrentChanged -= OnCurrentChannelChanged;
+    }
+
+    protected virtual void OnChannelGroupsChanged(object sender, EventArgs e)
+    {
+      FillChannelGroupList();
+    }
+
+    protected virtual void OnChannelsChanged(object sender, EventArgs e)
+    {
+    }
+
+    protected virtual void OnCurrentGroupChanged(int oldindex, int newindex)
+    {
+    }
+
+    protected virtual void OnCurrentChannelChanged(int oldindex, int newindex)
+    {
     }
 
     public virtual void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)

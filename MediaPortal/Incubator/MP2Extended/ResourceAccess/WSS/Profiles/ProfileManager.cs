@@ -33,6 +33,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Plugins.Transcoding.Service;
 
 //Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 

@@ -769,6 +769,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
+    public bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    {
+      throw new NotImplementedException();
+    }
+
     public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
     {
       Channel indexChannel = channel as Channel;
@@ -787,6 +792,52 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         return false;
       }
+    }
+
+    public bool CreateScheduleByTimeAndType(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
+      Channel indexChannel = channel as Channel;
+      schedule = null;
+      if (indexChannel == null)
+        return false;
+
+      if (!CheckConnection(indexChannel.ServerIndex))
+        return false;
+
+      try
+      {
+        // Note: the enums WebScheduleType and ScheduleRecordingType are defined equally. If one of them gets extended, the other must be changed the same way.
+        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    public bool CreateScheduleByTimeAndType(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
+      Channel indexChannel = channel as Channel;
+      schedule = null;
+      if (indexChannel == null)
+        return false;
+
+      if (!CheckConnection(indexChannel.ServerIndex))
+        return false;
+
+      try
+      {
+        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, title, from, to, (WebScheduleType)recordingType);
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    public bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      throw new NotImplementedException();
     }
 
     public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)

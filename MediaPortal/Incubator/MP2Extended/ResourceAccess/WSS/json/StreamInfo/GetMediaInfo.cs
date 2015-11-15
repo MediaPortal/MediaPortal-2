@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -123,17 +123,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
               }
 			        if(audioCodec != null)
                 webAudioStream.Codec = audioCodec != null ? audioCodec.ToString() : (string)transcodeItemVideoAudioAspects[0].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC);
-              webAudioStream.ID = i;
-              webAudioStream.Index = int.Parse(audioStream.ToString());
+              webAudioStream.ID = int.Parse(audioStream.ToString());;
+              webAudioStream.Index = i;
               if (audioLanguage != null)
               {
                 string language = (string)audioLanguage == string.Empty ? UNDEFINED : audioLanguage.ToString();
                 webAudioStream.Language = language;
-                if (language != UNDEFINED) webAudioStream.LanguageFull = new CultureInfo(language).EnglishName;
                 if (language != UNDEFINED)
                 {
-                  webAudioStream.Title = new CultureInfo(language).EnglishName;
-                  if (string.IsNullOrEmpty(webAudioStream.Codec) == false) webAudioStream.Title += " (" + webAudioStream.Codec + ")";
+                  webAudioStream.LanguageFull = new CultureInfo(language).EnglishName;
+                  if (string.IsNullOrEmpty(webAudioStream.Codec) == false) webAudioStream.Title = webAudioStream.Codec.ToUpperInvariant();
                 }
               }
               webAudioStreams.Add(webAudioStream);

@@ -11,33 +11,66 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
     public static Dictionary<string, Dictionary<string, List<TranscodeContext>>> CurrentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
+    /// <summary>
+    /// Adds a new stream Item to the list.
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="item">The stream item which should be added</param>
     internal static void AddStreamItem(string identifier, StreamItem item)
     {
-      if (ValidateIdentifie(identifier))
+      if (DeleteStreamItem(identifier))
       {
         Logger.Debug("StreamControl: identifier {0} is already in list -> deleting old stream item", identifier);
-        DeleteStreamItem(identifier);
       }
 
       STREAM_ITEMS.Add(identifier, item);
     }
 
-    internal static void DeleteStreamItem(string identifier)
+    /// <summary>
+    /// Deletes a stream Item from the list
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <returns>Returns true if an item was deleted, false if no item was deleted</returns>
+    internal static bool DeleteStreamItem(string identifier)
     {
-      STREAM_ITEMS.Remove(identifier);
+      if (ValidateIdentifie(identifier))
+      {
+        StopStreaming(identifier);
+        STREAM_ITEMS.Remove(identifier);
+        return true;
+      }
+      return false;
     }
 
+    /// <summary>
+    /// Updates an already existent stream item
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="item">The updated stream item</param>
     internal static void UpdateStreamItem(string identifier, StreamItem item)
     {
       DeleteStreamItem(identifier);
       AddStreamItem(identifier, item);
     }
 
+    /// <summary>
+    /// Returns a stream item based on the given identifier
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <returns>Returns the requested stream item otherwise null</returns>
     internal static StreamItem GetStreamItem(string identifier)
     {
-      return STREAM_ITEMS[identifier];
+      if (ValidateIdentifie(identifier))
+      {
+        return STREAM_ITEMS[identifier];
+      }
+      return null;
     }
 
+    /// <summary>
+    /// Gets all available stream items
+    /// </summary>
+    /// <returns>Returns a Dictionary of stream Items</returns>
     internal static Dictionary<string, StreamItem> GetStreamItems()
     {
       return STREAM_ITEMS;
@@ -48,9 +81,35 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return STREAM_ITEMS.ContainsKey(identifier);
     }
 
-    internal static void StartStreaming(string identifier)
+    /// <summary>
+    /// Does the preparation to start a stream
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="context">Transcoder context</param>
+    internal static void StartStreaming(string identifier, TranscodeContext context)
     {
-      
+      if (ValidateIdentifie(identifier))
+      {
+        STREAM_ITEMS[identifier].IsActive = true;
+        STREAM_ITEMS[identifier].StreamContext = context;
+        STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = context.SegmentDir;
+      }
+    }
+
+    /// <summary>
+    /// Stops the streaming
+    /// </summary>
+    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    internal static void StopStreaming(string identifier)
+    {
+      if (ValidateIdentifie(identifier))
+      {
+        STREAM_ITEMS[identifier].IsActive = false;
+        if (STREAM_ITEMS[identifier].StreamContext != null) 
+          STREAM_ITEMS[identifier].StreamContext.InUse = false;
+        if (STREAM_ITEMS[identifier].TranscoderObject != null) 
+          STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
+      }
     }
 
     internal static ILogger Logger

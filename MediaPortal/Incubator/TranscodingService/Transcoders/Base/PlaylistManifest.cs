@@ -9,11 +9,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
   public class PlaylistManifest
   {
-    internal static byte[] CreatePlaylistManifest(VideoTranscoding video, Subtitle sub, string folderId)
+    internal static byte[] CreatePlaylistManifest(VideoTranscoding video, Subtitle sub)
     {
       TranscodedVideoMetadata metaData = MediaConverter.GetTranscodedVideoMetadata(video);
 
-      double bitrate = 9500000;
+      double bitrate = 10000000;
       if(metaData.TargetVideoBitrate > 0 && metaData.TargetAudioBitrate > 0)
       {
         bitrate += metaData.TargetVideoBitrate;
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
           codec += "5";
       }
 
-      string baseUrl = video.HlsBaseUrl != null ? video.HlsBaseUrl.Replace(MediaConverter.SEGMENT_FOLDER_TOKEN, folderId) : "";
+      string baseUrl = video.HlsBaseUrl != null ? video.HlsBaseUrl : "";
       string manifest = "#EXTM3U";
       manifest += "\n";
       manifest += "\n";

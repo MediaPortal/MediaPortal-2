@@ -25,10 +25,18 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ListView Grid.Column="0" 
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+          <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
+              Content="{Binding}" />
+          <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="5"/>
+        </StackPanel>
+
+        <ListView Grid.Column="0" Grid.Row="1"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ScheduleListViewStyle}"
               ItemsSource="{Binding Path=SchedulesList}"
@@ -38,7 +46,7 @@
           </ListView.Resources>
         </ListView>
 
-        <GroupBox  Grid.Column="1" Header="[SlimTvClient.ScheduleDetails]" Style="{ThemeResource ContentGroupBoxStyle}">
+        <GroupBox Grid.Column="1" Grid.RowSpan="2" Header="[SlimTvClient.ScheduleDetails]" Style="{ThemeResource ContentGroupBoxStyle}">
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
@@ -46,6 +54,9 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
@@ -86,6 +97,12 @@
               <Label x:Name="ChannelName" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
             </StackPanel>
 
+            <Label x:Name="EpisodeLabel" Grid.Row="5" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+            <Label x:Name="Episode" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Content="{Binding Path=CurrentProgram.Series}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+            <Label x:Name="DescriptionLabel" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+            <Label x:Name="Description" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </GroupBox>
 

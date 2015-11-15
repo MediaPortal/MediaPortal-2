@@ -30,6 +30,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetCards", new GetCards()},
       { "GetLocalDiskInformation", new GetLocalDiskInformation()},
       { "GetServiceDescription", new GetServiceDescription()},
+      { "ReadSettingFromDatabase", new ReadSettingFromDatabase()},
       { "TestConnectionToTVService", new TestConnectionToTVService()},
       // Channels
       { "GetAllChannelStatesForGroup", new GetAllChannelStatesForGroup()},
@@ -64,6 +65,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "AddScheduleDetailed", new AddScheduleDetailed()},
       { "CancelSchedule", new CancelSchedule()},
       { "DeleteSchedule", new DeleteSchedule()},
+      { "EditSchedule", new EditSchedule()},
       { "GetProgramIsScheduled", new GetProgramIsScheduled()},
       { "GetScheduleById", new GetScheduleById()},
       { "GetScheduleCount", new GetScheduleCount()},
@@ -89,7 +91,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetProgramsBasicForGroup", new GetProgramsBasicForGroup()},
       { "GetProgramsDetailedForChannel", new GetProgramsDetailedForChannel()},
       { "GetProgramsDetailedForGroup", new GetProgramsDetailedForGroup()},
+      { "SearchProgramsBasic", new SearchProgramsBasic()},
+      { "SearchProgramsBasicByRange", new SearchProgramsBasicByRange()},
+      { "SearchProgramsCount", new SearchProgramsCount()},
       { "SearchProgramsDetailed", new SearchProgramsDetailed()},
+      { "SearchProgramsDetailedByRange", new SearchProgramsDetailedByRange()},
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)

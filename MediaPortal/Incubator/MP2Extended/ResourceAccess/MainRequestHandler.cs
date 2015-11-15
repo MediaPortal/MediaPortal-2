@@ -69,16 +69,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     public static void Shutdown()
     {
-      foreach (StreamItem stream in StreamControl.GetStreamItems().Values)
+      foreach (KeyValuePair<string, StreamItem> stream in StreamControl.GetStreamItems())
       {
-        if (stream.TranscoderObject != null)
+        StreamControl.StopStreaming(stream.Key);
+        if (stream.Value.TranscoderObject != null)
         {
           try
           {
-            if (stream.TranscoderObject.IsStreaming)
+            if (stream.Value.TranscoderObject.IsStreaming)
             {
-              stream.TranscoderObject.StopStreaming();
-              Logger.Debug("MainRequestHandler: Stopping stream of mediaitem ", stream.TranscoderObject.MediaSource.MediaItemId);
+              stream.Value.TranscoderObject.StopStreaming();
+              Logger.Debug("MainRequestHandler: Stopping stream of mediaitem ", stream.Value.TranscoderObject.MediaSource.MediaItemId);
             }
           }
           catch (Exception e)
@@ -87,10 +88,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
           }
           try
           {
-            if (stream.TranscoderObject.IsTranscoding)
+            if (stream.Value.TranscoderObject.IsTranscoding)
             {
-              stream.TranscoderObject.StopTranscoding();
-              Logger.Debug("MainRequestHandler: Aborting transcoding of mediaitem ", stream.TranscoderObject.MediaSource.MediaItemId);
+              stream.Value.TranscoderObject.StopTranscoding();
+              Logger.Debug("MainRequestHandler: Aborting transcoding of mediaitem ", stream.Value.TranscoderObject.MediaSource.MediaItemId);
             }
           }
           catch (Exception e)
