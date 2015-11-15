@@ -24,9 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
@@ -435,18 +433,10 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetBlueVideoBlackLevel(DvAction action, IList<object> inParams, out IList<object> outParams,
       CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
-
+      TraceLogger.DebugLogParams(inParams);
       foreach (var inArgument in action.InArguments)
       {
-        Console.WriteLine("In Argument: " + inArgument.Name);
+        TraceLogger.WriteLine("In Argument: " + inArgument.Name);
         switch (inArgument.Name)
         {
           case "InstanceID":
@@ -463,30 +453,16 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetBlueVideoGain(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
-      Console.WriteLine(action.OutArguments[0].RelatedStateVar.DefaultValue);
+      TraceLogger.WriteLine(action.OutArguments[0].RelatedStateVar.DefaultValue);
       return null;
     }
 
     private static UPnPError OnGetBrightness(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -494,14 +470,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetColorTemperature(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -509,14 +478,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetContrast(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -524,14 +486,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetGreenVideoBlackLevel(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -539,14 +494,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetGreenVideoGain(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -554,14 +502,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnListPresets(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -569,14 +510,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnSelectPreset(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -584,14 +518,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetVolume(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -599,15 +526,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnSetVolume(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod());
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-      {
-        Console.WriteLine(inParam);
-      }
-      Console.WriteLine("*************");
-
+      TraceLogger.DebugLogParams(inParams);
       ChangeStateVariable("Volume", inParams[2], action);
       // we don't want to fire an event yet
       //action.ParentService.StateVariables["Volume"].Value = inParams[2];
@@ -620,15 +539,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
 
       return null;
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static string GetCurrentMethod()
-    {
-      StackTrace st = new StackTrace();
-      StackFrame sf = st.GetFrame(1);
-
-      return sf.GetMethod().Name;
     }
 
     #endregion OnAction
@@ -654,7 +564,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       XDocument srcTree = new XDocument(
         Event
         );
-      //  Console.WriteLine(srcTree.ToString());
+      //  TraceLogger.WriteLine(srcTree.ToString());
       stateVariables["LastChange"].Value = srcTree.ToString();
 
       return srcTree.ToString();
@@ -681,7 +591,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       for (int i = 0; i < varNames.Count; i++)
       {
-        Console.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
+        TraceLogger.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
         StateVariables[varNames[i]].Value = inParams[i];
         changedValues.Add(inParams[i].ToString());
       }
@@ -695,7 +605,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       for (int i = 0; i < varNames.Count; i++)
       {
-        Console.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
+        TraceLogger.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
         action.ParentService.StateVariables[varNames[i]].Value = inParams[i];
         changedValues.Add(inParams[i].ToString());
       }
@@ -717,11 +627,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
     }
 
     #endregion Events
-
-    /*internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }*/
   }
 
   public class OnEvenSetVolumeEventArgs : EventArgs

@@ -97,13 +97,12 @@ namespace MediaPortal.UPnPRenderer.UPnP
       WebRequest request = WebRequest.Create(url) as HttpWebRequest;
 
       byte[] buffer = new byte[256];
-      string mime = "application/octet-stream";
 
       // Try to get the mime type from the registry, works only if the server sends a file extension
       Uri uri = new Uri(url);
       string fileName = uri.Segments.Last();
-      mime = GetMimeFromRegistry(fileName);
-      Console.WriteLine("Mime from registry: " + GetMimeFromRegistry(fileName));
+      var mime = GetMimeFromRegistry(fileName);
+      TraceLogger.WriteLine("Mime from registry: " + GetMimeFromRegistry(fileName));
 
       if (mime == "application/octet-stream")
       {
@@ -113,9 +112,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
           {
             int count = stream.Read(buffer, 0, 256);
 
-            Console.WriteLine("Bufer: " + BitConverter.ToString(buffer));
-            Console.WriteLine(response.ContentType);
-            Console.WriteLine("Sytem Mimemapping" + MimeMapping.GetMimeMapping(url));
+            TraceLogger.WriteLine("Bufer: " + BitConverter.ToString(buffer));
+            TraceLogger.WriteLine(response.ContentType);
+            TraceLogger.WriteLine("Sytem Mimemapping" + MimeMapping.GetMimeMapping(url));
 
             try
             {
@@ -125,19 +124,19 @@ namespace MediaPortal.UPnPRenderer.UPnP
               mime = Marshal.PtrToStringUni(mimeTypePtr);
               Marshal.FreeCoTaskMem(mimeTypePtr);
 
-              Console.WriteLine("MimeType from urlmon.dll: " + mime);
+              TraceLogger.WriteLine("MimeType from urlmon.dll: " + mime);
 
               // if we get application/octet-stream => unknown mime type
               if (mime == "application/octet-stream")
               {
-                Console.WriteLine("urlmon.dll couldn't find mime type");
+                TraceLogger.WriteLine("urlmon.dll couldn't find mime type");
                 mime = response.ContentType;
-                Console.WriteLine("MimeType from response.ContentType: " + mime);
+                TraceLogger.WriteLine("MimeType from response.ContentType: " + mime);
                 if (mime == "application/octet-stream")
                 {
-                  Console.WriteLine("response.ContentType couldn't find mime type");
+                  TraceLogger.WriteLine("response.ContentType couldn't find mime type");
                   mime = MimeMapping.GetMimeMapping(url);
-                  Console.WriteLine("MimeType from GetMimeMapping: " + mime);
+                  TraceLogger.WriteLine("MimeType from GetMimeMapping: " + mime);
 
                   if (mime == "application/octet-stream")
                   {
@@ -145,7 +144,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
                   }
                 }
               }
-
               return mime;
             }
             catch (Exception e)
@@ -193,7 +191,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
         {
           using (Stream stream = response.GetResponseStream())
           {
-            //int count = stream.Read(buffer, 0, (int)stream..Length);
             buffer = ReadFullStream(stream);
           }
         }
@@ -441,29 +438,11 @@ namespace MediaPortal.UPnPRenderer.UPnP
       return mime;
     }
 
-    private static string getFileExtention(string fileName, bool includeDot)
-    {
-      string fileExtension = "";
-      int flength = fileName.Length;
-      int fdot = fileName.LastIndexOf('.');
-      if (fdot != flength && fdot > 0 && flength > 0)
-      {
-        if (includeDot)
-        {
-          fileExtension = fileName.Substring(fdot, flength - fdot);
-        }
-        else
-        {
-          fileExtension = fileName.Substring(fdot + 1, flength - fdot - 1);
-        }
-      }
-      return fileExtension;
-    }
-
     internal static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }
+
     #endregion helpers
   }
 }
