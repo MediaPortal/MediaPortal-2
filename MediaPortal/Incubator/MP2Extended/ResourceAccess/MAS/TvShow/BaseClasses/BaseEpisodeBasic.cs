@@ -24,7 +24,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       WebTVEpisodeBasic webTvEpisodeBasic = new WebTVEpisodeBasic
       {
         IsProtected = false, //??
-        Rating = episodeAspect[SeriesAspect.ATTR_TOTAL_RATING] == null ? 0 : Convert.ToSingle((double)episodeAspect[SeriesAspect.ATTR_TOTAL_RATING]),
+        Rating = episodeAspect[EpisodeAspect.ATTR_TOTAL_RATING] == null ? 0 : Convert.ToSingle((double)episodeAspect[EpisodeAspect.ATTR_TOTAL_RATING]),
         SeasonNumber = (int)episodeAspect[EpisodeAspect.ATTR_SEASON],
         Type = WebMediaType.TVEpisode,
         Watched = ((int)(MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] ?? 0) > 0),
