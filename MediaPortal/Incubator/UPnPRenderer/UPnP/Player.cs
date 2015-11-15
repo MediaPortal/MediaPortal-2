@@ -36,9 +36,8 @@ using MediaPortal.UPnPRenderer.Players;
 
 namespace MediaPortal.UPnPRenderer.UPnP
 {
-  class Player
+  public class Player
   {
-
     #region const
 
     private const int TIMER_INTERVAL = 500; // ms
@@ -49,13 +48,12 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private ContentType _playerType = ContentType.Unknown;
     private bool _isPaused = false;
-    private static readonly Timer _timer = new Timer(TIMER_INTERVAL);
+    private readonly Timer _timer = new Timer(TIMER_INTERVAL);
     private readonly UPnPRenderingControlServiceImpl _controlServiceImpl = UPnPRendererPlugin.UPnPServer.UpnPDevice.UPnPRenderingControlServiceImpl;
     private readonly UPnPAVTransportServiceImpl _transportServiceImpl = UPnPRendererPlugin.UPnPServer.UpnPDevice.UPnPAVTransportServiceImpl;
 
 
     #endregion local vars
-
 
     public Player()
     {
@@ -69,6 +67,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       // subscribe to UPnPRendeeringControlServiceImpl events
       UPnPRenderingControlServiceImpl.VolumeEvent += OnVolume;
 
+      // timer to update the progress information
       _timer.Elapsed += TimerElapsed;
     }
 
@@ -76,7 +75,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private void OnPlay()
     {
-      //Console.WriteLine("Event Fired! - Play -- ");
+      TraceLogger.WriteLine("Event Fired! - Play -- ");
       VolumeChanged();
 
       var avTransportUri = _transportServiceImpl.StateVariables["AVTransportURI"].Value.ToString();
@@ -128,8 +127,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
           return; // we don't want to start the timer
       }
 
-      // timer to update the progress information
-      //_timer = new Timer(TIMER_INTERVAL);
       _timer.Enabled = true;
       _timer.AutoReset = true;
     }
@@ -200,9 +197,9 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private void OnSeek()
     {
       Logger.Debug("Event Fired! - Seek -- ");
-      //Console.WriteLine("--" + _transportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString());
+      //TraceLogger.WriteLine("--" + _transportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString());
       string[] relTime = _transportServiceImpl.StateVariables["A_ARG_TYPE_SeekTarget"].Value.ToString().Split(':');
-      //Console.WriteLine(string.Join(", ", relTime));
+      //TraceLogger.WriteLine(string.Join(", ", relTime));
       var timespan = new TimeSpan(Int32.Parse(relTime[0]), Int32.Parse(relTime[1]), Int32.Parse(relTime[2]));
 
       switch (_playerType)
@@ -226,7 +223,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       Logger.Debug("CurrentURI " + e.CurrentURI);
       Logger.Debug("CurrentURIMetaData " + e.CurrentURIMetaData);
 
-      Logger.Debug("MimeType: {0}", Utils.GetMimeFromUrl(e.CurrentURI, e.CurrentURIMetaData));
+      //Logger.Debug("MimeType: {0}", Utils.GetMimeFromUrl(e.CurrentURI, e.CurrentURIMetaData));
       _playerType = Utils.GetContentTypeFromUrl(e.CurrentURI, e.CurrentURIMetaData);
 
       switch (_playerType)
@@ -257,8 +254,8 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private void OnVolume(OnEvenSetVolumeEventArgs e)
     {
       ServiceRegistration.Get<IPlayerManager>().Volume = Convert.ToInt32(e.Volume);
-      //Console.WriteLine("Volume set: " + e.Volume.ToString());
-      //Console.WriteLine("Wolume is: " + ServiceRegistration.Get<IPlayerManager>().Volume);
+      //TraceLogger.WriteLine("Volume set: " + e.Volume.ToString());
+      //TraceLogger.WriteLine("Wolume is: " + ServiceRegistration.Get<IPlayerManager>().Volume);
     }
 
     #endregion UPnPRenderingControlServiceImpl events
@@ -320,7 +317,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       }
       else
       {
-        Console.WriteLine("PlayerContext null");
+        TraceLogger.WriteLine("PlayerContext null");
       }
 
     }
@@ -375,7 +372,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private void VolumeChanged()
     {
-      Console.WriteLine("Player Message volume changed");
+      TraceLogger.WriteLine("Player Message volume changed");
       _controlServiceImpl.ChangeStateVariables(new List<string>
       {
         "Volume"

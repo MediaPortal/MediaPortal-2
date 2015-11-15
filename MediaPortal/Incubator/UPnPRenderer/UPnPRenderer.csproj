@@ -72,6 +72,7 @@
     <Compile Include="UPnP\Exceptions.cs" />
     <Compile Include="UPnP\MediaServerUPnPDeviceInformation.cs" />
     <Compile Include="UPnP\Player.cs" />
+    <Compile Include="UPnP\TraceLogger.cs" />
     <Compile Include="UPnP\UPnPRendererPlugin.cs" />
     <Compile Include="UPnP\UPnPAVTransportServiceImpl.cs" />
     <Compile Include="UPnP\UPnPConnectionManagerServiceImpl.cs" />

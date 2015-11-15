@@ -212,10 +212,5 @@ namespace MediaPortal.UPnPRenderer.UPnP
       outParams = new List<object> { "0", "0", ":::", "/", "-1", "Input", "Unknown" };
       return null;
     }
-
-    /*internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }*/
   }
 }

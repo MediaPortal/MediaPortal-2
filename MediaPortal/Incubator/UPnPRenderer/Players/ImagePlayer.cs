@@ -38,7 +38,7 @@ using SharpDX.Direct3D9;
 
 namespace MediaPortal.UPnPRenderer.Players
 {
-  class UPnPRendererImagePlayer : ISharpDXImagePlayer, IReusablePlayer
+  public class UPnPRendererImagePlayer : ISharpDXImagePlayer, IReusablePlayer
   {
     public const string MIMETYPE = "upnpimage/upnprenderer";
     public const string DUMMY_FILE = "UPnPRenderer://localhost/UPnPRendererImage.upnp";

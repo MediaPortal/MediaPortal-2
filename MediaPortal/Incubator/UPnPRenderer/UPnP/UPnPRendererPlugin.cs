@@ -102,7 +102,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     void SubscribeToMessages()
     {
-      //Console.WriteLine("subscribe to player messages");
+      //TraceLogger.WriteLine("subscribe to player messages");
       if (_messageQueue != null)
         return;
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
@@ -111,7 +111,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
                                                   });
       _messageQueue.MessageReceived += _player.OnMessageReceived;
       _messageQueue.Start();
-      //Console.WriteLine("subscribe to player messages end of function");
+      //TraceLogger.WriteLine("subscribe to player messages end of function");
     }
 
     void UnsubscribeFromMessages()

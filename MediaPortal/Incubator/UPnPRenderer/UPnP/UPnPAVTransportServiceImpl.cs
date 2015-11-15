@@ -708,10 +708,10 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private static UPnPError OnGetCurrentTransportActions(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       foreach (var inArgument in action.InArguments)
       {
-        Console.WriteLine("In Argument: " + inArgument.Name);
+        TraceLogger.WriteLine("In Argument: " + inArgument.Name);
         switch (inArgument.Name)
         {
           case "InstanceID":
@@ -725,26 +725,26 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private static UPnPError OnGetDeviceCapabilities(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
-      Console.WriteLine(action.OutArguments[0].RelatedStateVar.DefaultValue);
+      TraceLogger.WriteLine(action.OutArguments[0].RelatedStateVar.DefaultValue);
       return null;
     }
 
     private static UPnPError OnGetMediaInfo(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       foreach (var outArgument in action.OutArguments)
       {
-        Console.WriteLine("- " + outArgument.Name + " - " + outArgument.RelatedStateVar.Value);
+        TraceLogger.WriteLine("- " + outArgument.Name + " - " + outArgument.RelatedStateVar.Value);
       }
       return null;
     }
 
     private static UPnPError OnGetPositionInfo(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -752,12 +752,12 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnGetTransportInfo(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
-      Console.WriteLine("OUTPUT:");
+      TraceLogger.WriteLine("OUTPUT:");
       foreach (var outParam in outParams)
       {
-        Console.WriteLine(outParam);
+        TraceLogger.WriteLine(outParam);
       }
       return null;
     }
@@ -765,7 +765,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     // just returns the vars
     private static UPnPError OnGetTransportSettings(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -773,23 +773,23 @@ namespace MediaPortal.UPnPRenderer.UPnP
     // not implemented
     private static UPnPError OnNext(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
 
     private static UPnPError OnPause(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       if (action.ParentService.StateVariables["TransportState"].Value.ToString() == "PLAYING")
       {
-        Console.WriteLine("TransPortState is PLAYING");
+        TraceLogger.WriteLine("TransPortState is PLAYING");
         ChangeStateVariable("TransportState", "PAUSED_PLAYBACK", action);
         OnEventPause(); // FireEfent
       }
       else
       {
-        Console.WriteLine("TransportState is not Playing");
+        TraceLogger.WriteLine("TransportState is not Playing");
       }
 
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
@@ -798,7 +798,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private static UPnPError OnPlay(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
 
       ChangeStateVariables(new List<string>
       {
@@ -820,14 +820,14 @@ namespace MediaPortal.UPnPRenderer.UPnP
     // not implemented
     private static UPnPError OnPrevious(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
 
     private static UPnPError OnSeek(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       ChangeStateVariables(new List<string>
       {
         "A_ARG_TYPE_SeekMode",
@@ -852,7 +852,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     private static UPnPError OnSetAVTransportURI(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
 
       ChangeStateVariables(new List<string>
       {
@@ -871,7 +871,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       // In all other cases, this action does not change the transport state of the specified instance.
       if (action.ParentService.StateVariables["TransportState"].Value.ToString() == "NO_MEDIA_PRESENT")
       {
-        Console.WriteLine("Change State to STOPPED");
+        TraceLogger.WriteLine("Change State to STOPPED");
         ChangeStateVariables(new List<string>
         {
           "TransportState"
@@ -891,7 +891,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       OnEventSetAVTransportURI(eventArgs);
 
-      Console.WriteLine("OnSetAVTransportURI RETURN");
+      TraceLogger.WriteLine("OnSetAVTransportURI RETURN");
       return null;
     }
 
@@ -899,7 +899,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnSetNextAVTransportURI(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -908,7 +908,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnSetPlayMode(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
@@ -916,7 +916,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
     private static UPnPError OnStop(DvAction action, IList<object> inParams,
       out IList<object> outParams, CallContext context)
     {
-      DebugLogParams(inParams);
+      TraceLogger.DebugLogParams(inParams);
 
       ChangeStateVariables(new List<string>
       {
@@ -930,25 +930,6 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static string GetCurrentMethod(int depth = 1)
-    {
-      StackTrace st = new StackTrace();
-      StackFrame sf = st.GetFrame(depth);
-
-      return sf.GetMethod().Name;
-    }
-
-    private static void DebugLogParams(IList<object> inParams)
-    {
-      Console.WriteLine("*************");
-      Console.WriteLine("Current method: " + GetCurrentMethod(2)); // This method's parent
-      Console.WriteLine("In Params");
-      foreach (var inParam in inParams)
-        Console.WriteLine(inParam);
-      Console.WriteLine("*************");
     }
 
     #endregion OnAction
@@ -974,7 +955,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
       XDocument srcTree = new XDocument(
         Event
         );
-      //  Console.WriteLine(srcTree.ToString());
+      //  TraceLogger.WriteLine(srcTree.ToString());
       stateVariables["LastChange"].Value = srcTree.ToString();
 
       return srcTree.ToString();
@@ -1009,10 +990,10 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
     protected static void OnEventSeek()
     {
-      Console.WriteLine("OnEventSeek()");
+      TraceLogger.WriteLine("OnEventSeek()");
       if (Seek != null)
       {
-        Console.WriteLine("Call Seek()");
+        TraceLogger.WriteLine("Call Seek()");
         Seek();
       }
     }
@@ -1059,7 +1040,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       for (int i = 0; i < varNames.Count; i++)
       {
-        Console.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
+        TraceLogger.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
         StateVariables[varNames[i]].Value = inParams[i];
         changedValues.Add(inParams[i].ToString());
       }
@@ -1073,7 +1054,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
       for (int i = 0; i < varNames.Count; i++)
       {
-        Console.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
+        TraceLogger.WriteLine("Name: " + varNames[i] + " Value: " + inParams[i]);
         action.ParentService.StateVariables[varNames[i]].Value = inParams[i];
         changedValues.Add(inParams[i].ToString());
       }
