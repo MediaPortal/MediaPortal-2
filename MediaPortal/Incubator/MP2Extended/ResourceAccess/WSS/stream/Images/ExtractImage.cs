@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         isSeason = true;
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
-      bool isRecording = (type != null && (WebMediaType)JsonConvert.DeserializeObject(type, typeof(WebMediaType)) == WebMediaType.Recording);
+      bool isRecording = (type != null && (WebMediaType)Enum.Parse(typeof(WebMediaType), type) == WebMediaType.Recording);
 
       Guid idGuid;
       int idInt;
