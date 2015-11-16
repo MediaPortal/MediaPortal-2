@@ -65,7 +65,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EpisodeNumber = tvProgram.EpisodeNum,
         EpisodeNumberDetailed = tvProgram.EpisodeNumber,
         EpisodePart = tvProgram.EpisodePart,
-        EpisodeTitle = tvProgram.EpisodeName
+        EpisodeTitle = tvProgram.EpisodeName,
+        Genre = tvProgram.Genre
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -162,7 +163,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
           EpisodeNumber = tvProgram.EpisodeNum,
           EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
           EpisodePart = tvProgram.EpisodePart,
-          EpisodeTitle = tvProgram.EpisodeName
+          EpisodeTitle = tvProgram.EpisodeName,
+          Genre = tvProgram.ProgramCategory.Category
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
