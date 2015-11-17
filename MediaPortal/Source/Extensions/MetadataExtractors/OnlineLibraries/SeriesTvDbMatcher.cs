@@ -61,7 +61,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MIN_REFRESH_INTERVAL = TimeSpan.FromHours(12);
 
     protected override string MatchesSettingsFile
     {
@@ -73,6 +74,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
+    protected DateTime _lastRefresh = DateTime.MinValue;
     protected ConcurrentDictionary<string, TvdbSeries> _memoryCache = new ConcurrentDictionary<string, TvdbSeries>(StringComparer.OrdinalIgnoreCase);
     protected bool _useUniversalLanguage = false; // Universal language often leads to unwanted cover languages (i.e. russian)
 
@@ -358,6 +360,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return;
       _memoryCache.Clear();
       _memoryCacheInvalidated = DateTime.Now;
+
+      if (DateTime.Now - _lastRefresh <= MIN_REFRESH_INTERVAL)
+        return;
+
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
       if (threadPool != null)
       {
@@ -368,6 +374,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
             _tv.UpdateCache();
         });
       }
+      _lastRefresh = DateTime.Now;
     }
 
     public override bool Init()
