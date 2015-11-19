@@ -34,6 +34,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       // Filter
       { "CreateFilterString", new CreateFilterString() },
       { "GetFilterOperators", new GetFilterOperators() },
+      { "GetFilterValues", new GetFilterValues() },
+      { "GetFilterValuesByRange", new GetFilterValuesByRange() },
+      { "GetFilterValuesCount", new GetFilterValuesCount() },
       // Movie
       { "GetMovieActorCount", new GetMovieActorCount() },
       { "GetMovieActors", new GetMovieActors() },

@@ -359,11 +359,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, title, from, to);
-      tvSchedule.PreRecordInterval = preRecordInterval;
-      tvSchedule.PostRecordInterval = postRecordInterval;
+      tvSchedule.PreRecordInterval = preRecordInterval >= 0 ? preRecordInterval : ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
+      tvSchedule.PostRecordInterval = postRecordInterval >= 0 ? postRecordInterval : ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
       tvSchedule.ScheduleType = (int)recordingType;
-      tvSchedule.Directory = directory;
-      tvSchedule.Priority = priority;
+      if (!String.IsNullOrEmpty(directory))
+      {
+        tvSchedule.Directory = directory;
+      }
+      if (priority >= 0)
+      {
+        tvSchedule.Priority = priority;
+      }
       scheduleService.SaveSchedule(tvSchedule);
       schedule = tvSchedule.ToSchedule();
       return true;

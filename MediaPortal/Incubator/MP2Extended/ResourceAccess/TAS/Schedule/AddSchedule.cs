@@ -58,12 +58,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
       IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
 
+      bool result = false;
+
       IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelIdInt, out channel))
-        throw new BadRequestException(string.Format("AddSchedule: Couldn't get channel with Id: {0}", channelIdInt));
-      
       ISchedule schedule;
-      bool result = scheduleControl.CreateScheduleByTimeAndType(channel, title, startDateTime, endDateTime, scheduleRecordingType, out schedule);
+      if (channelAndGroupInfo.GetChannel(channelIdInt, out channel))
+        result = scheduleControl.CreateScheduleByTimeAndType(channel, title, startDateTime, endDateTime, scheduleRecordingType, out schedule);
 
 
       return new WebBoolResult { Result = result };

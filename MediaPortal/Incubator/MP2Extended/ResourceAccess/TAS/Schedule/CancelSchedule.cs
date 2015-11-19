@@ -31,10 +31,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
       IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
 
-      IProgram program;
-      programInfo.GetProgram(programIdInt, out program);
+      bool result = false;
 
-      bool result = scheduleControl.RemoveScheduleForProgram(program, ScheduleRecordingType.Once);  // TODO: not sure if ScheduleRecordingType is right
+      IProgram program;
+      if (programInfo.GetProgram(programIdInt, out program))
+        result = scheduleControl.RemoveScheduleForProgram(program, ScheduleRecordingType.Once);  // TODO: not sure if ScheduleRecordingType is right
 
 
       return new WebBoolResult { Result = result };

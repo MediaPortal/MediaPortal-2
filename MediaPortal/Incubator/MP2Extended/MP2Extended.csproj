@@ -174,8 +174,11 @@
     <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDriveBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDrivesByRange.cs" />
     <Compile Include="ResourceAccess\MAS\FileSystem\GetFileSystemDrives.cs" />
+    <Compile Include="ResourceAccess\MAS\Filter\GetFilterValues.cs" />
     <Compile Include="ResourceAccess\MAS\Filter\CreateFilterString.cs" />
     <Compile Include="ResourceAccess\MAS\Filter\GetFilterOperators.cs" />
+    <Compile Include="ResourceAccess\MAS\Filter\GetFilterValuesCount.cs" />
+    <Compile Include="ResourceAccess\MAS\Filter\GetFilterValuesByRange.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetFileInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetExternalMediaInfo.cs" />
     <Compile Include="ResourceAccess\MAS\General\GetLocalDiskInformation.cs" />
@@ -374,6 +377,7 @@
     <Compile Include="Utils\Base64.cs" />
     <Compile Include="Utils\DiskSpaceInformation.cs" />
     <Compile Include="Utils\EnumerableComparer.cs" />
+    <Compile Include="Utils\NullableHelper.cs" />
     <Compile Include="WSS\General\WebItemSupportStatus.cs" />
     <Compile Include="WSS\General\WebStreamingSession.cs" />
     <Compile Include="WSS\General\WebStreamServiceDescription.cs" />

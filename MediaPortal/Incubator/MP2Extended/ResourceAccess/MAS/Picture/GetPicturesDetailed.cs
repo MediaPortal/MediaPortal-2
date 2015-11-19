@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
-  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebPictureDetailed>), Summary = "")]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]

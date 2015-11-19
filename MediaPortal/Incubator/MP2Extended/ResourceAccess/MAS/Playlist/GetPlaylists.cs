@@ -10,7 +10,7 @@ using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
-  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebPlaylist>), Summary = "")]
   internal class GetPlaylists : IRequestMicroModuleHandler
   {
     public dynamic Process(IHttpRequest request)
