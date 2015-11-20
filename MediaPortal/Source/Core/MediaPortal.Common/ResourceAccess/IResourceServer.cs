@@ -31,7 +31,7 @@ namespace MediaPortal.Common.ResourceAccess
   public interface IResourceServer
   {
     /// <summary>
-    /// Gets the port number on which the HttpServer with give IP is listening.
+    /// Gets the port number on which the HttpServer with the given IP is listening.
     /// </summary>
     /// <param name="ipAddress">Bound IP address</param>
     /// <returns>Port number</returns>
