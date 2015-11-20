@@ -23,7 +23,7 @@
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> <!-- BassLibraries -->
     <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}" CompatibleAPI="1"/> <!-- AudioCDResourceProvider -->
-    <PluginReference PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}" CompatibleAPI="1"/> <!-- FanArtService Client -->
+    <PluginReference PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}" CompatibleAPI="2"/> <!-- FanArtService Client -->
   </DependsOn>
 
   <Runtime>

@@ -8,9 +8,9 @@
     Description="Provides Client access to Fanart stored in MP2 Server">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.1"
+    ReleaseDate="2015-11-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
