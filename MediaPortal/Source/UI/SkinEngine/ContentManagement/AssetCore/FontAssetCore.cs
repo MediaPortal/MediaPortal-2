@@ -167,6 +167,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       for (int i = fromIndex; i <= toIndex; i++)
       {
         BitmapCharacter c = Character(text[i]);
+        // Should never be the case as even characters not in range should be replaced by 0 index-char.
+        // But this check was added for a seldom NullReferenceException.
+        if (c == null)
+          continue;
 
         width += c.XAdvance;
         if (kerning && lastChar != null)
