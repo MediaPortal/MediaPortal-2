@@ -1,5 +1,3 @@
-@echo off
-cls
 
 @"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" RestorePackages.targets /target:RestoreBuildPackages
 
@@ -13,10 +11,5 @@ set html=Build_Report_%CONFIGURATION%_Setup.html
 
 set logger=/l:XmlFileLogger,"%PathToBuildReport%\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
 "%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" /m Build.proj %logger% /property:OneStepOnly=true;BuildSetup=true;Configuration=%CONFIGURATION% 
-echo Component build exit code %errorlevel%
-if errorlevel 1 (
-   echo Component build failed
-   exit /b %errorlevel%
-)
 
 %PathToBuildReport%\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%
