@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(ProjectDir)libs\*.dll" />
+    <References Include="$(TargetDir)Newtonsoft.Json.Net35.dll" />
+    <References Include="$(TargetDir)ZeroconfService.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
