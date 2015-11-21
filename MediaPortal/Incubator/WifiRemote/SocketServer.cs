@@ -50,8 +50,8 @@ namespace MediaPortal.Plugins.WifiRemote
       { "volume", ParserVolume.Parse },
       { "position", ParserPosition.Parse },
       { "playfile", ParserPlayFile.Parse },
-      /*{ "playchannel", new Func<int, int, int>(Func1) },
-      { "playradiochannel", new Func<int, int, int>(Func1) },
+      { "playchannel", ParserPlaychannel.Parse },
+      /*{ "playradiochannel", new Func<int, int, int>(Func1) },
       { "playrecording", new Func<int, int, int>(Func1) },*/
       { "mpext", ParserMPExt.Parse },
       /*{ "plugins", new Func<int, int, int>(Func1) },

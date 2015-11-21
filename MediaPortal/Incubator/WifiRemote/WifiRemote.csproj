@@ -56,6 +56,7 @@
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
     <Compile Include="MessageParser\ParserRequeststatus.cs" />
+    <Compile Include="MessageParser\ParserPlaychannel.cs" />
     <Compile Include="MessageParser\ParserScreenshot.cs" />
     <Compile Include="MessageParser\ParserRequestnowplaying.cs" />
     <Compile Include="MessageParser\ParserMovingpictures.cs" />
@@ -129,6 +130,14 @@
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvClient\SlimTv.Client.csproj">
+      <Project>{6eb21e54-9984-41a4-922c-7af27cfe56ba}</Project>
+      <Name>SlimTv.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
       <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
