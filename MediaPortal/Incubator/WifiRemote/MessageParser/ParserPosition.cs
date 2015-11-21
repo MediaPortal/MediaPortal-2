@@ -22,22 +22,22 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       if (seekType == 0)
       {
         int position = (int)message["Position"];
-        Utils.SetPositionPercent(position, true);
+        Helper.SetPositionPercent(position, true);
       }
       if (seekType == 1)
       {
         int position = (int)message["Position"];
-        Utils.SetPositionPercent(position, false);
+        Helper.SetPositionPercent(position, false);
       }
       if (seekType == 2)
       {
         int position = (int)message["Position"];
-        Utils.SetPosition(position, true);
+        Helper.SetPosition(position, true);
       }
       else if (seekType == 3)
       {
         int position = (int)message["Position"];
-        Utils.SetPosition(position, false);
+        Helper.SetPosition(position, false);
       }
 
       return true;

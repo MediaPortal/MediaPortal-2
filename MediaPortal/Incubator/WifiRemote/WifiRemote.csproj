@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -54,6 +55,7 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserScreenshot.cs" />
     <Compile Include="MessageParser\ParserRequestnowplaying.cs" />
     <Compile Include="MessageParser\ParserMovingpictures.cs" />
     <Compile Include="MessageParser\ParserPlaylist.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Messages\MessagePlaylistDetails.cs" />
     <Compile Include="Messages\MessagePlaylists.cs" />
     <Compile Include="Messages\MessageProperties.cs" />
+    <Compile Include="Messages\MessageScreenshot.cs" />
     <Compile Include="Messages\MessageStatus.cs" />
     <Compile Include="Messages\MessageVolume.cs" />
     <Compile Include="Messages\MessageWelcome.cs" />
@@ -99,7 +102,8 @@
     <Compile Include="SendMessages\SendMessageToClient.cs" />
     <Compile Include="Settings\WifiRemoteSettings.cs" />
     <Compile Include="SocketServer.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Utils\ImageHelper.cs" />
     <Compile Include="WifiRemote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZeroConfig.cs" />

@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages.Now_Playing
       _nowPlayingUpdateThreadRunning = true;
       while (_nowPlayingUpdateThreadRunning)
       {
-        if (Utils.IsNowPlaying() && _nowPlayingUpdateThreadRunning)
+        if (Helper.IsNowPlaying() && _nowPlayingUpdateThreadRunning)
         {
           ServiceRegistration.Get<ILogger>().Debug("Send Nowplaying");
           if (_nowPlayingWasSend)

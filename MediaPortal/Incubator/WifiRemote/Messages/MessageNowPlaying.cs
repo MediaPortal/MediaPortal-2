@@ -20,7 +20,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        if (Utils.IsNowPlaying())
+        if (Helper.IsNowPlaying())
         {
           MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentMediaItem;
 

@@ -56,8 +56,8 @@ namespace MediaPortal.Plugins.WifiRemote
       { "mpext", ParserMPExt.Parse },
       /*{ "plugins", new Func<int, int, int>(Func1) },
       { "properties", ParserProperties.Parse },
-      /*{ "image", new Func<int, int, int>(Func1) },
-      { "screenshot", new Func<int, int, int>(Func1) },*/
+      /*{ "image", new Func<int, int, int>(Func1) },*/
+      { "screenshot", ParserScreenshot.Parse },
       { "playlist", ParserPlaylist.Parse },
       //{ "requeststatus", new Func<int, int, int>(Func1) },
       { "requestnowplaying", ParserRequestnowplaying.Parse },

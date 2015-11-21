@@ -15,7 +15,7 @@ using MediaPortal.UI.SkinEngine.Players;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  internal class Utils
+  internal class Helper
   {
     internal static bool IsNowPlaying()
     {

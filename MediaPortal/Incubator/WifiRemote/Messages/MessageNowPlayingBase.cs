@@ -17,7 +17,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        if (!Utils.IsNowPlaying())
+        if (!Helper.IsNowPlaying())
         {
           return 0;
         }
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        if (!Utils.IsNowPlaying())
+        if (!Helper.IsNowPlaying())
         {
           return String.Empty;
         }
@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        if (!Utils.IsNowPlaying())
+        if (!Helper.IsNowPlaying())
         {
           return 0;
         }
