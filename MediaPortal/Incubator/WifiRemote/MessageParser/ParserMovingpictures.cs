@@ -11,6 +11,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;
 using Newtonsoft.Json.Linq;
@@ -29,6 +30,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         // Show movie details for this movie
         if (action == "moviedetails")
         {
+          //MediaNavigationModel.GetCurrentInstance().NavigationData.AvailableScreens.First().
           /*string movieName = (string)message["MovieName"];
           if (!string.IsNullOrEmpty(movieName))
           {

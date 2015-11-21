@@ -38,12 +38,18 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       bool startFullscreen = (message["StartFullscreen"] != null) && (bool)message["StartFullscreen"];
 
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
+      {
+        Logger.Info("WifiRemote: playchannel - no tv handler");
         return false;
+      }
 
       ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
       IChannel channel;
       if (!tvHandler.ChannelAndGroupInfo.GetChannel(channelId, out channel))
+      {
+        Logger.Info("WifiRemote: playchannel - Channel with id '{0}' not found", channelId);
         return false;
+      }
 
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
