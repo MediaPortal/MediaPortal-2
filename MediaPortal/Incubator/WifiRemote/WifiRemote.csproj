@@ -55,6 +55,7 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserRequeststatus.cs" />
     <Compile Include="MessageParser\ParserScreenshot.cs" />
     <Compile Include="MessageParser\ParserRequestnowplaying.cs" />
     <Compile Include="MessageParser\ParserMovingpictures.cs" />

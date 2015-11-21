@@ -11,11 +11,11 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserRequestnowplaying
+  internal class ParserRequeststatus
   {
     public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
     {
-      SendMessageToClient.Send(new MessageNowPlaying(), sender);
+      SendMessageToClient.Send(new MessageStatus(), sender);
 
       return true;
     }
