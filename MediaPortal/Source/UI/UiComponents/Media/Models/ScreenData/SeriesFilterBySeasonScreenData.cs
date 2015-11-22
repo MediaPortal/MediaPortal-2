@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -34,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesFilterBySeasonScreenData() :
       base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_FILTER_BY_SERIES_SEASON_MENU_ITEM,
-        Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(EpisodeAspect.ATTR_SERIES_SEASON))
+        Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new FilterBySeriesSeasonCriterion())
     { }
 
     public override AbstractFiltersScreenData<SeasonFilterItem> Derive()

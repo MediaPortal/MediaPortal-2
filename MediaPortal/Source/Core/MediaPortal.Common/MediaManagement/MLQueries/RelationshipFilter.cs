@@ -50,18 +50,21 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public Guid ItemId
     {
       get { return _itemId; }
+      set { _itemId = value; }
     }
 
     [XmlIgnore]
     public Guid Role
     {
       get { return _role; }
+      set { _role = value; }
     }
 
     [XmlIgnore]
     public Guid LinkedRole
     {
       get { return _linkedRole; }
+      set { _linkedRole = value; }
     }
 
     public override string ToString()

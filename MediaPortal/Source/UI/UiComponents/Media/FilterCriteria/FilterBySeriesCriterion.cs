@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -35,19 +35,10 @@ using MediaPortal.UI.ServerCommunication;
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   /// <summary>
-  /// Filter criterion which creates a filter by a simple attribute value.
+  /// Filter criterion which filters by the Series name.
   /// </summary>
-  public class RelationshipMLFilterCriterion : MLFilterCriterion
+  public class FilterBySeriesCriterion : MLFilterCriterion
   {
-    protected Guid _role;
-    protected Guid _linkedRole;
-
-    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole)
-    {
-      _role = role;
-      _linkedRole = linkedRole;
-    }
-
     #region Base overrides
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
@@ -55,25 +46,25 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
-      MediaItemQuery query = new MediaItemQuery(necessaryMIATypeIds, filter);
-      IList<MediaItem> items = cd.Search(query, true);
-      IList<FilterValue> result = new List<FilterValue>(items.Count);
-      int numEmptyEntries = 0;
-      foreach (MediaItem item in items)
+
+      IEnumerable<Guid> necessaryMIAs = new[] { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID, SeriesAspect.ASPECT_ID };
+      MediaItemQuery query = new MediaItemQuery(necessaryMIAs, filter)
       {
-        string name;
-        MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
-        if (name == string.Empty)
-          numEmptyEntries ++;
-        else
-          result.Add(new FilterValue(name, new RelationshipFilter(item.MediaItemId, _role, _linkedRole), null, item, this));
+        SortInformation = new List<SortInformation> { new SortInformation(SeriesAspect.ATTR_SERIESNAME, SortDirection.Ascending) }
+      };
+      var series = cd.Search(query, true);
+      IList<FilterValue> result = new List<FilterValue>(series.Count);
+      foreach (var seriesItem in series)
+      {
+        string title;
+        MediaItemAspect.TryGetAttribute(seriesItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out title);
+        result.Add(new FilterValue(title,
+          new RelationshipFilter(seriesItem.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON),
+          null,
+          seriesItem,
+          this));
       }
       return result;
-    }
-
-    protected virtual string GetDisplayName (object groupKey)
-    {
-      return string.Format("{0}", groupKey).Trim();
     }
 
     public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
