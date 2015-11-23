@@ -14,12 +14,10 @@ using WifiRemote;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  // TODO what is this?!
   internal class ParserProperties
   {
     public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
     {
-      List<string> output = new List<String>();
       JArray array = (JArray)message["Properties"];
       if (array != null)
       {
@@ -27,14 +25,20 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         {
           String propString = (string)v.Value;
           ServiceRegistration.Get<ILogger>().Info("ParserProperties: propertiy: {0}", propString);
-          output.Add(propString);
+          SocketServer.Instance.connectedSockets.Single(x => x == sender).GetRemoteClient().Properties.Add(propString);
         }
         MessageProperties propertiesMessage = new MessageProperties();
 
         List<Property> properties = new List<Property>();
-        foreach (String s in output)
+        foreach (String s in SocketServer.Instance.connectedSockets.Single(x => x == sender).GetRemoteClient().Properties)
         {
-          properties.Add(new Property(s, "??"));
+          // TODO: MP2 doesn' have properties like '#TV.TuningDetails.ChannelName'
+          //String value = GUIPropertyManager.GetProperty(s);
+
+          //if (value != null && !value.Equals("") && CheckProperty(s))
+          //{
+            //properties.Add(new Property(s, value));
+          //}
         }
 
         propertiesMessage.Tags = properties;
