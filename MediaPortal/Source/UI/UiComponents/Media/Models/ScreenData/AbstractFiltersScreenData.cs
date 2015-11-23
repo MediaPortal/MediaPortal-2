@@ -166,6 +166,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter);
               T filterValueItem = new T
               {
+                // Support non-playable MediaItems (i.e. Series, Seasons)
+                MediaItem = filterValue.Item,
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
                 Command = grouping ? 

@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -231,6 +232,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
         SimpleTitle = FanArtName = series.SimpleTitle;
+        MediaItem = series.MediaItem;
         ItemDescription = null;
         return;
       }
