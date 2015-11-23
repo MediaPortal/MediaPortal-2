@@ -236,7 +236,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         ItemDescription = null;
         return;
       }
-      SeriesItem episode = SelectedItem as SeriesItem;
+      EpisodeItem episode = SelectedItem as EpisodeItem;
       if (episode != null)
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;

@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _genericPlayableItemCreatorDelegate = mi =>
       {
         if (mi.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-          return new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+          return new EpisodeItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
           return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))

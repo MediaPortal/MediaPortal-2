@@ -109,7 +109,7 @@
   <string name="Media.MediaItemsHeader">Media items</string>
   <string name="Media.VideoItemsHeader">Videos</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
-  <string name="Media.SeriesItemsHeader">Episodes</string>
+  <string name="Media.EpisodeItemsHeader">Episodes</string>
   <string name="Media.MoviesItemsHeader">Movies</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
