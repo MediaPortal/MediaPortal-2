@@ -24,7 +24,6 @@ using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
-using System.Globalization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
@@ -34,7 +33,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     #region private fields
 
     private static List<TvdbLanguage> _languageList;
-    private static NumberFormatInfo _formatProvider;
+    private static object _syncObj = new object();
 
     #endregion
 
@@ -43,8 +42,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     public static List<TvdbLanguage> LanguageList
     {
-      get { return _languageList; }
-      set { _languageList = value; }
+      get { lock (_syncObj) return _languageList; }
+      set { lock (_syncObj) _languageList = value; }
     }
 
     /// <summary>
@@ -56,18 +55,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <returns></returns>
     internal static TvdbLanguage ParseLanguage(String shortLanguageDesc)
     {
-      if (_languageList != null)
+      lock (_syncObj)
       {
-        foreach (TvdbLanguage l in _languageList.Where(l => l.Abbriviation == shortLanguageDesc))
-          return l;
-      }
-      else
-        _languageList = new List<TvdbLanguage>();
+        if (_languageList != null)
+        {
+          foreach (TvdbLanguage l in _languageList.Where(l => l.Abbriviation == shortLanguageDesc))
+            return l;
+        }
+        else
+          _languageList = new List<TvdbLanguage>();
 
-      //the language doesn't exist yet -> create placeholder
-      TvdbLanguage lang = new TvdbLanguage(Util.NO_VALUE, "unknown", shortLanguageDesc);
-      _languageList.Add(lang);
-      return lang;
+        //the language doesn't exist yet -> create placeholder
+        TvdbLanguage lang = new TvdbLanguage(Util.NO_VALUE, "unknown", shortLanguageDesc);
+        _languageList.Add(lang);
+        return lang;
+      }
     }
 
     /// <summary>
