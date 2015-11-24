@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="ApolloOne" Version="1.0">
+  <ShortDescription>ApolloOne Theme</ShortDescription>
+  <Preview>images\preview.jpg</Preview>
+  <Author>Ge2301,Morpheus_xx, Wizard123</Author>
+  <ThemeVersion>1.0</ThemeVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <MinColorDepth>16</MinColorDepth>
+</Theme>
