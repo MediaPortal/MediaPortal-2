@@ -276,8 +276,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       RelationshipFilter relationshipFilter = filter as RelationshipFilter;
       if (relationshipFilter != null)
       {
+        BindVar itemIdVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.ItemId, typeof(Guid));
         BindVar roleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.Role, typeof(Guid));
         BindVar linkedRoleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.LinkedRole, typeof(Guid));
+        BindVar itemIdVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.ItemId, typeof(Guid));
         BindVar roleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.Role, typeof(Guid));
         BindVar linkedRoleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.LinkedRole, typeof(Guid));
 
@@ -298,8 +300,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultBindVars.Add(linkedRoleVar1);
         resultParts.Add(" AND ");
         resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-        resultParts.Add("=");
-        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add("=@" + itemIdVar1.Name);
+        resultBindVars.Add(itemIdVar1);
 
         resultParts.Add(" UNION ");
 
@@ -317,8 +319,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultBindVars.Add(roleVar2);
         resultParts.Add(" AND ");
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
-        resultParts.Add("=");
-        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add("=@" + itemIdVar2.Name);
+        resultBindVars.Add(itemIdVar2);
         resultParts.Add(")");
         return;
       }
