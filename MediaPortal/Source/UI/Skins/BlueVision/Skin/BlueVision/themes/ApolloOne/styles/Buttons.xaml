@@ -294,7 +294,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="GroupTabHeaderButtonStyle" TargetType="{x:Type Button}">
+<Style x:Key="GroupTabHeaderButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -314,14 +314,15 @@
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
-            <!-- using the ancestor GroupMenuListItem.IsActive property instead of Button.Focused for highlighting the active item so it is visible all the time -->
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Context.IsActive}" Value="False">
               <Setter Property="Opacity" Value="0.4"/>
             </DataTrigger>
-
+            <!--Trigger Property="Selected" Value="True">
+              <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+            </Trigger-->
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedGroupMenuItemStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>

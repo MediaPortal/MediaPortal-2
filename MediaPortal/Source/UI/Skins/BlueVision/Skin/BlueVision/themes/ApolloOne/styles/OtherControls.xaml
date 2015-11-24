@@ -639,14 +639,9 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="7,0,7,0">
-      <Image.Source>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
-          <Binding Path="AdditionalProperties[Id]"/>
-          <Binding Source=".png"/>
-        </MultiBinding>
-      </Image.Source>
-    </Image>
+    <Label DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="7,0,7,0" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"
+           Content="{Binding Path=[Name]}">
+    </Label>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
