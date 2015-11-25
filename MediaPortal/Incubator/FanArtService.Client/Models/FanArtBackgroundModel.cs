@@ -236,6 +236,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         ItemDescription = null;
         return;
       }
+      SeasonFilterItem season = SelectedItem as SeasonFilterItem;
+      if (season != null)
+      {
+        FanArtMediaType = FanArtConstants.FanArtMediaType.SeriesSeason;
+        SimpleTitle = FanArtName = season.SimpleTitle;
+        MediaItem = season.MediaItem;
+        ItemDescription = null;
+        return;
+      }
       EpisodeItem episode = SelectedItem as EpisodeItem;
       if (episode != null)
       {
