@@ -398,7 +398,7 @@
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -469,26 +469,26 @@
         </Image.Source>
       </Image>
 
-      <Grid Grid.Row="0" Margin="-4,0,-4,1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="28" />
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="28" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="28" />
-              <RowDefinition Height="*"  />
-              <RowDefinition Height="28" />
-            </Grid.RowDefinitions>
-            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
-            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
-            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
-            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
-            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
-            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
-            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
-            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
-            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
+      <Grid Grid.Row="0" Margin="-2.5,2.5,-4,1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="27" />
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="27" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="27" />
+          <RowDefinition Height="*"  />
+          <RowDefinition Height="27" />
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_00.png" />
+        <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_10.png" />
+        <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_20.png" />
+        <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_01.png" />
+        <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_11.png" />
+        <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_21.png" />
+        <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_02.png" />
+        <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_12.png" />
+        <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_22.png" />
       </Grid>
         
       <Grid Grid.Row="0" Width="320" Height="445" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
@@ -673,7 +673,7 @@
   <ControlTemplate x:Key="GridViewSeriesSeasonFilterItemTemplate">
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -882,7 +882,7 @@
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_18}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -949,26 +949,26 @@
         </Image.Source>
       </Image>
 
-      <Grid Grid.Row="0" Margin="-4,0,-4,1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+      <Grid Grid.Row="0" Margin="-2.5,2.5,-4,1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="28" />
+              <ColumnDefinition Width="27" />
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="28" />
+              <ColumnDefinition Width="27" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="28" />
+              <RowDefinition Height="27" />
               <RowDefinition Height="*"  />
-              <RowDefinition Height="28" />
+              <RowDefinition Height="27" />
             </Grid.RowDefinitions>
-            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
-            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
-            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
-            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
-            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
-            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
-            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
-            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
-            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
+            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_00.png" />
+            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_10.png" />
+            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_20.png" />
+            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_01.png" />
+            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_11.png" />
+            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_21.png" />
+            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_02.png" />
+            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_12.png" />
+            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_22.png" />
       </Grid>
         
       <Grid Grid.Row="0" Width="320" Height="445" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
@@ -1251,7 +1251,7 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1574,7 +1574,7 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -1825,7 +1825,7 @@
         <RowDefinition Height="175"/>
       </Grid.RowDefinitions>
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
       <Grid>
         <Grid.OpacityMask>
@@ -2058,7 +2058,7 @@
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="193" Height="128">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_35_22}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid>

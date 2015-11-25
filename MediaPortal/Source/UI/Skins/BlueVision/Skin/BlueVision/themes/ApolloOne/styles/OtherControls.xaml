@@ -440,7 +440,7 @@
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
     <Grid>
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_4_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid x:Name="ItemControl">
@@ -723,7 +723,7 @@
       </Grid.Width-->
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_18}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
