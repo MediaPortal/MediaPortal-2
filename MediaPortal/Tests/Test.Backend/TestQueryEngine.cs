@@ -156,15 +156,17 @@ namespace Test.Backend
       //Console.WriteLine("Table joins [{0}]", string.Join(",", tableJoins));
 
       Assert.AreEqual(new List<object> { "test"," IN(",
-          "SELECT V1.", "LINKEDID", " FROM ", "M_RELATIONSHIP", " V1 WHERE V1.", "ROLE", "=@V10", " AND ", "LINKEDROLE", "=@V11", " AND ", "MEDIA_ITEM_ID", "=", "test",
+          "SELECT V1.", "LINKEDID", " FROM ", "M_RELATIONSHIP", " V1 WHERE V1.", "ROLE", "=@V11", " AND ", "LINKEDROLE", "=@V12", " AND ", "MEDIA_ITEM_ID", "=@V10",
           " UNION ",
-          "SELECT V2.", "MEDIA_ITEM_ID", " FROM ", "M_RELATIONSHIP", " V2 WHERE V2.", "ROLE", "=@V23", " AND ", "LINKEDROLE", "=@V22", " AND ", "LINKEDID", "=", "test", ")" }, parts, "Parts");
+          "SELECT V2.", "MEDIA_ITEM_ID", " FROM ", "M_RELATIONSHIP", " V2 WHERE V2.", "ROLE", "=@V25", " AND ", "LINKEDROLE", "=@V24", " AND ", "LINKEDID", "=@V13", ")" }, parts, "Parts");
       Assert.AreEqual(new List<BindVar>
       {
-         new BindVar("V10", movieType, typeof(Guid)), 
-        new BindVar("V11", actorType, typeof(Guid)),
-        new BindVar("V23", actorType, typeof(Guid)),
-        new BindVar("V22", movieType, typeof(Guid))
+        new BindVar("V11", movieType, typeof(Guid)), 
+        new BindVar("V12", actorType, typeof(Guid)),
+        new BindVar("V10", movieId, typeof(Guid)), 
+        new BindVar("V25", actorType, typeof(Guid)),
+        new BindVar("V24", movieType, typeof(Guid)),
+        new BindVar("V13", movieId, typeof(Guid))
       }, bindVars, "Bind vars");
       Assert.AreEqual(new List<TableJoin> { }, tableJoins, "Tables joins");
     }
@@ -314,13 +316,15 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID IN(SELECT V1.LINKEDID FROM M_RELATIONSHIP V1 WHERE V1.ROLE=@V10 AND LINKEDROLE=@V11 AND MEDIA_ITEM_ID=T0.MEDIA_ITEM_ID UNION SELECT V2.MEDIA_ITEM_ID FROM M_RELATIONSHIP V2 WHERE V2.ROLE=@V23 AND LINKEDROLE=@V22 AND LINKEDID=T0.MEDIA_ITEM_ID)", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID IN(SELECT V1.LINKEDID FROM M_RELATIONSHIP V1 WHERE V1.ROLE=@V11 AND LINKEDROLE=@V12 AND MEDIA_ITEM_ID=@V10 UNION SELECT V2.MEDIA_ITEM_ID FROM M_RELATIONSHIP V2 WHERE V2.ROLE=@V25 AND LINKEDROLE=@V24 AND LINKEDID=@V13)", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
             {
-                new BindVar("V10", movieType, typeof(Guid)),
-                new BindVar("V11", actorType, typeof(Guid)),
-                new BindVar("V23", actorType, typeof(Guid)),
-                new BindVar("V22", movieType, typeof(Guid)),
+                new BindVar("V11", movieType, typeof(Guid)),
+                new BindVar("V12", actorType, typeof(Guid)),
+                new BindVar("V10", movieId, typeof(Guid)),
+                new BindVar("V25", actorType, typeof(Guid)),
+                new BindVar("V24", movieType, typeof(Guid)),
+                new BindVar("V13", movieId, typeof(Guid)),
             }, bindVars, "Bind vars");
     }
 
