@@ -81,7 +81,12 @@
   </Control>
 
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens -->
-  <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Help]}" Color="{ThemeResource TextColor}"
-         Wrap="True"
-         IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
+  <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True">
+    <Label.IsVisible>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
+        <Binding Source="{StaticResource MenuModel}" Path="IsHomeScreen"/>
+        <Binding Source="{StaticResource MenuModel}" Path="!IsHome"/>
+      </MultiBinding>
+    </Label.IsVisible>
+  </Label>
 </Grid>
