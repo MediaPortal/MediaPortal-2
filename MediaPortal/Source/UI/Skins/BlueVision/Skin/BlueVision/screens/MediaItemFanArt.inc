@@ -5,14 +5,14 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails"
-  Margin="-20,10,-15,15">
+  Margin="-20,10,-15,20">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
 
   <!-- SHADOW -->
-  <Control Style="{ThemeResource Shadow_35_22}" IsVisible="{Binding ElementName=thumb, Path=HasImage}" />
+  <Control Style="{ThemeResource Shadow_3_23}" IsVisible="{Binding ElementName=thumb, Path=HasImage}" />
   <!-- SHADOW -->
 
   <Grid>

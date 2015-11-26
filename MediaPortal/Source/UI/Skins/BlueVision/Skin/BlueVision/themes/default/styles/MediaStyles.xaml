@@ -402,7 +402,7 @@
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -677,7 +677,7 @@
   <ControlTemplate x:Key="GridViewSeriesSeasonFilterItemTemplate">
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -886,7 +886,7 @@
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_18}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -1255,7 +1255,7 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1578,7 +1578,7 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -1829,7 +1829,7 @@
         <RowDefinition Height="175"/>
       </Grid.RowDefinitions>
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
       <Grid>
         <Grid.OpacityMask>
@@ -2062,7 +2062,7 @@
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="193" Height="128">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_35_22}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid>
