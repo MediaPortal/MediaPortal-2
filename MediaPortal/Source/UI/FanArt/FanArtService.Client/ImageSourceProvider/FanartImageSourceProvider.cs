@@ -32,52 +32,60 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
   {
     bool IFanartImageSourceProvider.TryCreateFanartImageSource(ListItem listItem, out FanArtImageSource fanartImageSource)
     {
-      fanartImageSource = null;
-      string fanArtMediaType = null;
-      string fanArtName = null;
-
       SeriesFilterItem series = listItem as SeriesFilterItem;
       if (series != null)
       {
-        fanArtMediaType = FanArtMediaTypes.Series;
-        fanArtName = series.SimpleTitle;
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Series,
+          FanArtName = series.SimpleTitle
+        };
+        return true;
       }
       SeriesItem episode = listItem as SeriesItem;
       if (episode != null)
       {
-        fanArtMediaType = FanArtMediaTypes.Series;
-        fanArtName = episode.Series;
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Series,
+          FanArtName = episode.Series
+        };
+        return true;
       }
       MovieFilterItem movieCollection = listItem as MovieFilterItem;
       if (movieCollection != null)
       {
-        fanArtMediaType = FanArtMediaTypes.MovieCollection;
-        fanArtName = movieCollection.SimpleTitle;
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.MovieCollection,
+          FanArtName = movieCollection.SimpleTitle
+        };
+        return true;
       }
       MovieItem movie = listItem as MovieItem;
       if (movie != null)
       {
-        fanArtMediaType = FanArtMediaTypes.Movie;
-        // Fanart loading now depends on the MediaItemId to support local fanart
-        fanArtName = movie.MediaItem.MediaItemId.ToString();
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Movie,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = movie.MediaItem.MediaItemId.ToString()
+        };
+        return true;
       }
       VideoItem video = listItem as VideoItem;
       if (video != null)
       {
-        fanArtMediaType = FanArtMediaTypes.Movie;
-        // Fanart loading now depends on the MediaItemId to support local fanart
-        fanArtName = video.MediaItem.MediaItemId.ToString();
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Movie,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = video.MediaItem.MediaItemId.ToString()
+        };
+        return true;
       }
-
-      if (fanArtMediaType == null || fanArtName == null)
-        return false;
-
-      fanartImageSource = new FanArtImageSource
-      {
-        FanArtMediaType = fanArtMediaType,
-        FanArtName = fanArtName
-      };
-      return true;
+      fanartImageSource = null;
+      return false;
     }
   }
 }
