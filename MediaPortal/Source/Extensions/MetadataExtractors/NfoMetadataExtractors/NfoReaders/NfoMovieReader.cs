@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -32,9 +33,11 @@ using System.Xml.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -82,6 +85,65 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       InitializeSupportedElements();
       InitializeSupportedAttributes();
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Treats the nfo-file's content as a string and parses it for a valid IMDB-ID; 
+    /// if one is found and it represents a movie, it is stored in the stub object.
+    /// </summary>
+    /// <remarks>
+    /// Used as a fallback, if the nfo-file cannot be parsed with XmlNfoReader. After calling
+    /// this method, there is only one stub object with the IMDB-ID as only metadata. Any
+    /// additional metadata must be fetched by the MDEs applied after the NfoMovieMDE.
+    /// </remarks>
+    /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
+    /// <returns><c>true</c> if a valid IMDB-ID for a movie was found; otherwise <c>false</c></returns>
+    public async Task<bool> TryParseForImdbId(IFileSystemResourceAccessor nfoFsra)
+    {
+      // Make sure the nfo-file was read into _nfoBytes as byte array
+      if (_nfoBytes == null && !await TryReadNfoFileAsync(nfoFsra).ConfigureAwait(false))
+        return false;
+
+      try
+      {
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+        using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+        {
+          // Convert the byte array to a string
+          var nfoString = nfoReader.ReadToEnd();
+
+          Match match = ((NfoMovieMetadataExtractorSettings)_settings).ImdbIdRegex.Regex.Match(nfoString);
+          if (match.Success)
+          {
+            string imdbId = match.Groups[1].Value;
+            _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' found when parsing the nfo-file as plain text.", _miNumber, imdbId);
+
+            // Returns true, if the found IMDB-ID represents a movie (not a series)
+            if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(new MovieInfo { ImdbId = imdbId }))
+            {
+              _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' confirmed online to represent a movie. Storing only Imdb-ID.", _miNumber, imdbId);
+              var stub = new MovieStub { Id = imdbId };
+              _stubs.Clear();
+              _stubs.Add(stub);
+              return true;
+            }
+            _debugLogger.Warn("[#{0}]: Cannot extract metadata; Imdb-ID: '{1}' could not be found or does not represent a movie on TheMovieDb.com", _miNumber, imdbId);
+          }
+          else
+            _debugLogger.Warn("[#{0}]: Cannot extract metadata; no valid Imdb-ID was found in the nfo-file.", _miNumber);
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Warn("[#{0}]: Cannot extract metadata; error when trying to parse the nfo-file for a valid Imdb-ID", e, _miNumber);
+      }
+      return false;
     }
 
     #endregion

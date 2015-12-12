@@ -214,11 +214,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
 
         // Now we (asynchronously) extract the metadata into a stub object.
+        // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
         var nfoReader = new NfoMovieReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
         using (nfoFsra)
         {
-          if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
+          if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
+              !await nfoReader.TryParseForImdbId(nfoFsra).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
