@@ -83,6 +83,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #region Protected fields
 
     /// <summary>
+    /// After a successful call to <see cref="TryReadNfoFileAsync"/> the content of the nfo-file is in this byte array
+    /// </summary>
+    protected byte[] _nfoBytes;
+    
+    /// <summary>
     /// After a call to <see cref="TryReadMetadataAsync"/> all parsed stub objects are contained in this list
     /// </summary>
     protected List<TStub> _stubs = new List<TStub>();
@@ -126,10 +131,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     protected readonly HttpClient _httpDownloadClient;
 
-    #endregion
-
-    #region Private fields
-
     /// <summary>
     /// Settings of the NfoMetadataExtractor
     /// </summary>
@@ -138,7 +139,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Properties defined in a settings class derived from <see cref="NfoMetadataExtractorSettingsBase"/> can only be accessed by the
     /// respective derived reader class.
     /// </remarks>
-    private readonly NfoMetadataExtractorSettingsBase _settings;
+    protected readonly NfoMetadataExtractorSettingsBase _settings;
 
     #endregion
 
@@ -172,38 +173,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
     public virtual async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
-      byte[] nfoBytes;
       var nfoFileWrittenToDebugLog = false;
-      try
-      {
-        using (var nfoStream = await nfoFsra.OpenReadAsync().ConfigureAwait(false))
-        {
-          // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
-          // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
-          // because the XmlReader first considers the "Byte Order Mark" ("BOM"). If such is not present, UTF-8 is used.
-          // If the XML declaration contains an encoding attribute (which is optional), the XmlReader (contrary to the
-          // StreamReader) automatically switches to the enconding specified by the XML declaration.
-          nfoBytes = new byte[nfoStream.Length];
-          await nfoStream.ReadAsync(nfoBytes, 0, (int)nfoStream.Length).ConfigureAwait(false);
-          if (_settings.EnableDebugLogging && _settings.WriteRawNfoFileIntoDebugLog)
-            using (var nfoMemoryStream = new MemoryStream(nfoBytes))
-            using (var nfoReader = new StreamReader(nfoMemoryStream, true))
-            {
-              var nfoString = nfoReader.ReadToEnd();
-              _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
-              nfoFileWrittenToDebugLog = true;
-            }
-        }
-      }
-      catch (Exception e)
-      {
-        _debugLogger.Error("[#{0}]: Cannot extract metadata; cannot read nfo-file", e, _miNumber);
+
+      // Make sure the nfo-file was read into _nfoBytes as byte array
+      if (_nfoBytes == null && !await TryReadNfoFileAsync(nfoFsra).ConfigureAwait(false))
         return false;
-      }
+
+      if (_settings.EnableDebugLogging && _settings.WriteRawNfoFileIntoDebugLog)
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+        using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+        {
+          var nfoString = nfoReader.ReadToEnd();
+          _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+          nfoFileWrittenToDebugLog = true;
+        }
       
       try
       {
-        using(var memoryNfoStream = new MemoryStream(nfoBytes))
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var memoryNfoStream = new MemoryStream(_nfoBytes))
         using (var xmlReader = new XmlNfoReader(memoryNfoStream))
         {
           var nfoDocument = XDocument.Load(xmlReader);
@@ -212,7 +203,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       catch (Exception e)
       {
-        using(var nfoMemoryStream = new MemoryStream(nfoBytes))
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
         using (var nfoReader = new StreamReader(nfoMemoryStream, true))
         {
           try
@@ -220,7 +213,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             if (!nfoFileWrittenToDebugLog)
             {
               var nfoString = nfoReader.ReadToEnd();
-              _debugLogger.Warn("[#{0}]: Cannot extract metadata; cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              _debugLogger.Warn("[#{0}]: Cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
             }
           }
           catch (Exception ex)
@@ -374,6 +367,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #endregion
 
     #region Protected methods
+
+    /// <summary>
+    /// Tries to read an nfo-file into a byte array (<see cref="_nfoBytes"/>)
+    /// </summary>
+    /// <param name="nfoFsra">FileSystemResourceAccessor pointing to the nfo-file</param>
+    /// <returns><c>true</c>, if the file was successfully read; otherwise <c>false</c></returns>
+    protected async Task<bool> TryReadNfoFileAsync(IFileSystemResourceAccessor nfoFsra)
+    {
+      try
+      {
+        using (var nfoStream = await nfoFsra.OpenReadAsync().ConfigureAwait(false))
+        {
+          // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
+          // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
+          // because the XmlReader first considers the "Byte Order Mark" ("BOM"). If such is not present, UTF-8 is used.
+          // If the XML declaration contains an encoding attribute (which is optional), the XmlReader (contrary to the
+          // StreamReader) automatically switches to the enconding specified by the XML declaration.
+          _nfoBytes = new byte[nfoStream.Length];
+          await nfoStream.ReadAsync(_nfoBytes, 0, (int)nfoStream.Length).ConfigureAwait(false);
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Error("[#{0}]: Cannot extract metadata; cannot read nfo-file", e, _miNumber);
+        return false;
+      }
+      return true;
+    }
 
     /// <summary>
     /// Writes the <see cref="_stubs"/> object including its metadata into the debug log in Json form

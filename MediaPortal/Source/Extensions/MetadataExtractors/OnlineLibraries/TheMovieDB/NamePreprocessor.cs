@@ -73,6 +73,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
 
     public static bool CleanupTitle(MovieInfo movieInfo)
     {
+      if (string.IsNullOrEmpty(movieInfo.MovieName))
+        return false;
       string originalTitle = movieInfo.MovieName;
       foreach (Regex regex in REGEXP_CLEANUPS)
         movieInfo.MovieName = regex.Replace(movieInfo.MovieName, "");
