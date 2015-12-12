@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This screen acts as a simple base screen for each special screen which shows media items and which
+     doesn't bring in special images/controls/etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Defines the default margins for the content area -->
+    <ResourceWrapper x:Key="CustomContentMargin" Resource="10,0,6,-25" />
+
+    <!-- Header_Text resource has to be added by including screen -->
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={Model 11193401-D85D-4D50-9825-E9EB34D87062}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ListView x:Name="MasterList" ItemsSource="{Binding AllItems}" Style="{ThemeResource NestedMediaListViewStyle}">
+        </ListView>
+
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for standard menu screens:
+A header text, left the menu, under the menu a small video preview,
+at the right side the content pane and at the bottom the current play control.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_menu.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Contents_Template">
+        [UI element to be displayed in the content area]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header
+ - Contents_Template (ConrolTemplate): Template for element to be displayed
+   in the content area at the right side
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:bv="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
+    >
+  <Include.Resources>
+    <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
+
+    <!-- Header has to be defined by the includer: "Header_Text" -->
+
+    <!-- Client_Template -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="11,0,0,-2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+          <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+        </Grid.Resources>
+
+        <bv:GridListView x:Name="MainMenu" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0"
+            VerticalAlignment="Top" SetFocusPrio="Fallback"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
+            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+          <bv:GridListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </bv:GridListView.Resources>
+        </bv:GridListView>
+
+        <!-- On HomeScreen we won't have any content visible, so we use this Panel to contain our shutdown button -->
+        <Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" SetFocusPrio="Default">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <!-- Navigates to ShutdownManager.ShutdownDialog, defined by its DialogState ID -->
+          <Button Style="{ThemeResource ButtonWideStyle_GrowOnly}" Opacity="0.1"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+            <Image Source="ShutdownIcon.png" />
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter Property="Opacity" Value="1.0" />
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Header_Template">
+      <Grid  Grid.Column="0" Grid.Row="2" Margin="50,14,50,0"  DataContext="{Binding Source={StaticResource CurrentNewsModel}}" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="800" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="Black" 
+               Content="{Binding CurrentNewsItem.Title}" />
+
+        <Label Grid.Row="0" Grid.Column="1" Margin="20,0,0,0" x:Name="NewSummary" Wrap="False" Scroll="Auto" ScrollSpeed="20" ScrollDelay="3"
+               HorizontalAlignment="Stretch" Height="36"
+               Content="{Binding CurrentNewsItem.Summary}"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
