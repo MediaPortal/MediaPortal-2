@@ -586,11 +586,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
     {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
-      MediaItemQuery executeQuery = filterOnlyOnline ? new MediaItemQuery(
-              query.NecessaryRequestedMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}),
-              query.OptionalRequestedMIATypeIDs, AddOnlyOnlineFilter(query.Filter)) : query;
-      executeQuery.Limit = query.Limit;
-      executeQuery.Offset = query.Offset;
+      MediaItemQuery executeQuery = query;
+      if (filterOnlyOnline)
+      {
+        executeQuery = new MediaItemQuery(query); // Use constructor by other query to make sure all properties are copied (including sorting and limits)
+        executeQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
+        executeQuery.Filter = AddOnlyOnlineFilter(query.Filter);
+      } 
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = cmiq.QueryList();
       Logger.Info("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
