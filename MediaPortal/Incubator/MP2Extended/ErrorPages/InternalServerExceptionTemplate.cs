@@ -33,14 +33,14 @@ namespace MediaPortal.Plugins.MP2Extended.ErrorPages
                     "");
             
             #line 11 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ErrorPages\InternalServerExceptionTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(errorCode));
+            this.Write(this.ToStringHelper.ToStringWithCulture(_errorCode));
             
             #line default
             #line hidden
             this.Write(" (");
             
             #line 11 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ErrorPages\InternalServerExceptionTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(errorName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(_errorName));
             
             #line default
             #line hidden
@@ -429,21 +429,21 @@ namespace MediaPortal.Plugins.MP2Extended.ErrorPages
                     "ht:54px;width:150px}\r\n  </style>\r\n  <ins><h2>MP2Extended</h2></ins>\r\n  <p><b>");
             
             #line 18 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ErrorPages\InternalServerExceptionTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(errorCode));
+            this.Write(this.ToStringHelper.ToStringWithCulture(_errorCode));
             
             #line default
             #line hidden
             this.Write(".</b> <ins>That\'s an error.</ins>\r\n  <p>");
             
             #line 19 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ErrorPages\InternalServerExceptionTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ex.Message));
+            this.Write(this.ToStringHelper.ToStringWithCulture(_ex.Message));
             
             #line default
             #line hidden
             this.Write("  <br><br>\r\n  <b>Stacktrace:</b><br>\r\n  <div><ins>");
             
             #line 21 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ErrorPages\InternalServerExceptionTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ex.StackTrace));
+            this.Write(this.ToStringHelper.ToStringWithCulture(_ex.StackTrace));
             
             #line default
             #line hidden
