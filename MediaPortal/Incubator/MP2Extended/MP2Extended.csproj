@@ -492,6 +492,9 @@
     <Content Include="ResourceAccess\WSS\Profiles\StreamingProfiles.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Scripts\jquery-2.1.4.intellisense.js" />
+    <Content Include="Scripts\jquery-2.1.4.js" />
+    <Content Include="Scripts\jquery-2.1.4.min.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
@@ -517,6 +520,7 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SettingsTemplate.cs</LastGenOutput>
     </None>
+    <None Include="Scripts\jquery-2.1.4.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
