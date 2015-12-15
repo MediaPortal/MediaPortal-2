@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)Newtonsoft.Json.dll" />
+      <PluginFiles Include="$(TargetDir)OnlineVideos.dll" />
     </ItemGroup>
     
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
