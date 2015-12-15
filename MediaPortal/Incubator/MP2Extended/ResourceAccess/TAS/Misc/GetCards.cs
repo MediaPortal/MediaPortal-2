@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -17,7 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetCards : BaseCard, IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetCards: ITvProvider not found");

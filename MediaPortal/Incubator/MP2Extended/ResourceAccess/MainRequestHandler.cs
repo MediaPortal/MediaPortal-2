@@ -73,7 +73,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       _product = "MediaPortal 2 MPExtended Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
 
       // Authentication
-      //_authRequestHandler = new AuthRequestHandler(RESOURCE_ACCESS_PATH);
+      if (MP2Extended.Settings.UseAuth)
+        _authRequestHandler = new AuthRequestHandler(RESOURCE_ACCESS_PATH);
     }
 
     public static void Shutdown()

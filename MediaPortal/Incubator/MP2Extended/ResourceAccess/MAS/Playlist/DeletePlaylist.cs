@@ -1,6 +1,7 @@
 ﻿using System;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -13,7 +14,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
   internal class DeletePlaylist : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string playlistId = httpParam["playlistId"].Value;

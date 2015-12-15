@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -20,7 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetMusicAlbumBasicById : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string id_base = httpParam["id"].Value;

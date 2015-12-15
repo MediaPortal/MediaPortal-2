@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -24,7 +25,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
     [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
     [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
     [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string id = httpParam["id"].Value;

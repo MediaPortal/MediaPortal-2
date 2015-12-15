@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -20,7 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileSystemFoldersCount : BaseFolderBasic, IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string id = httpParam["id"].Value;

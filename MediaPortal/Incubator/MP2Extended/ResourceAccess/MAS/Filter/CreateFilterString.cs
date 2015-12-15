@@ -2,11 +2,10 @@
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
-using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Filters;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
@@ -19,7 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "conjunction", Type = typeof(string), Nullable = true)]
   internal class CreateFilterString : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string field = httpParam["field"].Value;

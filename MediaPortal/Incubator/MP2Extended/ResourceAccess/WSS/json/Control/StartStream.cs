@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Utilities.Network;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -25,7 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   internal class StartStream : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       

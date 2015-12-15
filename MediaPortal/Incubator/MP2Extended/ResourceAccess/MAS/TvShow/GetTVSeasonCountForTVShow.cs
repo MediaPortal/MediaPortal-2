@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -20,7 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetTVSeasonCountForTVShow : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       // we can't select only for seasons, so we take all episodes from a tv show and filter.
 

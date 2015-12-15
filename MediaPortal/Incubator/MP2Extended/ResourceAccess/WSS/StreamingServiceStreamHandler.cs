@@ -22,6 +22,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       { "ExtractImageResized", new ExtractImageResized() },
       { "GetArtwork", new GetArtwork() },
       { "GetArtworkResized", new GetArtworkResized() },
+      { "GetOnlineVideosArtwork", new GetOnlineVideosArtwork() },
+      { "GetOnlineVideosArtworkResized", new GetOnlineVideosArtworkResized() },
     };
 
     // these modules handle the response themselfe

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -31,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   // TODO: add the missing functions once these are implemented
   internal class GetFilterValues : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string mediaType = httpParam["mediaType"].Value;
@@ -54,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
       switch (mediaTypeEnum)
       {
         case WebMediaType.Drive:
-          return AutoSuggestion.GetValuesForField(filterField, (List<WebDriveBasic>)(new GetFileSystemDrives().Process(request)), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, (List<WebDriveBasic>)(new GetFileSystemDrives().Process(request, session)), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.Movie:
         //return AutoSuggestion.GetValuesForField(filterField, new GetMoviesDetailed().Process(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.MusicAlbum:
@@ -64,9 +65,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
         case WebMediaType.MusicTrack:
         //return AutoSuggestion.GetValuesForField(filterField, GetMusicTracksDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.Picture:
-          return AutoSuggestion.GetValuesForField(filterField, (List<WebPictureDetailed>)(new GetPicturesDetailed().Process(request)), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, (List<WebPictureDetailed>)(new GetPicturesDetailed().Process(request, session)), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.Playlist:
-          return AutoSuggestion.GetValuesForField(filterField, (List<WebPlaylist>)(new GetPlaylists().Process(request)), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, (List<WebPlaylist>)(new GetPlaylists().Process(request, session)), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.TVEpisode:
         //return AutoSuggestion.GetValuesForField(filterField, GetTVEpisodesDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.TVShow:

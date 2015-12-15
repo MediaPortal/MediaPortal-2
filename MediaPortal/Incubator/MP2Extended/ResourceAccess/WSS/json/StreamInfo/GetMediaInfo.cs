@@ -15,6 +15,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using System.IO;
 using System.Globalization;
+using HttpServer.Sessions;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
@@ -25,7 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
   {
     private const string UNDEFINED = "undef";
 
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string id = httpParam["itemId"].Value;

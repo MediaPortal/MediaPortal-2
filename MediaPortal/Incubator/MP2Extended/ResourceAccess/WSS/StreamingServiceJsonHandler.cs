@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       IRequestMicroModuleHandler requestModuleHandler;
       dynamic returnValue = null;
       if (_requestModuleHandlers.TryGetValue(action, out requestModuleHandler))
-        returnValue = requestModuleHandler.Process(request);
+        returnValue = requestModuleHandler.Process(request, session);
 
       if (returnValue == null)
       {

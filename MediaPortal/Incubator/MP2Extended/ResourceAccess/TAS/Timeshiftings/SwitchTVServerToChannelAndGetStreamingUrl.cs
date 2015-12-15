@@ -1,5 +1,6 @@
 ﻿using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -21,7 +22,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class SwitchTVServerToChannelAndGetStreamingUrl : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string channelId = httpParam["channelId"].Value;

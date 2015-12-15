@@ -16,6 +16,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Utilities.Network;
 using System.Collections.Generic;
+using HttpServer.Sessions;
 using MediaPortal.Plugins.MP2Extended.Utils;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
@@ -28,7 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -28,7 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetRecordingsByRange : BaseRecordingBasic, IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string start = httpParam["start"].Value;

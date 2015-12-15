@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -25,7 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMusicArtistsBasicByRange : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       // we can't select only for shows, so we take all episodes and filter.
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -21,7 +22,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
   [ApiFunctionParam(Name = "name", Type = typeof(string), Nullable = false)]
   internal class GetTranscoderProfileByName : BaseTranscoderProfile, IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string name = httpParam["name"].Value;
