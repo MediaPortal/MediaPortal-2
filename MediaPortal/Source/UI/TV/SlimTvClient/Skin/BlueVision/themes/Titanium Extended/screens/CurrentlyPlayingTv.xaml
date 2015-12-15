@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare_players.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.CurrentlyPlayingInformationHeader]"/>
+
+    <ControlTemplate x:Key="Client_Template">
+      <GroupBox Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
+        <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Context="{StaticResource SlimTvClient}">
+          <Control.TemplateControl>
+            <Include Source="screens\ProgramInfo.inc"/>
+          </Control.TemplateControl>
+        </Control>
+      </GroupBox>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

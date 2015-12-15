@@ -220,14 +220,14 @@
 
           <Grid Name="ButtonControlRectangle" Margin="-32" IsVisible="False">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="75"/>
+              <ColumnDefinition Width="77"/>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="75"/>
+              <ColumnDefinition Width="77"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="75"/>
+              <RowDefinition Height="77"/>
               <RowDefinition Height="*"/>
-              <RowDefinition Height="75"/>
+              <RowDefinition Height="77"/>
             </Grid.RowDefinitions>
 
             <Image Grid.Row="0" Grid.Column="0" Source="focus_00.png" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -555,7 +555,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel>
-            <Rectangle x:Name="ButtonControlRectangle" DockPanel.Dock="Center" RadiusY="20" RadiusX="20" Opacity="0" Margin="-3,-2,-3,-2">
+            <!--Rectangle x:Name="ButtonControlRectangle" DockPanel.Dock="Center" RadiusY="20" RadiusX="20" Opacity="0" Margin="-3,-2,-3,-2">
               <Rectangle.Fill>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                   <GradientStop Color="#FF23C1FF" Offset="0"/>
@@ -564,7 +564,7 @@
                   <GradientStop Color="#FF00719D" Offset="1"/>
                 </LinearGradientBrush>
               </Rectangle.Fill>
-            </Rectangle>
+            </Rectangle-->
             <!--Label x:Name="ItemLabel" DockPanel.Dock="Center"  Margin="3,0,3,0" FontSize="{ThemeResource DialogTitleFontSize}" Color="{ThemeResource TextColor}"
                    Content="{Binding Path=[Name]}"/-->
           </DockPanel>
@@ -597,7 +597,7 @@
               <Setter Property="Opacity" Value="0.6"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Context.IsActive}" Value="True">
-              <Setter TargetName="ItemLabel" Property="Color" Value="Black"/>              
+              <!--Setter TargetName="ItemLabel" Property="Color" Value="Black"/-->              
               <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="1"/>
             </DataTrigger>
             <!--Trigger Property="Selected" Value="True">

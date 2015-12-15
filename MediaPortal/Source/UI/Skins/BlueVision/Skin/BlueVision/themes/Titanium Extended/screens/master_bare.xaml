@@ -32,6 +32,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
     xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
+    xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
+    xmlns:ie="clr-namespace:ImageSourceExtensions;assembly=ImageSourceExtensions"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
@@ -42,16 +44,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+      <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+      <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
     </Canvas.Resources>
     
     <Border Canvas.Top="0" Canvas.Left="0" Width="1920" Background="{ThemeResource HeaderPanelBackgroundBrush}" BorderThickness="0">
       <Image Stretch="Fill" Source="background_settings.png" Opacity="0" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" />
     </Border>
 
+    <!--Image Canvas.Top="0" Canvas.Left="0" Width="1920" Height="1080" Stretch="Fill"
+           IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+      <Image.Source>
+        <ie:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                               Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=_back.jpg}"/>
+      </Image.Source>
+    </Image-->
+
+    <Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
+        IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
     <!--Image Canvas.Top="20" Canvas.Left="40" Source="MP2_logo_bw.png" Height="50" Stretch="Uniform"/-->
     
     <Grid x:Name="HeaderPanel" Canvas.Top="0" Canvas.Left="0" Width="1920">
       <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -63,16 +78,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!--mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
             VerticalAlignment="Center" Margin="40,0,0,0" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/-->
+      <Grid Grid.Row="0" Height="7" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" />
      
-      <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" x:Name="BigIcon" Stretch="Uniform" Height="100" 
+      <Image Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" x:Name="BigIcon" Stretch="Uniform" Height="100" 
              Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}" 
              IsVisible="{Binding UseInHome}" HorizontalAlignment="Right" Margin="0,0,60,0"/>
 
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="0,10,10,0"
-             FontSize="{ThemeResource HeaderFontSize}" FontFamily="TitanBold"
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="1" Margin="0,10,10,0"
+             FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="Titan"
              Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-      <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0,-20,10,0">
+      <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" Margin="0,-20,10,0">
         <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="TitanBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         <Label x:Name="PlaceHolder" Content=" / " FontFamily="TitanBold" Color="{ThemeResource TextColor}" 
@@ -84,18 +100,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     </Grid>    <!-- HeaderPanel -->
 
-    <!--Image Canvas.Left="42" Canvas.Top="299" Width="1838" Height="90" Stretch="Fill" Source="menu_bar.png" Opacity="0.8"
-           IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" /-->
-    <Border Canvas.Left="60" Canvas.Top="240" Width="1800" Height="70" CornerRadius="30"
-            IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
-      <Border.Background>
-        <LinearGradientBrush EndPoint="0.5,0.9" StartPoint="0.5,0">
-          <GradientStop Color="#FF000000" Offset="0"/>
-          <GradientStop Color="#CC000000" Offset="0.5"/>
-          <GradientStop Color="#4D000000" Offset="0.9"/>
-        </LinearGradientBrush>
-      </Border.Background>
-    </Border>
     <Image Canvas.Left="20" Canvas.Top="300" Width="1880" Height="740" Stretch="Fill" Source="panel_thumbs_noinfo.png" Opacity="1"
            IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
  
@@ -149,12 +153,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
- 
-    <Border Width="1820" Canvas.Top="250" Canvas.Left="50" BorderThickness="0">
+
+    <Border Width="1820" Canvas.Top="13" Canvas.Left="50" BorderThickness="0">
           <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
-                 VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
-                 HomeMenuModel="{StaticResource MenuModel}" Margin="50,0,50,0" FontFamily="TitanBold" 
-                 IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                 VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
+                 HomeMenuModel="{StaticResource MenuModel}" Margin="50,0,50,0" FontFamily="Titan" 
                  ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                  SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
       <bvm:GroupMenuListView.Resources>

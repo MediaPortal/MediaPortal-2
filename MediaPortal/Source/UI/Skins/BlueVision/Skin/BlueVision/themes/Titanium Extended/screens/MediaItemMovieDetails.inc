@@ -135,8 +135,12 @@
   </Grid>
 
   <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Fill" Margin="27,-7,17,30"
-      Width="380" Height="520"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">
+      Width="380" Height="520">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560;False}"
+                     FallbackSource="FallbackFanart.png" />
+    </Image.Source>
     <Image.OpacityMask >
       <ImageBrush ImageSource="filmstrip_mask.png"/>
     </Image.OpacityMask>
