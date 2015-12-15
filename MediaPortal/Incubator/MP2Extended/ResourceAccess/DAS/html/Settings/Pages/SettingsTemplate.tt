@@ -1,0 +1,44 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="MediaPortal.Plugins.MP2Extended.Utils" #>
+
+<#@ include file="..\..\..\BasePages\Header.html" #>
+
+<style>
+
+	.settingsTable td, .settingsTable th, .settingsTable th:first-child, .settingsTable td:first-child {
+		padding: 8px;
+	}
+	.settingsTable tr:nth-child(2n) {
+		background-color: #F1F1F1;
+	}
+	.settingsTable tr {
+		border-bottom: 1px solid #DDD;
+	}
+	table {
+		border-collapse: collapse;
+		border-spacing: 0px;
+	}
+	table, th, td {
+		border: medium none;
+		box-sizing: border-box;
+	}
+</style>
+
+  <table class="customTable" style="width: 100%">
+	  <tbody>
+	  <tr>
+		  <th>Name</th>
+		  <th>Value</th>
+	  </tr>
+	  <# foreach (var setting in _settings) {  #>
+	  <tr>
+		  <td><#= setting.Key #></td>
+		  <td><#= setting.Value #></td>
+	  </tr>
+	  <#  } #>
+	  </tbody>
+	</table>

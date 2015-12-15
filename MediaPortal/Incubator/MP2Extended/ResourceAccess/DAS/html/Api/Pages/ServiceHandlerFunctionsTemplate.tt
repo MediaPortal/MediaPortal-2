@@ -1,0 +1,58 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+<#@ include file="..\..\..\BasePages\Header.html" #>
+
+<script type="text/javascript">
+function toggel(caller){
+        if(caller.parentNode){
+            var childList = caller.parentNode.getElementsByTagName('DIV');
+            for(var j = 0; j< childList.length;j++){
+                var currentState = childList[j].style.display;
+                if(currentState=="none"){
+                    childList[j].style.display="block";
+                }else{
+                    childList[j].style.display="none";
+                }
+            }
+        }
+    }
+</script>
+
+  <# foreach (var category in _serviceHandlerFunctions.OrderBy(i => i.Key)) {  #>
+	<b><u><#= category.Key #></u></b>
+	<br>
+	<ul style="list-style-position: inside;">
+	<# foreach (var handlerFunction in category.Value.OrderBy(i => i.Name)) { #>
+	  <li>
+		<span onclick="toggel(this)" style="cursor: pointer;"><#= handlerFunction.Name #></span>
+		<div style="display: none; padding-left: 25px;">
+			<b>Summary:</b><br>
+			<ins><#= handlerFunction.Summary #></ins>
+			<br>
+			<b>Return-Type:</b>
+			<ins><#= handlerFunction.ReturnType #></ins>
+			<br>
+			<b>Type:</b>
+			<ins><#= handlerFunction.Type #></ins>
+			<br>
+			<b>URL:</b>
+			<ins><#= handlerFunction.Url #></ins>
+			<br>
+			<b>Parameters:</b><# if (handlerFunction.Parameters.Count == 0) Write(" <i>none</i>"); #><br>
+			<ul style="list-style-position: inside; padding-left: 10px;">
+				<# foreach (var parameter in handlerFunction.Parameters.OrderBy(i => i.Name)) { #>
+					<li><#= parameter.Name #> (<#= (parameter.Nullable ? "nullable " : "") + parameter.Type.Name #>)</li>
+				<# } #>
+			</ul>
+			<br>
+		</div>
+	  </li>
+	<# } #>
+	</ul>
+	<br>
+	<br>
+<# } #>
