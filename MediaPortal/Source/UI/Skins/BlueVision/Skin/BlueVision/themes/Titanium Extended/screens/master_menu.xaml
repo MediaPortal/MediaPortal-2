@@ -89,6 +89,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Storyboard>
           </Grid.Resources>
 
+          <Grid.Triggers>
+          <Trigger Property="IsKeyboardFocusWithin" Value="True">
+            <Trigger.EnterActions>
+              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+            </Trigger.ExitActions>
+          </Trigger>
+          </Grid.Triggers>
+          
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -110,6 +121,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
             </EventTrigger>
 
+            
             <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
             <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
               <DataTrigger.EnterActions>
@@ -124,19 +136,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </DataTrigger>
           </Grid.Triggers>
 
-          <!--Rectangle Fill="{ThemeResource DialogBackgroundBaseColor}" 
-                     RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0"/>
-          <Rectangle RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,52,0">
-            <Rectangle.Fill>
-              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
-                <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="0.874"/>
-              </LinearGradientBrush>
-            </Rectangle.Fill>
-          </Rectangle-->
-
-          <Image Source="menu_bg.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,10,-60,10">
-            
+          <Image Source="menu_bg.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,10,-60,10">   
           </Image>
           
           <ListView x:Name="MainMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="120,80,60,30"
@@ -150,13 +150,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}" 
                    Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Height="180" Margin="25,0,-29,0"
-                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
-            <Image Source="hiddenmenu_tab.png" />
-            <!--Button.LayoutTransform>
-              <RotateTransform Angle="270"/>
-            </Button.LayoutTransform-->
+                   Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}">      
+            <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Margin="-10,0,10,0"/>
           </Button>
-
         </Grid>
 
         <KeyBinding Key="Info" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}"/>
