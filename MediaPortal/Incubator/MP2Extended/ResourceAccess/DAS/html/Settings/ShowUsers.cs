@@ -15,7 +15,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Settings
     public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       // Security
-      CheckRights.AccessAllowed(session, UserTypes.Admin, true, false);
+      CheckRights.AccessAllowed(session, UserTypes.Admin, true, true);
 
       UsersTemplate page = new UsersTemplate();
       return page.TransformText();

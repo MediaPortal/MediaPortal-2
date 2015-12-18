@@ -20,7 +20,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS
       // Api
       { "GetApi", new GetApi() },
       // Settings
-      { "GetSettings", new ShowSettings() },
+      { "ShowSettings", new ShowSettings() },
       { "ShowUsers", new ShowUsers() },
     };
 

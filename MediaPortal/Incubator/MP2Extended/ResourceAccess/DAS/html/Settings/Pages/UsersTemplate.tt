@@ -81,6 +81,7 @@
 			      "</tr>" );
 
 			      dialog.dialog( "close" );
+            $( "#users tbody" ).children("tr:last").effect("highlight", {}, 1000)
 		      }else {
 			      valid = false;
 			      updateTips( 'An error occurred! Please check the logs for more details.' );

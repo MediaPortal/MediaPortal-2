@@ -19,6 +19,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS
       // Settings
       { "CreateUser", new CreateUser() },
       { "DeleteUser", new DeleteUser() },
+      { "ChangeSetting", new ChangeSetting() },
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)

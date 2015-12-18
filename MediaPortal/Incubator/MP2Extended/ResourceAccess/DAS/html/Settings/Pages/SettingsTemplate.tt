@@ -7,25 +7,14 @@
 
 <#@ include file="..\..\..\BasePages\Header.html" #>
 
-<style>
+<script src="/MPExtended/StreamingService/stream/GetHtmlResource/ShowSettingsJs.js"></script>
 
-	.settingsTable td, .settingsTable th, .settingsTable th:first-child, .settingsTable td:first-child {
-		padding: 8px;
-	}
-	.settingsTable tr:nth-child(2n) {
-		background-color: #F1F1F1;
-	}
-	.settingsTable tr {
-		border-bottom: 1px solid #DDD;
-	}
-	table {
-		border-collapse: collapse;
-		border-spacing: 0px;
-	}
-	table, th, td {
-		border: medium none;
-		box-sizing: border-box;
-	}
+<style>
+  label, input, select { display:block; }
+  input, option { margin-bottom:12px; width: 100px; padding: .4em; }
+  select {
+    width: 100px;
+  }
 </style>
 
   <table class="customTable" style="width: 100%">
@@ -33,12 +22,18 @@
 	  <tr>
 		  <th>Name</th>
 		  <th>Value</th>
+      <th></th>
 	  </tr>
 	  <# foreach (var setting in _settings) {  #>
-	  <tr>
+	  <tr data-type="<#= setting.Value.Type #>" data-currentvalue="<#= setting.Value.Value #>" data-name="<#= setting.Key #>">
 		  <td><#= setting.Key #></td>
-		  <td><#= setting.Value #></td>
+		  <td id="value"><#= setting.Value.Value #></td>
+      <td><span class="ui-icon ui-icon-gear"></span></td>
 	  </tr>
 	  <#  } #>
 	  </tbody>
 	</table>
+
+<div id="dialogError" title="Error">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Error changing Setting! Please check the logs.</p>
+</div>

@@ -31,6 +31,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     {
       // General
       { "GetMediaItem", new GetMediaItem() },
+      { "GetHtmlResource", new GetHtmlResource() },
       // Control
       { "RetrieveStream", new RetrieveStream() },
       // Images
@@ -41,9 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
       string[] uriParts = request.Uri.AbsolutePath.Split('/');
-      string action = uriParts.Last();
-
-      Logger.Info("WSS: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath, uriParts.Length, action);
+      string action = (uriParts.Length >= 5) ? uriParts[4] : uriParts.Last();
 
       // pass on to the micro processors
       IStreamRequestMicroModuleHandler requestModuleHandler;

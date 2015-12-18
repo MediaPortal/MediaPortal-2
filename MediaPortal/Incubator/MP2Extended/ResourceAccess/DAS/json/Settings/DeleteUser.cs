@@ -18,7 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings
     public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       // Security
-      if (!CheckRights.AccessAllowed(session, UserTypes.Admin, false, false))
+      if (!CheckRights.AccessAllowed(session, UserTypes.Admin, false, true))
         return new WebBoolResult { Result = false };
 
       HttpParam httpParam = request.Param;

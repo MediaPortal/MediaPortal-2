@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\www\</wwwDestination>
   </PropertyGroup>
 
   <Target Name="AfterBuild">
@@ -22,7 +23,16 @@
       <PluginFiles Include="$(TargetDir)OnlineVideos.dll" />
     </ItemGroup>
     
+    <!-- Resources for Webinterface -->
+    <ItemGroup>
+      <wwwFiles Include="$(ProjectDir)\Scripts\**\jquery-2.1.4.min.js" />
+      <wwwFiles Include="$(ProjectDir)\Scripts\**\jquery-ui-1.11.4.min.js" />
+      <wwwFiles Include="$(ProjectDir)\Content\themes\base\**\*.*" />
+      <wwwFiles Include="$(ProjectDir)\Content\themes\smoothness\**\*.*" />
+    </ItemGroup>
+    
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(wwwFiles)" DestinationFolder="$(wwwDestination)\%(RecursiveDir)" />
   </Target>
 
 </Project>

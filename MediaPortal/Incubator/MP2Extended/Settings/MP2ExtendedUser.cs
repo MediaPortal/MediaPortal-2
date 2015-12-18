@@ -48,11 +48,12 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
     [XmlAttribute("PasswordEncrypted")]
     public string PasswordEncrypted
     {
-      get { return Encryption.Encrypt(MP2ExtendedUsers.KEY, Password); }
+      // also use the ID as key so that no one can see if two users have the same password
+      get { return Encryption.Encrypt(Encryption.XorIt(Id.ToString(), MP2ExtendedUsers.KEY), Password); }
       set
       {
         _passwordEncrypted = value;
-        Password = Encryption.Decrypt(MP2ExtendedUsers.KEY, value);
+        Password = Encryption.Decrypt(Encryption.XorIt(Id.ToString(), MP2ExtendedUsers.KEY), value);
       }
     }
 
@@ -71,11 +72,12 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
     [XmlAttribute("TypeEncrypted")]
     public string TypeEncrypted
     {
-      get { return Encryption.Encrypt(Encryption.XorIt(Password, MP2ExtendedUsers.KEY), Type.ToString()); }
+      // Use PasswordEncrypted as Key, because it should be unique
+      get { return Encryption.Encrypt(Encryption.XorIt(PasswordEncrypted, MP2ExtendedUsers.KEY), Type.ToString()); }
       set
       {
         _typeEncrypted = value;
-        Type = (UserTypes)Enum.Parse(typeof(UserTypes), Encryption.Decrypt(Encryption.XorIt(Password, MP2ExtendedUsers.KEY), value));
+        Type = (UserTypes)Enum.Parse(typeof(UserTypes), Encryption.Decrypt(Encryption.XorIt(PasswordEncrypted, MP2ExtendedUsers.KEY), value));
       }
     }
   }
