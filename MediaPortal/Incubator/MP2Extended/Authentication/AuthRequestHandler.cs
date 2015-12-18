@@ -51,6 +51,9 @@ namespace MediaPortal.Plugins.MP2Extended.Authentication
     /// <returns>true = Required, false = not Required</returns>
     internal static bool OnAuthenticationRequired(IHttpRequest request)
     {
+      if (!MP2Extended.Settings.UseAuth) // is User Auth enabled?
+        return false;
+
       return request.Uri.AbsolutePath.StartsWith(_resourceAccessPath);
     }
 
