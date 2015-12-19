@@ -589,6 +589,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
+    public bool UnCancelSchedule(IProgram program)
+    {
+      throw new NotImplementedException();
+    }
+
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       try

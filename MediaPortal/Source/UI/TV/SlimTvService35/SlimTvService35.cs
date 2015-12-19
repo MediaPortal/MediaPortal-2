@@ -474,6 +474,28 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public override bool UnCancelSchedule(IProgram program)
+    {
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
+      IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
+      var tvProgram = programService.GetProgram(program.ProgramId);
+      try
+      {
+        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.IdProgram);
+        foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => schedule.StartTime == program.StartTime && schedule.IdChannel == tvProgram.IdChannel))
+        {
+          scheduleService.UnCancelSerie(schedule, program.StartTime, tvProgram.IdChannel);
+        }
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to uncancel schedule for programId {0}", program.ProgramId), ex);
+        return false;
+      }
+    }
+
     private static void CancelSingleSchedule(Schedule schedule, Program canceledProgram)
     {
       ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Instance.Get<ICanceledScheduleService>();

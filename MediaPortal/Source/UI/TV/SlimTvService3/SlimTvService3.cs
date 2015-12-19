@@ -664,6 +664,27 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public override bool UnCancelSchedule(IProgram program)
+    {
+      var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
+      try
+      {
+        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.IdProgram);
+        foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsSerieIsCanceled(program.StartTime, tvProgram.IdChannel)))
+        {
+          schedule.UnCancelSerie(program.StartTime, tvProgram.IdChannel);
+          schedule.Persist();
+        }
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to uncancel schedule for programId {0}", program.ProgramId), ex);
+        return false;
+      }
+    }
+
     public override bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       var tvProgram = (IProgramRecordingStatus)TvDatabase.Program.Retrieve(program.ProgramId).ToProgram(true);
