@@ -886,6 +886,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
+    public bool UnCancelSchedule(IProgram program)
+    {
+      throw new NotImplementedException();
+    }
+
     public bool GetSchedules(out IList<ISchedule> schedules)
     {
       schedules = new List<ISchedule>();
