@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="AspNetServer"
+    PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}"
+    Author="MJGraf"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides an ASP.NET server">
+
+  <Version
+    PluginVersion="0.01"
+    ReleaseDate="2015-12-13 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="AspNetServer.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.AspNetServer.AspNetServerService"/>
+  </Runtime>
+</Plugin>

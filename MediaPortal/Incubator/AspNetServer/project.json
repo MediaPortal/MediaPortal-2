@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0-*",
+  "description": "AspNetServer Class Library",
+  "authors": [ "MJGraf" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "frameworks": {
+    "net451": {
+      "dependencies": {
+        "MediaPortal.Common": "2.0.0.1402"
+      }
+    }
+  },
+  "dependencies": {
+    "Microsoft.AspNet.Server.WebListener": "1.0.0-rc2-16057",
+    "Microsoft.AspNet.StaticFiles": "1.0.0-rc2-16059"
+  }
+}

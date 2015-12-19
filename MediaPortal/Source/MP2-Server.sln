@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -121,6 +121,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "UI\TV\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "UI\TV\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspNet", "AspNet", "{0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetServer", "..\Incubator\AspNetServer\AspNetServer.xproj", "{AD5A7513-8827-4436-B09B-1B177AC52904}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ECF060E7-CAA1-4466-851F-F80B857641EA} = {ECF060E7-CAA1-4466-851F-F80B857641EA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -298,6 +305,10 @@ Global
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.Build.0 = Release|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Debug|x86.ActiveCfg = Debug|x86
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}.Release|x86.ActiveCfg = Release|x86
+		{AD5A7513-8827-4436-B09B-1B177AC52904}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD5A7513-8827-4436-B09B-1B177AC52904}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD5A7513-8827-4436-B09B-1B177AC52904}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD5A7513-8827-4436-B09B-1B177AC52904}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -358,5 +369,7 @@ Global
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
 		{C239225E-CA92-4482-AFE7-F54006C48922} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
+		{0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
+		{AD5A7513-8827-4436-B09B-1B177AC52904} = {0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}
 	EndGlobalSection
 EndGlobal
