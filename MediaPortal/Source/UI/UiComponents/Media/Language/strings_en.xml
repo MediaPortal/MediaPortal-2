@@ -132,6 +132,7 @@
   <string name="Media.ChooseAudioDecadeHeader">Choose a decade</string>
   <string name="Media.ChooseAlbumHeader">Choose an album</string>
   <string name="Media.ChooseArtistHeader">Choose an artist</string>
+  <string name="Media.ChooseAlbumArtistHeader">Choose an album artist</string>
   <string name="Media.ChooseAudioGenreHeader">Choose a genre</string>
   <string name="Media.ChooseImageYearHeader">Choose a year</string>
   <string name="Media.ChooseImageSizeHeader">Choose a size</string>

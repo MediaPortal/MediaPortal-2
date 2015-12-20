@@ -340,7 +340,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
     public const string SCREEN_AUDIO_SHOW_ITEMS = "AudioShowItems";
     public const string SCREEN_AUDIO_FILTER_BY_ARTIST = "AudioFilterByArtist";
-    public const string SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST = "AudioFilterByArtist";
+    public const string SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST = "AudioFilterByAlbumArtist";
     public const string SCREEN_AUDIO_FILTER_BY_ALBUM = "AudioFilterByAlbum";
     public const string SCREEN_AUDIO_FILTER_BY_GENRE = "AudioFilterByGenre";
     public const string SCREEN_AUDIO_FILTER_BY_DECADE = "AudioFilterByDecade";
