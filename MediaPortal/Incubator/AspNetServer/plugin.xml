@@ -8,12 +8,12 @@
     Description="Provides an ASP.NET server">
 
   <Version
-    PluginVersion="0.01"
+    PluginVersion="0.02"
     ReleaseDate="2015-12-13 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <Runtime>
     <Assembly FileName="AspNetServer.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Plugins.AspNetServer.AspNetServerService"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.AspNetServer.AspNetServerPlugin"/>
   </Runtime>
 </Plugin>
