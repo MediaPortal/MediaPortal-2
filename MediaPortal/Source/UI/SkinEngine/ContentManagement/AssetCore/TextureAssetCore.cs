@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using FreeImageAPI;
@@ -355,6 +358,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       protected WebClient _webClient;
       protected Uri _uri;
 
+      protected static IList<string> _ignoredLoggingUriPatterns = new List<string>
+      {
+        // The fanart service is expected to return "not found", this is no error to log
+        "/FanartService",
+      };
+
       public AsyncWebLoadOperation(Uri uri, AsyncOperationFinished finishCallback)
         : base(finishCallback)
       {
@@ -394,7 +403,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         if (e.Cancelled || e.Error != null)
         {
-          ServiceRegistration.Get<ILogger>().Warn("AsyncWebLoadOperation: Failed to download {0} - {1}", _uri, e.Cancelled ? "Request timed out" : e.Error.Message);
+          string message = string.Format("AsyncWebLoadOperation: Failed to download {0} - {1}", _uri, e.Cancelled ? "Request timed out" : e.Error.Message);
+          if (_ignoredLoggingUriPatterns.Any(pattern => _uri.AbsoluteUri.Contains(pattern)))
+            ServiceRegistration.Get<ILogger>().Debug(message);
+          else
+            ServiceRegistration.Get<ILogger>().Warn(message);
           OperationFailed();
           return;
         }
