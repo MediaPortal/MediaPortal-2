@@ -32,7 +32,7 @@ using System;
 
 namespace MediaPortal.Plugins.AspNetServer
 {
-  public class AspNetServerService : IPluginStateTracker
+  public class AspNetServerPlugin : IPluginStateTracker
   {
     private IDisposable _engine;
 
