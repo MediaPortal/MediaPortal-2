@@ -22,11 +22,13 @@
 
 #endregion
 
+using MediaPortal.Plugins.AspNetServer.Logger;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.FileProviders;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MediaPortal.Plugins.AspNetServer
@@ -40,6 +42,7 @@ namespace MediaPortal.Plugins.AspNetServer
 
     public void Configure(IApplicationBuilder app)
     {
+      app.ApplicationServices.GetRequiredService<ILoggerFactory>().AddProvider(new MP2LoggerProvider("TestWebApp"));
       app.UseFileServer(new FileServerOptions
       {
         FileProvider = new PhysicalFileProvider(@"C:\"),
