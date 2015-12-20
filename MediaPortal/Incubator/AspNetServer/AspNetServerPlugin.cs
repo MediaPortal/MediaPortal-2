@@ -29,6 +29,7 @@ using Microsoft.AspNet.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using System;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Plugins.AspNetServer
 {
@@ -47,7 +48,7 @@ namespace MediaPortal.Plugins.AspNetServer
 
         var app = new WebHostBuilder(config)
             .UseStartup<Startup>()
-            .UseServerFactory("Microsoft.AspNet.Server.WebListener")
+            .UseServerFactory(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer())
             .Build();
 
         _engine = app.Start();

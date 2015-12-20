@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc2-16057",
+    "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc2-16185",
     "Microsoft.AspNet.StaticFiles": "1.0.0-rc2-16059"
   }
 }

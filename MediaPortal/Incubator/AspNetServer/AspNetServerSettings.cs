@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Linq;
+using MediaPortal.Common;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Logging;
 
@@ -29,6 +31,26 @@ namespace MediaPortal.Plugins.AspNetServer
 {
   public class AspNetServerSettings
   {
+    #region Consts
+
+    public const string WEB_LISTENER = "Microsoft.AspNet.Server.WebListener";
+    public const string KESTREL = "Microsoft.AspNet.Server.Kestrel";
+    public static readonly string[] SUPPORTED_SERVERS =
+    {
+      WEB_LISTENER,
+      KESTREL,
+    };
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// Http-Server to be used by the AspNetServer
+    /// </summary>
+    [Setting(SettingScope.Global, WEB_LISTENER)]
+    public string Server { get; set; }
+
     /// <summary>
     /// Indicates whether a very detailed AspNetServerDebug.log is created.
     /// </summary>
@@ -45,5 +67,19 @@ namespace MediaPortal.Plugins.AspNetServer
     /// </summary>
     [Setting(SettingScope.Global, LogLevel.Debug)]
     public LogLevel LogLevel { get; set; }
+
+    #endregion
+
+    #region Public methods
+
+    public string CheckAndGetServer()
+    {
+      if (SUPPORTED_SERVERS.Contains(Server))
+        return Server;
+      ServiceRegistration.Get<ILogger>().Warn("AspNetServerSettings: Unknown Server specified ({0}). Using {1} instead.", Server, WEB_LISTENER);
+      return WEB_LISTENER;
+    }
+
+    #endregion
   }
 }
