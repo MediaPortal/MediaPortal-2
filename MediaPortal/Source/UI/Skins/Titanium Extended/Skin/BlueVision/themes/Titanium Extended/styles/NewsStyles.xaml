@@ -45,7 +45,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="165"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#0DFFFFFF" Margin="0"> </Border>
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#1AFFFFFF" Margin="0"> </Border>
             
       <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center"
                MaxWidth="{ResolutionResource NewsItemLogoWidth}"/>
@@ -56,12 +56,12 @@
 
   <!-- Style for a single news item -->
   <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="1" Width="257" Height="164" >
+    <Grid Margin="0" >
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="200"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="165"/>
       </Grid.RowDefinitions>
 
       <Grid.Opacity>
@@ -71,38 +71,41 @@
           <Binding Source="0.8"/>
         </MultiBinding>
       </Grid.Opacity>
-      <DockPanel Grid.Row="0" Grid.Column="0">
-        <Grid DockPanel.Dock="Center">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
+      
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#1AFFFFFF" Margin="0"> </Border>
+      
+      <Image Grid.Column="0" Grid.Row="0" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="1">
+        <Image.OpacityMask >
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                      BorderThickness="0" BorderBrush="Black" />
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
 
-          <Image Grid.Column="1" Grid.Row="1" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="0">
-            <Image.OpacityMask >
-              <VisualBrush>
-                <VisualBrush.Visual>
-                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
-                          BorderThickness="0" BorderBrush="Black" />
-                </VisualBrush.Visual>
-              </VisualBrush>
-            </Image.OpacityMask>
-          </Image>
+      <!--Image Grid.Column="0" Grid.Row="0" Stretch="Fill" Source="defaultFolderVideo.png" Margin="3" Opacity="0.8"
+             IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Image.OpacityMask >
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                      BorderThickness="0" BorderBrush="Black" />
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image-->
 
-        </Grid>
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="defaultFolder.png" Margin="55"
+       IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+      </Image>
 
-      <Image DockPanel.Dock="Center" Stretch="Fill" Margin="1"
-       Source="News.png" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" />
-      <Label DockPanel.Dock="Bottom" x:Name="ItemLabel" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+      <Label x:Name="ItemLabel" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
              VerticalAlignment="Bottom" Wrap="False" Scroll="Auto" Margin="20,90,20,20" HorizontalAlignment="Center"
-             FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Title}" Color="Black" />
-      </DockPanel>   
+             FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Title}" Color="{ThemeResource TextColor}" />
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Fill" Source="onlinevideos_thumb_focus.png" VerticalAlignment="Center" HorizontalAlignment="Center"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </DataTemplate>
 
@@ -131,7 +134,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center">
+          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center" >
           </VirtualizingWrapPanel>
         </ItemsPanelTemplate>
       </Setter.Value>
@@ -145,7 +148,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center">
+          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,50,-100" HorizontalAlignment="Center" >
           </VirtualizingWrapPanel>
         </ItemsPanelTemplate>
       </Setter.Value>

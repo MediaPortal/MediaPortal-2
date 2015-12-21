@@ -22,8 +22,10 @@
         </StackPanel>
 
         <!-- Feeds -->
+        <Grid Margin="0,0,0,30" DockPanel.Dock="Right">
+          <Image Source="menu_fade.png" Margin="-30,-20,0,0" Width="100" Stretch="Fill" HorizontalAlignment="Left" />
           <ListView x:Name="newslist" Margin="0,0,0,30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource NewsFeedsContainerStyle}" DockPanel.Dock="Right" CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}" 
+              Style="{ThemeResource NewsFeedsContainerStyle}" CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}" 
               ItemsSource="{Binding Path=Feeds}" >
             <ListView.Resources>
               <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
@@ -31,11 +33,12 @@
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
+        </Grid>
         
           <!-- Updating Overlay -->
           <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
                  Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,0,0,0" >
+          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,0,60,0" >
             <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
               <Label Color="{ThemeResource TextColor}" Content="{Binding Path=Items.Count}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
                      VerticalAlignment="Stretch" HorizontalAlignment="Left"/>

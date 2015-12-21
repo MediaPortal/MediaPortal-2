@@ -14,7 +14,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="-25,0,0,0">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="25,25,45,75">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
@@ -24,8 +24,10 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
          
-          <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,10,10"/>
-          <Label Grid.Column="0" Grid.Row="1" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="True" Margin="0,0,10,0"/>
+          <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" 
+                 Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,30,10"/>
+          <Label Grid.Column="0" Grid.Row="1" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" 
+                 Opacity="0.7" Wrap="True"  Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" Margin="0,0,30,0"/>
           <Label Grid.Column="1" Grid.Row="0" Color="{ThemeResource TextColor}" HorizontalAlignment="Right"
                  Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
           <Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Width="350"
@@ -39,12 +41,6 @@
               </VisualBrush>
             </Image.OpacityMask> 
           </Image>  
-        
-        <!--ScrollViewer CanContentScroll="False" Margin="10" HorizontalScrollBarVisibility="Disabled" Focusable="True">
-          <ScrollViewer.Resources>
-            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
-          </ScrollViewer.Resources>
-        </ScrollViewer-->
       
       </Grid>
     </ControlTemplate>
