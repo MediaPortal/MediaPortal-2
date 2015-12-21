@@ -21,6 +21,9 @@
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="112"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="186"/>
 
+  <ResourceWrapper x:Key="MEDIA_VIDEO_WIDTH" Resource="200"/>
+  <ResourceWrapper x:Key="MEDIA_VIDEO_HEIGHT" Resource="132"/>
+
   <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="220"/>
   <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="132"/>
 
