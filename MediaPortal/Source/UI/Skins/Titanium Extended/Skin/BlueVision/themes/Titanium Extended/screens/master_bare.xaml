@@ -33,7 +33,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
     xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
-    xmlns:ie="clr-namespace:ImageSourceExtensions;assembly=ImageSourceExtensions"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
@@ -55,7 +54,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!--Image Canvas.Top="0" Canvas.Left="0" Width="1920" Height="1080" Stretch="Fill"
            IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Image.Source>
-        <ie:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                                Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=_back.jpg}"/>
       </Image.Source>
     </Image-->
