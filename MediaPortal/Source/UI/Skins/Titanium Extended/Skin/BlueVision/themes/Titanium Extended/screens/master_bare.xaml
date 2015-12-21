@@ -33,6 +33,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
     xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
+    xmlns:ie="clr-namespace:ImageSourceExtensions;assembly=ImageSourceExtensions"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
@@ -47,18 +48,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
     </Canvas.Resources>
     
-    <Border Canvas.Top="0" Canvas.Left="0" Width="1920" Background="{ThemeResource HeaderPanelBackgroundBrush}" BorderThickness="0">
-      <Image Stretch="Fill" Source="background_settings.png" Opacity="0" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" />
-    </Border>
-
-    <!--Image Canvas.Top="0" Canvas.Left="0" Width="1920" Height="1080" Stretch="Fill"
-           IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
-      <Image.Source>
-        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                               Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=_back.jpg}"/>
-      </Image.Source>
-    </Image-->
-
     <Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
         IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
     <!--Image Canvas.Top="20" Canvas.Left="40" Source="MP2_logo_bw.png" Height="50" Stretch="Uniform"/-->
