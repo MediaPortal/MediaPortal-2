@@ -85,7 +85,7 @@ namespace MediaPortal.Plugins.AspNetServer.Logger
 
     public void Dispose()
     {
-      LOGGER.Debug("[{_webApplicationName}] Disposing MP2LoggerProvider");
+      LOGGER.Debug("[{0}] Disposing MP2LoggerProvider", _webApplicationName);
     }
 
     #endregion
