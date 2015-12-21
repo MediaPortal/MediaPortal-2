@@ -33,7 +33,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
     xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
-    xmlns:ie="clr-namespace:ImageSourceExtensions;assembly=ImageSourceExtensions"
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
