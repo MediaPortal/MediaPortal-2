@@ -41,16 +41,11 @@ namespace MediaPortal.Plugins.AspNetServer
     {
       try
       {
-        var configProvider = new MemoryConfigurationProvider { { "server.urls", "http://*:5001" } };
-        var cb = new ConfigurationBuilder();
-        cb.AddInMemoryCollection(configProvider);
-        var config = cb.Build();
-
-        var app = new WebHostBuilder(config)
-            .UseStartup<Startup>()
-            .UseServerFactory(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer())
-            .Build();
-
+        var app = new WebApplicationBuilder()
+          .UseStartup<Startup>()
+          .UseServerFactory(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer())
+          .Build();
+        app.GetAddresses().Add("http://*:5001");
         _engine = app.Start();
       }
       catch (Exception e)
