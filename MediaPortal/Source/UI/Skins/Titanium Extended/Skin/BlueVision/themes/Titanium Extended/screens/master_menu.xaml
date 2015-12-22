@@ -73,18 +73,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
             <Control x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10,60,0,0"
                 Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
           </Grid>
 
-        <Grid x:Name="LeftPanel" Margin="-670,-300,-40,-45" VerticalAlignment="Stretch"
-              Width="650" HorizontalAlignment="Left">
+        <Grid x:Name="LeftPanel" Margin="-550,-130,10,5" VerticalAlignment="Stretch"
+              Width="550" HorizontalAlignment="Left">
+          
           <Grid.Resources>
             <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="LeftPanel" Storyboard.TargetProperty="RenderTransform.X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.20" Value="590"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.20" Value="550"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Grid.Resources>
@@ -101,7 +101,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.Triggers>
           
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="550"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -111,10 +111,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <TranslateTransform X="0"/>
           </Grid.RenderTransform>
 
-          <Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,-50,0">
-
+          <Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
           </Image>
-          
+
           <Grid.Triggers>
             <!-- Setting default state of menu to hidden -->
             <EventTrigger RoutedEvent="Screen.Show">
@@ -136,10 +135,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </DataTrigger>
           </Grid.Triggers>
 
-          <Image Source="menu_bg.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,10,-60,10">   
-          </Image>
+          <!--Image Source="menu_bg.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,10,-60,10">   
+          </Image-->
+
+          <Rectangle RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}"
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,67,0">
+            <Rectangle.Fill>
+              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
+                <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
+              </LinearGradientBrush>
+            </Rectangle.Fill>
+          </Rectangle>
           
-          <ListView x:Name="MainMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="120,80,60,30"
+          <ListView x:Name="MainMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,10,80,10"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
@@ -148,10 +157,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
 
-          <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}" 
-                   Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Height="180" Margin="25,0,-29,0"
-                   Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}">      
-            <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Margin="-10,0,10,0"/>
+          <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}"
+                   Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Height="180" Margin="20,0,0,0"
+                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">      
+            <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Margin="0,0,0,0"/>
           </Button>
         </Grid>
 
