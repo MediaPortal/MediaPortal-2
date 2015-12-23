@@ -29,7 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 
-namespace MediaPortal.Plugins.AspNetServer
+namespace MediaPortal.Plugins.AspNetServer.PlatformServices
 {
   /// <summary>
   /// Provides information on the environment, in which AspNetServer runs

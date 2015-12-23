@@ -22,10 +22,14 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Plugins.AspNetServer.Logger;
+using MediaPortal.Plugins.AspNetServer.PlatformServices;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.FileProviders;
 using Microsoft.AspNet.Http;
+using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,22 +37,52 @@ using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MediaPortal.Plugins.AspNetServer
 {
+  public class Item
+  {
+    public int Id;
+    public string Name;
+  }
+
+  [Route("api/[Controller]")]
+  public class ItemsController : Controller
+  {
+    public static List<Item> Items = new List<Item>
+    {
+      new Item { Id = 1, Name = "First Test Item" },
+      new Item { Id = 2, Name = "Second Test Item" },
+    };
+
+    [HttpGet]
+    public IEnumerable<Item> Get()
+    {
+      return Items;
+    }
+
+    [HttpGet("{id}")]
+    public Item Get(int id)
+    {
+      return Items.FirstOrDefault(item => item.Id == id);
+    }
+  }
+
   public class Startup
   {
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddSingleton<IApplicationEnvironment>(new MP2ApplicationEnvironment());
+      services.AddTransient(typeof(ILibraryManager), typeof(MP2LibraryManager));
+      services.AddMvc();
     }
 
     public void Configure(IApplicationBuilder app)
     {
-      app.ApplicationServices.GetRequiredService<ILoggerFactory>().AddProvider(new MP2LoggerProvider("TestWebApp"));
       app.UseFileServer(new FileServerOptions
       {
         FileProvider = new PhysicalFileProvider(@"C:\"),
         RequestPath = new PathString("/StaticFiles"),
         EnableDirectoryBrowsing = true,
       });
+      app.UseMvc();
       app.Run(context => context.Response.WriteAsync("Hello World"));
     }
   }
