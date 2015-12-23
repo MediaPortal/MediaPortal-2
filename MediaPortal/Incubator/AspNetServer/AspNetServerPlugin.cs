@@ -26,10 +26,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using System;
 using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.AspNetServer.Logger;
 
 namespace MediaPortal.Plugins.AspNetServer
 {
@@ -44,7 +43,9 @@ namespace MediaPortal.Plugins.AspNetServer
         var app = new WebApplicationBuilder()
           .UseStartup<Startup>()
           .UseServerFactory(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer())
+          .ConfigureLogging(loggerFactory => loggerFactory.AddProvider(new MP2LoggerProvider("TestWebApp")))
           .Build();
+        app.GetAddresses().Clear();
         app.GetAddresses().Add("http://*:5001");
         _engine = app.Start();
       }

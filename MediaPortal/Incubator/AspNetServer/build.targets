@@ -20,11 +20,15 @@
     <CallTarget Targets="FileSystemPublish"/>
     <ItemGroup>
       <References Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
+      <!--The following references are not available for NET451, yet. The versions copied below do work anyway-->
+      <!--Referenced by Microsoft.AspNet.Server.WebListener-->
       <References Include="$(TargetDir)approot\packages\System.Text.Encodings.Web\**\*.dll"/>
       <References Include="$(TargetDir)approot\packages\System.Diagnostics.DiagnosticSource\**\dotnet5.2\*.dll"/>
-      <!--Used by Microsoft.AspNet.Server.Kestrel-->
+      <!--Additionally referenced by Microsoft.AspNet.Server.Kestrel-->
       <References Include="$(TargetDir)approot\packages\System.Numerics.Vectors\**\net46\*.dll"/>
       <References Include="$(TargetDir)approot\packages\Microsoft.AspNet.Server.Kestrel\**\runtimes\win7-x86\native\*.dll"/>
+      <!--Additionally referenced by Microsoft.AspNet.MVC-->
+      <References Include="$(TargetDir)approot\packages\System.Buffers\**\dotnet5.2\*.dll"/>
     </ItemGroup>
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
