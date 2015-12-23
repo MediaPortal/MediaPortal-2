@@ -20,10 +20,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ReferencesX86 Include="$(TargetDir)References\x86\*.*" />
-      <ReferencesX64 Include="$(TargetDir)References\x64\*.*" />
       <ReferencesX86 Include="$(TargetDir)x86\*.*" />
+      <ReferencesX86 Include="$(PkgSharpFont_Dependencies)\bin\msvc12\x86\freetype6.dll" />
       <ReferencesX64 Include="$(TargetDir)x64\*.*" />
+      <ReferencesX64 Include="$(PkgSharpFont_Dependencies)\bin\msvc12\x64\freetype6.dll" />
+      <References Include="$(TargetDir)SharpFont.dll" />
       <References Include="$(TargetDir)SharpDX.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
       <References Include="$(TargetDir)SharpDX.Mathematics.dll" />
