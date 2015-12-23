@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -111,6 +111,7 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterBySeasonEpisodeCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesSeasonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
