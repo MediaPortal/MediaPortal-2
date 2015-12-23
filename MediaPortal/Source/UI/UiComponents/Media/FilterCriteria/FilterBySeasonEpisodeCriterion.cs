@@ -36,9 +36,9 @@ using MediaPortal.UI.ServerCommunication;
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   /// <summary>
-  /// Filter criterion which filters by the Series name.
+  /// Filter criterion which filters by the season.
   /// </summary>
-  public class FilterBySeriesSeasonCriterion : MLFilterCriterion
+  public class FilterBySeasonEpisodeCriterion : MLFilterCriterion
   {
     #region Base overrides
 
@@ -48,10 +48,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, SeasonAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
+      IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
       MediaItemQuery query = new MediaItemQuery(mias, filter)
       {
-        SortInformation = new List<SortInformation> { new SortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending) }
+        SortInformation = new List<SortInformation> { new SortInformation(EpisodeAspect.ATTR_EPISODE, SortDirection.Ascending) }
       };
       var items = cd.Search(query, true);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
@@ -59,11 +59,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         string title;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out title);
+		// TODO: Now what? There's no values for an episode
         result.Add(new FilterValue(title,
-          new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE),
+          null,
           null,
           item,
-          new FilterBySeasonEpisodeCriterion()));
+          null));
       }
       return result;
     }

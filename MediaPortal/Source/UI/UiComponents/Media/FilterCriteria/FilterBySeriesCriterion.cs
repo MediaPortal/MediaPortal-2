@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement;
@@ -47,22 +48,22 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      IEnumerable<Guid> necessaryMIAs = new[] { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID, SeriesAspect.ASPECT_ID };
-      MediaItemQuery query = new MediaItemQuery(necessaryMIAs, filter)
+      IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
+      MediaItemQuery query = new MediaItemQuery(mias, filter)
       {
         SortInformation = new List<SortInformation> { new SortInformation(SeriesAspect.ATTR_SERIESNAME, SortDirection.Ascending) }
       };
-      var series = cd.Search(query, true);
-      IList<FilterValue> result = new List<FilterValue>(series.Count);
-      foreach (var seriesItem in series)
+      var items = cd.Search(query, true);
+      IList<FilterValue> result = new List<FilterValue>(items.Count);
+      foreach (var item in items)
       {
         string title;
-        MediaItemAspect.TryGetAttribute(seriesItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out title);
+        MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out title);
         result.Add(new FilterValue(title,
-          new RelationshipFilter(seriesItem.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON),
+          new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON),
           null,
-          seriesItem,
-          this));
+          item,
+          new FilterBySeriesSeasonCriterion()));
       }
       return result;
     }
