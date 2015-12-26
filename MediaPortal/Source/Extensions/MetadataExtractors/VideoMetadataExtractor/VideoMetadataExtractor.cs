@@ -478,7 +478,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here.
-        ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", e, mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }
