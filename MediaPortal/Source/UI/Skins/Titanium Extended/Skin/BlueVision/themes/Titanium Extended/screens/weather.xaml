@@ -100,7 +100,7 @@
               ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
         </ListView>
 
-        <StackPanel HorizontalAlignment="Left" Margin="-20,58,0,0">
+        <StackPanel HorizontalAlignment="Center" Margin="0,58,0,0">
           <Label Content="{Binding LastUpdateTime}" Color="Black" IsVisible="{Binding !IsUpdating}"/>
           <Label x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource TextColor}"/>

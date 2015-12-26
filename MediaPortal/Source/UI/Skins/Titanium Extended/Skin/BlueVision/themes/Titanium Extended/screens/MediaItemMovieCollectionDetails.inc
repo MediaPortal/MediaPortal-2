@@ -18,7 +18,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
   
-  <Grid Grid.Column="1">
+  <Grid Grid.Column="1" Margin="20,30,20,15">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
@@ -33,13 +33,28 @@
         Content="[Media.VideoCollectionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
     <Label x:Name="Collection" Grid.Row="1" Grid.Column="1"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}" Color="{ThemeResource TextColor}"/>
-
   </Grid>
 
+  <Grid Grid.Column="1" Margin="10,0,-350,-40" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+    <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MovieAspectWrapper.Template>
+        <ControlTemplate>
+          <Label x:Name="MovieName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+                HorizontalAlignment="Center"/>
+        </ControlTemplate>
+      </media:MovieAspectWrapper.Template>
+    </media:MovieAspectWrapper>
+  </Grid>
 
-
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5" 
-      Width="380" Height="560"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="27,-7,17,30" 
+         Width="380" Height="520">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}"/>
+    </Image.Source>
+    <Image.OpacityMask >
+      <ImageBrush ImageSource="filmstrip_mask.png"/>
+    </Image.OpacityMask>
   </Image>
 </Grid>

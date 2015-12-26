@@ -18,7 +18,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <StackPanel Grid.Column="1" Margin="20,30,20,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <!--StackPanel Grid.Column="1" Margin="20,30,20,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
@@ -52,10 +52,6 @@
               </Label>
             </StackPanel>
 
-            <!--Label x:Name="SeriesLabel" Grid.Row="0" Grid.Column="0" Scroll="Auto"
-                Content="[Media.SeriesTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="SeriesName" Grid.Row="0" Grid.Column="1"
-                Content="{Binding SeriesName}" Color="{ThemeResource TextColor}"/-->
             <Label x:Name="FirstAiredLabel" Grid.Row="1" Grid.Column="0"
                    Content="[Media.FirstAiredLabel]" Color="{ThemeResource EmphasisTextColor}"/>           
             <Label x:Name="FirstAired" Grid.Row="1" Grid.Column="1"
@@ -71,8 +67,6 @@
             <Label x:Name="Episode" Grid.Row="3" Grid.Column="1"
                 Content="{Binding Episode}" Color="{ThemeResource TextColor}"/>
 
-            <!-->Label x:Name="EpisodeNameLabel" Grid.Row="3" Grid.Column="0" Scroll="Auto"
-                Content="[Media.SeriesEpisodeNameLabel]" Color="{ThemeResource EmphasisTextColor}"/-->
           </Grid>
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
@@ -104,7 +98,7 @@
       Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
-  </StackPanel>
+  </StackPanel-->
 
   <Grid Grid.Column="1" Margin="10,0,-350,-40" HorizontalAlignment="Center" VerticalAlignment="Bottom">
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
@@ -112,11 +106,8 @@
         <ControlTemplate>
           <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="SeriesName" 
-                  Content="{Binding SeriesName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+                  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
                   HorizontalAlignment="Center"/>
-            <Label Content=" - " Color="Black" />
-            <Label x:Name="EpisodeName" 
-                  Content="{Binding EpisodeName}" Color="Black"/>
           </StackPanel>
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
@@ -127,8 +118,8 @@
       Width="380" Height="520">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}"/>
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}"
+                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
     </Image.Source>
     <Image.OpacityMask >
       <ImageBrush ImageSource="filmstrip_mask.png"/>

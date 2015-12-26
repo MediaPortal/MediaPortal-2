@@ -21,10 +21,15 @@
       HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
       Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-
   <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5"
-      Width="380" Height="560"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}">
+      Width="380" Height="560">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560}"/>
+    </Image.Source>
+    <Image.OpacityMask >
+      <ImageBrush ImageSource="filmstrip_mask.png"/>
+    </Image.OpacityMask>
   </Image>
-
 </Grid>

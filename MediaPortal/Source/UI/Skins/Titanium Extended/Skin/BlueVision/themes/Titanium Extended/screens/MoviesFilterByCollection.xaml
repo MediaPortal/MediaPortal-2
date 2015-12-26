@@ -14,5 +14,9 @@
       <Include Source="screens\MediaItemMovieCollectionDetails.inc"/>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="Cover_Details_Template">
+      <Include Source="screens\MediaItemMovieCollectionDetailsCover.inc"/>
+    </ControlTemplate>
+
   </Include.Resources>
 </Include>
