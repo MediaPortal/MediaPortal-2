@@ -44,7 +44,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
       <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
-      <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
     </Canvas.Resources>
     
     <Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
@@ -141,10 +140,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Border Width="1820" Canvas.Top="13" Canvas.Left="50" BorderThickness="0">
+    <Border Width="1300" Canvas.Top="13" Canvas.Left="20" BorderThickness="0">
           <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
                  VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
-                 HomeMenuModel="{StaticResource MenuModel}" Margin="50,0,50,0" FontFamily="Titan" 
+                 HomeMenuModel="{StaticResource MenuModel}" Margin="40,0,40,0" FontFamily="Titan" 
                  ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                  SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
       <bvm:GroupMenuListView.Resources>

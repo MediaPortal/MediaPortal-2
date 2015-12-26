@@ -14,7 +14,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <StackPanel Grid.Column="1" Margin="30">
+  <!--StackPanel Grid.Column="1" Margin="30">
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
@@ -82,22 +82,22 @@
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
     </media:AudioAspectWrapper>
-  </StackPanel>
+  </StackPanel-->
 
   <Grid Grid.Column="1" Margin="10,0,-350,-40" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="TrackName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Title}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+          <Label x:Name="AlbumName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
                  HorizontalAlignment="Center"/>
         </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
   </Grid>
-  
+
   <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="5"
-      Width="380" Height="380" >
+      Width="380" Height="380">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>

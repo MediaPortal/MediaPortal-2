@@ -138,8 +138,7 @@
       Width="380" Height="520">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560;False}"
-                     FallbackSource="FallbackFanart.png" />
+                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520;False}"/>
     </Image.Source>
     <Image.OpacityMask >
       <ImageBrush ImageSource="filmstrip_mask.png"/>

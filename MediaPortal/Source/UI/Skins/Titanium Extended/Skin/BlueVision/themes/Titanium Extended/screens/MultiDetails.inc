@@ -12,7 +12,7 @@
     <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
   </Grid.Resources>
 
-  <Control>
+  <Control x:Name="AudioDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
         <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
@@ -23,7 +23,7 @@
       <Include Source="screens\MediaItemAudioDetails.inc"/>
     </Control.TemplateControl>
   </Control>
-  <Control>
+  <Control x:Name="ImageDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
         <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
@@ -34,7 +34,7 @@
       <Include Source="screens\MediaItemImageDetails.inc"/>
     </Control.TemplateControl>
   </Control>
-  <Control>
+  <Control x:Name="MovieDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
         <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
@@ -45,7 +45,7 @@
       <Include Source="screens\MediaItemMovieDetails.inc"/>
     </Control.TemplateControl>
   </Control>
-  <Control>
+  <Control x:Name="SeriesDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
         <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
@@ -56,6 +56,18 @@
       <Include Source="screens\MediaItemSeriesDetails.inc"/>
     </Control.TemplateControl>
   </Control>
-  
+  <Control x:Name="AllOtherDetails">
+    <Control.IsVisible>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible}))">
+        <Binding ElementName="AudioDetails" Path="Visibility" />
+        <Binding ElementName="ImageDetails" Path="Visibility" />
+        <Binding ElementName="MovieDetails" Path="Visibility" />
+        <Binding ElementName="SeriesDetails" Path="Visibility" />
+      </MultiBinding>
+    </Control.IsVisible>
+    <Control.TemplateControl>
+      <Include Source="screens\MediaItemOthersDetails.inc"/>
+    </Control.TemplateControl>
+  </Control>
   
 </Grid>
