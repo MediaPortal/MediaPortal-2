@@ -42,14 +42,6 @@ namespace MediaPortal.Plugins.AspNetServer.PlatformServices
   /// </remarks>
   public class MP2ApplicationEnvironment : IApplicationEnvironment
   {
-    public MP2ApplicationEnvironment()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("AspNetServer: ApplicationBasePath='{0}'", ApplicationBasePath);
-      ServiceRegistration.Get<ILogger>().Debug("AspNetServer: ApplicationName='{0}'", ApplicationName);
-      ServiceRegistration.Get<ILogger>().Debug("AspNetServer: ApplicationVersion='{0}'", ApplicationVersion);
-      ServiceRegistration.Get<ILogger>().Debug("AspNetServer: RuntimeFramework='{0}'", RuntimeFramework);
-    }
-
     public string ApplicationBasePath
     {
       get

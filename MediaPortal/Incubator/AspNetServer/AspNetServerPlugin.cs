@@ -23,39 +23,49 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
-using Microsoft.AspNet.Hosting;
 using System;
-using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.AspNetServer.Logger;
+using System.Threading.Tasks;
+using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.FileProviders;
+using Microsoft.AspNet.Http;
+using Microsoft.AspNet.StaticFiles;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MediaPortal.Plugins.AspNetServer
 {
   public class AspNetServerPlugin : IPluginStateTracker
   {
-    private IDisposable _engine;
-
     public void Activated(PluginRuntime pluginRuntime)
     {
-      try
+      Task.Run(async () =>
       {
-        var app = new WebApplicationBuilder()
-          .UseStartup<Startup>()
-          .UseServerFactory(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer())
-          .ConfigureLogging(loggerFactory => loggerFactory.AddProvider(new MP2LoggerProvider("TestWebApp")))
-          .Build();
-        app.GetAddresses().Clear();
-        app.GetAddresses().Add("http://*:5001");
-        _engine = app.Start();
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("AspNetServer: Error starting server", e);
-      }
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        await ServiceRegistration.Get<IAspNetServerService>().TryStartWebApplicationAsync(
+          webApplicationName: "TestWebApp",
+          configureServices: services =>
+          {
+            services.AddMvc();
+          },
+          configureApp: app =>
+          {
+            app.UseFileServer(new FileServerOptions
+            {
+              FileProvider = new PhysicalFileProvider(@"C:\"),
+              RequestPath = new PathString("/StaticFiles"),
+              EnableDirectoryBrowsing = true,
+            });
+            app.UseMvc();
+            app.Run(context => context.Response.WriteAsync("Hello World"));
+          },
+          port: 5001,
+          basePath: "/");
+        await Task.Delay(TimeSpan.FromSeconds(60));
+        await ServiceRegistration.Get<IAspNetServerService>().TryStopWebApplicationAsync("TestWebApp");
+      });
     }
 
-  public bool RequestEnd()
+    public bool RequestEnd()
     {
       return true;
     }
@@ -70,11 +80,6 @@ namespace MediaPortal.Plugins.AspNetServer
 
     public void Shutdown()
     {
-      if (_engine != null)
-      {
-        _engine.Dispose();
-        _engine = null;
-      }
     }
   }
 }

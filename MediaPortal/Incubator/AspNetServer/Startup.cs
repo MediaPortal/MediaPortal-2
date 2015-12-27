@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Plugins.AspNetServer.Logger;
 using MediaPortal.Plugins.AspNetServer.PlatformServices;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.FileProviders;
@@ -32,7 +31,6 @@ using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MediaPortal.Plugins.AspNetServer
