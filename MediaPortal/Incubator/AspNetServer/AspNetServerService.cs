@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common;
@@ -69,12 +71,36 @@ namespace MediaPortal.Plugins.AspNetServer
     /// </summary>
     public AspNetServerService()
     {
+      // Necessary so that the Asp.Net dlls can be resolved even if the WebApplication is contained in another plugin
+      AppDomain.CurrentDomain.AssemblyResolve += LoadAssemblyFromPluginFolder;
+
       // MaxDegreeOfParallelism = 1 ensures that there one action is performed after the other
       _workerBlock = new ActionBlock<AspNetServerAction>(new Action<AspNetServerAction>(Process), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 1 });
       _webApplications = new Dictionary<WebApplicationParameter, IDisposable>();
       ServiceRegistration.Get<ILogger>().Info("AspNetServerService: Started.");
     }
 
+    #endregion
+
+    #region Static methods
+
+    /// <summary>
+    /// Assembly resolver method that loads assemblies from the plugin directory
+    /// </summary>
+    /// <param name="sender">Sender</param>
+    /// <param name="args">Resolve event arguments</param>
+    /// <returns>If successfull, the loaded assembly; else null</returns>
+    private static Assembly LoadAssemblyFromPluginFolder(object sender, ResolveEventArgs args)
+    {
+      string folderPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      if (folderPath == null)
+        return null;
+      string assemblyPath = Path.Combine(folderPath, new AssemblyName(args.Name).Name + ".dll");
+      if (!File.Exists(assemblyPath))
+        return null;
+      Assembly assembly = Assembly.LoadFrom(assemblyPath);
+      return assembly;
+    }
     #endregion
 
     #region Private methods
@@ -318,6 +344,7 @@ namespace MediaPortal.Plugins.AspNetServer
       _workerBlock.Complete();
       _workerBlock.Completion.Wait();
       Shutdown();
+      AppDomain.CurrentDomain.AssemblyResolve -= LoadAssemblyFromPluginFolder;
       ServiceRegistration.Get<ILogger>().Info("AspNetServerService: Shut down.");
     }
 

@@ -12,9 +12,12 @@
     ReleaseDate="2015-12-13 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="AspNetServer.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Plugins.AspNetServer.AspNetServerPlugin"/>
   </Runtime>
 
   <Register Location="/Services">
