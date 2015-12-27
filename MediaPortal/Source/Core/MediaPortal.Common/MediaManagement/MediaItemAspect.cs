@@ -716,7 +716,9 @@ namespace MediaPortal.Common.MediaManagement
       foreach (MediaItemAspect aspect in aspects)
       {
         StringBuilder info;
-        MediaItemAspectMetadata metadata = types[aspect.Metadata.AspectId];
+        MediaItemAspectMetadata metadata;
+        if (!types.TryGetValue(aspect.Metadata.AspectId, out metadata))
+          continue;
         infos.Add(info = new StringBuilder().AppendFormat(" {0}: ", metadata.Name));
         Boolean first = true;
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
