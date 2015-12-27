@@ -99,7 +99,7 @@ namespace MediaPortal.UiComponents.Media.Models
       AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", list));
 
       list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_SERIES_MIAS, list, item => new SeriesItem(item));
+      FillList(contentDirectory, Consts.NECESSARY_EPISODE_MIAS, list, item => new EpisodeItem(item));
       AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", list));
 
       list = new ItemsList();

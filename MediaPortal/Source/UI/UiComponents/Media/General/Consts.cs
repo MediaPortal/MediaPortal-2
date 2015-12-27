@@ -495,6 +495,18 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
       {
+          MediaAspect.ASPECT_ID,
+          SeriesAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] NECESSARY_SEASON_MIAS = new Guid[]
+      {
+          MediaAspect.ASPECT_ID,
+          SeasonAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] NECESSARY_EPISODE_MIAS = new Guid[]
+      {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,

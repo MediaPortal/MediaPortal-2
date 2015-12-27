@@ -111,6 +111,9 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterBySeasonEpisodeCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeriesSeasonCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeriesCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="FilterCriteria\RelationshipMLFilterCriterion.cs" />
@@ -155,7 +158,7 @@
     <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
-    <Compile Include="Models\Navigation\SeriesItem.cs" />
+    <Compile Include="Models\Navigation\EpisodeItem.cs" />
     <Compile Include="Models\MediaItemsActionModel.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />

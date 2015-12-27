@@ -44,6 +44,9 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.DevTools
@@ -52,199 +55,258 @@ namespace MediaPortal.DevTools
   {
     private static ILogger _logger = null;
 
+    private static void Exit(int code)
+    {
+      Console.Write("Press return to exit");
+      Console.ReadLine();
+      Environment.Exit(code);
+    }
+
     private static void Usage()
     {
       Console.Error.WriteLine("Usage: DevTools [Args] <command> [options]");
-      Console.Error.WriteLine("       [--direct] sources list");
+      Console.Error.WriteLine("       --direct sources [list|export] <datastore file>");
+      Console.Error.WriteLine("       sources [list|export]");
       Console.Error.WriteLine("       sources add <name> <LOCAL|NETWORK> <path> <categories (comma separated)>");
       Console.Error.WriteLine("       sources refresh <ID ID ...>");
       Console.Error.WriteLine("       sources reload <ID ID ...>");
       Console.Error.WriteLine("       items list <ID ID ...>");
       Console.Error.WriteLine("       items search <text>");
-      Environment.Exit(1);
+      Console.Error.WriteLine("       items relationships <ID> <role> <linked role>");
+
+      Exit(1);
     }
 
     static void Main(string[] args)
     {
-      IList<string> argList = new List<string>(args);
-
-      bool direct = false;
-      if (argList.Count >= 1 && argList[0] == "--direct")
+      try
       {
-        argList.RemoveAt(0);
-        direct = true;
-      }
+        IList<string> argList = new List<string>(args);
 
-      if (argList.Count == 0)
-      {
-        Usage();
-      }
-
-      ServiceRegistration.Set<IPathManager>(new PathManager());
-      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_DevTools/config");
-      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_DevTools/log");
-      ServiceRegistration.Set(_logger = new ConsoleLogger(LogLevel.All, true));
-
-      if (direct)
-      {
-        if (argList.Count == 2 && argList[0] == "sources" && argList[1] == "list")
+        bool direct = false;
+        if (argList.Count >= 1 && argList[0] == "--direct")
         {
-          ServiceRegistration.Get<IPathManager>().SetPath("DATABASE", "C:\\ProgramData\\Team MediaPortal\\MP2-Server\\Database");
-
-          ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
-          ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
-
-          SQLiteSettings settings = new SQLiteSettings();
-          settings.PageSize = 4096;
-          settings.DatabaseFileName = "Datastore.s3db";
-          ServiceRegistration.Get<ISettingsManager>().Save(settings);
-
-          ISQLDatabase database = new SQLiteDatabase();
-          ShowMediaSources(database);
+          argList.RemoveAt(0);
+          direct = true;
         }
-        else
+
+        if (argList.Count == 0)
         {
           Usage();
         }
-      }
-      else
-      {
-        try
+
+        ServiceRegistration.Set<IPathManager>(new PathManager());
+        ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_DevTools/config");
+        ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_DevTools/log");
+        ServiceRegistration.Set(_logger = new Log4NetLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>")));
+
+        if (direct)
         {
-          _logger.Info("Creating client...");
-          Client client = new Client();
-          client.Connect();
-
-          _logger.Info("Client connected {0}", client.Connected);
-
-          if (client.Connected)
+          if (argList.Count == 3 && argList[0] == "sources" && (argList[1] == "list" || argList[1] == "export"))
           {
-            _logger.Info("Checking arg list [{0}]", string.Join(",", argList));
-            if (argList.Count == 2 && argList[0] == "sources" && argList[1] == "list")
+            string file = argList[2];
+            if (!File.Exists(file))
             {
-              _logger.Info("Media sources:");
-              ShowMediaSources(client);
+              Console.Error.WriteLine("Datastore {0} does not exist", argList[2]);
+              Exit(1);
             }
 
-            else if (argList.Count == 6 && argList[0] == "sources" && argList[1] == "add")
-            {
-              _logger.Info("Media sources before add:");
-              ShowMediaSources(client);
+            ServiceRegistration.Get<IPathManager>().SetPath("DATABASE", Path.GetDirectoryName(file));
 
-              string name = argList[2];
-              string type = argList[3];
-              string path = argList[4];
-              string[] categories = argList[5].Split(new char[] { ',' });
+            ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
+            ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
-              ProviderPathSegment segment = null;
-              if (type == "LOCAL")
-              {
-                path = path.Replace('\\', '/');
-                segment = new ProviderPathSegment(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, "/" + path, true);
-              }
-              else if (type == "NETWORK")
-                segment = new ProviderPathSegment(NetworkNeighborhoodResourceProvider.NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, "/" + path, true);
-              else
-              {
-                Console.Error.WriteLine("Invalid media source type {0}", type);
-                Environment.Exit(1);
-              }
+            SQLiteSettings settings = new SQLiteSettings();
+            settings.PageSize = 4096;
+            settings.DatabaseFileName = Path.GetFileName(file);
+            ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
-              ResourcePath resourcePath = new ResourcePath(new ProviderPathSegment[] { segment });
-              Share source = new Share(Guid.NewGuid(), client.GetSystemId(), resourcePath, name, categories);
-
-              _logger.Info("Adding LOCAL media source name={0} path={1} categories=[{2}]", source.BaseResourcePath.BasePathSegment.Path, source.Name, string.Join(",", source.MediaCategories));
-              client.GetContentDirectory().RegisterShare(source);
-
-              _logger.Info("Media sources after add:");
-              ShowMediaSources(client);
-            }
-
-            else if (argList.Count == 3 && argList[0] == "sources" && argList[1] == "delete")
-            {
-              IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
-
-              _logger.Info("Media sources before delete:");
-              ShowMediaSources(client);
-
-              foreach (Guid id in ids)
-              {
-                client.GetContentDirectory().RemoveShare(id);
-              }
-
-              _logger.Info("Media sources after delete:");
-              ShowMediaSources(client);
-            }
-
-            else if (argList.Count == 3 && argList[0] == "sources" && argList[1] == "refresh")
-            {
-              IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
-              _logger.Info("Refreshing sources [{0}]", string.Join(",", ids));
-              foreach (Guid id in ids)
-              {
-                _logger.Info("Refreshing source {0}", id);
-                client.GetContentDirectory().ReImportShare(id);
-              }
-            }
-
-            else if (argList.Count == 3 && argList[0] == "sources" && argList[1] == "reload")
-            {
-              IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
-
-              foreach (Guid id in ids)
-              {
-                Share preSource = client.GetContentDirectory().GetShare(id);
-                if (preSource == null)
-                {
-                  _logger.Error("No media source {0} found", id);
-                  continue;
-                }
-                ShowMediaSource(preSource);
-
-                _logger.Info("Removing old source");
-                client.GetContentDirectory().RemoveShare(preSource.ShareId);
-
-                Share postSource = new Share(Guid.NewGuid(), preSource.SystemId, preSource.BaseResourcePath, preSource.Name, preSource.MediaCategories);
-
-                _logger.Info("Adding media source name={0} path={1} categories=[{2}]", postSource.Name, postSource.BaseResourcePath.BasePathSegment.Path, string.Join(",", postSource.MediaCategories));
-                client.GetContentDirectory().RegisterShare(postSource);
-
-                _logger.Info("Media source after reload:");
-                ShowMediaSource(client.GetContentDirectory().GetShare(postSource.ShareId));
-              }
-            }
-
-            else if (argList.Count == 3 && argList[0] == "items" && argList[1] == "list")
-            {
-              IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
-              ShowMediaItems(client, new MediaItemIdFilter(ids));
-            }
-
-            else if (argList.Count == 3 && argList[0] == "items" && argList[1] == "search")
-            {
-              string text = argList[2];
-              ShowMediaItems(client, new LikeFilter(MediaAspect.ATTR_TITLE, "%" + text + "%", null));
-            }
-
-            else
-            {
-              Usage();
-            }
+            ISQLDatabase database = new SQLiteDatabase();
+            if (argList[1] == "list")
+              ListMediaSources(GetMediaSources(database));
+            else if (argList[1] == "export")
+              ExportMediaSources(GetMediaSources(database));
           }
           else
           {
-            _logger.Error("No server found");
-            Environment.Exit(1);
+            Usage();
           }
         }
-        catch (Exception e)
+        else
         {
-          _logger.Error("Oh dear", e);
-          Environment.Exit(1);
+          try
+          {
+            _logger.Info("Creating client...");
+            Client client = new Client();
+            client.Connect();
+
+            _logger.Info("Client connected {0}", client.Connected);
+
+            if (client.Connected)
+            {
+              _logger.Info("Checking arg list [{0}]", string.Join(",", argList));
+              if (argList.Count == 2 && argList[0] == "sources" && (argList[1] == "list" || argList[1] == "export"))
+              {
+                _logger.Info("Media sources:");
+                if (argList[1] == "list")
+                  ListMediaSources(GetMediaSources(client));
+                else if (argList[1] == "export")
+                  ExportMediaSources(GetMediaSources(client));
+              }
+
+              else if (argList.Count == 6 && argList[0] == "sources" && argList[1] == "add")
+              {
+                _logger.Info("Media sources before add:");
+                ListMediaSources(GetMediaSources(client));
+
+                string name = argList[2];
+                string type = argList[3];
+                string path = argList[4];
+                string[] categories = argList[5].Split(new char[] { ',' });
+
+                ProviderPathSegment segment = null;
+                if (type == "LOCAL")
+                {
+                  path = path.Replace('\\', '/');
+                  segment = new ProviderPathSegment(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, "/" + path, true);
+                }
+                else if (type == "NETWORK")
+                  segment = new ProviderPathSegment(NetworkNeighborhoodResourceProvider.NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, "/" + path, true);
+                else
+                {
+                  Console.Error.WriteLine("Invalid media source type {0}", type);
+                  Exit(1);
+                }
+
+                ResourcePath resourcePath = new ResourcePath(new ProviderPathSegment[] { segment });
+                Share source = new Share(Guid.NewGuid(), client.GetSystemId(), resourcePath, name, categories);
+
+                _logger.Info("Adding LOCAL media source name={0} path={1} categories=[{2}]", source.BaseResourcePath.BasePathSegment.Path, source.Name, string.Join(",", source.MediaCategories));
+                client.GetContentDirectory().RegisterShare(source);
+
+                _logger.Info("Media sources after add:");
+                ListMediaSources(GetMediaSources(client));
+              }
+
+              else if (argList.Count == 3 && argList[0] == "sources" && argList[1] == "delete")
+              {
+                IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
+
+                _logger.Info("Media sources before delete:");
+                ListMediaSources(GetMediaSources(client));
+
+                foreach (Guid id in ids)
+                {
+                  client.GetContentDirectory().RemoveShare(id);
+                }
+
+                _logger.Info("Media sources after delete:");
+                ListMediaSources(GetMediaSources(client));
+              }
+
+              else if (argList.Count == 3 && argList[0] == "sources" && argList[1] == "refresh")
+              {
+                IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
+                _logger.Info("Refreshing sources [{0}]", string.Join(",", ids));
+                foreach (Guid id in ids)
+                {
+                  _logger.Info("Refreshing source {0}", id);
+                  client.GetContentDirectory().ReImportShare(id);
+                }
+              }
+
+              else if (argList.Count == 3 && argList[0] == "sources" && argList[1] == "reload")
+              {
+                IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
+
+                foreach (Guid id in ids)
+                {
+                  Share preSource = client.GetContentDirectory().GetShare(id);
+                  if (preSource == null)
+                  {
+                    _logger.Error("No media source {0} found", id);
+                    continue;
+                  }
+                  ShowMediaSource(preSource);
+
+                  _logger.Info("Removing old source");
+                  client.GetContentDirectory().RemoveShare(preSource.ShareId);
+
+                  Share postSource = new Share(Guid.NewGuid(), preSource.SystemId, preSource.BaseResourcePath, preSource.Name, preSource.MediaCategories);
+
+                  _logger.Info("Adding media source name={0} path={1} categories=[{2}]", postSource.Name, postSource.BaseResourcePath.BasePathSegment.Path, string.Join(",", postSource.MediaCategories));
+                  client.GetContentDirectory().RegisterShare(postSource);
+
+                  _logger.Info("Media source after reload:");
+                  ShowMediaSource(client.GetContentDirectory().GetShare(postSource.ShareId));
+                }
+              }
+
+              else if (argList.Count == 3 && argList[0] == "items" && argList[1] == "list")
+              {
+                IList<Guid> ids = argList[2].Split(new char[] { ' ' }).ToList().ConvertAll(x => new Guid(x));
+                ShowMediaItems(client, new MediaItemIdFilter(ids));
+              }
+
+              else if (argList.Count == 3 && argList[0] == "items" && argList[1] == "search")
+              {
+                string text = argList[2];
+                ShowMediaItems(client, new LikeFilter(MediaAspect.ATTR_TITLE, "%" + text + "%", null));
+              }
+
+              else if (argList.Count == 5 && argList[0] == "items" && argList[1] == "relationships")
+              {
+                string id = argList[2];
+                string role = argList[3];
+                string linkedRole = argList[4];
+                ShowMediaItems(client, new RelationshipFilter(new Guid(id), new Guid(role), new Guid(linkedRole)));
+              }
+
+              else
+              {
+                Usage();
+              }
+            }
+            else
+            {
+              _logger.Error("No server found");
+              Exit(1);
+            }
+          }
+          catch (Exception e)
+          {
+            _logger.Error("Oh dear", e);
+            Exit(1);
+          }
         }
       }
+      catch (Exception e)
+      {
+        Console.Error.WriteLine("Error performing operation\n{0}", e);
+        Exit(1);
+      }
 
-      Environment.Exit(0);
+      Exit(0);
+    }
+
+    private static string GetValue(MediaItemAspectMetadata.AttributeSpecification spec, object value)
+    {
+      if(value == null)
+        return null;
+
+      if (spec.ParentMIAM.AspectId == RelationshipAspect.ASPECT_ID && (RelationshipAspect.ATTR_ROLE.Equals(spec) || RelationshipAspect.ATTR_LINKED_ROLE.Equals(spec)))
+      {
+        if (EpisodeAspect.ROLE_EPISODE.Equals(value))
+          return "Episode";
+
+        if (SeasonAspect.ROLE_SEASON.Equals(value))
+          return "Season";
+
+        if (SeriesAspect.ROLE_SERIES.Equals(value))
+          return "Series";
+      }
+
+      return value.ToString();
     }
 
     private static void ShowMediaItems(Client client, IFilter filter)
@@ -272,15 +334,13 @@ namespace MediaPortal.DevTools
                 {
                   IList<string> list = new List<string>();
                   foreach (object value in values)
-                    list.Add(value.ToString());
+                    list.Add(GetValue(spec, value));
                   valueStr = string.Format("[{0}]", string.Join(",", list));
                 }
               }
               else
               {
-                object value = aspect.GetAttributeValue(spec);
-                if (value != null)
-                  valueStr = value.ToString();
+                valueStr = GetValue(spec, aspect.GetAttributeValue(spec));
               }
               if (valueStr != null)
               {
@@ -297,7 +357,7 @@ namespace MediaPortal.DevTools
       }
     }
 
-    private static void ShowMediaSources(ISQLDatabase database)
+    private static ICollection<Share> GetMediaSources(ISQLDatabase database)
     {
       IList<Share> sources = new List<Share>();
 
@@ -327,16 +387,16 @@ namespace MediaPortal.DevTools
       }
       sourcesReader.Close();
 
-      ShowMediaSources(sources);
+      return sources;
     }
 
-    private static void ShowMediaSources(Client client)
+    private static ICollection<Share> GetMediaSources(Client client)
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      ShowMediaSources(new List<Share>(client.GetContentDirectory().GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All)));
+      return client.GetContentDirectory().GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
     }
 
-    private static void ShowMediaSources(IList<Share> sources)
+    private static void ListMediaSources(ICollection<Share> sources)
     {
       foreach (Share source in sources)
       {
@@ -359,6 +419,36 @@ namespace MediaPortal.DevTools
         providerName = "REMOTE";
 
       _logger.Info("Media source {0} : name={1}, provider={2} path={3}, categories=[{4}]", source.ShareId, source.Name, providerName, path, categories);
+    }
+
+    private static void ExportMediaSources(ICollection<Share> sources)
+    {
+      XmlSerializer serialiser = new XmlSerializer(typeof(Share));
+      using (StringWriter sww = new StringWriter())
+      using (XmlWriter writer = XmlWriter.Create(sww))
+      {
+        writer.WriteStartElement("Sources"); // Wrapper around the albums
+        foreach (Share source in sources)
+        {
+          ResourcePath resourcePath = source.BaseResourcePath;
+          string path = resourcePath.BasePathSegment.Path;
+          string categories = string.Join(",", source.MediaCategories);
+
+          string providerName = "<<UNKNOWN>>";
+          if (resourcePath.BasePathSegment.ProviderId == LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID)
+            providerName = "LOCAL";
+          else if (resourcePath.BasePathSegment.ProviderId == NetworkNeighborhoodResourceProvider.NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID)
+            providerName = "NETWORK";
+          else if (resourcePath.BasePathSegment.ProviderId == RemoteResourceProvider.REMOTE_RESOURCE_PROVIDER_ID)
+            providerName = "REMOTE";
+
+          Console.WriteLine("Serialising {0} : name={1}, provider={2} path={3}, categories=[{4}]", source.ShareId, source.Name, providerName, path, categories);
+          source.Serialize(writer);
+        }
+        writer.WriteEndElement();
+        var xml = sww.ToString(); // Your XML
+        Console.WriteLine("XML:\n{0}", xml);
+      }
     }
   }
 }

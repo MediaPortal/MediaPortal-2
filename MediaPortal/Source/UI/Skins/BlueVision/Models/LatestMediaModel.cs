@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         SetLayout();
 
         FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_MOVIES_MIAS, Movies, item => new MovieItem(item));
-        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new SeriesItem(item));
+        FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_EPISODE_MIAS, Series, item => new EpisodeItem(item));
         FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_IMAGE_MIAS, Images, item => new ImageItem(item));
         FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Videos, item => new VideoItem(item));
         FillList_Async(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));

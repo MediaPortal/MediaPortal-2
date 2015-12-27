@@ -102,7 +102,18 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter)
     {
-      IFilter combinedFilter = _filter == null ? filter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {_filter, filter});
+      IFilter combinedFilter;
+      if (_filter == null)
+        combinedFilter = filter;
+      else
+      {
+        // Relationsships cannot be chained up, so the new filter needs to replace the former one.
+        // TODO: implement correct support for this scenario in backend
+        if (_filter is RelationshipFilter && filter is RelationshipFilter)
+          combinedFilter = filter;
+        else
+          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
+      }
       return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
         {
             MaxNumItems = _maxNumItems

@@ -8,7 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.SeriesItemsHeader]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.EpisodeItemsHeader]"/>
 
     <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
     <ControlTemplate x:Key="Media_Details_Template">

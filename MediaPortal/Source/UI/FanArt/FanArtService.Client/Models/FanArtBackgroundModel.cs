@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -231,10 +232,20 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
         SimpleTitle = FanArtName = series.SimpleTitle;
+        MediaItem = series.MediaItem;
         ItemDescription = null;
         return;
       }
-      SeriesItem episode = SelectedItem as SeriesItem;
+      SeasonFilterItem season = SelectedItem as SeasonFilterItem;
+      if (season != null)
+      {
+        FanArtMediaType = FanArtConstants.FanArtMediaType.SeriesSeason;
+        SimpleTitle = FanArtName = season.SimpleTitle;
+        MediaItem = season.MediaItem;
+        ItemDescription = null;
+        return;
+      }
+      EpisodeItem episode = SelectedItem as EpisodeItem;
       if (episode != null)
       {
         FanArtMediaType = FanArtConstants.FanArtMediaType.Series;
