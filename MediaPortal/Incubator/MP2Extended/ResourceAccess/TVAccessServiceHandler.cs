@@ -75,6 +75,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetScheduledRecordingsForToday", new GetScheduledRecordingsForToday()},
       { "GetSchedules", new GetSchedules()},
       { "GetSchedulesByRange", new GetSchedulesByRange()},
+      { "UnCancelSchedule", new UnCancelSchedule()},
       // Recording
       { "GetAllRecordingDiskInformation", new GetAllRecordingDiskInformation()},
       { "GetRecordingById", new GetRecordingById()},

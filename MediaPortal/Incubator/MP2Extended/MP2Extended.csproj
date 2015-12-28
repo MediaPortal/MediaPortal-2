@@ -81,6 +81,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="ResourceAccess\DAS\DebugAccessServiceHtmlHandler.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\UnCancelSchedule.cs" />
     <Compile Include="ResourceAccess\WSS\stream\General\GetHtmlResource.cs" />
     <Compile Include="Settings\UserTypes.cs" />
     <Compile Include="Common\WebBoolResult.cs" />
