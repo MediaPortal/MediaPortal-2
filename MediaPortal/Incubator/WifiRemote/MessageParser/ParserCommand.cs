@@ -273,7 +273,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;
 
         case "subtitles":
-          if (Utils.IsNowPlaying())
+          if (Helper.IsNowPlaying())
           {
             ISubtitlePlayer subtitlePlayer = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.CurrentPlayer as ISubtitlePlayer;
             if (subtitlePlayer != null)
@@ -293,7 +293,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;
 
         case "audiotrack":
-          if (Utils.IsNowPlaying())
+          if (Helper.IsNowPlaying())
           {
             ISharpDXVideoPlayer videoPlayer = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.CurrentPlayer as ISharpDXVideoPlayer;
             if (videoPlayer != null)
@@ -317,7 +317,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;*/
 
         case "aspectratio":
-          if (Utils.IsNowPlaying())
+          if (Helper.IsNowPlaying())
           {
             ISharpDXVideoPlayer videoPlayer = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.CurrentPlayer as ISharpDXVideoPlayer;
             if (videoPlayer != null)

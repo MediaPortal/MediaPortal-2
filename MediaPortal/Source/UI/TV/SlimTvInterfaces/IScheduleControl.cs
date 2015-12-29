@@ -146,6 +146,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     bool RemoveSchedule(ISchedule schedule);
 
     /// <summary>
+    /// Undo the canceling of a recording
+    /// </summary>
+    /// <param name="program">Program to uncancel.</param>
+    /// <returns></returns>
+    bool UnCancelSchedule(IProgram program);
+
+    /// <summary>
     /// Gets the <paramref name="recordingStatus"/> for the given <paramref name="program"/>.
     /// </summary>
     /// <param name="program">Program.</param>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -26,7 +27,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class GetFilterValuesByRange : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string start = httpParam["start"].Value;
@@ -47,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
         throw new BadRequestException(String.Format("GetFilterValuesByRange: Couldn't convert end to int: {0}", end));
       }
 
-      List<string> output = new GetFilterValues().Process(request);
+      List<string> output = new GetFilterValues().Process(request, session);
 
       // Get Range
       output = output.TakeRange(startInt, endInt).ToList();

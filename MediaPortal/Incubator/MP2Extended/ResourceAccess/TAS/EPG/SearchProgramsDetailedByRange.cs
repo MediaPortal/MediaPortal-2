@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -25,7 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class SearchProgramsDetailedByRange : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string start = httpParam["start"].Value;
@@ -46,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
         throw new BadRequestException(String.Format("SearchProgramsDetailedByRange: Couldn't convert end to int: {0}", end));
       }
 
-      List<WebProgramBasic> output = new SearchProgramsDetailed().Process(request);
+      List<WebProgramBasic> output = new SearchProgramsDetailed().Process(request, session);
 
       // Get Range
       output = output.TakeRange(startInt, endInt).ToList();

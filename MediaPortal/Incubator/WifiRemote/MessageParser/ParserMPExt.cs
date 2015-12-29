@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
             return false;
           }
 
-          Utils.PlayMediaItem(mediaItemGuid, startPos);
+          Helper.PlayMediaItem(mediaItemGuid, startPos);
           //MpExtendedHelper.PlayMediaItem(itemId, itemType, providerId, values, startPos);
         }
         else if (action.Equals("show"))

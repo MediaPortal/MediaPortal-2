@@ -1,0 +1,39 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="MediaPortal.Plugins.MP2Extended.Utils" #>
+
+<#@ include file="..\..\..\BasePages\Header.html" #>
+
+<script src="/MPExtended/StreamingService/stream/GetHtmlResource/ShowSettingsJs.js"></script>
+
+<style>
+  label, input, select { display:block; }
+  input, option { margin-bottom:12px; width: 100px; padding: .4em; }
+  select {
+    width: 100px;
+  }
+</style>
+
+  <table class="customTable" style="width: 100%">
+	  <tbody>
+	  <tr>
+		  <th>Name</th>
+		  <th>Value</th>
+      <th></th>
+	  </tr>
+	  <# foreach (var setting in _settings) {  #>
+	  <tr data-type="<#= setting.Value.Type #>" data-currentvalue="<#= setting.Value.Value #>" data-name="<#= setting.Key #>">
+		  <td><#= setting.Key #></td>
+		  <td id="value"><#= setting.Value.Value #></td>
+      <td><span class="ui-icon ui-icon-gear"></span></td>
+	  </tr>
+	  <#  } #>
+	  </tbody>
+	</table>
+
+<div id="dialogError" title="Error">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Error changing Setting! Please check the logs.</p>
+</div>

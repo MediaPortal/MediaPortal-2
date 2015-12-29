@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Management;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace MediaPortal.Plugins.MP2Extended.Authentication
 {
@@ -86,7 +87,8 @@ namespace MediaPortal.Plugins.MP2Extended.Authentication
 
     private static SymmetricAlgorithm GetAlgorithm(string key)
     {
-      string finalKey = key + GetMotherboardId();
+      // We Xor the key, which is available in the src, with the motherboard Id to get a more secret key
+      string finalKey = XorIt(GetMotherboardId(), key);
       
       SymmetricAlgorithm encryptionAlgorithm = new AesManaged();
       encryptionAlgorithm.KeySize = 256;
@@ -102,13 +104,24 @@ namespace MediaPortal.Plugins.MP2Extended.Authentication
     {
       ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT SerialNumber FROM Win32_BaseBoard");
       ManagementObjectCollection moc = mos.Get();
-      string motherBoard = "";
-      foreach (ManagementObject mo in moc)
+      string motherBoard = "789745136";  // random number in case we don't find an id
+      foreach (var o in moc)
       {
+        var mo = (ManagementObject)o;
         motherBoard = (string)mo["SerialNumber"];
       }
 
       return motherBoard;
+    }
+
+    public static string XorIt(string key, string input)
+    {
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < input.Length; i++)
+        sb.Append((char)(input[i] ^ key[(i % key.Length)]));
+      String result = sb.ToString();
+
+      return result;
     }
   }
 }

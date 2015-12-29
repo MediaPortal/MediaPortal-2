@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Api.Pages
 {
     using System.Linq;
     using System.Text;
@@ -18,7 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+    #line 1 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "12.0.0.0")]
     public partial class ServiceHandlerFunctionsTemplate : ServiceHandlerFunctionsTemplateBase
     {
@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
                     "=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\">\r\n    <" +
                     "title> ");
             
-            #line 6 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\.\Header.html"
+            #line 6 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\..\..\..\BasePages\Header.html"
             this.Write(this.ToStringHelper.ToStringWithCulture(title));
             
             #line default
@@ -427,14 +427,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
                     "      width: 150px;\r\n        }\r\n    </style>\r\n</head>\r\n<body>\r\n    <ins><h2>MP2E" +
                     "xtended</h2></ins>\r\n    <p><b>");
             
-            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\.\Header.html"
+            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\..\..\..\BasePages\Header.html"
             this.Write(this.ToStringHelper.ToStringWithCulture(headLine));
             
             #line default
             #line hidden
             this.Write("</b> <ins>");
             
-            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\.\Header.html"
+            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\..\..\..\BasePages\Header.html"
             this.Write(this.ToStringHelper.ToStringWithCulture(subHeadLine));
             
             #line default
@@ -460,28 +460,28 @@ function toggel(caller){
 
   ");
             
-            #line 25 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 25 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  foreach (var category in _serviceHandlerFunctions.OrderBy(i => i.Key)) {  
             
             #line default
             #line hidden
             this.Write("\t<b><u>");
             
-            #line 26 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 26 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(category.Key));
             
             #line default
             #line hidden
             this.Write("</u></b>\r\n\t<br>\r\n\t<ul style=\"list-style-position: inside;\">\r\n\t");
             
-            #line 29 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 29 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  foreach (var handlerFunction in category.Value.OrderBy(i => i.Name)) { 
             
             #line default
             #line hidden
             this.Write("\t  <li>\r\n\t\t<span onclick=\"toggel(this)\" style=\"cursor: pointer;\">");
             
-            #line 31 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 31 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.Name));
             
             #line default
@@ -489,77 +489,77 @@ function toggel(caller){
             this.Write("</span>\r\n\t\t<div style=\"display: none; padding-left: 25px;\">\r\n\t\t\t<b>Summary:</b><b" +
                     "r>\r\n\t\t\t<ins>");
             
-            #line 34 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 34 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.Summary));
             
             #line default
             #line hidden
             this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Return-Type:</b>\r\n\t\t\t<ins>");
             
-            #line 37 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 37 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.ReturnType));
             
             #line default
             #line hidden
             this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Type:</b>\r\n\t\t\t<ins>");
             
-            #line 40 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 40 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.Type));
             
             #line default
             #line hidden
             this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>URL:</b>\r\n\t\t\t<ins>");
             
-            #line 43 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 43 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handlerFunction.Url));
             
             #line default
             #line hidden
             this.Write("</ins>\r\n\t\t\t<br>\r\n\t\t\t<b>Parameters:</b>");
             
-            #line 45 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 45 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  if (handlerFunction.Parameters.Count == 0) Write(" <i>none</i>"); 
             
             #line default
             #line hidden
             this.Write("<br>\r\n\t\t\t<ul style=\"list-style-position: inside; padding-left: 10px;\">\r\n\t\t\t\t");
             
-            #line 47 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 47 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  foreach (var parameter in handlerFunction.Parameters.OrderBy(i => i.Name)) { 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t\t<li>");
             
-            #line 48 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 48 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Name));
             
             #line default
             #line hidden
             this.Write(" (");
             
-            #line 48 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 48 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((parameter.Nullable ? "nullable " : "") + parameter.Type.Name));
             
             #line default
             #line hidden
             this.Write(")</li>\r\n\t\t\t\t");
             
-            #line 49 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 49 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t\t\t</ul>\r\n\t\t\t<br>\r\n\t\t</div>\r\n\t  </li>\r\n\t");
             
-            #line 54 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 54 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t</ul>\r\n\t<br>\r\n\t<br>\r\n");
             
-            #line 58 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
+            #line 58 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt"
  } 
             
             #line default

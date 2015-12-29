@@ -41,13 +41,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       string[] uriParts = request.Uri.AbsolutePath.Split('/');
       string action = uriParts.Last();
 
-      Logger.Info("WSS: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath, uriParts.Length, action);
-
       // pass on to the micro processors
       IRequestMicroModuleHandler requestModuleHandler;
       dynamic returnValue = null;
       if (_requestModuleHandlers.TryGetValue(action, out requestModuleHandler))
-        returnValue = requestModuleHandler.Process(request);
+        returnValue = requestModuleHandler.Process(request, session);
 
       if (returnValue == null)
       {

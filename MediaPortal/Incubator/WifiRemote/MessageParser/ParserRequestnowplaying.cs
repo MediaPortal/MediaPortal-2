@@ -15,7 +15,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
   {
     public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
     {
-      SendMessageToAllClients.Send(new MessageNowPlaying(), ref SocketServer.Instance.connectedSockets);
+      SendMessageToClient.Send(new MessageNowPlaying(), sender);
 
       return true;
     }

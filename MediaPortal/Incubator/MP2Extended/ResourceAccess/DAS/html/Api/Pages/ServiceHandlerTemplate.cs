@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Api.Pages
 {
     using System.Linq;
     using System.Text;
@@ -19,7 +19,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+    #line 1 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "12.0.0.0")]
     public partial class ServiceHandlerTemplate : ServiceHandlerTemplateBase
     {
@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
                     "=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\">\r\n    <" +
                     "title> ");
             
-            #line 6 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\.\Header.html"
+            #line 6 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\..\..\..\BasePages\Header.html"
             this.Write(this.ToStringHelper.ToStringWithCulture(title));
             
             #line default
@@ -428,14 +428,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
                     "      width: 150px;\r\n        }\r\n    </style>\r\n</head>\r\n<body>\r\n    <ins><h2>MP2E" +
                     "xtended</h2></ins>\r\n    <p><b>");
             
-            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\.\Header.html"
+            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\..\..\..\BasePages\Header.html"
             this.Write(this.ToStringHelper.ToStringWithCulture(headLine));
             
             #line default
             #line hidden
             this.Write("</b> <ins>");
             
-            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\.\Header.html"
+            #line 68 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\..\..\..\BasePages\Header.html"
             this.Write(this.ToStringHelper.ToStringWithCulture(subHeadLine));
             
             #line default
@@ -443,42 +443,42 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
             this.Write("</ins>\r\n    <p>\r\n");
             this.Write("\r\n\r\n\r\n  ");
             
-            #line 11 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+            #line 11 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
  foreach (var handler in _serviceHandler) {  
             
             #line default
             #line hidden
             this.Write("  <a href=\"?handler=");
             
-            #line 12 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+            #line 12 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handler.Key));
             
             #line default
             #line hidden
             this.Write("\"><b><u>");
             
-            #line 12 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+            #line 12 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handler.Value.FriendlyName));
             
             #line default
             #line hidden
             this.Write("</u></b></a>\r\n  <br>\r\n  <b>Summary:</b><br>\r\n  <div><ins>\r\n  \t");
             
-            #line 16 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+            #line 16 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(handler.Value.Summary));
             
             #line default
             #line hidden
             this.Write("\r\n  </ins></div>\r\n  <br>\r\n  <b>Url:</b><br>\r\n  <div><ins>\r\n  \t");
             
-            #line 21 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+            #line 21 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GetBaseStreamUrl.GetBaseStreamURL() + MainRequestHandler.RESOURCE_ACCESS_PATH + "/" + handler.Key));
             
             #line default
             #line hidden
             this.Write("\r\n  </ins></div>\r\n  <br><br>\r\n  ");
             
-            #line 24 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt"
+            #line 24 "M:\Programmieren\C#\MediaPortal 2\MediaPortal\Incubator\MP2Extended\ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt"
   } 
             
             #line default

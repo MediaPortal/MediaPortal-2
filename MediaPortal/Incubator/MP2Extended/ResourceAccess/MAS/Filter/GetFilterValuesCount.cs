@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -23,9 +24,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "limit", Type = typeof(int), Nullable = true)]
   internal class GetFilterValuesCount : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
-      List<string> output = new GetFilterValues().Process(request);
+      List<string> output = new GetFilterValues().Process(request, session);
 
       return new WebIntResult { Result = output.Count };
     }

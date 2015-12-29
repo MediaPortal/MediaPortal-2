@@ -5,7 +5,7 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="MediaPortal.Plugins.MP2Extended.Utils" #>
 
-<#@ include file=".\Header.html" #>
+<#@ include file="..\..\..\BasePages\Header.html" #>
 
 
   <# foreach (var handler in _serviceHandler) {  #>

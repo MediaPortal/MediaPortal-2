@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       get
       {
         if (ServiceRegistration.Get<IPlayerManager>().NumActiveSlots > 0)
-          isPlaying = Utils.IsNowPlaying();
+          isPlaying = Helper.IsNowPlaying();
         return isPlaying;
       }
     }

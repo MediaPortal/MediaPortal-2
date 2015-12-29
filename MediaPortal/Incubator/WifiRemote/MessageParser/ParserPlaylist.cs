@@ -66,7 +66,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
                 continue;
               }
 
-              MediaItem item = Utils.GetMediaItemById(itemid);
+              MediaItem item = Helper.GetMediaItemById(itemid);
               if (item == null)
               {
                 ServiceRegistration.Get<ILogger>().Warn("ParserPlaylist: Not media item found");

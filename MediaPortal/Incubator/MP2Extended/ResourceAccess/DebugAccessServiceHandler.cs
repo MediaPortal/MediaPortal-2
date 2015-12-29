@@ -9,51 +9,49 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.BaseClasses;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
   [ApiHandlerDescription(FriendlyName = "Debug Access Service", Summary = "The Debug Access Service allows you to access various debugging information like a list of Api functions etc.")]
   internal class DebugAccessServiceHandler : BaseHtmlHeader, IRequestModuleHandler
   {
-    private readonly Dictionary<string, IRequestMicroModuleHandler> _requestModuleHandlers = new Dictionary<string, IRequestMicroModuleHandler>
+    private readonly Dictionary<string, ISubRequestModuleHandler> _requestModuleHandlers = new Dictionary<string, ISubRequestModuleHandler>
     {
-      // Api
-      { "GetApi", new GetApi() },
+      // html
+      { "html", new DebugAccessServiceHtmlHandler() },
+      // json
+      { "json", new DebugAccessServiceJsonHandler() },
     };
 
     public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
     {
       string[] uriParts = request.Uri.AbsolutePath.Split('/');
-      string action = (uriParts.Length >= 5) ? uriParts[4] : uriParts.Last();
+      if (uriParts.Length < 3)
+        throw new BadRequestException("DAS: path is not long enough");
+      string action = uriParts[3];
 
-      Logger.Info("DAS: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath, uriParts.Length, action);
+      Logger.Debug("DAS: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath, uriParts.Length, action);
 
-      // pass on to the micro processors
-      IRequestMicroModuleHandler requestModuleHandler;
+      // pass on to the Sub processors
+      ISubRequestModuleHandler requestModuleHandler;
       dynamic returnValue = null;
       if (_requestModuleHandlers.TryGetValue(action, out requestModuleHandler))
-        returnValue = requestModuleHandler.Process(request);
+        returnValue = requestModuleHandler.Process(request, response, session);
 
       if (returnValue == null)
       {
-        Logger.Warn("DAS: Micromodule not found: {0}", action);
-        throw new BadRequestException(String.Format("DAS: Micromodule not found: {0}", action));
+        Logger.Warn("DAS: Submodule not found: {0}", action);
+        throw new BadRequestException(String.Format("DAS: Submodule not found: {0}", action));
       }
-
-      byte[] output = ResourceAccessUtils.GetBytes(returnValue);
-
-      // Send the response
-      SendHeader(response, output.Length);
-
-      response.SendBody(output);
 
       return true;
     }
 
     public Dictionary<string, object> GetRequestMicroModuleHandlers()
     {
-      return _requestModuleHandlers.ToDictionary<KeyValuePair<string, IRequestMicroModuleHandler>, string, object>(module => module.Key, module => module.Value);
+      return _requestModuleHandlers.SelectMany(handler => handler.Value.GetRequestMicroModuleHandlers()).ToDictionary(module => module.Key, module => module.Value);
     }
 
     internal static ILogger Logger

@@ -18,6 +18,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Plugins.MP2Extended.Settings
@@ -31,6 +32,14 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
       PreferredAudioLanguages = "EN";
       PreRecordInterval = 5;
       PostRecordInterval = 5;
+      UseAuth = false;
+
+      // OnlineVideos
+      OnlineVideosEnabled = true;
+      OnlineVideosUseAgeConfirmation = false;
+      OnlineVideosCacheTimeout = 30;
+      OnlineVideosUtilTimeout = 15;
+      OnlineVideosDownloadFolder = "";
     }
 
     [Setting(SettingScope.Global)]
@@ -43,5 +52,21 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
     public int PreRecordInterval { get; private set; }
     [Setting(SettingScope.Global)]
     public int PostRecordInterval { get; private set; }
+    [Setting(SettingScope.Global)]
+    public bool UseAuth { get; private set; }
+
+    // OnlineVideos
+    [Setting(SettingScope.Global)]
+    public bool OnlineVideosEnabled { get; private set; }
+    [Setting(SettingScope.Global)]
+    public bool OnlineVideosUseAgeConfirmation { get; private set; }
+    [Setting(SettingScope.Global)]
+    public int OnlineVideosCacheTimeout { get; private set; }
+    [Setting(SettingScope.Global)]
+    public int OnlineVideosUtilTimeout { get; private set; }
+    [Setting(SettingScope.Global)]
+    public string OnlineVideosDownloadFolder { get; private set; }
+    [Setting(SettingScope.Global)]
+    public DateTime OnlineVideosLastAutomaticUpdate { get; set; }
   }
 }

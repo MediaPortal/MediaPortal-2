@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using MediaPortal.Common;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.Settings;
-using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using MediaPortal.Utilities.Network;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Api.Pages
 {
   partial class ServiceHandlerFunctionsTemplate
   {

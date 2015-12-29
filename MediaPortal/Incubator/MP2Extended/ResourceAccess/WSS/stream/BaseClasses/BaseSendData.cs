@@ -69,7 +69,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     protected void SendWholeFile(IHttpResponse response, Stream resourceStream, bool onlyHeaders)
     {
-      response.Status = HttpStatusCode.OK;
+      if (response.Status != HttpStatusCode.NotModified) // respect the If-Modified-Since Header
+        response.Status = HttpStatusCode.OK;
       response.ContentLength = resourceStream.Length;
       response.SendHeaders();
 

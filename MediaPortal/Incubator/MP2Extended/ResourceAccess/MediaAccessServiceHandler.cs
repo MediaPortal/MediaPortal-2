@@ -13,6 +13,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
@@ -54,6 +55,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       { "GetMusicGenres", new GetMusicGenres() },
       { "GetMusicTrackBasicById", new GetMusicTrackBasicById() },
       { "GetMusicTracksBasicForAlbum", new GetMusicTracksBasicForAlbum() },
+      // OnlineVideos
+      { "GetOnlineVideosCategoryVideos", new GetOnlineVideosCategoryVideos() },
+      { "GetOnlineVideosGlobalSites", new GetOnlineVideosGlobalSites() },
+      { "GetOnlineVideosSiteCategories", new GetOnlineVideosSiteCategories() },
+      { "GetOnlineVideosSites", new GetOnlineVideosSites() },
+      { "GetOnlineVideosSiteSettings", new GetOnlineVideosSiteSettings() },
+      { "GetOnlineVideosSubCategories", new GetOnlineVideosSubCategories() },
+      { "GetOnlineVideosVideoUrls", new GetOnlineVideosVideoUrls() },
+      { "SetOnlineVideosSiteSetting", new SetOnlineVideosSiteSetting() },
       // Playlist
       { "AddPlaylistItem", new AddPlaylistItem() },
       { "AddPlaylistItems", new GetMusicTracksBasicForAlbum() },
@@ -116,7 +126,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       IRequestMicroModuleHandler requestModuleHandler;
       dynamic returnValue = null;
       if (_requestModuleHandlers.TryGetValue(action, out requestModuleHandler))
-        returnValue = requestModuleHandler.Process(request);
+        returnValue = requestModuleHandler.Process(request, session);
 
       if (returnValue == null)
       {

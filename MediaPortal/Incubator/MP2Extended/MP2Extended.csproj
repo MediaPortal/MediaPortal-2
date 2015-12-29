@@ -38,6 +38,11 @@
       <HintPath>..\..\Packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="OnlineVideos, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\OnlineVideos.Core.2.1.0.0\lib\net40\OnlineVideos.dll</HintPath>
+      <Private>True</Private>
+      <Aliases>OV</Aliases>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -48,12 +53,37 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ApiHandlerDescription.cs" />
     <Compile Include="Attributes\ApiFunctionDescription.cs" />
     <Compile Include="Authentication\AuthRequestHandler.cs" />
+    <Compile Include="Authentication\CheckRights.cs" />
     <Compile Include="Authentication\Encryption.cs" />
+    <Compile Include="Authentication\User.cs" />
+    <Compile Include="ResourceAccess\DAS\DebugAccessServiceJsonHandler.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Settings\Pages\UsersClass.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Settings\Pages\UsersTemplate.cs">
+      <DependentUpon>UsersTemplate.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="ResourceAccess\DAS\html\Settings\ShowUsers.cs" />
+    <Compile Include="ResourceAccess\DAS\json\Settings\ChangeSetting.cs" />
+    <Compile Include="ResourceAccess\DAS\json\Settings\DeleteUser.cs" />
+    <Compile Include="ResourceAccess\DAS\json\Settings\CreateUser.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Settings\ShowSettings.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Settings\Pages\SettingsClass.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Settings\Pages\SettingsTemplate.cs">
+      <DependentUpon>SettingsTemplate.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="ResourceAccess\DAS\DebugAccessServiceHtmlHandler.cs" />
+    <Compile Include="ResourceAccess\TAS\Schedule\UnCancelSchedule.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\General\GetHtmlResource.cs" />
+    <Compile Include="Settings\UserTypes.cs" />
     <Compile Include="Common\WebBoolResult.cs" />
     <Compile Include="Common\WebFileType.cs" />
     <Compile Include="Common\WebFilterOperator.cs" />
@@ -112,6 +142,13 @@
     <Compile Include="MAS\Music\WebMusicArtistDetailed.cs" />
     <Compile Include="MAS\Music\WebMusicTrackBasic.cs" />
     <Compile Include="MAS\Music\WebMusicTrackDetailed.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosGlobalSite.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosSiteSetting.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosMediaType.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosSiteState.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosVideo.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosSiteCategory.cs" />
+    <Compile Include="MAS\OnlineVideos\WebOnlineVideosSite.cs" />
     <Compile Include="MAS\Picture\WebPictureBasic.cs" />
     <Compile Include="MAS\Picture\WebPictureDetailed.cs" />
     <Compile Include="MAS\Playlist\WebPlaylist.cs" />
@@ -135,18 +172,24 @@
     <Compile Include="Metadata\WebImageMetadata.cs" />
     <Compile Include="Metadata\WebVideoMetadata.cs" />
     <Compile Include="MP2Extended.cs" />
+    <Compile Include="OnlineVideos\GlobalSite.cs" />
+    <Compile Include="OnlineVideos\LogDelegator.cs" />
+    <Compile Include="OnlineVideos\OnlineVideosIdGenerator.cs" />
+    <Compile Include="OnlineVideos\OnlineVideosManager.cs" />
+    <Compile Include="OnlineVideos\OnlineVideosThumbs.cs" />
+    <Compile Include="OnlineVideos\UserSiteSettingsStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceAccess\BaseClasses\BaseHtmlHeader.cs" />
     <Compile Include="ResourceAccess\BaseClasses\BaseJsonHeader.cs" />
-    <Compile Include="ResourceAccess\DAS\Api\GetApi.cs" />
-    <Compile Include="ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsClass.cs" />
-    <Compile Include="ResourceAccess\DAS\Api\Pages\ServiceHandlerClass.cs" />
-    <Compile Include="ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.cs">
+    <Compile Include="ResourceAccess\DAS\html\Api\GetApi.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsClass.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Api\Pages\ServiceHandlerClass.cs" />
+    <Compile Include="ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.cs">
       <DependentUpon>ServiceHandlerFunctionsTemplate.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.cs">
+    <Compile Include="ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ServiceHandlerTemplate.tt</DependentUpon>
@@ -204,6 +247,14 @@
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTrackBasicById.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicGenres.cs" />
     <Compile Include="ResourceAccess\MAS\Music\GetMusicTracksBasicForAlbum.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosGlobalSites.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\SetOnlineVideosSiteSetting.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosSiteSettings.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosVideoUrls.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosCategoryVideos.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosSubCategories.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosSiteCategories.cs" />
+    <Compile Include="ResourceAccess\MAS\OnlineVideos\GetOnlineVideosSites.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\BaseClasses\BasePictureBasic.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\GetPictureSubCategories.cs" />
     <Compile Include="ResourceAccess\MAS\Picture\GetPictureCount.cs" />
@@ -343,6 +394,8 @@
     <Compile Include="ResourceAccess\WSS\stream\General\GetMediaItem.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\ExtractImage.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\ExtractImageResized.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\GetOnlineVideosArtworkResized.cs" />
+    <Compile Include="ResourceAccess\WSS\stream\Images\GetOnlineVideosArtwork.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetImageResized.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetImage.cs" />
     <Compile Include="ResourceAccess\WSS\stream\Images\GetArtwork.cs" />
@@ -352,6 +405,8 @@
     <Compile Include="ResourceAccess\WSS\stream\IStreamRequestMicroModuleHandler.cs" />
     <Compile Include="ResourceAccess\WSS\stream\BaseClasses\BaseSendData.cs" />
     <Compile Include="ResourceAccess\WSS\stream\StreamItem.cs" />
+    <Compile Include="Settings\MP2ExtendedUser.cs" />
+    <Compile Include="Settings\MP2ExtendedUsers.cs" />
     <Compile Include="Settings\MP2ExtendedSettings.cs" />
     <Compile Include="TAS\Enumerations.cs" />
     <Compile Include="TAS\Misc\BaseClasses\BaseCard.cs" />
@@ -373,6 +428,8 @@
     <Compile Include="TAS\Tv\WebScheduleBasic.cs" />
     <Compile Include="TAS\Tv\WebScheduledRecording.cs" />
     <Compile Include="Utils\AspectRatioHelper.cs" />
+    <Compile Include="Utils\GenericParsing.cs" />
+    <Compile Include="Utils\GenericParsing.TryParse.cs" />
     <Compile Include="Utils\GetBaseStreamURL.cs" />
     <Compile Include="Utils\Base64.cs" />
     <Compile Include="Utils\DiskSpaceInformation.cs" />
@@ -435,11 +492,65 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\themes\base\accordion.css" />
+    <Content Include="Content\themes\base\all.css" />
+    <Content Include="Content\themes\base\autocomplete.css" />
+    <Content Include="Content\themes\base\base.css" />
+    <Content Include="Content\themes\base\button.css" />
+    <Content Include="Content\themes\base\core.css" />
+    <Content Include="Content\themes\base\datepicker.css" />
+    <Content Include="Content\themes\base\dialog.css" />
+    <Content Include="Content\themes\base\draggable.css" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\themes\base\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\themes\base\menu.css" />
+    <Content Include="Content\themes\base\progressbar.css" />
+    <Content Include="Content\themes\base\resizable.css" />
+    <Content Include="Content\themes\base\selectable.css" />
+    <Content Include="Content\themes\base\selectmenu.css" />
+    <Content Include="Content\themes\base\slider.css" />
+    <Content Include="Content\themes\base\sortable.css" />
+    <Content Include="Content\themes\base\spinner.css" />
+    <Content Include="Content\themes\base\tabs.css" />
+    <Content Include="Content\themes\base\theme.css" />
+    <Content Include="Content\themes\base\tooltip.css" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\themes\smoothness\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\themes\smoothness\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\themes\smoothness\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\themes\smoothness\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\themes\smoothness\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\themes\smoothness\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\themes\smoothness\jquery-ui.smoothness.css" />
+    <Content Include="Content\themes\smoothness\jquery-ui.smoothness.min.css" />
     <Content Include="plugin.xml" />
-    <Content Include="ResourceAccess\DAS\Api\Pages\Header.html" />
+    <Content Include="ResourceAccess\DAS\BasePages\Header.html" />
+    <Content Include="ResourceAccess\DAS\html\Settings\Pages\ShowSettingsJs.js" />
     <Content Include="ResourceAccess\WSS\Profiles\StreamingProfiles.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Scripts\jquery-2.1.4.intellisense.js" />
+    <Content Include="Scripts\jquery-2.1.4.js" />
+    <Content Include="Scripts\jquery-2.1.4.min.js" />
+    <Content Include="Scripts\jquery-ui-1.11.4.js" />
+    <Content Include="Scripts\jquery-ui-1.11.4.min.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
@@ -449,14 +560,23 @@
       <CustomToolNamespace>MediaPortal.Plugins.MP2Extended.ErrorPages</CustomToolNamespace>
     </None>
     <None Include="packages.config" />
-    <None Include="ResourceAccess\DAS\Api\Pages\ServiceHandlerFunctionsTemplate.tt">
+    <None Include="ResourceAccess\DAS\html\Api\Pages\ServiceHandlerFunctionsTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ServiceHandlerFunctionsTemplate.cs</LastGenOutput>
     </None>
-    <None Include="ResourceAccess\DAS\Api\Pages\ServiceHandlerTemplate.tt">
+    <None Include="ResourceAccess\DAS\html\Api\Pages\ServiceHandlerTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ServiceHandlerTemplate.cs</LastGenOutput>
     </None>
+    <None Include="ResourceAccess\DAS\html\Settings\Pages\UsersTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>UsersTemplate.cs</LastGenOutput>
+    </None>
+    <None Include="ResourceAccess\DAS\html\Settings\Pages\SettingsTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SettingsTemplate.cs</LastGenOutput>
+    </None>
+    <None Include="Scripts\jquery-2.1.4.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

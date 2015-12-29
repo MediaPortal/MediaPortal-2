@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using HttpServer;
+﻿using HttpServer;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api.Pages;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Api.Pages;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.Api
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Api
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Html, ReturnType = typeof(string), Summary = "")]
   internal class GetApi : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
       HttpParam httpParam = request.Param;
       string handler = httpParam["handler"].Value;

@@ -446,6 +446,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract bool RemoveSchedule(ISchedule schedule);
 
+    public abstract bool UnCancelSchedule(IProgram program);
+
     public abstract bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus);
 
     public abstract bool GetRecordingFileOrStream(IProgram program, out string fileOrStream);

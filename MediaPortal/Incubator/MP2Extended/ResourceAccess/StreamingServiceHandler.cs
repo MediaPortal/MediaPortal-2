@@ -29,8 +29,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         throw new BadRequestException("WSS: path is not long enough");
       string action = uriParts[3];
 
-      Logger.Debug("WSS: AbsolutePath: {0}, uriParts.Length: {1}, Lastpart: {2}", request.Uri.AbsolutePath, uriParts.Length, action);
-
       // pass on to the Sub processors
       ISubRequestModuleHandler requestModuleHandler;
       dynamic returnValue = null;

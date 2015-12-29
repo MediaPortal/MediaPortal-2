@@ -22,12 +22,15 @@
 
 #endregion
 
+using System.Linq;
 using HttpServer;
 using HttpServer.Authentication;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Plugins.MP2Extended.Settings;
 
 namespace MediaPortal.Plugins.MP2Extended.Authentication
 {
@@ -48,6 +51,9 @@ namespace MediaPortal.Plugins.MP2Extended.Authentication
     /// <returns>true = Required, false = not Required</returns>
     internal static bool OnAuthenticationRequired(IHttpRequest request)
     {
+      if (!MP2Extended.Settings.UseAuth) // is User Auth enabled?
+        return false;
+
       return request.Uri.AbsolutePath.StartsWith(_resourceAccessPath);
     }
 
@@ -63,14 +69,14 @@ namespace MediaPortal.Plugins.MP2Extended.Authentication
     {
       // digest authentication encrypts password which means that
       // we need to provide the authenticator with a stored password.
-      
-      // you should really query a DB or something
-      if (userName == "test")
+
+      if (MP2Extended.Users.Users.Exists(x => x.Name == userName))
       {
-        password = "123";
+        MP2ExtendedUser user = MP2Extended.Users.Users.Single(x => x.Name == userName);
+        password = user.Password; // we need to tell the HTTP Server the PW.
 
         // login can be fetched from IHttpSession in all modules
-        login = new User(1, "test");
+        login = new User(user.Id, user.Name, user.Type);
       }
       else
       {
@@ -83,18 +89,6 @@ namespace MediaPortal.Plugins.MP2Extended.Authentication
     internal static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
-    }
-  }
-
-  internal class User
-  {
-    public int Id;
-    public string UserName;
-
-    public User(int id, string userName)
-    {
-      Id = id;
-      UserName = userName;
     }
   }
 }

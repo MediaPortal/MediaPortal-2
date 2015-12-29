@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using HttpServer;
 using HttpServer.Exceptions;
+using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -23,9 +24,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "searchTerm", Type = typeof(string), Nullable = false)]
   internal class SearchProgramsCount : IRequestMicroModuleHandler
   {
-    public dynamic Process(IHttpRequest request)
+    public dynamic Process(IHttpRequest request, IHttpSession session)
     {
-      List<WebProgramBasic> output = new SearchProgramsBasic().Process(request);
+      List<WebProgramBasic> output = new SearchProgramsBasic().Process(request, session);
 
       return new WebIntResult { Result = output.Count };
     }
