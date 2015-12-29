@@ -83,6 +83,7 @@
     <Content Include="plugin.xml" />
     <Content Include="Skin\BlueVision\fonts\default-font.xml" />
     <Content Include="Skin\BlueVision\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
+    <Content Include="Skin\BlueVision\images\05D4F591-CB92-4204-955A-5FF665BD8727.png" />
     <Content Include="Skin\BlueVision\images\09EAE702-D9EC-4325-82D9-4843502C966B.jpg" />
     <Content Include="Skin\BlueVision\images\1190A648-90F3-413D-88AC-DA89684E9766.png" />
     <Content Include="Skin\BlueVision\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
@@ -479,6 +480,7 @@
     <Content Include="Skin\BlueVision\images\Medialogos\video\wvc1.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\x264.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\xvid.png" />
+    <Content Include="Skin\BlueVision\images\Menu_button.png" />
     <Content Include="Skin\BlueVision\images\news.png" />
     <Content Include="Skin\BlueVision\images\NewTab_small.png" />
     <Content Include="Skin\BlueVision\images\NextPage.png" />
@@ -525,6 +527,7 @@
     <Content Include="Skin\BlueVision\images\PlayerControls.Small\SkipForwardButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Small\StopButton.png" />
     <Content Include="Skin\BlueVision\images\power_blur.png" />
+    <Content Include="Skin\BlueVision\images\Power_button.png" />
     <Content Include="Skin\BlueVision\images\settings.png" />
     <Content Include="Skin\BlueVision\images\shadow_00.png" />
     <Content Include="Skin\BlueVision\images\shadow_01.png" />
@@ -581,6 +584,37 @@
     <Content Include="Skin\BlueVision\themes\Grey\images\Background.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\theme.xml" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\1190A648-90F3-413D-88AC-DA89684E9766.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\9AD4076C-8F1F-4353-AF60-4F6C4238DCB7.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\background.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\D675D9BA-A27B-44B9-BC6B-8CF2DC7D220F.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\D805F21B-0A1F-4323-BEB5-B108778F89AA.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\DF153D5E-0CD9-416c-B18B-E09AD5A864D8.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\E1748A80-347C-4E1A-8A26-DABEC246A540.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\E32BBACF-56C6-406E-9576-EA68271F053C.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\MP2_logo_bw.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\preview.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\ShutdownIcon.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\SplashScreen.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemFanArt.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemsList.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\MultiDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\theme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\BlueVision\sounds\" />
@@ -867,6 +901,101 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\default-large\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\master_bare_players.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_configuration_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_dialog_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_homemenu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\NewsFeeds.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\NewsItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\Brushes.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\Graphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\NewsStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\OSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\OtherControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\CurrentlyPlayingAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\CurrentlyPlayingDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\CurrentlyPlayingImage.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

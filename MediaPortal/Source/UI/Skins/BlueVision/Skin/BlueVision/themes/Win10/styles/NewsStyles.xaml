@@ -19,7 +19,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonCoverStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}" Margin="4">
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}" Margin="2">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -53,7 +53,7 @@
 
   <!-- Style for a single news item -->
   <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="1" Width="257" Height="164" >
+    <Grid Margin="1" Width="285" Height="183" >
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -80,31 +80,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
-          <!-- SHADOW>
-          <Grid Grid.Row="1"  Grid.Column="1" Margin="-3" IsVisible="{Binding ElementName=thumb, Path=HasImage}"
-                Width="{Binding ElementName=thumb, Path=Width}" Height="{Binding ElementName=thumb, Path=Height}">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="19"/>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="19"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="19"  />
-              <RowDefinition Height="*"  />
-              <RowDefinition Height="19"  />
-            </Grid.RowDefinitions>
-            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
-            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
-            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
-            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
-            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
-            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
-            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
-            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
-            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
-          </Grid>
-          < SHADOW -->
 
           <Image Grid.Column="1" Grid.Row="1" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="0">
             <Image.OpacityMask >

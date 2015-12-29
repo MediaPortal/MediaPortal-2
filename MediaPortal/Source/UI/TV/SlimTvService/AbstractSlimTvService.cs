@@ -274,12 +274,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
         if (!string.IsNullOrEmpty(movieSubfolder) && !string.IsNullOrEmpty(seriesSubfolder))
         {
           // If there are different target folders defined, register the media sources with specialized Series/Movie types
-          checkFolders.Add(Path.Combine(recordingFolder, movieSubfolder), new HashSet<MediaCategory> { DefaultMediaCategories.Video, Movie });
-          checkFolders.Add(Path.Combine(recordingFolder, seriesSubfolder), new HashSet<MediaCategory> { DefaultMediaCategories.Video, Series });
+          checkFolders.Add(FileUtils.CheckTrailingPathDelimiter(Path.Combine(recordingFolder, movieSubfolder)), new HashSet<MediaCategory> { DefaultMediaCategories.Video, Movie });
+          checkFolders.Add(FileUtils.CheckTrailingPathDelimiter(Path.Combine(recordingFolder, seriesSubfolder)), new HashSet<MediaCategory> { DefaultMediaCategories.Video, Series });
         }
         else
         {
-          checkFolders.Add(recordingFolder, new HashSet<MediaCategory> { DefaultMediaCategories.Video });
+          checkFolders.Add(FileUtils.CheckTrailingPathDelimiter(recordingFolder), new HashSet<MediaCategory> { DefaultMediaCategories.Video });
         }
       }
 

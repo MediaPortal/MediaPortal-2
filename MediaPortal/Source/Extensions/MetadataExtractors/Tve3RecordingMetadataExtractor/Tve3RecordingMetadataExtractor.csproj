@@ -8,7 +8,7 @@
     <ProjectGuid>{BD0AD1E7-48A9-404E-9C82-291CE3B41657}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Extensions.MetadataExtractors.Tve3RecordingMetadataExtractor</RootNamespace>
+    <RootNamespace>MediaPortal.Extensions.MetadataExtractors</RootNamespace>
     <AssemblyName>Tve3RecordingMetadataExtractor</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Brushes"
+    >
+
+  <!-- *************************** Play control graphics ****************************** -->
+  <ControlTemplate x:Key="ShowDvdMenuControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\SelectTitleButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+  
+  <ControlTemplate x:Key="SelectChapterControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\SelectChapterButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="NextChapterControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\NextChapterButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PreviousChapterControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\PreviousChapterButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+  
+  <ControlTemplate x:Key="SelectSubtitleControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\SelectSubtitleButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- Dark version -->
+  <ControlTemplate x:Key="ShowDvdMenuDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectTitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+
+  <ControlTemplate x:Key="NextChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\NextChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PreviousChapterDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\PreviousChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SelectSubtitleDarkControlTemplate">
+    <Image Source="PlayerControls.Large.Dark\SelectSubtitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+</ResourceDictionary>

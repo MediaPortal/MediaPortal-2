@@ -41,7 +41,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     #endregion
 
     public PopNavigationTransition(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, int numPop) :
-        base(actionId, name, sourceStateIds, displayTitle)
+      this(actionId, name, sourceStateIds, displayTitle, null, numPop)
+    {
+    }
+
+    public PopNavigationTransition(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText, int numPop) :
+        base(actionId, name, sourceStateIds, displayTitle, helpText)
     {
       _numPop = numPop;
     }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#9CB9D5"/>
+
+  <!-- Program guide colors -->
+  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#505050"/>
+  <ResourceWrapper x:Key="ProgramFocusedFill" Resource="#003366"/>
+  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#004444"/>
+  <ResourceWrapper x:Key="ProgramScheduledFill">
+    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+      <GradientStop Color="Transparent" Offset="0"/>
+      <GradientStop Color="#8F0000" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="MiniguideDetailBackground" Resource="#A0000000"/>
+
+</ResourceDictionary>

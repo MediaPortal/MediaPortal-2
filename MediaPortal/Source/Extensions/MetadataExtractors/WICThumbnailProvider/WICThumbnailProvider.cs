@@ -24,8 +24,6 @@
 
 using System;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using SharpDX.WIC;
 

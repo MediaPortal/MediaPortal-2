@@ -50,6 +50,11 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
     public const string MENU_ID_OTHERS = "D805F21B-0A1F-4323-BEB5-B108778F89AA";
     public const string MENU_NAME_HOME = "[Menu.Home]";
     public const string MENU_ID_HOME = "DF153D5E-0CD9-416c-B18B-E09AD5A864D8";
+    public const string MENU_NAME_PLAYING = "[Players.CurrentMediaInfo]";
+    public const string MENU_ID_PLAYING = "05D4F591-CB92-4204-955A-5FF665BD8727";
+
+    public static Guid WF_ACTION_CP = new Guid("D83604C0-0936-4416-9DE8-7B6D7C50023C"); // Currently Playing action
+    public static Guid WF_ACTION_FS = new Guid("9C3E6701-6856-49ec-A4CD-0CEB15F385F6"); // Fullscreen Content action
 
     public const int DEFAULT_ROWSPAN_SMALL = 2;
     public const int DEFAULT_COLSPAN_SMALL = 2;
@@ -66,6 +71,7 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
     public MenuSettings()
     {
       MainMenuGroupNames = new List<GroupItemSetting>();
+      MainMenuShortCuts = new List<GroupItemSetting>();
       MenuItems = new SerializableDictionary<string, SerializableDictionary<Guid, HomeMenuModel.GridPosition>>();
     }
 
@@ -74,6 +80,9 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
 
     [Setting(SettingScope.Global)]
     public List<GroupItemSetting> MainMenuGroupNames { get; set; }
+
+    [Setting(SettingScope.Global)]
+    public List<GroupItemSetting> MainMenuShortCuts { get; set; }
 
     [Setting(SettingScope.Global)]
     public SerializableDictionary<string, SerializableDictionary<Guid, HomeMenuModel.GridPosition>> MenuItems { get; set; }
@@ -90,11 +99,8 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
 
   public class GroupItemSetting
   {
-    public GroupItemSetting()
-    { }
-
     public string Name { get; set; }
-
     public Guid Id { get; set; }
+    public Guid? ActionId { get; set; }
   }
 }

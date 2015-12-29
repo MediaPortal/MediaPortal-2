@@ -44,7 +44,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     #endregion
 
     public MethodCallAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, Guid modelId, string methodName) :
-        base(actionId, name, sourceStateIds, displayTitle)
+        this(actionId, name, sourceStateIds, displayTitle, null, modelId, methodName)
+    {
+    }
+
+    public MethodCallAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText, Guid modelId, string methodName) :
+        base(actionId, name, sourceStateIds, displayTitle, helpText)
     {
       _modelId = modelId;
       _methodName = methodName;

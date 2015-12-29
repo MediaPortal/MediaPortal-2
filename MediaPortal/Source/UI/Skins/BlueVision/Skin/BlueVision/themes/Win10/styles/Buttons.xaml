@@ -20,7 +20,7 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
-  
+
     <Storyboard x:Key="FocusedButtonStoryboard_Tile" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
@@ -353,7 +353,7 @@
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0" Fill="{ThemeResource ButtonFillColor}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="1">
+              Margin="0,0,0,0" Fill="{ThemeResource ButtonFillColor}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="0">
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -366,9 +366,8 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
-              RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0" Fill="Gray" Stroke="#213848" StrokeThickness="1">
-            <!--Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1"-->
+              RadiusX="15" RadiusY="15"
+              Margin="0" Fill="Transparent" Stroke="#999999" StrokeThickness="2">
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -382,7 +381,7 @@
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0"
               RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="-61,0,-101,0" Fill="#003366" Stroke="#213848" StrokeThickness="0">
+              Margin="-82,0,-53,0" Fill="#003366" Stroke="#213848" StrokeThickness="0">
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -424,6 +423,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
+            <Rectangle Grid.Column="0" Grid.Row="0" Fill="#000000" Opacity="0.2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
@@ -435,16 +435,6 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -576,7 +566,7 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="1">
+            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="0">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
@@ -586,7 +576,6 @@
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Rectangle.Fill>
-            <!--Margin="0,0,45,0" Fill="#284161" Stroke="#213848" StrokeThickness="1"-->
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -616,7 +605,7 @@
               IsVisible ="False"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="2.5"
-              Margin="0,80,0,-5">
+              Margin="2.5">
           </Border>
         </ControlTemplate>
       </Setter.Value>
@@ -735,7 +724,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -802,12 +791,9 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-
             <!-- Embedded symbol  -->
             <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
           </Grid>
-
-
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
@@ -839,8 +825,47 @@
       </Setter.Value>
     </Setter>
   </Style>
+  
+  <Style x:Key="BaseWindowButtonStyle_FocusFrame" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" Margin="8" Opacity="0.6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <!-- Embedded symbol  -->
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-  <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
+  <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle_FocusFrame}"/>
 
   <!-- Dark version of player buttons -->
   <Style x:Key="PlayDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
@@ -902,10 +927,12 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
-            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=!IsMuted}"/>
+            <Control x:Name="AudioMute" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -916,15 +943,6 @@
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-            <!--<Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>-->
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
@@ -955,7 +973,8 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--<Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>-->
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -967,15 +986,6 @@
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-            <!--<Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>-->
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
@@ -990,12 +1000,101 @@
     </Setter>
   </Style>
 
+  <!-- audio mute dark control style -->
+  <Style x:Key="AudioActiveDarkButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control x:Name="Audio" Template="{ThemeResource AudioActiveDarkControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=!IsMuted}"/>
+            <Control x:Name="AudioMute" Template="{ThemeResource AudioInactiveDarkControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AudioInactiveDarkButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control x:Name="Audio" Template="{ThemeResource AudioInactiveDarkControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <Style x:Key="TabButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Path x:Name="ButtonControlRectangle" Height="45" Stretch="UniformToFill" StrokeLineJoin="Round" Fill="Black" Opacity="0.4"
-                Data="F1 M 672,256L 672,221C 672,204.984 659.016,192 643,192L 317,192C 300.984,192 288,204.984 288,221L 288,256"/>
+          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.50">
+            <Border.Background>
+              <SolidColorBrush Color="#666666"/>
+            </Border.Background>
+          </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1033,7 +1132,7 @@
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/>
+              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.9"/>
               <!--Setter Property="Foreground" Value="White"/-->
               <Trigger.EnterActions>
                 <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"/-->
@@ -1057,10 +1156,80 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MenuButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
+  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle_FocusFrame}">
     <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource MenuControlTemplate}" />
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
     </Style.Resources>
+  </Style>
+
+  <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0" Opacity="0.6" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="72"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="72"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <Control Grid.Row="0" Grid.Column="0" Style="{ThemeResource PowerControlTemplate}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <Style x:Key="MenuButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0" Opacity="0.6" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="72"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="72"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-1" Opacity="1"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <Control Grid.Row="0" Grid.Column="0" Style="{ThemeResource MenuControlTemplate}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedOSDButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
@@ -1077,9 +1246,8 @@
               </Grid.RenderTransform>
               <Control Grid.Column="0" Grid.Row="0" Width="{ThemeResource CheckBoxControlWidth}" Height="{ThemeResource CheckBoxControlHeight}"
                        Style="{ThemeResource DialogButtonControlStyle}"/>
-              <Ellipse Grid.Column="0" Grid.Row="0" Height="26" Width="26" Fill="White" Opacity="0.1" />
-              <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
-                    Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
+              <Ellipse Grid.Column="0" Grid.Row="0" Height="26" Width="26" Fill="#000000" Opacity="0.4" />
+              <Ellipse x:Name="Check" Grid.Column="0" Grid.Row="0" Width="15" Height="15" Visibility="Hidden" Fill="White"/>
             </Grid>
             <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </DockPanel>
@@ -1096,14 +1264,52 @@
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-            <Trigger Property="IsPressed" Value="True">
+            <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                                 HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Radio buttons ******************************** -->
+
+  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Margin="0,2,0,2" LastChildFill="True">
+            <Grid x:Name="GrowControl" DockPanel.Dock="Left" Margin="2,0,5,0" RenderTransformOrigin="0.5,0.5"
+                  VerticalAlignment="Center" HorizontalAlignment="Center">
+              <Grid.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </TransformGroup>
+              </Grid.RenderTransform>
+              <Control Grid.Column="0" Grid.Row="0" Width="{ThemeResource CheckBoxControlWidth}" Height="{ThemeResource CheckBoxControlHeight}"
+                       Style="{ThemeResource DialogButtonControlStyle}"/>
+              <Ellipse Grid.Column="0" Grid.Row="0" Height="26" Width="26" Fill="#000000" Opacity="0.4" />
+              <Ellipse x:Name="Check" Grid.Column="0" Grid.Row="0" Width="15" Height="15" Visibility="Hidden" Fill="White"/>
+            </Grid>
+            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">

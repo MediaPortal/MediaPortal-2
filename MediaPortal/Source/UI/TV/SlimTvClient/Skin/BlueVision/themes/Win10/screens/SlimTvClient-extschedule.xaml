@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_homemenu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-60,40,-55,-160" 
+              DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="220"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="-55,0,-60,3" BorderThickness="0">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <LinearGradientBrush.GradientStops>
+                <GradientStop Color="#00000000" Offset="0"  />
+                <GradientStop Color="#CC000000" Offset="1"  />
+              </LinearGradientBrush.GradientStops>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Background="#F2666666"> </Border>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  >
+          <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10,10,0,10"
+                  Content="[SlimTvClient.DontRecordProgram]" FontSize="{ThemeResource SmallFontSize}"
+                  Command="{Command CancelSchedule}">
+            <Button.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Button.IsVisible>
+          </Button>
+
+          <Button Style="{ThemeResource ButtonWideStyle}" Margin="10,10,0,10"
+                  Content="[SlimTvClient.RecordProgram]" FontSize="{ThemeResource SmallFontSize}"
+                  Command="{Command RecordSingleProgram}">
+            <Button.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Button.IsVisible>
+          </Button>
+
+          <Button Style="{ThemeResource ButtonWideStyle}" Margin="5,10,10,10"
+                  Content="[SlimTvClient.RecordSeries]" FontSize="{ThemeResource SmallFontSize}"
+                  Command="{Command RecordSeries}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
+        </StackPanel>
+
+        <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+              Margin="0,0,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ExtScheduleListViewStyle}"
+              ItemsSource="{Binding Path=ProgramsList}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="-10,10,0,-10">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfo.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </Border>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

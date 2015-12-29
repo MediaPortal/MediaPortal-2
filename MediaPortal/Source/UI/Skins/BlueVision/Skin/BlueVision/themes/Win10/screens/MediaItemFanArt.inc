@@ -21,7 +21,7 @@
   <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="380" Height="555"
          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;555}">
   </Image>
-
+ 
 </Grid>
 
 

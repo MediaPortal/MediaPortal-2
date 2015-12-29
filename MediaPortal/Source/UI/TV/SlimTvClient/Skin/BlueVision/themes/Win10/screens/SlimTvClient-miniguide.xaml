@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    Source="screens\master_dialog_bare_transparent.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+    <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+
+    <!-- Header -->
+    <!--<ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"/>-->
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="900"
+        DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="-5,130,-20,0">
+        <Grid.Triggers>
+          <EventTrigger RoutedEvent="Screen.Show">
+            <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
+          </EventTrigger>
+        </Grid.Triggers>
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="300"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="220"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="-75,-25,-75,-75" >
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <LinearGradientBrush.GradientStops>
+                <GradientStop Color="#00000000" Offset="0.1"  />
+                <GradientStop Color="#CC000000" Offset="0.7"  />
+                <GradientStop Color="#CC000000" Offset="1"  />
+              </LinearGradientBrush.GradientStops>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <Rectangle Grid.Column="0" Grid.Row="0" Fill="#F2666666" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-10,0,10,0" />
+
+        <StackPanel Margin="0,9,20,8" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+          <StackPanel x:Name="Groups" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,20,0">
+            <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
+                Command="{Command PrevGroup}"/>
+            <Button x:Name="CurrentGroupNameButton" Style="{StaticResource SmallButtonStyle}" Content="{Binding CurrentGroupName}"
+                Command="{Command SelectGroup}"/>
+            <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
+                Command="{Command NextGroup}"/>
+          </StackPanel>
+
+          <StackPanel x:Name="PiPControl" IsVisible="{Binding PiPAvailable}" Margin="20,0,20,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+            <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}"
+                Content="PiP enabled:" Command="{Command TogglePiP}" />
+            <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" Content="{Binding PiPEnabled}" VerticalAlignment="Center"
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </StackPanel>   
+        </StackPanel>
+        <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="0"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+               FontSize="{ThemeResource SmallFontSize}" Margin="0,0,60,0" FontFamily="DefaultBold"
+               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+
+        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="20,0,20,0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+            ItemsSource="{Binding Path=CurrentGroupChannels}"
+            SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <CommandBridge Command="{Binding Path=Command,Mode=OneTime}"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
+
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Description_details"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-13,30,10,-10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="320"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+              <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
+                     Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+              <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="ProgramEnd" Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                  Color="{ThemeResource TextColor}"/>
+            </StackPanel>
+            <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"
+                   HorizontalAlignment="Right"/>
+            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}"
+                   Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,0,0">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                          fanart:FanArtName="{Binding SelectedChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+              </Image.Source>
+            </Image>
+          </StackPanel>
+
+          <Label x:Name="Program" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold"
+                    Content="{Binding Path=SelectedCurrentProgram.Title}" Margin="0,0,0,0" 
+                    Color="{ThemeResource TextColor}"/>
+
+          <Label Grid.Row="1" Grid.Column="0" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto"
+                 Content="{Binding Path=SelectedCurrentProgram.Description}"
+                 Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
+
+        </Grid>
+        
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
+        <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

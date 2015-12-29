@@ -54,17 +54,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="Menu_Button_Placeholder">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="48,-6,2,-32"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
               Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="1"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
       </Button>
     </ControlTemplate>
 

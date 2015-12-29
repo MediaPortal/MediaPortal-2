@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[News.Title]"/>
+
+    <!-- News model -->
+    <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="-80,0,-70,50">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Background="#80000000" BorderThickness="0" Margin="-60,-28,-70,-8" />
+        
+          <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,10,10"/>
+          <Label Grid.Column="0" Grid.Row="1" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="True" Margin="0,0,10,0"/>
+          <Label Grid.Column="1" Grid.Row="0" Color="{ThemeResource TextColor}" HorizontalAlignment="Right"
+                 Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
+          <Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Width="350"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,0,0">
+            <Image.OpacityMask >
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                          BorderThickness="0" BorderBrush="Black" />
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask> 
+          </Image>  
+        
+        <!--ScrollViewer CanContentScroll="False" Margin="10" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+          <ScrollViewer.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+          </ScrollViewer.Resources>
+        </ScrollViewer-->
+      
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -11,6 +11,8 @@
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
+  
 
   <!-- Button background and effects-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#00003366"/>
@@ -21,13 +23,18 @@
   <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF0F3369"/>
   <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF050F20"/>
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#213848"/>
-  <ResourceWrapper x:Key="ButtonFillColor" Resource="#284161"/>
-  <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF959595"/>
-  <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FFB0B0B0"/>
-  <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FFA0A0A0"/>
-  <ResourceWrapper x:Key="PressedButtonGradientDark1Color" Resource="#FF808080"/>
-  <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF404040"/>
+  <ResourceWrapper x:Key="ButtonFillColor" Resource="#003366"/>
+  <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF003366"/>
+  <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FF003366"/>
+  <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FF003366"/>
+  <ResourceWrapper x:Key="PressedButtonGradientDark1Color" Resource="#FF003366"/>
+  <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF003366"/>
   <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#FFFFFF"/>
+
+  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#000000"/>
+  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="#FFFFFF"/>
+  <ResourceWrapper x:Key="TextBoxDisabledBackgroundColor" Resource="#CCCCCC"/>
 
   <!-- Colors and gradients used for buttons shine and OSD progress / control area -->
   <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFA0C0FF" />
@@ -39,7 +46,7 @@
 
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="#FF262626"/>
-  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#FFD0CEA8"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#FF999999"/>
   <ResourceWrapper x:Key="PlaybackControlsBackgroundColor" Resource="#FF1E1E1E"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#FFDCD9D9"/>
   <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#FF1B7EE6"/>
@@ -47,7 +54,7 @@
 
   <!-- Text colors -->
   <ResourceWrapper x:Key="WatchedTextColor" Resource="#00A7FF"/>
-
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#000000"/>
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="#D1FFED"/>
 
   <!-- Semi transparent black used to darken the background when showing a dialog -->
@@ -60,6 +67,7 @@
   </ResourceWrapper>
 
   <!-- Scrollbar colors -->
+  <!--ResourceWrapper x:Key="ScrollBarBackgroundColor_OSD" Resource="#FFCCCCCC" /-->
   <ResourceWrapper x:Key="ScrollBarBackgroundColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
       <GradientStop Color="#00404040" Offset="0"/>
@@ -69,6 +77,7 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
+  <!--ResourceWrapper x:Key="ScrollBarBackgroundXColor" Resource="#FFCCCCCC" /-->
   <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
@@ -78,16 +87,17 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#A5A5A5" />
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4780A0" />
+  <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#666666" />
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF0066CC" />
+  <ResourceWrapper x:Key="OSDProgressBarFillColor" Resource="#FF0066CC" />
 
-  <ResourceWrapper x:Key="OSDProgressBarFillColor">
+  <!--ResourceWrapper x:Key="OSDProgressBarFillColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
       <GradientStop Color="#FF4780A0" Offset="0.60"/>
       <GradientStop Color="#FF4780A0" Offset="1"/>
     </LinearGradientBrush>
-  </ResourceWrapper>
+  </ResourceWrapper-->
 
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
 

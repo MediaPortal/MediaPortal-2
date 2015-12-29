@@ -7,47 +7,111 @@
     >
 
   <!-- *************************** Play control graphics ****************************** -->
+
   <ControlTemplate x:Key="AudioActiveControlTemplate">
-    <Image Source="PlayerControls.Large\Audio.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\Audio.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="AudioInactiveControlTemplate">
-    <Image Source="PlayerControls.Large\AudioMute.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\AudioMute.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="MuteOnOffControlTemplate">
-    <Canvas>
-      <Path Data="F1M1137.8418,600.5068L1130.2018,606.9598L1054.1758,516.9818L1061.8148,510.5278z" Fill="#A0FF0000" Stretch="Fill"
-            Height="{ThemeResource PlayerControlHeight}" Width="{ThemeResource PlayerControlHeight}"/>
+    <Canvas VerticalAlignment="Center" HorizontalAlignment="Center">
+      <Path Data="F1M1137.8418,600.5068L1130.2018,606.9598L1054.1758,516.9818L1061.8148,510.5278z" Fill="#A0FFFFFF" Stretch="Fill" 
+            Height="50" Width="50" StrokeThickness="2"/>
     </Canvas>
   </ControlTemplate>
-
+  
   <ControlTemplate x:Key="PlayControlTemplate">
-    <Image Source="PlayerControls.Large\PlayButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\PlayButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="PauseControlTemplate">
-    <Image Source="PlayerControls.Large\PauseButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\PauseButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="StopControlTemplate">
-    <Image Source="PlayerControls.Large\StopButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\StopButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="ForwardControlTemplate">
-    <Image Source="PlayerControls.Large\ForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\ForwardButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="RewindControlTemplate">
-    <Image Source="PlayerControls.Large\RewindButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\RewindButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
-
+  
   <ControlTemplate x:Key="SkipForwardControlTemplate">
-    <Image Source="PlayerControls.Large\SkipForwardButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\SkipForwardButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="SkipBackControlTemplate">
-    <Image Source="PlayerControls.Large\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\SkipBackButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
   </ControlTemplate>
 
   <!-- Dark version -->
@@ -91,27 +155,35 @@
     <Image Source="PlayerControls.Large.Dark\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
-  <ControlTemplate x:Key="PowerControlTemplate">
-    <Grid Width="72" Height="72" Margin="0,-20,0,20" VerticalAlignment="Center">
-      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
-        <Border.Background>
-          <SolidColorBrush Color="#FF6600"/>
-        </Border.Background>
-        <Image Source="ShutdownIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="40" Height="40" Opacity="1" Margin="0"/>
-      </Border>
-    </Grid>
-  </ControlTemplate>
+  <Style x:Key="PowerControlTemplate" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>   
+          <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+            <Border.Background>
+              <SolidColorBrush Color="#FF6600"/>
+            </Border.Background>
+            <Image Source="ShutdownIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Width="40" Height="40" Opacity="1" Margin="0"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-  <ControlTemplate x:Key="MenuControlTemplate">
-    <Grid Width="72" Height="72" Margin="0,-20,0,20" VerticalAlignment="Center">
-      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center">
-        <Border.Background>
-          <SolidColorBrush Color="#FF6600"/>
-        </Border.Background>
-        <Image Source="MP2_logo_bw.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1"  Width="50" Height="50"  />
-      </Border>
-    </Grid>
-  </ControlTemplate>
+  <Style x:Key="MenuControlTemplate" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Width="72" Height="72" Margin="0" VerticalAlignment="Center">
+            <Border.Background>
+              <SolidColorBrush Color="#FF6600"/>
+            </Border.Background>
+            <Image Source="MP2_logo_bw.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" Opacity="1"  Width="50" Height="50"  />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <ControlTemplate x:Key="WindowCloseControlTemplate">
     <Grid>
@@ -153,16 +225,15 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="NavigateBackControlTemplate">
-    <Grid>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="25"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="25"/>
-      </Grid.RowDefinitions>
-      <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
-          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,5"
-          Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
+    <Grid Width="72" Height="72" Margin="0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center">
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Width="30" Height="30" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"
+              Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
+      </Border>
     </Grid>
   </ControlTemplate>
 

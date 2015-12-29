@@ -58,4 +58,8 @@
   <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="14"/>
   <ResourceWrapper x:Key="ScrollBarKnobHeight" Resource="14"/>
 
+  <!-- Footer Details -->
+  <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="0"/>
+
 </ResourceDictionary>

@@ -22,7 +22,7 @@
     </ControlTemplate-->
 
     <ControlTemplate x:Key="Menu_Button_Dummy">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="48,-6,2,-32"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="False">
       </Button>
@@ -34,10 +34,21 @@
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
 
+        <Border DockPanel.Dock="Center" Height="500" Margin="-120,-3,-120,-59" BorderThickness="0">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <LinearGradientBrush.GradientStops>
+                <GradientStop Color="#00000000" Offset="0"  />
+                <GradientStop Color="#CC000000" Offset="1"  />
+              </LinearGradientBrush.GradientStops>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        
         <!--Begin Home Screen-->
         <Grid DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
               xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
-                  Margin="-65,0,-65,80">
+                  Margin="-65,25,-65,55">
           <Grid.Resources>
             <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
             <Model x:Key="LatestMediaModel" Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870"/>
@@ -56,8 +67,19 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
+          <!--Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="6" Margin="-51,-33,-51,7" >
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <LinearGradientBrush.GradientStops>
+                  <GradientStop Color="#00000000" Offset="0"  />
+                  <GradientStop Color="#CC000000" Offset="1"  />
+                </LinearGradientBrush.GradientStops>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border-->
+
           <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" DataContext="{Binding Source={StaticResource LatestMediaModel}}" 
-                Background="#F6666666" Margin="8,0,8,0">
+                Background="#F2666666" Margin="5,0,5,25">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -78,7 +100,7 @@
           </Grid>
 
           <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" DataContext="{Binding Source={StaticResource LatestMediaModel}}" 
-                Background="#F6666666" Margin="8,0,8,0">
+                Background="#E6666666" Margin="5,0,5,25">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -99,7 +121,7 @@
           </Grid>
 
           <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" DataContext="{Binding Source={StaticResource LatestMediaModel}}" 
-                Background="#F6666666" Margin="8,0,8,0">
+                Background="#E6666666" Margin="5,0,5,25">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -120,7 +142,7 @@
           </Grid>
 
           <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" DataContext="{Binding Source={StaticResource LatestMediaModel}}" 
-                Background="#F6666666" Margin="8,0,8,0">
+                Background="#E6666666" Margin="5,0,5,25">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -141,7 +163,7 @@
           </Grid>
 
           <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" DataContext="{Binding Source={StaticResource LatestMediaModel}}"
-                Background="#F6666666" Margin="8,0,8,0">
+                Background="#E6666666" Margin="5,0,5,25">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>
@@ -161,7 +183,7 @@
             </ListView>
           </Grid>
 
-          <Grid Grid.Row="0" Grid.Column="5" Background="#F6666666" Margin="8,0,8,0">
+          <Grid Grid.Row="0" Grid.Column="5" Background="#E6666666" Margin="5,0,5,10">
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="180"/>
@@ -199,7 +221,7 @@
             </StackPanel>
           </Grid>
 
-          <Grid Grid.Row="2" Grid.Column="5" Background="#F6666666" Margin="8,0,8,0" >
+          <Grid Grid.Row="2" Grid.Column="5" Background="#E6666666" Margin="5,0,5,25" >
             <Grid.RowDefinitions>
               <RowDefinition Height="40"/>
               <RowDefinition Height="*"/>

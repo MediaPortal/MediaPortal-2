@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="AspNetServerSample"
+    PluginId="{99AF6228-8709-4298-BF94-CE6F389A1DBF}"
+    Author="MJGraf"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Sample WebApplication for the AspNetServer plugin">
+
+  <Version
+    PluginVersion="0.01"
+    ReleaseDate="2015-12-27 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <PluginReference PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}" CompatibleAPI="1"/> <!-- AspNetServer -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="AspNetServerSample.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="AspNetServerSampleService" RegistrationClassName="MediaPortal.Plugins.AspNetServerSample.AspNetServerSampleService"
+        ServiceClassName="MediaPortal.Plugins.AspNetServerSample.AspNetServerSampleService"/>
+  </Register>
+</Plugin>

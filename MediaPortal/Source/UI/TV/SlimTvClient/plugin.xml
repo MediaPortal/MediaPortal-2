@@ -141,6 +141,11 @@
         HelpText="[SlimTvClient.AutoStartTv.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.AutoStartTvSetting"/>
     <ConfigSetting
+        Id="ShowSeriesInfoSetting"
+        Text="[SlimTvClient.ShowSeriesInfo]"
+        HelpText="[SlimTvClient.ShowSeriesInfo.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowSeriesInfoSetting"/>
+    <ConfigSetting
         Id="EpgNumberOfRows"
         Text="[SlimTvClient.EpgNumberOfRows]"
         HelpText="[SlimTvClient.EpgNumberOfRows.Help]"

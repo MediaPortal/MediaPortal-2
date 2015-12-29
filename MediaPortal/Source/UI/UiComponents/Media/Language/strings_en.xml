@@ -2,12 +2,18 @@
 <resources>
   <!-- Menu items for the five Media navigation parts -->
   <string name="Media.BrowseMediaMenuItem">Browse media</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Browse the media library for all kind of media by media sources structure. Here you have also access to removable drives.</string>
   <string name="Media.LocalMediaMenuItem">Local media</string>
   <string name="Media.AudioMenuItem">Audio</string>
+  <string name="Media.AudioMenuItem.Help">Play your music or audiobooks from audio library and see additional media information. You can also create playlists for your favourite songs.</string>
   <string name="Media.VideosMenuItem">Videos</string>
+  <string name="Media.VideosMenuItem.Help">Browse the media library for videos. In this view you can see all videos incl. movies, episodes and non-categorized. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.SeriesMenuItem">Series</string>
+  <string name="Media.SeriesMenuItem.Help">Browse the media library for series. Get additional information also for seasons and episodes as ratings, genre, actors, poster, fanart and much more. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.MoviesMenuItem">Movies</string>
+  <string name="Media.MoviesMenuItem.Help">Browse the media library for movies. Get additional information as ratings, genre, actors, poster, fanart and much more. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.ImagesMenuItem">Images</string>
+  <string name="Media.ImagesMenuItem.Help">Browse the media library for images. Get additional information as locations, year and image details. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.LatestMediaMenuItem">Latest media</string>
 
   <!-- Filter titles -->

@@ -280,10 +280,19 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="StartTime" Grid.Column="0" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Grid.RowSpan="2"
+                         Stretch="Uniform">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="StartTime" Grid.Column="1" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Grid.Column="2" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <Label x:Name="SeriesLabel" Grid.Column="3" Content="{Binding [Series]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
       <Label x:Name="SeriesLabel" Grid.Column="2" Content="{Binding [Series]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
     </Grid>
   </DataTemplate>

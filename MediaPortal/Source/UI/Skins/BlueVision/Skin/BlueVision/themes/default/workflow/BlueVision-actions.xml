@@ -9,7 +9,8 @@
       SortOrder="b"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
-      DisplayTitle="Multi TV Guide"/>
+      DisplayTitle="[SlimTvClient.TvGuide]"
+      HelpText="[SlimTvClient.TvGuide.Help]"/>
 
     <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
       Name="SlimTvClient->Schedules"
@@ -17,7 +18,8 @@
       SortOrder="c"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
-      DisplayTitle="Schedules"/>
+      DisplayTitle="[SlimTvClient.Schedules]"
+      HelpText="[SlimTvClient.Schedules.Help]"/>
 
     <PushNavigationTransition Id="D91738E9-3F85-443B-ABBD-EF01731734AD"
       Name="SlimTvClient->ProgramSearch"
@@ -32,8 +34,8 @@
       DisplayCategory="A-2Recordings"
       SortOrder="d"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
-      ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"/>
-    <!-- Recordings action -->
+      ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"
+      HelpText="[SlimTvClient.Recordings.Help]"/>  <!-- Recordings action -->
 
   </MenuActions>
 </Workflow>

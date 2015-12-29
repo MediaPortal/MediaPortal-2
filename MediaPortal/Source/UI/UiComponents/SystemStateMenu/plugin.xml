@@ -37,13 +37,13 @@
     <DialogState Id="BBFA7DB7-5055-48D5-A904-0F0C79849369"
                  Name="dialogSystemState"
                  DialogScreen="dialogSystemState"
-                 DisplayLabel="[ShutdownManager.ShutdownDialogStateDisplayLabel]"
+                 DisplayLabel="[SystemState.ShutdownDialogStateDisplayLabel]"
                  WorkflowModel="25F16911-ED0D-4439-9858-5E69C970C037"/>
     <!-- SystemStateConfiguration Dialog -->
     <DialogState Id="F499DC76-2BCE-4126-AF4E-7FEB9DB88E80"
                  Name="dialogSystemStateConfiguration"
                  DialogScreen="dialogSystemStateConfiguration"
-                 DisplayLabel="[ShutdownManager.ShutdownConfigurationDialogStateDisplayLabel]"
+                 DisplayLabel="[SystemState.ShutdownConfigurationDialogStateDisplayLabel]"
                  WorkflowModel="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"/>
   </Register>
 

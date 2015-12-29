@@ -42,8 +42,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     {
       ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for WTV media item '{1}'", PlayerTitle, SourcePathOrUrl);
 
-      var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
-      _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
+      AddSubtitleFilter();
 
       // try to render the url and let DirectShow choose the source filter
       int hr = _graphBuilder.RenderFile(SourcePathOrUrl, null);

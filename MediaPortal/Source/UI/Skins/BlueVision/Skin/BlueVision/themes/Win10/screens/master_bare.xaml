@@ -49,7 +49,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OnScreenShow}"/>
       <EventTrigger.Actions>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
@@ -91,13 +90,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!--Win10-->
     <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderThickness="0">
       <Border.Background>
-        <SolidColorBrush Color="#000000" Opacity="0.85"/>
+        <SolidColorBrush Color="#000000" Opacity="0.80"/>
       </Border.Background>
     </Border>
 
-    <Border Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Margin="0,-60,0,0" BorderThickness="0">
+    <Border Grid.Row="4" Grid.Column="0" Margin="0,-60,0,0" BorderThickness="0">
       <Border.Background>
-        <SolidColorBrush Color="#000000" Opacity="0.85"/>
+        <SolidColorBrush Color="#000000" Opacity="0.80"/>
       </Border.Background>
     </Border>
     <!--Win10-->
@@ -185,17 +184,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </Border>
 
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="0,-20,50,-20"
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="9,-20,60,20"
           HorizontalAlignment="Center" VerticalAlignment="Center"
           IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="1"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
       </Button>    
       
       <!--Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" /-->
@@ -221,42 +213,28 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Control>
 
       <!-- PlayerControlsPanel Focusable="True"-->
-      <Grid x:Name="FooterPanel" Grid.Row="3" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"
-                  IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+      <Grid x:Name="FooterPanel" Grid.Row="0" Grid.Column="0" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"
+                  IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" HorizontalAlignment="Center">       
+        <Grid x:Name="PlayerControlPanel" DockPanel.Dock="Bottom" Margin="0,-30,0,30" HorizontalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1*"/>
+          </Grid.ColumnDefinitions>
 
-        <Grid.RenderTransform>
-          <!--<TranslateTransform Y="200" />-->
-        </Grid.RenderTransform>
-        <Grid.Triggers>
-          <!--<Trigger Property="IsMouseOver" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>-->
-          <!--<Trigger Property="IsKeyboardFocusWithin" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="SlideIn_BeginStoryboard2" Storyboard="{ThemeResource SlideInStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard2"/>
-            </Trigger.ExitActions>
-          </Trigger>-->
-        </Grid.Triggers>
-
-        <DockPanel x:Name="PlayerControlPanel" DockPanel.Dock="Bottom" Grid.Row="1" LastChildFill="False">
-
-          <mp_special_controls:PlayerControl x:Name="PrimaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
-                HorizontalAlignment="Left" VerticalAlignment="Top" Height="205"
+          <mp_special_controls:PlayerControl x:Name="PrimaryPlayerControl" Margin="5" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" 
+                HorizontalAlignment="Left" VerticalAlignment="Top" Height="205" Grid.Column="1" Grid.Row="0"
                 AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
 
-          <mp_special_controls:PlayerControl x:Name="SecondaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyleSecondary}" Width="710" DockPanel.Dock="Right"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
+          <mp_special_controls:PlayerControl x:Name="SecondaryPlayerControl" Margin="5" Style="{ThemeResource NavigationScreenPlayerControlStyleSecondary}" Width="710"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Height="205" Grid.Column="3" Grid.Row="0"
                 AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
-
-        </DockPanel>
+        </Grid>
       </Grid>
 
     </Grid>

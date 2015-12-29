@@ -353,7 +353,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected void CheckTopMost(bool force = false)
     {
 #if DEBUG
-      TopMost = false;
+      TopMost = _forceOnTop;
 #else
       TopMost = _forceOnTop || IsFullScreen && (force || this == ActiveForm);
       if (force)

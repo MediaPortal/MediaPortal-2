@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Configuration.Name">Settings</string>
+  <string name="Configuration.Name.Help">Configure media sources and change the look and feel of MediaPortal.</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Settings</string>
   <string name="Configuration.MainSettings">Main settings</string> <!-- 2nd Header for root configuration section -->
   <string name="Configuration.NoSettingsInThisSection">There are no settings in this section</string>

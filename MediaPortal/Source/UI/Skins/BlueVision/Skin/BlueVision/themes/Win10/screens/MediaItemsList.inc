@@ -30,13 +30,13 @@
       </Border.IsVisible>
     </Border-->
 
-    <Border Grid.Row="0" Margin="-85,-33,-710,7" >
+    <Border Grid.Row="0" Margin="-92,-32,-710,8" BorderThickness="0">
       <Border.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
           <LinearGradientBrush.GradientStops>
             <GradientStop Color="#00000000" Offset="3"  />
-            <GradientStop Color="#D9000000" Offset="0.5"  />
-            <GradientStop Color="#D9000000" Offset="0"  />
+            <GradientStop Color="#CC000000" Offset="0.55"  />
+            <GradientStop Color="#CC000000" Offset="0"  />
           </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
       </Border.Background>
@@ -45,12 +45,12 @@
       </Border.IsVisible>
     </Border>
 
-    <Border Grid.Row="0" Margin="-85,-33,-155,7" >
+    <Border Grid.Row="0" Margin="-90,-33,-155,7" >
       <Border.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
           <LinearGradientBrush.GradientStops>
             <GradientStop Color="#00000000" Offset="0"  />
-            <GradientStop Color="#D9000000" Offset="1"  />
+            <GradientStop Color="#CC000000" Offset="1"  />
           </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
       </Border.Background>
@@ -60,7 +60,7 @@
     </Border>
 
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="-40,0,-110,0">
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="-35,0,-110,20">
       <ListView.Resources>
         <!--<ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
           <TranslateTransform X="40" />

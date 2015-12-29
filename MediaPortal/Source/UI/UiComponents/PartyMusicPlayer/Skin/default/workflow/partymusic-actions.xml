@@ -7,6 +7,7 @@
         SortOrder="a"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="53278FDC-C3B1-4AE5-B767-9C6864D0E84C"
-        DisplayTitle="[PartyMusicPlayer.MenuItem]"/>
+        DisplayTitle="[PartyMusicPlayer.MenuItem]"
+        HelpText="[PartyMusicPlayer.MenuItem.Help]"/>
   </MenuActions>
 </Workflow>
