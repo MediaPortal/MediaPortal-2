@@ -1634,7 +1634,9 @@
         </Image>
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="8,0,4,0" />
-      <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="4,0,4,0"/>
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Center"
+       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,5,0"/>
+      <!--Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="4,0,4,0"/-->
     </Grid>
   </ControlTemplate>
 

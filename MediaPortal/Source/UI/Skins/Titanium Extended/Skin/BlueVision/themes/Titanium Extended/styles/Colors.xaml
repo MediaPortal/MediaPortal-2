@@ -69,7 +69,7 @@
 
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
 
-  <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
+  <ResourceWrapper x:Key="ErrorTextColor" Resource="Red"/>
 
   <ResourceWrapper x:Key="ProgressBarTextColor" Resource="Black"/>
 
@@ -245,7 +245,7 @@
   <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
 
   <!-- Dark yellow -->
-  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#A01E1E00"/>
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
 
   <!-- Dark gray, almost transparent -->
   <ResourceWrapper x:Key="ItemsControlDialogShadowBackgroundColor" Resource="#20111111"/>
@@ -257,7 +257,7 @@
   <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Black"/>
 
   <!-- Yellow -->
-  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="{StaticResource FooterShapeFillColor}"/>
 
   <ResourceWrapper x:Key="VirtualKeyboardBackgroundColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="VirtualKeyboardBorderColor" Resource="DarkGray"/>

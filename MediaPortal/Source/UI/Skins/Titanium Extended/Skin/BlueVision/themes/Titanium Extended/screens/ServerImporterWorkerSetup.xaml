@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    <Model x:Key="ServerImporterWorkerSetupModel" Id="B3109220-78E4-4ED1-90E1-D3180E02B401"/>
+
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.ServerSettings.ImporterWorker]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource ServerImporterWorkerSetupModel}}" MinHeight="300">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="5">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Grid.Row="0" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.EnableAutoRefresh]" Color="{StaticResource DialogHeaderColor}" Margin="5"/>
+
+          <CheckBox Grid.Row="0" Grid.Column="1" x:Name="EnableAutoRefresh" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=EnableAutoRefresh,Mode=TwoWay}"
+              Content="{Binding}" />
+
+          <Label Grid.Row="1" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.RunAtHour]" Color="{StaticResource DialogHeaderColor}" Margin="5"
+                 IsVisible="{Binding Path=EnableAutoRefresh}" />
+
+          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=RunAtHour,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" 
+                 IsVisible="{Binding Path=EnableAutoRefresh}" />
+
+        </Grid>
+        
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource ServerImporterWorkerSetupModel}" Path="SaveSettings"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

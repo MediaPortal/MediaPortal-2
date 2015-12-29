@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a standard configuration dialog. The client area has
+to be filled by the includer.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_configuration_dialog.xaml"
+      >
+    <Include.Resources>
+      <ControlTemplate x:Key="Config_Client_Template">
+        [Element which represents the contents area of the dialog.
+         Here, the configurable element should be displayed.]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Config_Client_Template (ControlTemplate): Template of the configurable element
+   to be displayed.
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Text,Mode=OneTime}"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="True">
+        <Label DockPanel.Dock="Top" Wrap="True" Color="{ThemeResource DialogHeaderColor}"
+            Content="{Binding Source={StaticResource Model},Path=CurrentConfigController.Help,Mode=OneTime}"/>
+        <Control Template="{DynamicResource ResourceKey=Config_Client_Template}" Margin="0,10,0,0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Fallback"/>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
