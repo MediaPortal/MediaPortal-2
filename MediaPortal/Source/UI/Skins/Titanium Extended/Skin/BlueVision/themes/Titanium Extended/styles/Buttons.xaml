@@ -315,7 +315,6 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle" Margin="0,0,0,0" IsVisible="False">
-  
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -327,7 +326,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" Opacity="0">
+          <Rectangle Name="ButtonControlRectangle" RadiusY="17" RadiusX="17" Opacity="0">
             <Rectangle.Fill>
               <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#FF1cade5" Offset="0"/>
@@ -1025,64 +1024,6 @@
     </Setter>
   </Style>
 
-  <Style x:Key="GlobalButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" 
-                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Margin="10,5,10,5"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
-    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-  </Style>
-
   <Style x:Key="DialogButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="MinWidth" Value="{ThemeResource DialogButtonMinWidth}"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -1140,6 +1081,65 @@
     </Setter>
   </Style>
 
+  <Style x:Key="GlobalButtonStyle" BasedOn="{ThemeResource DialogButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" 
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Margin="10,5,10,5"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource DialogButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+  </Style>
+
+  <Style BasedOn="{ThemeResource DialogButtonStyle}" TargetType="{x:Type Button}"/>
 
   <!-- ***************************** Radio buttons ******************************** -->
 
@@ -1403,21 +1403,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Control}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+          <Grid x:Name="GrowControl" >
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
-                Margin="9,7,9,7" Data="M0,0 L0,39 39,19.5 z"/>
+            <Image x:Name="nofocus" Source="page_up_nofocus.png" Stretch="Fill" Height="20" Width="20"/>
+            <Image x:Name="focus" Source="page_up_focus.png" Stretch="Fill" Height="20" Width="20" IsVisible="False"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -1428,106 +1422,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              RenderTransformOrigin="0.5,0.5">
-            <Control.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Control.RenderTransform>
-            <Control.LayoutTransform>
-              <RotateTransform Angle="180"/>
-            </Control.LayoutTransform>
-          </Control>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="ArrowButtonRightStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              RenderTransformOrigin="0.5,0.5">
-            <Control.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Control.RenderTransform>
-            <Control.LayoutTransform>
-              <RotateTransform Angle="0"/>
-            </Control.LayoutTransform>
-          </Control>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="ArrowButtonUpStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              RenderTransformOrigin="0.5,0.5">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}">
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -1539,31 +1434,8 @@
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
+              <Setter TargetName="focus" Property="IsVisible" Value="True"/>
+              <Setter TargetName="nofocus" Property="IsVisible" Value="False"/>    
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -1571,12 +1443,11 @@
     </Setter>
   </Style>
 
-  <Style x:Key="ArrowButtonDownStyle" TargetType="{x:Type Button}">
+  <Style x:Key="ArrowButtonRightStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              RenderTransformOrigin="0.5,0.5">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}">
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -1588,31 +1459,58 @@
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
+              <Setter TargetName="focus" Property="IsVisible" Value="True"/>
+              <Setter TargetName="nofocus" Property="IsVisible" Value="False"/>
             </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ArrowButtonUpStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}">
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Control.RenderTransform>
+            <Control.LayoutTransform>
+              <RotateTransform Angle="0"/>
+            </Control.LayoutTransform>
+          </Control>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="focus" Property="IsVisible" Value="True"/>
+              <Setter TargetName="nofocus" Property="IsVisible" Value="False"/>
             </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ArrowButtonDownStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}">
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Control.RenderTransform>
+            <Control.LayoutTransform>
+              <RotateTransform Angle="180"/>
+            </Control.LayoutTransform>
+          </Control>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="focus" Property="IsVisible" Value="True"/>
+              <Setter TargetName="nofocus" Property="IsVisible" Value="False"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

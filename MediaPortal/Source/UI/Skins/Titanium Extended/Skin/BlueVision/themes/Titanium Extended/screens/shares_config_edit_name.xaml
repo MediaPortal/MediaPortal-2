@@ -44,10 +44,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}"
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsShareNameValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseShareCategoriesStateId}}"/>
         </Grid>

@@ -36,10 +36,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource DialogButtonStyle}"
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=ShowDefaultScreen}"/>
-          <Button x:Name="OkButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="OkButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
               Content="[System.Ok]"
               Command="{Command Source={StaticResource Model},Path=NavigateBackToOverview}"/>
         </Grid>
