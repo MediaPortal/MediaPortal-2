@@ -56,8 +56,7 @@ Default background image - no media present
               <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0">
                 <Image.Source>
                   <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"
-                     FallbackSource="FallbackFanart.png" />
+                 Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
                 </Image.Source>
                 <Image.Triggers>
                   <Trigger Property="HasImage" Value="False">

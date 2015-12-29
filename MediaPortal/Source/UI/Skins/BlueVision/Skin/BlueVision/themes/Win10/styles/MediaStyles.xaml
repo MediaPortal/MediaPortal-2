@@ -390,7 +390,7 @@
   <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
       <Grid>
-        <Border CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
+        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"/>
         <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Fill" FallbackSource="VideoWide.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
           <Image.Source>
@@ -711,7 +711,7 @@
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid>
-        <Border CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
+        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"> </Border>
         <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}" >
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -770,31 +770,30 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0">
+    <Grid x:Name="ItemControl" Margin="0,0,40,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.4"/>
+            <Binding Source="0.7"/>
           </MultiBinding>
         </Label.Opacity>
       </Label>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
+      <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="1"  >
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="0"/>
-            <Binding Source="0.15"/>
+            <Binding Source="0.5"/>
           </MultiBinding>
         </Image.Opacity>
         <Image.Source>
@@ -831,7 +830,7 @@
         </Control.LayoutTransform>
       </Control>
 
-      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1"  Margin="0,0,0,0"
             HorizontalAlignment="Stretch" 
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Grid.ColumnDefinitions>
@@ -841,8 +840,9 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="67,0,-67,0"  >
+        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="0,0,0,0"  >
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="PlayCount"/>
@@ -852,7 +852,7 @@
           </Image.Source>
         </Image>
 
-        <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="0">
+        <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="1">
           <media:VideoAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -861,7 +861,6 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="0,0,0,0"/>
               </Grid>
@@ -869,10 +868,10 @@
           </media:VideoAspectWrapper.Template>
         </media:VideoAspectWrapper>
 
-        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
           <media:MovieAspectWrapper.Template>
             <ControlTemplate>
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"  Margin="30,0,-30,0">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"  Margin="0,0,0,0">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                Maximum="10"
                                Value="{Binding TotalRating}">
@@ -988,7 +987,7 @@
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.4"/>
+            <Binding Source="0.7"/>
           </MultiBinding>
         </Label.Opacity>
       </Label>
@@ -999,7 +998,7 @@
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="0"/>
-            <Binding Source="0.15"/>
+            <Binding Source="0.5"/>
           </MultiBinding>
         </Image.Opacity>
 
@@ -1048,6 +1047,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="60,0,-60,0"  >
@@ -1071,18 +1071,17 @@
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
-                <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="0,0,0,0"/>
-
+                <Label x:Name="Genre" Grid.Row="0" Grid.Column="0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="0,0,5,0"/>
               </Grid>
             </ControlTemplate>
           </media:VideoAspectWrapper.Template>
         </media:VideoAspectWrapper>
 
-        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
+        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left">
           <media:SeriesAspectWrapper.Template>
             <ControlTemplate>
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"  Margin="30,0,-30,0">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"  Margin="0,0,0,0">
 
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                Maximum="10"
@@ -1833,7 +1832,7 @@
         </BindingWrapper>
       </BindingSetter.BindingWrapper>
     </BindingSetter>
-    <Setter Property="Template">
+    <!--Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
@@ -1842,7 +1841,53 @@
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
-    </Setter>
+    </Setter-->
+    <BindingSetter Property="Template">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ControlTemplate TargetType="{x:Type ListView}">
+                    <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource LeftSideScrollViewerStyle}"
+                        HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
+                  </ControlTemplate>                    
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ControlTemplate TargetType="{x:Type ListView}"> 
+                    <ScrollViewer CanContentScroll="True" Margin="-5,0,572,20" Style="{ThemeResource GradientScrollViewerStyle}"
+                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
+                  </ControlTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Cover layout -->
+              <Binding>
+                <Binding.Source>
+                  <ControlTemplate TargetType="{x:Type ListView}">
+                    <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
+                        HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
+                  </ControlTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+
     <BindingSetter Property="ItemsPanel">
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
@@ -1861,7 +1906,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,80,10"/>
+                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0,0,0,10"/>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
