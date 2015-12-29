@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
-  <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="179"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="170"/>
   
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="177.5"/>
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="133"/>
@@ -16,7 +16,7 @@
   
   <ResourceWrapper x:Key="AUDIO_COVERFLOW" Resource="353"/>
 
-  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="411"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="428"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="85.7"/>
 
   <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="124"/>

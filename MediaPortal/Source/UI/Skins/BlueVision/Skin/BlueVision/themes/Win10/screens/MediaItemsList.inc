@@ -21,23 +21,39 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Rectangle Grid.Row="0" Fill="Black" Opacity="0.5" Margin="-37,13,41,-1">
+    <Border Grid.Row="0" Margin="-35,-80,455,-20" >
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#00444444" Offset="0.1"  />
+            <GradientStop Color="#CC444444" Offset="0.2"  />
+            <GradientStop Color="#CC444444" Offset="0.8"  />
+            <GradientStop Color="#00444444" Offset="1"  />
+          </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+      </Border.Background>
+      <Border.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Border.IsVisible>
+    </Border>
+
+    <!--Rectangle Grid.Row="0" Fill="Black" Opacity="0.5" Margin="-37,13,41,-1">
       <Rectangle.Effect>
         <ZoomBlurEffect BlurAmount="0.02" CenterX="0.25" CenterY="0.5" />
       </Rectangle.Effect>
       <Rectangle.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
       </Rectangle.IsVisible>
-    </Rectangle>
+    </Rectangle-->
 
-    <Border Grid.Row="0" Margin="-30,20,50,6" >
+    <!--Border Grid.Row="0" Margin="-30,20,50,6" >
       <Border.Background>
         <SolidColorBrush Color="{StaticResource GrayBackgroundWithBlurBehind}"/>
       </Border.Background>
       <Border.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
       </Border.IsVisible>
-    </Border>
+    </Border-->
 
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" >
