@@ -41,6 +41,7 @@ using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
@@ -64,6 +65,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
     protected AbstractProperty _isHomeScreenProperty;
+    protected readonly DelayedEvent _delayedMenueUpdateEvent;
     protected bool _noSettingsRefresh;
     protected bool _isPlayerActive;
     protected string _lastActiveGroup;
@@ -174,6 +176,18 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       IsHomeProperty.Attach(IsHomeChanged);
 
       SubscribeToMessages();
+
+      _delayedMenueUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
+      _delayedMenueUpdateEvent.OnEventHandler += ReCreateShortcutItems;
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      if (_delayedMenueUpdateEvent != null)
+        _delayedMenueUpdateEvent.Dispose();
+      if (_menuSettings != null)
+        _menuSettings.Dispose();
     }
 
     public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
@@ -255,7 +269,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     }
 
     // Look for "shortcut items" that will be placed next to the regular groups
-    private void ReCreateShortcutItems()
+    private void ReCreateShortcutItems(object sender, EventArgs args)
     {
       // Do not remove the "CP" button, because when the WF state is active, the menu item will not be part of available menu items.
       if (!IsCurrentPlaying())
@@ -662,7 +676,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void UpdateShortcuts()
     {
-      ReCreateShortcutItems();
+      _delayedMenueUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
     }
   }
 }
