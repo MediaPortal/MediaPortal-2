@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
@@ -35,6 +36,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
   /// </remarks>
   public class NfoMovieMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
   {
+    #region Consts
+
+    // A valid IMDB-ID starts with "tt" followed by exactly 7 digits
+    private const string REGEX_STRING_IMDBID = @"(tt\d{7})";
+
+    #endregion
+
     #region Ctor
 
     /// <summary>
@@ -43,6 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     public NfoMovieMetadataExtractorSettings()
     {
       MovieNfoFileNames = new HashSet<string> { "movie" };
+      ImdbIdRegex = new SerializableRegex(REGEX_STRING_IMDBID);
     }
 
     #endregion
@@ -54,6 +63,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global)]
     public HashSet<string> MovieNfoFileNames { get; set; }
+
+    /// <summary>
+    /// Regular expression used to find an IMDB-ID
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SerializableRegex ImdbIdRegex { get; set; }
 
     #endregion
   }

@@ -179,6 +179,7 @@
     <Compile Include="Libraries\MovieDbV3\Data\ProductionCountry.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Trailer.cs" />
     <Compile Include="Matches\MovieCollectionMatch.cs" />
+    <Compile Include="SerializableRegex.cs" />
     <Compile Include="TheMovieDB\NamePreprocessor.cs" />
     <Compile Include="Matches\BaseMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
@@ -256,4 +257,3 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-

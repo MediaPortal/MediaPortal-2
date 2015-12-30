@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_MOVIE_IMDB_ID = "50.IMDB";
     public const string TAG_SERIES_IMDB_ID = "70.IMDB";
 
-    public const string TAG_MOVIE_TVDB_ID = "50.TVDB";
+    public const string TAG_MOVIE_TMDB_ID = "50.TMDB";
     public const string TAG_SERIES_TVDB_ID = "70.TVDB";
 
     public static Dictionary<string, IList<string>> DefaultTags
@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             {TAG_EPISODE_NUMBER, null}, // Episode number
             {TAG_MOVIE_IMDB_ID, null}, // movie imdb id
             {TAG_SERIES_IMDB_ID, null}, // series imdb id
-            {TAG_MOVIE_TVDB_ID, null}, // movie tvdb id
+            {TAG_MOVIE_TMDB_ID, null}, // movie tmdb id
             {TAG_SERIES_TVDB_ID, null}, // series tvdb id
             {TAG_ACTORS, null}, // Actor(s)
             {TAG_DIRECTORS, null}, // Director(s)
