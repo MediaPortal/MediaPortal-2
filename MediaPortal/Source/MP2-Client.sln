@@ -508,7 +508,6 @@ Global
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Debug|x86.ActiveCfg = Debug|x86
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Debug|x86.Build.0 = Debug|x86
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Release|x86.ActiveCfg = Release|x86
-		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
