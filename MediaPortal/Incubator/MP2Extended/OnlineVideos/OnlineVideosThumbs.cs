@@ -1,5 +1,4 @@
-﻿extern alias OV;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -7,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
-using OV::OnlineVideos;
-using OV::OnlineVideos.Downloading;
-using OV::OnlineVideos.Sites;
+using OnlineVideos;
+using OnlineVideos.Downloading;
+using OnlineVideos.Sites;
 
 namespace MediaPortal.Plugins.MP2Extended.OnlineVideos
 {

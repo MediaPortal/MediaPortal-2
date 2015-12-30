@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using HttpServer;
-using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -21,6 +20,7 @@ using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Utilities.Network;
 using System.Collections.Generic;
 using HttpServer.Sessions;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using HttpServer.Exceptions;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 
 namespace MediaPortal.Plugins.MP2Extended.ErrorPages
 {

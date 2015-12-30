@@ -8,7 +8,10 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "MediaPortal.Common": "2.0.0.1402"
+      }
+    },
+    "dnx451": {
+      "dependencies": {
       }
     }
   },
@@ -17,6 +20,8 @@
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc2-16185",
     "Microsoft.AspNet.StaticFiles": "1.0.0-rc2-16068",
     "Microsoft.AspNet.Mvc": "6.0.0-rc2-16707",
-    "Microsoft.Tpl.Dataflow": "4.5.24"
+    "Microsoft.Tpl.Dataflow": "4.5.24",
+    "Microsoft.AspNet.Diagnostics": "1.0.0-rc2-16068",
+    "MediaPortal.Common": "1.0.0"
   }
 }

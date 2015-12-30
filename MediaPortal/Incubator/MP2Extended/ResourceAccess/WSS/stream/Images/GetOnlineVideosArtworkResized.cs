@@ -1,10 +1,10 @@
 ﻿using System;
 using HttpServer;
-using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;

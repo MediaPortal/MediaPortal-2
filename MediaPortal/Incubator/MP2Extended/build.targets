@@ -2,25 +2,30 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
   <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
-    <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\www\</wwwDestination>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
+    <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\www\</wwwDestination>
   </PropertyGroup>
 
   <Target Name="AfterBuild">
+    <CallTarget Targets="FileSystemPublish"/>
     <ItemGroup>
-      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)$(Configuration)\dnx451\$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)$(Configuration)\dnx451\$(ProjectName).xml" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
       <PluginFiles Include="$(ProjectDir)ResourceAccess\WSS\Profiles\*.xml" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <PluginFiles Include="$(TargetDir)*.pdb" />
+      <PluginFiles Include="$(TargetDir)$(Configuration)\dnx451\*.pdb" />
     </ItemGroup>
 
     <ItemGroup>
-      <PluginFiles Include="$(TargetDir)Newtonsoft.Json.dll" />
-      <PluginFiles Include="$(TargetDir)OnlineVideos.dll" />
+      <PluginFiles Include="$(TargetDir)approot\packages\**\dnx451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
+      <PluginFiles Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
+      <PluginFiles Include="$(TargetDir)approot\packages\Newtonsoft.Json\**\lib\net45\Newtonsoft.Json.dll" />
+      <PluginFiles Include="$(TargetDir)approot\packages\OnlineVideos.Core\**\lib\dnx451\OnlineVideos.dll" />
+      <PluginFiles Include="$(TargetDir)approot\packages\SlimTv.Interfaces\**\lib\dnx451\SlimTv.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)approot\packages\Swashbuckle.*\**\lib\dnx451\*.dll" />
     </ItemGroup>
     
     <!-- Resources for Webinterface -->

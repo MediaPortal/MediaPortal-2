@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
@@ -11,6 +10,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow

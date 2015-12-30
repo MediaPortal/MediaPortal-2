@@ -1,5 +1,4 @@
 ﻿using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -7,6 +6,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.SlimTv.Interfaces;

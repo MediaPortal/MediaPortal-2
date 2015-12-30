@@ -1,6 +1,5 @@
 ﻿using System;
 using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;

@@ -1,6 +1,5 @@
 ﻿using System;
 using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
@@ -8,6 +7,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {

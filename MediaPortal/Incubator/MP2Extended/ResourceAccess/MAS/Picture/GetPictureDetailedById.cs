@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -9,6 +8,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture

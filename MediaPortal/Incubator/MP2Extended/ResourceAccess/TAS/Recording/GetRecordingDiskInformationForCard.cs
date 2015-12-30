@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
-using HttpServer.Exceptions;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;

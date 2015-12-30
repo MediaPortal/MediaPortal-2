@@ -5,13 +5,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using Newtonsoft.Json;
@@ -133,7 +133,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       {
         Logger.Debug("BaseGetArtwork: no fanart found - fanArtMediaType: {0}, fanartType: {1}, name: {2}", Enum.GetName(typeof(FanArtConstants.FanArtMediaType), fanArtMediaType), Enum.GetName(typeof(FanArtConstants.FanArtType), fanartType), name);
         // We return a transparent image instead of throwing an exception
-        Bitmap newImage = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
+        Bitmap newImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         Graphics graphic = Graphics.FromImage(newImage);
         graphic.Clear(Color.Transparent);
         MemoryStream ms = new MemoryStream();

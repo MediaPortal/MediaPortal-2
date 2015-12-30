@@ -1,9 +1,8 @@
-﻿extern alias OV;
-using System;
+﻿using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
-using OV::OnlineVideos;
-using OV::OnlineVideos.Helpers;
+using OnlineVideos;
+using OnlineVideos.Helpers;
 
 namespace MediaPortal.Plugins.MP2Extended.OnlineVideos
 {

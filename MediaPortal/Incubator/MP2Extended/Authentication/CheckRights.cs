@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
-using HttpServer.Authentication;
-using HttpServer.Exceptions;
-using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Settings;
+using HttpServer.Authentication;
+using HttpServer.Sessions;
 
 namespace MediaPortal.Plugins.MP2Extended.Authentication
 {

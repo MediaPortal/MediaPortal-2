@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.AspNetServerSample
 
     private const string WEB_APPLICATION_NAME = "TestWebApp";
     private const int PORT = 5001;
-    private const string BASE_PATH = "/";
+    private const string BASE_PATH = "/sample";
 
     #endregion
 
