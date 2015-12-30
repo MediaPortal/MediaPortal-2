@@ -51,7 +51,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
        
-        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,0,-100,0">
+        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,0,-100,0" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="480"/>
           </Grid.ColumnDefinitions>
@@ -84,7 +84,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="98,0,-57,0">
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="98,0,-57,40" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -97,7 +97,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <SolidColorBrush Color="#000000" Opacity="0.85"/>
             </Border.Background>
           </Border>
-          <Border Grid.Column="0" Grid.Row="0" Margin="0,-19,0,61">
+          <Border Grid.Column="0" Grid.Row="0" Margin="0,-19,0,21">
             <Border.Background>
               <SolidColorBrush Color="#555555" Opacity="1"/>
             </Border.Background>
@@ -105,9 +105,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"
               IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
-              Grid.Row="0" Grid.Column="0" Margin="31,5,32,15"/>
+              Grid.Row="0" Grid.Column="0" Margin="31,5,32,35"/>
 
-          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0" Margin="31,5,32,15"
+          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0" Margin="31,5,32,35"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>

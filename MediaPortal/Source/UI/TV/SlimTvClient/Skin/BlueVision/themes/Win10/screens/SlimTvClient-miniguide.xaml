@@ -18,12 +18,13 @@
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="900"
         DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="-5,130,-20,0">
-        <Grid.Triggers>
-          <EventTrigger RoutedEvent="Screen.Show">
-            <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
-          </EventTrigger>
-        </Grid.Triggers>
 
+       <Grid.Triggers>
+        <EventTrigger RoutedEvent="Screen.Show">
+         <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
+         </EventTrigger>
+       </Grid.Triggers>
+        
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="300"/>
           <ColumnDefinition Width="*"/>

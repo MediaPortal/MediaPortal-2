@@ -22,18 +22,13 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Margin="-135,0,-135,42" >
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <LinearGradientBrush.GradientStops>
-                <GradientStop Color="#00000000" Offset="0"  />
-                <GradientStop Color="#CC000000" Offset="1"  />
-              </LinearGradientBrush.GradientStops>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
+        <Rectangle Grid.Row="0" Grid.Column="0" Fill="Black" Opacity="0.5" Margin="-89,21,-84,30">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
 
-        <Border BorderThickness="0" Background="#F2666666" Margin="-80,30,-75,30"/>
+        <Border Grid.Row="0" Grid.Column="0" BorderThickness="0" Background="{StaticResource GrayBackgroundWithBlurBehind}" Margin="-80,30,-75,30"/>
         
         <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             DataContext="{Binding Source={StaticResource Model}}">

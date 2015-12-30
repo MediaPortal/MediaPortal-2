@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[News.Title]"/>
+
+    <!-- News model -->
+    <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="25,25,45,75">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+         
+          <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" 
+                 Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,30,10"/>
+          <Label Grid.Column="0" Grid.Row="1" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" 
+                 Opacity="0.7" Wrap="True"  Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" Margin="0,0,30,0"/>
+          <Label Grid.Column="1" Grid.Row="0" Color="{ThemeResource TextColor}" HorizontalAlignment="Right"
+                 Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
+          <Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Width="350"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,0,0">
+            <Image.OpacityMask >
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                          BorderThickness="0" BorderBrush="Black" />
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask> 
+          </Image>  
+      
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

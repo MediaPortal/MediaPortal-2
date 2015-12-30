@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for standard menu screens:
+A header text, left the menu, under the menu a small video preview,
+at the right side the content pane and at the bottom the current play control.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_menu.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Contents_Template">
+        [UI element to be displayed in the content area]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header
+ - Contents_Template (ConrolTemplate): Template for element to be displayed
+   in the content area at the right side
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:bv="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
+    >
+  <Include.Resources>
+    <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
+
+    <!-- Header has to be defined by the includer: "Header_Text" -->
+
+    <!-- Client_Template -->
+    <ControlTemplate x:Key="Client_Template">
+      <DockPanel LastChildFill="True">
+        <DockPanel.Resources>
+          <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+          <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
+        </DockPanel.Resources>
+
+        <!--Begin Home Screen-->
+        <!--Footer-->
+        <!--Movie-->
+        <Grid DockPanel.Dock="Bottom" Margin="0,80,0,-80" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}">  
+        <media:MovieAspectWrapper  MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MovieAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"  
+                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="80"/>
+                  <ColumnDefinition Width="1670"/>
+                  <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+                <Grid.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+                    <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Grid.IsVisible>
+                <Label Grid.Row="0" Grid.Column="1" x:Name="MovieName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      Content="{Binding MovieName}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
+                      HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                  <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
+                                               Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
+                    <StarRatingPanel.LayoutTransform>
+                      <TransformGroup>
+                        <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
+                      </TransformGroup>
+                    </StarRatingPanel.LayoutTransform>
+                  </StarRatingPanel>
+
+                  <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
+                    <Label.Content>
+                      <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+                    </Label.Content>
+                  </Label>
+                </StackPanel>
+              </Grid>
+            </ControlTemplate>
+          </media:MovieAspectWrapper.Template>
+        </media:MovieAspectWrapper>
+        
+        <!--Series-->
+          <media:SeriesAspectWrapper  MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+            <media:SeriesAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="1670"/>
+                    <ColumnDefinition Width="200"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                      <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+                      <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                    </MultiBinding>
+                  </Grid.IsVisible>
+                  <Label Grid.Row="0" Grid.Column="1" x:Name="EpisodeName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        Content="{Binding EpisodeName}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
+                        HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
+                                                 Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
+                      <StarRatingPanel.LayoutTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
+                        </TransformGroup>
+                      </StarRatingPanel.LayoutTransform>
+                    </StarRatingPanel>
+
+                    <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
+                      <Label.Content>
+                        <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+                      </Label.Content>
+                    </Label>
+                  </StackPanel>
+                </Grid>
+              </ControlTemplate>
+            </media:SeriesAspectWrapper.Template>
+          </media:SeriesAspectWrapper>
+          
+          <!--Audio-->
+          <media:MediaAspectWrapper  MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+            <media:MediaAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="1670"/>
+                    <ColumnDefinition Width="200"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                      <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+                      <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                    </MultiBinding>
+                  </Grid.IsVisible>
+                  <Label Grid.Row="0" Grid.Column="1" x:Name="Title" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        Content="{Binding Title}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
+                        HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+
+                  <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
+                                                 Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
+                      <StarRatingPanel.LayoutTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
+                        </TransformGroup>
+                      </StarRatingPanel.LayoutTransform>
+                    </StarRatingPanel>
+
+                    <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
+                      <Label.Content>
+                        <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+                      </Label.Content>
+                    </Label>
+                  </StackPanel-->
+                </Grid>
+              </ControlTemplate>
+            </media:MediaAspectWrapper.Template>
+          </media:MediaAspectWrapper>  
+          
+        </Grid>
+
+        <Grid DockPanel.Dock="Center" Margin="0,0,0,-80" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
+              xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI">
+          <Grid.Resources>
+            <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+            <Model x:Key="LatestMediaModel" Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870"/>
+            <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
+          </Grid.Resources>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="0,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+          </Grid>
+
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="0,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[Audio.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <ListView x:Name="Audio" Grid.Row="1" ItemsSource="{Binding Audio}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+          </Grid>
+
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Margin="0,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[Series.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <ListView x:Name="Series" Grid.Row="1" ItemsSource="{Binding Series}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+          </Grid>
+
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="0,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[Images.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <ListView x:Name="Images" Grid.Row="1" ItemsSource="{Binding Images}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+          </Grid>
+
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" Margin="0,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[Recordings.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <ListView x:Name="Recordings" Grid.Row="1" ItemsSource="{Binding Recordings}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+          </Grid>
+
+          <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="6" Margin="0,0,0,0" DataContext="{Binding Source={StaticResource LatestMediaModel}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <ListView x:Name="Cames" Grid.Row="1" ItemsSource="{Binding Games}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+          </Grid>
+
+          <Grid Grid.Row="0" Grid.Column="7">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="160"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="160"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="[Weather.Title]" Margin="20,0,20,0" 
+                   HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <!--Image  Grid.Row="1" Grid.Column="0" x:Name="WeatherBigIcon" Stretch="Uniform" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}"
+             IsVisible="{Binding UseInHome}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"/-->
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center">
+              <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Label  x:Name="Temp" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
+                  Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
+                  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <Label Content=", " Color="{ThemeResource TextColor}"> </Label>
+                <Label Grid.Column="1" x:Name="Humidity" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Humidity}"
+                  Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
+                  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0"/>
+              </WrapPanel>
+
+              <Label  x:Name="Place"
+                      Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Name}"
+                Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" />
+              <Label  x:Name="Wind" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Wind}"
+                Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"/>
+            </StackPanel>
+          </Grid>
+
+          <Grid Grid.Row="2" Grid.Column="7" Margin="20,20,20,0" >
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[News.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Grid Grid.Column="0" Grid.Row="1" Margin="30,0,10,0" DataContext="{Binding Source={StaticResource CurrentNewsModel}}" VerticalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="70" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Label Grid.Row="0" Grid.Column="0" x:Name="News" Color="{ThemeResource TextColor}"
+                     Content="{Binding CurrentNewsItem.Title}" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+              <Label Grid.Row="1" Grid.Column="0" Margin="0,0,0,55" x:Name="NewSummary" Wrap="True" Scroll="Auto" ScrollSpeed="10" ScrollDelay="3"
+                     VerticalAlignment="Stretch" Content="{Binding CurrentNewsItem.Summary}" Opacity="0.6"
+                     Color="{ThemeResource TextColor}"/>
+            </Grid>
+          </Grid>
+        </Grid>
+
+
+        <!--End Home Screen-->
+
+        <Grid x:Name="MainLayoutPanel" DockPanel.Dock="Center" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="11,0,0,-2">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <bv:GridListView x:Name="MainMenu" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0"
+              VerticalAlignment="Top" SetFocusPrio="Fallback"
+              ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
+              IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+            <bv:GridListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </bv:GridListView.Resources>
+          </bv:GridListView>
+
+          <!-- On HomeScreen we won't have any content visible, so we use this Panel to contain our shutdown button -->
+          <Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" SetFocusPrio="Default">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Navigates to ShutdownManager.ShutdownDialog, defined by its DialogState ID -->
+            <Button Style="{ThemeResource ButtonWideStyle_GrowOnly}" Opacity="0.1"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
+                    IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+              <Image Source="ShutdownIcon.png" />
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter Property="Opacity" Value="1.0" />
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </Grid>
+        </Grid>
+
+      </DockPanel>  
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Header_Template">
+      <Grid  Grid.Column="0" Grid.Row="2" Margin="50,14,50,0" DataContext="{Binding Source={StaticResource CurrentNewsModel}}" 
+             VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="800" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.Resources>
+          <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+        </Grid.Resources>
+
+        <Label Grid.Row="0" Grid.Column="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="Black" 
+               Content="{Binding CurrentNewsItem.Title}" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}" />
+
+        <Label Grid.Row="0" Grid.Column="1" Margin="20,0,0,0" x:Name="NewSummary" Wrap="False" Scroll="Auto" ScrollSpeed="20" ScrollDelay="3"
+               HorizontalAlignment="Stretch" Height="36" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}"
+               Content="{Binding CurrentNewsItem.Summary}"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

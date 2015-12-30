@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for all screens:
+A header text, player controls and a client area.
+Below the client area, the navigation bar is visible.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Client_Template">
+        [UI element to be displayed in the client area]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header
+ - Client_Template (ConrolTemplate): Template for element to be shown in the client area.
+-->
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="Screen"
+    >
+  <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="True">
+    <DockPanel.Resources>
+      <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+    </DockPanel.Resources>
+    <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="120"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="50"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <StackPanel x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
+          HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
+            HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+      </StackPanel>
+      <!-- WindowButtonsPanel -->
+      <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0">
+        <Label x:Name="HeaderLabel"
+            FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
+            Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
+
+        <Label x:Name="MirrorHeaderLabel" 
+            FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
+            Content="{Binding Source={DynamicResource Header_Text},Path=Resource}"
+            Margin ="6,6,0,0">
+          <Label.OpacityMask>
+            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+              <GradientStop Offset="0.0" Color="#00000000" />
+              <GradientStop Offset="1.0" Color="#40000000" />
+            </LinearGradientBrush>
+          </Label.OpacityMask>
+        </Label>
+      </Grid>
+      <!-- HeaderTextPanel -->
+      <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
+          HorizontalAlignment="Right" VerticalAlignment="Top">
+        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
+        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NewNavigationScreenPlayerControlStyle}" Width="450"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+      </StackPanel>
+    </Grid>
+    <!-- HeaderPanel -->
+    <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <!--<mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource WorkflowNavigationBarStyle}"
+          VerticalAlignment="Center"/>-->
+      <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"/>
+    </Grid>
+    <!-- FooterPanel -->
+
+    <!-- Not sure if and how we should show shortcuts...
+      <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
+          Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/> -->
+
+    <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+    <Control x:Name="ClientArea" DockPanel.Dock="Right" Template="{DynamicResource Client_Template}"/>
+  </DockPanel>
+</Screen>

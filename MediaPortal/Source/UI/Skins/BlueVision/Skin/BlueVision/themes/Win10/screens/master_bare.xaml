@@ -49,6 +49,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OnScreenShow}"/>
       <EventTrigger.Actions>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
@@ -87,19 +88,36 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <!--Win10-->
-    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderThickness="0">
+    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderThickness="0" >
       <Border.Background>
-        <SolidColorBrush Color="#000000" Opacity="0.80"/>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#CC000000" Offset="0"  />
+            <GradientStop Color="#CC000000" Offset="0.95"  />
+            <GradientStop Color="#00000000" Offset="1"  />
+          </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
       </Border.Background>
     </Border>
 
-    <Border Grid.Row="4" Grid.Column="0" Margin="0,-60,0,0" BorderThickness="0">
+    <!--Border Grid.Row="4" Grid.Column="0" Margin="0,-60,0,0" BorderThickness="0">
       <Border.Background>
         <SolidColorBrush Color="#000000" Opacity="0.80"/>
       </Border.Background>
+    </Border-->
+
+    <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Margin="0,-10,0,0" BorderThickness="0">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+          <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#00000000" Offset="0"  />
+            <GradientStop Color="#0A000000" Offset="0.3"  />
+            <GradientStop Color="#CC000000" Offset="0.7"  />
+            <GradientStop Color="#CC000000" Offset="1"  />
+          </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+      </Border.Background>
     </Border>
-    <!--Win10-->
     
     <Grid x:Name="HeaderPanel" Grid.Row="0"  Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
