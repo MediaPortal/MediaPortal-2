@@ -76,10 +76,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid.ColumnDefinitions>
     
     <Grid.RowDefinitions>
-      <!-- Breadcrumb -->
-      <RowDefinition Height="Auto"/>
       <!-- Header -->
-      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>      
+      <!-- Breadcrumb -->
+      <RowDefinition Height="30"/>
       <!-- Content -->
       <RowDefinition Height="*"/>
       <!-- Shadow -->
@@ -88,7 +88,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderThickness="0" >
+    <Border Grid.Row="0" Grid.Column="0" BorderThickness="0" >
       <Border.Background>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
           <LinearGradientBrush.GradientStops>
@@ -118,8 +118,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </LinearGradientBrush>
       </Border.Background>
     </Border>
-    
-    <Grid x:Name="HeaderPanel" Grid.Row="0"  Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+
+    <!--Grid x:Name="HeaderPanel" Grid.Row="1"  Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -132,11 +132,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <Control x:Name="NotificationControl" Margin="0,-10,20,-20" Grid.Column="0" Style="{ThemeResource NotificationControlStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
 
-    </Grid>
+    </Grid-->
     
     <!-- HeaderPanel -->
     
-    <Grid  Grid.Row="1" HorizontalAlignment="Stretch">
+    <Grid  Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,40,0,0">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -154,9 +154,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"> </Control>
 
       <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
-        <Border.Background>
+        <!--Border.Background>
           <SolidColorBrush Color="Black" Opacity="0.5"/>
-        </Border.Background>
+        </Border.Background-->
         <StackPanel VerticalAlignment="Center" >
           <Label x:Name="SelectedItem" Margin="10,0,10,0"
                   Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
@@ -180,7 +180,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                HomeMenuModel="{StaticResource MenuModel}" Margin="0,-25,0,0"
-                               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
                                ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                                SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
         <bvm:GroupMenuListView.Resources>
@@ -190,9 +190,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!-- Time & Date -->
       <Border Height="74" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Margin="-10,-20,0,20" >
-        <Border.Background>
+        <!--Border.Background>
           <SolidColorBrush Color="Black" Opacity="0.5"/>
-        </Border.Background>
+        </Border.Background-->
         <StackPanel HorizontalAlignment="Right" Margin="10,0,10,0" VerticalAlignment="Center">
           <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
                 FontSize="32" FontFamily="DefaultBold"

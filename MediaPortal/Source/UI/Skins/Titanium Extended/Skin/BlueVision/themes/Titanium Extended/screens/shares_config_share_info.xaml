@@ -72,10 +72,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="ReImportButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="ReImportButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}"
               Content="[SharesConfig.ReImportShare]"
               Command="{Command ReImportShare}"/>
-          <Button x:Name="EditButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="EditButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
               Content="[SharesConfig.EditShare]"
               Command="{Command Source={StaticResource Model},Path=EditCurrentShare}"/>
         </Grid>

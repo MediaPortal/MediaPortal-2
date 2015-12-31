@@ -17,8 +17,14 @@
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <VisualBrush x:Name="BackdropImageBackgroundBrush">
-      <VisualBrush.Visual> 
-        <Image x:Name="BackdropImageBackground" Stretch="Fill" Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" FallbackSource="background.png" />
+      <VisualBrush.Visual>
+        <Image x:Name="BackdropImageBackground" Stretch="Fill">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.4" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.4"
+               Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"
+               FallbackSource="background.png" />
+          </Image.Source>
+        </Image>
       </VisualBrush.Visual>
     </VisualBrush>
   </ResourceWrapper>
@@ -452,12 +458,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}"
+          <Button Style="{ThemeResource MenuButtonWideStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
              <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Button.Triggers>
@@ -497,12 +504,20 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonHiddenMenuStyle}" 
-                  Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+          <Button Style="{ThemeResource ButtonHiddenMenuStyle}"
+                 Command="{DynamicResource ResourceKey=Menu_Command}"
+                 IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <!-- Consider the item's enabled state -->
+                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsEnabled"/>
+                <!-- In combination with the parent ListView's enabled state -->
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type ListView}}" Path="IsEnabled"/>
+              </MultiBinding>
+            </Button.IsEnabled>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/> 
+                <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
               </Trigger>
             </Button.Triggers>
@@ -593,21 +608,33 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="NameMarker" Margin="2,1,0,1"
+          <Grid Margin="0,2,0,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/> 
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <RadioButton x:Name="NameMarker" Margin="2,2,0,2"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
               Content="{Binding}">
             <RadioButton.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemControl" Property="Background">
-                  <Setter.Value>
-                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
-                  </Setter.Value>
-                </Setter>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </RadioButton.Triggers>
           </RadioButton>
+         </Grid> 
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -665,22 +692,34 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <CheckBox x:Name="ShareMarker" Margin="2,1,0,1"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}"
-              Content="{Binding}">
-            <CheckBox.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemControl" Property="Background">
-                  <Setter.Value>
-                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
-                  </Setter.Value>
-                </Setter>
-                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
-            </CheckBox.Triggers>
-          </CheckBox>
+          <Grid Margin="-2,4,0,4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <CheckBox x:Name="ShareMarker" Margin="2,5,0,5"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}"
+                Content="{Binding}">
+              <CheckBox.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ShareName" Property="Color" Value="Black"/>
+                  <Setter TargetName="SharePath" Property="Color" Value="Black"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </CheckBox.Triggers>
+            </CheckBox>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -691,22 +730,34 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="Selection" Margin="2,1,0,1"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
-              Content="{Binding}">
-            <RadioButton.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemControl" Property="Background">
-                  <Setter.Value>
-                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
-                  </Setter.Value>
-                </Setter>
-                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
-            </RadioButton.Triggers>
-          </RadioButton>
+          <Grid Margin="-2,4,0,4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <RadioButton x:Name="Selection" Margin="2,5,0,5"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+                Content="{Binding}">
+              <RadioButton.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ShareName" Property="Color" Value="Black"/>
+                  <Setter TargetName="SharePath" Property="Color" Value="Black"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </RadioButton.Triggers>
+            </RadioButton>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -717,22 +768,35 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="Selection" Margin="2,1,0,1"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
-              Content="{Binding}">
-            <RadioButton.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ResourceProviderName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ResourceProviderDescription" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemControl" Property="Background">
-                  <Setter.Value>
-                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
-                  </Setter.Value>
-                </Setter>
-                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
-            </RadioButton.Triggers>
-          </RadioButton>
+          <Grid Margin="-2,4,0,4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <RadioButton x:Name="Selection" Margin="2,5,0,5"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+                Content="{Binding}">
+              <RadioButton.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ResourceProviderName" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ResourceProviderDescription" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ResourceProviderName" Property="Color" Value="Black"/>
+                  <Setter TargetName="ResourceProviderDescription" Property="Color" Value="Black"/>
+                  <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </RadioButton.Triggers>
+            </RadioButton>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -745,7 +809,7 @@
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource DialogHeaderColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -802,9 +866,9 @@
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32"
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" 
           HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-          Color="{ThemeResource TextColor}"/>
+          Color="Black" FontFamily="Titan"/>
     </DockPanel>
   </DataTemplate>
 
@@ -817,7 +881,7 @@
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="10,5,0,0" Content="{Binding [Name]}"
           HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-          Color="{ThemeResource TextColor}"/>
+          Color="Black" FontFamily="Titan"/>
     </DockPanel>
   </DataTemplate>
 
@@ -838,7 +902,7 @@
           Color="{ThemeResource TextColor}"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource HintTextColor}"/>
+          Color="{ThemeResource TextColor}"/>
 <!-- Additionally available properties to show here:
       <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Name}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
@@ -898,12 +962,12 @@
         <ColumnDefinition Width="400"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+      <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource NormalFontSize}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
           Color="{ThemeResource TextColor}"/>
       <Label x:Name="ResourceProviderDescription" Grid.Column="1" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Description}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+          FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}"/>
     </Grid>
   </DataTemplate>
 
@@ -1248,12 +1312,12 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ShareName" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
+      <Label x:Name="ShareName" Content="{Binding [Name]}" FontSize="{ThemeResource NormalFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,10,0,10"
           Color="{ThemeResource TextColor}"/>
 
       <!-- Subitems of systems: resourceproviders -->
-      <ListView Grid.Row="1" Margin="10,0,0,10" Style="{ThemeResource SingleMarkableResourceProvidersListViewStyle}"
+      <ListView Grid.Row="1" Margin="5,0,0,5" Style="{ThemeResource SingleMarkableResourceProvidersListViewStyle}"
           ItemsSource="{Binding Path=AdditionalProperties[SharesProxy].AllBaseResourceProviders,Mode=OneTime}"/>
     </Grid>
   </DataTemplate>

@@ -75,7 +75,7 @@
               <ColumnDefinition Width="10"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="RemoveButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+            <Button x:Name="RemoveButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
                 Content="[System.Finish]" IsEnabled="{Binding IsSharesSelected}"
                 Command="{Command Source={StaticResource Model},Path=RemoveSelectedSharesAndFinish}"/>
           </Grid>
