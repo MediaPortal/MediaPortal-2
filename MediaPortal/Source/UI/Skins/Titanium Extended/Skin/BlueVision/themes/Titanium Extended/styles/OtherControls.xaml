@@ -17,8 +17,14 @@
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <VisualBrush x:Name="BackdropImageBackgroundBrush">
-      <VisualBrush.Visual> 
-        <Image x:Name="BackdropImageBackground" Stretch="Fill" Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" FallbackSource="background.png" />
+      <VisualBrush.Visual>
+        <Image x:Name="BackdropImageBackground" Stretch="Fill">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.4" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.4"
+               Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"
+               FallbackSource="background.png" />
+          </Image.Source>
+        </Image>
       </VisualBrush.Visual>
     </VisualBrush>
   </ResourceWrapper>
