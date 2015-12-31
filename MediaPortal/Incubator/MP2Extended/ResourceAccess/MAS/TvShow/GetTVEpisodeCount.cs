@@ -12,9 +12,9 @@ using MediaPortal.Plugins.MP2Extended.Common;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetTVEpisodeCount : IRequestMicroModuleHandler
+  internal class GetTVEpisodeCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process()
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

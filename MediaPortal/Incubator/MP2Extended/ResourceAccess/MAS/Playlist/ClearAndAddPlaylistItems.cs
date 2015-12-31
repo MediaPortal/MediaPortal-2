@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Backend.MediaLibrary;
@@ -16,48 +17,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
-  internal class ClearAndAddPlaylistItems : IRequestMicroModuleHandler
+  internal class ClearAndAddPlaylistItems
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(Guid playlistId, WebMediaType type, int? position, List<Guid> ids)
     {
-      HttpParam httpParam = request.Param;
-      string playlistId = httpParam["playlistId"].Value;
-      string itemIds = httpParam["id"].Value;
-      string position = httpParam["position"].Value;
-      if (playlistId == null)
-        throw new BadRequestException("AddPlaylistItems: playlistId is null");
-      if (itemIds == null)
-        throw new BadRequestException("AddPlaylistItems: id is null");
+      
+      if (ids.Count == 0)
+        throw new BadRequestException(String.Format("AddPlaylistItems: id array is empty - itemIds: {0}", ids));
 
-      Guid playlistGuid;
-      if (!Guid.TryParse(playlistId, out playlistGuid))
-        throw new BadRequestException(String.Format("AddPlaylistItem: Couldn't parse playlistId: {0}", playlistId));
-
-      // separte the ids
-      string[] itemIdsArray = itemIds.Split('|');
-
-      if (itemIdsArray.Length == 0)
-        throw new BadRequestException(String.Format("AddPlaylistItems: id array is empty - itemIds: {0}", itemIds));
-
-      int positionInt = -1;
-      if (!int.TryParse(position, out positionInt))
-        Logger.Warn("AddPlaylistItem: Couldn't parse position to int: {0}", position);
-
-      // get the playlist
-      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistGuid);
+     // get the playlist
+      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
 
       // clear the data
       playlistRawData.MediaItemIds.Clear();
 
       // insert the data
 
-      foreach (var itemId in itemIdsArray)
+      foreach (var itemId in ids)
       {
-        Guid mediaItemGuid;
-        if (!Guid.TryParse(itemId, out mediaItemGuid))
-          throw new BadRequestException(String.Format("AddPlaylistItem: Couldn't parse id: {0}", playlistId));
-
-        playlistRawData.MediaItemIds.Add(mediaItemGuid);
+       playlistRawData.MediaItemIds.Add(itemId);
       }
 
       // save playlist

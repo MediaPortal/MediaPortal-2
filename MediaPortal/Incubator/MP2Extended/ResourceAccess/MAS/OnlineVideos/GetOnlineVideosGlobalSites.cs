@@ -19,9 +19,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetOnlineVideosGlobalSites : IRequestMicroModuleHandler
+  internal class GetOnlineVideosGlobalSites
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public List<WebOnlineVideosGlobalSite> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       List<WebOnlineVideosGlobalSite> output = MP2Extended.OnlineVideosManager.GetGlobalSites().Select(site => new WebOnlineVideosGlobalSite
       {
@@ -38,16 +38,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
       }).ToList();
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.AsQueryable().Filter(filter).SortMediaItemList(webSortField, webSortOrder).ToList();
+        output = output.AsQueryable().Filter(filter).SortMediaItemList(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();

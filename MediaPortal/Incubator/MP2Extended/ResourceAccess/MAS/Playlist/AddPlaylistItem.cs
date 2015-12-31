@@ -15,39 +15,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
-  internal class AddPlaylistItem : IRequestMicroModuleHandler
+  internal class AddPlaylistItem
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(Guid playlistId, WebMediaType type, Guid id, int? position)
     {
-      HttpParam httpParam = request.Param;
-      string playlistId = httpParam["playlistId"].Value;
-      string itemId = httpParam["id"].Value;
-      string position = httpParam["position"].Value;
-      if (playlistId == null)
-        throw new BadRequestException("AddPlaylistItem: playlistId is null");
-      if (itemId == null)
-        throw new BadRequestException("AddPlaylistItem: id is null");
-
-      Guid playlistGuid;
-      if (!Guid.TryParse(playlistId, out playlistGuid))
-        throw new BadRequestException(String.Format("AddPlaylistItem: Couldn't parse playlistId: {0}", playlistId));
-
-      Guid mediaItemGuid;
-      if (!Guid.TryParse(itemId, out mediaItemGuid))
-        throw new BadRequestException(String.Format("AddPlaylistItem: Couldn't parse id: {0}", playlistId));
-
-      int positionInt = -1;
-      if (!int.TryParse(position, out positionInt))
-        Logger.Warn("AddPlaylistItem: Couldn't parse position to int: {0}", position);
-
       // get the playlist
-      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistGuid);
+      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
 
       // insert the data
-      if (positionInt > -1 && positionInt < playlistRawData.MediaItemIds.Count)
-        playlistRawData.MediaItemIds.Insert(positionInt, mediaItemGuid); // List{0,1,2} -Insert@index:1Value:5-> List{0,5,1,2}
+      if (position > -1 && position < playlistRawData.MediaItemIds.Count)
+        playlistRawData.MediaItemIds.Insert(position.Value, id); // List{0,1,2} -Insert@index:1Value:5-> List{0,5,1,2}
       else
-        playlistRawData.MediaItemIds.Add(mediaItemGuid);
+        playlistRawData.MediaItemIds.Add(id);
 
       // save playlist
       ServiceRegistration.Get<IMediaLibrary>().SavePlaylist(playlistRawData);

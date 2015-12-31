@@ -6,6 +6,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc.BaseClasses;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -13,9 +14,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetCards : BaseCard, IRequestMicroModuleHandler
+  internal class GetCards : BaseCard
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebCard> Process()
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetCards: ITvProvider not found");

@@ -12,13 +12,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebDriveBasic), Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetFileSystemDriveBasicById : BaseDriveBasic, IRequestMicroModuleHandler
+  internal class GetFileSystemDriveBasicById : BaseDriveBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebDriveBasic Process(string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      
       List<WebDriveBasic> driveList = DriveBasic();
 
       return driveList.Single(x => x.Id == id);

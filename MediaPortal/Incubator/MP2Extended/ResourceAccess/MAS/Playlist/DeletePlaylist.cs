@@ -12,20 +12,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
-  internal class DeletePlaylist : IRequestMicroModuleHandler
+  internal class DeletePlaylist
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(Guid playlistId)
     {
-      HttpParam httpParam = request.Param;
-      string playlistId = httpParam["playlistId"].Value;
-      if (playlistId == null)
-        throw new BadRequestException("DeletePlaylist: playlistId is null");
-
-      Guid playlistIdGuid;
-      if (!Guid.TryParse(playlistId, out playlistIdGuid))
-        throw new BadRequestException(String.Format("DeletePlaylist: Couldn't parse playlistId: {0}", playlistId));
-
-      bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(playlistIdGuid);
+      bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(playlistId);
 
       return new WebBoolResult { Result = result };
     }

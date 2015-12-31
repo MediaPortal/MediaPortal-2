@@ -7,6 +7,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -14,9 +15,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetAllRecordingDiskInformation : BaseCard, IRequestMicroModuleHandler
+  internal class GetAllRecordingDiskInformation : BaseCard
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebDiskSpaceInformation> Process()
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetAllRecordingDiskInformation: ITvProvider not found");

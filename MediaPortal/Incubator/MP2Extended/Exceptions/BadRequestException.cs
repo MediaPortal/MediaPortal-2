@@ -7,7 +7,7 @@ namespace MediaPortal.Plugins.MP2Extended.Exceptions
   /// The request could not be understood by the server due to malformed syntax. 
   /// The client SHOULD NOT repeat the request without modifications.
   /// 
-  /// Text taken from: http://www.submissionchamber.com/help-guides/error-codes.php
+  /// Text taken from: http://www.submissionchamber.com/help-stringes/error-codes.php
   /// </summary>
   public class BadRequestException : HttpException
   {

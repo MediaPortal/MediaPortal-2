@@ -22,9 +22,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMusicArtistsBasicByRange : IRequestMicroModuleHandler
+  internal class GetMusicArtistsBasicByRange
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebMusicArtistBasic> Process(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       // we can't select only for shows, so we take all episodes and filter.
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -60,42 +60,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       }
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.AsQueryable().Filter(filter).SortMediaItemList(webSortField, webSortOrder).ToList();
+       output = output.AsQueryable().Filter(filter).SortMediaItemList(sort, order).ToList();
       }
       else
         output = output.AsQueryable().Filter(filter).ToList();
-
-
-      string start = httpParam["start"].Value;
-      string end = httpParam["end"].Value;
 
       Logger.Info("GetTVShowsBasicByRange: start: {0}, end: {1}", start, end);
 
       if (start == null || end == null)
         throw new BadRequestException("start or end parameter is missing");
 
-      int startInt;
-      if (!Int32.TryParse(start, out startInt))
-      {
-        throw new BadRequestException(String.Format("GetTVShowsBasicByRange: Couldn't convert start to int: {0}", start));
-      }
-
-      int endInt;
-      if (!Int32.TryParse(end, out endInt))
-      {
-        throw new BadRequestException(String.Format("GetTVShowsBasicByRange: Couldn't convert end to int: {0}", end));
-      }
-
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

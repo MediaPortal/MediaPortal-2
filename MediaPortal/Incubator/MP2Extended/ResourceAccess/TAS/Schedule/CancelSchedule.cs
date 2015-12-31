@@ -12,20 +12,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
-  internal class CancelSchedule : IRequestMicroModuleHandler
+  internal class CancelSchedule
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(int programId)
     {
-      HttpParam httpParam = request.Param;
-      string programId = httpParam["programId"].Value;
-
-      if (programId == null)
-        throw new BadRequestException("CancelSchedule: programId is null");
-
-      int programIdInt;
-      if (!int.TryParse(programId, out programIdInt))
-        throw new BadRequestException(string.Format("CancelSchedule: Couldn't parse programId to int: {0}", programId));
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("CancelSchedule: ITvProvider not found");
 
@@ -35,7 +25,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       bool result = false;
 
       IProgram program;
-      if (programInfo.GetProgram(programIdInt, out program))
+      if (programInfo.GetProgram(programId, out program))
         result = scheduleControl.RemoveScheduleForProgram(program, ScheduleRecordingType.Once);  // TODO: not sure if ScheduleRecordingType is right
 
 

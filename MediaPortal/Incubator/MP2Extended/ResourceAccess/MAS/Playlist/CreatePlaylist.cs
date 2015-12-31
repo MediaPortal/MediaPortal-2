@@ -14,15 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "playlistName", Type = typeof(string), Nullable = false)]
-  internal class CreatePlaylist : IRequestMicroModuleHandler
+  internal class CreatePlaylist
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStringResult Process(string playlistName)
     {
-      HttpParam httpParam = request.Param;
-      string playlistName = httpParam["playlistName"].Value;
-      if (playlistName == null)
-        throw new BadRequestException("CreatePlaylist: playlistName is null");
-
       Guid playListGuid = Guid.NewGuid();
 
       PlaylistRawData playlistRawData = new PlaylistRawData(playListGuid, playlistName, String.Empty);

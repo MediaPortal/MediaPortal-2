@@ -25,33 +25,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
-  internal class GetFilterValuesByRange : IRequestMicroModuleHandler
+  internal class GetFilterValuesByRange
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<string> Process(int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
-      HttpParam httpParam = request.Param;
-      string start = httpParam["start"].Value;
-      string end = httpParam["end"].Value;
-
-      if (start == null || end == null)
-        throw new BadRequestException("start or end parameter is missing");
-
-      int startInt;
-      if (!Int32.TryParse(start, out startInt))
-      {
-        throw new BadRequestException(String.Format("GetFilterValuesByRange: Couldn't convert start to int: {0}", start));
-      }
-
-      int endInt;
-      if (!Int32.TryParse(end, out endInt))
-      {
-        throw new BadRequestException(String.Format("GetFilterValuesByRange: Couldn't convert end to int: {0}", end));
-      }
-
-      List<string> output = new GetFilterValues().Process(request, session);
+     IList<string> output = new GetFilterValues().Process(mediaType, filterField, op, limit, order);
 
       // Get Range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

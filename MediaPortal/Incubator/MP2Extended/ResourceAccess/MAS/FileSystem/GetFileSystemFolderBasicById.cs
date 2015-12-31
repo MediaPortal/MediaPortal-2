@@ -12,13 +12,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebFolderBasic), Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetFileSystemFolderBasicById : BaseFolderBasic, IRequestMicroModuleHandler
+  internal class GetFileSystemFolderBasicById : BaseFolderBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebFolderBasic Process(string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       string path = Base64.Decode(id);
 
       if (!Directory.Exists(id))

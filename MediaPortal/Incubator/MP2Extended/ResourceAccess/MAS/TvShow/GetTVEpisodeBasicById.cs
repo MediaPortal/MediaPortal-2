@@ -15,24 +15,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetTVEpisodeBasicById : BaseEpisodeBasic, IRequestMicroModuleHandler
+  internal class GetTVEpisodeBasicById : BaseEpisodeBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebTVEpisodeBasic Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      if (httpParam["id"].Value == null)
-        throw new BadRequestException("GetTVEpisodeBasicById: no id is null");
-
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
 
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetTvEpisodeBasicById: No MediaItem found with id: {0}", httpParam["id"].Value));
+        throw new BadRequestException(String.Format("GetTvEpisodeBasicById: No MediaItem found with id: {0}", id));
 
       WebTVEpisodeBasic webTvEpisodeBasic = EpisodeBasic(item);
 

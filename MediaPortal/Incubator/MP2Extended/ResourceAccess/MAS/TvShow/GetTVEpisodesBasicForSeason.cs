@@ -20,19 +20,14 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetTVEpisodesBasicForSeason : BaseEpisodeBasic, IRequestMicroModuleHandler
+  internal class GetTVEpisodesBasicForSeason : BaseEpisodeBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebTVEpisodeBasic> Process(Guid id, WebSortField? sort, WebSortOrder? order)
     {
       Stopwatch watch = new Stopwatch();
-
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      if (id == null)
-        throw new BadRequestException("GetTVEpisodeCountForSeason: id is null");
 
       watch.Start();
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -78,14 +73,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       watch.Start();
 
       // sort
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.SortWebTVEpisodeBasic(webSortField, webSortOrder).ToList();
+        output = output.SortWebTVEpisodeBasic(sort, order).ToList();
       }
       watch.Stop();
       Logger.Info("Sort: {0}", watch.Elapsed);

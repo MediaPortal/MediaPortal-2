@@ -9,9 +9,9 @@ using MediaPortal.Plugins.MP2Extended.MAS.General;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetServiceDescription : IRequestMicroModuleHandler
+  internal class GetServiceDescription
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebMediaServiceDescription Process()
     {
       WebMediaServiceDescription webMediaServiceDescription = new WebMediaServiceDescription();
       webMediaServiceDescription.ApiVersion = 4;

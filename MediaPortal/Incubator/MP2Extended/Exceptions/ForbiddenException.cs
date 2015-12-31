@@ -9,7 +9,7 @@ namespace MediaPortal.Plugins.MP2Extended.Exceptions
   /// it SHOULD describe the reason for the refusal in the entity. If the server does not wish to make this information 
   /// available to the client, the status code 404 (Not Found) can be used instead.
   /// 
-  /// Text taken from: http://www.submissionchamber.com/help-guides/error-codes.php
+  /// Text taken from: http://www.submissionchamber.com/help-stringes/error-codes.php
   /// </summary>
   public class ForbiddenException : HttpException
   {

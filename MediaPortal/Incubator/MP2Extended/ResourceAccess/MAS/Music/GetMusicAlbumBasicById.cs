@@ -19,17 +19,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   // TODO: Hack, rework after MIA rework
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetMusicAlbumBasicById : IRequestMicroModuleHandler
+  internal class GetMusicAlbumBasicById
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebMusicAlbumBasic Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      string id_base = httpParam["id"].Value;
-      if (id_base == null)
+      if (id == null)
         throw new BadRequestException("GetMusicTrackBasicById: id is null");
-
-      // decode the ID
-      string id = (new UTF8Encoding()).GetString(Convert.FromBase64String(id_base));
 
       // Get all tracks for this Album
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -67,10 +62,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       //webMusicTrackBasic.Year;
       //webMusicTrackBasic.Artwork;
       webMusicAlbumBasic.DateAdded = (DateTime)tracks[0][ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
-      webMusicAlbumBasic.Id = id_base;
+      webMusicAlbumBasic.Id = id.ToString();
       webMusicAlbumBasic.PID = 0;
       //webMusicTrackBasic.Path;
-      webMusicAlbumBasic.Title = id;
+      webMusicAlbumBasic.Title = id.ToString();
 
 
       return webMusicAlbumBasic;

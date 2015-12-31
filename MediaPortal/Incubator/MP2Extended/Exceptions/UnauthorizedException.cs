@@ -20,7 +20,7 @@ namespace MediaPortal.Plugins.MP2Extended.Exceptions
   /// http://www.ietf.org/rfc/rfc2617.txt
   /// 
   /// (description is taken from 
-  /// http://www.submissionchamber.com/help-guides/error-codes.php#sec10.4.2)
+  /// http://www.submissionchamber.com/help-stringes/error-codes.php#sec10.4.2)
   /// </summary>
   public class UnauthorizedException : HttpException
   {

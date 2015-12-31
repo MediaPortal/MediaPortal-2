@@ -14,13 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebOnlineVideosVideo>), Summary = "This function returns a list of Subcategories available in a selected Category.")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetOnlineVideosCategoryVideos : IRequestMicroModuleHandler
+  internal class GetOnlineVideosCategoryVideos
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public List<WebOnlineVideosVideo> Process(string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       if (id == null)
         throw new BadRequestException("GetOnlineVideosCategoryVideos: id is null");
 

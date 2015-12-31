@@ -17,9 +17,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetTVShowCount : IRequestMicroModuleHandler
+  internal class GetTVShowCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(string filter)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -42,8 +42,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       }
 
       // Filter
-      HttpParam httpParam = request.Param;
-      string filter = httpParam["filter"].Value;
       output = output.Filter(filter).ToList();
 
       return new WebIntResult { Result = output.Count };

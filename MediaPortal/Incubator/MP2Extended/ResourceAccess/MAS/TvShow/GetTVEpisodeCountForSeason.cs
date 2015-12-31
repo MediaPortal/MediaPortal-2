@@ -13,16 +13,11 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetTVEpisodeCountForSeason : IRequestMicroModuleHandler
+  [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
+  internal class GetTVEpisodeCountForSeason
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      if (id == null)
-        throw new BadRequestException("GetTVEpisodeCountForSeason: id is null");
-
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);

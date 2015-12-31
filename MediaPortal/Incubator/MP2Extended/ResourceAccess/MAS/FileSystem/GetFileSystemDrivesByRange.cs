@@ -20,41 +20,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
-  internal class GetFileSystemDrivesByRange : BaseDriveBasic, IRequestMicroModuleHandler
+  internal class GetFileSystemDrivesByRange : BaseDriveBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebDriveBasic> Process(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      HttpParam httpParam = request.Param;
-      string start = httpParam["start"].Value;
-      string end = httpParam["end"].Value;
-
-      int startInt;
-      if (!Int32.TryParse(start, out startInt))
-      {
-        throw new BadRequestException(String.Format("GetFileSystemDrivesByRange: Couldn't convert start to int: {0}", start));
-      }
-
-      int endInt;
-      if (!Int32.TryParse(end, out endInt))
-      {
-        throw new BadRequestException(String.Format("GetFileSystemDrivesByRange: Couldn't convert end to int: {0}", end));
-      }
-      
       List<WebDriveBasic> output = DriveBasic();
 
-      // sort and filter
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
+      // sort
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.AsQueryable().SortMediaItemList(webSortField, webSortOrder).ToList();
+       output = output.AsQueryable().SortMediaItemList(sort, order).ToList();
       }
 
       // get range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

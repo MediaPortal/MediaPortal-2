@@ -20,9 +20,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetTVShowGenres : IRequestMicroModuleHandler
+  internal class GetTVShowGenres
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebGenre> Process(WebSortField? sort, WebSortOrder? order)
     {
       // TODO: Series don't have VideoAspect. Where will ATTR_GENRES come from?
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -58,15 +58,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       }
 
       // sort
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.SortWebGenre(webSortField, webSortOrder).ToList();
+        output = output.SortWebGenre(sort, order).ToList();
       }
 
       return output;

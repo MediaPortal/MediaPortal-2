@@ -9,9 +9,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetServiceDescription : IRequestMicroModuleHandler
+  internal class GetServiceDescription
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebTVServiceDescription Process()
     { 
       WebTVServiceDescription webTVServiceDescription = new WebTVServiceDescription
       {

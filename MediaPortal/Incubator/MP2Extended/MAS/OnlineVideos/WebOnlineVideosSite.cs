@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos
 {
-  class WebOnlineVideosSite : WebObject, ITitleSortable
+  public class WebOnlineVideosSite : WebObject, ITitleSortable
   {
     public WebOnlineVideosSite()
     {

@@ -13,9 +13,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetActiveUsers : IRequestMicroModuleHandler
+  internal class GetActiveUsers
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebUser> Process()
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetActiveUsers: ITvProvider not found");

@@ -22,9 +22,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetTVShowsBasic : IRequestMicroModuleHandler
+  internal class GetTVShowsBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebTVShowBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       // we can't select only for shows, so we take all episodes and filter the shows.
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -69,16 +69,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       }
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.Filter(filter).SortWebTVShowBasic(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortWebTVShowBasic(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();

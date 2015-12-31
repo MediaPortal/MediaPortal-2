@@ -15,20 +15,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "scheduleId", Type = typeof(int), Nullable = false)]
-  internal class GetScheduleById : BaseScheduleBasic, IRequestMicroModuleHandler
+  internal class GetScheduleById : BaseScheduleBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebScheduleBasic Process(int scheduleId)
     {
-      HttpParam httpParam = request.Param;
-      string scheduleId = httpParam["scheduleId"].Value;
-      if (scheduleId == null)
-        throw new BadRequestException("GetRadioGroupById: groupId is null");
-
-      int scheduleIdInt;
-      if (!int.TryParse(scheduleId, out scheduleIdInt))
-        throw new BadRequestException(string.Format("GetScheduleById: Couldn't parse scheduleId to int: {0}", scheduleId));
-
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetScheduleById: ITvProvider not found");
 
@@ -37,7 +27,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IList<ISchedule> schedules;
       scheduleControl.GetSchedules(out schedules);
 
-      WebScheduleBasic output = ScheduleBasic(schedules.Single(schedule => schedule.ScheduleId == scheduleIdInt));
+      WebScheduleBasic output = ScheduleBasic(schedules.Single(schedule => schedule.ScheduleId == scheduleId));
 
       return output;
     }

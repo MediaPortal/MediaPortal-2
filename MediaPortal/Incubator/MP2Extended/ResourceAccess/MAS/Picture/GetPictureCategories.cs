@@ -14,9 +14,9 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetPictureCategories : IRequestMicroModuleHandler
+  internal class GetPictureCategories
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebCategory> Process()
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

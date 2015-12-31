@@ -72,7 +72,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
       }
 
       // get range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

@@ -88,7 +88,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         output = output.SortChannelList(webSortField, webSortOrder).ToList();
       }
 
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

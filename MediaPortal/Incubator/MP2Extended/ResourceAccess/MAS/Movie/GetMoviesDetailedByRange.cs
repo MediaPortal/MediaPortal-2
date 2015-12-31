@@ -23,30 +23,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMoviesDetailedByRange : BaseMovieDetailed, IRequestMicroModuleHandler
+  internal class GetMoviesDetailedByRange : BaseMovieDetailed
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public dynamic Process(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      HttpParam httpParam = request.Param;
-      string start = httpParam["start"].Value;
-      string end = httpParam["end"].Value;
-
       Logger.Info("GetMoviesDetailedByRange: start: {0}, end: {1}", start, end);
-
-      if (start == null || end == null)
-        throw new BadRequestException("start or end parameter is missing");
-
-      int startInt;
-      if (!Int32.TryParse(start, out startInt))
-      {
-        throw new BadRequestException(String.Format("GetMoviesDetailedByRange: Couldn't convert start to int: {0}", start));
-      }
-
-      int endInt;
-      if (!Int32.TryParse(end, out endInt))
-      {
-        throw new BadRequestException(String.Format("GetMoviesDetailedByRange: Couldn't convert end to int: {0}", end));
-      }
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -63,21 +44,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       var output = items.Select(item => MovieDetailed(item)).ToList();
 
       // sort and filter
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.Filter(filter).SortWebMovieDetailed(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortWebMovieDetailed(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();
 
       // get range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

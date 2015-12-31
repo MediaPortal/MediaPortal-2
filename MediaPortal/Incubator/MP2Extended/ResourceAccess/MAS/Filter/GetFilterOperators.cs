@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Common;
@@ -10,9 +11,9 @@ using MediaPortal.Plugins.MP2Extended.Filters;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetFilterOperators : IRequestMicroModuleHandler
+  internal class GetFilterOperators
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebFilterOperator> Process()
     {
       return Operator.GetAll().Select(x => new WebFilterOperator()
       {

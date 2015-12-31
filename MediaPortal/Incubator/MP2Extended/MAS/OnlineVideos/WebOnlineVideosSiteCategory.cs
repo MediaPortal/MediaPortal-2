@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos
 {
-  class WebOnlineVideosSiteCategory
+  public class WebOnlineVideosSiteCategory
   {
     public string Id { get; set; }
     public string Title { get; set; }

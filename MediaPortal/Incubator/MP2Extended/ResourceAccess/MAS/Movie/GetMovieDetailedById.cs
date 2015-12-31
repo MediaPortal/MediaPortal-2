@@ -14,14 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetMovieDetailedById : BaseMovieDetailed, IRequestMicroModuleHandler
+  internal class GetMovieDetailedById : BaseMovieDetailed
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public dynamic Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      if (httpParam["id"].Value == null)
-        throw new BadRequestException("GetMovieDetailedById: no id is null");
-
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
@@ -29,10 +25,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
       necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
 
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMovieDetailedById: No MediaItem found with id: {0}", httpParam["id"].Value));
+        throw new BadRequestException(String.Format("GetMovieDetailedById: No MediaItem found with id: {0}", id));
 
       return MovieDetailed(item);
     }

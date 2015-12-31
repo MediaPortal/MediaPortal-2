@@ -14,12 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebStringResult), Summary = "This function is not really supported in MP2Ext.\r\nOnly 'preRecordInterval' and 'postRecordInterval' are supported by MP2Ext settings. These are !not! read from the TVE DB.")]
   [ApiFunctionParam(Name = "tagName", Type = typeof(string), Nullable = false)]
-  internal class ReadSettingFromDatabase : IRequestMicroModuleHandler
+  internal class ReadSettingFromDatabase
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStringResult Process(string tagName)
     {
-      HttpParam httpParam = request.Param;
-      string tagName = httpParam["tagName"].Value;
       if (tagName == null)
         throw new BadRequestException("ReadSettingFromDatabase: tagName is null");
 

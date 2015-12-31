@@ -9,6 +9,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
@@ -17,15 +18,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetFileInfo : BaseSendData, IRequestMicroModuleHandler
+  internal class GetFileInfo : BaseSendData
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebFileInfo Process(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      if (id == null)
-        throw new BadRequestException("GetFileInfo: id is null");
-
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);

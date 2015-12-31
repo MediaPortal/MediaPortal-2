@@ -16,16 +16,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "op", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "conjunction", Type = typeof(string), Nullable = true)]
-  internal class CreateFilterString : IRequestMicroModuleHandler
+  internal class CreateFilterString
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStringResult Process(string field, string op, string value, string conjunction)
     {
-      HttpParam httpParam = request.Param;
-      string field = httpParam["field"].Value;
-      string op = httpParam["op"].Value;
-      string value = httpParam["value"].Value;
-      string conjunction = httpParam["conjunction"].Value;
-
       if (field == null)
         throw new BadRequestException("CreateFilterString: field is null");
 

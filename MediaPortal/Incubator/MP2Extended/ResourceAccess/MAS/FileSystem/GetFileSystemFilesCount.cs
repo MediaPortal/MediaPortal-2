@@ -13,15 +13,12 @@ using MediaPortal.Plugins.MP2Extended.Utils;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
-  internal class GetFileSystemFilesCount : BaseFileBasic, IRequestMicroModuleHandler
+  internal class GetFileSystemFilesCount : BaseFileBasic
   {
     [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
     [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       List<WebFileBasic> output = new List<WebFileBasic>();
       string path = Base64.Decode(id);
       if (!string.IsNullOrEmpty(path) && Directory.Exists(path))

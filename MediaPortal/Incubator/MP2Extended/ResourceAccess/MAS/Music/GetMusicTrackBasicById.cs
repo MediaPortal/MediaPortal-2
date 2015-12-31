@@ -17,24 +17,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetMusicTrackBasicById : IRequestMicroModuleHandler
+  internal class GetMusicTrackBasicById
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebMusicTrackBasic Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      if (httpParam["id"].Value == null)
-        throw new BadRequestException("GetMusicTrackBasicById: id is null");
-
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(AudioAspect.ASPECT_ID);
 
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMusicTrackBasicById: No MediaItem found with id: {0}", httpParam["id"].Value));
+        throw new BadRequestException(String.Format("GetMusicTrackBasicById: No MediaItem found with id: {0}", id));
 
       MediaItemAspect audioAspects = item[AudioAspect.Metadata];
 

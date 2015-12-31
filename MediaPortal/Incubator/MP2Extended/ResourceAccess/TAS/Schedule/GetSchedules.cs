@@ -17,9 +17,9 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetSchedules : BaseScheduleBasic, IRequestMicroModuleHandler
+  internal class GetSchedules : BaseScheduleBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebScheduleBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetSchedules: ITvProvider not found");
@@ -32,16 +32,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       List<WebScheduleBasic> output = schedules.Select(schedule => ScheduleBasic(schedule)).ToList();
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.Filter(filter).SortScheduleList(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortScheduleList(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();

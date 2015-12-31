@@ -15,13 +15,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetFileSystemFoldersCount : BaseFolderBasic, IRequestMicroModuleHandler
+  internal class GetFileSystemFoldersCount : BaseFolderBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       string path = Base64.Decode(id);
 
       // Folder listing

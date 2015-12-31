@@ -14,9 +14,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetActiveCards : IRequestMicroModuleHandler
+  internal class GetActiveCards
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebVirtualCard> Process()
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetActiveCards: ITvProvider not found");

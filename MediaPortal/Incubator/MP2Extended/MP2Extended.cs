@@ -88,8 +88,8 @@ namespace MediaPortal.Plugins.MP2Extended
             });
           });
           //app.UseMiddleware<ExceptionHandlerMiddleware>();
-          app.UseSwaggerUi(swaggerUrl: "/swagger/v1/swagger.json");
-          string resourcePath = Path.Combine(ASSEMBLY_PATH, "www").TrimEnd(Path.DirectorySeparatorChar);
+          app.UseSwaggerUi(swaggerUrl: BASE_PATH + "/swagger/v1/swagger.json");
+          string resourcePath = Path.Combine(ASSEMBLY_PATH, "www/swagger").TrimEnd(Path.DirectorySeparatorChar);
           app.UseFileServer(new FileServerOptions
           {
             FileProvider = new PhysicalFileProvider(resourcePath),

@@ -14,13 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebOnlineVideosSiteSetting>), Summary = "This function returns a list of settings for the selected site.")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetOnlineVideosSiteSettings : IRequestMicroModuleHandler
+  internal class GetOnlineVideosSiteSettings
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public List<WebOnlineVideosSiteSetting> Process(string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       if (id == null)
         throw new BadRequestException("GetOnlineVideosSiteSettings: id is null");
       

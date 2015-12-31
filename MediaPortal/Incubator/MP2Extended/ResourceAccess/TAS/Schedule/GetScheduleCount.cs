@@ -13,9 +13,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetScheduleCount : BaseScheduleBasic, IRequestMicroModuleHandler
+  internal class GetScheduleCount : BaseScheduleBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process()
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetScheduleCount: ITvProvider not found");

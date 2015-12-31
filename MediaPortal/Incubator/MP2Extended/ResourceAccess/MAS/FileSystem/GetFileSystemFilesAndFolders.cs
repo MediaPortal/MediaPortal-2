@@ -19,13 +19,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetFileSystemFilesAndFolders : BaseFilesystemItem, IRequestMicroModuleHandler
+  internal class GetFileSystemFilesAndFolders : BaseFilesystemItem
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebFilesystemItem> Process(string id, WebSortField? sort, WebSortOrder? order)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       string path = Base64.Decode(id);
 
       // File listing
@@ -45,14 +42,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
       List<WebFilesystemItem> output = files.Concat(folders).ToList();
 
       // sort
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.AsQueryable().SortMediaItemList(webSortField, webSortOrder).ToList();
+        output = output.AsQueryable().SortMediaItemList(sort, order).ToList();
       }
 
       return output;

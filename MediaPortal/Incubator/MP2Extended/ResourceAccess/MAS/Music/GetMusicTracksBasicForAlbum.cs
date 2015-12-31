@@ -22,17 +22,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicTracksBasicForAlbum : IRequestMicroModuleHandler
+  internal class GetMusicTracksBasicForAlbum
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebMusicTrackBasic> Process(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
       if (id == null)
         throw new BadRequestException("GetMusicTracksBasicForAlbum: no id is null");
-
-      // decode the ID
-      id = (new UTF8Encoding()).GetString(Convert.FromBase64String(id));
 
       // Get all episodes for this
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -86,14 +81,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       }
 
       // sort
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.SortWebMusicTrackBasic(webSortField, webSortOrder).ToList();
+        output = output.SortWebMusicTrackBasic(sort, order).ToList();
       }
 
       return output;

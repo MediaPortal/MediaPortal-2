@@ -21,11 +21,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   //[ApiFunctionParam(Name = "provider", Type = typeof(int), Nullable = true)]
   [ApiFunctionParam(Name = "op", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "limit", Type = typeof(int), Nullable = true)]
-  internal class GetFilterValuesCount : IRequestMicroModuleHandler
+  internal class GetFilterValuesCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(WebMediaType mediaType, string filterField, string op, int? limit)
     {
-      List<string> output = new GetFilterValues().Process(request, session);
+      IList<string> output = new GetFilterValues().Process(mediaType, filterField, op, limit, null);
 
       return new WebIntResult { Result = output.Count };
     }

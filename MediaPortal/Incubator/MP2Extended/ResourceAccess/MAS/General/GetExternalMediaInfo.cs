@@ -1,4 +1,5 @@
-﻿using HttpServer;
+﻿using System;
+using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -11,19 +12,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   // TODO: don't really know what the pupose of this method is.
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetExternalMediaInfo : IRequestMicroModuleHandler
+  internal class GetExternalMediaInfo
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebDictionary<string> Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
       if (id == null)
-        throw new BadRequestException("GetExternalMediaInfo: no id is null");
+        throw new BadRequestException("GetExternalMediaInfo: id is null");
 
 
       WebDictionary<string> webDictionary = new WebDictionary<string>
       {
-        { "Id", id }
+        { "Id", id.ToString() }
       };
 
       return webDictionary;

@@ -17,15 +17,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "siteId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "property", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
-  internal class SetOnlineVideosSiteSetting : IRequestMicroModuleHandler
+  internal class SetOnlineVideosSiteSetting
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(string siteId, string property, string value)
     {
-      HttpParam httpParam = request.Param;
-      string siteId = httpParam["siteId"].Value;
-      string property = httpParam["property"].Value;
-      string value = httpParam["value"].Value;
-
       if (siteId == null)
         throw new BadRequestException("SetOnlineVideosSiteSetting: siteId is null");
       if (property == null)

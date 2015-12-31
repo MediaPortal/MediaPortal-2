@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
       List<WebProgramBasic> output = new SearchProgramsDetailed().Process(request, session);
 
       // Get Range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

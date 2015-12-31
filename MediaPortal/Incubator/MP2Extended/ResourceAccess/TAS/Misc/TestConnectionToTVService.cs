@@ -9,9 +9,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class TestConnectionToTVService : IRequestMicroModuleHandler
+  internal class TestConnectionToTVService
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process()
     {
       return new WebBoolResult { Result = ServiceRegistration.IsRegistered<ITvProvider>() };
     }

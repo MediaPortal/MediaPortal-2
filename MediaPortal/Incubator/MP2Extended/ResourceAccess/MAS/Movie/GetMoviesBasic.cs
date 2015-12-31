@@ -21,9 +21,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMoviesBasic : BaseMovieBasic, IRequestMicroModuleHandler
+  internal class GetMoviesBasic : BaseMovieBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public List<WebMovieBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -40,16 +40,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       var output = items.Select(item => MovieBasic(item)).ToList();
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.Filter(filter).SortWebMovieBasic(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortWebMovieBasic(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();

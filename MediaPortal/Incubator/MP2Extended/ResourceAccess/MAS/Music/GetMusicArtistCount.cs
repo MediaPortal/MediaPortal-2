@@ -17,9 +17,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   // TODO: Rework after MIA Rework
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMusicArtistCount : IRequestMicroModuleHandler
+  internal class GetMusicArtistCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(string filter)
     {
       // we can't select only for shows, so we take all episodes and filter.
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -49,8 +49,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       }
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string filter = httpParam["filter"].Value;
       if (filter != null)
         artists = artists.Filter(filter).ToList();
 

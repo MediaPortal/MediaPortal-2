@@ -12,9 +12,9 @@ using MediaPortal.Plugins.MP2Extended.Common;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetMovieCount : IRequestMicroModuleHandler
+  internal class GetMovieCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process()
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

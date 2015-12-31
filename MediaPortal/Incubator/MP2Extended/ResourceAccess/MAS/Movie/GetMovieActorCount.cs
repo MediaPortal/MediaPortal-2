@@ -17,9 +17,9 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetMovieActorCount : BaseMovieActors, IRequestMicroModuleHandler
+  internal class GetMovieActorCount : BaseMovieActors
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(string filter)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -38,9 +38,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       output = items.Aggregate(output, (current, item) => current.Concat(MovieActors(item)).Distinct().ToList());
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-
-      string filter = httpParam["filter"].Value;
       output = output.Filter(filter).ToList();
 
       return new WebIntResult { Result = output.Count };

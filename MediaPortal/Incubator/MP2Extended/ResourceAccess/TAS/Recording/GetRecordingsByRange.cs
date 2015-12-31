@@ -78,7 +78,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
         output = output.Filter(filter).ToList();
 
       // Get Range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }

@@ -14,13 +14,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetMediaItem : IRequestMicroModuleHandler
+  internal class GetMediaItem
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebMediaItem Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      if (httpParam["id"].Value == null)
-        throw new BadRequestException("GetMediaItem: no id is null");
+      if (id == null)
+        throw new BadRequestException("GetMediaItem: id is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -35,10 +34,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
 
-      MediaItem item = GetMediaItems.GetMediaItemById(httpParam["id"].Value, necessaryMIATypes, optionalMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes, optionalMIATypes);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMediaItem: No MediaItem found with id: {0}", httpParam["id"].Value));
+        throw new BadRequestException(String.Format("GetMediaItem: No MediaItem found with id: {0}", id));
 
 
       WebMediaItem webMediaItem = new WebMediaItem();

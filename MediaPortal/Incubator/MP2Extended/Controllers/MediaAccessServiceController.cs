@@ -10,9 +10,19 @@ using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
+using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using Microsoft.AspNet.Mvc;
 
@@ -21,900 +31,996 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
   [Route("[Controller]/json/[Action]")]
   public class MediaAccessServiceController : Controller, IMediaAccessServiceController
   {
+
+    #region General
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebMediaServiceDescription GetServiceDescription()
     {
-      throw new NotImplementedException();
+      return new GetServiceDescription().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebBoolResult TestConnection()
     {
-      throw new NotImplementedException();
+      return new WebBoolResult { Result = true };
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMediaItem GetMediaItem(int? provider, WebMediaType type, string id)
+    public WebMediaItem GetMediaItem(WebMediaType type, Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMediaItem().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebDictionary<string> GetExternalMediaInfo(int? provider, WebMediaType type, string id)
+    public WebDictionary<string> GetExternalMediaInfo(WebMediaType type, Guid id)
     {
-      throw new NotImplementedException();
+      return new GetExternalMediaInfo().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebDiskSpaceInformation> GetLocalDiskInformation(string filter)
     {
-      throw new NotImplementedException();
+      return new GetLocalDiskInformation().Process();
     }
+
+    #endregion
+
+    #region Movies
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMovieCount(int? provider, string filter)
+    public WebIntResult GetMovieCount()
     {
-      throw new NotImplementedException();
+      return new GetMovieCount().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMovieBasic> GetMoviesBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMovieBasic> GetMoviesBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMoviesBasic().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMovieDetailed> GetMoviesDetailed(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMovieDetailed> GetMoviesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMovieBasic> GetMoviesBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMovieBasic> GetMoviesBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMoviesBasicByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMovieDetailed> GetMoviesDetailedByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMovieDetailed> GetMoviesDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMoviesDetailedByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMovieBasic GetMovieBasicById(int? provider, string id)
+    public WebMovieBasic GetMovieBasicById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMovieDetailed GetMovieDetailedById(int? provider, string id)
+    public WebMovieDetailed GetMovieDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMovieDetailedById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebGenre> GetMovieGenres(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> GetMovieGenres(WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMovieGenres().Process(sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebGenre> GetMovieGenresByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> GetMovieGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMovieGenresCount(int? provider, string filter)
+    public WebIntResult GetMovieGenresCount(string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebCategory> GetMovieCategories(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebCategory> GetMovieCategories(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebActor> GetMovieActors(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebActor> GetMovieActors(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMovieActors().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebActor> GetMovieActorsByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebActor> GetMovieActorsByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMovieActorCount(int? provider, string filter)
+    public WebIntResult GetMovieActorCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetMovieActorCount().Process(filter);
     }
 
+    #endregion
+
+    #region Music
+
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMusicAlbumCount(int? provider, string filter)
+    public WebIntResult GetMusicAlbumCount(string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicAlbumBasic> GetMusicAlbumsBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicAlbumBasic> GetMusicAlbumsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicAlbumBasic> GetMusicAlbumsBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicAlbumBasic> GetMusicAlbumsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicAlbumBasic> GetMusicAlbumsBasicForArtist(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicAlbumBasic> GetMusicAlbumsBasicForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMusicAlbumBasic GetMusicAlbumBasicById(int? provider, string id)
+    public WebMusicAlbumBasic GetMusicAlbumBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMusicAlbumBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMusicArtistCount(int? provider, string filter)
+    public WebIntResult GetMusicArtistCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistCount().Process(filter);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicArtistBasic> GetMusicArtistsBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicArtistBasic> GetMusicArtistsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistsBasic().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicArtistBasic> GetMusicArtistsBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicArtistBasic> GetMusicArtistsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistsBasicByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMusicArtistBasic GetMusicArtistBasicById(int? provider, string id)
+    public WebMusicArtistBasic GetMusicArtistBasicById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicArtistDetailed> GetMusicArtistsDetailed(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicArtistDetailed> GetMusicArtistsDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicArtistDetailed> GetMusicArtistsDetailedByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicArtistDetailed> GetMusicArtistsDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMusicArtistDetailed GetMusicArtistDetailedById(int? provider, string id)
+    public WebMusicArtistDetailed GetMusicArtistDetailedById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMusicTrackCount(int? provider, string filter)
+    public WebIntResult GetMusicTrackCount(string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackBasic> GetMusicTracksBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackBasic> GetMusicTracksBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackDetailed> GetMusicTracksDetailed(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackDetailed> GetMusicTracksDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackBasic> GetMusicTracksBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackBasic> GetMusicTracksBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackDetailed> GetMusicTracksDetailedByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackDetailed> GetMusicTracksDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackBasic> GetMusicTracksBasicForAlbum(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackBasic> GetMusicTracksBasicForAlbum(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksBasicForAlbum().Process(id, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackBasic> GetMusicTracksBasicForArtist(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackBasic> GetMusicTracksBasicForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackDetailed> GetMusicTracksDetailedForAlbum(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackDetailed> GetMusicTracksDetailedForAlbum(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebMusicTrackDetailed> GetMusicTracksDetailedForArtist(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackDetailed> GetMusicTracksDetailedForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMusicTrackBasic GetMusicTrackBasicById(int? provider, string id)
+    public WebMusicTrackBasic GetMusicTrackBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMusicTrackBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebMusicTrackDetailed GetMusicTrackDetailedById(int? provider, string id)
+    public WebMusicTrackDetailed GetMusicTrackDetailedById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebGenre> GetMusicGenres(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> GetMusicGenres(WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicGenres().Process(sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebGenre> GetMusicGenresByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> GetMusicGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetMusicGenresCount(int? provider, string filter)
+    public WebIntResult GetMusicGenresCount(string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebCategory> GetMusicCategories(int? provider, string filter)
+    public IList<WebCategory> GetMusicCategories(string filter)
     {
       throw new NotImplementedException();
     }
+
+    #endregion
+
+    #region OnlineVideos
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetPictureCount(int? provider, string filter)
+    public List<WebOnlineVideosVideo> GetOnlineVideosCategoryVideos(string id)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosCategoryVideos().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPictureBasic> GetPicturesBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public List<WebOnlineVideosGlobalSite> GetOnlineVideosGlobalSites(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosGlobalSites().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPictureBasic> GetPicturesBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public List<WebOnlineVideosSiteCategory> GetOnlineVideosSiteCategories(string id)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosSiteCategories().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPictureDetailed> GetPicturesDetailed(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public List<WebOnlineVideosSite> GetOnlineVideosSites(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosSites().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPictureDetailed> GetPicturesDetailedByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public List<WebOnlineVideosSiteSetting> GetOnlineVideosSiteSettings(string id)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosSiteSettings().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebPictureBasic GetPictureBasicById(int? provider, string id)
+    public List<WebOnlineVideosSiteCategory> GetOnlineVideosSubCategories(string id)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosSubCategories().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebPictureDetailed GetPictureDetailedById(int? provider, string id)
+    public List<string> GetOnlineVideosVideoUrls(string id)
     {
-      throw new NotImplementedException();
+      return new GetOnlineVideosVideoUrls().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebCategory> GetPictureCategories(int? provider, string filter)
+    public WebBoolResult SetOnlineVideosSiteSetting(string siteId, string property, string value)
     {
-      throw new NotImplementedException();
+      return new SetOnlineVideosSiteSetting().Process(siteId, property, value);
     }
 
+    #endregion
+
+    #region Pictures
+
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebCategory> GetPictureSubCategories(int? provider, string id, string filter)
+    public WebIntResult GetPictureCount()
     {
-      throw new NotImplementedException();
+      return new GetPictureCount().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPictureBasic> GetPicturesBasicByCategory(int? provider, string id, string filter)
+    public IList<WebPictureBasic> GetPicturesBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetPicturesBasic().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPictureDetailed> GetPicturesDetailedByCategory(int? provider, string id, string filter)
+    public IList<WebPictureBasic> GetPicturesBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVEpisodeCount(int? provider, string filter)
+    public IList<WebPictureDetailed> GetPicturesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetPicturesDetailed().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVEpisodeCountForTVShow(int? provider, string id, string filter)
+    public IList<WebPictureDetailed> GetPicturesDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVEpisodeCountForSeason(int? provider, string id, string filter)
+    public WebPictureBasic GetPictureBasicById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVShowCount(int? provider, string filter)
+    public WebPictureDetailed GetPictureDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetPictureDetailedById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVSeasonCountForTVShow(int? provider, string id, string filter)
+    public IList<WebCategory> GetPictureCategories()
     {
-      throw new NotImplementedException();
+      return new GetPictureCategories().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVShowBasic> GetTVShowsBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebCategory> GetPictureSubCategories(Guid id, string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVShowDetailed> GetTVShowsDetailed(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebPictureBasic> GetPicturesBasicByCategory(string id)
     {
-      throw new NotImplementedException();
+      return new GetPicturesBasicByCategory().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVShowBasic> GetTVShowsBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebPictureDetailed> GetPicturesDetailedByCategory(Guid id, string filter)
     {
       throw new NotImplementedException();
     }
+
+    #endregion
 
+    #region TVShows
+
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVShowDetailed> GetTVShowsDetailedByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebIntResult GetTVEpisodeCount()
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodeCount().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebTVShowBasic GetTVShowBasicById(int? provider, string id)
+    public WebIntResult GetTVEpisodeCountForTVShow(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodeCountForTVShow().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebTVShowDetailed GetTVShowDetailedById(int? provider, string id)
+    public WebIntResult GetTVEpisodeCountForSeason(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodeCountForSeason().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVSeasonBasic> GetTVSeasonsBasicForTVShow(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebIntResult GetTVShowCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetTVShowCount().Process(filter);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVSeasonDetailed> GetTVSeasonsDetailedForTVShow(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebIntResult GetTVSeasonCountForTVShow(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVSeasonCountForTVShow().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebTVSeasonBasic GetTVSeasonBasicById(int? provider, string id)
+    public IList<WebTVShowBasic> GetTVShowsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVShowsBasic().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebTVSeasonDetailed GetTVSeasonDetailedById(int? provider, string id)
+    public IList<WebTVShowDetailed> GetTVShowsDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeBasic> GetTVEpisodesBasic(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVShowBasic> GetTVShowsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVShowsBasicByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailed(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVShowDetailed> GetTVShowsDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebTVShowBasic GetTVShowBasicById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebTVShowDetailed GetTVShowDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVShowDetailedById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShow(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVSeasonBasic> GetTVSeasonsBasicForTVShow(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVSeasonsBasicForTVShow().Process(id, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShow(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVSeasonDetailed> GetTVSeasonsDetailedForTVShow(Guid id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVSeasonsDetailedForTVShow().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShowByRange(int? provider, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebTVSeasonBasic GetTVSeasonBasicById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShowByRange(int? provider, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebTVSeasonDetailed GetTVSeasonDetailedById(Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForSeason(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeBasic> GetTVEpisodesBasic(WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesBasic().Process(sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForSeason(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebTVEpisodeBasic GetTVEpisodeBasicById(int? provider, string id)
+    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebTVEpisodeDetailed GetTVEpisodeDetailedById(int? provider, string id)
+    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesDetailedByRange().Process(start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebCategory> GetTVShowCategories(int? provider, string filter)
+    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShow(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebGenre> GetTVShowGenres(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShow(Guid id, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebGenre> GetTVShowGenresByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVShowGenresCount(int? provider, string filter)
+    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShowByRange(Guid id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebActor> GetTVShowActors(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForSeason(Guid id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesBasicForSeason().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebActor> GetTVShowActorsByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForSeason(Guid id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesDetailedForSeason().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetTVShowActorCount(int? provider, string filter)
+    public WebTVEpisodeBasic GetTVEpisodeBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodeBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetFileSystemDriveCount(int? provider, string filter)
+    public WebTVEpisodeDetailed GetTVEpisodeDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodeDetailedById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebDriveBasic> GetFileSystemDrives(int? provider, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebCategory> GetTVShowCategories(string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebDriveBasic> GetFileSystemDrivesByRange(int? provider, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> GetTVShowGenres(WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVShowGenres().Process(sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebFolderBasic> GetFileSystemFolders(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> GetTVShowGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebFolderBasic> GetFileSystemFoldersByRange(int? provider, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebIntResult GetTVShowGenresCount(string filter)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebFileBasic> GetFileSystemFiles(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebActor> GetTVShowActors(string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebFileBasic> GetFileSystemFilesByRange(int? provider, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebActor> GetTVShowActorsByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebFilesystemItem> GetFileSystemFilesAndFolders(int? provider, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebIntResult GetTVShowActorCount(string filter)
     {
       throw new NotImplementedException();
     }
 
+    #endregion
+
+    #region Filesystem
+
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebFilesystemItem> GetFileSystemFilesAndFoldersByRange(int? provider, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebIntResult GetFileSystemDriveCount()
     {
-      throw new NotImplementedException();
+      return new GetFileSystemDriveCount().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetFileSystemFilesAndFoldersCount(int? provider, string id, string filter)
+    public IList<WebDriveBasic> GetFileSystemDrives(WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemDrives().Process(sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetFileSystemFilesCount(int? provider, string id, string filter)
+    public IList<WebDriveBasic> GetFileSystemDrivesByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemDrivesByRange().Process(start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetFileSystemFoldersCount(int? provider, string id, string filter)
+    public IList<WebFolderBasic> GetFileSystemFolders(string id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFolders().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebDriveBasic GetFileSystemDriveBasicById(int? provider, string id)
+    public IList<WebFolderBasic> GetFileSystemFoldersByRange(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFoldersByRange().Process(id, start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebFolderBasic GetFileSystemFolderBasicById(int? provider, string id)
+    public IList<WebFileBasic> GetFileSystemFiles(string id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFiles().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebFileBasic GetFileSystemFileBasicById(int? provider, string id)
+    public IList<WebFileBasic> GetFileSystemFilesByRange(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFilesByRange().Process(id, start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebArtwork> GetArtwork(int? provider, WebMediaType type, string id)
+    public IList<WebFilesystemItem> GetFileSystemFilesAndFolders(string id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFilesAndFolders().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<string> GetPathList(int? provider, WebMediaType mediatype, WebFileType filetype, string id)
+    public IList<WebFilesystemItem> GetFileSystemFilesAndFoldersByRange(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFilesAndFoldersByRange().Process(id, start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebFileInfo GetFileInfo(int? provider, WebMediaType mediatype, WebFileType filetype, string id, int offset)
+    public WebIntResult GetFileSystemFilesAndFoldersCount(string id)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFilesAndFoldersCount().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult IsLocalFile(int? provider, WebMediaType mediatype, WebFileType filetype, string id, int offset)
+    public WebIntResult GetFileSystemFilesCount(string id)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFilesCount().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public Stream RetrieveFile(int? provider, WebMediaType mediatype, WebFileType filetype, string id, int offset)
+    public WebIntResult GetFileSystemFoldersCount(string id)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFoldersCount().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPlaylist> GetPlaylists(int? provider, string filter)
+    public WebDriveBasic GetFileSystemDriveBasicById(string id)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemDriveBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPlaylistItem> GetPlaylistItems(int? provider, string playlistId, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebFolderBasic GetFileSystemFolderBasicById(string id)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFolderBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<WebPlaylistItem> GetPlaylistItemsByRange(int? provider, string playlistId, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public WebFileBasic GetFileSystemFileBasicById(string id)
     {
-      throw new NotImplementedException();
+      return new GetFileSystemFileBasicById().Process(id);
     }
+
+    #endregion
+
+    #region Files
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetPlaylistItemsCount(int? provider, string playlistId, string filter)
+    public IList<WebArtwork> GetArtwork(WebMediaType type, Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult AddPlaylistItem(int? provider, string playlistId, WebMediaType type, string id, int? position)
+    public IList<string> GetPathList(WebMediaType mediatype, WebFileType filetype, Guid id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult ClearAndAddPlaylistItems(int? provider, string playlistId, WebMediaType type, int? position, string ids)
+    public WebFileInfo GetFileInfo(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
-      throw new NotImplementedException();
+      return new GetFileInfo().Process(mediatype, filetype, id, offset);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult AddPlaylistItems(int? provider, string playlistId, WebMediaType type, int? position, string ids)
+    public WebBoolResult IsLocalFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult RemovePlaylistItem(int? provider, string playlistId, int position)
+    public Stream RetrieveFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
       throw new NotImplementedException();
     }
+
+    #endregion
+
+    #region Playlist
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult RemovePlaylistItems(int? provider, string playlistId, string positions)
+    public IList<WebPlaylist> GetPlaylists()
     {
-      throw new NotImplementedException();
+      return new GetPlaylists().Process();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult MovePlaylistItem(int? provider, string playlistId, int oldPosition, int newPosition)
+    public IList<WebPlaylistItem> GetPlaylistItems(Guid playlistId, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebStringResult CreatePlaylist(int? provider, string playlistName)
+    public IList<WebPlaylistItem> GetPlaylistItemsByRange(Guid playlistId, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebBoolResult DeletePlaylist(int? provider, string playlistId)
+    public WebIntResult GetPlaylistItemsCount(Guid playlistId, string filter)
     {
       throw new NotImplementedException();
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public WebBoolResult AddPlaylistItem(Guid playlistId, WebMediaType type, Guid id, int? position)
+    {
+      return new AddPlaylistItem().Process(playlistId, type, id, position);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public WebBoolResult ClearAndAddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids)
+    {
+      return new ClearAndAddPlaylistItems().Process(playlistId, type, position, ids);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public WebBoolResult AddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids)
+    {
+      return new AddPlaylistItems().Process(playlistId, type, position, ids);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public WebIntResult GetFilterValuesCount(int? provider, WebMediaType mediaType, string filterField, string op, int? limit)
+    public WebBoolResult RemovePlaylistItem(Guid playlistId, int position)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<string> GetFilterValues(int? provider, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public WebBoolResult RemovePlaylistItems(Guid playlistId, string positions)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    public IList<string> GetFilterValuesByRange(int? provider, int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public WebBoolResult MovePlaylistItem(Guid playlistId, int oldPosition, int newPosition)
     {
       throw new NotImplementedException();
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public WebStringResult CreatePlaylist(string playlistName)
+    {
+      return new CreatePlaylist().Process(playlistName);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public WebBoolResult DeletePlaylist(Guid playlistId)
+    {
+      return new DeletePlaylist().Process(playlistId);
+    }
+
+    #endregion
+
+    #region Filters
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public WebIntResult GetFilterValuesCount(WebMediaType mediaType, string filterField, string op, int? limit)
+    {
+      return new GetFilterValuesCount().Process(mediaType, filterField, op, limit);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public IList<string> GetFilterValues(WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    {
+      return new GetFilterValues().Process(mediaType, filterField, op, limit, order);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    public IList<string> GetFilterValuesByRange(int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    {
+      return new GetFilterValuesByRange().Process(start, end, mediaType, filterField, op, limit, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebStringResult CreateFilterString(string field, string op, string value, string conjunction)
     {
-      throw new NotImplementedException();
+      return new CreateFilterString().Process(field, op, value, conjunction);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebFilterOperator> GetFilterOperators()
     {
-      throw new NotImplementedException();
+      return new GetFilterOperators().Process();
     }
+
+    #endregion
   }
 }

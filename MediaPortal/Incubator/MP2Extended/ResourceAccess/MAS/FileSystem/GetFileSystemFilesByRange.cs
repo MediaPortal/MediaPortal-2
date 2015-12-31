@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
-  internal class GetFileSystemFilesByRange : BaseFileBasic, IRequestMicroModuleHandler
+  internal class GetFileSystemFilesByRange : BaseFileBasic
   {
     [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebFileBasic>), Summary = "")]
     [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
@@ -25,28 +25,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
     [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
     [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
     [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebFileBasic> Process(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      string start = httpParam["start"].Value;
-      string end = httpParam["end"].Value;
-
-      if (start == null || end == null)
-        throw new BadRequestException("start or end parameter is missing");
-
-      int startInt;
-      if (!Int32.TryParse(start, out startInt))
-      {
-        throw new BadRequestException(String.Format("GetFileSystemFilesByRange: Couldn't convert start to int: {0}", start));
-      }
-
-      int endInt;
-      if (!Int32.TryParse(end, out endInt))
-      {
-        throw new BadRequestException(String.Format("GetFileSystemFilesByRange: Couldn't convert end to int: {0}", end));
-      }
-
       List<WebFileBasic> output = new List<WebFileBasic>();
       string path = Base64.Decode(id);
       if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
@@ -55,18 +35,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
       }
 
       // sort
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.AsQueryable().SortMediaItemList(webSortField, webSortOrder).ToList();
+        output = output.AsQueryable().SortMediaItemList(sort, order).ToList();
       }
 
       // get range
-      output = output.TakeRange(startInt, endInt).ToList();
+      output = output.TakeRange(start, end).ToList();
 
       return output;
     }
