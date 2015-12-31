@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
     {
       IEnumerable channels = (IEnumerable) value;
       foreach (Channel channel in channels)
-        channel.Serialize(writer);
+        if (channel != null) channel.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
