@@ -50,6 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _delayInOutProperty;
     protected bool _fallbackSourceInUse = false;
     protected bool _needsUpdate = false;
+    protected bool _firstAllocation = true;
     protected string _currentUri = null;
     protected string _pendingUri = null;
     protected double _pendingDelay = 0;
@@ -188,6 +189,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
+      if (_firstAllocation)
+      {
+        //Fire UriChanged manually on the first allocation so that initially bound images are displayed
+        OnImageSourceUriChanged();
+        _firstAllocation = false;
+      }
+
       //Check if it's time to switch to next texture
       CheckAndUpdateTexture();
       // Check our previous texture is allocated. Synchronous.
@@ -312,7 +320,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     void ScheduleUpdate(string uri)
     {
-      bool force = !DelayInOut && (string.IsNullOrEmpty(_pendingUri) || string.IsNullOrEmpty(uri));
+      bool force = _firstAllocation || (!DelayInOut && (string.IsNullOrEmpty(_pendingUri) || string.IsNullOrEmpty(uri)));
       _pendingDelay = force ? 0 : Delay;
       _pendingUri = uri;
       _lastChangedTime = DateTime.Now;
