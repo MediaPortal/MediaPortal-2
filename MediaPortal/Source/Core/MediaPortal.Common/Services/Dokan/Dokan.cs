@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Dokan;
@@ -205,6 +206,13 @@ namespace MediaPortal.Common.Services.Dokan
       // Check if this drive was queried before
       if (_dokanDriveLetters.Contains(driveLetter))
         return true;
+
+      if ((driveLetter < 'A' || driveLetter > 'Z') && (driveLetter < 'a' || driveLetter > 'z'))
+      {
+        StackTrace st = new StackTrace();
+        ServiceRegistration.Get<ILogger>().Error("IsDokanDrive was called with invalid drive letter '{0}'. Call stack:\r\n{1}", driveLetter, st);
+        return false;
+      }
 
       try
       {
