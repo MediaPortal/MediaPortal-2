@@ -18,9 +18,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetGroups : BaseChannelGroup, IRequestMicroModuleHandler
+  internal class GetGroups : BaseChannelGroup
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebChannelGroup> Process(WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelsBasic: ITvProvider not found");
@@ -38,15 +38,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       }
 
       // sort
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.SortGroupList(webSortField, webSortOrder).ToList();
+        output = output.SortGroupList(sort, order).ToList();
       }
 
       return output;

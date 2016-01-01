@@ -17,15 +17,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(int), Nullable = false)]
-  internal class GetRecordingById : BaseRecordingBasic, IRequestMicroModuleHandler
+  internal class GetRecordingById : BaseRecordingBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebRecordingBasic Process(Guid id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      if (id == null)
-        throw new BadRequestException("GetRecordingById: id is null");
-      
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingById: ITvProvider not found");
 

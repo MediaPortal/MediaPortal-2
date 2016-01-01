@@ -18,32 +18,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
-  internal class GetProgramsDetailedForGroup : BaseProgramDetailed, IRequestMicroModuleHandler
+  internal class GetProgramsDetailedForGroup : BaseProgramDetailed
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebChannelPrograms<WebProgramDetailed>> Process(int groupId, DateTime startTime, DateTime endTime)
     {
-      HttpParam httpParam = request.Param;
-      string groupId = httpParam["groupId"].Value;
-      string startTime = httpParam["startTime"].Value;
-      string endTime = httpParam["endTime"].Value;
-
-      if (groupId == null)
-        throw new BadRequestException("GetProgramsDetailedForGroup: groupId is null");
-      if (startTime == null)
-        throw new BadRequestException("GetProgramsDetailedForGroup: startTime is null");
-      if (endTime == null)
-        throw new BadRequestException("GetProgramsDetailedForGroup: endTime is null");
-
-      int groupIdInt;
-      if (!int.TryParse(groupId, out groupIdInt))
-        throw new BadRequestException(string.Format("GetProgramsDetailedForGroup: Couldn't parse programId to int: {0}", groupId));
-      DateTime startDateTime;
-      if (!DateTime.TryParse(startTime, out startDateTime))
-        throw new BadRequestException(string.Format("GetProgramsDetailedForGroup: Couldn't parse startTime to DateTime: {0}", startTime));
-      DateTime endDateTime;
-      if (!DateTime.TryParse(endTime, out endDateTime))
-        throw new BadRequestException(string.Format("GetProgramsDetailedForGroup: Couldn't parse endTime to DateTime: {0}", endTime));
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramsDetailedForGroup: ITvProvider not found");
 
@@ -52,13 +30,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 
       IList<IChannelGroup> grouList;
       if (!channelAndGroupInfo.GetChannelGroups(out grouList))
-        throw new BadRequestException(string.Format("GetProgramsDetailedForGroup: Couldn't get channel with Id: {0}", groupIdInt));
+        throw new BadRequestException(string.Format("GetProgramsDetailedForGroup: Couldn't get channel with Id: {0}", groupId));
 
-      IChannelGroup group = grouList.Single(x => x.ChannelGroupId == groupIdInt);
+      IChannelGroup group = grouList.Single(x => x.ChannelGroupId == groupId);
 
       IList<IProgram> programList;
-      if (!programInfo.GetProgramsGroup(group, startDateTime, endDateTime, out programList))
-        Logger.Warn("GetProgramsDetailedForGroup: Couldn't get Now/Next Info for channel with Id: {0}", groupIdInt);
+      if (!programInfo.GetProgramsGroup(group, startTime, endTime, out programList))
+        Logger.Warn("GetProgramsDetailedForGroup: Couldn't get Now/Next Info for channel with Id: {0}", groupId);
 
       List<WebChannelPrograms<WebProgramDetailed>> output = new List<WebChannelPrograms<WebProgramDetailed>>();
 

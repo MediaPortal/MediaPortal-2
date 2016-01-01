@@ -13,20 +13,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
-  internal class GetNextProgramOnChannel : BaseProgramDetailed, IRequestMicroModuleHandler
+  internal class GetNextProgramOnChannel : BaseProgramDetailed
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebProgramDetailed Process(int channelId)
     {
-      HttpParam httpParam = request.Param;
-      string channelId = httpParam["channelId"].Value;
-
-      if (channelId == null)
-        throw new BadRequestException("GetNextProgramOnChannel: channelId is null");
-
-      int channelIdInt;
-      if (!int.TryParse(channelId, out channelIdInt))
-        throw new BadRequestException(string.Format("GetNextProgramOnChannel: Couldn't parse channelId to int: {0}", channelId));
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetNextProgramOnChannel: ITvProvider not found");
 
@@ -35,13 +25,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 
 
       IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelIdInt, out channel))
-        throw new BadRequestException(string.Format("GetNextProgramOnChannel: Couldn't get channel with Id: {0}", channelIdInt));
+      if (!channelAndGroupInfo.GetChannel(channelId, out channel))
+        throw new BadRequestException(string.Format("GetNextProgramOnChannel: Couldn't get channel with Id: {0}", channelId));
 
       IProgram programNow;
       IProgram programNext;
       if (!programInfo.GetNowNextProgram(channel, out programNow, out programNext))
-        Logger.Warn("GetNextProgramOnChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelIdInt);
+        Logger.Warn("GetNextProgramOnChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelId);
 
       WebProgramDetailed webProgramDetailed = ProgramDetailed(programNext);
 

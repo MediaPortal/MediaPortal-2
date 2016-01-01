@@ -16,9 +16,9 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetRecordingCount : BaseRecordingBasic, IRequestMicroModuleHandler
+  internal class GetRecordingCount : BaseRecordingBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process()
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingCount: ITvProvider not found");

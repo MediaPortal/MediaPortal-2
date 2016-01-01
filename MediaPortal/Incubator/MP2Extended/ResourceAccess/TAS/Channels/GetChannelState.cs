@@ -14,15 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
-  internal class GetChannelState : IRequestMicroModuleHandler
+  internal class GetChannelState
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebChannelState Process(int channelId, string userName)
     {
-      HttpParam httpParam = request.Param;
-      string channelId = httpParam["channelId"].Value;
-      string userName = httpParam["userName"].Value;
-     
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelState: ITvProvider not found");
 
@@ -31,15 +26,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
       if (userName == null)
         throw new BadRequestException("GetChannelState: userName is null");
 
-      int channelIdInt;
-      if (!int.TryParse(channelId, out channelIdInt))
-        throw new BadRequestException(string.Format("GetChannelState: Couldn't convert channelId to int: {0}", channelId));
-
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
 
       IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelIdInt, out channel))
+      if (!channelAndGroupInfo.GetChannel(channelId, out channel))
         throw new BadRequestException(string.Format("GetChannelState: Couldn't get channel with id: {0}", channelId));
 
       WebChannelState webChannelState = new WebChannelState

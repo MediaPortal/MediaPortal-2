@@ -21,17 +21,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebProgramBasic>), Summary = "")]
   [ApiFunctionParam(Name = "searchTerm", Type = typeof(string), Nullable = false)]
-  internal class SearchProgramsBasic : BaseProgramBasic, IRequestMicroModuleHandler
+  internal class SearchProgramsBasic : BaseProgramBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebProgramBasic> Process(string searchTerm)
     {
-      HttpParam httpParam = request.Param;
-      string searchTerm = httpParam["searchTerm"].Value;
-
       if (searchTerm == null)
         throw new BadRequestException("SearchProgramsBasic: searchTerm is null");
-
-
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("SearchProgramsBasic: ITvProvider not found");

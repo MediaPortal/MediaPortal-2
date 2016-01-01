@@ -15,14 +15,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
-  internal class GetRadioChannelCount : IRequestMicroModuleHandler
+  internal class GetRadioChannelCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(int? groupId = null)
     {
-      HttpParam httpParam = request.Param;
-      string groupId = httpParam["groupId"].Value;
-     
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioChannelCount: ITvProvider not found");
 
@@ -34,10 +30,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
         channelAndGroupInfo.GetChannelGroups(out channelGroups);
       else
       {
-        int channelGroupIdInt;
-        if (!int.TryParse(groupId, out channelGroupIdInt))
-          throw new BadRequestException(string.Format("GetRadioChannelCount: Couldn't convert groupId to int: {0}", groupId));
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt });
+        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value });
       }
 
       int output = 0;

@@ -20,13 +20,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
   [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetChannelsBasic : BaseChannelBasic, IRequestMicroModuleHandler
+  internal class GetChannelsBasic : BaseChannelBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebChannelBasic> Process(WebSortField? sort, WebSortOrder? order, int? groupId = null)
     {
-      HttpParam httpParam = request.Param;
-      string groupId = httpParam["groupId"].Value;
-      
       List<WebChannelBasic> output = new List<WebChannelBasic>();
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
@@ -40,10 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         channelAndGroupInfo.GetChannelGroups(out channelGroups);
       else
       {
-        int channelGroupIdInt;
-        if (!int.TryParse(groupId, out channelGroupIdInt))
-          throw new BadRequestException(string.Format("GetChannelsBasic: Couldn't convert groupId to int: {0}", groupId));
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = channelGroupIdInt, MediaType = MediaType.TV });
+        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value, MediaType = MediaType.TV });
       }
 
       foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
@@ -57,14 +51,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       }
 
       // sort
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.SortChannelList(webSortField, webSortOrder).ToList();
+        output = output.SortChannelList(sort, order).ToList();
       }
 
       return output;

@@ -7,13 +7,18 @@ using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using Microsoft.AspNet.Mvc;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers
 {
@@ -51,14 +56,14 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
     /*public IList<WebTVSearchResult> Search(string text, WebTVSearchResultType? type = null)
     {
       throw new NotImplementedException();
-    }
+    }*/
 
     public WebDictionary<string> GetExternalMediaInfo(WebMediaType? type, string id)
     {
       throw new NotImplementedException();
     }
 
-    public IList<WebTVSearchResult> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null)
+    /*public IList<WebTVSearchResult> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null)
     {
       throw new NotImplementedException();
     }*/
@@ -85,26 +90,6 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
 
     #endregion
 
-    #region Recording
-
-    public IList<WebDiskSpaceInformation> GetAllRecordingDiskInformation()
-    {
-      return new GetAllRecordingDiskInformation().Process();
-    }
-
-    public WebDiskSpaceInformation GetRecordingDiskInformationForCard(int id)
-    {
-      throw new NotImplementedException();
-    }
-
-
-    public WebBoolResult StartRecordingManual(string userName, int channelId, string title)
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
-
     #region Schedule
 
     public WebBoolResult AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
@@ -122,12 +107,12 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
       return new GetScheduleCount().Process();
     }
 
-    public IList<WebScheduleBasic> GetSchedules(string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebScheduleBasic> GetSchedules(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       return new GetSchedules().Process(filter, sort, order);
     }
 
-    public IList<WebScheduleBasic> GetSchedulesByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebScheduleBasic> GetSchedulesByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       return new GetSchedulesByRange().Process(start, end, filter, sort, order);
     }
@@ -149,7 +134,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
 
     public WebBoolResult DeleteSchedule(int scheduleId)
     {
-      throw new NotImplementedException();
+      return new DeleteSchedule().Process(scheduleId);
     }
 
     public WebBoolResult StopRecording(int scheduleId)
@@ -157,34 +142,54 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
       throw new NotImplementedException();
     }
 
-    public IList<WebScheduledRecording> GetScheduledRecordingsForDate(DateTime date, string filter = null, WebSortField? sort, WebSortOrder? order)
+    public IList<WebScheduledRecording> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
+    {
+      return new GetScheduledRecordingsForDate().Process(date, sort, order, filter);
+    }
+
+    public IList<WebScheduledRecording> GetScheduledRecordingsForToday(WebSortField? sort, WebSortOrder? order, string filter = null)
+    {
+      return new GetScheduledRecordingsForToday().Process(sort, order, filter);
+    }
+
+    #endregion
+
+    #region Recording
+
+    public IList<WebDiskSpaceInformation> GetAllRecordingDiskInformation()
+    {
+      return new GetAllRecordingDiskInformation().Process();
+    }
+
+    public WebDiskSpaceInformation GetRecordingDiskInformationForCard(int id)
     {
       throw new NotImplementedException();
     }
 
-    public IList<WebScheduledRecording> GetScheduledRecordingsForToday(string filter = null, WebSortField? sort, WebSortOrder? order)
+
+    public WebBoolResult StartRecordingManual(string userName, int channelId, string title)
     {
       throw new NotImplementedException();
     }
 
-    public WebIntResult GetRecordingCount(string filter = null)
+    public WebIntResult GetRecordingCount()
     {
-      throw new NotImplementedException();
+      return new GetRecordingCount().Process();
     }
 
-    public IList<WebRecordingBasic> GetRecordings(string filter = null, WebSortField? sort, WebSortOrder? order)
+    public IList<WebRecordingBasic> GetRecordings(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
-      throw new NotImplementedException();
+      return new GetRecordings().Process(sort, order, filter);
     }
 
-    public IList<WebRecordingBasic> GetRecordingsByRange(int start, int end, string filter = null, WebSortField? sort, WebSortOrder? order)
+    public IList<WebRecordingBasic> GetRecordingsByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
-      throw new NotImplementedException();
+      return new GetRecordingsByRange().Process(start, end, sort, order, filter);
     }
 
-    public WebRecordingBasic GetRecordingById(int id)
+    public WebRecordingBasic GetRecordingById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetRecordingById().Process(id);
     }
 
     public WebBoolResult DeleteRecording(int id)
@@ -202,120 +207,136 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
       throw new NotImplementedException();
     }
 
-    public WebIntResult GetGroupCount(string filter = null)
-    {
-      throw new NotImplementedException();
-    }
+    #endregion
 
-    public IList<WebChannelGroup> GetGroups(string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelGroup> GetGroupsByRange(int start, int end, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public WebChannelGroup GetGroupById(int groupId)
-    {
-      throw new NotImplementedException();
-    }
-
-    public WebIntResult GetChannelCount(int? groupId = null, string filter = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelBasic> GetChannelsBasic(int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelBasic> GetChannelsBasicByRange(int start, int end, int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelDetailed> GetChannelsDetailed(int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelDetailed> GetChannelsDetailedByRange(int start, int end, int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelState> GetAllChannelStatesForGroup(int groupId, string userName, string filter = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public WebIntResult GetRadioGroupCount(string filter = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelGroup> GetRadioGroups(string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelGroup> GetRadioGroupsByRange(int start, int end, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public WebChannelGroup GetRadioGroupById(int groupId)
-    {
-      throw new NotImplementedException();
-    }
-
-    public WebIntResult GetRadioChannelCount(int? groupId = null, string filter = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelBasic> GetRadioChannelsBasic(int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelBasic> GetRadioChannelsBasicByRange(int start, int end, int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelDetailed> GetRadioChannelsDetailed(int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelDetailed> GetRadioChannelsDetailedByRange(int start, int end, int? groupId = null, string filter = null, WebSortField? sort, WebSortOrder? order)
-    {
-      throw new NotImplementedException();
-    }
-
-    public IList<WebChannelState> GetAllRadioChannelStatesForGroup(int groupId, string userName, string filter = null)
-    {
-      throw new NotImplementedException();
-    }
+    #region Tv
 
     public WebChannelBasic GetChannelBasicById(int channelId)
     {
-      throw new NotImplementedException();
+      return new GetChannelBasicById().Process(channelId);
     }
 
     public WebChannelDetailed GetChannelDetailedById(int channelId)
     {
-      throw new NotImplementedException();
+      return new GetChannelDetailedById().Process(channelId);
     }
 
-    public WebChannelState GetChannelState(int channelId, string userName)
+    public WebIntResult GetGroupCount()
+    {
+      return new GetGroupCount().Process();
+    }
+
+    public IList<WebChannelGroup> GetGroups(WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetGroups().Process(sort, order);
+    }
+
+    public IList<WebChannelGroup> GetGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetGroupsByRange().Process(start, end, sort, order);
+    }
+
+    public WebChannelGroup GetGroupById(int groupId)
+    {
+      return new GetGroupById().Process(groupId);
+    }
+
+    public WebIntResult GetChannelCount(int? groupId = null)
+    {
+      return new GetChannelCount().Process(groupId);
+    }
+
+    public IList<WebChannelBasic> GetChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetChannelsBasic().Process(sort, order, groupId);
+    }
+
+    public IList<WebChannelBasic> GetChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetChannelsBasicByRange().Process(start, end, sort, order, groupId);
+    }
+
+    public IList<WebChannelDetailed> GetChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetChannelsDetailed().Process(groupId, sort, order);
+    }
+
+    public IList<WebChannelDetailed> GetChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetChannelsDetailedByRange().Process(start, end, groupId, sort, order);
+    }
+
+    #endregion
+
+    #region Radio
+
+    public WebIntResult GetRadioGroupCount()
+    {
+      return new GetRadioGroupCount().Process();
+    }
+
+    public IList<WebChannelGroup> GetRadioGroups(WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetRadioGroups().Process(sort, order);
+    }
+
+    public IList<WebChannelGroup> GetRadioGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetRadioGroupsByRange().Process(start, end, sort, order);
+    }
+
+    public WebChannelGroup GetRadioGroupById(int groupId)
+    {
+      return new GetRadioGroupById().Process(groupId);
+    }
+
+    public WebIntResult GetRadioChannelCount(int? groupId = null)
+    {
+      return new GetRadioChannelCount().Process(groupId);
+    }
+
+    public IList<WebChannelBasic> GetRadioChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetRadioChannelsBasic().Process(groupId, sort, order);
+    }
+
+    public IList<WebChannelBasic> GetRadioChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetRadioChannelsBasicByRange().Process(start, end, groupId, sort, order);
+    }
+
+    public IList<WebChannelDetailed> GetRadioChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetRadioChannelsDetailed().Process(groupId, sort, order);
+    }
+
+    public IList<WebChannelDetailed> GetRadioChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    {
+      return new GetRadioChannelsDetailedByRange().Process(start, end, groupId, sort, order);
+    }
+
+    public IList<WebChannelState> GetAllRadioChannelStatesForGroup(int groupId, string userName)
     {
       throw new NotImplementedException();
     }
+
+    #endregion
+
+    #region Channels
+
+    public WebChannelState GetChannelState(int channelId, string userName)
+    {
+      return new GetChannelState().Process(channelId, userName);
+    }
+
+    public IList<WebChannelState> GetAllChannelStatesForGroup(int groupId, string userName)
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region Timeshifting
 
     public WebVirtualCard SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId)
     {
@@ -324,7 +345,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
 
     public WebStringResult SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId)
     {
-      throw new NotImplementedException();
+      return new SwitchTVServerToChannelAndGetStreamingUrl().Process(userName, channelId);
     }
 
     public WebStringResult SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId)
@@ -339,82 +360,86 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
 
     public WebBoolResult CancelCurrentTimeShifting(string userName)
     {
-      throw new NotImplementedException();
+      return new CancelCurrentTimeShifting().Process(userName);
     }
 
-    public IList<WebProgramBasic> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime, string filter = null)
+    #endregion
+
+    #region EPG
+
+    public IList<WebProgramBasic> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime)
     {
-      throw new NotImplementedException();
+      return new GetProgramsBasicForChannel().Process(channelId, startTime, endTime);
     }
 
-    public IList<WebProgramDetailed> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime, string filter = null)
+    public IList<WebProgramDetailed> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime)
     {
-      throw new NotImplementedException();
+      return new GetProgramsDetailedForChannel().Process(channelId, startTime, endTime);
     }
 
-    public IList<WebChannelPrograms<WebProgramBasic>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime, string filter = null)
+    public IList<WebChannelPrograms<WebProgramBasic>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime)
     {
-      throw new NotImplementedException();
+      return new GetProgramsBasicForGroup().Process(groupId, startTime, endTime);
     }
 
-    public IList<WebChannelPrograms<WebProgramDetailed>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime, string filter = null)
+    public IList<WebChannelPrograms<WebProgramDetailed>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime)
     {
-      throw new NotImplementedException();
+      return new GetProgramsDetailedForGroup().Process(groupId, startTime, endTime);
     }
 
     public WebProgramDetailed GetCurrentProgramOnChannel(int channelId)
     {
-      throw new NotImplementedException();
+      return new GetCurrentProgramOnChannel().Process(channelId);
     }
 
     public WebProgramDetailed GetNextProgramOnChannel(int channelId)
     {
-      throw new NotImplementedException();
+      return new GetNextProgramOnChannel().Process(channelId);
     }
 
     public WebIntResult SearchProgramsCount(string searchTerm)
     {
-      throw new NotImplementedException();
+      return new SearchProgramsCount().Process(searchTerm);
     }
 
-    public IList<WebProgramBasic> SearchProgramsBasic(string searchTerm, string filter = null)
+    public IList<WebProgramBasic> SearchProgramsBasic(string searchTerm)
     {
-      throw new NotImplementedException();
+      return new SearchProgramsBasic().Process(searchTerm);
     }
 
-    public IList<WebProgramBasic> SearchProgramsBasicByRange(string searchTerm, int start, int end, string filter = null)
+    public IList<WebProgramBasic> SearchProgramsBasicByRange(string searchTerm, int start, int end)
     {
-      throw new NotImplementedException();
+      return new SearchProgramsBasicByRange().Process(searchTerm, start, end);
     }
 
-    public IList<WebProgramDetailed> SearchProgramsDetailed(string searchTerm, string filter = null)
+    public IList<WebProgramDetailed> SearchProgramsDetailed(string searchTerm)
     {
-      throw new NotImplementedException();
+      return new SearchProgramsDetailed().Process(searchTerm);
     }
 
-    public IList<WebProgramDetailed> SearchProgramsDetailedByRange(string searchTerm, int start, int end, string filter = null)
+    public IList<WebProgramDetailed> SearchProgramsDetailedByRange(string searchTerm, int start, int end)
     {
-      throw new NotImplementedException();
+      return new SearchProgramsDetailedByRange().Process(searchTerm, start, end);
     }
 
-    public IList<WebProgramBasic> GetNowNextWebProgramBasicForChannel(int channelId, string filter = null)
+    public IList<WebProgramBasic> GetNowNextWebProgramBasicForChannel(int channelId)
     {
-      throw new NotImplementedException();
+      return new GetNowNextWebProgramBasicForChannel().Process(channelId);
     }
 
-    public IList<WebProgramDetailed> GetNowNextWebProgramDetailedForChannel(int channelId, string filter = null)
+    public IList<WebProgramDetailed> GetNowNextWebProgramDetailedForChannel(int channelId)
     {
-      throw new NotImplementedException();
+      return new GetNowNextWebProgramDetailedForChannel().Process(channelId);
     }
 
     public WebProgramBasic GetProgramBasicById(int programId)
     {
-      throw new NotImplementedException();
+      return new GetProgramBasicById().Process(programId);
     }
 
     public WebProgramDetailed GetProgramDetailedById(int programId)
     {
-      throw new NotImplementedException();
+      return new GetProgramDetailedById().Process(programId);
     }
 
     public WebBoolResult GetProgramIsScheduledOnChannel(int channelId, int programId)
@@ -426,5 +451,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
     {
       throw new NotImplementedException();
     }
+
+    #endregion
   }
 }

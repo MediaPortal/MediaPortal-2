@@ -18,9 +18,9 @@ using Newtonsoft.Json;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetScheduledRecordingsForToday : BaseScheduledRecording, IRequestMicroModuleHandler
+  internal class GetScheduledRecordingsForToday : BaseScheduledRecording
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebScheduledRecording> Process(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetScheduledRecordingsForToday: ITvProvider not found");
@@ -33,16 +33,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       List<WebScheduledRecording> output = schedules.Select(schedule => ScheduledRecording(schedule)).Where(x => x.StartTime.Date == DateTime.Now.Date).ToList();
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.Filter(filter).SortScheduledRecordingList(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortScheduledRecordingList(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();

@@ -11,14 +11,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
-  internal class CancelCurrentTimeShifting : IRequestMicroModuleHandler
+  internal class CancelCurrentTimeShifting
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(string userName)
     {
-      HttpParam httpParam = request.Param;
-      string userName = httpParam["userName"].Value;
-      
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("CancelCurrentTimeShifting: ITvProvider not found");
 

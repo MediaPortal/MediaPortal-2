@@ -15,19 +15,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
-  internal class GetGroupById : BaseChannelGroup, IRequestMicroModuleHandler
+  internal class GetGroupById : BaseChannelGroup
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebChannelGroup Process(int groupId)
     {
-      HttpParam httpParam = request.Param;
-      string groupId = httpParam["groupId"].Value;
-      if (groupId == null)
-        throw new BadRequestException("GetGroupById: groupId is null");
-
-      int groupIdInt;
-      if (!int.TryParse(groupId, out groupIdInt))
-        throw new BadRequestException(string.Format("GetGroupById: Couldn't parse groupId to int: {0}", groupId));
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelsBasic: ITvProvider not found");
 
@@ -37,10 +28,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       channelAndGroupInfo.GetChannelGroups(out channelGroups);
 
       // select the channel Group we are looking for
-      IChannelGroup group = channelGroups.First(x => x.ChannelGroupId == groupIdInt);
+      IChannelGroup group = channelGroups.First(x => x.ChannelGroupId == groupId);
 
       if (group == null)
-        throw new BadRequestException(string.Format("GetGroupById: group with id: {0} not found", groupIdInt));
+        throw new BadRequestException(string.Format("GetGroupById: group with id: {0} not found", groupId));
 
       WebChannelGroup webChannelGroup = ChannelGroup(group);
 

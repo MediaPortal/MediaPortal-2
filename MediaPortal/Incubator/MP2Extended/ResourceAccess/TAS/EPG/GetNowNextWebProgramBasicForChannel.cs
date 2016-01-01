@@ -14,20 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
-  internal class GetNowNextWebProgramBasicForChannel : BaseProgramBasic, IRequestMicroModuleHandler
+  internal class GetNowNextWebProgramBasicForChannel : BaseProgramBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebProgramBasic> Process(int channelId)
     {
-      HttpParam httpParam = request.Param;
-      string channelId = httpParam["channelId"].Value;
-
-      if (channelId == null)
-        throw new BadRequestException("GetNowNextWebProgramBasicForChannel: channelId is null");
-
-      int channelIdInt;
-      if (!int.TryParse(channelId, out channelIdInt))
-        throw new BadRequestException(string.Format("GetNowNextWebProgramBasicForChannel: Couldn't parse channelId to int: {0}", channelId));
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetNowNextWebProgramBasicForChannel: ITvProvider not found");
 
@@ -36,14 +26,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 
 
       IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelIdInt, out channel))
-        throw new BadRequestException(string.Format("GetNowNextWebProgramBasicForChannel: Couldn't get channel with Id: {0}", channelIdInt));
+      if (!channelAndGroupInfo.GetChannel(channelId, out channel))
+        throw new BadRequestException(string.Format("GetNowNextWebProgramBasicForChannel: Couldn't get channel with Id: {0}", channelId));
 
 
       IProgram programNow;
       IProgram programNext;
       if (!programInfo.GetNowNextProgram(channel, out programNow, out programNext))
-        Logger.Warn("GetNowNextWebProgramBasicForChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelIdInt);
+        Logger.Warn("GetNowNextWebProgramBasicForChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelId);
 
       List<WebProgramBasic> output = new List<WebProgramBasic>
       {

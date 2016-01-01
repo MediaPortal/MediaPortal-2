@@ -18,31 +18,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
-  internal class SwitchTVServerToChannelAndGetStreamingUrl : IRequestMicroModuleHandler
+  internal class SwitchTVServerToChannelAndGetStreamingUrl
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStringResult Process(string userName, int channelId)
     {
-      HttpParam httpParam = request.Param;
-      string channelId = httpParam["channelId"].Value;
-      string userName = httpParam["userName"].Value;
-      
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: ITvProvider not found");
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
 
-      int channelIdInt;
-      if (!int.TryParse(channelId, out channelIdInt))
-        throw new BadRequestException(string.Format("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't convert channelId to int: {0}", channelId));
-
       if (userName == null)
         throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: userName is null");
 
       IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelIdInt, out channel))
-        throw new BadRequestException(string.Format("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't get channel with Id: {0}", channelIdInt));
+      if (!channelAndGroupInfo.GetChannel(channelId, out channel))
+        throw new BadRequestException(string.Format("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't get channel with Id: {0}", channelId));
 
       ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
       

@@ -23,9 +23,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetRecordings : BaseRecordingBasic, IRequestMicroModuleHandler
+  internal class GetRecordings : BaseRecordingBasic
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebRecordingBasic> Process(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordings: ITvProvider not found");
@@ -43,16 +43,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
       List<WebRecordingBasic> output = items.Select(item => RecordingBasic(item)).ToList();
 
       // sort and filter
-      HttpParam httpParam = request.Param;
-      string sort = httpParam["sort"].Value;
-      string order = httpParam["order"].Value;
-      string filter = httpParam["filter"].Value;
       if (sort != null && order != null)
       {
-        WebSortField webSortField = (WebSortField)JsonConvert.DeserializeObject(sort, typeof(WebSortField));
-        WebSortOrder webSortOrder = (WebSortOrder)JsonConvert.DeserializeObject(order, typeof(WebSortOrder));
-
-        output = output.Filter(filter).SortRecordingList(webSortField, webSortOrder).ToList();
+        output = output.Filter(filter).SortRecordingList(sort, order).ToList();
       }
       else
         output = output.Filter(filter).ToList();

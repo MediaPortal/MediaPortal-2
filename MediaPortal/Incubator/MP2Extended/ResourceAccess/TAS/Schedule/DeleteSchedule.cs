@@ -14,20 +14,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "scheduleId", Type = typeof(int), Nullable = false)]
-  internal class DeleteSchedule : IRequestMicroModuleHandler
+  internal class DeleteSchedule
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(int scheduleId)
     {
-      HttpParam httpParam = request.Param;
-      string scheduleId = httpParam["scheduleId"].Value;
-
-      if (scheduleId == null)
-        throw new BadRequestException("DeleteSchedule: scheduleId is null");
-
-      int scheduleIdInt;
-      if (!int.TryParse(scheduleId, out scheduleIdInt))
-        throw new BadRequestException(string.Format("DeleteSchedule: Couldn't parse scheduleId to int: {0}", scheduleId));
-
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("DeleteSchedule: ITvProvider not found");
 
@@ -36,7 +26,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IList<ISchedule> schedules;
       scheduleControl.GetSchedules(out schedules);
 
-      bool result = scheduleControl.RemoveSchedule(schedules.Single(x => x.ScheduleId == scheduleIdInt));
+      bool result = scheduleControl.RemoveSchedule(schedules.Single(x => x.ScheduleId == scheduleId));
 
 
       return new WebBoolResult { Result = result };

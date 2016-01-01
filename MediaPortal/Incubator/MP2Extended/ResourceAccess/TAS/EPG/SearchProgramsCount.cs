@@ -21,11 +21,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
   [ApiFunctionParam(Name = "searchTerm", Type = typeof(string), Nullable = false)]
-  internal class SearchProgramsCount : IRequestMicroModuleHandler
+  internal class SearchProgramsCount
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebIntResult Process(string searchTerm)
     {
-      List<WebProgramBasic> output = new SearchProgramsBasic().Process(request, session);
+      IList<WebProgramBasic> output = new SearchProgramsBasic().Process(searchTerm);
 
       return new WebIntResult { Result = output.Count };
     }
