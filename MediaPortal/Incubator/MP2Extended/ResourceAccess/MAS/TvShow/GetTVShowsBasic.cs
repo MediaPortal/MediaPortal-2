@@ -48,18 +48,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
         {
           var episodesInThisShow = items.ToList().FindAll(x => (string)x[SeriesAspect.Metadata][SeriesAspect.ATTR_SERIESNAME] == (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
           var episodesInThisShowUnwatched = episodesInThisShow.FindAll(x => x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == 0);
-          necessaryMIATypes = new HashSet<Guid>();
-          necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-          MediaItem show = GetMediaItems.GetMediaItemByName((string)seriesAspect[SeriesAspect.ATTR_SERIESNAME], necessaryMIATypes);
-
-          if (show == null)
-          {
-            Logger.Warn("GetTVShowsBasic: Couldn't find show: {0}", (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
-            continue;
-          }
-
+          
           WebTVShowBasic webTVShowBasic = new WebTVShowBasic();
-          webTVShowBasic.Id = show.MediaItemId.ToString();
+          webTVShowBasic.Id = item.MediaItemId.ToString();
           webTVShowBasic.Title = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME];
           webTVShowBasic.EpisodeCount = episodesInThisShow.Count;
           webTVShowBasic.UnwatchedEpisodeCount = episodesInThisShowUnwatched.Count;

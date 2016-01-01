@@ -14,7 +14,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       MediaItemAspect episodeAspect = MediaItemAspect.GetAspect(item.Aspects, EpisodeAspect.Metadata);
 
       if (showItem == null)
-        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[SeriesAspect.ATTR_SERIESNAME], null);
+        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME], null);
 
       WebTVEpisodeDetailed webTvEpisodeDetailed = new WebTVEpisodeDetailed
       {

@@ -19,7 +19,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       ResourcePath path = ResourcePath.Deserialize((string)MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata)[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
 
       if (showItem == null)
-        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[SeriesAspect.ATTR_SERIESNAME], null);
+        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME], null);
 
       WebTVEpisodeBasic webTvEpisodeBasic = new WebTVEpisodeBasic
       {

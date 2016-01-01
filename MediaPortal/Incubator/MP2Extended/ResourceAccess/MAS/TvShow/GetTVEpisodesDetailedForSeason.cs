@@ -28,27 +28,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(SeasonAspect.ASPECT_ID);
       necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
 
-      // this is the MediaItem for the show
+      // this is the MediaItem for the season
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
       if (item == null)
         throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: No MediaItem found with id: {0}", id));
 
-      // Get all episodes for this season
-      ISet<Guid> necessaryMIATypesEpisodes = new HashSet<Guid>();
-      necessaryMIATypesEpisodes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypesEpisodes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypesEpisodes.Add(SeriesAspect.ASPECT_ID);
-      necessaryMIATypesEpisodes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypesEpisodes.Add(ProviderResourceAspect.ASPECT_ID);
+      ISet<Guid> necessaryEpisodesMiaTypes = new HashSet<Guid>();
+      necessaryEpisodesMiaTypes.Add(MediaAspect.ASPECT_ID);
+      necessaryEpisodesMiaTypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryEpisodesMiaTypes.Add(ImporterAspect.ASPECT_ID);
+      necessaryEpisodesMiaTypes.Add(VideoAspect.ASPECT_ID);
+      necessaryEpisodesMiaTypes.Add(EpisodeAspect.ASPECT_ID);
 
-      IFilter searchFilter = new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesEpisodes, null, searchFilter);
+      IFilter episodeFilter = new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE);
+      MediaItemQuery episodeQuery = new MediaItemQuery(necessaryEpisodesMiaTypes, null, episodeFilter);
 
-      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false);
 
       if (episodes.Count == 0)
         throw new BadRequestException("No Tv Episodes found");

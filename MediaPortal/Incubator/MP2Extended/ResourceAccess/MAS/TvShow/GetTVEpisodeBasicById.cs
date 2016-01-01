@@ -23,7 +23,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+      necessaryMIATypes.Add(EpisodeAspect.ASPECT_ID);
 
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
 
