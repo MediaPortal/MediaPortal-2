@@ -1350,18 +1350,15 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="4,3,4,3">
+    <Grid x:Name="ItemControl" Margin="8,3,0,3">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource MEDIA_VIDEO_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource MEDIA_VIDEO_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Image Stretch="Fill" Margin="0" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
-             Source="tvseries_thumb_background.png" Opacity="0.85">
-      </Image>
       <Image x:Name="thumb" Stretch="Uniform" Margin="2,0,2,0"
-             Source="{Binding MediaItem}" FallbackSource="defaultVideo.png" Width="{StaticResource MEDIA_VIDEO_WIDTH}">
+             Source="{Binding MediaItem}" Width="{StaticResource MEDIA_VIDEO_WIDTH}">
         <Image.OpacityMask >
           <ImageBrush ImageSource="video_thumb_mask.png"/>
         </Image.OpacityMask>
@@ -1373,6 +1370,19 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
+      <Image Stretch="Fill" Margin="0" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Source="tvseries_thumb_background.png" Opacity="0.85">
+      </Image>
+      <Image Stretch="Uniform" Margin="25" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Source="defaultVideo.png" >
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image> 
       <Image Source="episode_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill"
              Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-8,-2,-6,-2"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -1800,71 +1810,91 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="30,4,-20,4">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource MEDIA_AUDIO_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="{StaticResource MEDIA_AUDIO_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <!-- For grid layout, we only support large layout size -->
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
-           Source="{Binding MediaItem}" FallbackSource="ImageLarge.png"/>
+      <Image x:Name="thumb" Stretch="Uniform" Margin="1" Source="{Binding MediaItem}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+        <Image.OpacityMask >
+          <ImageBrush ImageSource="music_filmstrip_mask.png"/>
+        </Image.OpacityMask>
+      </Image>
+      <Image Stretch="Fill" Margin="1" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Source="music_background_mask.png" Opacity="0.85">
+      </Image>
+      <Image Stretch="Uniform" Margin="25" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Source="defaultPicture.png">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Image Source="music_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill"
+             Margin="-5"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+      </Image>
       <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
+      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2">
         <Image.IsVisible>
           <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewImageItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="-4,321,-3,0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource COVERVIEW_FILTER_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource COVERVIEW_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource COVERVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="{StaticResource COVERVIEW_WIDTH}"/>
       </Grid.RowDefinitions>
-
-      <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
-        <Control.Resources>
-          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
-          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
-          <ControlTemplate x:Key="MakeReflexion">
-            <Image x:Name="ItemTypeImage" Stretch="Uniform" Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
-               Source="{Binding MediaItem}" FallbackSource="ImageLarge.png"/>
-          </ControlTemplate>
-        </Control.Resources>
-      </Control>
+      <Image Stretch="Fill" Margin="0"
+             Source="music_background_mask.png" Opacity="0.85">
+      </Image>
+      <Image x:Name="thumb" Width="{StaticResource COVERVIEW_WIDTH}" Height="{StaticResource COVERVIEW_WIDTH}" Stretch="Uniform"
+             VerticalAlignment="Bottom" Source="{Binding MediaItem}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <!--Image Stretch="Fill" Margin="0" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+       Source="music_background_mask.png" Opacity="0.85">
+      </Image-->
+      <Image Stretch="Uniform" Margin="80" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Source="defaultPicture.png">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
       <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,0,0">
+      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
         <Image.IsVisible>
           <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
         </Image.IsVisible>
       </Image>
-
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
     </Grid>
   </ControlTemplate>
 
