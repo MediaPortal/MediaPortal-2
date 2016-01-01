@@ -209,8 +209,7 @@ namespace MediaPortal.Common.Services.Dokan
 
       if ((driveLetter < 'A' || driveLetter > 'Z') && (driveLetter < 'a' || driveLetter > 'z'))
       {
-        StackTrace st = new StackTrace();
-        ServiceRegistration.Get<ILogger>().Error("IsDokanDrive was called with invalid drive letter '{0}'. Call stack:\r\n{1}", driveLetter, st);
+        ServiceRegistration.Get<ILogger>().Warn("IsDokanDrive was called with invalid drive letter '{0}'.", driveLetter);
         return false;
       }
 
