@@ -20,6 +20,7 @@ using Microsoft.AspNet.FileProviders;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.StaticFiles;
 using MediaPortal.Plugins.AspNetServer;
+using MediaPortal.Plugins.MP2Extended.Swagger;
 using Swashbuckle.SwaggerGen.Generator;
 using Microsoft.AspNet.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,7 +51,8 @@ namespace MediaPortal.Plugins.MP2Extended
           services.AddSwaggerGen(c =>
           {
             c.DescribeAllEnumsAsStrings();
-            //c.OperationFilter<HandleModelbinding>();
+            c.OperationFilter<HandleModelbinding>();
+            c.OrderActionGroupsBy(new DescendingAlphabeticComparer());
             //c.IncludeXmlComments(Path.Combine(ASSEMBLY_PATH, ASS.GetName().Name+".xml"));
             c.SingleApiVersion(new Info
             {
