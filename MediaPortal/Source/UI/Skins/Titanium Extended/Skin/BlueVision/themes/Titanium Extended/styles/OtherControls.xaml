@@ -22,7 +22,7 @@
           <Image.Source>
             <ImageSourceWrapper Delay="0.4" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.4"
                Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}"
-               FallbackSource="background.png" />
+               FallbackSource="background.jpg" />
           </Image.Source>
         </Image>
       </VisualBrush.Visual>
@@ -583,21 +583,33 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <CheckBox x:Name="NameMarker" Margin="2,1,0,1" Style="{ThemeResource DefaultCheckBoxStyle}"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}"
-              Content="{Binding}">
-            <CheckBox.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemControl" Property="Background">
-                  <Setter.Value>
-                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
-                  </Setter.Value>
-                </Setter>
-                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
-            </CheckBox.Triggers>
-          </CheckBox>
+          <Grid Margin="0,3,0,3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="17" RadiusX="17" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <CheckBox x:Name="NameMarker" Margin="2,1,0,1" Style="{ThemeResource DefaultCheckBoxStyle}"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}"
+                Content="{Binding}">
+              <CheckBox.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                  <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </CheckBox.Triggers>
+            </CheckBox>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -608,11 +620,11 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Grid Margin="0,2,0,2">
+          <Grid Margin="0,3,0,3">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="17" RadiusX="17" IsVisible="False" HorizontalAlignment="Stretch">
               <Rectangle.Fill>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                   <GradientStop Color="#FF1cade5" Offset="0"/> 
@@ -646,16 +658,29 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid Margin="0,3,0,3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle RadiusY="17" RadiusX="17" HorizontalAlignment="Stretch" Fill="#0DFFFFFF"/>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="17" RadiusX="17" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
           <Control Focusable="true">
             <Control.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ShareName" Property="Color" Value="Black"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemControl" Property="Background">
-                  <Setter.Value>
-                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
-                  </Setter.Value>
-                </Setter>
+                <Setter TargetName="SharePath" Property="Color" Value="Black"/>
+                <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Control.Triggers>
@@ -663,6 +688,7 @@
               <ContentPresenter/>
             </Control.TemplateControl>
           </Control>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -673,15 +699,35 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}" Command="{Binding Command}">
+          <Grid Margin="0,3,0,3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle RadiusY="17" RadiusX="17" HorizontalAlignment="Stretch" Fill="#0DFFFFFF"/>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="17" RadiusX="17" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+          <Button Style="{ThemeResource MenuButtonWideStyle}" Command="{Binding Command}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ShareName" Property="Color" Value="Black"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="SharePath" Property="Color" Value="Black"/>
+                <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Button.Triggers>
-          </Button>
+          </Button>            
+          </Grid>
+
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1352,7 +1398,7 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMultiMarkableItemContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+    <!--Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/-->
   </Style>
 
   <!-- ListView style to be used for lists where a single item can be marked -->
@@ -1360,7 +1406,7 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+    <!--Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/-->
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
@@ -1576,7 +1622,7 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultTreeItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultTreeItemDataStringProvider}"/>
     <Setter Property="SubItemsProvider" Value="{ThemeResource DefaultTreeItemSubItemsProvider}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+    <!--Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/-->
   </Style>
 
   <!-- Implicit default style for TreeView controls -->
