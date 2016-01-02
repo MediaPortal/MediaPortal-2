@@ -16,7 +16,8 @@
         "System.Management": "4.0.0.0",
         "System.Runtime.Serialization": "4.0.0.0",
         "System.ServiceModel": "4.0.0.0",
-        "System.ServiceModel.Web": "4.0.0.0"
+        "System.ServiceModel.Web": "4.0.0.0",
+        "System.Web": "4.0.0.0"
       }
     }
   },

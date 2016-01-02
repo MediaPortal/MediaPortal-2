@@ -9,21 +9,20 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
+using Microsoft.AspNet.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
   // TODO: implement offset
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetImage : BaseSendData, IStreamRequestMicroModuleHandler2
+  internal class GetImage : BaseSendData
   {
-    public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
+    public bool Process(HttpContext httpContext, WebMediaType type, string id)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-
       if (id == null)
         throw new BadRequestException("GetImage: id is null");
 
@@ -45,24 +44,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       using (var resourceStream = fsra.OpenRead())
       {
         // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-        if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
+        if (!string.IsNullOrEmpty(httpContext.Request.Headers["If-Modified-Since"]))
         {
-          DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+          DateTime lastRequest = DateTime.Parse(httpContext.Request.Headers["If-Modified-Since"]);
           if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
-            response.Status = HttpStatusCode.NotModified;
+            httpContext.Response.StatusCode = StatusCodes.Status304NotModified;
         }
 
         // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-        response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
+        httpContext.Response.Headers.Add("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
 
-        string byteRangesSpecifier = request.Headers["Range"];
+        string byteRangesSpecifier = httpContext.Request.Headers["Range"];
         IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
-        bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
+        bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
         if (ranges != null && ranges.Count > 0)
           // We only support last range
-          SendRange(response, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
+          SendRange(httpContext, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
         else
-          SendWholeFile(response, resourceStream, onlyHeaders);
+          SendWholeFile(httpContext, resourceStream, onlyHeaders);
       }
 
       return true;

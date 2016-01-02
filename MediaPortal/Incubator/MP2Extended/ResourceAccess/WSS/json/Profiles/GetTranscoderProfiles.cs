@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Common;
@@ -6,13 +7,14 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetTranscoderProfiles : BaseTranscoderProfile, IRequestMicroModuleHandler
+  internal class GetTranscoderProfiles : BaseTranscoderProfile
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebTranscoderProfile> Process()
     {
       return ProfileManager.Profiles.Select(profile => TranscoderProfile(profile)).ToList();
     }

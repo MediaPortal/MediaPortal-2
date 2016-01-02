@@ -31,36 +31,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   [ApiFunctionParam(Name = "audioId", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
-  internal class StartStreamWithStreamSelection : IRequestMicroModuleHandler
+  internal class StartStreamWithStreamSelection
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStringResult Process(string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
     {
-      HttpParam httpParam = request.Param;
-      
-      string identifier = httpParam["identifier"].Value;
-      string profileName = httpParam["profileName"].Value;
-      string startPosition = httpParam["startPosition"].Value;
-      string audioId = httpParam["audioId"].Value;
-      string subtitleId = httpParam["subtitleId"].Value;
-
       if (identifier == null)
         throw new BadRequestException("StartStreamWithStreamSelection: identifier is null");
       if (profileName == null)
         throw new BadRequestException("StartStreamWithStreamSelection: profileName is null");
-      if (startPosition == null)
-        throw new BadRequestException("StartStreamWithStreamSelection: startPosition is null");
-
-      long startPositionLong;
-      if (!long.TryParse(startPosition, out startPositionLong))
-        throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse startPosition '{0}' to long", startPosition));
-
-      int audioTrack = -1;
-      if (audioId != null && !int.TryParse(audioId, out audioTrack))
-        throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse audioId '{0}' to int", audioId));
-
-      int subtitleTrack = -1;
-      if (subtitleId != null && !int.TryParse(subtitleId, out subtitleTrack))
-        throw new BadRequestException(string.Format("StartStreamWithStreamSelection: Couldn't parse subtitleId '{0}' to int", subtitleId));
 
       EndPointProfile profile = null;
       List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();
@@ -81,9 +59,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
-      streamItem.StartPosition = startPositionLong;
-      streamItem.AudioStream = audioTrack;
-      streamItem.SubtitleStream = subtitleTrack;
+      streamItem.StartPosition = startPosition;
+      streamItem.AudioStream = audioId;
+      streamItem.SubtitleStream = subtitleId;
 
       string filePostFix = "&file=media.ts";
       if (profile.MediaTranscoding != null && profile.MediaTranscoding.Video != null)

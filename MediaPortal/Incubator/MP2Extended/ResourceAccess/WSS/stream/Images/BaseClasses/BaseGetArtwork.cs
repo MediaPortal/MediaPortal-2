@@ -48,11 +48,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
     };
 
 
-    internal void MapTypes(string artworktype, string mediatype, out FanArtConstants.FanArtType fanartType, out FanArtConstants.FanArtMediaType fanArtMediaType)
+    internal void MapTypes(WebFileType webFileType, WebMediaType webMediaType, out FanArtConstants.FanArtType fanartType, out FanArtConstants.FanArtMediaType fanArtMediaType)
     {
-      WebFileType webFileType = (WebFileType)JsonConvert.DeserializeObject(artworktype, typeof(WebFileType));
-      WebMediaType webMediaType = (WebMediaType)JsonConvert.DeserializeObject(mediatype, typeof(WebMediaType));
-
       // Map the Fanart Type
       if (!_fanArtTypeMapping.TryGetValue(webFileType, out fanartType))
         fanartType = FanArtConstants.FanArtType.Undefined;

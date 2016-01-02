@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended
     private const int PORT = 4322;
     private const string BASE_PATH = "/MPExtended";
     private static readonly Assembly ASS = Assembly.GetExecutingAssembly();
-    private static readonly string ASSEMBLY_PATH = Path.GetDirectoryName(ASS.Location);
+    internal static readonly string ASSEMBLY_PATH = Path.GetDirectoryName(ASS.Location);
 
     #endregion
 

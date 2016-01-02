@@ -7,6 +7,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
+using Microsoft.AspNet.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -15,16 +16,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "clientDescription", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "idleTimeout", Type = typeof(int), Nullable = true)]
-  internal class InitStream : IRequestMicroModuleHandler
+  internal class InitStream
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(HttpContext httpContext, string itemId, string clientDescription, string identifier, int? idleTimeout)
     {
-      HttpParam httpParam = request.Param;
-      string itemId = httpParam["itemId"].Value;
-      string clientDescription = httpParam["clientDescription"].Value;
-      string identifier = httpParam["identifier"].Value;
-      string idleTimeout = httpParam["idleTimeout"].Value;
-
       if (itemId == null)
         throw new BadRequestException("InitStream: itemId is null");
       if (clientDescription == null)
@@ -36,16 +31,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (!Guid.TryParse(itemId, out itemGuid))
         throw new BadRequestException(string.Format("InitStream: Couldn't parse itemId: {0}", itemId));
 
-      int idleTimeoutInt = -1;
-      if (idleTimeout != null)
-        int.TryParse(idleTimeout, out idleTimeoutInt);
 
       StreamItem streamItem = new StreamItem
       {
         ItemId = itemGuid,
         ClientDescription = clientDescription,
-        IdleTimeout = idleTimeoutInt,
-        ClientIp = request.Headers["remote_addr"] ?? string.Empty,
+        IdleTimeout = idleTimeout ?? -1,
+        ClientIp = httpContext.Request.Headers["remote_addr"]
       };
 
       // Add the stream to the stream controler

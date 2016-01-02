@@ -17,16 +17,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "artworktype", Type = typeof(WebFileType), Nullable = false)]
   [ApiFunctionParam(Name = "mediatype", Type = typeof(WebMediaType), Nullable = false)]
   [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
-  internal class GetArtwork : BaseGetArtwork, IStreamRequestMicroModuleHandler
+  internal class GetArtwork : BaseGetArtwork
   {
-    public byte[] Process(IHttpRequest request)
+    public byte[] Process(WebMediaType mediatype, string id, WebFileType artworktype, int offset)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      string artworktype = httpParam["artworktype"].Value;
-      string mediatype = httpParam["mediatype"].Value;
-      string offset = httpParam["offset"].Value;
-
       bool isSeason = false;
       string showId = string.Empty;
       string seasonId = string.Empty;
@@ -38,8 +32,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new BadRequestException("GetArtwork: artworktype is null");
       if (mediatype == null)
         throw new BadRequestException("GetArtwork: mediatype is null");
-      if (offset != null)
-        int.TryParse(offset, out offsetInt);
 
 
       FanArtConstants.FanArtType fanartType;
@@ -51,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         isSeason = true;
 
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
-      bool isRecording = (WebMediaType)JsonConvert.DeserializeObject(mediatype, typeof(WebMediaType)) == WebMediaType.Recording;
+      bool isRecording = mediatype == WebMediaType.Recording;
 
       IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
 

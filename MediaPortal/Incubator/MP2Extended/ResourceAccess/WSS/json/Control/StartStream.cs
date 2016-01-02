@@ -24,26 +24,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "profileName", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
-  internal class StartStream : IRequestMicroModuleHandler
+  internal class StartStream
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStringResult Process(string identifier, string profileName, long startPosition)
     {
-      HttpParam httpParam = request.Param;
-      
-      string identifier = httpParam["identifier"].Value;
-      string profileName = httpParam["profileName"].Value;
-      string startPosition = httpParam["startPosition"].Value;
-
       if (identifier == null)
         throw new BadRequestException("InitStream: identifier is null");
       if (profileName == null)
         throw new BadRequestException("InitStream: profileName is null");
-      if (startPosition == null)
-        throw new BadRequestException("InitStream: startPosition is null");
-
-      long startPositionLong;
-      if (!long.TryParse(startPosition, out startPositionLong))
-        throw new BadRequestException(string.Format("InitStream: Couldn't parse startPosition '{0}' to long", startPosition));
 
       EndPointProfile profile = null;
       List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();
@@ -65,7 +53,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
-      streamItem.StartPosition = startPositionLong;
+      streamItem.StartPosition = startPosition;
 
       string filePostFix = "&file=media.ts";
       if (profile.MediaTranscoding != null && profile.MediaTranscoding.Video != null)

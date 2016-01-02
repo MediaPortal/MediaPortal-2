@@ -9,20 +9,16 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "target", Type = typeof(string), Nullable = false)]
-  internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile, IRequestMicroModuleHandler
+  internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public IList<WebTranscoderProfile> Process(string target)
     {
-      HttpParam httpParam = request.Param;
-      string target = httpParam["target"].Value;
-      if (target == null)
-        throw new BadRequestException("GetTranscoderProfilesForTarget: target is null");
-
       TargetComparer targetComparer = new TargetComparer();
       return ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target, targetComparer) || x.Value.Targets.Count == 0).Select(profile => TranscoderProfile(profile)).ToList();
     }

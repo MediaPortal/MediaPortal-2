@@ -9,13 +9,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
-  internal class FinishStream : IRequestMicroModuleHandler
+  internal class FinishStream
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(string identifier)
     {
-      HttpParam httpParam = request.Param;
-      
-      string identifier = httpParam["identifier"].Value;
       bool result = true;
 
       if (identifier == null)

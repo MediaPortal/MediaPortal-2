@@ -8,9 +8,9 @@ using MediaPortal.Plugins.MP2Extended.WSS.General;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetServiceDescription : IRequestMicroModuleHandler
+  internal class GetServiceDescription
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebStreamServiceDescription Process()
     {
       WebStreamServiceDescription webStreamServiceDescription = new WebStreamServiceDescription
       {

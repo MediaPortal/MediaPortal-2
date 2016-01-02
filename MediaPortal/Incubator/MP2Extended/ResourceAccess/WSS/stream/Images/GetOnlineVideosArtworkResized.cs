@@ -17,43 +17,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "maxWidth", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "maxHeight", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
-  internal class GetOnlineVideosArtworkResized : IStreamRequestMicroModuleHandler
+  internal class GetOnlineVideosArtworkResized
   {
-    public byte[] Process(IHttpRequest request)
+    public byte[] Process(WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      string mediatype = httpParam["mediatype"].Value;
-      string maxWidth = httpParam["maxWidth"].Value;
-      string maxHeight = httpParam["maxHeight"].Value;
-      string borders = httpParam["borders"].Value;
-
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtworkResized: id is null");
-      if (mediatype == null)
-        throw new BadRequestException("GetOnlineVideosArtworkResized: mediatype is null");
-      if (maxWidth == null)
-        throw new BadRequestException("GetOnlineVideosArtworkResized: maxWidth is null");
-      if (maxHeight == null)
-        throw new BadRequestException("GetOnlineVideosArtworkResized: maxHeight is null");
 
-      int maxWidthInt;
-      if (!Int32.TryParse(maxWidth, out maxWidthInt))
-      {
-        throw new BadRequestException(String.Format("GetOnlineVideosArtworkResized: Couldn't convert maxWidth to int: {0}", maxWidth));
-      }
-
-      int maxHeightInt;
-      if (!Int32.TryParse(maxHeight, out maxHeightInt))
-      {
-        throw new BadRequestException(String.Format("GetOnlineVideosArtworkResized: Couldn't convert maxHeight to int: {0}", maxHeight));
-      }
-
-      WebOnlineVideosMediaType mediaTypeEnum;
-      if (!Enum.TryParse(mediatype, out mediaTypeEnum))
-        throw new BadRequestException("GetOnlineVideosArtworkResized: Error parsing mediatype");
-
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(StringToGuid(id), false, maxWidthInt, maxHeightInt, borders, 0, FanArtConstants.FanArtType.Thumbnail, FanArtConstants.FanArtMediaType.Undefined);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(StringToGuid(id), false, maxWidth, maxHeight, borders, 0, FanArtConstants.FanArtType.Thumbnail, FanArtConstants.FanArtMediaType.Undefined);
 
       byte[] data;
       if (ImageCache.TryGetImageFromCache(identifier, out data))
@@ -62,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         return data;
       }
 
-      byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(OnlineVideosThumbs.GetThumb(mediaTypeEnum, id), maxWidthInt, maxHeightInt, borders);
+      byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(OnlineVideosThumbs.GetThumb(mediatype, id), maxWidth, maxHeight, borders);
 
       return resizedImage;
     }

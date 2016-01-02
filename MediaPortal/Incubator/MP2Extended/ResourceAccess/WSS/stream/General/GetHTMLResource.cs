@@ -13,24 +13,22 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
+using Microsoft.AspNet.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "This function is inernally used by the MP2Ext webinterface.")]
   [ApiFunctionParam(Name = "path", Type = typeof(string), Nullable = false)]
-  internal class GetHtmlResource : BaseSendData, IStreamRequestMicroModuleHandler2
+  internal class GetHtmlResource : BaseSendData
   {
     /// <summary>
     /// The folder inside the MP2Ext folder where the files are stored
     /// </summary>
     private const string RESOURCE_DIR = "www";
     
-    public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
+    public bool Process(string path, HttpContext httpContext)
     {
-      HttpParam httpParam = request.Param;
-      string path = httpParam["path"].Value;
-
-      string[] uriParts = request.Uri.AbsolutePath.Split('/');
+      string[] uriParts = httpContext.Request.Path.Value.Split('/');
       if (uriParts.Length >= 6)
         path = string.Join("/", uriParts.Skip(5));
 
@@ -56,24 +54,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
       DateTime lastChanged = File.GetLastWriteTime(resourcePath);
 
       // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-      if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
+      if (!string.IsNullOrEmpty(httpContext.Request.Headers["If-Modified-Since"]))
       {
-        DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+        DateTime lastRequest = DateTime.Parse(httpContext.Request.Headers["If-Modified-Since"]);
         if (lastRequest.CompareTo(lastChanged) <= 0)
-          response.Status = HttpStatusCode.NotModified;
+          httpContext.Response.StatusCode = StatusCodes.Status304NotModified;
       }
 
       // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-      response.AddHeader("Last-Modified", lastChanged.ToUniversalTime().ToString("r"));
+      httpContext.Response.Headers.Add("Last-Modified", lastChanged.ToUniversalTime().ToString("r"));
 
       // Cache
-      response.AddHeader("Cache-Control", "public; max-age=31536000");
-      response.AddHeader("Expires", DateTime.Now.AddYears(1).ToString("r"));
+      httpContext.Response.Headers.Add("Cache-Control", "public; max-age=31536000");
+      httpContext.Response.Headers.Add("Expires", DateTime.Now.AddYears(1).ToString("r"));
 
       // Content
-      bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
+      bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
       Stream resourceStream = File.OpenRead(resourcePath);
-      SendWholeFile(response, resourceStream, onlyHeaders);
+      SendWholeFile(httpContext, resourceStream, onlyHeaders);
       resourceStream.Close();
 
       return true;

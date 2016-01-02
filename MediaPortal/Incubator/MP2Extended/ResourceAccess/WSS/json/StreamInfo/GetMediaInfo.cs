@@ -45,15 +45,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
-  internal class GetMediaInfo : IRequestMicroModuleHandler
+  internal class GetMediaInfo
   {
     private const string UNDEFINED = "undef";
 
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebMediaInfo Process(string itemId)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["itemId"].Value;
-      if (id == null)
+      if (itemId == null)
         throw new BadRequestException("GetMediaInfo: itemId is null");
 
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -70,10 +68,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
       optionalMIATypes.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
 
-      MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes, optionalMIATypes);
+      MediaItem item = GetMediaItems.GetMediaItemById(itemId, necessaryMIATypes, optionalMIATypes);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMediaInfo: No MediaItem found with id: {0}", id));
+        throw new BadRequestException(String.Format("GetMediaInfo: No MediaItem found with id: {0}", itemId));
 
       long duration = 0;
       string container = string.Empty;

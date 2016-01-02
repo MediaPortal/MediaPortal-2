@@ -11,9 +11,11 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
+using Microsoft.AspNet.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -23,16 +25,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "maxWidth", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "maxHeight", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
-  internal class GetImageResized : BaseSendData, IStreamRequestMicroModuleHandler2
+  internal class GetImageResized : BaseSendData
   {
-    public bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
+    public void Process(HttpContext httpContext, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
     {
-      HttpParam httpParam = request.Param;
-      string id = httpParam["id"].Value;
-      string maxWidth = httpParam["maxWidth"].Value;
-      string maxHeight = httpParam["maxHeight"].Value;
-      string borders = httpParam["borders"].Value;
-
       if (id == null)
         throw new BadRequestException("GetImageResized: id is null");
       if (maxWidth == null)
@@ -60,19 +56,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         throw new InternalServerException("GetImage: failed to create IFileSystemResourceAccessor");
 
       // Resize
-      int maxWidthInt;
-      if (!Int32.TryParse(maxWidth, out maxWidthInt))
-      {
-        throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxWidth to int: {0}", maxWidth));
-      }
-
-      int maxHeightInt;
-      if (!Int32.TryParse(maxHeight, out maxHeightInt))
-      {
-        throw new BadRequestException(String.Format("GetImageResized: Couldn't convert maxHeight to int: {0}", maxHeight));
-      }
-
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidthInt, maxHeightInt, borders, 0, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidth, maxHeight, borders, 0, FanArtConstants.FanArtType.Undefined, FanArtConstants.FanArtMediaType.Image);
       byte[] resizedImage;
 
       if (ImageCache.TryGetImageFromCache(identifier, out resizedImage))
@@ -85,7 +69,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         {
           byte[] buffer = new byte[resourceStream.Length];
           resourceStream.Read(buffer, 0, Convert.ToInt32(resourceStream.Length));
-          resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(buffer, maxWidthInt, maxHeightInt, borders);
+          resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(buffer, maxWidth, maxHeight, borders);
         }
 
         // Add to cache
@@ -96,27 +80,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       using (var resourceStream = new MemoryStream(resizedImage))
       {
         // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-        if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
+        if (!string.IsNullOrEmpty(httpContext.Request.Headers["If-Modified-Since"]))
         {
-          DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+          DateTime lastRequest = DateTime.Parse(httpContext.Request.Headers["If-Modified-Since"]);
           if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
-            response.Status = HttpStatusCode.NotModified;
+            httpContext.Response.StatusCode = StatusCodes.Status304NotModified;
         }
 
         // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-        response.AddHeader("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
+        httpContext.Response.Headers.Add("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
 
-        string byteRangesSpecifier = request.Headers["Range"];
+        string byteRangesSpecifier = httpContext.Request.Headers["Range"];
         IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
-        bool onlyHeaders = request.Method == Method.Header || response.Status == HttpStatusCode.NotModified;
+        bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
         if (ranges != null && ranges.Count > 0)
           // We only support last range
-          SendRange(response, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
+          SendRange(httpContext, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
         else
-          SendWholeFile(response, resourceStream, onlyHeaders);
+          SendWholeFile(httpContext, resourceStream, onlyHeaders);
       }
-
-      return true;
     }
 
     internal static ILogger Logger
