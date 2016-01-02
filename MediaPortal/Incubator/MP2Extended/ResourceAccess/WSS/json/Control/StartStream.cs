@@ -17,6 +17,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.Utils;
+using Microsoft.AspNet.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -26,7 +27,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   internal class StartStream
   {
-    public WebStringResult Process(string identifier, string profileName, long startPosition)
+    public WebStringResult Process(HttpContext httpContext, string identifier, string profileName, long startPosition)
     {
       if (identifier == null)
         throw new BadRequestException("InitStream: identifier is null");
@@ -71,7 +72,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);
 
-      string url = GetBaseStreamUrl.GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
+      string url = GetBaseStreamUrl.GetBaseStreamURL(httpContext) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
       return new WebStringResult { Result = url };
     }
 

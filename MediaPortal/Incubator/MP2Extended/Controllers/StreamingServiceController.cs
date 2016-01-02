@@ -90,14 +90,14 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
     [ApiExplorerSettings(GroupName = "StreamingService")]
     public WebStringResult StartStream(string identifier, string profileName, long startPosition)
     {
-      return new StartStream().Process(identifier, profileName, startPosition);
+      return new StartStream().Process(HttpContext, identifier, profileName, startPosition);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "StreamingService")]
     public WebStringResult StartStreamWithStreamSelection(string identifier, string profileName, long startPosition, int audioId, int subtitleId)
     {
-      return new StartStreamWithStreamSelection().Process(identifier, profileName, startPosition, audioId, subtitleId);
+      return new StartStreamWithStreamSelection().Process(HttpContext, identifier, profileName, startPosition, audioId, subtitleId);
     }
 
     [HttpGet]

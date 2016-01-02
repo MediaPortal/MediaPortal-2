@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using HttpServer.Sessions;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
+using Microsoft.AspNet.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -33,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection
   {
-    public WebStringResult Process(string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
+    public WebStringResult Process(HttpContext httpContext, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
     {
       if (identifier == null)
         throw new BadRequestException("StartStreamWithStreamSelection: identifier is null");
@@ -78,8 +79,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 
       // Add the stream to the stream controler
       StreamControl.AddStreamItem(identifier, streamItem);
-
-      string url = GetBaseStreamUrl.GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
+      
+      string url = GetBaseStreamUrl.GetBaseStreamURL(httpContext) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
       return new WebStringResult { Result = url };
     }
 
