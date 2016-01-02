@@ -730,7 +730,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
-      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.PreviewMessage += OnMessageReceived;
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
