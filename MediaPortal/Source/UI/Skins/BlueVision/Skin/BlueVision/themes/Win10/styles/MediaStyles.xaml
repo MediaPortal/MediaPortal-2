@@ -120,7 +120,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="4">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
       </Grid.ColumnDefinitions>
@@ -128,20 +128,19 @@
         <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
       </Grid.RowDefinitions>
 
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0,0,0,0" Source="Container.png"
-           Width="{StaticResource MEDIA_THUMB_WIDTH}" Height="{StaticResource MEDIA_THUMB_HEIGHT}">
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0,0,0,0" Source="Container.png">
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
+            <Binding Source="0.8"/>
           </MultiBinding>
         </Image.Opacity>
       </Image>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Color="Black"
            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25" />
       <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,11,15,25" />
+           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,-3,45,25" />
     </Grid>
   </ControlTemplate>
 
@@ -640,16 +639,35 @@
     
   <!-- Movie Collection Filter -->
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
-    <Grid>
-      <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-        </Image.Source>
-      </Image>
+    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid>
+        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"> </Border>
+        <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.7"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="UnwatchedTab_small.png"/>
+              <Binding Source=""/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+      </Grid>
     </Grid>
   </ControlTemplate>
-
+  
   <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="8,0,8,0">
       <Grid.ColumnDefinitions>
@@ -1422,11 +1440,6 @@
               <Binding Source="0.7"/>
             </MultiBinding>
           </Image.Opacity>
-        </Image>
-        <Image Source="UnheardTab_small.png" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.IsVisible>
-            <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-          </Image.IsVisible>
         </Image>
       </Grid>
     </Grid>

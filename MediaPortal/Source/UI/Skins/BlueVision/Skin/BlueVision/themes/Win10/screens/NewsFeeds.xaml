@@ -16,16 +16,16 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" LastChildFill="true">
 
-        <Rectangle Fill="Black" Opacity="0.5" Margin="-89,21,-84,30" DockPanel.Dock="Center" >
+        <Rectangle Fill="Black" Opacity="0.5" Margin="-89,-14,-84,75" DockPanel.Dock="Center" >
           <Rectangle.Effect>
             <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
           </Rectangle.Effect>
         </Rectangle>
 
-        <Border BorderThickness="0" Background="{StaticResource GrayBackgroundWithBlurBehind}" Margin="-80,30,-75,30" DockPanel.Dock="Center"/>       
+        <Border BorderThickness="0" Background="{StaticResource GrayBackgroundWithBlurBehind}" Margin="-80,-5,-75,75" DockPanel.Dock="Center"/>       
 
         <!-- Feeds -->
-          <ListView x:Name="newslist" Margin="-75, 35,-45, 50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <ListView x:Name="newslist" Margin="-75,0,-45,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsFeedsContainerStyle}" DockPanel.Dock="Center" CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}" 
               ItemsSource="{Binding Path=Feeds}" >
             <ListView.Resources>

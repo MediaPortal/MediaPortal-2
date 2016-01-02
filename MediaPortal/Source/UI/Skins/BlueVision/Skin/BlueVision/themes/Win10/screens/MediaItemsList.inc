@@ -21,7 +21,13 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Border Grid.Row="0" Margin="-35,-80,455,-20" >
+    <Image Source="win10_bg.png" Opacity="0.7" Margin="-35,-35,456,20" Stretch="Fill">
+      <Image.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Image.IsVisible>
+    </Image>
+    
+    <!--Border Grid.Row="0" Margin="-35,-80,455,-20" >
       <Border.Background>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
           <LinearGradientBrush.GradientStops>
@@ -35,7 +41,7 @@
       <Border.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
       </Border.IsVisible>
-    </Border>
+    </Border-->
 
     <!--Rectangle Grid.Row="0" Fill="Black" Opacity="0.5" Margin="-37,13,41,-1">
       <Rectangle.Effect>
@@ -62,10 +68,12 @@
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
       </ListView.Resources>
       <ListView.Margin>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="-38,22,-120,-3"/>
+          <Binding Source="-29,22,-110,40"/>
           <Binding Source="-29,22,-110,-3"/>
+          <Binding Source="-38,22,-120,-3"/>
+          
         </MultiBinding>
       </ListView.Margin>
     </ListView>
