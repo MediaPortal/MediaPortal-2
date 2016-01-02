@@ -30,6 +30,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
@@ -46,6 +49,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Utilities.Events;
 using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
@@ -109,6 +113,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     // Counter for updates
     protected int _updateCounter = 0;
+
+    // Resume handling
+    protected DelayedEvent _resumeEvent = new DelayedEvent(2000);
+    protected bool _tvWasActive;
 
     #endregion
 
@@ -712,8 +720,60 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _isOSDLevel2Property = new WProperty(typeof(bool), false);
 
         _isInitialized = true;
+
+        _resumeEvent.OnEventHandler = OnResume;
+        SubscribeToMessages();
       }
       base.InitModel();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.PreviewMessage += OnMessageReceived;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SystemMessaging.MessageType.SystemStateChanged:
+            SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+            if (newState == SystemState.Resuming)
+            {
+              // Signal the event, callback is executed after timeout, see OnResume
+              _resumeEvent.EnqueueEvent(this, EventArgs.Empty);
+            }
+            if (newState == SystemState.Suspending)
+            {
+              ServiceRegistration.Get<ILogger>().Info("SlimTvClientModel: System suspending, stopping all SlimTV players");
+              IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+              for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
+              {
+                IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
+                if (playerContext != null && playerContext.CurrentMediaItem is LiveTvMediaItem)
+                {
+                  playerContext.Stop();
+                  _tvWasActive = true;
+                }
+              }
+            }
+            break;
+        }
+      }
+    }
+
+    private void OnResume(object sender, EventArgs e)
+    {
+      var shouldAutoTune = _tvWasActive && ShouldAutoTune();
+      ServiceRegistration.Get<ILogger>().Info("SlimTvClientModel: System resuming, autotune: {0}", shouldAutoTune);
+      if (shouldAutoTune)
+        AutoTuneLastChannel();
+
+      _tvWasActive = false;
     }
 
     protected int SlotIndex
@@ -784,8 +844,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #endregion
 
-    #region Channel, groups and programs
+    #region Dispose
 
+    public override void Dispose()
+    {
+      if (_resumeEvent != null)
+        _resumeEvent.Dispose();
+      _isInitialized = false;
+      base.Dispose();
+    }
+
+    #endregion
+
+    #region Channel, groups and programs
 
     /// <summary>
     /// Helper method to make sure the model updates the channel list when opening the MiniGuide.
