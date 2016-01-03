@@ -105,7 +105,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     // Channel zapping
     protected const double ZAP_TIMEOUT_SECONDS = 2.0d;
-    protected Timer _zapTimer;
+    protected DelayedEvent _zapTimer;
     protected int _zapChannelIndex;
 
     // Contains the channel that was tuned the last time. Used for selecting channels in group list.
@@ -633,18 +633,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       if (_zapTimer == null)
       {
-        _zapTimer = new Timer(ZAP_TIMEOUT_SECONDS * 1000) { Enabled = true, AutoReset = false };
-        _zapTimer.Elapsed += ZapTimerElapsed;
+        _zapTimer = new DelayedEvent(ZAP_TIMEOUT_SECONDS * 1000);
+        _zapTimer.OnEventHandler += ZapTimerElapsed;
       }
-      else
-      {
-        // In case of new user action, reset the timer.
-        _zapTimer.Stop();
-        _zapTimer.Start();
-      }
+      // In case of new user action, reset the timer.
+      _zapTimer.EnqueueEvent(this, EventArgs.Empty);
     }
 
-    private void ZapTimerElapsed(object sender, ElapsedEventArgs e)
+    private void ZapTimerElapsed(object sender, EventArgs e)
     {
       CloseOSD();
 
@@ -653,9 +649,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         ChannelContext.Instance.Channels.SetIndex(_zapChannelIndex);
         Tune(ChannelContext.Instance.Channels[_zapChannelIndex]);
       }
-
-      _zapTimer.Close();
-      _zapTimer = null;
 
       // When not zapped the previous channel information is restored during the next Update() call
     }
@@ -851,6 +844,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (_resumeEvent != null)
         _resumeEvent.Dispose();
+      if (_zapTimer != null)
+        _zapTimer.Dispose();
       _isInitialized = false;
       base.Dispose();
     }
