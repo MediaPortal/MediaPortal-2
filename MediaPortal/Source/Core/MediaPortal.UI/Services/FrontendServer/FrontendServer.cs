@@ -28,6 +28,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure;
@@ -39,6 +41,8 @@ namespace MediaPortal.UI.Services.FrontendServer
 {
   public class FrontendServer : IFrontendServer, IDisposable
   {
+    protected AsynchronousMessageQueue _messageQueue;
+
     public const string MP2SERVER_DEVICEVERSION = "MediaPortal-2-Client/1.0";
     public const string MP2_HTTP_SERVER_NAME = "MediaPortal 2 (Client) Web Server";
 
@@ -143,11 +147,33 @@ namespace MediaPortal.UI.Services.FrontendServer
 
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _upnpServer = new UPnPFrontendServer(systemResolver.LocalSystemId);
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] { });
+      _messageQueue.Start();
     }
 
     public void Dispose()
     {
       _upnpServer.Dispose();
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SystemMessaging.MessageType.SystemStateChanged:
+            SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+            if (newState == SystemState.Resuming)
+            {
+              ServiceRegistration.Get<ILogger>().Info("FrontendServer: System resuming. Trigger OnNetworkAddressChanged for UPnPServer.");
+              _upnpServer.OnNetworkAddressChanged(this, null);
+            }
+            break;
+        }
+      }
     }
 
     #region IFrontendServer implementation
@@ -159,12 +185,19 @@ namespace MediaPortal.UI.Services.FrontendServer
 
     public void Startup()
     {
+      SubscribeToMessages();
       _upnpServer.Start();
     }
 
     public void Shutdown()
     {
       _upnpServer.Stop();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.PreviewMessage += OnMessageReceived;
     }
 
     public void UpdateUPnPConfiguration()
