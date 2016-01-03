@@ -175,9 +175,10 @@ namespace MediaPortal.Common.Services.ResourceAccess
         return false;
       ResourcePath firstRPSegment = new ResourcePath(new ProviderPathSegment[] { rp[0] });
       String pathRoot = Path.GetPathRoot(LocalFsResourceProviderBase.ToDosPath(firstRPSegment));
-      if (string.IsNullOrEmpty(pathRoot))
+      if (string.IsNullOrEmpty(pathRoot) || pathRoot.Length < 2)
         return false;
-      return Dokan.Dokan.IsDokanDrive(pathRoot[0]);
+      // The provider may also point to an UNC path, so we need to check this first. Dokan based check depends on actual drive letters.
+      return pathRoot[1] == ':' && Dokan.Dokan.IsDokanDrive(pathRoot[0]);
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
