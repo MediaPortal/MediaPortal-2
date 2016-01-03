@@ -56,14 +56,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof (IEnumerable).IsAssignableFrom(type);
+      return typeof(IEnumerable).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable channels = (IEnumerable) value;
+      IEnumerable channels = (IEnumerable)value;
       foreach (Channel channel in channels)
-        channel.Serialize(writer);
+        if (channel != null) channel.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
@@ -75,6 +75,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
         result.Add(Channel.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
-    }    
+    }
   }
 }
