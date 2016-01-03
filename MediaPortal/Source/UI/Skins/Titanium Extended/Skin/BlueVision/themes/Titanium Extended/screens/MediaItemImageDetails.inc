@@ -14,7 +14,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <StackPanel Grid.Column="1" Margin="10">
+  <StackPanel Grid.Column="1" Margin="20,30,20,15">
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
@@ -122,6 +122,21 @@
       </media:ImageAspectWrapper.Template>
     </media:ImageAspectWrapper>
   </StackPanel>
+
+  <Grid Grid.Column="1" Margin="10,0,-350,-40" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="Imagetitle"
+                  Content="{Binding Title}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+                  HorizontalAlignment="Center"/>
+          </StackPanel>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
+  </Grid>
+
   <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5"
       Width="330" Height="450">
     <Image.Source>
