@@ -25,6 +25,7 @@ using Swashbuckle.SwaggerGen.Generator;
 using Microsoft.AspNet.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNet.Http.Features;
+using Microsoft.AspNet.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
@@ -47,7 +48,11 @@ namespace MediaPortal.Plugins.MP2Extended
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
         {
-          services.AddMvc();
+          services.AddMvc(options => options.CacheProfiles.Add("nonCriticalApiCalls", new CacheProfile()
+          {
+            Duration = 100,
+            Location = ResponseCacheLocation.Client
+          }));
           services.AddSwaggerGen(c =>
           {
             c.DescribeAllEnumsAsStrings();

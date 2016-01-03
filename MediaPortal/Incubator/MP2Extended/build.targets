@@ -6,6 +6,12 @@
     <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\www\</wwwDestination>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IgnoreDNXRuntime>true</IgnoreDNXRuntime>
+    <PublishOutputPathNoTrailingSlash>.\bin</PublishOutputPathNoTrailingSlash>
+    <NoSourceFlag>true</NoSourceFlag>
+  </PropertyGroup>
+
   <Target Name="AfterBuild">
     <CallTarget Targets="FileSystemPublish"/>
     <ItemGroup>
@@ -22,6 +28,7 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)approot\packages\**\dnx451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
       <PluginFiles Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
+      <PluginFiles Include="$(TargetDir)approot\packages\**\net45\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
       <PluginFiles Include="$(TargetDir)approot\packages\Newtonsoft.Json\**\lib\net45\Newtonsoft.Json.dll" />
       <PluginFiles Include="$(TargetDir)approot\packages\OnlineVideos.Core\**\lib\dnx451\OnlineVideos.dll" />
       <PluginFiles Include="$(TargetDir)approot\packages\SlimTv.Interfaces\**\lib\dnx451\SlimTv.Interfaces.dll" />
