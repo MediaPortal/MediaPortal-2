@@ -92,7 +92,7 @@ namespace UPnP.Infrastructure.Dv
 
     #region Event Handlers
 
-    private void OnNetworkAddressChanged(object sender, EventArgs e)
+    public void OnNetworkAddressChanged(object sender, EventArgs e)
     {
       lock (_serverData.SyncObj)
       {
