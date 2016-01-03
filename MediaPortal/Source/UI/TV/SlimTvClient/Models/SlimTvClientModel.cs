@@ -833,8 +833,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (channel == null)
         return;
 
-      foreach (ChannelProgramListItem currentGroupChannel in CurrentGroupChannels)
-        currentGroupChannel.Selected = IsSameChannel(currentGroupChannel.Channel, channel);
+      lock (CurrentGroupChannels.SyncRoot)
+        foreach (ChannelProgramListItem currentGroupChannel in CurrentGroupChannels)
+          currentGroupChannel.Selected = IsSameChannel(currentGroupChannel.Channel, channel);
 
       CurrentGroupChannels.FireChange();
 
@@ -875,24 +876,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void UpdateChannels()
     {
       UpdateGuiProperties();
-      _channelList.Clear();
 
       bool isOneSelected = false;
-      foreach (IChannel channel in ChannelContext.Instance.Channels)
+      lock (_channelList.SyncRoot)
       {
-        // Use local variable, otherwise delegate argument is not fixed
-        IChannel currentChannel = channel;
-
-        bool isCurrentSelected = IsSameChannel(currentChannel, _lastTunedChannel);
-        isOneSelected |= isCurrentSelected;
-        ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
+        _channelList.Clear();
+        foreach (IChannel channel in ChannelContext.Instance.Channels)
         {
-          Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
-          Command = new MethodDelegateCommand(() => Tune(currentChannel)),
-          Selected = isCurrentSelected
-        };
-        item.AdditionalProperties["CHANNEL"] = channel;
-        _channelList.Add(item);
+          // Use local variable, otherwise delegate argument is not fixed
+          IChannel currentChannel = channel;
+
+          bool isCurrentSelected = IsSameChannel(currentChannel, _lastTunedChannel);
+          isOneSelected |= isCurrentSelected;
+          ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
+          {
+            Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
+            Command = new MethodDelegateCommand(() => Tune(currentChannel)),
+            Selected = isCurrentSelected
+          };
+          item.AdditionalProperties["CHANNEL"] = channel;
+          _channelList.Add(item);
+        }
       }
       // Adjust channel list position
       ChannelContext.Instance.Channels.MoveTo(c => IsSameChannel(c, _lastTunedChannel));
@@ -934,25 +938,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetNowAndNextProgramsList()
     {
-      if (_tvHandler.ProgramInfo == null || CurrentChannelGroup == null)
+      IChannelGroup currentChannelGroup = CurrentChannelGroup;
+      if (_tvHandler.ProgramInfo == null || currentChannelGroup == null)
         return;
       IDictionary<int, IProgram[]> programs;
 
-      _tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(CurrentChannelGroup, out programs);
-      foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
-      {
-        IProgram[] nowNext;
-        IProgram currentProgram = null;
-        IProgram nextProgram = null;
-        if (programs != null && programs.TryGetValue(channelItem.Channel.ChannelId, out nowNext))
+      _tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(currentChannelGroup, out programs);
+      lock (CurrentGroupChannels.SyncRoot)
+        foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
         {
-          currentProgram = nowNext.Length > 0 ? nowNext[0] : null;
-          nextProgram = nowNext.Length > 1 ? nowNext[1] : null;
-        }
+          IProgram[] nowNext;
+          IProgram currentProgram = null;
+          IProgram nextProgram = null;
+          if (programs != null && programs.TryGetValue(channelItem.Channel.ChannelId, out nowNext))
+          {
+            currentProgram = nowNext.Length > 0 ? nowNext[0] : null;
+            nextProgram = nowNext.Length > 1 ? nowNext[1] : null;
+          }
 
-        CreateProgramListItem(currentProgram, channelItem.Programs[0]);
-        CreateProgramListItem(nextProgram, channelItem.Programs[1], currentProgram);
-      }
+          CreateProgramListItem(currentProgram, channelItem.Programs[0]);
+          CreateProgramListItem(nextProgram, channelItem.Programs[1], currentProgram);
+        }
     }
 
     private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, IProgram previousProgram = null)
