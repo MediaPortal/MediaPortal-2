@@ -553,7 +553,7 @@ namespace MediaPortal.Common.MediaManagement
     public static void SetAttribute<TE>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
         MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, TE value)
     {
-      SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, (SingleMediaItemAspectMetadata)attributeSpecification.ParentMIAM);
+      SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetAttribute(attributeSpecification, value);
     }
 
@@ -604,7 +604,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       value = default(TE);
       SingleMediaItemAspect mediaAspect;
-      SingleMediaItemAspectMetadata metadata = (SingleMediaItemAspectMetadata)attributeSpecification.ParentMIAM;
+      SingleMediaItemAspectMetadata metadata = attributeSpecification.ParentMIAM;
       if (!TryGetAspect(aspectData, metadata, out mediaAspect))
         return false;
 
@@ -630,7 +630,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       value = default(TE);
       SingleMediaItemAspect mediaAspect;
-      SingleMediaItemAspectMetadata metadata = (SingleMediaItemAspectMetadata)attributeSpecification.ParentMIAM;
+      SingleMediaItemAspectMetadata metadata = attributeSpecification.ParentMIAM;
       if (!TryGetAspect(aspectData, metadata, out mediaAspect))
         return false;
 
@@ -652,7 +652,7 @@ namespace MediaPortal.Common.MediaManagement
     public static void SetCollectionAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
         MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, IEnumerable value)
     {
-      SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, (SingleMediaItemAspectMetadata)attributeSpecification.ParentMIAM);
+      SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetCollectionAttribute(attributeSpecification, value);
     }
 
