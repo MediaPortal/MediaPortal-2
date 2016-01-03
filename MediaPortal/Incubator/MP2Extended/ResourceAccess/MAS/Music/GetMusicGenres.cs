@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Sessions;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -24,37 +27,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   {
     public IList<WebGenre> Process(WebSortField? sort, WebSortOrder? order)
     {
-      // we can't select only for shows, so we take all episodes and filter.
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(AudioAspect.ASPECT_ID);
 
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
+      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
 
       if (items.Count == 0)
-        throw new BadRequestException("No Audioitems found");
+        throw new BadRequestException("No Audio Genres found");
 
-      var output = new List<WebGenre>();
-
-      foreach (var item in items)
-      {
-        var videoGenres = (HashSet<object>)item[AudioAspect.Metadata][AudioAspect.ATTR_GENRES];
-        List<string> videoGenresList = new List<string>();
-        if (videoGenres != null)
-          videoGenresList = videoGenres.Cast<string>().ToList();
-        foreach (var genre in videoGenresList)
-        {
-          int index = output.FindIndex(x => x.Title == genre);
-          if (index == -1)
-          {
-            WebGenre webGenre = new WebGenre { Title = genre };
-
-            output.Add(webGenre);
-          }
-        }
-      }
+      var output = (from item in items where item.Key is string select new WebGenre { Title = item.Key.ToString() }).ToList();
 
       // sort
       if (sort != null && order != null)
