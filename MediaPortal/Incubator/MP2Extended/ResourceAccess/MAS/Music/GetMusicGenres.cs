@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
 
       if (items.Count == 0)
-        throw new BadRequestException("No Audio Genres found");
+        return new List<WebGenre>();
 
       var output = (from item in items where item.Key is string select new WebGenre { Title = item.Key.ToString() }).ToList();
 
