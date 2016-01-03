@@ -36,6 +36,7 @@ using MediaPortal.Plugins.AspNetServer.Logger;
 using MediaPortal.Plugins.AspNetServer.PlatformServices;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
+using Microsoft.Extensions.CompilationAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 
@@ -180,7 +181,11 @@ namespace MediaPortal.Plugins.AspNetServer
             // Register dependencies necessary before the registration of dependencies provided by the calling plugin
             services.AddSingleton<IApplicationEnvironment>(new MP2ApplicationEnvironment());
             services.AddTransient(typeof(ILibraryManager), typeof(MP2LibraryManager));
-            
+
+            // Register temporary ILibraryExporter
+            // ToDo: Remove this if no longer needed
+            services.AddSingleton<ILibraryExporter, MP2LibraryExporter>();
+
             // Register dependencies provided by the calling plugin
             webApplicationParameter.ConfigureServices(services);
 
