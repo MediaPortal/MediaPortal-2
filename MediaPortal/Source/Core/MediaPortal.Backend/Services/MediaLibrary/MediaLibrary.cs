@@ -858,13 +858,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Guid? mediaItemId = GetMediaItemId(transaction, systemId, path);
         DateTime now = DateTime.Now;
+        MediaItemAspect pra;
         MediaItemAspect importerAspect;
         bool wasCreated = !mediaItemId.HasValue;
         if (wasCreated)
         {
           mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
 
-          MediaItemAspect pra = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
+          pra = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
           pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
           pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
@@ -874,7 +875,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
         }
         else
+        {
           importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ImporterAspect.ASPECT_ID);
+          pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
+        }
         importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
         importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
 
@@ -886,10 +890,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
             // Simply skip unknown MIA types. All types should have been added before import.
             continue;
-          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
-              mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
-          { // Those linkedAspects are managed by the MediaLibrary
-            Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
+          if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+          {
+            // Only allow certain attributes to be overridden
+            pra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE));
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra);
+            continue;
+          }
+          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+          { // Those aspects are managed by the MediaLibrary
+            Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
             continue;
           }
           if (mia.Deleted)
@@ -940,7 +950,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             continue;
           if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
               mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
-          { // Those linkedAspects are managed by the MediaLibrary
+          { // Those aspects are managed by the MediaLibrary
             Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
             continue;
           }
