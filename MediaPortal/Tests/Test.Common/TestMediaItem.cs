@@ -239,5 +239,19 @@ namespace Test.Common
       Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, ExternalIdentifierAspect.Metadata, out externalIdentifiers), "Relationships");
       Assert.AreEqual(externalIdentifiers.Count, 2);
     }
+
+    [Test]
+    public void TestConvenienceMethod()
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_MIME_TYPE, "audio/mp3");
+
+      Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");
+
+      SingleMediaItemAspect aspect;
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(aspects, ProviderResourceAspect.Metadata, out aspect), "ProviderResource");
+      Assert.AreEqual("audio/mp3", aspect[ProviderResourceAspect.ATTR_MIME_TYPE], "MIME type");
+    }
   }
 }
