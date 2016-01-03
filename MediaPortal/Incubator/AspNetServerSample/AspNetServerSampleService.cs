@@ -24,6 +24,8 @@
 
 using MediaPortal.Common;
 using System;
+using System.IO;
+using System.Reflection;
 using MediaPortal.Plugins.AspNetServer;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.FileProviders;
@@ -51,7 +53,12 @@ namespace MediaPortal.Plugins.AspNetServerSample
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
         {
-          services.AddMvc();
+          services.AddMvc()
+            // We need to add a physical file provider to the plugin directory of AspNetServerSample to make sure that the Razor-engine
+            // finds the view files (which need to be copied to the plugin directory via build.targets and need to be in the default
+            // folders as defined by Razor: [PluginDirectory]\Views\[ControllerName]
+            // ToDo: In later versions of MvcRazorOptions, FileProvider was made a List so we can .Clear() and .Add our FileProvider
+            .AddRazorOptions(options => options.FileProvider = new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
         },
         configureApp: app =>
         {

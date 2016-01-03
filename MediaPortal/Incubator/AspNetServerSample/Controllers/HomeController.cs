@@ -22,37 +22,13 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNet.Mvc;
 
-namespace MediaPortal.Plugins.AspNetServerSample
+namespace MediaPortal.Plugins.AspNetServerSample.Controllers
 {
-  public class Item
+  public class HomeController
   {
-    public int Id;
-    public string Name;
-  }
-
-  [Route("api/[Controller]")]
-  public class ItemsController : Controller
-  {
-    public static List<Item> Items = new List<Item>
-    {
-      new Item { Id = 1, Name = "First Test Item" },
-      new Item { Id = 2, Name = "Second Test Item" },
-    };
-
-    [HttpGet]
-    public IEnumerable<Item> Get()
-    {
-      return Items;
-    }
-
-    [HttpGet("{id}")]
-    public Item Get(int id)
-    {
-      return Items.FirstOrDefault(item => item.Id == id);
-    }
+    [HttpGet("api/Home")]
+    public IActionResult Index() => new ViewResult();
   }
 }
