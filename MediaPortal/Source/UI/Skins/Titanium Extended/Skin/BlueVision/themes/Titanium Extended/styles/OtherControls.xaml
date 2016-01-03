@@ -2329,6 +2329,11 @@
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="marker" Property="IsVisible" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -2337,9 +2342,12 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel>
+    <Image x:Name="marker" DockPanel.Dock="Center" Source="marker.png" Height="5" Stretch="Fill" IsVisible="False" VerticalAlignment="Top"/>
     <Label x:Name="ItemLabel" DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="7,0,7,0" FontSize="{ThemeResource DialogTitleFontSize}" Color="{ThemeResource TextColor}"
            Content="{Binding Path=[Name]}">
     </Label>
+    </DockPanel>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->

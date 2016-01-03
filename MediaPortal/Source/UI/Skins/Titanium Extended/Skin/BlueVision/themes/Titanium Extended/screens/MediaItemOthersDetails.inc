@@ -18,109 +18,19 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <StackPanel Grid.Column="1" Margin="20,30,20,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="190"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                           Maximum="10"
-                                           Value="{Binding TotalRating}">
-                <StarRatingPanel.LayoutTransform>
-                  <TransformGroup>
-                    <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
-                  </TransformGroup>
-                </StarRatingPanel.LayoutTransform>
-              </StarRatingPanel>
-
-              <Label x:Name="RatingCountLabel" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource NormalFontSize}" Margin="8,0,0,0">
-                <Label.Content>
-                  <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0})"/>
-                </Label.Content>
-              </Label>
-            </StackPanel>
-
-            <!--Label x:Name="SeriesLabel" Grid.Row="0" Grid.Column="0" Scroll="Auto"
-                Content="[Media.SeriesTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="SeriesName" Grid.Row="0" Grid.Column="1"
-                Content="{Binding SeriesName}" Color="{ThemeResource TextColor}"/-->
-            <Label x:Name="FirstAiredLabel" Grid.Row="1" Grid.Column="0"
-                   Content="[Media.FirstAiredLabel]" Color="{ThemeResource EmphasisTextColor}"/>           
-            <Label x:Name="FirstAired" Grid.Row="1" Grid.Column="1"
-                   Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>       
-            
-            <Label x:Name="SeasonLabel" Grid.Row="2" Grid.Column="0"
-                Content="[Media.SeriesSeasonLabel]" Color="{ThemeResource EmphasisTextColor}"/>         
-            <Label x:Name="Season" Grid.Row="2" Grid.Column="1"
-                Content="{Binding Season}" Color="{ThemeResource TextColor}"/>
-            
-            <Label x:Name="EpisodeLabel" Grid.Row="3" Grid.Column="0"
-                Content="[Media.SeriesEpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="Episode" Grid.Row="3" Grid.Column="1"
-                Content="{Binding Episode}" Color="{ThemeResource TextColor}"/>
-
-            <!-->Label x:Name="EpisodeNameLabel" Grid.Row="3" Grid.Column="0" Scroll="Auto"
-                Content="[Media.SeriesEpisodeNameLabel]" Color="{ThemeResource EmphasisTextColor}"/-->
-          </Grid>
-        </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
-          
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="190"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="DurationLabel" Grid.Row="0" Grid.Column="0"
-                   Content="[Media.VideoDurationLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="Duration" Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}"
-                   Grid.Row="0" Grid.Column="1"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
-    
-    <Label Margin="0,10,0,0" x:Name="StoryPlot" Wrap="True" Scroll="Auto" ScrollSpeed="5" Height="350"
-      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-      Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-
-  </StackPanel>
 
   <Grid Grid.Column="1" Margin="10,0,-350,-40" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
         <ControlTemplate>
           <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="SeriesName" 
-                  Content="{Binding SeriesName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+            <Label x:Name="TitleName"
+                  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
                   HorizontalAlignment="Center"/>
-            <Label Content=" - " Color="Black" />
-            <Label x:Name="EpisodeName" 
-                  Content="{Binding EpisodeName}" Color="Black"/>
           </StackPanel>
         </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
   </Grid>
 
   <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="27,-7,17,30"

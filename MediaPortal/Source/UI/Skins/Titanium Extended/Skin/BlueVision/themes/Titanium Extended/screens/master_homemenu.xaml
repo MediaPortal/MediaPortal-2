@@ -431,13 +431,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </Grid.Resources>
 
-        <Label Grid.Row="0" Grid.Column="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="Black" 
+        <!--Label Grid.Row="0" Grid.Column="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="Black" 
                Content="{Binding CurrentNewsItem.Title}" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}" />
 
         <Label Grid.Row="0" Grid.Column="1" Margin="20,0,0,0" x:Name="NewSummary" Wrap="False" Scroll="Auto" ScrollSpeed="20" ScrollDelay="3"
                HorizontalAlignment="Stretch" Height="36" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}"
                Content="{Binding CurrentNewsItem.Summary}"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/-->
         
       </Grid>
     </ControlTemplate>
