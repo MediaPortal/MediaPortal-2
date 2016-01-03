@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       // Get all episodes for this season
       ISet<Guid> necessaryMIATypesEpisodes = new HashSet<Guid>();
       necessaryMIATypesEpisodes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypesEpisodes.Add(SeriesAspect.ASPECT_ID);
+      necessaryMIATypesEpisodes.Add(EpisodeAspect.ASPECT_ID);
       necessaryMIATypesEpisodes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypesEpisodes.Add(ProviderResourceAspect.ASPECT_ID);
 

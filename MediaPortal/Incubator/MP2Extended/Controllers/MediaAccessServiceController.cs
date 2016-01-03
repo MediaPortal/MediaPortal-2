@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Caching;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS;
@@ -337,6 +338,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
+    //[ResponseCache(CacheProfileName = "nonCriticalApiCalls")]
     public IList<WebGenre> GetMusicGenres(WebSortField? sort, WebSortOrder? order)
     {
       return new GetMusicGenres().Process(sort, order);

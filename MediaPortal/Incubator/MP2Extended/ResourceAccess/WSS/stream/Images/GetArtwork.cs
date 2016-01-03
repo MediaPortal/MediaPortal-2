@@ -21,9 +21,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   {
     public byte[] Process(WebMediaType mediatype, string id, WebFileType artworktype, int offset)
     {
-      bool isSeason = false;
-      string showId = string.Empty;
-      string seasonId = string.Empty;
       int offsetInt = 0;
 
       if (id == null)
@@ -38,14 +35,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       FanArtConstants.FanArtMediaType fanArtMediaType;
       MapTypes(artworktype, mediatype, out fanartType, out fanArtMediaType);
 
-      // if teh Id contains a ':' it is a season
-      if (id.Contains(":"))
-        isSeason = true;
-
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
       bool isRecording = mediatype == WebMediaType.Recording;
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
+      IList<FanArtImage> fanart = GetFanArtImages(id, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get offset
       if (offsetInt >= fanart.Count)

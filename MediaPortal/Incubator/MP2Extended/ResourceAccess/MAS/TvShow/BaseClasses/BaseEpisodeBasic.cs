@@ -8,6 +8,10 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Utilities;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -61,13 +65,32 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       var firstAired = episodeAspect[EpisodeAspect.ATTR_FIRSTAIRED];
       if (firstAired != null)
         webTvEpisodeBasic.FirstAired = (DateTime)firstAired;
-      
-      if (showItem != null)
+
+      // season
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(SeasonAspect.ASPECT_ID);
+
+      IFilter seasonFilter = new RelationshipFilter(item.MediaItemId, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON);
+      MediaItemQuery seasonQuery = new MediaItemQuery(necessaryMIATypes, null, seasonFilter);
+      List<MediaItem> season = ServiceRegistration.Get<IMediaLibrary>().Search(seasonQuery, false).ToList();
+
+      if (season.Count > 0)
       {
-        webTvEpisodeBasic.ShowId = showItem.MediaItemId.ToString();
-        webTvEpisodeBasic.SeasonId = string.Format("{0}:{1}", showItem.MediaItemId, (int)episodeAspect[EpisodeAspect.ATTR_SEASON]);
+        // show
+        necessaryMIATypes = new HashSet<Guid>();
+        necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+
+        IFilter showFilter = new RelationshipFilter(season[0].MediaItemId, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
+        MediaItemQuery showQuery = new MediaItemQuery(necessaryMIATypes, null, showFilter);
+        List<MediaItem> show = ServiceRegistration.Get<IMediaLibrary>().Search(showQuery, false).ToList();
+
+        if (season.Count > 0 && show.Count > 0)
+        {
+          webTvEpisodeBasic.ShowId = show[0].MediaItemId.ToString();
+          webTvEpisodeBasic.SeasonId = season[0].MediaItemId.ToString();
+        }
       }
-      
+
 
       return webTvEpisodeBasic;
     }

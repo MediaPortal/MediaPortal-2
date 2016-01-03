@@ -26,9 +26,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   {
     public byte[] Process(WebMediaType mediatype, string id, WebFileType artworktype, int offset, int maxWidth, int maxHeight, string borders = null)
     {
-      bool isSeason = false;
-      string showId = string.Empty;
-      string seasonId = string.Empty;
       int offsetInt = 0;
 
       if (id == null)
@@ -38,24 +35,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       FanArtConstants.FanArtMediaType fanArtMediaType;
       MapTypes(artworktype, mediatype, out fanartType, out fanArtMediaType);
 
-      // if teh Id contains a ':' it is a season
-      if (id.Contains(":"))
-      {
-        isSeason = true;
-        showId = id.Split(':')[0];
-      }
-
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
       bool isRecording = mediatype == WebMediaType.Recording;
 
       Guid idGuid;
       int idInt;
-      if (!Guid.TryParse(isSeason ? showId : id, out idGuid) && !isTvRadio)
-        throw new BadRequestException(String.Format("GetArtworkResized: Couldn't parse if '{0}' to Guid", isSeason ? showId : id));
+      if (!Guid.TryParse(id, out idGuid) && !isTvRadio)
+        throw new BadRequestException(String.Format("GetArtworkResized: Couldn't parse if '{0}' to Guid", id));
       if (int.TryParse(id, out idInt) && (fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio))
         idGuid = IntToGuid(idInt);
 
-      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(isSeason ? StringToGuid(id) : idGuid, isTvRadio, maxWidth, maxHeight, borders, offsetInt, fanartType, fanArtMediaType);
+      ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, maxWidth, maxHeight, borders, offsetInt, fanartType, fanArtMediaType);
 
       byte[] data;
       if (ImageCache.TryGetImageFromCache(identifier, out data))
@@ -64,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         return data;
       }
 
-      IList<FanArtImage> fanart = GetFanArtImages(id, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
+      IList<FanArtImage> fanart = GetFanArtImages(id, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get offset
       if (offsetInt >= fanart.Count)

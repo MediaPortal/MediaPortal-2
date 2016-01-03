@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
         fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
     }
 
-    internal IList<FanArtImage> GetFanArtImages(string id, string showId, string seasonId, bool isSeason, bool isTvRadio, bool isRecording, FanArtConstants.FanArtType fanartType, FanArtConstants.FanArtMediaType fanArtMediaType)
+    internal IList<FanArtImage> GetFanArtImages(string id, bool isTvRadio, bool isRecording, FanArtConstants.FanArtType fanartType, FanArtConstants.FanArtMediaType fanArtMediaType)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -69,22 +69,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       optionalMIATypes.Add(VideoAspect.ASPECT_ID);
       optionalMIATypes.Add(MovieAspect.ASPECT_ID);
       optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
+      optionalMIATypes.Add(SeasonAspect.ASPECT_ID);
+      optionalMIATypes.Add(EpisodeAspect.ASPECT_ID);
       optionalMIATypes.Add(AudioAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
       MediaItem item = null;
-      if (isSeason)
-      {
-        string[] ids = id.Split(':');
-        if (ids.Length < 2)
-          throw new BadRequestException(String.Format("GetArtworkResized: not enough ids: {0}", ids.Length));
-
-        showId = ids[0];
-        seasonId = ids[1];
-
-        item = GetMediaItems.GetMediaItemById(showId, necessaryMIATypes, optionalMIATypes);
-      }
-      else if (!isTvRadio)
+      if (!isTvRadio)
         item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes, optionalMIATypes);
 
       if (item == null && !isTvRadio)
@@ -109,19 +100,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       {
         name = (string)MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata)[MediaAspect.ATTR_TITLE];
         // Tv Episode
-        if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
         {
           //name = (string)item.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODENAME];
           name = item.MediaItemId.ToString();
           fanArtMediaType = FanArtConstants.FanArtMediaType.Undefined;
           fanartType = FanArtConstants.FanArtType.Thumbnail;
         }
+        else
+        {
+          name = id;
+        }
 
-        if (isSeason)
+        /*if (isSeason)
         {
           name = String.Format("{0} S{1}", (string)MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata)[MediaAspect.ATTR_TITLE], seasonId);
           fanartType = FanArtConstants.FanArtType.Poster;
-        }
+        }*/
       }
 
       IList<FanArtImage> fanart = ServiceRegistration.Get<IFanArtService>().GetFanArt(fanArtMediaType, fanartType, name, 0, 0, false);

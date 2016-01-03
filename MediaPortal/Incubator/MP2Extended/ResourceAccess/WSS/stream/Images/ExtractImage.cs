@@ -23,7 +23,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
     {
       bool isSeason = false;
       string showId = string.Empty;
-      string seasonId = string.Empty;
 
       if (itemId == null)
         throw new BadRequestException("ExtractImage: id is null");
@@ -32,23 +31,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       FanArtConstants.FanArtMediaType fanArtMediaType;
       MapTypes(WebFileType.Content, WebMediaType.File, out fanartType, out fanArtMediaType);
 
-      // if teh Id contains a ':' it is a season
-      if (itemId.Contains(":"))
-        isSeason = true;
-
       bool isTvRadio = fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio;
       bool isRecording = (type == WebMediaType.Recording);
 
       Guid idGuid;
       int idInt;
-      if (!Guid.TryParse(isSeason ? showId : itemId, out idGuid) && !isTvRadio)
+      if (!Guid.TryParse(itemId, out idGuid) && !isTvRadio)
         throw new BadRequestException(String.Format("ExtractImage: Couldn't parse if '{0}' to Guid", isSeason ? showId : itemId));
       else if (int.TryParse(itemId, out idInt) && (fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelTv || fanArtMediaType == FanArtConstants.FanArtMediaType.ChannelRadio))
         idGuid = IntToGuid(idInt);
 
       ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, 0, 0, "undefined", 0, FanArtConstants.FanArtType.Thumbnail, FanArtConstants.FanArtMediaType.Undefined);
 
-      IList<FanArtImage> fanart = GetFanArtImages(itemId, showId, seasonId, isSeason, isTvRadio, isRecording, fanartType, fanArtMediaType);
+      IList<FanArtImage> fanart = GetFanArtImages(itemId, isTvRadio, isRecording, fanartType, fanArtMediaType);
 
       // get a random FanArt from the List
       Random rnd = new Random();

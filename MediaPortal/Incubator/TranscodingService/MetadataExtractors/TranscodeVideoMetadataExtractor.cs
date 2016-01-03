@@ -62,6 +62,8 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoAudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoEmbeddedAspect.Metadata);
       TranscodeVideoMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeVideoMetadataExtractorSettings>();
       InitializeExtensions(settings);
     }
