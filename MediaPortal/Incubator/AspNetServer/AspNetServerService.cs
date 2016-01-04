@@ -102,6 +102,7 @@ namespace MediaPortal.Plugins.AspNetServer
       Assembly assembly = Assembly.LoadFrom(assemblyPath);
       return assembly;
     }
+
     #endregion
 
     #region Private methods
@@ -152,6 +153,18 @@ namespace MediaPortal.Plugins.AspNetServer
         ServiceRegistration.Get<ILogger>().Warn("AspNetServerService: Cannot start {0}. BasePath overlaps with {1}.", action.WebApplicationParameter, string.Join(", ", webApplicationsWithOverlappingBasePaths));
         action.Tcs.TrySetResult(false);
         return;
+      }
+
+      // Kestrel currently doesn't support multiple WebApplications on the same port even if the BasePaths do not overlap.
+      // We log a meaningful warning and try to start the WebApplication anyway so that we can see in the logs if Microsoft
+      // later implements support for this scenario in Kestrel.
+      if (ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer() == AspNetServerSettings.KESTREL)
+      {
+        var webApplicationOnTheSamePort = _webApplications.Where(kvp => kvp.Key.Port == action.WebApplicationParameter.Port).ToList();
+        if (webApplicationOnTheSamePort.Any())
+        {
+          ServiceRegistration.Get<ILogger>().Warn("AspNetServerService: Start of {0} is likely to fail due to {1} listening on the same port. Kestrel currently doesn't support multiple WebApplications on the same port. Use WebListener instead.", action.WebApplicationParameter, webApplicationOnTheSamePort[0].Key);
+        }
       }
 
       // Try to start the WebApplication and if successful, register it
