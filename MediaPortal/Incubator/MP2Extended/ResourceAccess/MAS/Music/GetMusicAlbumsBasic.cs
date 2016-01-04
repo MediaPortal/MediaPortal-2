@@ -13,34 +13,35 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS;
+using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
-  [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
-  [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicGenres
+  // TODO: This one doesn't to work in the MIA rework yet
+  internal class GetMusicAlbumsBasic : BaseMusicAlbumBasic
   {
-    public IList<WebGenre> Process(WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicAlbumBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(AudioAlbumAspect.ASPECT_ID);
 
-      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
+      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
 
-      if (items.Count == 0)
-        return new List<WebGenre>();
+      var output = items.Select(item => MusicAlbumBasic(item)).ToList();
 
-      var output = (from item in items where item.Key is string select new WebGenre { Title = item.Key.ToString() }).ToList();
-
-      // sort
+      // sort and filter
       if (sort != null && order != null)
       {
-        output = output.SortWebGenre(sort, order).ToList();
+        output = output.Filter(filter).AsQueryable().SortMediaItemList(sort, order).ToList();
       }
+      else
+        output = output.Filter(filter).ToList();
 
       return output;
     }

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Sessions;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -16,45 +18,24 @@ using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
-  // TODO: Rework after MIA Rework
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetMovieGenres
   {
-    public dynamic Process(WebSortField? sort, WebSortOrder? order)
+    public IList<WebGenre> Process(WebSortField? sort, WebSortOrder? order)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
-
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
-
-      if (items.Count == 0)
-        throw new BadRequestException("No Movies found");
+      // Todo: probably filter for movies only?
+      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
 
       var output = new List<WebGenre>();
 
-      foreach (var item in items)
-      {
-        var videoGenres = (HashSet<object>)item[VideoAspect.Metadata][VideoAspect.ATTR_GENRES];
-        List<string> videoGenresList = new List<string>();
-        if (videoGenres != null)
-          videoGenresList = videoGenres.Cast<string>().ToList();
-        foreach (var genre in videoGenresList)
-        {
-          int index = output.FindIndex(x => x.Title == genre);
-          if (index == -1)
-          {
-            WebGenre webGenre = new WebGenre { Title = genre };
+      if (items.Count == 0)
+        return output;
 
-            output.Add(webGenre);
-          }
-        }
-      }
+      output = (from item in items where item.Key is string select new WebGenre { Title = item.Key.ToString() }).ToList();
 
       // sort
       if (sort != null && order != null)

@@ -179,21 +179,21 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebIntResult GetMusicAlbumCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetMusicAlbumCount().Process(filter);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicAlbumBasic> GetMusicAlbumsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicAlbumsBasic().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicAlbumBasic> GetMusicAlbumsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicAlbumsBasicByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]

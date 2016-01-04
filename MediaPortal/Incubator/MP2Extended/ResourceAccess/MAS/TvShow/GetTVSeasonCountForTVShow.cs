@@ -15,7 +15,6 @@ using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  // TODO: This is a work around -> wait for MIA rework
   // Add more details
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
@@ -23,8 +22,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   {
     public WebIntResult Process(Guid id)
     {
-      // we can't select only for seasons, so we take all episodes from a tv show and filter.
-
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
