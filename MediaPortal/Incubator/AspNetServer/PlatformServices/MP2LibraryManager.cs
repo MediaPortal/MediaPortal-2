@@ -114,15 +114,23 @@ namespace MediaPortal.Plugins.AspNetServer.PlatformServices
         _log.LogDebug("Loading references for {0}", assembly.FullName);
 
         // Find referenced assemblies
-        foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
+        foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
         {
-          var loadedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == referencedAssembly.FullName);
+          var loadedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == referencedAssemblyName.FullName);
           if (loadedAssembly == null)
           {
-            loadedAssembly = Assembly.Load(referencedAssembly);
-            _log.LogDebug("  Loaded Assembly {0}", referencedAssembly.FullName);
+            try
+            {
+              loadedAssembly = Assembly.Load(referencedAssemblyName);
+              _log.LogDebug("  Loaded Assembly {0}", referencedAssemblyName.FullName);
+            }
+            catch (Exception e)
+            {
+              _log.LogWarning("  Cannot load Assembly {0}", referencedAssemblyName.FullName, e);
+            }
           }
-          queue.Enqueue(loadedAssembly);
+          if (loadedAssembly != null)
+            queue.Enqueue(loadedAssembly);
         }
       }
     }
