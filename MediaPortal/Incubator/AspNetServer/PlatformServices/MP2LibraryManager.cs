@@ -73,66 +73,6 @@ namespace MediaPortal.Plugins.AspNetServer.PlatformServices
     public MP2LibraryManager(ILoggerFactory loggerfactory)
     {
       _log = loggerfactory.CreateLogger<MP2LibraryManager>();
-
-      // This is a temporary workaround to make sure our MP2LibraryManager and in particular MP2LibraryExporter have access
-      // to all assemblies directly or indirectly referenced by this plugin or any plugin that depends on this plugin.
-      // ToDo: Remove this once Microsoft has removed the dependency to ILibraryManager and ILibraryExporter
-      LoadAllReferencesFor(Assembly.GetExecutingAssembly());
-      var thisPlugin = ServiceRegistration.Get<IPluginManager>().AvailablePlugins.First(kvp => kvp.Value.Metadata.PluginId == Guid.Parse("F2F6988F-C436-4D74-9819-3947E0DD6974")).Value;
-      var dependentPluginAssemblies = thisPlugin.DependentPlugins.SelectMany(plugin => plugin.LoadedAssemblies);
-      foreach (var assembly in dependentPluginAssemblies)
-        LoadAllReferencesFor(assembly);
-    }
-
-    #endregion
-
-    #region Private methods
-
-    /// <summary>
-    /// Loads all assemblies directly and indirectly referenced by <param name="rootAssembly"></param>
-    /// </summary>
-    /// <param name="rootAssembly"></param>
-    /// <remarks>
-    /// ToDo: Remove this once Microsoft has removed the dependency to ILibraryManager and ILibraryExporter
-    /// </remarks>
-    private void LoadAllReferencesFor(Assembly rootAssembly)
-    {
-      _log.LogDebug("LoadAllReferences called for {0}", rootAssembly.FullName);
-
-      var alreadyProcessed = new HashSet<Assembly>();
-      var queue = new Queue<Assembly>();
-      queue.Enqueue(rootAssembly);
-
-      while (queue.Count > 0)
-      {
-        var assembly = queue.Dequeue();
-
-        // Do nothing if this assembly was already processed.
-        if (!alreadyProcessed.Add(assembly))
-          continue;
-
-        _log.LogDebug("Loading references for {0}", assembly.FullName);
-
-        // Find referenced assemblies
-        foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
-        {
-          var loadedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == referencedAssemblyName.FullName);
-          if (loadedAssembly == null)
-          {
-            try
-            {
-              loadedAssembly = Assembly.Load(referencedAssemblyName);
-              _log.LogDebug("  Loaded Assembly {0}", referencedAssemblyName.FullName);
-            }
-            catch (Exception e)
-            {
-              _log.LogWarning("  Cannot load Assembly {0}", referencedAssemblyName.FullName, e);
-            }
-          }
-          if (loadedAssembly != null)
-            queue.Enqueue(loadedAssembly);
-        }
-      }
     }
 
     #endregion

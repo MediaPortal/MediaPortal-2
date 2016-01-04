@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer.Logger;
 using MediaPortal.Plugins.AspNetServer.PlatformServices;
@@ -63,6 +64,11 @@ namespace MediaPortal.Plugins.AspNetServer
     /// <remarks>May only be accessed from within the <see cref="Process"/> method to ensure that there is no multithreaded access.</remarks>
     private readonly Dictionary<WebApplicationParameter, IDisposable> _webApplications;
 
+    /// <summary>
+    /// Workaround: ToDo: Remove this once Microsoft has removed the dependency to ILibraryManager and ILibraryExporter
+    /// </summary>
+    private readonly Task _AssemblyLoader;
+
     #endregion
 
     #region Constructors
@@ -78,6 +84,10 @@ namespace MediaPortal.Plugins.AspNetServer
       // MaxDegreeOfParallelism = 1 ensures that there one action is performed after the other
       _workerBlock = new ActionBlock<AspNetServerAction>(new Action<AspNetServerAction>(Process), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 1 });
       _webApplications = new Dictionary<WebApplicationParameter, IDisposable>();
+
+      // Workaround: ToDo: Remove this once Microsoft has removed the dependency to ILibraryManager and ILibraryExporter
+      _AssemblyLoader = LoadAllReferences();
+
       ServiceRegistration.Get<ILogger>().Info("AspNetServerService: Started.");
     }
 
@@ -103,6 +113,58 @@ namespace MediaPortal.Plugins.AspNetServer
       return assembly;
     }
 
+    /// <summary>
+    /// Loads all assemblies directly and indirectly referenced by this plugin or any dependent plugin of this plugin
+    /// </summary>
+    /// <remarks>
+    /// ToDo: Remove this once Microsoft has removed the dependency to ILibraryManager and ILibraryExporter
+    /// </remarks>
+    private static Task LoadAllReferences()
+    {
+      return Task.Run(() =>
+      {
+        ServiceRegistration.Get<ILogger>().Debug("AspNetServerService: Start loading directly and indirectly referenced assemblies of AspNetServerService and dependent plugins");
+
+        var alreadyProcessed = new HashSet<Assembly>();
+        var queue = new Queue<Assembly>();
+
+        queue.Enqueue(Assembly.GetExecutingAssembly());
+        var thisPlugin = ServiceRegistration.Get<IPluginManager>().AvailablePlugins.First(kvp => kvp.Value.Metadata.PluginId == Guid.Parse("F2F6988F-C436-4D74-9819-3947E0DD6974")).Value;
+        var dependentPluginAssemblies = thisPlugin.DependentPlugins.SelectMany(plugin => plugin.LoadedAssemblies);
+        foreach (var assembly in dependentPluginAssemblies)
+          queue.Enqueue(assembly);
+
+        while (queue.Count > 0)
+        {
+          var assembly = queue.Dequeue();
+
+          // Do nothing if this assembly was already processed.
+          if (!alreadyProcessed.Add(assembly))
+            continue;
+
+          // Find referenced assemblies
+          foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
+          {
+            var loadedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == referencedAssemblyName.FullName);
+            if (loadedAssembly == null)
+            {
+              try
+              {
+                loadedAssembly = Assembly.Load(referencedAssemblyName);
+              }
+              catch (Exception e)
+              {
+                ServiceRegistration.Get<ILogger>().Warn("AspNetServerService: Cannot load Assembly {0}", referencedAssemblyName.FullName, e);
+              }
+            }
+            if (loadedAssembly != null)
+              queue.Enqueue(loadedAssembly);
+          }
+        }
+        ServiceRegistration.Get<ILogger>().Debug("AspNetServerService: Finished loading directly and indirectly referenced assemblies of AspNetServerService and dependent plugins");
+      });
+    }
+
     #endregion
 
     #region Private methods
@@ -120,6 +182,9 @@ namespace MediaPortal.Plugins.AspNetServer
       }
       try
       {
+        // Workaround: ToDo: Remove this once Microsoft has removed the dependency to ILibraryManager and ILibraryExporter
+        _AssemblyLoader.Wait();
+
         if (action.Action == AspNetServerAction.ActionType.Start)
           StartWebApplication(action);
         else
