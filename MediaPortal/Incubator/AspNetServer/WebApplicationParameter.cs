@@ -170,8 +170,8 @@ namespace MediaPortal.Plugins.AspNetServer
     {
       if (!Initialized)
         throw new InvalidOperationException("WebApplicationParameter not initialized.");
-      return BasePath.StartsWith(other.BasePath, StringComparison.InvariantCultureIgnoreCase) ||
-             other.BasePath.StartsWith(BasePath, StringComparison.InvariantCultureIgnoreCase);
+      return Url.StartsWith(other.Url, StringComparison.OrdinalIgnoreCase) ||
+             other.Url.StartsWith(Url, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
@@ -251,7 +251,7 @@ namespace MediaPortal.Plugins.AspNetServer
     public override bool Equals(object obj)
     {
       var webApplicationWrapper = obj as WebApplicationParameter;
-      return webApplicationWrapper != null && WebApplicationName.Equals(webApplicationWrapper.WebApplicationName, StringComparison.InvariantCultureIgnoreCase);
+      return webApplicationWrapper != null && WebApplicationName.Equals(webApplicationWrapper.WebApplicationName, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -260,7 +260,7 @@ namespace MediaPortal.Plugins.AspNetServer
     /// <returns>HashCode base on the lower case representation of the <see cref="WebApplicationName"/></returns>
     public override int GetHashCode()
     {
-      return WebApplicationName.ToLowerInvariant().GetHashCode();
+      return WebApplicationName.ToLower().GetHashCode();
     }
 
     #endregion
