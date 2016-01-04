@@ -15,18 +15,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings
   [ApiFunctionParam(Name = "username", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "type", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "password", Type = typeof(string), Nullable = false)]
-  internal class CreateUser : IRequestMicroModuleHandler
+  internal class CreateUser
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(string username, string type, string password)
     {
       // Security
-      if (!CheckRights.AccessAllowed(session, UserTypes.Admin, false, true))
-        return new WebBoolResult { Result = false };
-
-      HttpParam httpParam = request.Param;
-      string username = httpParam["username"].Value;
-      string type = httpParam["type"].Value;
-      string password = httpParam["password"].Value;
+      // TODO: Add Security again
+      /*if (!CheckRights.AccessAllowed(session, UserTypes.Admin, false, true))
+        return new WebBoolResult { Result = false };*/
 
       if (username == null)
         throw new BadRequestException("CreateUser: username is null");

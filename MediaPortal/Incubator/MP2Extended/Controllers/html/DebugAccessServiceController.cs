@@ -10,5 +10,13 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.html
     [HttpGet]
     [ApiExplorerSettings(GroupName = "DebugAccessService")]
     public IActionResult Index() => new ViewResult();
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "DebugAccessService")]
+    public IActionResult Settings() => new ViewResult();
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "DebugAccessService")]
+    public IActionResult Users() => new ViewResult();
   }
 }

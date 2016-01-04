@@ -44,6 +44,10 @@ namespace MediaPortal.Plugins.MP2Extended
     #region Constructor
     public MP2ExtendedService()
     {
+      // TODO: remove one the Razor hacks aren't needed anymore
+      // Necessary so that the Asp.Net dlls can be resolved even if the WebApplication is contained in another plugin
+      AppDomain.CurrentDomain.AssemblyResolve += LoadAssemblyFromPluginFolder;
+
       ServiceRegistration.Get<IAspNetServerService>().TryStartWebApplicationAsync(
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
@@ -80,6 +84,8 @@ namespace MediaPortal.Plugins.MP2Extended
         },
         configureApp: app =>
         {
+          //app.UseExceptionHandler("/Error/Error");
+          //app.UseDeveloperExceptionPage();
           app.UseExceptionHandler(errorApp =>
           {
             // Normally you'd use MVC or similar to render a nice page.
@@ -104,12 +110,28 @@ namespace MediaPortal.Plugins.MP2Extended
           //app.UseMiddleware<ExceptionHandlerMiddleware>();
           app.UseSwaggerUi(swaggerUrl: BASE_PATH + "/swagger/v1/swagger.json");
 
-          // File Provider
+          // Swagger File Provider
           string resourcePath = Path.Combine(ASSEMBLY_PATH, "www/swagger").TrimEnd(Path.DirectorySeparatorChar);
           app.UseFileServer(new FileServerOptions
           {
             FileProvider = new PhysicalFileProvider(resourcePath),
             RequestPath = new PathString("/swagger/ui"),
+            EnableDirectoryBrowsing = true,
+          });
+          // View File Provider
+          string resourcePathView = Path.Combine(ASSEMBLY_PATH, "Views").TrimEnd(Path.DirectorySeparatorChar);
+          app.UseFileServer(new FileServerOptions
+          {
+            FileProvider = new PhysicalFileProvider(resourcePathView),
+            RequestPath = new PathString("/wwwViews"),
+            EnableDirectoryBrowsing = true,
+          });
+          // Vwww File Provider
+          string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "www").TrimEnd(Path.DirectorySeparatorChar);
+          app.UseFileServer(new FileServerOptions
+          {
+            FileProvider = new PhysicalFileProvider(resourcePathWww),
+            RequestPath = new PathString("/www"),
             EnableDirectoryBrowsing = true,
           });
           // MVC
@@ -124,6 +146,19 @@ namespace MediaPortal.Plugins.MP2Extended
     }
 
     #endregion
+
+    // TODO: remove one the Razor hacks aren't needed anymore
+    private static Assembly LoadAssemblyFromPluginFolder(object sender, ResolveEventArgs args)
+    {
+      string folderPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      if (folderPath == null)
+        return null;
+      string assemblyPath = Path.Combine(folderPath, new AssemblyName(args.Name).Name + ".dll");
+      if (!File.Exists(assemblyPath))
+        return null;
+      Assembly assembly = Assembly.LoadFrom(assemblyPath);
+      return assembly;
+    }
 
     #region IDisposable implementation
 

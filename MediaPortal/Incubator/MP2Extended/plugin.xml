@@ -25,6 +25,7 @@
 
   <Runtime>
     <Assembly FileName="MP2Extended.dll"/>
+    <Assembly FileName="SlimTv.Interfaces.dll"/>
     <PluginStateTracker ClassName="MediaPortal.Plugins.MP2Extended.MP2Extended"/>
   </Runtime>
 

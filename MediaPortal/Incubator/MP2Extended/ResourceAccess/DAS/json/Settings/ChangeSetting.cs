@@ -19,17 +19,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebBoolResult), Summary = "Allowes to change a MP2Ext setting.")]
   [ApiFunctionParam(Name = "name", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
-  internal class ChangeSetting : IRequestMicroModuleHandler
+  internal class ChangeSetting
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public WebBoolResult Process(string name, string value)
     {
       // Security
-      if (!CheckRights.AccessAllowed(session, UserTypes.Admin))
-        return new WebBoolResult { Result = false };
-
-      HttpParam httpParam = request.Param;
-      string name = httpParam["name"].Value;
-      string value = httpParam["value"].Value;
+      // TODO: Add Security
+      /*if (!CheckRights.AccessAllowed(session, UserTypes.Admin))
+        return new WebBoolResult { Result = false };*/
 
       if (string.IsNullOrEmpty(name))
         throw new BadRequestException("ChangeSetting: name is null or empty");

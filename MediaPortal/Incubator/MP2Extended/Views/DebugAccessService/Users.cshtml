@@ -1,0 +1,74 @@
+﻿@using MediaPortal.Plugins.MP2Extended
+@using MediaPortal.Plugins.MP2Extended.Settings
+@{
+  ViewBag.Title = "Users";
+  ViewBag.Headline = "Users";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+  <link rel="stylesheet" href="@Url.Content("~/wwwViews/DebugAccessService/Styles/Users.css")"></link>
+}
+
+@section Scripts {
+  <script src="@Url.Content("~/wwwViews/DebugAccessService/Scripts/Users.js")"></script>
+}
+
+
+<table id="users" class="customTable" style="width: 100%">
+  <tbody>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Action</th>
+  </tr>
+    @{
+      var users = MP2Extended.Users.Users;
+      foreach (var user in users)
+      {
+        var id = user.Id;
+        var name = user.Name;
+        var type = user.Type;
+
+        <tr data-id="@id">
+          <td>@name</td>
+          <td>@type</td>
+          <td><span class="ui-icon ui-icon-trash"></span></td>
+        </tr>
+      }
+    }
+  </tbody>
+</table>
+
+<div id="dialog-form" title="Create new user">
+  <p class="validateTips">All form fields are required.</p>
+
+  <form>
+    <fieldset>
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" value="JaneSmith" class="text ui-widget-content ui-corner-all">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" value="xxxxxxx" class="text ui-widget-content ui-corner-all">
+      <label for="type">Type</label>
+      <select name="type" id="type">
+        @{
+          foreach (var type in Enum.GetValues(typeof(UserTypes)))
+          {
+            var userType = type.ToString();
+
+            <option value="@userType">@userType</option>
+          }
+        }
+      </select>
+
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+  </form>
+</div>
+<br>
+<button id="create-user">Create new user</button>
+
+<div id="dialogDeleteUserError" title="Error">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Error deleting User! Please check the logs.</p>
+</div>

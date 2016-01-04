@@ -5,10 +5,15 @@
   <meta name=viewport content="initial-scale=1, minimum-scale=1, width=device-width">
   <title> @ViewBag.Title - MP2Extended </title>
 
-  <link rel="stylesheet" href="/MPExtended/StreamingService/stream/GetHtmlResource/base.css">
-  <link rel="stylesheet" href="/MPExtended/StreamingService/stream/GetHtmlResource/jquery-ui.smoothness.min.css">
-  <script src="/MPExtended/StreamingService/stream/GetHtmlResource/jquery-2.1.4.min.js"></script>
-  <script src="/MPExtended/StreamingService/stream/GetHtmlResource/jquery-ui-1.11.4.min.js"></script>
+  <link rel="stylesheet" href="@Url.Content("~/www/base.css")"></link>
+  <link rel="stylesheet" href="@Url.Content("~/www/jquery-ui.smoothness.min.css")"></link>
+
+  @RenderSection("Styles", false)
+
+  <script src="@Url.Content("~/www/jquery-2.1.4.min.js")"></script>
+  <script src="@Url.Content("~/www/jquery-ui-1.11.4.min.js")"></script>
+
+  @RenderSection("Scripts", false)
 
   <style>
     * {
@@ -93,7 +98,7 @@
 <ins>
   <h2>MP2Extended</h2>
 </ins>
-<p><b><# =headLine #></b> <ins><# =subHeadLine #></ins>
+<p><b>@ViewBag.Headline</b> <ins>@ViewBag.Subheadline</ins>
 <p>
 
 @RenderBody()

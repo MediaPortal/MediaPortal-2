@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Web;
+using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings;
 using Microsoft.AspNet.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
@@ -9,12 +12,23 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
   {
     [HttpGet]
     [ApiExplorerSettings(GroupName = "DebugAccessService")]
-    public FileResult Test()
+    public WebBoolResult ChangeSetting(string name, string value)
     {
-      string path = Path.Combine(MP2ExtendedService.ASSEMBLY_PATH, "www\\images\\ui-icons_cd0a0a_256x240.png");
-      var file = System.IO.File.OpenRead(path);
-      return File(file, MimeMapping.GetMimeMapping(path));
-      //return System.IO.File.OpenRead(Path.Combine(MP2ExtendedService.ASSEMBLY_PATH, "www/images/ui-icons_cd0a0a_256x240.png"));
-    } 
+      return new ChangeSetting().Process(name, value);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "DebugAccessService")]
+    public WebBoolResult CreateUser(string username, string type, string password)
+    {
+      return new CreateUser().Process(username, type, password);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings(GroupName = "DebugAccessService")]
+    public WebBoolResult DeleteUser(Guid id)
+    {
+      return new DeleteUser().Process(id);
+    }
   }
 }
