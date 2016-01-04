@@ -52,6 +52,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new AudioShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           // C# doesn't like it to have an assignment inside a collection initializer
           _defaultScreen,
+          new AudioFilterByAlbumArtistScreenData(),
           new AudioFilterByAlbumScreenData(),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
