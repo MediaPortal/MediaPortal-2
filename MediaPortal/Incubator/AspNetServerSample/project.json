@@ -8,7 +8,7 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "MediaPortal.Common": "2.0.0.1402"
+        "MediaPortal.Common": "1.0.0"
       }
     }
   },
