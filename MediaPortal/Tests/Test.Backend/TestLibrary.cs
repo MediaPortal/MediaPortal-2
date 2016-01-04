@@ -364,20 +364,23 @@ namespace Test.Backend
 
       Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
 
-      MockReader resourceReader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+      MockReader resourceReader = MockDBUtils.AddReader(1, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
       resourceReader.AddResult(itemId);
 
       DateTime importDate;
       DateTime.TryParse("2014-10-11 12:34:56", out importDate);
-      MockReader importReader = MockDBUtils.AddReader("SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
+      MockReader importReader = MockDBUtils.AddReader(2, "SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
       importReader.AddResult(importDate, "false", importDate);
 
-      MockReader mia1Reader1 = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
+      string pathStr = @"c:\item.mp3";
+      MockReader mraReader = MockDBUtils.AddReader(3, "SELECT SYSTEM_ID A0, MIMETYPE A1, SIZE A2, PATH A3, PARENTDIRECTORY A4 FROM M_PROVIDERRESOURCE WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+      mraReader.AddResult(null, "audio/mp3", 100, pathStr, Guid.Empty);
+
+      MockReader mia1Reader1 = MockDBUtils.AddReader(4, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
       mia1Reader1.AddResult(itemId, "1_1", "one.one");
 
       MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_STRING");
 
-      string pathStr = @"c:\item.mp3";
       ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
       MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
 
@@ -435,27 +438,30 @@ namespace Test.Backend
 
         Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
 
-        MockReader resourceReader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+        MockReader resourceReader = MockDBUtils.AddReader(1, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
         resourceReader.AddResult(itemId);
 
         DateTime importDate;
         DateTime.TryParse("2014-10-11 12:34:56", out importDate);
-        MockReader importReader = MockDBUtils.AddReader("SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
+        MockReader importReader = MockDBUtils.AddReader(2, "SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
         importReader.AddResult(importDate, "false", importDate);
 
-        MockReader mia1Reader = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_SINGLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+        string pathStr = @"c:\item.mp3";
+        MockReader mraReader = MockDBUtils.AddReader(3, "SELECT SYSTEM_ID A0, MIMETYPE A1, SIZE A2, PATH A3, PARENTDIRECTORY A4 FROM M_PROVIDERRESOURCE WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+        mraReader.AddResult(null, "audio/mp3", 100, pathStr, Guid.Empty);
+
+        MockReader mia1Reader = MockDBUtils.AddReader(4, "SELECT MEDIA_ITEM_ID FROM M_SINGLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
         mia1Reader.AddResult(itemId);
 
-        MockReader mia2Reader1 = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
+        MockReader mia2Reader1 = MockDBUtils.AddReader(5, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
         mia2Reader1.AddResult(itemId);
 
-        MockReader mia2Reader2 = MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
+        MockReader mia2Reader2 = MockDBUtils.AddReader(6, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
         mia2Reader2.AddResult(itemId);
 
-        MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
-        MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
+        MockDBUtils.AddReader(7, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
+        MockDBUtils.AddReader(8, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
         
-        string pathStr = @"c:\item.mp3";
         ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
         MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
 

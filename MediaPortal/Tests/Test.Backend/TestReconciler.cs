@@ -161,9 +161,11 @@ namespace Test.Backend
 
       MockDBUtils.AddReader(1, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
 
+      MockDBUtils.AddReader(2, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+
       // Readers used by UpdateRelationships to find episode item
 
-      MockReader reader2 = MockDBUtils.AddReader(2,
+      MockReader reader2 = MockDBUtils.AddReader(3,
         "SELECT T6.MEDIA_ITEM_ID A30, T0.MEDIA_ITEM_ID A31, T1.MEDIA_ITEM_ID A32, T2.MEDIA_ITEM_ID A33, T3.MEDIA_ITEM_ID A34, T4.MEDIA_ITEM_ID A35, T5.MEDIA_ITEM_ID A36, " +
         "T0.SERIESNAME A0, T0.SEASON A1, T0.SERIESSEASONNAME A2, T0.EPISODENAME A3, T0.FIRSTAIRED A4, T0.TOTALRATING A5, T0.RATINGCOUNT A6, " +
         "T1.LASTIMPORTDATE A7, T1.DIRTY A8, T1.DATEADDED A9, " +
@@ -190,7 +192,7 @@ namespace Test.Backend
         null, null
       );
 
-      MockReader reader3 = MockDBUtils.AddReader(3,
+      MockReader reader3 = MockDBUtils.AddReader(4,
         "SELECT T0.MEDIA_ITEM_ID A0, " +
         "T1.VALUE A1 " +
         "FROM NM_EPISODE T0 " +
@@ -201,9 +203,9 @@ namespace Test.Backend
         episodeItemId,
         episode);
 
-      MockDBUtils.AddReader(4, "SELECT T0.MEDIA_ITEM_ID A0, T1.VALUE A1 FROM NM_DVDEPISODE T0 INNER JOIN V_DVDEPISODE T1 ON T0.VALUE_ID = T1.VALUE_ID WHERE T0.MEDIA_ITEM_ID = @V0", "A0", "A1");
+      MockDBUtils.AddReader(5, "SELECT T0.MEDIA_ITEM_ID A0, T1.VALUE A1 FROM NM_DVDEPISODE T0 INNER JOIN V_DVDEPISODE T1 ON T0.VALUE_ID = T1.VALUE_ID WHERE T0.MEDIA_ITEM_ID = @V0", "A0", "A1");
 
-      MockReader reader5 = MockDBUtils.AddReader(5,
+      MockReader reader5 = MockDBUtils.AddReader(6,
         "SELECT T0.MEDIA_ITEM_ID A3, T0.MEDIA_ITEM_ID A4, " +
         "T0.SOURCE A0, T0.TYPE A1, T0.ID A2 " +
         "FROM M_EXTERNALIDENTIFIER T0  " +
@@ -213,19 +215,19 @@ namespace Test.Backend
         episodeItemId, episodeItemId,
         externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
 
-      MockDBUtils.AddReader(6,
+      MockDBUtils.AddReader(7,
         "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, " +
         "T0.ROLE A0, T0.LINKEDROLE A1, T0.LINKEDID A2, T0.RELATIONSHIPINDEX A3 " +
         "FROM M_RELATIONSHIP T0  " +
         "WHERE T0.MEDIA_ITEM_ID = @V0",
         CreateAttributeIdList(3, 4));
 
-      MockDBUtils.AddReader(7,
+      MockDBUtils.AddReader(8,
         "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T0.ROLE A0, T0.LINKEDROLE A1, T0.LINKEDID A2, T0.RELATIONSHIPINDEX A3 FROM M_RELATIONSHIP T0  WHERE T0.LINKEDID IN (@V0)");
 
       // Readers used by UpdateRelationships to find season item
 
-      MockDBUtils.AddReader(8,
+      MockDBUtils.AddReader(9,
         "SELECT T0.MEDIA_ITEM_ID A30, T0.MEDIA_ITEM_ID A31, T1.MEDIA_ITEM_ID A32, T2.MEDIA_ITEM_ID A33, T3.MEDIA_ITEM_ID A34, T4.MEDIA_ITEM_ID A35, T5.MEDIA_ITEM_ID A36, " +
         "T0.SERIESNAME_0 A0, T0.SEASON_0 A1, T0.SERIESSEASONNAME_0 A2, T0.DESCRIPTION A3, T0.FIRSTAIRED_0 A4, T0.TOTALRATING_0 A5, T0.RATINGCOUNT_0 A6, " +
         "T1.TITLE A7, T1.RECORDINGTIME A8, T1.RATING A9, T1.COMMENT A10, T1.PLAYCOUNT A11, T1.LASTPLAYED A12, " +
@@ -242,9 +244,9 @@ namespace Test.Backend
         "WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE SOURCE = @V0 AND TYPE = @V1 AND ID = @V2)",
         CreateAttributeIdList(30, 36));
 
-      MockDBUtils.AddReader(9, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+      MockDBUtils.AddReader(10, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
 
-      MockReader reader10 = MockDBUtils.AddReader(10,
+      MockReader reader10 = MockDBUtils.AddReader(11,
         "SELECT T6.MEDIA_ITEM_ID A30, T0.MEDIA_ITEM_ID A31, T1.MEDIA_ITEM_ID A32, T2.MEDIA_ITEM_ID A33, T3.MEDIA_ITEM_ID A34, T4.MEDIA_ITEM_ID A35, T5.MEDIA_ITEM_ID A36, " +
         "T0.SERIESNAME A0, T0.SEASON A1, T0.SERIESSEASONNAME A2, T0.EPISODENAME A3, T0.FIRSTAIRED A4, T0.TOTALRATING A5, T0.RATINGCOUNT A6, " +
         "T1.LASTIMPORTDATE A7, T1.DIRTY A8, T1.DATEADDED A9, " +
@@ -271,7 +273,7 @@ namespace Test.Backend
         null, null
       );
 
-      MockReader reader11 = MockDBUtils.AddReader(11,
+      MockReader reader11 = MockDBUtils.AddReader(12,
         "SELECT T0.MEDIA_ITEM_ID A3, T0.MEDIA_ITEM_ID A4, " +
         "T0.SOURCE A0, T0.TYPE A1, T0.ID A2 " +
         "FROM M_EXTERNALIDENTIFIER T0  " +
@@ -281,17 +283,17 @@ namespace Test.Backend
         seasonItemId, seasonItemId,
         externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
 
-      MockDBUtils.AddReader(12,
+      MockDBUtils.AddReader(13,
         "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, " +
         "T0.ROLE A0, T0.LINKEDROLE A1, T0.LINKEDID A2, T0.RELATIONSHIPINDEX A3 " +
         "FROM M_RELATIONSHIP T0  " +
         "WHERE T0.MEDIA_ITEM_ID = @V0",
         CreateAttributeIdList(3, 4));
 
-      MockDBUtils.AddReader(13,
+      MockDBUtils.AddReader(14,
         "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T0.ROLE A0, T0.LINKEDROLE A1, T0.LINKEDID A2, T0.RELATIONSHIPINDEX A3 FROM M_RELATIONSHIP T0  WHERE T0.LINKEDID IN (@V0)");
 
-      MockDBUtils.AddReader(14,
+      MockDBUtils.AddReader(15,
         "SELECT T0.MEDIA_ITEM_ID A30, T0.MEDIA_ITEM_ID A31, T1.MEDIA_ITEM_ID A32, T2.MEDIA_ITEM_ID A33, T3.MEDIA_ITEM_ID A34, T4.MEDIA_ITEM_ID A35, T5.MEDIA_ITEM_ID A36, " +
         "T0.SERIESNAME_1 A0, T0.DESCRIPTION_0 A1, " +
         "T1.TITLE A2, T1.RECORDINGTIME A3, T1.RATING A4, T1.COMMENT A5, T1.PLAYCOUNT A6, T1.LASTPLAYED A7, " +
@@ -308,11 +310,11 @@ namespace Test.Backend
         "WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_EXTERNALIDENTIFIER WHERE SOURCE = @V0 AND TYPE = @V1 AND ID = @V2)",
         CreateAttributeIdList(30, 36));
 
-      MockDBUtils.AddReader(15, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+      MockDBUtils.AddReader(16, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
 
       // Readers used by UpdateRelationships to find series item
 
-      MockReader reader16 = MockDBUtils.AddReader(16,
+      MockReader reader16 = MockDBUtils.AddReader(17,
         "SELECT T6.MEDIA_ITEM_ID A30, T0.MEDIA_ITEM_ID A31, T1.MEDIA_ITEM_ID A32, T2.MEDIA_ITEM_ID A33, T3.MEDIA_ITEM_ID A34, T4.MEDIA_ITEM_ID A35, T5.MEDIA_ITEM_ID A36, " +
         "T0.SERIESNAME A0, T0.SEASON A1, T0.SERIESSEASONNAME A2, T0.EPISODENAME A3, T0.FIRSTAIRED A4, T0.TOTALRATING A5, T0.RATINGCOUNT A6, " +
         "T1.LASTIMPORTDATE A7, T1.DIRTY A8, T1.DATEADDED A9, " +
@@ -339,7 +341,7 @@ namespace Test.Backend
         seriesName, seriesDescription
       );
 
-      MockReader reader17 = MockDBUtils.AddReader(17,
+      MockReader reader17 = MockDBUtils.AddReader(18,
         "SELECT T0.MEDIA_ITEM_ID A3, T0.MEDIA_ITEM_ID A4, " +
         "T0.SOURCE A0, T0.TYPE A1, T0.ID A2 " +
         "FROM M_EXTERNALIDENTIFIER T0  " +
@@ -349,17 +351,17 @@ namespace Test.Backend
         seriesItemId, seriesItemId,
         externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
 
-      MockDBUtils.AddReader(18,
+      MockDBUtils.AddReader(19,
         "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, " +
         "T0.ROLE A0, T0.LINKEDROLE A1, T0.LINKEDID A2, T0.RELATIONSHIPINDEX A3 " +
         "FROM M_RELATIONSHIP T0  " +
         "WHERE T0.MEDIA_ITEM_ID = @V0",
         CreateAttributeIdList(4, 5));
 
-      MockDBUtils.AddReader(19,
+      MockDBUtils.AddReader(20,
         "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T0.ROLE A0, T0.LINKEDROLE A1, T0.LINKEDID A2, T0.RELATIONSHIPINDEX A3 FROM M_RELATIONSHIP T0  WHERE T0.LINKEDID IN (@V0)");
 
-      MockReader reader20 = MockDBUtils.AddReader(20,
+      MockReader reader20 = MockDBUtils.AddReader(21,
         "SELECT MEDIA_ITEM_ID " +
         "FROM M_EXTERNALIDENTIFIER " +
         "WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND SOURCE = @SOURCE AND TYPE = @TYPE",
@@ -368,13 +370,13 @@ namespace Test.Backend
         seasonItemId,
         externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
 
-      MockDBUtils.AddReader(21,
+      MockDBUtils.AddReader(22,
         "SELECT MEDIA_ITEM_ID " +
         "FROM M_RELATIONSHIP " +
         "WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ROLE = @ROLE AND LINKEDROLE = @LINKEDROLE AND LINKEDID = @LINKEDID",
         "MEDIA_ITEM_ID");
 
-      MockReader reader22 = MockDBUtils.AddReader(22,
+      MockReader reader22 = MockDBUtils.AddReader(23,
         "SELECT MEDIA_ITEM_ID " +
         "FROM M_EXTERNALIDENTIFIER " +
         "WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND SOURCE = @SOURCE AND TYPE = @TYPE",
@@ -383,7 +385,7 @@ namespace Test.Backend
         seasonItemId,
         externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
 
-      MockDBUtils.AddReader(23,
+      MockDBUtils.AddReader(24,
         "SELECT MEDIA_ITEM_ID " +
         "FROM M_RELATIONSHIP " +
         "WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ROLE = @ROLE AND LINKEDROLE = @LINKEDROLE AND LINKEDID = @LINKEDID",
