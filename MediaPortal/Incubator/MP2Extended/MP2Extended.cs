@@ -48,11 +48,18 @@ namespace MediaPortal.Plugins.MP2Extended
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
         {
-          services.AddMvc(options => options.CacheProfiles.Add("nonCriticalApiCalls", new CacheProfile()
+          services.AddMvc(options =>
           {
-            Duration = 100,
-            Location = ResponseCacheLocation.Client
-          }));
+            options.CacheProfiles.Add("nonCriticalApiCalls", new CacheProfile()
+            {
+              Duration = 100,
+              Location = ResponseCacheLocation.Client
+            });
+          })
+          // MVC Razor
+          .AddRazorOptions(options => options.FileProvider = new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
+
+          // Swagger
           services.AddSwaggerGen(c =>
           {
             c.DescribeAllEnumsAsStrings();
@@ -96,6 +103,8 @@ namespace MediaPortal.Plugins.MP2Extended
           });
           //app.UseMiddleware<ExceptionHandlerMiddleware>();
           app.UseSwaggerUi(swaggerUrl: BASE_PATH + "/swagger/v1/swagger.json");
+
+          // File Provider
           string resourcePath = Path.Combine(ASSEMBLY_PATH, "www/swagger").TrimEnd(Path.DirectorySeparatorChar);
           app.UseFileServer(new FileServerOptions
           {
@@ -103,8 +112,11 @@ namespace MediaPortal.Plugins.MP2Extended
             RequestPath = new PathString("/swagger/ui"),
             EnableDirectoryBrowsing = true,
           });
+          // MVC
           app.UseMvc();
+          // Swagger
           app.UseSwaggerGen();
+          // some standard output
           app.Run(context => context.Response.WriteAsync("Hello MP2Extended"));
         },
         port: PORT,

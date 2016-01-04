@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
@@ -14,10 +11,9 @@ using MediaPortal.Plugins.MP2Extended.WSS;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
-using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Mvc;
 
-namespace MediaPortal.Plugins.MP2Extended.Controllers
+namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
   [Route("[Controller]/json/[Action]")]
   public class StreamingServiceController : Controller, IStreamingServiceController

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Mvc;
-using System.IO;
+﻿using System.IO;
 using System.Web;
+using Microsoft.AspNet.Mvc;
 
-namespace MediaPortal.Plugins.MP2Extended.Controllers
+namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
   [Route("[Controller]/json/[Action]")]
   public class DebugAccessServiceController : Controller

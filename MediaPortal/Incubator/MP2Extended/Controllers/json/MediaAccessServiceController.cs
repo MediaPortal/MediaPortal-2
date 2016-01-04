@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Caching;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS;
@@ -27,7 +24,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using Microsoft.AspNet.Mvc;
 
-namespace MediaPortal.Plugins.MP2Extended.Controllers
+namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
   [Route("[Controller]/json/[Action]")]
   public class MediaAccessServiceController : Controller, IMediaAccessServiceController

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
@@ -14,13 +11,13 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using Microsoft.AspNet.Mvc;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 
-namespace MediaPortal.Plugins.MP2Extended.Controllers
+namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
   [Route("[Controller]/json/[Action]")]
   public class TVAccessServiceController : Controller, ITVAccessServiceController
