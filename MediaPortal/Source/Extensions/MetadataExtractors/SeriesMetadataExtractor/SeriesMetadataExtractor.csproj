@@ -61,7 +61,9 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="EpisodeSeriesRelationshipExtractor.cs" />
     <Compile Include="SeasonSeriesRelationshipExtractor.cs" />
+    <Compile Include="SeriesBaseTryExtractRelationships.cs" />
     <Compile Include="SeriesRelationshipExtractor.cs" />
     <Compile Include="FanartProvider\SeriesFanartProvider.cs" />
     <Compile Include="SeriesMetadataExtractorSettings.cs" />

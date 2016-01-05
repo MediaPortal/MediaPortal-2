@@ -23,9 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Drawing;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -34,14 +38,14 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeasonSeriesRelationshipExtractor : SeriesBaseTryExtractRelationships, IRelationshipRoleExtractor
+  class EpisodeSeriesRelationshipExtractor : SeriesBaseTryExtractRelationships, IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
 
     public Guid Role
     {
-      get { return SeasonAspect.ROLE_SEASON; }
+      get { return EpisodeAspect.ROLE_EPISODE; }
     }
 
     public Guid[] RoleAspects
@@ -68,7 +72,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, SeasonAspect.ATTR_SEASON, out index);
+      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_SERIESNAME, out index);
+    }
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }
