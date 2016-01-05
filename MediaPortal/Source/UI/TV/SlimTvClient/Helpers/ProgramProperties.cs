@@ -226,7 +226,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       try
       {
         IChannel channel;
-        if (program != null && ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
+        if (program != null && channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
           ChannelName = channel.Name;
 
         _settingProgram = true;
