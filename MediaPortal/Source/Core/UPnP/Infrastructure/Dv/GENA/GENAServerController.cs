@@ -95,7 +95,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           subscription.Dispose();
       }
       else
-        UPnPConfiguration.LOGGER.Error("SSDPServerController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
+        UPnPConfiguration.LOGGER.Error("GENAServerController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }
 
     /// <summary>
