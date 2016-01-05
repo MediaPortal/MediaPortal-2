@@ -94,12 +94,7 @@ namespace UPnP.Infrastructure.Dv
 
     private void OnNetworkAddressChanged(object sender, EventArgs e)
     {
-      lock (_serverData.SyncObj)
-      {
-        // To go around finding out which interface was changed, we simply raise an Update notification followed by a new advertisement
-        UpdateInterfaceConfiguration();
-        _serverData.SSDPController.Advertise();
-      }
+      UpdateAndAdvertise();
     }
 
     private void OnHttpListenerRequestReceived(object sender, RequestEventArgs e)
@@ -255,6 +250,23 @@ namespace UPnP.Infrastructure.Dv
           GenerateObjectURLs(config);
           config.ConfigId = GenerateConfigId(config);
         }
+        _serverData.SSDPController.Advertise();
+      }
+    }
+
+    /// <summary>
+    /// Updates the interface configurations and executes a SSDP advertise.
+    /// <remarks>
+    /// This method is used internally when the available network adapters have been changed (added or removed).
+    /// Additionally it might be called from outside in case of other events, like a system resume from standby.
+    /// </remarks>
+    /// </summary>
+    public void UpdateAndAdvertise()
+    {
+      lock (_serverData.SyncObj)
+      {
+        // To go around finding out which interface was changed, we simply raise an Update notification followed by a new advertisement
+        UpdateInterfaceConfiguration();
         _serverData.SSDPController.Advertise();
       }
     }
