@@ -37,6 +37,13 @@ namespace MediaPortal.Utilities.Network
   public static class NetworkUtils
   {
     /// <summary>
+    /// If set to <c>true</c>, ServicePoint.BindIPEndPointDelegate will be set to bind only to specific IP address.
+    /// Enabling this option might help on systems with multiple networks attached (i.e. virtual nets), but cause
+    /// connection issues in other cases. By default this option should remain <c>false</c>.
+    /// </summary>
+    public static bool LimitIPEndpoints { get; set; }
+
+    /// <summary>
     /// Returns a string representation of an <see cref="IPAddress"/> in the form <c>123.123.123.123</c> (for IPv4 addresses)
     /// or <c>ABCD:ABCD::ABCD</c> (for IPv6 addresses). This method is different from the <see cref="IPAddress.ToString"/>
     /// method; it avoids the zone index which is added to IPv6 addresses by that method.
@@ -78,13 +85,15 @@ namespace MediaPortal.Utilities.Network
     /// Due to problems which can avoid HTTP requests being delivered correctly, it is sometimes necessary to give a HTTP request object a
     /// "hint" which local endpoint should be used. If HTTP requests time out (which is often the case when virtual VMWare network interfaces are
     /// installed), it might help to call this method.
+    /// Callers should initially set the value <see cref="LimitIPEndpoints"/> to enable this behavior (default: disabled).
     /// </remarks>
     /// <param name="request">HTTP web request to patch.</param>
     /// <param name="preferredLocalIpAddress">Local IP address which is bound to the network interface which should be used to bind the
     /// outgoing HTTP request to.</param>
     public static void SetLocalEndpoint(HttpWebRequest request, IPAddress preferredLocalIpAddress)
     {
-      request.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) => BindIPEndPointCallback(servicePoint, remoteEndPoint, preferredLocalIpAddress, retryCount);
+      if (LimitIPEndpoints)
+        request.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) => BindIPEndPointCallback(servicePoint, remoteEndPoint, preferredLocalIpAddress, retryCount);
     }
 
     /// <summary>
