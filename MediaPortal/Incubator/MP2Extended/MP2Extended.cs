@@ -111,28 +111,25 @@ namespace MediaPortal.Plugins.MP2Extended
           app.UseSwaggerUi(swaggerUrl: BASE_PATH + "/swagger/v1/swagger.json");
 
           // Swagger File Provider
-          string resourcePath = Path.Combine(ASSEMBLY_PATH, "www/swagger").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseFileServer(new FileServerOptions
+          string resourcePath = Path.Combine(ASSEMBLY_PATH, "wwwroot/swagger").TrimEnd(Path.DirectorySeparatorChar);
+          app.UseStaticFiles(new StaticFileOptions
           {
             FileProvider = new PhysicalFileProvider(resourcePath),
-            RequestPath = new PathString("/swagger/ui"),
-            EnableDirectoryBrowsing = true,
+            RequestPath = new PathString("/swagger/ui")
           });
           // View File Provider
           string resourcePathView = Path.Combine(ASSEMBLY_PATH, "Views").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseFileServer(new FileServerOptions
+          app.UseStaticFiles(new StaticFileOptions
           {
             FileProvider = new PhysicalFileProvider(resourcePathView),
-            RequestPath = new PathString("/wwwViews"),
-            EnableDirectoryBrowsing = true,
+            RequestPath = new PathString("/wwwViews")
           });
-          // Vwww File Provider
-          string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "www").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseFileServer(new FileServerOptions
+          // www File Provider
+          string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
+          app.UseStaticFiles(new StaticFileOptions
           {
             FileProvider = new PhysicalFileProvider(resourcePathWww),
-            RequestPath = new PathString("/www"),
-            EnableDirectoryBrowsing = true,
+            RequestPath = new PathString("/wwwroot")
           });
           // MVC
           app.UseMvc();

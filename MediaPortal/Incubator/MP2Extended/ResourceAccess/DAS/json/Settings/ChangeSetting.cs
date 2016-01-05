@@ -10,7 +10,6 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Authentication;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.html.Settings.Pages;
 using MediaPortal.Plugins.MP2Extended.Settings;
 using MediaPortal.Plugins.MP2Extended.Utils;
 

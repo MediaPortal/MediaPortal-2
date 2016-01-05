@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
-    <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\www\</wwwDestination>
+    <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\wwwroot\</wwwDestination>
   </PropertyGroup>
 
   <PropertyGroup>
