@@ -894,6 +894,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             // Only allow certain attributes to be overridden
             pra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE));
+            pra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, mia.GetAttributeValue<long>(ProviderResourceAspect.ATTR_SIZE));
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra);
             continue;
           }
