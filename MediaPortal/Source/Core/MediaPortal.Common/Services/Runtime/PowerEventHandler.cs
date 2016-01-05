@@ -45,7 +45,7 @@ namespace MediaPortal.Common.Services.Runtime
 
     public PowerEventHandler()
     {
-      _powerEventThread = new Thread(PowerEventHandlerThread) { Name = "PwrEvtHnd", IsBackground = true, Priority = ThreadPriority.BelowNormal };
+      _powerEventThread = new Thread(PowerEventHandlerThread) { Name = "PwrEvtHnd", IsBackground = true, Priority = ThreadPriority.AboveNormal };
       _powerEventThread.Start();
     }
 
