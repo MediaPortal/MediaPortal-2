@@ -539,7 +539,9 @@ namespace UPnP.Infrastructure.CP
     private static HttpWebRequest CreateHttpGetRequest(Uri uri, IPAddress localIpAddress)
     {
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(uri);
-      NetworkUtils.SetLocalEndpoint(request, localIpAddress);
+      // Morpheus_xx, 2016-01-05: Disabled the limiting to specifig IP because of WebExecptions ("Address not valid in this context").
+      // This solves errors getting the device descriptions via HTTP requests.
+      //NetworkUtils.SetLocalEndpoint(request, localIpAddress);
       request.Method = "GET";
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;
