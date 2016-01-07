@@ -792,8 +792,7 @@
               <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
               <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="10,0,0,0"
-                     FontFamily="Default"/>
+                     Margin="10,0,0,0"/>
             </Grid>
           </Button>
         </ControlTemplate>
