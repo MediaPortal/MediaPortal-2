@@ -49,7 +49,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OnScreenShow}"/>
       <EventTrigger.Actions>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
