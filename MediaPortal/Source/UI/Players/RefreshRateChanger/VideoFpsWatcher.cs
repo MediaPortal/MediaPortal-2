@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Timers;
 using MediaPortal.Common;
@@ -131,6 +130,8 @@ namespace MediaPortal.Plugins.RefreshRateChanger
 
     private MediaItem GetCurrentMediaItem(IVideoPlayer player)
     {
+      if (player == null)
+        return null;
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
       {
