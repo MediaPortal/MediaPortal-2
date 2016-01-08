@@ -18,6 +18,7 @@
 
   <!-- Filter titles -->
   <string name="Media.FilterByArtistMenuItem">Filter by artist</string>
+  <string name="Media.FilterByAlbumArtistMenuItem">Filter by album artist</string>
   <string name="Media.FilterByAlbumMenuItem">Filter by album</string>
   <string name="Media.FilterByAudioGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filter by decade</string>
@@ -59,6 +60,7 @@
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
   <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
   <string name="Media.FilterArtistNavbarDisplayLabel">Artist: {0}</string> <!-- For example: "Artist: R.E.M." -->
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Album Artist: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Decade: {0}</string>
@@ -130,6 +132,7 @@
   <string name="Media.ChooseAudioDecadeHeader">Choose a decade</string>
   <string name="Media.ChooseAlbumHeader">Choose an album</string>
   <string name="Media.ChooseArtistHeader">Choose an artist</string>
+  <string name="Media.ChooseAlbumArtistHeader">Choose an album artist</string>
   <string name="Media.ChooseAudioGenreHeader">Choose a genre</string>
   <string name="Media.ChooseImageYearHeader">Choose a year</string>
   <string name="Media.ChooseImageSizeHeader">Choose a size</string>

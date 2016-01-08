@@ -27,7 +27,7 @@
 
   <Fragment>
     <util:FileSearch Id="MFC100_Version_x86"
-               Variable="MFC100_Version_x86" Path="[SystemFolder]mfc100.dll"
+               Variable="MFC100_Version_x86" Path="[SystemFolder64]mfc100.dll"
                Result="version"/>
 
     <PackageGroup Id="redist_vc100">
@@ -43,7 +43,7 @@
 
   <Fragment>
     <util:FileSearch Id="MFC120_Version_x86"
-                 Variable="MFC120_Version_x86" Path="[SystemFolder]mfc120.dll"
+                 Variable="MFC120_Version_x86" Path="[SystemFolder64]mfc120.dll"
                  Result="version"/>
 
     <PackageGroup Id="redist_vc120">
