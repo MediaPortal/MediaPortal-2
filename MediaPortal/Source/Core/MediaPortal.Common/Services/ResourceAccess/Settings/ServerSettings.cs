@@ -34,6 +34,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     protected int _httpServerPort = 0;
     protected bool _useIPv4 = true;
     protected bool _useIPv6 = true;
+    protected bool _limitIPEndpoints = false;
     protected string _ipAddressBindings = null;
 
     /// <summary>
@@ -66,6 +67,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     {
       get { return _ipAddressBindings; }
       set { _ipAddressBindings = value; }
+    }
+
+    [Setting(SettingScope.Global, false)]
+    public bool LimitIPEndpoints
+    {
+      get { return _limitIPEndpoints; }
+      set { _limitIPEndpoints = value; }
     }
 
     /// <summary>

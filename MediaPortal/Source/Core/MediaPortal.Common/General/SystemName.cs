@@ -61,6 +61,7 @@ namespace MediaPortal.Common.General
 
     protected static string LOCAL_HOST_DNS_NAME;
     protected readonly string[] EMPTY_ALIAS_LIST = new string[0];
+    protected static ICollection<string> _failedLookups = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     static SystemName()
     {
@@ -79,23 +80,27 @@ namespace MediaPortal.Common.General
     public SystemName(string hostName)
     {
       _address = GetCanonicalForm(hostName);
-      InitializeAliases(hostName);
+      InitializeAliases(_address);
     }
 
     protected void InitializeAliases(string hostName)
     {
+      if (_failedLookups.Contains(hostName))
+        return;
+
       List<string> aliases = new List<string>();
       try
       {
-        IPHostEntry hostEntry = Dns.GetHostEntry(_address);
+        IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
         _hostName = hostEntry.HostName;
         aliases.AddRange(hostEntry.Aliases.Select(GetCanonicalForm));
         aliases.AddRange(hostEntry.AddressList.Select(NetworkUtils.IPAddrToString));
       }
       catch (SocketException e) // Could occur if the nameserver doesn't answer, for example
       {
-        ServiceRegistration.Get<ILogger>().Warn("SystemName: Could not retrieve host alias/address list from DNS", e);
-        _aliases = EMPTY_ALIAS_LIST;
+        ServiceRegistration.Get<ILogger>().Warn("SystemName: Could not retrieve host alias/address list from DNS (hostName: {0})", hostName);
+        _failedLookups.Add(hostName);
+        aliases.Add(hostName); // Will be used to compare in IsAddressOrAlias
       }
       _aliases = aliases.ToArray();
     }
