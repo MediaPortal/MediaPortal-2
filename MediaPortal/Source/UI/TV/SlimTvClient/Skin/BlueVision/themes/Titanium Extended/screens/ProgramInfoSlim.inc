@@ -15,6 +15,7 @@
       <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Label x:Name="Channel" Grid.Row="0" Grid.Column="0" Scroll="Auto" Margin="25,0,10,5" HorizontalAlignment="Left"
@@ -31,19 +32,23 @@
         Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
         Color="{ThemeResource TextColor}"/>
 
-    <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="2" Scroll="Auto" Margin="5,0,0,0"
+    <Label Grid.Row="0" Grid.Column="2" Margin="5,0,5,0"
+           Content="-"
+           Color="{ThemeResource TextColor}"/>
+
+    <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="0,0,0,0"
         Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
         Color="{ThemeResource TextColor}"/>
 
-    <Label x:Name="Program" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
+    <Label x:Name="Program" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="15,0,0,0"
         Content="{Binding CurrentProgram.Title}"
         Color="{ThemeResource TextColor}"/>
 
-    <Label x:Name="SeriesLabel" Grid.Column="4" Grid.Row="1" Content="{Binding [Series]}"
+    <Label x:Name="SeriesLabel" Grid.Column="5" Grid.Row="1" Content="{Binding [Series]}"
        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
 
-    <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" Scroll="Auto" Opacity="0.7"
+    <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+           Wrap="True" Scroll="Auto" Opacity="0.6"
            Content="{Binding Path=CurrentProgram.Description}"
            Color="{ThemeResource TextColor}" Margin="0,0,10,25" />
   </Grid>
