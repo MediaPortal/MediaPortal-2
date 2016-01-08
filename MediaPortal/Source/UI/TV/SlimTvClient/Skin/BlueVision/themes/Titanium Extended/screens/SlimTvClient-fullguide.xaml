@@ -10,7 +10,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/-->
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
@@ -36,25 +36,25 @@
         <Image Stretch="Fill" Source="tv_guide_description_bg.png" Grid.Row="0" 
                Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,-60,-40,0" ></Image>
         
-        <StackPanel x:Name="Groups" Margin="20,15,20,10" Grid.Column="0" Grid.Row="1"
+        <StackPanel x:Name="Groups" Margin="20,12,20,10" Grid.Column="0" Grid.Row="1"
               HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}" Margin="0,0,5,0" />
           <Button x:Name="NextGroupButton" Style="{StaticResource NextButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}" Margin="0,0,5,0" />
-          <Label x:Name="GroupNameLabel" Color="Black" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+          <Label x:Name="GroupNameLabel" Color="Black" Content="{Binding GroupName}"/>
         </StackPanel>
-        <StackPanel x:Name="TimeControls" Margin="20,15,20,10" Grid.Column="1" Grid.Row="1"
-                     HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+        <StackPanel x:Name="TimeControls" Margin="20,12,20,10" Grid.Column="1" Grid.Row="1"
+                     HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="ScrollBackwardButton" Style="{StaticResource PreviousButtonStyle}" Content=" - "
               Command="{Command ScrollBackward}" Margin="0,0,5,0" />
           <Button x:Name="ScrollForwardButton" Style="{StaticResource NextButtonStyle}" Content=" + "
               Command="{Command ScrollForward}" Margin="0,0,5,0" />
           <Label x:Name="GuideStartTimeLabel" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-              Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
+              Color="Black" />
         </StackPanel>
 
-        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" Margin="0,30,3,-30" />
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" Margin="2,30,4,-30" />
 
           <Control Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>

@@ -2,28 +2,26 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     Source="screens\master_bare.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
   <Include.Resources>
 
     <!-- Header -->
-    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Title]"/-->
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/-->
 
     <!-- SlimTvClient model -->
-    <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+    <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="0,-108,0,-30">
-
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-108,0,-30" 
+              DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="620"/>
+          <ColumnDefinition Width="600"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -31,41 +29,52 @@
 
         <Image Stretch="Fill" Source="panel_tv_guide_large.png" Grid.Row="0" Grid.RowSpan="2"
                Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60" ></Image>
-       
-        <StackPanel x:Name="Groups" Margin="20,8,20,8" Grid.Column="0" Grid.Row="0"
-              HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-          <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}" Margin="0,2,0,0"/>
-          <Button x:Name="NextGroupButton" Style="{StaticResource NextButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}" Margin="5,2,5,0" />
-          <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}" VerticalAlignment="Center"
-                Color="Black" Margin="5,0,0,0"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,-5,0,5" 
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" >
+          <Button Grid.Column="0" Grid.Row="0"  Margin="10,0,0,5" VerticalAlignment="Center"
+                  Content="[SlimTvClient.DontRecordProgram]" Command="{Command CancelSchedule}">
+            <Button.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Button.IsVisible>
+          </Button>
+
+          <Button Margin="10,0,0,5" VerticalAlignment="Center"
+                  Content="[SlimTvClient.RecordProgram]" Command="{Command RecordSingleProgram}">
+            <Button.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Button.IsVisible>
+          </Button>
+
+          <Button Margin="5,0,10,5" VerticalAlignment="Center"
+                  Content="[SlimTvClient.RecordSeries]" Command="{Command RecordSeries}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
         </StackPanel>
 
-        <StackPanel x:Name="PiPControl" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
-                     HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
-                     IsVisible="{Binding PiPAvailable}">
-          <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}" 
-                    Content="PiP enabled:" Command="{Command TogglePiP}" Margin="5,0,5,0" />
-          <Label x:Name="PiPStatusLabel" Margin="5,0,0,0" Content="{Binding PiPEnabled}" VerticalAlignment="Center"
-                Color="Black" />
-        </StackPanel>
-
-        <Label Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="20,0,20,0"
-               Color="Black" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        
-        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0,30,-34,-5"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
-              ItemsSource="{Binding Path=CurrentGroupChannels}"
+        <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
+              Margin="0,25,-34,-5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ExtScheduleListViewStyle}"
+              ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
 
-        <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" x:Name="Description_details" 
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,25,35,5">
+        <Grid Grid.Column="0" Grid.Row="1"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,25,35,5">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -91,35 +100,33 @@
           </Image>
 
           <Label x:Name="ChannelLabel" Grid.Row="1" Grid.Column="0" Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-          <Label x:Name="Channel" Grid.Row="1" Grid.Column="1"  Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"/>
+          <Label x:Name="Channel" Grid.Row="1" Grid.Column="1"  Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
 
           <Label x:Name="ProgramLabel" Grid.Row="2" Grid.Column="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-          <Label x:Name="Program" Grid.Row="2" Grid.Column="1"  Scroll="Auto" Content="{Binding Path=SelectedCurrentProgram.Title}" Color="{ThemeResource TextColor}"/>
+          <Label x:Name="Program" Grid.Row="2" Grid.Column="1"  Scroll="Auto" Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}"/>
 
           <Label x:Name="ProgramStartLabel" Grid.Row="3" Grid.Column="0" Content="[SlimTvClient.ProgramStartLabel]" Color="{ThemeResource EmphasisTextColor}"/>
           <Label x:Name="ProgramStart" Grid.Row="3" Grid.Column="1" Scroll="Auto"
-              Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource TextColor}"/>
 
           <Label x:Name="ProgramEndLabel" Grid.Row="4" Grid.Column="0" Content="[SlimTvClient.ProgramEndLabel]" Color="{ThemeResource EmphasisTextColor}" />
           <Label x:Name="ProgramEnd" Grid.Row="4" Grid.Column="1" Scroll="Auto"
-              Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource TextColor}"/>
 
           <Label x:Name="GenreLabel" Grid.Row="5" Grid.Column="0" Content="[SlimTvClient.GenreLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-          <Label x:Name="Genre" Grid.Row="5" Grid.Column="1"  Content="{Binding Path=SelectedCurrentProgram.Genre}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+          <Label x:Name="Genre" Grid.Row="5" Grid.Column="1"  Content="{Binding Path=CurrentProgram.Genre}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
           <!-- TODO: add all related episode information -->
           <Label x:Name="EpisodeLabel" Grid.Row="6" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-          <Label x:Name="Episode" Grid.Row="6" Grid.Column="1"  Content="{Binding Path=SelectedCurrentProgram.Series}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+          <Label x:Name="Episode" Grid.Row="6" Grid.Column="1"  Content="{Binding Path=CurrentProgram.Series}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
           <Label x:Name="DescriptionLabel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
           <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Wrap="True" Scroll="Auto" Content="{Binding Path=SelectedCurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
+              Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
         </Grid>
-      </Grid>  
-    </ControlTemplate>           
-     
+      </Grid>
+    </ControlTemplate>
   </Include.Resources>
 </Include>
-    
