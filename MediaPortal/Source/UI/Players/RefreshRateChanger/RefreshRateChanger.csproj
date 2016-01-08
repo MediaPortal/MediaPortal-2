@@ -45,11 +45,11 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Settings\Configuration\RateMappings.cs" />
     <Compile Include="Windows7DwmFix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RefreshRateChanger.cs" />
     <Compile Include="Settings\Configuration\IsEnabled.cs" />
-    <Compile Include="Settings\Configuration\NoChangeForRate.cs" />
     <Compile Include="Settings\RefreshRateChangerSettings.cs" />
     <Compile Include="VideoFpsWatcher.cs" />
   </ItemGroup>
@@ -68,6 +68,10 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>

@@ -22,29 +22,49 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration
 {
-  public class NoChangeForRate : Entry
+  public class RateMappings : Entry
   {
     public override void Load()
     {
       base.Load();
-      _value = SettingsManager.Load<RefreshRateChangerSettings>().NoChangeForRate;
+      var dict = SettingsManager.Load<RefreshRateChangerSettings>().RateMappings;
+      List<string> rates = dict.Keys.Select(key => string.Format("{0}:{1}", key, dict[key])).ToList();
+      _value = string.Join("; ", rates.ToArray());
     }
 
     public override void Save()
     {
       base.Save();
+
       RefreshRateChangerSettings settings = SettingsManager.Load<RefreshRateChangerSettings>();
-      settings.NoChangeForRate = _value;
+      settings.RateMappings.Clear();
+
+      var parts = _value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+      foreach (var part in parts)
+      {
+        var map = part.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+        if (map.Length == 2)
+        {
+          int fps;
+          int hz;
+          if (int.TryParse(map[0], out fps) && int.TryParse(map[1], out hz))
+            settings.RateMappings[fps] = hz;
+        }
+      }
+
       SettingsManager.Save(settings);
     }
 
     public override int DisplayLength
     {
-      get { return 30; }
+      get { return 50; }
     }
   }
 }
