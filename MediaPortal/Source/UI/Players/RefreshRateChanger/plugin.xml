@@ -20,6 +20,7 @@
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
@@ -55,9 +56,9 @@
 
     <ConfigSetting
       Id="NoChangeForRate"
-      Text="[RefreshRateChanger.NoChangeForRate]"
-      HelpText="[RefreshRateChanger.NoChangeForRate.Help]"
-      ClassName="MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration.NoChangeForRate"/>
+      Text="[RefreshRateChanger.RateMappings]"
+      HelpText="[RefreshRateChanger.RateMappings.Help]"
+      ClassName="MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration.RateMappings"/>
 
   </Register>
 </Plugin>
