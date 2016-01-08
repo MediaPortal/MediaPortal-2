@@ -53,12 +53,6 @@ namespace MediaPortal.Plugins.RefreshRateChanger.Settings
     public bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Sets a list of refresh rates for that the screen refresh rate will NOT be changed.
-    /// </summary>
-    [Setting(SettingScope.User, "")]
-    public string NoChangeForRate { get; set; }
-
-    /// <summary>
     /// Contains a custom mapping of refresh rates. This can be used to override the default mappings.
     /// </summary>
     [Setting(SettingScope.User)]
