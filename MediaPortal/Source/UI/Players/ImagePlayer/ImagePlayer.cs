@@ -72,7 +72,8 @@ namespace MediaPortal.UI.Players.Image
     protected SizeF _textureMaxUV = new SizeF(1, 1);
     protected TimeSpan _slideShowImageDuration = TimeSpan.FromSeconds(10);
     protected Timer _slideShowTimer = null;
-    protected bool _slideShowEnabled = true;
+    protected bool _slideShowEnabled = false;
+    protected bool _isInitalResume = true;
     protected DateTime _playbackStartTime = DateTime.MinValue;
 
     // Data and events for the communication with the player manager.
@@ -159,7 +160,14 @@ namespace MediaPortal.UI.Players.Image
       double durationSec = settings.SlideShowImageDuration;
       _slideShowImageDuration = durationSec == 0 ? TS_INFINITE : TimeSpan.FromSeconds(durationSec);
 
-      _animator = settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
+      // Use animation only in slideshow mode
+      var newAnimator = _slideShowEnabled && settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
+      bool reInit = newAnimator != _animator;
+      _animator = newAnimator;
+      // Reset animation if the animator has been changed (i.e. toggling between single image/slideshow)
+      if (reInit)
+        _animator.Initialize();
+
     }
 
     protected void DisposeTimer()
@@ -237,7 +245,8 @@ namespace MediaPortal.UI.Players.Image
           return;
         using (Stream stream = fsra.OpenRead())
         {
-          string key = fsra.CanonicalLocalResourcePath.Serialize();
+          // Avoid caching of stream based textures
+          string key = Guid.NewGuid().ToString(); // fsra.CanonicalLocalResourcePath.Serialize();
           _texture = ContentManager.Instance.GetTexture(stream, key, true);
           if (_texture == null)
             return;
@@ -268,7 +277,7 @@ namespace MediaPortal.UI.Players.Image
         else
           CheckTimer();
         _playbackStartTime = DateTime.Now;
-        if (_pauseTime.HasValue)
+        if (!_slideShowEnabled || _pauseTime.HasValue)
           _pauseTime = _playbackStartTime;
       }
     }
@@ -461,7 +470,7 @@ namespace MediaPortal.UI.Players.Image
       lock (_syncObj)
       {
         _animator = _animator ?? STILL_IMAGE_ANIMATION;
-        DateTime displayTime = _pauseTime.HasValue ? _pauseTime.Value : DateTime.Now;
+        DateTime displayTime = _pauseTime ?? DateTime.Now;
         RectangleF textureClip = _animator.GetZoomRect(ImageSize.ToSize2(), outputSize, displayTime);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
@@ -538,6 +547,8 @@ namespace MediaPortal.UI.Players.Image
       lock (_syncObj)
       {
         _pauseTime = DateTime.Now;
+        SlideShowEnabled = false;
+        ReloadSettings();
         DisposeTimer();
       }
     }
@@ -546,9 +557,15 @@ namespace MediaPortal.UI.Players.Image
     {
       lock (_syncObj)
       {
+        if (_isInitalResume)
+        {
+          _isInitalResume = false;
+          return;
+        }
         _pauseTime = null;
+        SlideShowEnabled = true;
+        ReloadSettings();
         CurrentTime = TimeSpan.Zero;
-        CheckTimer();
       }
     }
 
