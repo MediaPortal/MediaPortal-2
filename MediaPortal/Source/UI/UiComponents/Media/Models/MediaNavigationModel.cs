@@ -252,7 +252,7 @@ namespace MediaPortal.UiComponents.Media.Models
         ServiceRegistration.Get<ILogger>().Error("MediaNavigationModel: Cannot add current view to playlist - There is no enabled navigation data available");
       }
       string mode = Mode;
-      GetMediaItemsDlgt getMediaItemsWithSelection = () => GetMediaItemsFromCurrentView(selectedMediaItem).Select(mi => mi);
+      GetMediaItemsDlgt getMediaItemsWithSelection = () => GetMediaItemsFromCurrentView(selectedMediaItem);
 
       switch (mode)
       {
