@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,8 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
+using System.Linq;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -40,150 +39,148 @@ namespace MediaPortal.Plugins.MediaServer
         UPnPMediaServerDevice.CONNECTION_MANAGER_SERVICE_ID)
     {
       // Used for a boolean value
-      DvStateVariable SourceProtocolInfo = new DvStateVariable("SourceProtocolInfo", new DvStandardDataType(UPnPStandardDataType.String))
-                                             {
-                                               SendEvents = false,
-                                             };
+      DvStateVariable SourceProtocolInfo = new DvStateVariable("SourceProtocolInfo",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(SourceProtocolInfo);
-
       // Used for a boolean value
-      DvStateVariable SinkProtocolInfo = new DvStateVariable("SinkProtocolInfo", new DvStandardDataType(UPnPStandardDataType.String))
-                                           {
-                                             SendEvents = false,
-                                           };
+      DvStateVariable SinkProtocolInfo = new DvStateVariable("SinkProtocolInfo",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(SinkProtocolInfo);
-
       // Used for a boolean value
-      DvStateVariable CurrentConnectionIDs = new DvStateVariable("CurrentConnectionIDs", new DvStandardDataType(UPnPStandardDataType.String))
-                                               {
-                                                 SendEvents = false,
-                                               };
+      DvStateVariable CurrentConnectionIDs = new DvStateVariable("CurrentConnectionIDs",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = true,
+        Value = "0" // we only support one connection => connectionID is always 0
+      };
       AddStateVariable(CurrentConnectionIDs);
-
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_ConnectionStatus = new DvStateVariable("A_ARG_TYPE_ConnectionStatus", new DvStandardDataType(UPnPStandardDataType.String))
-                                                      {
-                                                        SendEvents = false,
-                                                        AllowedValueList =
-                                                          new List<string>
-                                                          {
-                                                              "OK",
-                                                              "ContentFormatMismatch",
-                                                              "InsufficientBandwidth",
-                                                              "UnreliableChannel",
-                                                              "Unknown"
-                                                            }
-                                                      };
+      DvStateVariable A_ARG_TYPE_ConnectionStatus = new DvStateVariable("A_ARG_TYPE_ConnectionStatus",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+        AllowedValueList =
+          new List<string>
+          {
+            "OK",
+            "ContentFormatMismatch",
+            "InsufficientBandwidth",
+            "UnreliableChannel",
+            "Unknown"
+          }
+      };
       AddStateVariable(A_ARG_TYPE_ConnectionStatus);
-
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_ConnectionManager = new DvStateVariable("A_ARG_TYPE_ConnectionManager", new DvStandardDataType(UPnPStandardDataType.String))
-                                                       {
-                                                         SendEvents = false,
-                                                       };
+      DvStateVariable A_ARG_TYPE_ConnectionManager = new DvStateVariable("A_ARG_TYPE_ConnectionManager",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_ConnectionManager);
-
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_Direction = new DvStateVariable("A_ARG_TYPE_Direction", new DvStandardDataType(UPnPStandardDataType.String))
-                                               {
-                                                 SendEvents = false,
-                                                 AllowedValueList = new List<string> { "Output", "Input" }
-                                               };
+      DvStateVariable A_ARG_TYPE_Direction = new DvStateVariable("A_ARG_TYPE_Direction",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+        AllowedValueList = new List<string> { "Output", "Input" }
+      };
       AddStateVariable(A_ARG_TYPE_Direction);
-
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_ProtocolInfo = new DvStateVariable("A_ARG_TYPE_ProtocolInfo", new DvStandardDataType(UPnPStandardDataType.String))
-                                                  {
-                                                    SendEvents = false,
-                                                  };
+      DvStateVariable A_ARG_TYPE_ProtocolInfo = new DvStateVariable("A_ARG_TYPE_ProtocolInfo",
+        new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_ProtocolInfo);
-
       // Used for a boolean value
       DvStateVariable A_ARG_TYPE_ConnectionID = new DvStateVariable("A_ARG_TYPE_ConnectionID",
-                                                                    new DvStandardDataType(
-                                                                      UPnPStandardDataType.I4))
-                                                  {
-                                                    SendEvents = false,
-                                                  };
+        new DvStandardDataType(
+          UPnPStandardDataType.I4))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_ConnectionID);
-
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_AVTransportID = new DvStateVariable("A_ARG_TYPE_AVTransportID", new DvStandardDataType(UPnPStandardDataType.I4))
-                                                   {
-                                                     SendEvents = false,
-                                                   };
+      DvStateVariable A_ARG_TYPE_AVTransportID = new DvStateVariable("A_ARG_TYPE_AVTransportID",
+        new DvStandardDataType(UPnPStandardDataType.I4))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_AVTransportID);
-
       // Used for a boolean value
-      DvStateVariable A_ARG_TYPE_RcsID = new DvStateVariable("A_ARG_TYPE_RcsID", new DvStandardDataType(UPnPStandardDataType.I4))
-                                           {
-                                             SendEvents = false,
-                                           };
+      DvStateVariable A_ARG_TYPE_RcsID = new DvStateVariable("A_ARG_TYPE_RcsID",
+        new DvStandardDataType(UPnPStandardDataType.I4))
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_RcsID);
-
-
       DvAction getProtocolInfoAction = new DvAction("GetProtocolInfo", OnGetProtocolInfo,
-                                                    new DvArgument[]
-                                                      {
-                                                      },
-                                                    new DvArgument[]
-                                                      {
-                                                        new DvArgument("Source",
-                                                                       SourceProtocolInfo,
-                                                                       ArgumentDirection.Out),
-                                                        new DvArgument("Sink",
-                                                                       SinkProtocolInfo,
-                                                                       ArgumentDirection.Out),
-                                                      });
+        new DvArgument[]
+        {
+        },
+        new DvArgument[]
+        {
+          new DvArgument("Source",
+            SourceProtocolInfo,
+            ArgumentDirection.Out),
+          new DvArgument("Sink",
+            SinkProtocolInfo,
+            ArgumentDirection.Out),
+        });
       AddAction(getProtocolInfoAction);
-
       DvAction getCurrentConnectionIDsAction = new DvAction("GetCurrentConnectionIDs", OnGetCurrentConnectionIDs,
-                                                            new DvArgument[]
-                                                              {
-                                                              },
-                                                            new DvArgument[]
-                                                              {
-                                                                new DvArgument("ConnectionIDs",
-                                                                               CurrentConnectionIDs,
-                                                                               ArgumentDirection.Out),
-                                                              });
+        new DvArgument[]
+        {
+        },
+        new DvArgument[]
+        {
+          new DvArgument("ConnectionIDs",
+            CurrentConnectionIDs,
+            ArgumentDirection.Out),
+        });
       AddAction(getCurrentConnectionIDsAction);
-
       DvAction getCurrentConnectionInfoAction = new DvAction("GetCurrentConnectionInfo", OnGetCurrentConnectionInfo,
-                                                             new DvArgument[]
-                                                               {
-                                                                 new DvArgument("ConnectionID",
-                                                                                A_ARG_TYPE_ConnectionID,
-                                                                                ArgumentDirection.In),
-                                                               },
-                                                             new DvArgument[]
-                                                               {
-                                                                 new DvArgument("RcsID",
-                                                                                A_ARG_TYPE_RcsID,
-                                                                                ArgumentDirection.Out),
-                                                                 new DvArgument("AVTransportID",
-                                                                                A_ARG_TYPE_AVTransportID,
-                                                                                ArgumentDirection.Out),
-                                                                 new DvArgument("ProtocolInfo",
-                                                                                A_ARG_TYPE_ProtocolInfo,
-                                                                                ArgumentDirection.Out),
-                                                                 new DvArgument("PeerConnectionManager",
-                                                                                A_ARG_TYPE_ConnectionManager,
-                                                                                ArgumentDirection.Out),
-                                                                 new DvArgument("PeerConnectionID",
-                                                                                A_ARG_TYPE_ConnectionID,
-                                                                                ArgumentDirection.Out),
-                                                                 new DvArgument("Direction",
-                                                                                A_ARG_TYPE_Direction,
-                                                                                ArgumentDirection.Out),
-                                                                 new DvArgument("Status",
-                                                                                A_ARG_TYPE_ConnectionStatus,
-                                                                                ArgumentDirection.Out),
-                                                               });
+        new DvArgument[]
+        {
+          new DvArgument("ConnectionID",
+            A_ARG_TYPE_ConnectionID,
+            ArgumentDirection.In),
+        },
+        new DvArgument[]
+        {
+          new DvArgument("RcsID",
+            A_ARG_TYPE_RcsID,
+            ArgumentDirection.Out),
+          new DvArgument("AVTransportID",
+            A_ARG_TYPE_AVTransportID,
+            ArgumentDirection.Out),
+          new DvArgument("ProtocolInfo",
+            A_ARG_TYPE_ProtocolInfo,
+            ArgumentDirection.Out),
+          new DvArgument("PeerConnectionManager",
+            A_ARG_TYPE_ConnectionManager,
+            ArgumentDirection.Out),
+          new DvArgument("PeerConnectionID",
+            A_ARG_TYPE_ConnectionID,
+            ArgumentDirection.Out),
+          new DvArgument("Direction",
+            A_ARG_TYPE_Direction,
+            ArgumentDirection.Out),
+          new DvArgument("Status",
+            A_ARG_TYPE_ConnectionStatus,
+            ArgumentDirection.Out),
+        });
       AddAction(getCurrentConnectionInfoAction);
     }
 
-    private static UPnPError OnGetProtocolInfo(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetProtocolInfo(DvAction action, IList<object> inParams, out IList<object> outParams,
+      CallContext context)
     {
       string source = "";
       string sink = "";
@@ -196,21 +193,18 @@ namespace MediaPortal.Plugins.MediaServer
       return null;
     }
 
-    private static UPnPError OnGetCurrentConnectionIDs(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetCurrentConnectionIDs(DvAction action, IList<object> inParams,
+      out IList<object> outParams, CallContext context)
     {
-      outParams = null;
+      outParams = action.OutArguments.Select(outArgument => outArgument.RelatedStateVar.Value).ToList();
       return null;
     }
 
-    private static UPnPError OnGetCurrentConnectionInfo(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    private static UPnPError OnGetCurrentConnectionInfo(DvAction action, IList<object> inParams,
+      out IList<object> outParams, CallContext context)
     {
-      outParams = null;
+      outParams = new List<object> { "0", "0", ":::", "/", "-1", "Input", "Unknown" };
       return null;
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }
