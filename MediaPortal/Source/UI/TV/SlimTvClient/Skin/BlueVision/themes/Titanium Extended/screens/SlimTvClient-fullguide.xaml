@@ -56,7 +56,7 @@
 
         <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" Margin="2,30,4,-30" />
 
-          <Control Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,30">
             <Control.TemplateControl>
               <Include Source="screens\ProgramInfoSlim.inc"/>
             </Control.TemplateControl>
