@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
@@ -172,6 +173,11 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </remarks>
     public static void AddCurrentViewToPlaylist()
     {
+      AddCurrentViewToPlaylist(null);
+    }
+
+    public static void AddCurrentViewToPlaylist(MediaItem selectedMediaItem)
+    {
       MediaNavigationModel model = GetCurrentInstance();
       NavigationData navigationData = model.NavigationData;
       if (navigationData == null || !navigationData.IsEnabled)
@@ -184,7 +190,7 @@ namespace MediaPortal.UiComponents.Media.Models
         ServiceRegistration.Get<IDialogManager>().ShowDialog(Consts.RES_NO_ITEMS_TO_ADD_HEADER, Consts.RES_NO_ITEMS_TO_ADD_TEXT, DialogType.OkDialog, false, DialogButtonType.Ok);
         return;
       }
-      model.AddCurrentViewToPlaylistInternal();
+      model.AddCurrentViewToPlaylistInternal(selectedMediaItem);
     }
 
     /// <summary>
@@ -219,6 +225,16 @@ namespace MediaPortal.UiComponents.Media.Models
       navigationContext.SetContextVariable(Consts.KEY_NAVIGATION_DATA, navigationData);
     }
 
+    protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView(MediaItem selectedMediaItem)
+    {
+      foreach (var mediaItem in GetMediaItemsFromCurrentView())
+      {
+        if (selectedMediaItem != null && mediaItem.MediaItemId == selectedMediaItem.MediaItemId)
+          mediaItem.Aspects[SelectionMarkerAspect.ASPECT_ID] = null;
+        yield return mediaItem;
+      }
+    }
+
     protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView()
     {
       NavigationData navigationData = NavigationData;
@@ -228,7 +244,7 @@ namespace MediaPortal.UiComponents.Media.Models
         yield return mediaItem;
     }
 
-    protected void AddCurrentViewToPlaylistInternal()
+    protected void AddCurrentViewToPlaylistInternal(MediaItem selectedMediaItem)
     {
       NavigationData navigationData = NavigationData;
       if (navigationData == null || !navigationData.IsEnabled)
@@ -236,20 +252,22 @@ namespace MediaPortal.UiComponents.Media.Models
         ServiceRegistration.Get<ILogger>().Error("MediaNavigationModel: Cannot add current view to playlist - There is no enabled navigation data available");
       }
       string mode = Mode;
+      GetMediaItemsDlgt getMediaItemsWithSelection = () => GetMediaItemsFromCurrentView(selectedMediaItem).Select(mi => mi);
+
       switch (mode)
       {
         case MediaNavigationMode.Audio:
-          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Audio);
+          PlayItemsModel.CheckQueryPlayAction(getMediaItemsWithSelection, AVType.Audio);
           break;
         case MediaNavigationMode.Movies:
         case MediaNavigationMode.Series:
         case MediaNavigationMode.Videos:
         case MediaNavigationMode.Images:
-          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
+          PlayItemsModel.CheckQueryPlayAction(getMediaItemsWithSelection, AVType.Video);
           break;
         case MediaNavigationMode.BrowseLocalMedia:
         case MediaNavigationMode.BrowseMediaLibrary:
-          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView);
+          PlayItemsModel.CheckQueryPlayAction(getMediaItemsWithSelection);
           break;
       }
     }
