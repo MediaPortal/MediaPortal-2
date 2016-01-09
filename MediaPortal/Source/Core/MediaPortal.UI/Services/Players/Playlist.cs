@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
@@ -116,7 +117,8 @@ namespace MediaPortal.UI.Services.Players
               break;
             }
         }
-      PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
+      if (!InBatchUpdateMode)
+        PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
     }
 
     #region IPlaylist implementation
@@ -282,10 +284,32 @@ namespace MediaPortal.UI.Services.Players
     public void AddAll(IEnumerable<MediaItem> mediaItems)
     {
       StartBatchUpdate();
+      int selectionIndex = -1;
       lock (_syncObj)
+      {
         foreach (MediaItem mediaItem in mediaItems)
+        {
           Add(mediaItem);
+          if (CheckAndRemoveSelection(mediaItem))
+            selectionIndex = _itemList.IndexOf(mediaItem) - 1;
+        }
+      }
+      ItemListIndex = selectionIndex;
       EndBatchUpdate();
+    }
+
+    /// <summary>
+    /// Checks if the given <paramref name="mediaItem"/> contains the <see cref="SelectionMarkerAspect"/>.
+    /// If so it removes it and returns <c>true</c>, otherwise <c>false</c>.
+    /// </summary>
+    /// <param name="mediaItem">MediaItem</param>
+    /// <returns><c>true</c> if SelectionMarkerAspect was present</returns>
+    private bool CheckAndRemoveSelection(MediaItem mediaItem)
+    {
+      if (!mediaItem.Aspects.ContainsKey(SelectionMarkerAspect.ASPECT_ID))
+        return false;
+      mediaItem.Aspects.Remove(SelectionMarkerAspect.ASPECT_ID);
+      return true;
     }
 
     public void Remove(MediaItem mediaItem)
