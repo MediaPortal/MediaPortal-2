@@ -66,11 +66,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
           return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-          return new AudioItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+          return new AudioItem(mi) { Command = new MethodDelegateCommand(() => MediaNavigationModel.AddCurrentViewToPlaylist(mi)) };
         if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
           return new VideoItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
-          return new ImageItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+          return new ImageItem(mi) { Command = new MethodDelegateCommand(() => MediaNavigationModel.AddCurrentViewToPlaylist(mi)) };
         return null;
       };
     }
