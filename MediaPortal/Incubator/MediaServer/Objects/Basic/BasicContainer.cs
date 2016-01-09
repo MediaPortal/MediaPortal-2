@@ -58,6 +58,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 
     public override void Initialise()
     {
+      foreach (var child in Children)
+      {
+        var basicItem = child as BasicItem;
+        _children.Add(basicItem.Title, basicItem);
+      }
       _initialised = true;
     }
 
