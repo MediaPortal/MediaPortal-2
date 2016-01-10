@@ -52,10 +52,10 @@
   <MappedKeyCode Code="22" Key_Name="S:Play" />
   <MappedKeyCode Code="21" Key_Name="S:Rew" />
   <MappedKeyCode Code="20" Key_Name="S:Fwd" />
-  <MappedKeyCode Code="27" Key_Name="S:Previous" />
-  <MappedKeyCode Code="26" Key_Name="S:Next" />
 
   <!-- Unmappable, handled by OS
+  <MappedKeyCode Code="27" Key_Name="S:Previous" />
+  <MappedKeyCode Code="26" Key_Name="S:Next" />
   <MappedKeyCode Code="0" Key_Name="P:0" />
   <MappedKeyCode Code="1" Key_Name="P:1" />
   <MappedKeyCode Code="2" Key_Name="P:2" />
