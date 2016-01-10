@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.MetadataExtractors.Aspects;
 
 namespace MediaItemAspectModelBuilder
 {
@@ -33,20 +34,36 @@ namespace MediaItemAspectModelBuilder
   {
     static void Main(string[] args)
     {
-      const string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";
       const bool createAsControl = true;
       const bool exposeNullables = true;
 
-      List<Type> typeList = new List<Type> { typeof(MediaAspect), typeof(VideoAspect), typeof(AudioAspect), typeof(ImageAspect), typeof(MovieAspect), typeof(SeriesAspect) };
 
+      List<Type> typeList = new List<Type> { typeof(MediaAspect), typeof(VideoAspect), typeof(AudioAspect), typeof(ImageAspect), typeof(MovieAspect), typeof(SeriesAspect) };
+      string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";
+      string codeBasePath = @"..\..\..\..\..\Source\UI\UiComponents\Media\Models\AspectWrappers\";
+
+      BuildWrappers(typeList, classNamespace, createAsControl, exposeNullables, codeBasePath);
+
+      typeList = new List<Type> { typeof(RecordingAspect) };
+      classNamespace = "MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers"; 
+      codeBasePath = @"..\..\..\..\..\Source\UI\TV\SlimTvClient\Models\AspectWrappers\";
+
+      BuildWrappers(typeList, classNamespace, createAsControl, exposeNullables, codeBasePath);
+    }
+
+    private static void BuildWrappers(List<Type> typeList, string classNamespace, bool createAsControl, bool exposeNullables, string codeBasePath)
+    {
       foreach (Type aspectType in typeList)
       {
         AspectModelBuilder amb = new AspectModelBuilder();
         string source = amb.BuildCodeTemplate(aspectType, classNamespace, createAsControl, exposeNullables);
         string targetFileName = string.Format("{0}Wrapper.cs", aspectType.Name);
-        string targetPath = @"..\..\..\..\..\Source\UI\UiComponents\Media\Models\AspectWrappers\" + targetFileName;
+        if (!Directory.Exists(codeBasePath))
+          Directory.CreateDirectory(codeBasePath);
+
+        string targetPath = codeBasePath + targetFileName;
         using (FileStream file = new FileStream(targetPath, FileMode.Create, FileAccess.Write))
-        using(StreamWriter sw = new StreamWriter(file))
+        using (StreamWriter sw = new StreamWriter(file))
           sw.Write(source);
       }
     }
