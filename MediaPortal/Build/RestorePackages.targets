@@ -18,9 +18,15 @@
   <Target Name="DownloadNuGet">
     <DownloadFile DownloadAddress="https://nuget.org/nuget.exe" OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
   </Target>
+  
+  <Target Name="RestoreDnx">
+    <Exec Command="dnvm upgrade -r clr"/>
+    <Exec Command="dnvm exec default dnu restore -s https://www.myget.org/F/aspnetvnext/ -f https://www.nuget.org/api/v2/ -f http://www.myget.org/F/mediaportal/"
+		WorkingDirectory="../"/>
+  </Target>
 
   <Target Name="RestoreAllPackages"
-          DependsOnTargets="DownloadNuGet">
+          DependsOnTargets="DownloadNuGet;RestoreDnx">
 
     <Message Text="Found the following 'packages.config'-files: @(PackagesConfigs->'%(FullPath)')"/>
 
