@@ -209,34 +209,43 @@
   <!-- RecordingItem -->
 
   <ControlTemplate x:Key="GridViewRecordingItemTemplate">
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
 
-    <Border Name="mask" Background="White" CornerRadius="15" BorderThickness="0" BorderBrush="Black"/>
-    <Grid Width="193" Height="128" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
-      </Grid.OpacityMask>
-      <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoNormal.png" Source="{Binding MediaItem}" />
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
+               HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.7"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="UnwatchedTab_small.png"/>
+              <Binding Source=""/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="RecordingCoverTemplate">
-    <Border Name="mask" Background="White" CornerRadius="13.5" BorderThickness="0" BorderBrush="Black"/>
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Grid.OpacityMask>
-        <VisualBrush Visual="{Binding ElementName=mask}"/>
-      </Grid.OpacityMask>
-      <Image Margin="0,0,0,0"/>
-      <Image Width="193" Height="128" Stretch="UniformToFill" FallbackSource="VideoNormal.png"
-            OpacityMask="{ThemeResource MediaItemsOpacityBrushNormal}" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
+    <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Height="128" Stretch="Uniform" FallbackSource="VideoNormal.png"
+               HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
       </Image>
     </Grid>
   </ControlTemplate>
@@ -246,7 +255,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="80"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -258,7 +267,7 @@
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.4"/>
+            <Binding Source="0.7"/>
           </MultiBinding>
         </Label.Opacity>
       </Label>
@@ -272,16 +281,17 @@
             <Binding Source="0"/>
           </MultiBinding>
         </Label.Opacity>
-      </Label>  
-      
-      <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
+      </Label>
+
+      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="0"/>
-            <Binding Source="0.15"/>
+            <Binding Source="0.5"/>
           </MultiBinding>
         </Image.Opacity>
+
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="PlayCount"/>
@@ -300,7 +310,7 @@
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
                 <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 <Binding Source="0.5"/>
-                <Binding Source="0.8"/>
+                <Binding Source="0.7"/>
                 <Binding Source="1"/>
               </MultiBinding>
             </ScaleTransform.ScaleX>
@@ -308,7 +318,7 @@
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
                 <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 <Binding Source="0.5"/>
-                <Binding Source="0.8"/>
+                <Binding Source="0.7"/>
                 <Binding Source="1"/>
               </MultiBinding>
             </ScaleTransform.ScaleY>
@@ -316,7 +326,7 @@
         </Control.LayoutTransform>
       </Control>
 
-      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,22,0"
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,23,0"
             HorizontalAlignment="Stretch"
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
 
@@ -329,7 +339,7 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="100,0,-100,0"  >
+        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="60,0,-60,0"  >
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="PlayCount"/>
