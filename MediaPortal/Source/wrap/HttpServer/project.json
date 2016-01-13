@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Core/HttpServer/HttpServer.csproj",
+      "bin": {
+        "assembly": "../../Core/HttpServer/obj/x86/{configuration}/HttpServer.dll",
+        "pdb": "../../Core/HttpServer/obj/x86/{configuration}/HttpServer.pdb"
+      },
+      "dependencies": {
+        "MediaPortal.Utilities": "1.0.0-*"
+      }
+    }
+  }
+}
